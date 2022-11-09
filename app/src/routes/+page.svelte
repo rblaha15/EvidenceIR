@@ -35,7 +35,7 @@
 
 		console.log(data);
 
-		const response = await fetch('/', {
+		const response = await fetch('/poslatEmail', {
 			method: 'POST',
 			body: JSON.stringify({ message }),
 			headers: {

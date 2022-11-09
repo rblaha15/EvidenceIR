@@ -2,9 +2,6 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import nodemailer from "nodemailer";
 
-export const prerender = false;
-export const ssr = false;
-
 let transporter = nodemailer.createTransport({
     host: "smtp.centrum.cz",
     port: 465,
