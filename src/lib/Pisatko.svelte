@@ -1,7 +1,7 @@
-<script type="js">
-    export let nazev = ""
-    export let text = ""
+<script type="ts">
+	export let nazev: string;
+	export let text: string;
 </script>
 
-<label for="{nazev}">{nazev}</label>
-<input id="{nazev}"type="text" class="form-control" bind:value={text}>
+<label for={nazev}>{nazev}</label>
+<input id={nazev} type="text" class="form-control" bind:value={text} />

@@ -4,11 +4,11 @@ const manifest = {
 	assets: new Set(["favicon.png"]),
 	mimeTypes: {".png":"image/png"},
 	_: {
-		entry: {"file":"_app/immutable/start-919036b4.js","imports":["_app/immutable/start-919036b4.js","_app/immutable/chunks/index-ad6009f4.js","_app/immutable/chunks/singletons-463c49f8.js"],"stylesheets":[]},
+		entry: {"file":"_app/immutable/start-2ffd36bd.js","imports":["_app/immutable/start-2ffd36bd.js","_app/immutable/chunks/index-80996cf8.js","_app/immutable/chunks/singletons-bbbf9818.js"],"stylesheets":[]},
 		nodes: [
-			() => import('./chunks/0-b4e93a72.js'),
-			() => import('./chunks/1-70c5c740.js'),
-			() => import('./chunks/2-86a16b73.js')
+			() => import('./chunks/0-9568c804.js'),
+			() => import('./chunks/1-58bc16a9.js'),
+			() => import('./chunks/2-d450a47c.js')
 		],
 		routes: [
 			{
