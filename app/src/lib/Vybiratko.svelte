@@ -1,15 +1,10 @@
-<script lang="js">
-	export let nazev = "";
-	export let vybrano = "";
-	export let moznosti = [""];
+<script lang="ts">
+	export let vybrano: string;
+	export let nazev: string;
+	export let moznosti: string[];
 </script>
 
 <label for={nazev}>{nazev}</label>
-<!--select id={nazev} bind:value={vybrano}>
-	{#each moznosti as moznost}
-		<option>{moznost}</option>
-	{/each}
-</select-->
 
 <div class="dropdown" id={nazev}>
 	<button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">

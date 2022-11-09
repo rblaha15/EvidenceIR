@@ -1,28 +1,36 @@
 <script lang="ts">
 	import Pisatko from '../lib/Pisatko.svelte';
 	import Vybiratko from '../lib/Vybiratko.svelte';
+	import { Vec } from '../lib/Vec';
 
 	$: data = {
-		cisloIR: '',
-		typIR: '',
+		cisloIR: new Vec('Sériové číslo regulátoru:'),
+		typIR: new Vec('Typ regulátoru:', [
+			'IR RegulusBOX CTC',
+			'IR RegulusBOX RTC',
+			'IR 14 CTC',
+			'IR 14 RTC',
+			'IR 12 CTC',
+			'Jiný'
+		]),
 		clovek: {
-			jmeno: '',
-			prijmeni: '',
-			adresa: '',
-			datumNarozeni: '',
-			email: '',
-			telefon: ''
+			jmeno: new Vec('Jméno'),
+			prijmeni: new Vec('Příjmení'),
+			adresa: new Vec('Adresa'),
+			datumNarozeni: new Vec('Datum narození'),
+			email: new Vec('Email'),
+			telefon: new Vec('Telefon')
 		},
-        montazniFirma: {
-            ico: "",
-            jmenoZastupce: "",
-            email: "",
-        },
-        uvedeniDoProvozu: {
-            ico: "",
-            jmenoZastupce: "",
-            email: "",
-        }
+		montazniFirma: {
+			ico: new Vec('IČO'),
+			jmenoZastupce: new Vec('Jméno zástupce'),
+			email: new Vec('Email')
+		},
+		uvedeniDoProvozu: {
+			ico: new Vec('IČO'),
+			jmenoZastupce: new Vec('Jméno zástupce'),
+			email: new Vec('Email')
+		}
 	};
 
 	const odeslat = async () => {
@@ -43,36 +51,36 @@
 			}
 		});
 
-        console.log(response)
+		console.log(response);
 	};
 </script>
 
 <main class="container">
 	<h1>Evidence regulátorů IR</h1>
 
-	<p><Vybiratko bind:vybrano={data.typIR} moznosti={['Něco', 'Něco jinýho']} nazev="Typ regulátoru:" /></p>
-	<p><Pisatko bind:text={data.cisloIR} nazev="Sériové číslo regulátoru:" /></p>
+	<p><Vybiratko {...data.typIR} /></p>
+	<p><Pisatko {...data.cisloIR} /></p>
 	<h2>Koncový uživatel</h2>
-	<p><Pisatko bind:text={data.clovek.jmeno} nazev="Jméno" /></p>
-	<p><Pisatko bind:text={data.clovek.prijmeni} nazev="Příjmení" /></p>
-	<p><Pisatko bind:text={data.clovek.adresa} nazev="Adresa" /></p>
-	<p><Pisatko bind:text={data.clovek.datumNarozeni} nazev="Datum narození" /></p>
-	<p><Pisatko bind:text={data.clovek.telefon} nazev="Telefon" /></p>
-	<p><Pisatko bind:text={data.clovek.email} nazev="Email" /></p>
+	<p><Pisatko {...data.clovek.jmeno} /></p>
+	<p><Pisatko {...data.clovek.prijmeni} /></p>
+	<p><Pisatko {...data.clovek.adresa} /></p>
+	<p><Pisatko {...data.clovek.datumNarozeni} /></p>
+	<p><Pisatko {...data.clovek.telefon} /></p>
+	<p><Pisatko {...data.clovek.email} /></p>
 	<h2>Montážní firma</h2>
-	<p><Pisatko bind:text={data.montazniFirma.ico} nazev="IČO" /></p>
-	<p><Pisatko bind:text={data.montazniFirma.jmenoZastupce} nazev="Jméno zástupce" /></p>
-	<p><Pisatko bind:text={data.montazniFirma.email} nazev="Email" /></p>
+	<p><Pisatko {...data.montazniFirma.ico} /></p>
+	<p><Pisatko {...data.montazniFirma.jmenoZastupce} /></p>
+	<p><Pisatko {...data.montazniFirma.email} /></p>
 	<h2>Uvedení do provozu</h2>
-	<p><Pisatko bind:text={data.uvedeniDoProvozu.ico} nazev="IČO" /></p>
-	<p><Pisatko bind:text={data.uvedeniDoProvozu.jmenoZastupce} nazev="Jméno zástupce" /></p>
-	<p><Pisatko bind:text={data.uvedeniDoProvozu.email} nazev="Email" /></p>
+	<p><Pisatko {...data.uvedeniDoProvozu.ico} /></p>
+	<p><Pisatko {...data.uvedeniDoProvozu.jmenoZastupce} /></p>
+	<p><Pisatko {...data.uvedeniDoProvozu.email} /></p>
 
 	<button type="button" class="btn btn-primary" on:click={odeslat}> Odeslat </button>
 </main>
 
 <svelte:head>
-    <title>Evidence regulátorů IR</title>
+	<title>Evidence regulátorů IR</title>
 	<link
 		href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
 		rel="stylesheet"
