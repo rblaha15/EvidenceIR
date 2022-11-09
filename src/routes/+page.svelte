@@ -4,8 +4,12 @@
 	import { Vec } from '../lib/Vec';
 
 	$: data = {
-		cisloIR: new Vec('Sériové číslo regulátoru:'),
-		typIR: new Vec('Typ regulátoru:', [
+		cisloIR: Vec.Pisatkova(
+			'Sériové číslo regulátoru:',
+			'Zadejte číslo ve správném formátu!',
+			/^([A-Z][1-9OND]) ([0-9]{4})$/
+		),
+		typIR: Vec.Vybiratkova('Typ regulátoru:', [
 			'IR RegulusBOX CTC',
 			'IR RegulusBOX RTC',
 			'IR 14 CTC',
@@ -14,29 +18,51 @@
 			'Jiný'
 		]),
 		clovek: {
-			jmeno: new Vec('Jméno'),
-			prijmeni: new Vec('Příjmení'),
-			adresa: new Vec('Adresa'),
-			datumNarozeni: new Vec('Datum narození'),
-			email: new Vec('Email'),
-			telefon: new Vec('Telefon')
+			jmeno: Vec.Pisatkova('Jméno'),
+			prijmeni: Vec.Pisatkova('Příjmení'),
+			adresa: Vec.Pisatkova('Adresa'),
+			datumNarozeni: Vec.Pisatkova(
+				'Datum narození',
+				'Zadejte datum ve správném formátu',
+				/^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?([0-9][0-9])?[0-9][0-9]$/
+			),
+			email: Vec.Pisatkova(
+				'Email',
+				'zadejte email ve správném formátu',
+				/^[\w\.]+@([\w-]+\.)+[\w-]{2,4}$/
+			),
+			telefon: Vec.Pisatkova(
+				'Telefon',
+				'Zadejte telefoní číslo ve správném formátu',
+				/^(\+\d{1,3}\s)?\(?\d{3}\)?[\s\.-]?\d{3}[\s\.-]?\d{3,4}$/
+			)
 		},
 		montazniFirma: {
-			ico: new Vec('IČO'),
-			jmenoZastupce: new Vec('Jméno zástupce'),
-			email: new Vec('Email')
+			ico: Vec.Pisatkova('IČO', 'Zadejte IČO ve správném formátu', /^[0-9]{8}$/),
+			jmenoZastupce: Vec.Pisatkova('Jméno zástupce'),
+			email: Vec.Pisatkova(
+				'Email',
+				'zadejte email ve správném formátu',
+				/^[\w\.]+@([\w-]+\.)+[\w-]{2,4}$/
+			)
 		},
 		uvedeniDoProvozu: {
-			ico: new Vec('IČO'),
-			jmenoZastupce: new Vec('Jméno zástupce'),
-			email: new Vec('Email')
+			ico: Vec.Pisatkova('IČO', 'Zadejte IČO ve správném formátu', /^[0-9]{8}$/),
+			jmenoZastupce: Vec.Pisatkova('Jméno zástupce'),
+			email: Vec.Pisatkova(
+				'Email',
+				'zadejte email ve správném formátu',
+				/^[\w\.]+@([\w-]+\.)+[\w-]{2,4}$/
+			)
 		}
 	};
 
 	const odeslat = async () => {
+		// TODO: Kontrolovat chyby
 		const message = {
 			from: 'aplikace.regulus@centrum.cz',
-			to: 'radek.blaha.15@gmail.com',
+			//to: 'radek.blaha.15@gmail.com',
+			to: 'blahova@regulus.cz',
 			subject: 'Další Pokus',
 			text: JSON.stringify(data)
 		};
