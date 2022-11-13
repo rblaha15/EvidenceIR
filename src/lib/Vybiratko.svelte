@@ -1,26 +1,30 @@
 <script lang="ts">
-	export let vybrano: string;
-	export let nazev: string;
-	export let moznosti: string[];
+	import type { Vec } from './Vec';
+
+	export let vec: Vec;
 </script>
 
-<label for={nazev}>{nazev}</label>
+<label for={vec.nazev}>{vec.nazev}</label>
 
-<div class="dropdown" id={nazev}>
-	<button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
-		{vybrano != '' ? vybrano : 'Nevybráno'}
+<div class="dropdown" id={vec.nazev}>
+	<button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+		{vec.vybrano != '' ? vec.vybrano : 'Nevybráno'}
 	</button>
 	<ul class="dropdown-menu">
-		{#each moznosti as moznost}
+		{#each vec.moznosti as moznost}
 			<li>
 				<a
 					class="dropdown-item"
 					href="/"
 					on:click={() => {
-						vybrano = moznost;
+						vec.vybrano = moznost;
 					}}>{moznost}</a
 				>
 			</li>
 		{/each}
 	</ul>
 </div>
+
+{#if vec.zobrazitError}
+	<p class="text-danger">{vec.onError}</p>
+{/if}
