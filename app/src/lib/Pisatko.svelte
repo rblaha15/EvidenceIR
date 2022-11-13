@@ -1,14 +1,12 @@
 <script type="ts">
-	export let nazev: string;
-	export let text: string;
-	export let nutne: boolean;
-	export let onError: string;
-	export let regex: RegExp;
+	import type { Vec } from './Vec';
+
+	export let vec: Vec;
 </script>
 
-<label for={nazev}>{nazev}</label>
-<input id={nazev} type="text" class="form-control" bind:value={text} />
+<label for={vec.nazev}>{vec.nazev}</label>
+<input id={vec.nazev} type="text" class="form-control" bind:value={vec.text} />
 
-{#if (text == '' && nutne) || !regex.test(text)}
-	<p class="text-danger">{onError}</p>
+{#if vec.zobrazitError}
+	<p class="text-danger">{vec.onError}</p>
 {/if}
