@@ -1,4 +1,18 @@
 export class Vec {
+    copy = () => new Vec(
+        this.typ,
+        this.nazev,
+        this.onError,
+        this.regex,
+        this.nutne,
+        this.moznosti,
+        this.bool,
+        this.text,
+        this.vybrano,
+        this.zobrazit,
+        this.zobrazitErrorVeto
+    )
+
     typ: Typ
     nazev: string
     text: string
@@ -9,6 +23,7 @@ export class Vec {
     regex: RegExp
     nutne: boolean
     zobrazitErrorVeto: boolean = false
+    zobrazit: boolean = true
 
     get zpravaJeChybna(): boolean {
         return new Map([
@@ -26,14 +41,16 @@ export class Vec {
 
     constructor(
         typ: Typ,
-        nazev: string = '',
-        onError: string = '',
-        regex: RegExp = /.*/,
-        nutne: boolean = true,
-        moznosti: string[] = [],
-        bool: boolean = false,
-        text: string = '',
-        vybrano: string = '',
+        nazev: string,
+        onError: string,
+        regex: RegExp,
+        nutne: boolean,
+        moznosti: string[],
+        bool: boolean,
+        text: string,
+        vybrano: string,
+        zobrazit: boolean,
+        zobrazitErrorVeto: boolean = false,
     ) {
         this.typ = typ
         this.nazev = nazev
@@ -44,6 +61,8 @@ export class Vec {
         this.vybrano = vybrano
         this.regex = regex
         this.nutne = nutne
+        this.zobrazit = zobrazit
+        this.zobrazitErrorVeto = zobrazitErrorVeto
     }
 
     static Obecna(
@@ -56,6 +75,7 @@ export class Vec {
         bool: boolean = false,
         text: string = '',
         vybrano: string = '',
+        zobrazit: boolean = true,
     ): Vec {
         return new Vec(
             typ,
@@ -67,10 +87,12 @@ export class Vec {
             bool,
             text,
             vybrano,
+            zobrazit,
         )
     }
     static Nadpisova(
         nazev: string = '',
+        zobrazit: boolean = true,
     ): Vec {
         return new Vec(
             Typ.Nadpis,
@@ -82,6 +104,7 @@ export class Vec {
             false,
             "",
             "",
+            zobrazit,
         )
     }
     static Vybiratkova(
@@ -89,6 +112,7 @@ export class Vec {
         moznosti: string[] = [],
         onError: string = 'Toto pole je povinné',
         nutne: boolean = true,
+        zobrazit: boolean = true,
         vybrano: string = '',
     ): Vec {
         return new Vec(
@@ -101,6 +125,7 @@ export class Vec {
             false,
             '',
             vybrano,
+            zobrazit,
         )
     }
     static Pisatkova(
@@ -108,6 +133,7 @@ export class Vec {
         onError: string = 'Toto pole je povinné',
         regex: RegExp = /.*/,
         nutne: boolean = true,
+        zobrazit: boolean = true,
         text: string = '',
     ): Vec {
         return new Vec(
@@ -120,12 +146,14 @@ export class Vec {
             false,
             text,
             '',
+            zobrazit,
         )
     }
     static Zaskrtavatkova(
         nazev: string = '',
         onError: string = 'Toto pole je povinné',
         nutne: boolean = true,
+        zobrazit: boolean = true,
         bool: boolean = false,
     ): Vec {
         return new Vec(
@@ -138,6 +166,7 @@ export class Vec {
             bool,
             '',
             '',
+            zobrazit,
         )
     }
 }

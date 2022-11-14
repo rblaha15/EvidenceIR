@@ -1,8 +1,9 @@
 <script lang="ts">
-	import Pisatko from '../lib/Pisatko.svelte';
-	import Vybiratko from '../lib/Vybiratko.svelte';
-	import { Vec, Typ } from '../lib/Vec';
+	import Pisatko from '$lib/Pisatko.svelte';
+	import Vybiratko from '$lib/Vybiratko.svelte';
+	import { Vec, Typ } from '$lib/Vec';
 	import { dev } from '$app/environment';
+	import Zaskrtavatko from '$lib/Zaskrtavatko.svelte';
 
 	const defaultData = [
 		Vec.Vybiratkova('Typ regulátoru', [
@@ -18,6 +19,8 @@
 			'Zadejte číslo ve správném formátu!',
 			/^([A-Z][1-9OND]) ([0-9]{4})$/
 		),
+		Vec.Pisatkova('Typ TČ', undefined, undefined, false),
+		Vec.Pisatkova('Výrobní číslo TČ', undefined, undefined, false),
 
 		Vec.Nadpisova('Koncový uživatel'),
 		Vec.Pisatkova('Jméno'),
@@ -41,16 +44,19 @@
 		Vec.Pisatkova('Email', 'Zadejte email ve správném formátu', /^[\w\.]+@([\w-]+\.)+[\w-]{2,4}$/),
 
 		Vec.Nadpisova('Uvedení do provozu'),
+		Vec.Zaskrtavatkova('Do provozu uváděla montážní firma', undefined, false),
 		Vec.Pisatkova('IČO', 'Zadejte IČO ve správném formátu', /^[0-9]{8}$/),
 		Vec.Pisatkova('Jméno zástupce'),
 		Vec.Pisatkova('Email', 'Zadejte email ve správném formátu', /^[\w\.]+@([\w-]+\.)+[\w-]{2,4}$/)
 	];
 
-	let data = JSON.parse(JSON.stringify(defaultData)) as Array<Vec>;
+	let data = defaultData.map((vec) => vec.copy());
+	let vysledek = {
+		text: '',
+		success: true
+	};
 
 	const odeslat = async () => {
-		console.log(!data.every((it) => !it.zpravaJeChybna));
-
 		if (!data.every((it) => !it.zpravaJeChybna)) {
 			for (let i = 0; i < data.length; i++) {
 				data[i].zobrazitErrorVeto = true;
@@ -96,7 +102,7 @@
 			html
 		};
 
-		console.log(data);
+		console.log(message);
 
 		const response = await fetch('/poslatEmail', {
 			method: 'POST',
@@ -109,10 +115,31 @@
 		console.log(response);
 
 		if (response.ok) {
-			console.log(data, defaultData);
-			data = JSON.parse(JSON.stringify(defaultData));
+			data = defaultData.map((vec) => vec.copy());
+			vysledek = {
+				text: 'Email úspěšně odeslán',
+				success: true
+			};
+		} else {
+			vysledek = {
+				text: `Email se nepodařilo odeslat: ${response.status} ${response.statusText}`,
+				success: false
+			};
 		}
 	};
+
+	$: {
+		let i = data.findIndex((vec) => vec.nazev == 'Do provozu uváděla montážní firma');
+		if (data[i].bool) {
+			data[i + 1] = { ...data[i - 4], zobrazit: false } as Vec;
+			data[i + 2] = { ...data[i - 3], zobrazit: false } as Vec;
+			data[i + 3] = { ...data[i - 2], zobrazit: false } as Vec;
+		} else {
+			data[i + 1].zobrazit = true;
+			data[i + 2].zobrazit = true;
+			data[i + 3].zobrazit = true;
+		}
+	}
 </script>
 
 <main class="my-3 container">
@@ -122,15 +149,18 @@
 		{#if vec.typ == Typ.Nadpis}
 			<h2>{vec.nazev}</h2>
 		{:else if vec.typ == Typ.Pisatkovy}
-			<p><Pisatko {vec} /></p>
+			<p><Pisatko bind:vec /></p>
 		{:else if vec.typ == Typ.Vybiratkovy}
-			<p><Vybiratko {vec} /></p>
+			<p><Vybiratko bind:vec /></p>
 		{:else if vec.typ == Typ.Zaskrtavatkovy}
-			<!-- TODO -->
+			<p><Zaskrtavatko bind:vec /></p>
 		{/if}
 	{/each}
 
-	<button id="odeslat" type="button" class="btn btn-primary" on:click={odeslat}> Odeslat </button>
+	<div class="d-inline-flex">
+		<button id="odeslat" type="button" class="btn btn-primary" on:click={odeslat}> Odeslat </button>
+		<p class:text-danger={!vysledek.success} class="ms-3 my-auto">{vysledek.text}</p>
+	</div>
 </main>
 
 <style>
