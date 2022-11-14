@@ -5,7 +5,7 @@ import nodemailer from "nodemailer";
 let transporter = nodemailer.createTransport({
     host: "smtp.centrum.cz",
     port: 465,
-    secure: true, // upgrade later with STARTTLS
+    secure: true,
     auth: {
         user: "aplikace.regulus@centrum.cz",
         pass: "1sulugeRecakilpA",
@@ -15,24 +15,9 @@ let transporter = nodemailer.createTransport({
 export const POST: RequestHandler = async ({ request }) => {
     const { message } = await request.json();
 
-    //console.log();
-    //console.log(Email);,
-    //Email.send({
-    //    Host: "smtp.google.com",
-    //    Port: 465,
-    //    Username: "aplikace.regulus@gmail.com",
-    //    Password: "sulugeRecakilpA",
-    //    To: "blahova@regulus.cz",
-    //    From: "aplikace.regulus@gmail.com",
-    //    Subject: "Novej pokus",
-    //    Body: napis,
-    //}).then((message: any) => alert(message));
+    const { response } = await transporter.sendMail(message)
 
-    //console.log(message)
-    transporter.sendMail(message, (err: any, info: any) => {
-        //console.log(err)
-        //console.log(info)
+    return new Response(null, {
+        status: Number(response.slice(0, 3))
     })
-
-    return new Response()
 }
