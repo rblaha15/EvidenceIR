@@ -30,6 +30,7 @@ export class Vec {
             [Typ.Nadpis, false],
             [Typ.Pisatkovy, (this.text == '' && this.nutne) || !this.regex.test(this.text)],
             [Typ.Vybiratkovy, this.vybrano == '' && this.nutne],
+            [Typ.Radiovy, this.vybrano == '' && this.nutne],
             [Typ.Zaskrtavatkovy, !this.bool && this.nutne],
         ]).get(this.typ) as boolean
     }
@@ -128,11 +129,33 @@ export class Vec {
             zobrazit,
         )
     }
+    static Radiova(
+        nazev: string = '',
+        moznosti: string[] = [],
+        onError: string = 'Toto pole je povinné',
+        nutne: boolean = true,
+        zobrazit: boolean = true,
+        vybrano: string = '',
+    ): Vec {
+        return new Vec(
+            Typ.Radiovy,
+            nazev,
+            onError,
+            /.*/,
+            nutne,
+            moznosti,
+            false,
+            '',
+            vybrano,
+            zobrazit,
+        )
+    }
     static Pisatkova(
         nazev: string = '',
         onError: string = 'Toto pole je povinné',
         regex: RegExp = /.*/,
         nutne: boolean = true,
+        napoveda: string = "",
         zobrazit: boolean = true,
         text: string = '',
     ): Vec {
@@ -145,7 +168,7 @@ export class Vec {
             [],
             false,
             text,
-            '',
+            napoveda,
             zobrazit,
         )
     }
@@ -174,5 +197,6 @@ export enum Typ {
     Nadpis,
     Pisatkovy,
     Vybiratkovy,
+    Radiovy,
     Zaskrtavatkovy,
 }

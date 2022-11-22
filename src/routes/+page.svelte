@@ -4,6 +4,7 @@
 	import { Vec, Typ } from '$lib/Vec';
 	import { dev } from '$app/environment';
 	import Zaskrtavatko from '$lib/Zaskrtavatko.svelte';
+	import Radio from '$lib/Radio.svelte';
 
 	const defaultData = [
 		Vec.Vybiratkova('Typ regulátoru', [
@@ -11,15 +12,17 @@
 			'IR RegulusBOX RTC',
 			'IR 14 CTC',
 			'IR 14 RTC',
-			'IR 12 CTC',
-			'Jiný'
+			'IR 12 CTC'
 		]),
 		Vec.Pisatkova(
 			'Sériové číslo regulátoru',
 			'Zadejte číslo ve správném formátu!',
-			/^([A-Z][1-9OND]) ([0-9]{4})$/
+			/^([A-Z][1-9OND]) ([0-9]{4})$/,
+			true,
+			'•• ••••'
 		),
-		Vec.Pisatkova('Typ TČ', undefined, undefined, false),
+		Vec.Radiova('Druh TČ', ['vzduch/voda', 'země/voda'], undefined, false),
+		Vec.Vybiratkova('Typ TČ', [], undefined, false),
 		Vec.Pisatkova('Výrobní číslo TČ', undefined, undefined, false),
 
 		Vec.Nadpisova('Koncový uživatel'),
@@ -140,6 +143,60 @@
 			data[i + 3].zobrazit = true;
 		}
 	}
+	$: {
+		let i = data.findIndex((vec) => vec.nazev == 'Typ regulátoru');
+		let jeCTC = ['IR RegulusBOX CTC', 'IR 14 CTC', 'IR 12 CTC'].includes(data[i].vybrano);
+		data[i + 2].zobrazit = jeCTC;
+		data[i + 3].zobrazit = data[i].vybrano != '' && (!jeCTC || data[i + 2].vybrano != '');
+	}
+	$: {
+		let i = data.findIndex((vec) => vec.nazev == 'Typ regulátoru');
+		let jeCTC = ['IR RegulusBOX CTC', 'IR 14 CTC', 'IR 12 CTC'].includes(data[i].vybrano);
+		let moznosti = (function () {
+			if (!jeCTC) return ['RTC6i', 'RTC12i', 'RTC 13e', 'RTC20e'];
+			if (data[i + 2].vybrano == 'vzduch/voda')
+				return [
+					'EcoAir 614M',
+					'EcoAir 622M',
+					'EcoAir 406',
+					'EcoAir 408',
+					'EcoAir 410',
+					'EcoAir 415',
+					'EcoAir 420'
+				];
+			return [
+				'EcoPart 612M',
+				'EcoPart 616M',
+				'EcoPart 406',
+				'EcoPart 408',
+				'EcoPart 410',
+				'EcoPart 412',
+				'EcoPart 414',
+				'EcoPart 417',
+				'EcoPart 435'
+			];
+		})();
+		data[i + 3].moznosti = moznosti;
+		if (!moznosti.includes(data[i + 3].vybrano)) {
+			data[i + 3].vybrano = '';
+		}
+	}
+	let posledniText = '';
+	$: {
+		let i = data.findIndex((vec) => vec.nazev == 'Sériové číslo regulátoru');
+		let text = data[i].text;
+
+		let praveOdstranilMezeruNaKonci =
+			text.length < posledniText.length && posledniText[posledniText.length - 1] == ' ';
+
+		text = text.replaceAll(' ', '');
+
+		if (!praveOdstranilMezeruNaKonci && text.length > 1)
+			text = text.substring(0, 2) + ' ' + text.substring(2);
+
+		posledniText = text;
+		data[i].text = text;
+	}
 </script>
 
 <main class="my-3 container">
@@ -152,6 +209,8 @@
 			<p><Pisatko bind:vec /></p>
 		{:else if vec.typ == Typ.Vybiratkovy}
 			<p><Vybiratko bind:vec /></p>
+		{:else if vec.typ == Typ.Radiovy}
+			<p><Radio bind:vec /></p>
 		{:else if vec.typ == Typ.Zaskrtavatkovy}
 			<p><Zaskrtavatko bind:vec /></p>
 		{/if}

@@ -6,9 +6,15 @@
 
 {#if vec.zobrazit}
 	<label for={vec.nazev}>{vec.nazev}</label>
-	<input id={vec.nazev} type="text" class="form-control" bind:value={vec.text} />
+	<input
+		id={vec.nazev}
+		type="text"
+		class="form-control"
+		bind:value={vec.text}
+		placeholder={vec.vybrano}
+	/>
 
 	{#if vec.zobrazitError}
-		<p class="text-danger">{vec.onError}</p>
+		<span class="text-danger help-block">{vec.onError}</span>
 	{/if}
 {/if}
