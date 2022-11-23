@@ -28,7 +28,7 @@ export class Vec {
     get zpravaJeChybna(): boolean {
         return new Map([
             [Typ.Nadpis, false],
-            [Typ.Pisatkovy, (this.text == '' && this.nutne) || !this.regex.test(this.text)],
+            [Typ.Pisatkovy, (this.text == '' && this.nutne) || (this.text != '' && !this.regex.test(this.text))],
             [Typ.Vybiratkovy, this.vybrano == '' && this.nutne],
             [Typ.Radiovy, this.vybrano == '' && this.nutne],
             [Typ.Zaskrtavatkovy, !this.bool && this.nutne],
