@@ -6,6 +6,14 @@
 	import Zaskrtavatko from '$lib/Zaskrtavatko.svelte';
 	import Radio from '$lib/Radio.svelte';
 
+	const probudit = async () => {
+		const response = await fetch('https://evidenceitserver.onrender.com/', {
+			method: 'GET'
+		});
+		console.log(response);
+	};
+	probudit();
+
 	const defaultData = [
 		Vec.Vybiratkova('Typ regulátoru', [
 			'IR RegulusBOX CTC',
@@ -23,7 +31,7 @@
 		),
 		Vec.Radiova('Druh TČ', ['vzduch/voda', 'země/voda'], undefined, false),
 		Vec.Vybiratkova('Typ TČ', [], undefined, false),
-		Vec.Pisatkova('Výrobní číslo TČ', undefined, undefined, false),
+		Vec.Pisatkova('Výrobní číslo TČ', 'Zadejte číslo ve správném formátu', undefined, false),
 
 		Vec.Nadpisova('Koncový uživatel'),
 		Vec.Pisatkova('Jméno'),
@@ -107,7 +115,7 @@
 
 		console.log(message);
 
-		const response = await fetch('/poslatEmail', {
+		const response = await fetch('https://evidenceitserver.onrender.com/poslatEmail', {
 			method: 'POST',
 			body: JSON.stringify({ message }),
 			headers: {
@@ -148,12 +156,14 @@
 		let jeCTC = ['IR RegulusBOX CTC', 'IR 14 CTC', 'IR 12 CTC'].includes(data[i].vybrano);
 		data[i + 2].zobrazit = jeCTC;
 		data[i + 3].zobrazit = data[i].vybrano != '' && (!jeCTC || data[i + 2].vybrano != '');
+		data[i + 4].zobrazit = data[i].vybrano != '';
+		data[i + 4].regex = jeCTC ? /^\d{4}-\d{4}-\d{4}$/ : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/;
 	}
 	$: {
 		let i = data.findIndex((vec) => vec.nazev == 'Typ regulátoru');
 		let jeCTC = ['IR RegulusBOX CTC', 'IR 14 CTC', 'IR 12 CTC'].includes(data[i].vybrano);
 		let moznosti = (function () {
-			if (!jeCTC) return ['RTC6i', 'RTC12i', 'RTC 13e', 'RTC20e'];
+			if (!jeCTC) return ['RTC 6i', 'RTC 12i', 'RTC 13e', 'RTC 20e'];
 			if (data[i + 2].vybrano == 'vzduch/voda')
 				return [
 					'EcoAir 614M',
@@ -181,20 +191,42 @@
 			data[i + 3].vybrano = '';
 		}
 	}
-	let posledniText = '';
+	const vnutit = (
+		posledniText: string,
+		minulyText: string,
+		co: string,
+		...kam: number[]
+	): string => {
+		let text = posledniText;
+
+		let praveOdstranilVecNaKonci =
+			text.length < minulyText.length && minulyText[minulyText.length - 1] == co;
+
+		text = text.replaceAll(co, '');
+
+		kam.forEach((i) => {
+			if (!praveOdstranilVecNaKonci && text.length >= i)
+				text = text.substring(0, i) + co + text.substring(i);
+		});
+
+		return text;
+	};
+	let posledniSerCislo = '';
 	$: {
 		let i = data.findIndex((vec) => vec.nazev == 'Sériové číslo regulátoru');
-		let text = data[i].text;
+		let text = vnutit(data[i].text, posledniSerCislo, ' ', 2);
 
-		let praveOdstranilMezeruNaKonci =
-			text.length < posledniText.length && posledniText[posledniText.length - 1] == ' ';
+		posledniSerCislo = text;
+		data[i].text = text;
+	}
+	let posledniVyrCislo = '';
+	$: {
+		let i = data.findIndex((vec) => vec.nazev == 'Výrobní číslo TČ');
+		let j = data.findIndex((vec) => vec.nazev == 'Typ regulátoru');
+		let jeCTC = ['IR RegulusBOX CTC', 'IR 14 CTC', 'IR 12 CTC'].includes(data[j].vybrano);
+		let text = vnutit(data[i].text, posledniVyrCislo, '-', ...(jeCTC ? [4, 9] : [6, 9]));
 
-		text = text.replaceAll(' ', '');
-
-		if (!praveOdstranilMezeruNaKonci && text.length > 1)
-			text = text.substring(0, 2) + ' ' + text.substring(2);
-
-		posledniText = text;
+		posledniVyrCislo = text;
 		data[i].text = text;
 	}
 </script>
