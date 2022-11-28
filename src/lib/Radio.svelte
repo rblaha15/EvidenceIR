@@ -3,7 +3,6 @@
 
 	export let vec: Vec;
 
-	$: zaskrtnuto = vec.moznosti.map(txt => txt == vec.vybrano)
 </script>
 
 {#if vec.zobrazit}
