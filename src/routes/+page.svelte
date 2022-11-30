@@ -1,10 +1,28 @@
 <script lang="ts">
-	import Pisatko from '$lib/Pisatko.svelte';
-	import Vybiratko from '$lib/Vybiratko.svelte';
-	import { Vec, Typ } from '$lib/Vec';
+	// Components
+	import Pisatko from '$lib/components/Pisatko.svelte';
+	import Vybiratko from '$lib/components/Vybiratko.svelte';
+	import Zaskrtavatko from '$lib/components/Zaskrtavatko.svelte';
+	import Radio from '$lib/components/Radio.svelte';
+	import Mail from '$lib/components/Mail.svelte';
+	import Firma from '$lib/components/Firma.svelte';
+
+	// Other
+	import { Vec, Typ, type Data } from '$lib/Vec';
+	import { seznamFirem } from '$lib/firebase';
+
+	// Svelte
 	import { dev } from '$app/environment';
-	import Zaskrtavatko from '$lib/Zaskrtavatko.svelte';
-	import Radio from '$lib/Radio.svelte';
+	import { onMount } from 'svelte';
+
+	// 3rd-party
+	import { htmlToText } from 'html-to-text';
+
+	let div: HTMLDivElement;
+
+	onMount(() => {
+		div = document.createElement('div');
+	});
 
 	const probudit = async () => {
 		const response = await fetch('https://evidenceitserver.onrender.com/', {
@@ -14,16 +32,33 @@
 	};
 	probudit();
 
-	const data = {
+	let filtr = '';
+
+	$: vyfiltrovanyFirmy = $seznamFirem
+		.map(({ snapshot }) => snapshot.val() as unknown as string[])
+		.map(([jmeno, ico, email, zastupce]) => [jmeno.normalize(), ico, email, zastupce])
+		.filter(([jmeno]) =>
+			filtr
+				.toLowerCase()
+				.split(' ')
+				.every((slovoFiltru) =>
+					jmeno
+						.toLowerCase()
+						.split(' ')
+						.some((slovoJmena) => slovoJmena.startsWith(slovoFiltru))
+				)
+		);
+
+	const data: Data = {
 		ir: {
-			typ: Vec.Vybiratkova('Typ regulátoru', [
+			typ: new Vec.Vybiratkova('Typ regulátoru', [
 				'IR RegulusBOX CTC',
 				'IR RegulusBOX RTC',
 				'IR 14 CTC',
 				'IR 14 RTC',
 				'IR 12 CTC'
 			]),
-			cislo: Vec.Pisatkova(
+			cislo: new Vec.Pisatkova(
 				'Sériové číslo regulátoru',
 				'Zadejte číslo ve správném formátu!',
 				/([A-Z][1-9OND]) ([0-9]{4})/,
@@ -32,9 +67,14 @@
 			)
 		},
 		tc: {
-			druh: Vec.Radiova('Druh tepelného čerpadla', ['vzduch/voda', 'země/voda'], undefined, false),
-			typ: Vec.Vybiratkova('Typ tepelného čerpadla', [], undefined, false),
-			cislo: Vec.Pisatkova(
+			druh: new Vec.Radiova(
+				'Druh tepelného čerpadla',
+				['vzduch/voda', 'země/voda'],
+				undefined,
+				false
+			),
+			typ: new Vec.Vybiratkova('Typ tepelného čerpadla', [], undefined, false),
+			cislo: new Vec.Pisatkova(
 				'Výrobní číslo tepelného čerpadla',
 				'Zadejte číslo ve správném formátu',
 				undefined,
@@ -42,44 +82,53 @@
 			)
 		},
 		koncovyUzivatel: {
-			nadpis: Vec.Nadpisova('Koncový uživatel'),
-			jmeno: Vec.Pisatkova('Jméno'),
-			prijmeni: Vec.Pisatkova('Příjmení'),
-			obec: Vec.Pisatkova('Obec'),
-			ulice: Vec.Pisatkova('Číslo popisné nebo ulice a číslo orientační'),
-			psc: Vec.Pisatkova('Poštovní směrovací číslo'),
-			narozeni: Vec.Pisatkova(
+			nadpis: new Vec.Nadpisova('Koncový uživatel'),
+			jmeno: new Vec.Pisatkova('Jméno'),
+			prijmeni: new Vec.Pisatkova('Příjmení'),
+			narozeni: new Vec.Pisatkova(
 				'Datum narození',
 				'Zadejte datum ve správném formátu',
 				/^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?[0-9]{4}$/
 			),
-			telefon: Vec.Pisatkova(
+			telefon: new Vec.Pisatkova(
 				'Telefon',
 				'Zadejte telefoní číslo ve správném formátu',
 				/^(\+\d{1,3}\s)?\(?\d{3}\)?[\s\.-]?\d{3}[\s\.-]?\d{3,4}$/
 			),
-			email: Vec.Pisatkova(
+			email: new Vec.Pisatkova(
 				'Email',
 				'Zadejte email ve správném formátu',
 				/^[\w\.]+@([\w-]+\.)+[\w-]{2,4}$/
 			)
 		},
+		mistoRealizace: {
+			nadpis: new Vec.Nadpisova('Místo realizace'),
+			obec: new Vec.Pisatkova('Obec'),
+			ulice: new Vec.Pisatkova('Číslo popisné nebo ulice a číslo orientační'),
+			psc: new Vec.Pisatkova(
+				'Poštovní směrovací číslo',
+				'ZAdejte PSČ ve správném formátu',
+				/^\d{3} \d{2}$/,
+				true,
+				'123 45'
+			)
+		},
 		montazka: {
-			nadpis: Vec.Nadpisova('Montážní firma'),
-			ico: Vec.Pisatkova('IČO', 'Zadejte IČO ve správném formátu', /^[0-9]{8}$/),
-			zastupce: Vec.Pisatkova('Jméno zástupce'),
-			email: Vec.Pisatkova(
+			nadpis: new Vec.Nadpisova('Montážní firma'),
+			ico: new Vec.Pisatkova('IČO', 'Zadejte IČO ve správném formátu', /^\d{8}$/, true, '12345678'),
+			zastupce: new Vec.Pisatkova('Jméno zástupce'),
+			email: new Vec.Pisatkova(
 				'Email',
 				'Zadejte email ve správném formátu',
 				/^[\w\.]+@([\w-]+\.)+[\w-]{2,4}$/
 			)
 		},
 		uvedeni: {
-			nadpis: Vec.Nadpisova('Uvedení do provozu'),
-			jakoMontazka: Vec.Zaskrtavatkova('Do provozu uváděla montážní firma', undefined, false),
-			ico: Vec.Pisatkova('IČO', 'Zadejte IČO ve správném formátu', /^[0-9]{8}$/),
-			zastupce: Vec.Pisatkova('Jméno zástupce'),
-			email: Vec.Pisatkova(
+			nadpis: new Vec.Nadpisova('Uvedení do provozu'),
+			jakoMontazka: new Vec.Zaskrtavatkova('Do provozu uváděla montážní firma', undefined, false),
+			ico: new Vec.Pisatkova('IČO', 'Zadejte IČO ve správném formátu', /^\d{8}$/, true, '12345678'),
+			zastupce: new Vec.Pisatkova('Jméno zástupce'),
+			email: new Vec.Pisatkova(
 				'Email',
 				'Zadejte email ve správném formátu',
 				/^[\w\.]+@([\w-]+\.)+[\w-]{2,4}$/
@@ -99,7 +148,7 @@
 			for (let i = 0; i < seznam.length; i++) {
 				seznam[i].zobrazitErrorVeto = true;
 			}
-			return;
+			//return;
 		}
 
 		const message1 = {
@@ -139,20 +188,36 @@
 		console.log(message1);
 
 		if (dev) {
+			new Mail({
+				target: div,
+				props: { data }
+			});
+
+			const html = div.innerHTML;
+			const text = htmlToText(html);
+
 			const message2 = {
 				from: '"Webová aplikace evidence IR" aplikace.regulus@centrum.cz',
 				to: 'radek.blaha.15@gmail.com',
 				subject: `Nově zaevidovaný regulátor ${data.ir.typ.vybrano} (${data.ir.cislo.text})`,
-				text: `
-                    A 
-                `
+				html,
+				text
 			};
 			console.log(message2);
+			const response = await fetch('https://evidenceitserver.onrender.com/poslatEmail', {
+				method: 'POST',
+				body: JSON.stringify({ message: message2 }),
+				headers: {
+					'content-type': 'application/json'
+				}
+			});
+
+			console.log(response);
 		}
 
 		const response = await fetch('https://evidenceitserver.onrender.com/poslatEmail', {
 			method: 'POST',
-			body: JSON.stringify({ message1 }),
+			body: JSON.stringify({ message: message1 }),
 			headers: {
 				'content-type': 'application/json'
 			}
@@ -226,47 +291,33 @@
 			data.tc.typ.vybrano = '';
 		}
 	}
-	// const vnutit = (
-	// 	posledniText: string,
-	// 	minulyText: string,
-	// 	co: string,
-	// 	...kam: number[]
-	// ): string => {
-	// 	let text = posledniText;
-
-	// 	let praveOdstranilVecNaKonci =
-	// 		text.length < minulyText.length && minulyText[minulyText.length - 1] == co;
-
-	// 	text = text.replaceAll(co, '');
-
-	// 	kam.forEach((i) => {
-	// 		if (!praveOdstranilVecNaKonci && text.length >= i)
-	// 			text = text.substring(0, i) + co + text.substring(i);
-	// 	});
-
-	// 	return text;
-	// };
-	// let posledniSerCislo = '';
-	// $: {
-	// 	let text = vnutit(data.ir.cislo.text, posledniSerCislo, ' ', 2);
-
-	// 	posledniSerCislo = text;
-	// 	data.ir.cislo.text = text;
-	// }
-	// let posledniVyrCislo = '';
-	// $: {
-	// 	let jeCTC = ['IR RegulusBOX CTC', 'IR 14 CTC', 'IR 12 CTC'].includes(data.ir.typ.vybrano);
-	// 	let text = vnutit(data.tc.cislo.text, posledniVyrCislo, '-', ...(jeCTC ? [4, 9] : [6, 9]));
-
-	// 	posledniVyrCislo = text;
-	// 	data.tc.cislo.text = text;
-	// }
+	// $: console.log(data);
 </script>
 
 <main class="my-3 container">
 	<h1>Evidence regulátorů IR</h1>
 
 	{#each seznam as vec}
+		{#if vec === data.montazka.ico}
+			<Firma
+				id="montazka"
+				bind:emailVec={data.montazka.email}
+				bind:zastupceVec={data.montazka.zastupce}
+				bind:icoVec={data.montazka.ico}
+				bind:filtr
+				bind:vyfiltrovanyFirmy
+			/>
+		{/if}
+		{#if vec === data.uvedeni.ico && data.uvedeni.ico}
+			<Firma
+				id="uvedeni"
+				bind:emailVec={data.uvedeni.email}
+				bind:zastupceVec={data.uvedeni.zastupce}
+				bind:icoVec={data.uvedeni.ico}
+				bind:filtr
+				bind:vyfiltrovanyFirmy
+			/>
+		{/if}
 		{#if vec.typ == Typ.Nadpis}
 			<h2>{vec.nazev}</h2>
 		{:else if vec.typ == Typ.Pisatkovy}

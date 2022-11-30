@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { Vec } from './Vec';
+	import type { Vec } from '$lib/Vec';
 
 	export let vec: Vec;
 </script>
 
 {#if vec.zobrazit}
-	<div class="form-check" >
+	<div class="form-check">
 		<input class="form-check-input" type="checkbox" id={vec.nazev} bind:checked={vec.bool} />
 		<label class="form-check-label" for={vec.nazev}>{vec.nazev}</label>
 	</div>

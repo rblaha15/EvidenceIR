@@ -72,96 +72,59 @@ export class Vec {
 		this.zobrazitErrorVeto = zobrazitErrorVeto;
 	}
 
-	static Obecna(
-		typ: Typ,
-		nazev = '',
-		onError = '',
-		regex = /.*/,
-		nutne = true,
-		moznosti: string[] = [],
-		bool = false,
-		text = '',
-		vybrano = '',
-		zobrazit = true
-	): Vec {
-		return new Vec(typ, nazev, onError, regex, nutne, moznosti, bool, text, vybrano, zobrazit);
-	}
-	static Nadpisova(nazev = '', zobrazit = true): Vec {
-		return new Vec(Typ.Nadpis, nazev, '', /.*/, false, [], false, '', '', zobrazit);
-	}
-	static Vybiratkova(
-		nazev = '',
-		moznosti: string[] = [],
-		onError = 'Toto pole je povinné',
-		nutne = true,
-		zobrazit = true,
-		vybrano = ''
-	): Vec {
-		return new Vec(
-			Typ.Vybiratkovy,
-			nazev,
-			onError,
-			/.*/,
-			nutne,
-			moznosti,
-			false,
-			'',
-			vybrano,
-			zobrazit
-		);
-	}
-	static Radiova(
-		nazev = '',
-		moznosti: string[] = [],
-		onError = 'Toto pole je povinné',
-		nutne = true,
-		zobrazit = true,
-		vybrano = ''
-	): Vec {
-		return new Vec(
-			Typ.Radiovy,
-			nazev,
-			onError,
-			/.*/,
-			nutne,
-			moznosti,
-			false,
-			'',
-			vybrano,
-			zobrazit
-		);
-	}
-	static Pisatkova(
-		nazev = '',
-		onError = 'Toto pole je povinné',
-		regex = /.*/,
-		nutne = true,
-		napoveda = '',
-		zobrazit = true,
-		text = ''
-	): Vec {
-		return new Vec(
-			Typ.Pisatkovy,
-			nazev,
-			onError,
-			regex,
-			nutne,
-			[],
-			false,
-			text,
-			napoveda,
-			zobrazit
-		);
-	}
-	static Zaskrtavatkova(
-		nazev = '',
-		onError = 'Toto pole je povinné',
-		nutne = true,
-		zobrazit = true,
-		bool = false
-	): Vec {
-		return new Vec(Typ.Zaskrtavatkovy, nazev, onError, /.*/, nutne, [], bool, '', '', zobrazit);
-	}
+	static Nadpisova = class Nadpisova extends Vec {
+		constructor(nazev = '', zobrazit = true) {
+			super(Typ.Nadpis, nazev, '', /.*/, false, [], false, '', '', zobrazit);
+		}
+	};
+	static Vybiratkova = class Vybiratkova extends Vec {
+		constructor(
+			nazev = '',
+			moznosti: string[] = [],
+			onError = 'Toto pole je povinné',
+			nutne = true,
+			zobrazit = true,
+			vybrano = ''
+		) {
+			super(Typ.Vybiratkovy, nazev, onError, /.*/, nutne, moznosti, false, '', vybrano, zobrazit);
+		}
+	};
+	static Radiova = class Radiova extends Vec {
+		constructor(
+			nazev = '',
+			moznosti: string[] = [],
+			onError = 'Toto pole je povinné',
+			nutne = true,
+			zobrazit = true,
+			vybrano = ''
+		) {
+			super(Typ.Radiovy, nazev, onError, /.*/, nutne, moznosti, false, '', vybrano, zobrazit);
+		}
+	};
+	static Pisatkova = class Pisatkova extends Vec {
+		constructor(
+			nazev = '',
+			onError = 'Toto pole je povinné',
+			regex = /.*/,
+			nutne = true,
+			napoveda = '',
+			zobrazit = true,
+			text = ''
+		) {
+			super(Typ.Pisatkovy, nazev, onError, regex, nutne, [], false, text, napoveda, zobrazit);
+		}
+	};
+	static Zaskrtavatkova = class Zaskrtavatkova extends Vec {
+		constructor(
+			nazev = '',
+			onError = 'Toto pole je povinné',
+			nutne = true,
+			zobrazit = true,
+			bool = false
+		) {
+			super(Typ.Zaskrtavatkovy, nazev, onError, /.*/, nutne, [], bool, '', '', zobrazit);
+		}
+	};
 }
 export enum Typ {
 	Nadpis,
@@ -169,4 +132,43 @@ export enum Typ {
 	Vybiratkovy,
 	Radiovy,
 	Zaskrtavatkovy
+}
+
+export interface Data {
+	ir: {
+		typ: Vec;
+		cislo: Vec;
+	};
+	tc: {
+		druh: Vec;
+		typ: Vec;
+		cislo: Vec;
+	};
+	koncovyUzivatel: {
+		nadpis: Vec;
+		jmeno: Vec;
+		prijmeni: Vec;
+		narozeni: Vec;
+		telefon: Vec;
+		email: Vec;
+	};
+	mistoRealizace: {
+		nadpis: Vec;
+		obec: Vec;
+		ulice: Vec;
+		psc: Vec;
+	};
+	montazka: {
+		nadpis: Vec;
+		ico: Vec;
+		zastupce: Vec;
+		email: Vec;
+	};
+	uvedeni: {
+		nadpis: Vec;
+		jakoMontazka: Vec;
+		ico: Vec;
+		zastupce: Vec;
+		email: Vec;
+	};
 }
