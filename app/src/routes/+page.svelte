@@ -298,7 +298,7 @@
 	<h1>Evidence regulátorů IR</h1>
 
 	{#each seznam as vec}
-		{#if vec === data.montazka.ico}
+		{#if vec === data.montazka.ico && vec.zobrazit}
 			<Firma
 				id="montazka"
 				bind:emailVec={data.montazka.email}
@@ -308,7 +308,7 @@
 				bind:vyfiltrovanyFirmy
 			/>
 		{/if}
-		{#if vec === data.uvedeni.ico && data.uvedeni.ico}
+		{#if vec === data.uvedeni.ico && vec.zobrazit}
 			<Firma
 				id="uvedeni"
 				bind:emailVec={data.uvedeni.email}
