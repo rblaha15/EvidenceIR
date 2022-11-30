@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Vec } from './Vec';
+	import type { Vec } from '$lib/Vec';
 
 	export let vec: Vec;
 </script>

@@ -11,6 +11,7 @@
 		crossorigin="anonymous"
 	></script>
 </svelte:head>
+
 <slot />
 
 <title>Evidence regulátorů IR</title>

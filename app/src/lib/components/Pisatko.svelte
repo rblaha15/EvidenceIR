@@ -1,6 +1,6 @@
 <script type="ts">
-	import type { Vec } from './Vec';
-	import MaskInput from '../../node_modules/svelte-input-mask';
+	import type { Vec } from '$lib/Vec';
+	import MaskInput from 'svelte-input-mask';
 
 	export let vec: Vec;
 </script>
@@ -12,9 +12,10 @@
 			id={vec.nazev}
 			type="text"
 			class="form-control"
-			value={vec.text}
+			bind:value={vec.text}
 			mask={vec.vybrano}
 			placeholder={vec.vybrano}
+			on:change={({ detail }) => (vec.text = detail.inputState.maskedValue)}
 			maskFormat={[
 				{
 					str: 'A',
@@ -51,11 +52,27 @@
 				{
 					str: '4',
 					regexp: /\d/
+				},
+				{
+					str: '5',
+					regexp: /\d/
+				},
+				{
+					str: '6',
+					regexp: /\d/
+				},
+				{
+					str: '7',
+					regexp: /\d/
+				},
+				{
+					str: '8',
+					regexp: /\d/
 				}
 			]}
 		/>
 	{:else}
-		<input id={vec.nazev} type="text" class="form-control" value={vec.text} />
+		<input id={vec.nazev} type="text" class="form-control" bind:value={vec.text} />
 	{/if}
 
 	{#if vec.zobrazitError}
