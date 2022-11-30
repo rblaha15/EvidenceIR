@@ -35,7 +35,6 @@
 	let filtr = '';
 
 	$: vyfiltrovanyFirmy = $seznamFirem
-		.map(({ snapshot }) => snapshot.val() as unknown as string[])
 		.map(([jmeno, ico, email, zastupce]) => [jmeno.normalize(), ico, email, zastupce])
 		.filter(([jmeno]) =>
 			filtr

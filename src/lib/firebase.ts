@@ -2,9 +2,8 @@ import { initializeApp } from '@firebase/app';
 import type { FirebaseOptions } from '@firebase/app';
 import { getAuth } from '@firebase/auth';
 import { getFirestore } from '@firebase/firestore';
-import { getDatabase, ref } from '@firebase/database';
-import { list } from 'rxfire/database';
-import { map, startWith } from 'rxjs';
+import { getDatabase, ref, onValue } from '@firebase/database';
+import { writable } from 'svelte/store';
 
 const firebaseConfig: FirebaseOptions = {
 	apiKey: 'AIzaSyCKu8Z4wx55DfrZdYtKvrqvwZ2Y6nQvx24',
@@ -24,5 +23,9 @@ export const realtime = getDatabase(app);
 export const auth = getAuth(app);
 
 const firmyRef = ref(realtime, '/firmy');
-export const seznamFirem = list(firmyRef).pipe(startWith([]));
-//.pipe(map((value) => value.map(({ snapshot }) => snapshot.val as unknown as string[])));
+
+export const seznamFirem = writable([] as string[][]);
+
+onValue(firmyRef, (snapshot) => {
+	seznamFirem.set(snapshot.val());
+});
