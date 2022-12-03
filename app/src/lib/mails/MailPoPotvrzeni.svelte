@@ -16,6 +16,9 @@
 			return `${data.ir.typ.vybrano} ${data.ir.cislo.text}`;
 		return `${data.ir.typ.vybrano.replaceAll(' ', '')} ${data.ir.cislo.text}`;
 	};
+
+	export let montazka: string | null;
+	export let uvadec: string | null;
 </script>
 
 <h1>Regulátor</h1>
@@ -31,6 +34,11 @@
 <p><b>Město:</b> {data.mistoRealizace.obec.text}</p>
 <p><b>Ulice:</b> {data.mistoRealizace.ulice.text}</p>
 <p><b>PSČ:</b> {data.mistoRealizace.psc.text}</p>
+<br />
+<br />
+<p>K regulátoru chce mít přístup {data.vzdalenyPristup.pristupMa.vybrano.join(', ')}</p>
+<p>Vzdálený přístup bude fakturovat {data.vzdalenyPristup.fakturuje.vybrano}</p>
+
 <h1>Uživatel</h1>
 <p><b>Jméno:</b> {data.koncovyUzivatel.jmeno.text}</p>
 <p><b>Příjmení:</b> {data.koncovyUzivatel.prijmeni.text}</p>
@@ -38,3 +46,15 @@
 <p><b>Heslo:</b> RegulusRoute1</p>
 <p><b>Telefon:</b> {data.koncovyUzivatel.telefon.text}</p>
 <p><b>Email:</b> {data.koncovyUzivatel.email.text}</p>
+
+<h1>Montážní firma</h1>
+{#if montazka != null}
+	<p><b>Název:</b> {montazka}</p>
+{/if}
+<p><b>IČO:</b> {data.montazka.ico.text}</p>
+
+<h1>Uvedení do provozu</h1>
+{#if uvadec != null}
+	<p><b>Název:</b> {uvadec}</p>
+{/if}
+<p><b>IČO:</b> {data.uvedeni.ico.text}</p>

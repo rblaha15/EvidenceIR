@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { Radiova } from '$lib/Vec';
+	import type { MultiZaskrtavatkova } from '$lib/Vec';
 
-	export let vec: Radiova;
+	export let vec: MultiZaskrtavatkova;
 </script>
 
 {#if vec.zobrazit}
@@ -10,7 +10,7 @@
 		<div class="form-check">
 			<label class="form-check-label">
 				{moznost}
-				<input type="radio" class="form-check-input" bind:group={vec.vybrano} value={moznost} />
+				<input type="checkbox" class="form-check-input" bind:group={vec.vybrano} value={moznost} />
 			</label>
 		</div>
 	{/each}

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { Vec } from '$lib/Vec';
+	import type { Pisatkova } from '$lib/Vec';
 
 	export let id: string;
-	export let emailVec: Vec;
-	export let zastupceVec: Vec;
-	export let icoVec: Vec;
+	export let emailVec: Pisatkova;
+	export let zastupceVec: Pisatkova;
+	export let icoVec: Pisatkova;
 	export let filtr: string;
 	export let vyfiltrovanyFirmy: string[][];
 </script>

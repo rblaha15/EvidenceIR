@@ -1,43 +1,10 @@
-export class Vec {
-	copy = () =>
-		new Vec(
-			this.typ,
-			this.nazev,
-			this.onError,
-			this.regex,
-			this.nutne,
-			this.moznosti,
-			this.bool,
-			this.text,
-			this.vybrano,
-			this.zobrazit,
-			this.zobrazitErrorVeto
-		);
-
-	typ: Typ;
-	nazev: string;
-	text: string;
-	onError: string;
-	moznosti: string[];
-	bool: boolean;
-	vybrano: string;
-	regex: RegExp;
-	nutne: boolean;
+export abstract class Vec {
+	abstract nazev: string;
+	abstract onError: string;
 	zobrazitErrorVeto = false;
-	zobrazit = true;
+	abstract zobrazit: boolean;
 
-	get zpravaJeChybna(): boolean {
-		return new Map([
-			[Typ.Nadpis, false],
-			[
-				Typ.Pisatkovy,
-				(this.text == '' && this.nutne) || (this.text != '' && !this.regex.test(this.text))
-			],
-			[Typ.Vybiratkovy, this.vybrano == '' && this.nutne],
-			[Typ.Radiovy, this.vybrano == '' && this.nutne],
-			[Typ.Zaskrtavatkovy, !this.bool && this.nutne]
-		]).get(this.typ) as boolean;
-	}
+	abstract get zpravaJeChybna(): boolean;
 
 	get zobrazitError(): boolean {
 		return this.zobrazitErrorVeto && this.zpravaJeChybna;
@@ -45,130 +12,208 @@ export class Vec {
 	set zobrazitError(_) {
 		_;
 	}
+}
 
-	constructor(
-		typ: Typ,
-		nazev: string,
-		onError: string,
-		regex: RegExp,
-		nutne: boolean,
-		moznosti: string[],
-		bool: boolean,
-		text: string,
-		vybrano: string,
-		zobrazit: boolean,
-		zobrazitErrorVeto = false
-	) {
-		this.typ = typ;
+export class Nadpisova extends Vec {
+	nazev: string;
+	onError = '';
+	zobrazit: boolean;
+	get zpravaJeChybna(): boolean {
+		return false;
+	}
+	constructor(nazev = '', zobrazit = true) {
+		super();
 		this.nazev = nazev;
-		this.text = text;
+		this.zobrazit = zobrazit;
+	}
+}
+export class Vybiratkova extends Vec {
+	nazev: string;
+	onError: string;
+	zobrazit: boolean;
+	moznosti: string[];
+	vybrano: string;
+	nutne: boolean;
+
+	get zpravaJeChybna(): boolean {
+		return this.vybrano == '' && this.nutne;
+	}
+	constructor(
+		nazev = '',
+		moznosti: string[] = [],
+		onError = 'Toto pole je povinné',
+		nutne = true,
+		zobrazit = true,
+		vybrano = ''
+	) {
+		super();
+
+		this.nazev = nazev;
 		this.onError = onError;
+		this.zobrazit = zobrazit;
 		this.moznosti = moznosti;
-		this.bool = bool;
 		this.vybrano = vybrano;
+		this.nutne = nutne;
+	}
+}
+export class Radiova extends Vec {
+	nazev: string;
+	onError: string;
+	zobrazit: boolean;
+	moznosti: string[];
+	vybrano: string;
+	nutne: boolean;
+
+	get zpravaJeChybna(): boolean {
+		return this.vybrano == '' && this.nutne;
+	}
+	constructor(
+		nazev = '',
+		moznosti: string[] = [],
+		onError = 'Toto pole je povinné',
+		nutne = true,
+		zobrazit = true,
+		vybrano = ''
+	) {
+		super();
+
+		this.nazev = nazev;
+		this.onError = onError;
+		this.zobrazit = zobrazit;
+		this.moznosti = moznosti;
+		this.vybrano = vybrano;
+		this.nutne = nutne;
+	}
+}
+export class MultiZaskrtavatkova extends Vec {
+	nazev: string;
+	onError: string;
+	zobrazit: boolean;
+	moznosti: string[];
+	vybrano: string[];
+	nutne: boolean;
+
+	get zpravaJeChybna(): boolean {
+		return this.vybrano.length == 0 && this.nutne;
+	}
+	constructor(
+		nazev = '',
+		moznosti: string[] = [],
+		onError = 'Toto pole je povinné',
+		nutne = true,
+		zobrazit = true,
+		vybrano: string[] = []
+	) {
+		super();
+
+		this.nazev = nazev;
+		this.onError = onError;
+		this.zobrazit = zobrazit;
+		this.moznosti = moznosti;
+		this.vybrano = vybrano;
+		this.nutne = nutne;
+	}
+}
+export class Pisatkova extends Vec {
+	nazev: string;
+	onError: string;
+	zobrazit: boolean;
+	text: string;
+	napoveda: string;
+	regex: RegExp;
+	nutne: boolean;
+
+	get zpravaJeChybna(): boolean {
+		return (this.text == '' && this.nutne) || (this.text != '' && !this.regex.test(this.text));
+	}
+	constructor(
+		nazev = '',
+		onError = 'Toto pole je povinné',
+		regex = /.*/,
+		nutne = true,
+		napoveda = '',
+		zobrazit = true,
+		text = ''
+	) {
+		super();
+
+		this.nazev = nazev;
+		this.onError = onError;
+		this.zobrazit = zobrazit;
+		this.text = text;
+		this.napoveda = napoveda;
 		this.regex = regex;
 		this.nutne = nutne;
-		this.zobrazit = zobrazit;
-		this.zobrazitErrorVeto = zobrazitErrorVeto;
 	}
-
-	static Nadpisova = class Nadpisova extends Vec {
-		constructor(nazev = '', zobrazit = true) {
-			super(Typ.Nadpis, nazev, '', /.*/, false, [], false, '', '', zobrazit);
-		}
-	};
-	static Vybiratkova = class Vybiratkova extends Vec {
-		constructor(
-			nazev = '',
-			moznosti: string[] = [],
-			onError = 'Toto pole je povinné',
-			nutne = true,
-			zobrazit = true,
-			vybrano = ''
-		) {
-			super(Typ.Vybiratkovy, nazev, onError, /.*/, nutne, moznosti, false, '', vybrano, zobrazit);
-		}
-	};
-	static Radiova = class Radiova extends Vec {
-		constructor(
-			nazev = '',
-			moznosti: string[] = [],
-			onError = 'Toto pole je povinné',
-			nutne = true,
-			zobrazit = true,
-			vybrano = ''
-		) {
-			super(Typ.Radiovy, nazev, onError, /.*/, nutne, moznosti, false, '', vybrano, zobrazit);
-		}
-	};
-	static Pisatkova = class Pisatkova extends Vec {
-		constructor(
-			nazev = '',
-			onError = 'Toto pole je povinné',
-			regex = /.*/,
-			nutne = true,
-			napoveda = '',
-			zobrazit = true,
-			text = ''
-		) {
-			super(Typ.Pisatkovy, nazev, onError, regex, nutne, [], false, text, napoveda, zobrazit);
-		}
-	};
-	static Zaskrtavatkova = class Zaskrtavatkova extends Vec {
-		constructor(
-			nazev = '',
-			onError = 'Toto pole je povinné',
-			nutne = true,
-			zobrazit = true,
-			bool = false
-		) {
-			super(Typ.Zaskrtavatkovy, nazev, onError, /.*/, nutne, [], bool, '', '', zobrazit);
-		}
-	};
 }
-export enum Typ {
-	Nadpis,
-	Pisatkovy,
-	Vybiratkovy,
-	Radiovy,
-	Zaskrtavatkovy
+export class Zaskrtavatkova extends Vec {
+	nazev: string;
+	onError: string;
+	zobrazit: boolean;
+	zaskrtnuto: boolean;
+	nutne: boolean;
+
+	get zpravaJeChybna(): boolean {
+		return !this.zaskrtnuto && this.nutne;
+	}
+	constructor(
+		nazev = '',
+		onError = 'Toto pole je povinné',
+		nutne = true,
+		zobrazit = true,
+		zaskrtnuto = false
+	) {
+		super();
+
+		this.nazev = nazev;
+		this.onError = onError;
+		this.zobrazit = zobrazit;
+		this.zaskrtnuto = zaskrtnuto;
+		this.nutne = nutne;
+	}
 }
 
 export interface Data {
 	ir: {
-		typ: Vec;
-		cislo: Vec;
+		typ: Vybiratkova;
+		cislo: Pisatkova;
 	};
 	tc: {
-		druh: Vec;
-		typ: Vec;
-		cislo: Vec;
+		druh: Radiova;
+		typ: Vybiratkova;
+		cislo: Pisatkova;
 	};
 	koncovyUzivatel: {
-		nadpis: Vec;
-		jmeno: Vec;
-		prijmeni: Vec;
-		narozeni: Vec;
-		telefon: Vec;
-		email: Vec;
+		nadpis: Nadpisova;
+		jmeno: Pisatkova;
+		prijmeni: Pisatkova;
+		narozeni: Pisatkova;
+		telefon: Pisatkova;
+		email: Pisatkova;
 	};
 	mistoRealizace: {
-		nadpis: Vec;
-		obec: Vec;
-		ulice: Vec;
-		psc: Vec;
+		nadpis: Nadpisova;
+		obec: Pisatkova;
+		ulice: Pisatkova;
+		psc: Pisatkova;
 	};
 	montazka: {
-		nadpis: Vec;
-		ico: Vec;
-		zastupce: Vec;
-		email: Vec;
+		nadpis: Nadpisova;
+		ico: Pisatkova;
+		zastupce: Pisatkova;
+		email: Pisatkova;
 	};
 	uvedeni: {
-		nadpis: Vec;
-		jakoMontazka: Vec;
-		ico: Vec;
-		zastupce: Vec;
-		email: Vec;
+		nadpis: Nadpisova;
+		jakoMontazka: Zaskrtavatkova;
+		ico: Pisatkova;
+		zastupce: Pisatkova;
+		email: Pisatkova;
+	};
+	vzdalenyPristup: {
+		nadpis: Nadpisova;
+		chce: Zaskrtavatkova;
+		pristupMa: MultiZaskrtavatkova;
+		fakturuje: Radiova;
 	};
 }
