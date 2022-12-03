@@ -1,30 +1,36 @@
-<script lang="ts">
-	import type { Vec } from '$lib/Vec';
+<script context="module" lang="ts">
+	let lastId = -1;
+</script>
 
-	export let vec: Vec;
+<script lang="ts">
+	import type { Vybiratkova } from '$lib/Vec';
+
+	export let vec: Vybiratkova;
+	const id = lastId++;
 </script>
 
 {#if vec.zobrazit}
-	<label for={vec.nazev}>{vec.nazev}</label>
-
-	<div class="dropdown" id={vec.nazev}>
-		<button
-			type="button"
-			class="btn btn-outline-secondary dropdown-toggle"
-			data-bs-toggle="dropdown"
-		>
-			{vec.vybrano != '' ? vec.vybrano : 'Nevybráno'}
-		</button>
-		<ul class="dropdown-menu">
-			{#each vec.moznosti as moznost}
-				<li>
-					<a class="dropdown-item" href="/" on:click={() => (vec.vybrano = moznost)}>
-						{moznost}
-					</a>
-				</li>
-			{/each}
-		</ul>
-	</div>
+	<label>
+		{vec.nazev}
+		<div class="dropdown">
+			<button
+				type="button"
+				class="btn btn-outline-secondary dropdown-toggle"
+				data-bs-toggle="dropdown"
+			>
+				{vec.vybrano != '' ? vec.vybrano : 'Nevybráno'}
+			</button>
+			<ul class="dropdown-menu">
+				{#each vec.moznosti as moznost}
+					<li>
+						<button class="dropdown-item" on:click={() => (vec.vybrano = moznost)}>
+							{moznost}
+						</button>
+					</li>
+				{/each}
+			</ul>
+		</div>
+	</label>
 
 	{#if vec.zobrazitError}
 		<p class="text-danger">{vec.onError}</p>

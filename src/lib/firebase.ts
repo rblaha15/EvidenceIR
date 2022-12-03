@@ -1,9 +1,10 @@
 import { initializeApp } from '@firebase/app';
 import type { FirebaseOptions } from '@firebase/app';
 import { getAuth } from '@firebase/auth';
-import { getFirestore } from '@firebase/firestore';
+import { getFirestore, getDoc, addDoc, doc, deleteDoc, collection } from '@firebase/firestore';
 import { getDatabase, ref, onValue } from '@firebase/database';
 import { writable } from 'svelte/store';
+import type { Data } from './Vec';
 
 const firebaseConfig: FirebaseOptions = {
 	apiKey: 'AIzaSyCKu8Z4wx55DfrZdYtKvrqvwZ2Y6nQvx24',
@@ -29,3 +30,9 @@ export const seznamFirem = writable([] as string[][]);
 onValue(firmyRef, (snapshot) => {
 	seznamFirem.set(snapshot.val());
 });
+
+export const uzivatel = async (uid: string) => await getDoc(doc(db, 'uzivatele', `/${uid}`));
+export const novyUzivatel = async (data: { veci: string }) =>
+	(await addDoc(collection(db, 'uzivatele'), data)).id;
+export const odstranitUzivatele = async (uid: string) =>
+	await deleteDoc(doc(db, 'uzivatele', `/${uid}`));
