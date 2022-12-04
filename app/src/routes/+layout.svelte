@@ -1,3 +1,7 @@
+<script lang="ts">
+	import { dev } from '$app/environment';
+</script>
+
 <svelte:head>
 	<link
 		href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
@@ -10,7 +14,7 @@
 		integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
 		crossorigin="anonymous"
 	></script>
-	<title>Evidence regulátorů IR</title>
 </svelte:head>
+<title>{dev ? '(dev) ' : ''}Evidence regulátorů IR</title>
 
 <slot />

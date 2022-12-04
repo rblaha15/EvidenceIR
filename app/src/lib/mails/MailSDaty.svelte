@@ -14,7 +14,7 @@
 {#if tc.druh.zobrazit}
 	<p><b>Druh:</b> {tc.druh.vybrano}</p>
 {/if}
-<p><b>Typ:</b> {tc.druh.vybrano}</p>
+<p><b>Typ:</b> {tc.typ.vybrano}</p>
 <p><b>Výrobní číslo:</b> {tc.cislo.text}</p>
 
 <h1>Koncový uživatel</h1>
@@ -35,6 +35,6 @@
 <p><b>Email:</b> {montazka.email.text}</p>
 
 <h1>Uvedení do provozu</h1>
-<p><b>IČO:</b> {montazka.ico.text}</p>
-<p><b>Zástupce:</b> {montazka.zastupce.text}</p>
-<p><b>Email:</b> {montazka.email.text}</p>
+<p><b>IČO:</b> {uvedeni.ico.text}</p>
+<p><b>Zástupce:</b> {uvedeni.zastupce.text}</p>
+<p><b>Email:</b> {uvedeni.email.text}</p>

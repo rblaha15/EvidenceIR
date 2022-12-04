@@ -1,6 +1,9 @@
 import type { RequestHandler } from './$types';
 import nodemailer from 'nodemailer';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 const transporter = nodemailer.createTransport({
 	host: 'smtp.centrum.cz',
 	port: 465,
