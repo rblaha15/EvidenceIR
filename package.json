@@ -3,6 +3,7 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
+		"start": "node build",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
@@ -33,6 +34,7 @@
 	"dependencies": {
 		"@material/mwc-button": "^0.27.0",
 		"@material/web": "^0.1.0-alpha.0",
+		"@sveltejs/adapter-node": "^1.0.0-next.102",
 		"@sveltejs/adapter-static": "^1.0.0-next.48",
 		"@webcomponents/webcomponentsjs": "^2.7.0",
 		"bootstrap": "^5.2.2",
