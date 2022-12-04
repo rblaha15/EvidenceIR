@@ -7,3 +7,5 @@ export const load: PageLoad = ({ params }) => {
 		souhlas: params.souhlas === 'ano' ? true : params.souhlas === 'ne' ? true : undefined
 	};
 };
+
+export const prerender = false;
