@@ -14,7 +14,7 @@
 	let poslano: boolean;
 
 	const nazevFirmy = async (ico: string) => {
-		const url = dev ? 'http://localhost:5174/api' : 'https://evidenceir.cyclic.com/api';
+		const url = dev ? 'http://localhost:5174/api' : 'https://evidenceir.cyclic.app/api';
 		const response = await fetch(`${url}/getWebsite`, {
 			method: 'POST',
 			body: JSON.stringify({
@@ -64,7 +64,7 @@
 		const dataJson = (snapshot.data() as { veci: string }).veci;
 		const fireData = JSON.parse(dataJson) as Data;
 
-		const url = dev ? 'http://localhost:5174/api' : 'https://evidenceir.cyclic.com/api';
+		const url = dev ? 'http://localhost:5174/api' : 'https://evidenceir.cyclic.app/api';
 
 		const montazka = (await nazevFirmy(fireData.montazka.ico.text)) ?? null;
 		const uvadec = (await nazevFirmy(fireData.uvedeni.ico.text)) ?? null;
