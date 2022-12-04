@@ -25,7 +25,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 
-	const url = dev ? 'http://localhost:5175' : 'https://evidenceitserver.onrender.com';
+	const url = dev ? 'http://localhost:5174/api' : 'https://evidenceir.cyclic.com/api';
 
 	onMount(async () => {
 		const response = await fetch(url, {
