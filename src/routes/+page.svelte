@@ -6,6 +6,7 @@
 	import MultiZaskrtavatko from '$lib/components/MultiZaskrtavatko.svelte';
 	import Radio from '$lib/components/Radio.svelte';
 	import Firma from '$lib/components/Firma.svelte';
+	import MailSPotvrzenim from '$lib/mails/MailSPotvrzenim.svelte';
 
 	// Other
 	import {
@@ -22,17 +23,9 @@
 
 	// Svelte
 	import { dev } from '$app/environment';
-	import { onMount } from 'svelte';
+	import { htmlToText } from 'html-to-text';
+	import MailSDaty from '$lib/mails/MailSDaty.svelte';
 	import { page } from '$app/stores';
-
-	const url = dev ? 'http://localhost:5174/api' : 'https://evidenceir.cyclic.app/api';
-
-	onMount(async () => {
-		const response = await fetch(url, {
-			method: 'GET'
-		});
-		console.log(response);
-	});
 
 	let filtr = '';
 
@@ -178,33 +171,21 @@
 			return;
 		}
 
+		const div = document.createElement('div');
+		new MailSDaty({
+			target: div,
+			props: { data }
+		});
+
+		const html = div.innerHTML;
+		const text = htmlToText(html);
+
 		const message1 = {
 			from: '"Webová aplikace evidence IR" aplikace.regulus@centrum.cz',
 			to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
 			subject: `Nově zaevidovaný regulátor ${data.ir.typ.vybrano} (${data.ir.cislo.text})`,
-			text: seznam
-				.map((vec) => {
-					if (vec instanceof Nadpisova) return `${vec.nazev}\n`;
-					if (vec instanceof Pisatkova) return `${vec.nazev}: ${vec.text}`;
-					if (vec instanceof Vybiratkova) return `${vec.nazev}: ${vec.vybrano}`;
-					if (vec instanceof Radiova) return `${vec.nazev}: ${vec.vybrano}`;
-					if (vec instanceof MultiZaskrtavatkova) return `${vec.nazev}: ${vec.vybrano.join(', ')}`;
-					if (vec instanceof Zaskrtavatkova)
-						return `${vec.nazev}: ${vec.zaskrtnuto ? 'Ano' : 'Ne'}`;
-				})
-				.join('\n'),
-			html: seznam
-				.map((vec) => {
-					if (vec instanceof Nadpisova) return `<h2>${vec.nazev}</h2>\n`;
-					if (vec instanceof Pisatkova) return `<p>${vec.nazev}: ${vec.text}</p>`;
-					if (vec instanceof Vybiratkova) return `<p>${vec.nazev}: ${vec.vybrano}</p>`;
-					if (vec instanceof Radiova) return `<p>${vec.nazev}: ${vec.vybrano}</p>`;
-					if (vec instanceof MultiZaskrtavatkova)
-						return `<p>${vec.nazev}: ${vec.vybrano.join(', ')}</p>`;
-					if (vec instanceof Zaskrtavatkova)
-						return `<p>${vec.nazev}: ${vec.zaskrtnuto ? 'Ano' : 'Ne'}</p>`;
-				})
-				.join('')
+			text,
+			html
 		};
 
 		console.log(message1);
@@ -212,34 +193,25 @@
 		if (data.vzdalenyPristup.chce) {
 			const id = await novyUzivatel({ veci: JSON.stringify(data) });
 
+			const div = document.createElement('div');
+			new MailSPotvrzenim({
+				target: div,
+				props: {
+					fakturuje: data.vzdalenyPristup.fakturuje.vybrano == 'Koncový zákazník',
+					ano: `${$page.url.origin}/potvrzeni/${id}/souhlas/ano`,
+					ne: `${$page.url.origin}/potvrzeni/${id}/souhlas/ne`
+				}
+			});
+
+			const html = div.innerHTML;
+			const text = htmlToText(html);
+
 			const message2 = {
 				from: '"Webová aplikace evidence IR" aplikace.regulus@centrum.cz',
 				to: 'radek.blaha.15@gmail.com',
 				subject: `Souhlas se vzdáleným přístupem k regulátoru ${data.ir.typ.vybrano}`,
-				text: `Na základě vašeho požadavku na zřízení vzdálené správy regulátoru Vašeho topného systému Vám zasíláme souhlas:
-
-Souhlasím se vzdálenou správou uvedeného regulátoru IR prostřednictvím internetové služby RegulusRoute.
-${
-	data.vzdalenyPristup.fakturuje.vybrano == 'Koncový zákazník'
-		? 'Souhlasím s jednorázovou cenou 500 Kč bez DPH za tuto službu.\n'
-		: ''
-}Přístup poskytne společnost REGULUS spol. s r.o. i servisní firmě.
-Více informací o zpracovaní Vašich osobních údajů najdete v příloze tohoto emailu, která je součástí tohoto souhlasu.
-
-Souhlasím: ${$page.url.origin}/potvrzeni/${id}/souhlas/ano
-Nesouhlasím: ${$page.url.origin}/potvrzeni/${id}/souhlas/ne`,
-				html: `<p>Na základě vašeho požadavku na zřízení vzdálené správy regulátoru Vašeho topného systému Vám zasíláme souhlas:</p>
-
-<p>Souhlasím se vzdálenou správou uvedeného regulátoru IR prostřednictvím internetové služby RegulusRoute.</p>
-${
-	data.vzdalenyPristup.fakturuje.vybrano == 'Koncový zákazník'
-		? '<p>Souhlasím s jednorázovou cenou 500 Kč bez DPH za tuto službu.</p>'
-		: ''
-}<p>Přístup poskytne společnost REGULUS spol. s r.o. i servisní firmě.</p>
-<p>Více informací o zpracovaní Vašich osobních údajů najdete v příloze tohoto emailu, která je součástí tohoto souhlasu.</p>
-
-<p><a href="${$page.url.origin}/potvrzeni/${id}/souhlas/ano">Souhlasím</a></p>
-<p><a href="${$page.url.origin}/potvrzeni/${id}/souhlas/ne">Nesouhlasím</a></p>`,
+				text,
+				html,
 				attachments: [
 					{
 						filename: 'Souhlas se zpracováním osobních údajů.pdf',
@@ -249,7 +221,7 @@ ${
 			};
 
 			console.log(message2);
-			const response = await fetch(`${url}/poslatEmail`, {
+			const response = await fetch(`/api/poslatEmail`, {
 				method: 'POST',
 				body: JSON.stringify({ message: message2 }),
 				headers: {
@@ -260,7 +232,7 @@ ${
 			console.log(response);
 		}
 
-		const response = await fetch(`${url}/poslatEmail`, {
+		const response = await fetch(`/api/poslatEmail`, {
 			method: 'POST',
 			body: JSON.stringify({ message: message1 }),
 			headers: {

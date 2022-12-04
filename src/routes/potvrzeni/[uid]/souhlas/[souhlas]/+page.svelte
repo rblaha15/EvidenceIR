@@ -14,34 +14,25 @@
 	let poslano: boolean;
 
 	const nazevFirmy = async (ico: string) => {
-		const url = dev ? 'http://localhost:5174/api' : 'https://evidenceir.cyclic.app/api';
-		const response = await fetch(`${url}/getWebsite`, {
+		const response = await fetch(`/api/getWebsite`, {
 			method: 'POST',
 			body: JSON.stringify({
-				url: `https://or.justice.cz/ias/ui/rejstrik-$firma?ico=${ico}&jenPlatne=VSECHNY`
+				url: `http://wwwinfo.mfcr.cz/cgi-bin/ares/ares_es.cgi?ico=${ico}`
 			})
 		});
 		// console.log(response);
 		const text = await response.text();
 
 		// console.log(text);
-		const doc = new DOMParser().parseFromString(text, 'text/html');
+		const doc = new DOMParser().parseFromString(text, 'text/xml');
 		console.log(doc);
 
-		return doc.body
-			.querySelector('div#page')
-			?.querySelector('div#page-c')
-			?.querySelector('div#frag-rejstrik-switchComp-wholebead')
-			?.querySelector('div#SearchResults')
-			?.querySelector('div.section-c')
-			?.querySelector('div.search-results')
-			?.querySelector('ol')
-			?.querySelector('li')
-			?.querySelector('div.inner')
-			?.querySelector('table.result-details')
-			?.querySelector('tbody')
-			?.querySelector('tr')
-			?.querySelector('td')?.innerText;
+		return doc
+			.querySelector('Ares_odpovedi')
+			?.querySelector('Odpoved')
+			?.querySelector('V')
+			?.querySelector('S')
+			?.querySelector('ojm')?.textContent;
 	};
 
 	onMount(async () => {
@@ -64,8 +55,6 @@
 		const dataJson = (snapshot.data() as { veci: string }).veci;
 		const fireData = JSON.parse(dataJson) as Data;
 
-		const url = dev ? 'http://localhost:5174/api' : 'https://evidenceir.cyclic.app/api';
-
 		const montazka = (await nazevFirmy(fireData.montazka.ico.text)) ?? null;
 		const uvadec = (await nazevFirmy(fireData.uvedeni.ico.text)) ?? null;
 
@@ -86,7 +75,7 @@
 			text
 		};
 		console.log(message2);
-		const response = await fetch(`${url}/poslatEmail`, {
+		const response = await fetch(`/api/poslatEmail`, {
 			method: 'POST',
 			body: JSON.stringify({ message: message2 }),
 			headers: {
