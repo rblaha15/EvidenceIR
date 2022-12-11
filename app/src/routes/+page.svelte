@@ -7,6 +7,7 @@
 	import Radio from '$lib/components/Radio.svelte';
 	import Firma from '$lib/components/Firma.svelte';
 	import MailSPotvrzenim from '$lib/mails/MailSPotvrzenim.svelte';
+	import MailSDaty from '$lib/mails/MailSDaty.svelte';
 
 	// Other
 	import {
@@ -20,12 +21,15 @@
 		Vec
 	} from '$lib/Vec';
 	import { seznamFirem, novyUzivatel } from '$lib/firebase';
+	import { poslatEmail, sender } from '$lib/constants';
 
 	// Svelte
 	import { dev } from '$app/environment';
-	import { htmlToText } from 'html-to-text';
-	import MailSDaty from '$lib/mails/MailSDaty.svelte';
 	import { page } from '$app/stores';
+
+	// 3rd-party
+	import { htmlToText } from 'html-to-text';
+	import Scanner from '$lib/components/Scanner.svelte';
 
 	let filtr = '';
 
@@ -181,7 +185,7 @@
 		const text = htmlToText(html);
 
 		const message1 = {
-			from: '"Webová aplikace evidence IR" aplikace.regulus@centrum.cz',
+			from: sender,
 			to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
 			subject: `Nově zaevidovaný regulátor ${data.ir.typ.vybrano} (${data.ir.cislo.text})`,
 			text,
@@ -203,30 +207,17 @@
 				}
 			});
 
-			const html = div.innerHTML;
-			const text = htmlToText(html);
-
-			const message2 = {
-				from: '"Webová aplikace evidence IR" aplikace.regulus@centrum.cz',
+			const response = await poslatEmail({
+				from: sender,
 				to: 'radek.blaha.15@gmail.com',
 				subject: `Souhlas se vzdáleným přístupem k regulátoru ${data.ir.typ.vybrano}`,
-				text,
-				html,
+				html: div.innerHTML,
 				attachments: [
 					{
 						filename: 'Souhlas se zpracováním osobních údajů.pdf',
 						path: 'https://raw.githubusercontent.com/rblaha15/rblaha15.github.io/main/Souhlas%20se%20zpracov%C3%A1n%C3%ADm%20osobn%C3%ADch%20%C3%BAdaj%C5%AF.pdf'
 					}
 				]
-			};
-
-			console.log(message2);
-			const response = await fetch(`/api/poslatEmail`, {
-				method: 'POST',
-				body: JSON.stringify({ message: message2 }),
-				headers: {
-					'content-type': 'application/json'
-				}
 			});
 
 			console.log(response);
@@ -268,17 +259,15 @@
 			data.uvedeni.zastupce.zobrazit = true;
 			data.uvedeni.email.zobrazit = true;
 		}
-	}
-	$: {
+
 		let jeCTC = ['IR RegulusBOX CTC', 'IR 14 CTC', 'IR 12 CTC'].includes(data.ir.typ.vybrano);
+
 		data.tc.druh.zobrazit = jeCTC;
 		data.tc.typ.zobrazit = data.ir.typ.vybrano != '' && (!jeCTC || data.tc.druh.vybrano != '');
 		data.tc.cislo.zobrazit = data.ir.typ.vybrano != '';
 		data.tc.cislo.regex = jeCTC ? /^\d{4}-\d{4}-\d{4}$/ : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/;
 		data.tc.cislo.napoveda = jeCTC ? '1234-1234-1234' : 'AB1234-CD-1234';
-	}
-	$: {
-		let jeCTC = ['IR RegulusBOX CTC', 'IR 14 CTC', 'IR 12 CTC'].includes(data.ir.typ.vybrano);
+
 		let moznosti = (function () {
 			if (!jeCTC) return ['RTC 6i', 'RTC 12i', 'RTC 13e', 'RTC 20e'];
 			if (data.tc.druh.vybrano == 'vzduch/voda')
@@ -307,8 +296,7 @@
 		if (!moznosti.includes(data.tc.typ.vybrano)) {
 			data.tc.typ.vybrano = '';
 		}
-	}
-	$: {
+
 		data.vzdalenyPristup.fakturuje.zobrazit = data.vzdalenyPristup.chce.zaskrtnuto;
 		data.vzdalenyPristup.fakturuje.nutne = data.vzdalenyPristup.chce.zaskrtnuto;
 		data.vzdalenyPristup.pristupMa.zobrazit = data.vzdalenyPristup.chce.zaskrtnuto;
@@ -341,7 +329,9 @@
 				bind:vyfiltrovanyFirmy
 			/>
 		{/if}
-		{#if vec instanceof Nadpisova}
+		{#if vec === data.tc.cislo && vec.zobrazit && vec instanceof Pisatkova}
+			<Scanner bind:vec onScan={(text) => (data.tc.cislo.text = text)} />
+		{:else if vec instanceof Nadpisova}
 			<h2>{vec.nazev}</h2>
 		{:else if vec instanceof Pisatkova}
 			<p><Pisatko bind:vec /></p>

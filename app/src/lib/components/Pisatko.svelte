@@ -1,19 +1,15 @@
-<script context="module" lang="ts">
-	let lastId = -1;
-</script>
-
 <script type="ts">
-	import type { Pisatkova, Vec } from '$lib/Vec';
+	import type { Pisatkova } from '$lib/Vec';
 	import MaskInput from 'svelte-input-mask';
 
 	export let vec: Pisatkova;
-	const id = lastId++;
+	export let w: string = '100';
 </script>
 
 {#if vec.zobrazit}
 	{#if vec.napoveda != ''}
 		<!-- svelte-ignore a11y-label-has-associated-control -->
-		<label class="w-100">
+		<label class="w-{w}">
 			{vec.nazev}
 			<MaskInput
 				type="text"
@@ -76,12 +72,13 @@
 						regexp: /\d/
 					}
 				]}
+				{...$$restProps}
 			/>
 		</label>
 	{:else}
-		<label class="w-100">
+		<label class="w-{w}">
 			{vec.nazev}
-			<input type="text" class="form-control" bind:value={vec.text} />
+			<input type="text" class="form-control" bind:value={vec.text} {...$$restProps} />
 		</label>
 	{/if}
 
