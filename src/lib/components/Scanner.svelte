@@ -47,28 +47,37 @@
 	};
 </script>
 
-<Pisatko bind:vec w="50" />
-<span> nebo </span>
-<button
-	type="button"
-	class="btn btn-outline-secondary mb-2"
-	data-bs-toggle="modal"
-	data-bs-target="#cam"
-	on:click={onClick}
->
-	Naskenujte čárový kód z TČ
-</button>
-
+<div class="d-sm-flex flex-sm-row align-items-end mb-2">
+	<div class="flex-grow-1"><Pisatko bind:vec /></div>
+	<span class="m-2"> nebo </span>
+	<div>
+		<button
+			type="button"
+			class="btn btn-outline-secondary h-auto"
+			data-bs-toggle="modal"
+			data-bs-target="#cam"
+			on:click={onClick}
+		>
+			Naskenujte čárový kód z TČ
+		</button>
+	</div>
+</div>
 <div class="modal" id="cam">
 	<div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
 		<div class="modal-content">
 			<div class="modal-header ">
 				<h4 class="modal-title">Naskenujte kód:</h4>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" on:click={zrusit} />
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="modal"
+					on:click={zrusit}
+					title="Zrušit"
+				/>
 			</div>
 
 			<div class="modal-body d-flex justify-content-center">
-				<div style="width: 500px" id="reader" />
+				<div class="w-100" id="reader" />
 			</div>
 
 			<div class="modal-footer">

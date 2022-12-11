@@ -1,12 +1,10 @@
 import { initializeApp } from '@firebase/app';
-import type { FirebaseOptions } from '@firebase/app';
-import { getAuth } from '@firebase/auth';
-import { getFirestore, getDoc, addDoc, doc, deleteDoc, collection } from '@firebase/firestore';
+// import { getAuth } from '@firebase/auth';
+import { getFirestore } from '@firebase/firestore';
 import { getDatabase, ref, onValue } from '@firebase/database';
 import { writable } from 'svelte/store';
-import type { Data } from './Vec';
 
-const firebaseConfig: FirebaseOptions = {
+const firebaseConfig: import('@firebase/app').FirebaseOptions = {
 	apiKey: 'AIzaSyCKu8Z4wx55DfrZdYtKvrqvwZ2Y6nQvx24',
 	authDomain: 'evidence-ir.firebaseapp.com',
 	projectId: 'evidence-ir',
@@ -21,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
 export const realtime = getDatabase(app);
-export const auth = getAuth(app);
+// export const auth = getAuth(app);
 
 const firmyRef = ref(realtime, '/firmy');
 
@@ -31,8 +29,15 @@ onValue(firmyRef, (snapshot) => {
 	seznamFirem.set(snapshot.val());
 });
 
-export const uzivatel = async (uid: string) => await getDoc(doc(db, 'uzivatele', `/${uid}`));
-export const novyUzivatel = async (data: { veci: string }) =>
-	(await addDoc(collection(db, 'uzivatele'), data)).id;
-export const odstranitUzivatele = async (uid: string) =>
-	await deleteDoc(doc(db, 'uzivatele', `/${uid}`));
+export const uzivatel = async (uid: string) => {
+	const { getDoc, doc } = await import('@firebase/firestore');
+	return await getDoc(doc(db, 'uzivatele', `/${uid}`));
+};
+export const novyUzivatel = async (data: { veci: string }) => {
+	const { addDoc, collection } = await import('@firebase/firestore');
+	return (await addDoc(collection(db, 'uzivatele'), data)).id;
+};
+export const odstranitUzivatele = async (uid: string) => {
+	const { deleteDoc, doc } = await import('@firebase/firestore');
+	return await deleteDoc(doc(db, 'uzivatele', `/${uid}`));
+};
