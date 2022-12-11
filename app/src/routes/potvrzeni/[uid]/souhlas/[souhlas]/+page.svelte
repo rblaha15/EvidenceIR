@@ -3,7 +3,6 @@
 	import { onMount } from 'svelte';
 	import type { Data } from '$lib/Vec';
 	import MailPoPotvrzeni from '$lib/mails/MailPoPotvrzeni.svelte';
-	import { htmlToText } from 'html-to-text';
 	import { dev } from '$app/environment';
 	import { poslatEmail, sender } from '$lib/constants';
 

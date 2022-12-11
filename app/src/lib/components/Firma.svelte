@@ -22,11 +22,13 @@
 		<div class="modal-content">
 			<div class="modal-header ">
 				<h4 class="modal-title">Vyberte firmu ze seznamu:</h4>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" />
+				<button type="button" class="btn-close" data-bs-dismiss="modal" title="Zrušit" />
 			</div>
 			<div class="d-flex m-2 align-center align-content-center align-items-center">
-				<label for="filtr" class="m-1">Hledat: </label>
-				<input id="filtr" type="text" class="form-control" bind:value={filtr} />
+				<label class="m-1">
+					Hledat:
+					<input type="text" class="form-control" bind:value={filtr} />
+				</label>
 			</div>
 
 			<div class="modal-body list-group list-group-flush">

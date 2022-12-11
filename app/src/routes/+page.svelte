@@ -6,8 +6,6 @@
 	import MultiZaskrtavatko from '$lib/components/MultiZaskrtavatko.svelte';
 	import Radio from '$lib/components/Radio.svelte';
 	import Firma from '$lib/components/Firma.svelte';
-	import MailSPotvrzenim from '$lib/mails/MailSPotvrzenim.svelte';
-	import MailSDaty from '$lib/mails/MailSDaty.svelte';
 
 	// Other
 	import {
@@ -20,15 +18,13 @@
 		MultiZaskrtavatkova,
 		Vec
 	} from '$lib/Vec';
-	import { seznamFirem, novyUzivatel } from '$lib/firebase';
-	import { poslatEmail, sender } from '$lib/constants';
+	import { seznamFirem } from '$lib/firebase';
 
 	// Svelte
 	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
 
 	// 3rd-party
-	import { htmlToText } from 'html-to-text';
 	import Scanner from '$lib/components/Scanner.svelte';
 
 	let filtr = '';
@@ -168,6 +164,12 @@
 	};
 
 	const odeslat = async () => {
+		const { novyUzivatel } = await import('$lib/firebase');
+		const { poslatEmail, sender } = await import('$lib/constants');
+		const { htmlToText } = await import('html-to-text');
+		const MailSPotvrzenim = (await import('$lib/mails/MailSPotvrzenim.svelte')).default;
+		const MailSDaty = (await import('$lib/mails/MailSDaty.svelte')).default;
+
 		if (!seznam.every((it) => !it.zpravaJeChybna)) {
 			for (let i = 0; i < seznam.length; i++) {
 				seznam[i].zobrazitErrorVeto = true;
