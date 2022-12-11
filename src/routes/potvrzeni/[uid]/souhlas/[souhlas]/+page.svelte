@@ -2,9 +2,10 @@
 	import { odstranitUzivatele, uzivatel } from '$lib/firebase';
 	import { onMount } from 'svelte';
 	import type { Data } from '$lib/Vec';
-	import Mail from '$lib/mails/MailPoPotvrzeni.svelte';
+	import MailPoPotvrzeni from '$lib/mails/MailPoPotvrzeni.svelte';
 	import { htmlToText } from 'html-to-text';
 	import { dev } from '$app/environment';
+	import { poslatEmail, sender } from '$lib/constants';
 
 	export let data: { uid: string; souhlas: boolean };
 
@@ -54,41 +55,43 @@
 
 		const dataJson = (snapshot.data() as { veci: string }).veci;
 		const fireData = JSON.parse(dataJson) as Data;
+		// Máme data o zákazníkovi z fiebase!
 
-		const montazka = (await nazevFirmy(fireData.montazka.ico.text)) ?? null;
-		const uvadec = (await nazevFirmy(fireData.uvedeni.ico.text)) ?? null;
+		if (data.souhlas) {
+			const montazka = (await nazevFirmy(fireData.montazka.ico.text)) ?? null;
+			const uvadec = (await nazevFirmy(fireData.uvedeni.ico.text)) ?? null;
 
-		const div = document.createElement('div');
-		new Mail({
-			target: div,
-			props: { data: fireData, montazka, uvadec }
-		});
+			const div = document.createElement('div');
+			new MailPoPotvrzeni({
+				target: div,
+				props: { data: fireData, montazka, uvadec }
+			});
 
-		const html = div.innerHTML;
-		const text = htmlToText(html);
+			const response = await poslatEmail({
+				from: sender,
+				to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
+				subject: `Nově zaevidovaný regulátor ${fireData.ir.typ.vybrano} (${fireData.ir.cislo.text})`,
+				html: div.innerHTML
+			});
+			console.log(response);
 
-		const message2 = {
-			from: '"Webová aplikace evidence IR" aplikace.regulus@centrum.cz',
-			to: 'radek.blaha.15@gmail.com',
-			subject: `Nově zaevidovaný regulátor ${fireData.ir.typ.vybrano} (${fireData.ir.cislo.text})`,
-			html,
-			text
-		};
-		console.log(message2);
-		const response = await fetch(`/api/poslatEmail`, {
-			method: 'POST',
-			body: JSON.stringify({ message: message2 }),
-			headers: {
-				'content-type': 'application/json'
-			}
-		});
+			poslano = response.ok;
+			posila = false;
+		} else {
+			const response = await poslatEmail({
+				from: sender,
+				to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
+				subject: `Nově zaevidovaný regulátor ${fireData.ir.typ.vybrano} (${fireData.ir.cislo.text})`,
+				html: `<p>Zákazník ${fireData.koncovyUzivatel.jmeno} ${fireData.koncovyUzivatel.prijmeni} se rozhodl nesouhlasit se založením vzdáleného přístupu!</p>`
+			});
 
-		console.log(response);
+			console.log(response);
 
-		poslano = response.ok;
-		posila = false;
-
+			poslano = response.ok;
+			posila = false;
+		}
 		if (!poslano) return;
+		// Dokázali jsme odeslat email!
 
 		odstranitUzivatele(data.uid);
 	});
