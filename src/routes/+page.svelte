@@ -356,7 +356,8 @@
 
 <style>
 	#odeslat {
-		background-color: #ed2939;
-		border-color: #ed2939;
+		background-color: #5dabc8;
+		border-color: #5dabc8;
+		color: #000000;
 	}
 </style>
