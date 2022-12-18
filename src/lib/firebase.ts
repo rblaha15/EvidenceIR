@@ -47,9 +47,12 @@ const seznamFirem = async () => {
 };
 export const sprateleneFirmy = async () => {
 	const { get, query, orderByChild, equalTo } = await import('@firebase/database');
-	const { ref } = query(lidiRef, orderByChild('0'), equalTo(auth.currentUser?.email ?? ''));
-	const dovolenaIca = ((await get(ref)).val() as string[])?.splice(1) ?? [];
-	return (await seznamFirem()).filter(([_, ico]) => dovolenaIca.includes(ico)) ?? [];
+	if (auth.currentUser) {
+		const { ref } = query(lidiRef, orderByChild('0'), equalTo(auth.currentUser?.email ?? ''));
+		const dovolenaIca = ((await get(ref)).val() as string[])?.splice(1) ?? [];
+		return (await seznamFirem()).filter(([_, ico]) => dovolenaIca.includes(ico)) ?? [];
+	}
+	return [];
 };
 
 export const db = getFirestore(app);
