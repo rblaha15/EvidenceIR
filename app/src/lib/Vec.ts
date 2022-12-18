@@ -115,6 +115,17 @@ export class MultiZaskrtavatkova extends Vec {
 	}
 }
 export class Pisatkova extends Vec {
+	copy = () =>
+		new Pisatkova(
+			this.nazev,
+			this.onError,
+			this.regex,
+			this.nutne,
+			this.napoveda,
+			this.zobrazit,
+			this.text
+		);
+
 	nazev: string;
 	onError: string;
 	zobrazit: boolean;
