@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Pisatkova } from '$lib/Vec';
+	import type { Data, Pisatkova } from '$lib/Vec';
 	import { Html5Qrcode } from 'html5-qrcode';
 	import { onMount } from 'svelte';
 	import Pisatko from './Pisatko.svelte';
@@ -17,6 +17,7 @@
 	});
 
 	export let vec: Pisatkova;
+	export let zobrazit: boolean;
 
 	const onClick = async () => {
 		const devices = await Html5Qrcode.getCameras();
@@ -49,18 +50,20 @@
 
 <div class="d-sm-flex flex-sm-row align-items-end mb-2">
 	<div class="flex-grow-1"><Pisatko bind:vec /></div>
-	<span class="m-2"> nebo </span>
-	<div>
-		<button
-			type="button"
-			class="btn btn-outline-secondary h-auto"
-			data-bs-toggle="modal"
-			data-bs-target="#cam"
-			on:click={onClick}
-		>
-			Naskenujte čárový kód z TČ
-		</button>
-	</div>
+	{#if zobrazit}
+		<span class="m-2"> nebo </span>
+		<div>
+			<button
+				type="button"
+				class="btn btn-outline-secondary h-auto"
+				data-bs-toggle="modal"
+				data-bs-target="#cam"
+				on:click={onClick}
+			>
+				Naskenujte čárový kód z TČ
+			</button>
+		</div>
+	{/if}
 </div>
 <div class="modal" id="cam">
 	<div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">

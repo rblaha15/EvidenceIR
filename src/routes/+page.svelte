@@ -18,7 +18,7 @@
 		MultiZaskrtavatkova,
 		Vec
 	} from '$lib/Vec';
-	import { seznamFirem } from '$lib/firebase';
+	import { sprateleneFirmy, prihlasenState } from '$lib/firebase';
 
 	// Svelte
 	import { dev } from '$app/environment';
@@ -26,10 +26,17 @@
 
 	// 3rd-party
 	import Scanner from '$lib/components/Scanner.svelte';
+	import Prihlaseni from '$lib/components/Prihlaseni.svelte';
+
+	$: prihlasen = $prihlasenState?.email ?? '';
+	$: jePrihlasen = prihlasen != '';
 
 	let filtr = '';
 
-	$: vyfiltrovanyFirmy = $seznamFirem
+	let firmy: string[][] = [];
+	(async () => (firmy = await sprateleneFirmy()))();
+
+	$: vyfiltrovanyFirmy = firmy
 		.map(([jmeno, ico, email, zastupce]) => [jmeno.normalize(), ico, email, zastupce])
 		.filter(([jmeno]) =>
 			filtr
@@ -250,18 +257,16 @@
 
 	$: {
 		if (data.uvedeni.jakoMontazka.zaskrtnuto) {
-			data.uvedeni.ico = { ...data.montazka.ico, zobrazit: false } as Pisatkova;
-			data.uvedeni.zastupce = {
-				...data.montazka.zastupce,
-				zobrazit: false
-			} as Pisatkova;
-			data.uvedeni.email = { ...data.montazka.email, zobrazit: false } as Pisatkova;
-		} else {
-			data.uvedeni.ico.zobrazit = true;
-			data.uvedeni.zastupce.zobrazit = true;
-			data.uvedeni.email.zobrazit = true;
+			data.uvedeni.ico = data.montazka.ico.copy();
+			data.uvedeni.zastupce = data.montazka.zastupce.copy();
+			data.uvedeni.email = data.montazka.email.copy();
 		}
+		data.uvedeni.ico.zobrazit = !data.uvedeni.jakoMontazka.zaskrtnuto;
+		data.uvedeni.zastupce.zobrazit = !data.uvedeni.jakoMontazka.zaskrtnuto;
+		data.uvedeni.email.zobrazit = !data.uvedeni.jakoMontazka.zaskrtnuto;
+	}
 
+	$: {
 		let jeCTC = ['IR RegulusBOX CTC', 'IR 14 CTC', 'IR 12 CTC'].includes(data.ir.typ.vybrano);
 
 		data.tc.druh.zobrazit = jeCTC;
@@ -298,7 +303,9 @@
 		if (!moznosti.includes(data.tc.typ.vybrano)) {
 			data.tc.typ.vybrano = '';
 		}
+	}
 
+	$: {
 		data.vzdalenyPristup.fakturuje.zobrazit = data.vzdalenyPristup.chce.zaskrtnuto;
 		data.vzdalenyPristup.fakturuje.nutne = data.vzdalenyPristup.chce.zaskrtnuto;
 		data.vzdalenyPristup.pristupMa.zobrazit = data.vzdalenyPristup.chce.zaskrtnuto;
@@ -308,10 +315,14 @@
 </script>
 
 <main class="my-3 container">
-	<h1>Evidence regulátorů IR</h1>
+	<div class="d-sm-flex flex-sm-row">
+		<h1 class="flex-grow-1">Evidence regulátorů IR</h1>
+
+		<Prihlaseni bind:prihlasen {jePrihlasen} />
+	</div>
 
 	{#each seznam as vec}
-		{#if vec === data.montazka.ico && vec.zobrazit}
+		{#if vec === data.montazka.ico && vec.zobrazit && firmy.length != 0}
 			<Firma
 				id="montazka"
 				bind:emailVec={data.montazka.email}
@@ -321,7 +332,7 @@
 				bind:vyfiltrovanyFirmy
 			/>
 		{/if}
-		{#if vec === data.uvedeni.ico && vec.zobrazit}
+		{#if vec === data.uvedeni.ico && vec.zobrazit && firmy.length != 0}
 			<Firma
 				id="uvedeni"
 				bind:emailVec={data.uvedeni.email}
@@ -331,19 +342,23 @@
 				bind:vyfiltrovanyFirmy
 			/>
 		{/if}
-		{#if vec === data.tc.cislo && vec.zobrazit && vec instanceof Pisatkova}
-			<Scanner bind:vec onScan={(text) => (data.tc.cislo.text = text)} />
-		{:else if vec instanceof Nadpisova}
+		{#if vec === data.tc.cislo && vec.zobrazit}
+			<Scanner
+				bind:vec={data.tc.cislo}
+				zobrazit={data.ir.typ.vybrano.includes('CTC')}
+				onScan={(text) => (data.tc.cislo.text = text.slice(8))}
+			/>
+		{:else if vec instanceof Nadpisova && vec.zobrazit}
 			<h2>{vec.nazev}</h2>
-		{:else if vec instanceof Pisatkova}
+		{:else if vec instanceof Pisatkova && vec.zobrazit}
 			<p><Pisatko bind:vec /></p>
-		{:else if vec instanceof Vybiratkova}
+		{:else if vec instanceof Vybiratkova && vec.zobrazit}
 			<p><Vybiratko bind:vec /></p>
-		{:else if vec instanceof Radiova}
+		{:else if vec instanceof Radiova && vec.zobrazit}
 			<p><Radio bind:vec /></p>
-		{:else if vec instanceof MultiZaskrtavatkova}
+		{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit}
 			<p><MultiZaskrtavatko bind:vec /></p>
-		{:else if vec instanceof Zaskrtavatkova}
+		{:else if vec instanceof Zaskrtavatkova && vec.zobrazit}
 			<p><Zaskrtavatko bind:vec /></p>
 		{/if}
 	{/each}

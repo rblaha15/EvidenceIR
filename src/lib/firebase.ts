@@ -1,5 +1,5 @@
 import { initializeApp } from '@firebase/app';
-// import { getAuth } from '@firebase/auth';
+import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { getFirestore } from '@firebase/firestore';
 import { getDatabase, ref, onValue } from '@firebase/database';
 import { writable } from 'svelte/store';
@@ -17,17 +17,42 @@ const firebaseConfig: import('@firebase/app').FirebaseOptions = {
 
 const app = initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
+const auth = getAuth(app);
+
+export const prihlasenState = writable(null as import('@firebase/auth').User | null);
+
+onAuthStateChanged(auth, (usr) => prihlasenState.set(usr));
+
+export const prihlasit = async (email: string, heslo: string) => {
+	const { signInWithEmailAndPassword } = await import('@firebase/auth');
+	return signInWithEmailAndPassword(auth, email, heslo);
+};
+export const zaregistovat = async (email: string, heslo: string) => {
+	const { createUserWithEmailAndPassword } = await import('@firebase/auth');
+	return createUserWithEmailAndPassword(auth, email, heslo);
+};
+export const odhlasit = async () => {
+	const { signOut } = await import('@firebase/auth');
+	return signOut(auth);
+};
+
 export const realtime = getDatabase(app);
-// export const auth = getAuth(app);
 
 const firmyRef = ref(realtime, '/firmy');
+const lidiRef = ref(realtime, '/lidi');
 
-export const seznamFirem = writable([] as string[][]);
+const seznamFirem = async () => {
+	const { get } = await import('@firebase/database');
+	return (await get(firmyRef)).val() as string[][];
+};
+export const sprateleneFirmy = async () => {
+	const { get, query, orderByChild, equalTo } = await import('@firebase/database');
+	const { ref } = query(lidiRef, orderByChild('0'), equalTo(auth.currentUser?.email ?? ''));
+	const dovolenaIca = ((await get(ref)).val() as string[])?.splice(1) ?? [];
+	return (await seznamFirem()).filter(([_, ico]) => dovolenaIca.includes(ico)) ?? [];
+};
 
-onValue(firmyRef, (snapshot) => {
-	seznamFirem.set(snapshot.val());
-});
+export const db = getFirestore(app);
 
 export const uzivatel = async (uid: string) => {
 	const { getDoc, doc } = await import('@firebase/firestore');
