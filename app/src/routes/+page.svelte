@@ -33,10 +33,7 @@
 
 	let filtr = '';
 
-	let firmy: string[][] = [];
-	(async () => (firmy = await sprateleneFirmy()))();
-
-	$: vyfiltrovanyFirmy = firmy
+	$: vyfiltrovanyFirmy = $sprateleneFirmy
 		.map(([jmeno, ico, email, zastupce]) => [jmeno.normalize(), ico, email, zastupce])
 		.filter(([jmeno]) =>
 			filtr
@@ -322,7 +319,7 @@
 	</div>
 
 	{#each seznam as vec}
-		{#if vec === data.montazka.ico && vec.zobrazit && firmy.length != 0}
+		{#if vec === data.montazka.ico && vec.zobrazit && $sprateleneFirmy.length != 0}
 			<Firma
 				id="montazka"
 				bind:emailVec={data.montazka.email}
@@ -332,7 +329,7 @@
 				bind:vyfiltrovanyFirmy
 			/>
 		{/if}
-		{#if vec === data.uvedeni.ico && vec.zobrazit && firmy.length != 0}
+		{#if vec === data.uvedeni.ico && vec.zobrazit && $sprateleneFirmy.length != 0}
 			<Firma
 				id="uvedeni"
 				bind:emailVec={data.uvedeni.email}
