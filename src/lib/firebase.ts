@@ -2,7 +2,7 @@ import { initializeApp } from '@firebase/app';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { getFirestore } from '@firebase/firestore';
 import { getDatabase, ref, onValue } from '@firebase/database';
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 
 const firebaseConfig: import('@firebase/app').FirebaseOptions = {
 	apiKey: 'AIzaSyCKu8Z4wx55DfrZdYtKvrqvwZ2Y6nQvx24',
@@ -45,15 +45,26 @@ const seznamFirem = async () => {
 	const { get } = await import('@firebase/database');
 	return (await get(firmyRef)).val() as string[][];
 };
-export const sprateleneFirmy = async () => {
-	const { get, query, orderByChild, equalTo } = await import('@firebase/database');
-	if (auth.currentUser) {
-		const { ref } = query(lidiRef, orderByChild('0'), equalTo(auth.currentUser?.email ?? ''));
-		const dovolenaIca = ((await get(ref)).val() as string[])?.splice(1) ?? [];
-		return (await seznamFirem()).filter(([_, ico]) => dovolenaIca.includes(ico)) ?? [];
+
+export const sprateleneFirmy = writable([] as string[][]);
+
+prihlasenState.subscribe(async (user) => {
+	if (!user) {
+		sprateleneFirmy.set([]);
+	} else {
+		const { get, query, orderByChild, equalTo } = await import('@firebase/database');
+		const { ref } = query(lidiRef, orderByChild('0'), equalTo(user.email));
+		const vysledky = (await get(ref)).val() as string[];
+		if (vysledky[0] !== user.email) {
+			sprateleneFirmy.set([]);
+		} else {
+			const dovolenaIca = vysledky?.splice(1) ?? [];
+			sprateleneFirmy.set(
+				(await seznamFirem()).filter(([_, ico]) => dovolenaIca.includes(ico)) ?? []
+			);
+		}
 	}
-	return [];
-};
+});
 
 export const db = getFirestore(app);
 
