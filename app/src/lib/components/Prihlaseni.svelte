@@ -233,7 +233,7 @@
 
 			<div class="modal-body">
 				<p>
-					{$seznamLidi.map(([email, ...ica]) => `${email}: ${ica.join(', ')}`).join('\n')}
+					{$seznamLidi.map((ica) => ica.join(';')).join('\n')}
 				</p>
 			</div>
 
