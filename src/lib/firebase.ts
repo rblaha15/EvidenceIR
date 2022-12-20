@@ -96,7 +96,6 @@ export const seznamLidi = writable([] as string[][]);
 
 jeAdmin.subscribe(() => {
 	onValue(lidiRef, (data) => {
-		console.log(data);
 		seznamLidi.set(data.val());
 	});
 });
