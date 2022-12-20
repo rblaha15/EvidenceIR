@@ -93,6 +93,7 @@
 						type="submit"
 						class="btn btn-primary mt-3 mx-2"
 						on:click={() => {
+							errorP = '';
 							prihlasit(email, heslo)
 								.then(() => zrusitBtnP.click())
 								.catch((e) => {
@@ -180,6 +181,7 @@
 						type="submit"
 						class="btn btn-primary mt-3 mx-2"
 						on:click={() => {
+							errorR = '';
 							if (heslo === hesloZnovu) {
 								zaregistovat(email, heslo)
 									.then(() => zrusitBtnR.click())
