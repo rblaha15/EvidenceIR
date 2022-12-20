@@ -17,6 +17,8 @@ const firebaseConfig: import('@firebase/app').FirebaseOptions = {
 
 const app = initializeApp(firebaseConfig);
 
+//// AUTH: lidé
+
 const auth = getAuth(app);
 
 export const prihlasenState = writable(null as import('@firebase/auth').User | null);
@@ -35,6 +37,8 @@ export const odhlasit = async () => {
 	const { signOut } = await import('@firebase/auth');
 	return signOut(auth);
 };
+
+//// REALTIME: lidé a firmy k nim příslušející + admini
 
 export const realtime = getDatabase(app);
 
@@ -65,6 +69,30 @@ prihlasenState.subscribe(async (user) => {
 		}
 	}
 });
+
+export const jeAdmin = writable(false);
+
+prihlasenState.subscribe(async (user) => {
+	return jeAdmin.set(!!(await user?.getIdTokenResult())?.claims?.admin);
+});
+export const aktualizovatSeznamLidi = async (data: string[][]) => {
+	const { set, get } = await import('@firebase/database');
+	console.log({ staraData: (await get(lidiRef)).val(), novaData: data });
+	set(lidiRef, data);
+};
+
+export const seznamLidi = writable([] as string[][]);
+
+jeAdmin.subscribe(async (admin) => {
+	const { onValue } = await import('@firebase/database');
+	if (admin) {
+		onValue(lidiRef, (data) => {
+			seznamLidi.set(data.val());
+		});
+	}
+});
+
+//// FIRESTORE: vyplnění uživatelé žádající vzdálený přístup
 
 export const db = getFirestore(app);
 

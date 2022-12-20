@@ -1,8 +1,16 @@
 <script lang="ts">
-	import { odhlasit, prihlasit, zaregistovat } from '$lib/firebase';
+	import {
+		jeAdmin,
+		odhlasit,
+		prihlasit,
+		seznamLidi,
+		zaregistovat,
+		prihlasenState,
+		aktualizovatSeznamLidi
+	} from '$lib/firebase';
 
-	export let prihlasen: string;
-	export let jePrihlasen: boolean;
+	$: prihlasen = $prihlasenState?.email ?? '';
+	$: jePrihlasen = prihlasen != '';
 
 	let email: string;
 	let heslo: string;
@@ -13,6 +21,29 @@
 
 	let errorP: string | null = null;
 	let errorR: string | null = null;
+
+	const poVybrani = (
+		ev: Event & {
+			currentTarget: EventTarget & HTMLInputElement;
+		}
+	) => {
+		const file = ev.currentTarget.files?.[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.readAsText(file, 'UTF-8');
+			reader.onload = async (evt) => {
+				let text = evt.target?.result as string | null;
+				if (text) {
+					aktualizovatSeznamLidi(
+						text
+							.split('\n')
+							.filter((radek) => radek != '')
+							.map((radek) => radek.split(';').filter((vec) => vec != ''))
+					);
+				}
+			};
+		}
+	};
 </script>
 
 <div class="d-flex flex-column align-items-end">
@@ -21,6 +52,9 @@
 		<span><a href="/" on:click={odhlasit}>Odhlásit se</a></span>
 	{:else}
 		<span><a href="/" data-bs-toggle="modal" data-bs-target="#prihlaseni">Přihlásit se</a></span>
+	{/if}
+	{#if $jeAdmin}
+		<span><a href="/" data-bs-toggle="modal" data-bs-target="#admin">Upravit seznam lidí</a></span>
 	{/if}
 </div>
 
@@ -175,6 +209,40 @@
 					class="btn btn-outline-danger"
 					data-bs-dismiss="modal"
 					bind:this={zrusitBtnR}>Zrušit</button
+				>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal" id="admin">
+	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header ">
+				<h4 class="modal-title">Seznam emailů a příslušných firem</h4>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" title="Zavřít" />
+			</div>
+
+			<label class="mx-3 mt-2">
+				<p>
+					Vložte csv soubor oddělený středníky, kde v prvním sloupci je email a v ostatních seznam
+					ič:
+				</p>
+				<p><input type="file" accept="csv" on:change={poVybrani} /></p>
+			</label>
+
+			<div class="modal-body">
+				<p>
+					{$seznamLidi.map(([email, ...ica]) => `${email}: ${ica.join(', ')}`).join('\n')}
+				</p>
+			</div>
+
+			<div class="modal-footer">
+				<button
+					type="button"
+					class="btn btn-outline-danger"
+					data-bs-dismiss="modal"
+					bind:this={zrusitBtnR}>Zavřít</button
 				>
 			</div>
 		</div>
