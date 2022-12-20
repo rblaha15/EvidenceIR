@@ -22,7 +22,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 export const prihlasenState = writable(null as import('@firebase/auth').User | null);
-
 onAuthStateChanged(auth, (usr) => prihlasenState.set(usr));
 
 export const prihlasit = async (email: string, heslo: string) => {
@@ -45,51 +44,58 @@ export const realtime = getDatabase(app);
 const firmyRef = ref(realtime, '/firmy');
 const lidiRef = ref(realtime, '/lidi');
 
-const seznamFirem = async () => {
+const seznamFirem_ = async () => {
 	const { get } = await import('@firebase/database');
 	return (await get(firmyRef)).val() as string[][];
 };
 
-export const sprateleneFirmy = writable([] as string[][]);
-
-prihlasenState.subscribe(async (user) => {
+const sprateleneFirmy_ = async (user: import('@firebase/auth').User | null) => {
 	if (!user) {
-		sprateleneFirmy.set([]);
-	} else {
-		const { get, query, orderByChild, equalTo } = await import('@firebase/database');
-		const { ref } = query(lidiRef, orderByChild('0'), equalTo(user.email));
-		const vysledky = (await get(ref)).val() as string[];
-		if (vysledky[0] !== user.email) {
-			sprateleneFirmy.set([]);
-		} else {
-			const dovolenaIca = vysledky?.splice(1) ?? [];
-			sprateleneFirmy.set(
-				(await seznamFirem()).filter(([_, ico]) => dovolenaIca.includes(ico)) ?? []
-			);
-		}
+		return [];
 	}
-});
+	const { get, query, orderByChild, equalTo, child } = await import('@firebase/database');
+	const { ref } = child(query(lidiRef, orderByChild('0'), equalTo(user.email)).ref, '0');
+	const vysledky = (await get(ref)).val() as string[];
+	if (vysledky[0] !== user.email) {
+		return [];
+	}
+	const dovolenaIca = vysledky?.splice(1) ?? [];
+	return (await seznamFirem_()).filter(([_, ico]) => dovolenaIca.includes(ico)) ?? [];
+};
+export const sprateleneFirmy = derived(
+	prihlasenState,
+	(user, set) => {
+		(async () => set(await sprateleneFirmy_(user)))();
+	},
+	[] as string[][]
+);
 
-export const jeAdmin = writable(false);
+const jeAdmin_ = async (user: import('@firebase/auth').User | null) =>
+	!!(await user?.getIdTokenResult())?.claims?.admin;
+export const jeAdmin = derived(
+	prihlasenState,
+	(user, set) => {
+		(async () => set(await jeAdmin_(user)))();
+	},
+	false
+);
 
-prihlasenState.subscribe(async (user) => {
-	return jeAdmin.set(!!(await user?.getIdTokenResult())?.claims?.admin);
-});
 export const aktualizovatSeznamLidi = async (data: string[][]) => {
-	const { set, get } = await import('@firebase/database');
-	console.log({ staraData: (await get(lidiRef)).val(), novaData: data });
-	set(lidiRef, data);
+	const { set } = await import('@firebase/database');
+	if (await jeAdmin_(auth.currentUser)) {
+		console.log({ staraData: await seznamLidi_(), novaData: data });
+		set(lidiRef, data);
+	}
 };
 
+const seznamLidi_ = async () => {
+	const { get } = await import('@firebase/database');
+	return (await get(lidiRef)).val() as string[][];
+};
 export const seznamLidi = writable([] as string[][]);
 
-jeAdmin.subscribe(async (admin) => {
-	const { onValue } = await import('@firebase/database');
-	if (admin) {
-		onValue(lidiRef, (data) => {
-			seznamLidi.set(data.val());
-		});
-	}
+onValue(lidiRef, (data) => {
+	seznamLidi.set(data.val());
 });
 
 //// FIRESTORE: vyplnění uživatelé žádající vzdálený přístup
