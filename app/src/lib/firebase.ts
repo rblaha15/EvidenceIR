@@ -94,8 +94,11 @@ const seznamLidi_ = async () => {
 };
 export const seznamLidi = writable([] as string[][]);
 
-onValue(lidiRef, (data) => {
-	seznamLidi.set(data.val());
+jeAdmin.subscribe(() => {
+	onValue(lidiRef, (data) => {
+		console.log(data);
+		seznamLidi.set(data.val());
+	});
 });
 
 //// FIRESTORE: vyplnění uživatelé žádající vzdálený přístup
