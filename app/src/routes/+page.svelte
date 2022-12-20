@@ -29,7 +29,6 @@
 	import Prihlaseni from '$lib/components/Prihlaseni.svelte';
 
 	$: prihlasen = $prihlasenState?.email ?? '';
-	$: jePrihlasen = prihlasen != '';
 
 	let filtr = '';
 
@@ -315,7 +314,7 @@
 	<div class="d-sm-flex flex-sm-row">
 		<h1 class="flex-grow-1">Evidence regulátorů IR</h1>
 
-		<Prihlaseni bind:prihlasen {jePrihlasen} />
+		<Prihlaseni />
 	</div>
 
 	{#each seznam as vec}
