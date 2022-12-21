@@ -5,7 +5,7 @@
 	import Zaskrtavatko from '$lib/components/Zaskrtavatko.svelte';
 	import MultiZaskrtavatko from '$lib/components/MultiZaskrtavatko.svelte';
 	import Radio from '$lib/components/Radio.svelte';
-	import Firma from '$lib/components/Firma.svelte';
+	import VybiratkoFirmy from '$lib/components/VybiratkoFirmy.svelte';
 
 	// Other
 	import {
@@ -18,7 +18,7 @@
 		MultiZaskrtavatkova,
 		Vec
 	} from '$lib/Vec';
-	import { sprateleneFirmy, prihlasenState, uzivatel } from '$lib/firebase';
+	import { sprateleneFirmy, type Firma } from '$lib/firebase';
 
 	// Svelte
 	import { dev } from '$app/environment';
@@ -35,7 +35,7 @@
 
 	$: [vyfiltrovanyMontazky, vyfiltrovanyUvadeci] = $sprateleneFirmy.map((firmy) =>
 		firmy
-			.map(([jmeno, ico, email, zastupce]) => [jmeno.normalize(), ico, email, zastupce])
+			.map(([jmeno, ico, email, zastupce]) => [jmeno.normalize(), ico, email, zastupce] as Firma)
 			.filter(([jmeno]) =>
 				filtr
 					.toLowerCase()
@@ -333,7 +333,7 @@
 
 	{#each seznam as vec}
 		{#if vec === data.montazka.ico && vec.zobrazit && montazky.length > 1}
-			<Firma
+			<VybiratkoFirmy
 				id="montazka"
 				bind:emailVec={data.montazka.email}
 				bind:zastupceVec={data.montazka.zastupce}
@@ -343,7 +343,7 @@
 			/>
 		{/if}
 		{#if vec === data.uvedeni.ico && vec.zobrazit && uvadeci.length > 1}
-			<Firma
+			<VybiratkoFirmy
 				id="uvedeni"
 				bind:emailVec={data.uvedeni.email}
 				bind:zastupceVec={data.uvedeni.zastupce}
