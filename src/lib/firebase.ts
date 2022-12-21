@@ -51,23 +51,35 @@ const seznamFirem_ = async () => {
 
 const sprateleneFirmy_ = async (user: import('@firebase/auth').User | null) => {
 	if (!user) {
-		return [];
+		return [[], []] as [string[][], string[][]];
 	}
 	const { get, query, orderByChild, equalTo, child } = await import('@firebase/database');
 	const { ref } = child(query(lidiRef, orderByChild('0'), equalTo(user.email)).ref, '0');
-	const vysledky = (await get(ref)).val() as string[];
+	const vysledky = (await get(ref)).val() as [string, string[], string[]];
 	if (vysledky[0] !== user.email) {
-		return [];
+		return [[], []] as [string[][], string[][]];
 	}
-	const dovolenaIca = vysledky?.splice(1) ?? [];
-	return (await seznamFirem_()).filter(([_, ico]) => dovolenaIca.includes(ico)) ?? [];
+	console.log(vysledky);
+	const dovolenaIca = (vysledky?.splice(1) as [string[], string[]] | null) ?? [];
+	console.log(dovolenaIca);
+	const vsechnyFirmy = await seznamFirem_();
+	console.log(
+		dovolenaIca.map((ica) => vsechnyFirmy.filter(([_, ico]) => ica.includes(ico)) ?? []) as [
+			string[][],
+			string[][]
+		]
+	);
+	return dovolenaIca.map((ica) => vsechnyFirmy.filter(([_, ico]) => ica.includes(ico)) ?? []) as [
+		string[][],
+		string[][]
+	];
 };
 export const sprateleneFirmy = derived(
 	prihlasenState,
 	(user, set) => {
 		(async () => set(await sprateleneFirmy_(user)))();
 	},
-	[] as string[][]
+	[[], []] as [string[][], string[][]]
 );
 
 const jeAdmin_ = async (user: import('@firebase/auth').User | null) =>
@@ -80,7 +92,7 @@ export const jeAdmin = derived(
 	false
 );
 
-export const aktualizovatSeznamLidi = async (data: string[][]) => {
+export const aktualizovatSeznamLidi = async (data: [string, string[], string[]][]) => {
 	const { set } = await import('@firebase/database');
 	if (await jeAdmin_(auth.currentUser)) {
 		console.log({ staraData: await seznamLidi_(), novaData: data });
@@ -90,9 +102,9 @@ export const aktualizovatSeznamLidi = async (data: string[][]) => {
 
 const seznamLidi_ = async () => {
 	const { get } = await import('@firebase/database');
-	return (await get(lidiRef)).val() as string[][];
+	return (await get(lidiRef)).val() as [string, string[], string[]][];
 };
-export const seznamLidi = writable([] as string[][]);
+export const seznamLidi = writable([] as [string, string[], string[]][]);
 
 jeAdmin.subscribe(() => {
 	onValue(lidiRef, (data) => {

@@ -18,7 +18,7 @@
 		MultiZaskrtavatkova,
 		Vec
 	} from '$lib/Vec';
-	import { sprateleneFirmy, prihlasenState } from '$lib/firebase';
+	import { sprateleneFirmy, prihlasenState, uzivatel } from '$lib/firebase';
 
 	// Svelte
 	import { dev } from '$app/environment';
@@ -28,23 +28,26 @@
 	import Scanner from '$lib/components/Scanner.svelte';
 	import Prihlaseni from '$lib/components/Prihlaseni.svelte';
 
-	$: prihlasen = $prihlasenState?.email ?? '';
-
 	let filtr = '';
 
-	$: vyfiltrovanyFirmy = $sprateleneFirmy
-		.map(([jmeno, ico, email, zastupce]) => [jmeno.normalize(), ico, email, zastupce])
-		.filter(([jmeno]) =>
-			filtr
-				.toLowerCase()
-				.split(' ')
-				.every((slovoFiltru) =>
-					jmeno
-						.toLowerCase()
-						.split(' ')
-						.some((slovoJmena) => slovoJmena.startsWith(slovoFiltru))
-				)
-		);
+	$: montazky = $sprateleneFirmy[0] ?? [];
+	$: uvadeci = $sprateleneFirmy[1] ?? [];
+
+	$: [vyfiltrovanyMontazky, vyfiltrovanyUvadeci] = $sprateleneFirmy.map((firmy) =>
+		firmy
+			.map(([jmeno, ico, email, zastupce]) => [jmeno.normalize(), ico, email, zastupce])
+			.filter(([jmeno]) =>
+				filtr
+					.toLowerCase()
+					.split(' ')
+					.every((slovoFiltru) =>
+						jmeno
+							.toLowerCase()
+							.split(' ')
+							.some((slovoJmena) => slovoJmena.startsWith(slovoFiltru))
+					)
+			)
+	);
 
 	const data: Data = {
 		ir: {
@@ -157,6 +160,17 @@
 		data.mistoRealizace.ulice.text = 'Josefa Hory 18';
 		data.mistoRealizace.psc.text = '370 06';
 		data.vzdalenyPristup.chce.zaskrtnuto = true;
+	}
+
+	$: if (montazky.length == 1) {
+		data.montazka.ico.text = montazky[0][1];
+		data.montazka.email.text = montazky[0][2];
+		data.montazka.zastupce.text = montazky[0][3];
+	}
+	$: if (uvadeci.length == 1) {
+		data.uvedeni.ico.text = uvadeci[0][1];
+		data.uvedeni.email.text = uvadeci[0][2];
+		data.uvedeni.zastupce.text = uvadeci[0][3];
 	}
 
 	$: seznam = (Object.values(data) as Object[]).flatMap((obj) => Object.values(obj) as Vec[]);
@@ -318,24 +332,24 @@
 	</div>
 
 	{#each seznam as vec}
-		{#if vec === data.montazka.ico && vec.zobrazit && $sprateleneFirmy.length != 0}
+		{#if vec === data.montazka.ico && vec.zobrazit && montazky.length > 1}
 			<Firma
 				id="montazka"
 				bind:emailVec={data.montazka.email}
 				bind:zastupceVec={data.montazka.zastupce}
 				bind:icoVec={data.montazka.ico}
 				bind:filtr
-				bind:vyfiltrovanyFirmy
+				bind:vyfiltrovanyFirmy={vyfiltrovanyMontazky}
 			/>
 		{/if}
-		{#if vec === data.uvedeni.ico && vec.zobrazit && $sprateleneFirmy.length != 0}
+		{#if vec === data.uvedeni.ico && vec.zobrazit && uvadeci.length > 1}
 			<Firma
 				id="uvedeni"
 				bind:emailVec={data.uvedeni.email}
 				bind:zastupceVec={data.uvedeni.zastupce}
 				bind:icoVec={data.uvedeni.ico}
 				bind:filtr
-				bind:vyfiltrovanyFirmy
+				bind:vyfiltrovanyFirmy={vyfiltrovanyUvadeci}
 			/>
 		{/if}
 		{#if vec === data.tc.cislo && vec.zobrazit}
