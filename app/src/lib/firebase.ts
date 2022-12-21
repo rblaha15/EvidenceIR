@@ -4,6 +4,8 @@ import { getFirestore } from '@firebase/firestore';
 import { getDatabase, ref, onValue } from '@firebase/database';
 import { writable, derived } from 'svelte/store';
 
+export type Firma = [string, string, string, string];
+
 const firebaseConfig: import('@firebase/app').FirebaseOptions = {
 	apiKey: 'AIzaSyCKu8Z4wx55DfrZdYtKvrqvwZ2Y6nQvx24',
 	authDomain: 'evidence-ir.firebaseapp.com',
@@ -46,32 +48,30 @@ const lidiRef = ref(realtime, '/lidi');
 
 const seznamFirem_ = async () => {
 	const { get } = await import('@firebase/database');
-	return (await get(firmyRef)).val() as string[][];
+	return (await get(firmyRef)).val() as Firma[];
 };
 
-const sprateleneFirmy_ = async (user: import('@firebase/auth').User | null) => {
+const sprateleneFirmy_ = async (
+	user: import('@firebase/auth').User | null
+): Promise<[Firma[], Firma[]]> => {
 	if (!user) {
-		return [[], []] as [string[][], string[][]];
+		return [[], []];
+	}
+	if (user.email?.endsWith('@regulus.cz')) {
+		const vsechnyFirmy = await seznamFirem_();
+		return [vsechnyFirmy, vsechnyFirmy];
 	}
 	const { get, query, orderByChild, equalTo, child } = await import('@firebase/database');
 	const { ref } = child(query(lidiRef, orderByChild('0'), equalTo(user.email)).ref, '0');
 	const vysledky = (await get(ref)).val() as [string, string[], string[]];
 	if (vysledky[0] !== user.email) {
-		return [[], []] as [string[][], string[][]];
+		return [[], []];
 	}
-	console.log(vysledky);
 	const dovolenaIca = (vysledky?.splice(1) as [string[], string[]] | null) ?? [];
-	console.log(dovolenaIca);
 	const vsechnyFirmy = await seznamFirem_();
-	console.log(
-		dovolenaIca.map((ica) => vsechnyFirmy.filter(([_, ico]) => ica.includes(ico)) ?? []) as [
-			string[][],
-			string[][]
-		]
-	);
 	return dovolenaIca.map((ica) => vsechnyFirmy.filter(([_, ico]) => ica.includes(ico)) ?? []) as [
-		string[][],
-		string[][]
+		Firma[],
+		Firma[]
 	];
 };
 export const sprateleneFirmy = derived(
@@ -79,7 +79,7 @@ export const sprateleneFirmy = derived(
 	(user, set) => {
 		(async () => set(await sprateleneFirmy_(user)))();
 	},
-	[[], []] as [string[][], string[][]]
+	[[], []] as [Firma[], Firma[]]
 );
 
 const jeAdmin_ = async (user: import('@firebase/auth').User | null) =>
