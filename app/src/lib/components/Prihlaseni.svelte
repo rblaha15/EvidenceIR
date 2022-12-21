@@ -39,6 +39,11 @@
 							.split('\n')
 							.filter((radek) => radek != '')
 							.map((radek) => radek.split(';').filter((vec) => vec != ''))
+							.map(([email, montazky, uvadeci]) => [
+								email,
+								montazky.split('#').filter((vec) => vec != ''),
+								uvadeci.split('#').filter((vec) => vec != '')
+							])
 					);
 				}
 			};
@@ -227,15 +232,20 @@
 
 			<label class="mx-3 mt-2">
 				<p>
-					Vložte csv soubor oddělený středníky, kde v prvním sloupci je email a v ostatních seznam
-					ič:
+					Vložte csv soubor oddělený středníky, kde v prvním sloupci je email, v druhém sloupci iča
+					montážních firem oddělená hashy (#) a v třetím slopci jsou stejně oddělená iča uvaděčů: <br
+					/>Př.: email@example.com;12345678#87654321;14725836#63852741
 				</p>
 				<p><input type="file" accept="csv" on:change={poVybrani} /></p>
 			</label>
 
 			<div class="modal-body">
 				<p>
-					{$seznamLidi.map((ica) => ica.join(';')).join('\n')}
+					{$seznamLidi
+						.map(
+							([email, montazky, uvadeci]) => `${email};${montazky.join('#')};${uvadeci.join('#')}`
+						)
+						.join('\n')}
 				</p>
 			</div>
 
