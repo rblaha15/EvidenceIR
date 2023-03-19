@@ -11,6 +11,11 @@
 		<meta name="theme-color" content="#ed2939" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="description" content="Evidence IR" />
+		<script>
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('/service-worker.js')
+			}
+		</script>
 		%sveltekit.head%
 	</head>
 	<body>

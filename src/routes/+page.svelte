@@ -18,24 +18,17 @@
 		MultiZaskrtavatkova,
 		Vec
 	} from '$lib/Vec';
-	import { sprateleneFirmy, type Firma, prihlasenState, zodpovednaOsoba, type NULL } from '$lib/firebase';
+	import { sprateleneFirmy, type Firma, prihlasenState, zodpovednaOsoba } from '$lib/firebase';
 
 	// Svelte
 	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
 
 	// 3rd-party
 	import Scanner from '$lib/components/Scanner.svelte';
 	import Prihlaseni from '$lib/components/Prihlaseni.svelte';
 
 	let filtr = '';
-
-	let nacteno = false;
-
-	onMount(() => {
-		nacteno = true
-	})
 
 	$: montazky = $sprateleneFirmy[0] ?? [];
 	$: uvadeci = $sprateleneFirmy[1] ?? [];
@@ -344,7 +337,6 @@
 		data.vzdalenyPristup.pristupMa.nutne = data.vzdalenyPristup.chce.zaskrtnuto;
 	}
 	// $: console.log(data);
-	$: console.log($prihlasenState);
 </script>
 
 <main class="my-3 container">

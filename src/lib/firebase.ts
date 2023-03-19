@@ -21,11 +21,9 @@ const app = initializeApp(firebaseConfig);
 
 //// AUTH: lidé
 
-export type NULL = "null"
-
 const auth = getAuth(app);
 
-export const prihlasenState = writable("null" as import('@firebase/auth').User | null | NULL);
+export const prihlasenState = writable("null" as import('@firebase/auth').User | null | "null");
 onAuthStateChanged(auth, (usr) => prihlasenState.set(usr));
 
 export const prihlasit = async (email: string, heslo: string) => {
