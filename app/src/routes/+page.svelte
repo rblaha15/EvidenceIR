@@ -341,7 +341,7 @@
 
 <main class="my-3 container">
 	{#if $prihlasenState == "null"}
-		<div class="spinner-border text-primary"></div>
+		<div class="spinner-border text-danger"></div>
 	{:else}
 		<div class="d-sm-flex flex-sm-row">
 			<h1 class="flex-grow-1">Evidence regulátorů IR</h1>
