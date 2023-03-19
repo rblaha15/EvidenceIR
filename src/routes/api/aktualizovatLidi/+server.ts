@@ -1,15 +1,19 @@
 import type { RequestHandler } from './$types';
 import type { Clovek } from '$lib/firebase'
-import { initializeApp, type ServiceAccount } from 'firebase-admin/app'
+import { initializeApp } from 'firebase-admin/app'
 import { credential } from 'firebase-admin'
 import { getAuth, type UserRecord } from 'firebase-admin/auth'
 import { getDatabase } from 'firebase-admin/database'
+import { writeFile } from 'fs/promises'
 
-import serviceAccount from "./firebase-adminsdk.json";
+import dotenv from 'dotenv';
+dotenv.config();
 
 try {
+    await writeFile("./firebase-adminsdk.json", process.env.FIREBASE_INFO ?? '')
+
     initializeApp({
-        credential: credential.cert(serviceAccount as ServiceAccount),
+        credential: credential.cert("./firebase-adminsdk.json"),
         databaseURL: 'https://evidence-ir-default-rtdb.europe-west1.firebasedatabase.app',
     })
 } catch (e) {

@@ -18,7 +18,7 @@
 		MultiZaskrtavatkova,
 		Vec
 	} from '$lib/Vec';
-	import { sprateleneFirmy, type Firma, prihlasenState } from '$lib/firebase';
+	import { sprateleneFirmy, type Firma, prihlasenState, zodpovednaOsoba } from '$lib/firebase';
 
 	// Svelte
 	import { dev } from '$app/environment';
@@ -56,6 +56,8 @@
 			typ: new Vybiratkova('Typ regulátoru', [
 				'IR RegulusBOX CTC',
 				'IR RegulusBOX RTC',
+				'IR RegulusHBOX CTC',
+				'IR RegulusHBOX RTC',
 				'IR 14 CTC',
 				'IR 14 RTC',
 				'IR 12 CTC'
@@ -240,7 +242,7 @@
 			const div = document.createElement('div');
 			new MailPoPotvrzeni({
 				target: div,
-				props: { data, montazka, uvadec }
+				props: { data, montazka, uvadec, osoba: $zodpovednaOsoba }
 			});
 			const html = div.innerHTML;
 			const text = htmlToText(html);
@@ -299,7 +301,7 @@
 		data.tc.cislo.napoveda = jeCTC ? '1234-1234-1234' : 'AB1234-CD-1234';
 
 		let moznosti = (function () {
-			if (!jeCTC) return ['RTC 6i', 'RTC 12i', 'RTC 13e', 'RTC 20e'];
+			if (!jeCTC) return ['RTC 6i', 'RTC 13e', 'RTC 20e'];
 			if (data.tc.druh.vybrano == 'vzduch/voda')
 				return [
 					'EcoAir 614M',
