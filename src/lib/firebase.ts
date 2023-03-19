@@ -21,9 +21,11 @@ const app = initializeApp(firebaseConfig);
 
 //// AUTH: lidé
 
+export type NULL = "null"
+
 const auth = getAuth(app);
 
-export const prihlasenState = writable(null as import('@firebase/auth').User | null);
+export const prihlasenState = writable("null" as import('@firebase/auth').User | null | NULL);
 onAuthStateChanged(auth, (usr) => prihlasenState.set(usr));
 
 export const prihlasit = async (email: string, heslo: string) => {
@@ -94,7 +96,7 @@ const sprateleneFirmy_ = async (
 export const sprateleneFirmy = derived(
 	prihlasenState,
 	(user, set) => {
-		(async () => set(await sprateleneFirmy_(user)))();
+		(async () => set(user != "null" ? await sprateleneFirmy_(user) : [[], []]))();
 	},
 	[[], []] as [Firma[], Firma[]]
 );
@@ -104,7 +106,7 @@ const jeAdmin_ = async (user: import('@firebase/auth').User | null) =>
 export const jeAdmin = derived(
 	prihlasenState,
 	(user, set) => {
-		(async () => set(await jeAdmin_(user)))();
+		(async () => set(user != "null" ? await jeAdmin_(user) : false))();
 	},
 	false
 );
@@ -119,7 +121,7 @@ const zodpovednaOsoba_ = async (user: import('@firebase/auth').User | null) => {
 export const zodpovednaOsoba = derived(
 	prihlasenState,
 	(user, set) => {
-		(async () => set(await zodpovednaOsoba_(user)))();
+		(async () => set(user != "null" ? await zodpovednaOsoba_(user) : null))();
 	},
 	null as string | null
 );

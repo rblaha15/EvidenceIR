@@ -18,17 +18,24 @@
 		MultiZaskrtavatkova,
 		Vec
 	} from '$lib/Vec';
-	import { sprateleneFirmy, type Firma, prihlasenState, zodpovednaOsoba } from '$lib/firebase';
+	import { sprateleneFirmy, type Firma, prihlasenState, zodpovednaOsoba, type NULL } from '$lib/firebase';
 
 	// Svelte
 	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 
 	// 3rd-party
 	import Scanner from '$lib/components/Scanner.svelte';
 	import Prihlaseni from '$lib/components/Prihlaseni.svelte';
 
 	let filtr = '';
+
+	let nacteno = false;
+
+	onMount(() => {
+		nacteno = true
+	})
 
 	$: montazky = $sprateleneFirmy[0] ?? [];
 	$: uvadeci = $sprateleneFirmy[1] ?? [];
@@ -337,63 +344,68 @@
 		data.vzdalenyPristup.pristupMa.nutne = data.vzdalenyPristup.chce.zaskrtnuto;
 	}
 	// $: console.log(data);
+	$: console.log($prihlasenState);
 </script>
 
 <main class="my-3 container">
-	<div class="d-sm-flex flex-sm-row">
-		<h1 class="flex-grow-1">Evidence regulátorů IR</h1>
-
-		<Prihlaseni />
-	</div>
-	{#if $prihlasenState}
-		{#each seznam as vec}
-			{#if vec === data.montazka.ico && vec.zobrazit && montazky.length > 1}
-				<VybiratkoFirmy
-					id="montazka"
-					bind:emailVec={data.montazka.email}
-					bind:zastupceVec={data.montazka.zastupce}
-					bind:icoVec={data.montazka.ico}
-					bind:filtr
-					bind:vyfiltrovanyFirmy={vyfiltrovanyMontazky}
-				/>
-			{/if}
-			{#if vec === data.uvedeni.ico && vec.zobrazit && uvadeci.length > 1}
-				<VybiratkoFirmy
-					id="uvedeni"
-					bind:emailVec={data.uvedeni.email}
-					bind:zastupceVec={data.uvedeni.zastupce}
-					bind:icoVec={data.uvedeni.ico}
-					bind:filtr
-					bind:vyfiltrovanyFirmy={vyfiltrovanyUvadeci}
-				/>
-			{/if}
-			{#if vec === data.tc.cislo && vec.zobrazit}
-				<Scanner
-					bind:vec={data.tc.cislo}
-					zobrazit={data.ir.typ.vybrano.includes('CTC')}
-					onScan={(text) => (data.tc.cislo.text = text.slice(8))}
-				/>
-			{:else if vec instanceof Nadpisova && vec.zobrazit}
-				<h2>{vec.nazev}</h2>
-			{:else if vec instanceof Pisatkova && vec.zobrazit}
-				<p><Pisatko bind:vec /></p>
-			{:else if vec instanceof Vybiratkova && vec.zobrazit}
-				<p><Vybiratko bind:vec /></p>
-			{:else if vec instanceof Radiova && vec.zobrazit}
-				<p><Radio bind:vec /></p>
-			{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit}
-				<p><MultiZaskrtavatko bind:vec /></p>
-			{:else if vec instanceof Zaskrtavatkova && vec.zobrazit}
-				<p><Zaskrtavatko bind:vec /></p>
-			{/if}
-		{/each}
-
-		<div class="d-inline-flex">
-			<button id="odeslat" type="button" class="btn btn-primary" on:click={odeslat}> Odeslat </button>
-			<p class:text-danger={!vysledek.success} class="ms-3 my-auto">{vysledek.text}</p>
-		</div>
+	{#if $prihlasenState == "null"}
+		<div class="spinner-border text-primary"></div>
 	{:else}
-		<p>Pro zobrazení a vyplnění formuláře je nutné se přihlásit!</p>
+		<div class="d-sm-flex flex-sm-row">
+			<h1 class="flex-grow-1">Evidence regulátorů IR</h1>
+
+			<Prihlaseni />
+		</div>
+		{#if $prihlasenState}
+			{#each seznam as vec}
+				{#if vec === data.montazka.ico && vec.zobrazit && montazky.length > 1}
+					<VybiratkoFirmy
+						id="montazka"
+						bind:emailVec={data.montazka.email}
+						bind:zastupceVec={data.montazka.zastupce}
+						bind:icoVec={data.montazka.ico}
+						bind:filtr
+						bind:vyfiltrovanyFirmy={vyfiltrovanyMontazky}
+					/>
+				{/if}
+				{#if vec === data.uvedeni.ico && vec.zobrazit && uvadeci.length > 1}
+					<VybiratkoFirmy
+						id="uvedeni"
+						bind:emailVec={data.uvedeni.email}
+						bind:zastupceVec={data.uvedeni.zastupce}
+						bind:icoVec={data.uvedeni.ico}
+						bind:filtr
+						bind:vyfiltrovanyFirmy={vyfiltrovanyUvadeci}
+					/>
+				{/if}
+				{#if vec === data.tc.cislo && vec.zobrazit}
+					<Scanner
+						bind:vec={data.tc.cislo}
+						zobrazit={data.ir.typ.vybrano.includes('CTC')}
+						onScan={(text) => (data.tc.cislo.text = text.slice(8))}
+					/>
+				{:else if vec instanceof Nadpisova && vec.zobrazit}
+					<h2>{vec.nazev}</h2>
+				{:else if vec instanceof Pisatkova && vec.zobrazit}
+					<p><Pisatko bind:vec /></p>
+				{:else if vec instanceof Vybiratkova && vec.zobrazit}
+					<p><Vybiratko bind:vec /></p>
+				{:else if vec instanceof Radiova && vec.zobrazit}
+					<p><Radio bind:vec /></p>
+				{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit}
+					<p><MultiZaskrtavatko bind:vec /></p>
+				{:else if vec instanceof Zaskrtavatkova && vec.zobrazit}
+					<p><Zaskrtavatko bind:vec /></p>
+				{/if}
+			{/each}
+
+			<div class="d-inline-flex">
+				<button id="odeslat" type="button" class="btn btn-primary" on:click={odeslat}> Odeslat </button>
+				<p class:text-danger={!vysledek.success} class="ms-3 my-auto">{vysledek.text}</p>
+			</div>
+		{:else}
+			<p>Pro zobrazení a vyplnění formuláře je nutné se přihlásit!</p>
+		{/if}
 	{/if}
 </main>
 
