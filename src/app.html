@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+	<script>
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/service-worker.js')
+		}
+	</script>
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/ic_r.png" />
@@ -19,6 +24,11 @@
 		%sveltekit.head%
 	</head>
 	<body>
+		<script>
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('/service-worker.js')
+			}
+		</script>
 		<div>%sveltekit.body%</div>
 	</body>
 </html>
