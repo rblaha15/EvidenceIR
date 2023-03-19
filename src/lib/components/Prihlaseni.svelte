@@ -3,14 +3,15 @@
 		jeAdmin,
 		odhlasit,
 		prihlasit,
-		seznamLidi,
-		zaregistovat,
+		zmenitHeslo,
 		prihlasenState,
-		aktualizovatSeznamLidi
+		zodpovednaOsoba,
+		seznamLidi,
 	} from '$lib/firebase';
 
-	$: prihlasen = $prihlasenState?.email ?? '';
-	$: jePrihlasen = prihlasen != '';
+	$: prihlasenyEmail = $prihlasenState?.email ?? '';
+	$: osoba = $zodpovednaOsoba ?? 'Žádná';
+	$: jePrihlasen = prihlasenyEmail != '';
 
 	let email: string;
 	let heslo: string;
@@ -22,38 +23,92 @@
 	let errorP: string | null = null;
 	let errorR: string | null = null;
 
-	const poVybrani = (
+	function poVybrani(
 		ev: Event & {
 			currentTarget: EventTarget & HTMLInputElement;
 		}
-	) => {
+	) {
 		const file = ev.currentTarget.files?.[0];
 		if (file) {
 			const reader = new FileReader();
 			reader.readAsText(file, 'UTF-8');
 			reader.onload = async (evt) => {
-				let text = evt.target?.result as string | null;
+				const text = evt.target?.result as string | null;
 				if (text) {
-					aktualizovatSeznamLidi(
-						text
-							.split('\n')
-							.filter((radek) => radek != '')
-							.map((radek) => radek.split(';').filter((vec) => vec != ''))
-							.map(([email, montazky, uvadeci]) => [
-								email,
-								montazky.split('#').filter((vec) => vec != ''),
-								uvadeci.split('#').filter((vec) => vec != '')
-							])
-					);
+					await fetch(`/api/aktualizovatLidi`, {
+						method: 'POST',
+						body: JSON.stringify({
+							lidi: text
+								.split('\n')
+								.filter((radek) => radek != '')
+								.map((radek) => radek.split(';').filter((vec) => vec != ''))
+								.map(([email, montazky, uvadeci, osoba]) => [
+									email,
+									montazky.split('#').filter((vec) => vec != ''),
+									uvadeci.split('#').filter((vec) => vec != ''),
+									osoba,
+								])
+								.map(([email, montazky, uvadeci, osoba]) => [
+									email,
+									Object.fromEntries(montazky.map(ico => [ico, ico])),
+									Object.fromEntries(uvadeci.map(ico => [ico, ico])),
+									osoba,
+								])
+						})
+					});
 				}
 			};
 		}
 	};
+	function prihlasitSe() {
+		errorP = '';
+		prihlasit(email, heslo)
+			.then(() => zrusitBtnP.click())
+			.catch((e) => {
+				console.log(e.code);
+				if (e.code == 'auth/network-request-failed') {
+					errorP = 'Zkontrolujte připojení k internetu!';
+				} else if (e.code == 'auth/user-not-found') {
+					errorP = 'Takový účet neexistuje! <a href="/" data-bs-toggle="modal" data-bs-target="#registrace">Vytvořit ho?</a>';
+				} else if (e.code == 'auth/wrong-password') {
+					errorP = 'Špatné heslo!';
+				} else if (e.code == 'auth/too-many-requests') {
+					errorP = 'Moc žádostí! Počkejte prosím chvíli';
+				} else {
+					errorP = 'Něco se nepovedlo :\\';
+				}
+			});
+	}
+function registrovatSe() {
+	errorR = '';
+	if (heslo === hesloZnovu) {
+	console.log(zrusitBtnR)
+		zmenitHeslo(email, heslo)
+			.then(() => zrusitBtnR.click())
+			.catch((e) => {
+				console.log(e.code);
+				if (e.code == 'auth/network-request-failed') {
+					errorR = 'Zkontrolujte připojení k internetu!';
+				} else if (e.code == 'auth/weak-password') {
+					errorR = 'Heslo je příliš slabé!';
+				} else if (e.code == 'auth/user-not-found') {
+					errorR = 'Prosím zadejte Váš firemní email';
+				} else if (e.code == 'auth/email-already-in-use') {
+					errorR = 'Tento účet již existuje';
+				} else {
+					errorR = 'Něco se nepovedlo :\\';
+				}
+			});
+	} else {
+		errorR = 'Hesla se neshodují!';
+	}
+}
 </script>
 
 <div class="d-flex flex-column align-items-end">
 	{#if jePrihlasen}
-		<span>{prihlasen}</span>
+		<span>{prihlasenyEmail}</span>
+		<span>Zodpovědná osoba: {osoba}</span>
 		<span><a href="/" on:click={odhlasit}>Odhlásit se</a></span>
 	{:else}
 		<span><a href="/" data-bs-toggle="modal" data-bs-target="#prihlaseni">Přihlásit se</a></span>
@@ -97,26 +152,7 @@
 					<button
 						type="submit"
 						class="btn btn-primary mt-3 mx-2"
-						on:click={() => {
-							errorP = '';
-							prihlasit(email, heslo)
-								.then(() => zrusitBtnP.click())
-								.catch((e) => {
-									console.log(e.code);
-									if (e.code == 'auth/network-request-failed') {
-										errorP = 'Zkontrolujte připojení k internetu!';
-									} else if (e.code == 'auth/user-not-found') {
-										errorP =
-											'Takový účet neexistuje! <a href="/" data-bs-toggle="modal" data-bs-target="#registrace">Vytvořit ho?</a>';
-									} else if (e.code == 'auth/wrong-password') {
-										errorP = 'Špatné heslo!';
-									} else if (e.code == 'auth/too-many-requests') {
-										errorP = 'Moc žádostí! Počkejte prosím chvíli';
-									} else {
-										errorP = 'Něco se nepovedlo :\\';
-									}
-								});
-						}}
+						on:click={prihlasitSe}
 					>
 						Přihlásit se
 					</button>
@@ -185,25 +221,7 @@
 					<button
 						type="submit"
 						class="btn btn-primary mt-3 mx-2"
-						on:click={() => {
-							errorR = '';
-							if (heslo === hesloZnovu) {
-								zaregistovat(email, heslo)
-									.then(() => zrusitBtnR.click())
-									.catch((e) => {
-										console.log(e.code);
-										if (e.code == 'auth/network-request-failed') {
-											errorR = 'Zkontrolujte připojení k internetu!';
-										} else if (e.code == 'auth/weak-password') {
-											errorR = 'Heslo je příliš slabé!';
-										} else {
-											errorR = 'Něco se nepovedlo :\\';
-										}
-									});
-							} else {
-								errorR = 'Hesla se neshodují!';
-							}
-						}}
+						on:click={registrovatSe}
 					>
 						Registrovat
 					</button>
@@ -233,8 +251,8 @@
 			<label class="mx-3 mt-2">
 				<p>
 					Vložte csv soubor oddělený středníky, kde v prvním sloupci je email, v druhém sloupci iča
-					montážních firem oddělená hashy (#) a v třetím slopci jsou stejně oddělená iča uvaděčů: <br
-					/>Př.: email@example.com;12345678#87654321;14725836#63852741
+					montážních firem oddělená hashy (#), v třetím slopci jsou stejně oddělená iča uvaděčů a ve čtvrtém spoupci jméno odpovědné osoby: <br
+					/>Př.: email@example.com;12345678#87654321;14725836#63852741;Jan Novák
 				</p>
 				<p><input type="file" accept="csv" on:change={poVybrani} /></p>
 			</label>
@@ -243,7 +261,7 @@
 				<p>
 					{$seznamLidi
 						.map(
-							([email, montazky, uvadeci]) => `${email};${montazky.join('#')};${uvadeci.join('#')}`
+							([email, montazky, uvadeci, osoba]) => `${email};${Object.values(montazky).join('#')};${Object.values(uvadeci).join('#')};${osoba}`
 						)
 						.join('\n')}
 				</p>
@@ -253,8 +271,7 @@
 				<button
 					type="button"
 					class="btn btn-outline-danger"
-					data-bs-dismiss="modal"
-					bind:this={zrusitBtnR}>Zavřít</button
+					data-bs-dismiss="modal">Zavřít</button
 				>
 			</div>
 		</div>
