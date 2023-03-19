@@ -18,7 +18,7 @@
 		MultiZaskrtavatkova,
 		Vec
 	} from '$lib/Vec';
-	import { sprateleneFirmy, type Firma } from '$lib/firebase';
+	import { sprateleneFirmy, type Firma, prihlasenState } from '$lib/firebase';
 
 	// Svelte
 	import { dev } from '$app/environment';
@@ -32,6 +32,8 @@
 
 	$: montazky = $sprateleneFirmy[0] ?? [];
 	$: uvadeci = $sprateleneFirmy[1] ?? [];
+
+	$: console.log($prihlasenState)
 
 	$: [vyfiltrovanyMontazky, vyfiltrovanyUvadeci] = $sprateleneFirmy.map((firmy) =>
 		firmy
@@ -180,11 +182,30 @@
 		success: true
 	};
 
+	const nazevFirmy = async (ico: string) => {
+		const response = await fetch(`/api/getWebsite`, {
+			method: 'POST',
+			body: JSON.stringify({
+				url: `http://wwwinfo.mfcr.cz/cgi-bin/ares/ares_es.cgi?ico=${ico}`
+			})
+		});
+		// console.log(response);
+		const text = await response.text();
+		// console.log(text);
+		const doc = new DOMParser().parseFromString(text, 'text/xml');
+		console.log(doc);
+		return doc
+			.querySelector('Ares_odpovedi')
+			?.querySelector('Odpoved')
+			?.querySelector('V')
+			?.querySelector('S')
+			?.querySelector('ojm')?.textContent;
+	};
+
 	const odeslat = async () => {
-		const { novyUzivatel } = await import('$lib/firebase');
 		const { poslatEmail, sender } = await import('$lib/constants');
 		const { htmlToText } = await import('html-to-text');
-		const MailSPotvrzenim = (await import('$lib/mails/MailSPotvrzenim.svelte')).default;
+		const MailPoPotvrzeni = (await import('$lib/mails/MailPoPotvrzeni.svelte')).default;
 		const MailSDaty = (await import('$lib/mails/MailSDaty.svelte')).default;
 
 		if (!seznam.every((it) => !it.zpravaJeChybna)) {
@@ -214,29 +235,21 @@
 		console.log(message1);
 
 		if (data.vzdalenyPristup.chce) {
-			const id = await novyUzivatel({ veci: JSON.stringify(data) });
-
+			const montazka = (await nazevFirmy(fireData.montazka.ico.text)) ?? null;
+			const uvadec = (await nazevFirmy(fireData.uvedeni.ico.text)) ?? null;
 			const div = document.createElement('div');
-			new MailSPotvrzenim({
+			new MailPoPotvrzeni({
 				target: div,
-				props: {
-					fakturuje: data.vzdalenyPristup.fakturuje.vybrano == 'Koncový zákazník',
-					ano: `${$page.url.origin}/potvrzeni/${id}/souhlas/ano`,
-					ne: `${$page.url.origin}/potvrzeni/${id}/souhlas/ne`
-				}
+				props: { data, montazka, uvadec }
 			});
-
+			const html = div.innerHTML;
+			const text = htmlToText(html);
 			const response = await poslatEmail({
 				from: sender,
-				to: 'radek.blaha.15@gmail.com',
-				subject: `Souhlas se vzdáleným přístupem k regulátoru ${data.ir.typ.vybrano}`,
-				html: div.innerHTML,
-				attachments: [
-					{
-						filename: 'Souhlas se zpracováním osobních údajů.pdf',
-						path: 'https://raw.githubusercontent.com/rblaha15/rblaha15.github.io/main/Souhlas%20se%20zpracov%C3%A1n%C3%ADm%20osobn%C3%ADch%20%C3%BAdaj%C5%AF.pdf'
-					}
-				]
+				to: dev ? 'radek.blaha.15@gmail.com' : 'blaha@regulus.cz',
+				subject: `Nově zaevidovaný regulátor ${fireData.ir.typ.vybrano} (${fireData.ir.cislo.text})`,
+				html,
+				text,
 			});
 
 			console.log(response);
@@ -330,53 +343,56 @@
 
 		<Prihlaseni />
 	</div>
+	{#if $prihlasenState}
+		{#each seznam as vec}
+			{#if vec === data.montazka.ico && vec.zobrazit && montazky.length > 1}
+				<VybiratkoFirmy
+					id="montazka"
+					bind:emailVec={data.montazka.email}
+					bind:zastupceVec={data.montazka.zastupce}
+					bind:icoVec={data.montazka.ico}
+					bind:filtr
+					bind:vyfiltrovanyFirmy={vyfiltrovanyMontazky}
+				/>
+			{/if}
+			{#if vec === data.uvedeni.ico && vec.zobrazit && uvadeci.length > 1}
+				<VybiratkoFirmy
+					id="uvedeni"
+					bind:emailVec={data.uvedeni.email}
+					bind:zastupceVec={data.uvedeni.zastupce}
+					bind:icoVec={data.uvedeni.ico}
+					bind:filtr
+					bind:vyfiltrovanyFirmy={vyfiltrovanyUvadeci}
+				/>
+			{/if}
+			{#if vec === data.tc.cislo && vec.zobrazit}
+				<Scanner
+					bind:vec={data.tc.cislo}
+					zobrazit={data.ir.typ.vybrano.includes('CTC')}
+					onScan={(text) => (data.tc.cislo.text = text.slice(8))}
+				/>
+			{:else if vec instanceof Nadpisova && vec.zobrazit}
+				<h2>{vec.nazev}</h2>
+			{:else if vec instanceof Pisatkova && vec.zobrazit}
+				<p><Pisatko bind:vec /></p>
+			{:else if vec instanceof Vybiratkova && vec.zobrazit}
+				<p><Vybiratko bind:vec /></p>
+			{:else if vec instanceof Radiova && vec.zobrazit}
+				<p><Radio bind:vec /></p>
+			{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit}
+				<p><MultiZaskrtavatko bind:vec /></p>
+			{:else if vec instanceof Zaskrtavatkova && vec.zobrazit}
+				<p><Zaskrtavatko bind:vec /></p>
+			{/if}
+		{/each}
 
-	{#each seznam as vec}
-		{#if vec === data.montazka.ico && vec.zobrazit && montazky.length > 1}
-			<VybiratkoFirmy
-				id="montazka"
-				bind:emailVec={data.montazka.email}
-				bind:zastupceVec={data.montazka.zastupce}
-				bind:icoVec={data.montazka.ico}
-				bind:filtr
-				bind:vyfiltrovanyFirmy={vyfiltrovanyMontazky}
-			/>
-		{/if}
-		{#if vec === data.uvedeni.ico && vec.zobrazit && uvadeci.length > 1}
-			<VybiratkoFirmy
-				id="uvedeni"
-				bind:emailVec={data.uvedeni.email}
-				bind:zastupceVec={data.uvedeni.zastupce}
-				bind:icoVec={data.uvedeni.ico}
-				bind:filtr
-				bind:vyfiltrovanyFirmy={vyfiltrovanyUvadeci}
-			/>
-		{/if}
-		{#if vec === data.tc.cislo && vec.zobrazit}
-			<Scanner
-				bind:vec={data.tc.cislo}
-				zobrazit={data.ir.typ.vybrano.includes('CTC')}
-				onScan={(text) => (data.tc.cislo.text = text.slice(8))}
-			/>
-		{:else if vec instanceof Nadpisova && vec.zobrazit}
-			<h2>{vec.nazev}</h2>
-		{:else if vec instanceof Pisatkova && vec.zobrazit}
-			<p><Pisatko bind:vec /></p>
-		{:else if vec instanceof Vybiratkova && vec.zobrazit}
-			<p><Vybiratko bind:vec /></p>
-		{:else if vec instanceof Radiova && vec.zobrazit}
-			<p><Radio bind:vec /></p>
-		{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit}
-			<p><MultiZaskrtavatko bind:vec /></p>
-		{:else if vec instanceof Zaskrtavatkova && vec.zobrazit}
-			<p><Zaskrtavatko bind:vec /></p>
-		{/if}
-	{/each}
-
-	<div class="d-inline-flex">
-		<button id="odeslat" type="button" class="btn btn-primary" on:click={odeslat}> Odeslat </button>
-		<p class:text-danger={!vysledek.success} class="ms-3 my-auto">{vysledek.text}</p>
-	</div>
+		<div class="d-inline-flex">
+			<button id="odeslat" type="button" class="btn btn-primary" on:click={odeslat}> Odeslat </button>
+			<p class:text-danger={!vysledek.success} class="ms-3 my-auto">{vysledek.text}</p>
+		</div>
+	{:else}
+		<p>Pro zobrazení a vyplnění formuláře je nutné se přihlásit!</p>
+	{/if}
 </main>
 
 <style>

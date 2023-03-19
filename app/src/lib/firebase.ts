@@ -1,10 +1,10 @@
 import { initializeApp } from '@firebase/app';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
-import { getFirestore } from '@firebase/firestore';
 import { getDatabase, ref, onValue } from '@firebase/database';
 import { writable, derived } from 'svelte/store';
 
 export type Firma = [string, string, string, string];
+export type Clovek = [string, { [ico: string]: string }, { [ico: string]: string }, string];
 
 const firebaseConfig: import('@firebase/app').FirebaseOptions = {
 	apiKey: 'AIzaSyCKu8Z4wx55DfrZdYtKvrqvwZ2Y6nQvx24',
@@ -27,15 +27,37 @@ export const prihlasenState = writable(null as import('@firebase/auth').User | n
 onAuthStateChanged(auth, (usr) => prihlasenState.set(usr));
 
 export const prihlasit = async (email: string, heslo: string) => {
+	if (heslo == "123456") throw {
+		code: "auth/user-not-found"
+	}
 	const { signInWithEmailAndPassword } = await import('@firebase/auth');
 	return signInWithEmailAndPassword(auth, email, heslo);
 };
-export const zaregistovat = async (email: string, heslo: string) => {
-	const { createUserWithEmailAndPassword } = await import('@firebase/auth');
-	return createUserWithEmailAndPassword(auth, email, heslo);
+export const zmenitHeslo = async (email: string, heslo: string) => {
+	if (heslo == "123456") throw {
+		code: "auth/weak-password"
+	}
+	const { signInWithEmailAndPassword, updatePassword, createUserWithEmailAndPassword } = await import('@firebase/auth');
+	try {
+		const user = await signInWithEmailAndPassword(auth, email, "123456");
+		return updatePassword(user.user, heslo);
+	} catch ({ code }) {
+        if (code == "auth/wrong-password") {
+			throw {
+				code: "auth/email-already-in-use"
+			}
+		} else if (code == "auth/user-not-found") {
+			if (email.endsWith("@regulus.cz")) {
+				await createUserWithEmailAndPassword(auth, email, heslo)
+				return
+			}
+		}
+		throw  { code }
+	}
 };
 export const odhlasit = async () => {
 	const { signOut } = await import('@firebase/auth');
+	console.log(auth.currentUser)
 	return signOut(auth);
 };
 
@@ -46,33 +68,28 @@ export const realtime = getDatabase(app);
 const firmyRef = ref(realtime, '/firmy');
 const lidiRef = ref(realtime, '/lidi');
 
-const seznamFirem_ = async () => {
-	const { get } = await import('@firebase/database');
-	return (await get(firmyRef)).val() as Firma[];
-};
-
 const sprateleneFirmy_ = async (
 	user: import('@firebase/auth').User | null
 ): Promise<[Firma[], Firma[]]> => {
 	if (!user) {
 		return [[], []];
 	}
-	if (user.email?.endsWith('@regulus.cz')) {
-		const vsechnyFirmy = await seznamFirem_();
-		return [vsechnyFirmy, vsechnyFirmy];
+	const { get, child } = await import('@firebase/database');
+	if (user.email?.endsWith('@regulus.cz') || await jeAdmin_(user)) {
+		const vsechnyFirmy = (await get(firmyRef)).val() as { [ico: string]: Firma };
+		console.log(vsechnyFirmy)
+		return [Object.values(vsechnyFirmy), Object.values(vsechnyFirmy)];
 	}
-	const { get, query, orderByChild, equalTo, child } = await import('@firebase/database');
-	const { ref } = child(query(lidiRef, orderByChild('0'), equalTo(user.email)).ref, '0');
-	const vysledky = (await get(ref)).val() as [string, string[], string[]];
-	if (vysledky[0] !== user.email) {
+	console.log({lidiRef, uid: user.uid, ch: child(lidiRef, user.uid)})
+	const ja = (await get(child(lidiRef, user.uid))).val() as Clovek;
+	if (ja[0] !== user.email) {
 		return [[], []];
 	}
-	const dovolenaIca = (vysledky?.splice(1) as [string[], string[]] | null) ?? [];
-	const vsechnyFirmy = await seznamFirem_();
-	return dovolenaIca.map((ica) => vsechnyFirmy.filter(([_, ico]) => ica.includes(ico)) ?? []) as [
-		Firma[],
-		Firma[]
-	];
+	const dovolenaIca = (ja?.slice(1, 3).map(ica => Object.keys(ica)) as [string[], string[]] | null) ?? [[], []];
+	console.log({dovolenaIca})
+	return await Promise.all(dovolenaIca.map(async ica =>
+		await Promise.all(ica.map(async ico => (await get(child(firmyRef, ico))).val() as Firma)) as Firma[],
+ 	)) as [Firma[], Firma[]];
 };
 export const sprateleneFirmy = derived(
 	prihlasenState,
@@ -92,39 +109,25 @@ export const jeAdmin = derived(
 	false
 );
 
-export const aktualizovatSeznamLidi = async (data: [string, string[], string[]][]) => {
-	const { set } = await import('@firebase/database');
-	if (await jeAdmin_(auth.currentUser)) {
-		console.log({ staraData: await seznamLidi_(), novaData: data });
-		set(lidiRef, data);
-	}
-};
+const zodpovednaOsoba_ = async (user: import('@firebase/auth').User | null) => {
+	if (!user) return  null
+	const { get, child } = await import('@firebase/database');
+	const ja = (await get(child(lidiRef, user.uid))).val() as Clovek;
+	return ja[3]
+}
 
-const seznamLidi_ = async () => {
-	const { get } = await import('@firebase/database');
-	return (await get(lidiRef)).val() as [string, string[], string[]][];
-};
-export const seznamLidi = writable([] as [string, string[], string[]][]);
+export const zodpovednaOsoba = derived(
+	prihlasenState,
+	(user, set) => {
+		(async () => set(await zodpovednaOsoba_(user)))();
+	},
+	null as string | null
+);
+
+export const seznamLidi = writable([] as Clovek[]);
 
 jeAdmin.subscribe(() => {
 	onValue(lidiRef, (data) => {
-		seznamLidi.set(data.val());
+		seznamLidi.set(Object.values(data.val() as { [uid: string]: Clovek }));
 	});
 });
-
-//// FIRESTORE: vyplnění uživatelé žádající vzdálený přístup
-
-export const db = getFirestore(app);
-
-export const uzivatel = async (uid: string) => {
-	const { getDoc, doc } = await import('@firebase/firestore');
-	return await getDoc(doc(db, 'uzivatele', `/${uid}`));
-};
-export const novyUzivatel = async (data: { veci: string }) => {
-	const { addDoc, collection } = await import('@firebase/firestore');
-	return (await addDoc(collection(db, 'uzivatele'), data)).id;
-};
-export const odstranitUzivatele = async (uid: string) => {
-	const { deleteDoc, doc } = await import('@firebase/firestore');
-	return await deleteDoc(doc(db, 'uzivatele', `/${uid}`));
-};
