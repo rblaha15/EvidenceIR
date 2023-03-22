@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
 	import type { Pisatkova } from '$lib/Vec';
 	import MaskInput from 'svelte-input-mask';
 
