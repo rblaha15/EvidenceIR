@@ -33,7 +33,7 @@
 	$: montazky = $sprateleneFirmy[0] ?? [];
 	$: uvadeci = $sprateleneFirmy[1] ?? [];
 
-	$: console.log($prihlasenState)
+	$: console.log($prihlasenState);
 
 	$: [vyfiltrovanyMontazky, vyfiltrovanyUvadeci] = $sprateleneFirmy.map((firmy) =>
 		firmy
@@ -103,7 +103,12 @@
 		mistoRealizace: {
 			nadpis: new Nadpisova('Místo realizace'),
 			obec: new Pisatkova('Obec'),
-			ulice: new Pisatkova('Číslo popisné nebo ulice a číslo orientační'),
+			ulice: new Pisatkova(
+				'Číslo popisné nebo ulice a číslo orientační',
+				undefined,
+				undefined,
+				false
+			),
 			psc: new Pisatkova(
 				'Poštovní směrovací číslo',
 				'ZAdejte PSČ ve správném formátu',
@@ -237,21 +242,21 @@
 		console.log(message1);
 
 		if (data.vzdalenyPristup.chce) {
-			const montazka = (await nazevFirmy(fireData.montazka.ico.text)) ?? null;
-			const uvadec = (await nazevFirmy(fireData.uvedeni.ico.text)) ?? null;
+			const montazka = (await nazevFirmy(data.montazka.ico.text)) ?? null;
+			const uvadec = (await nazevFirmy(data.uvedeni.ico.text)) ?? null;
 			const div = document.createElement('div');
 			new MailPoPotvrzeni({
 				target: div,
-				props: { data, montazka, uvadec, osoba: $zodpovednaOsoba }
+				props: { data, montazka, uvadec, osoba: $zodpovednaOsoba ?? 'Žádná' }
 			});
 			const html = div.innerHTML;
 			const text = htmlToText(html);
 			const response = await poslatEmail({
 				from: sender,
 				to: dev ? 'radek.blaha.15@gmail.com' : 'blaha@regulus.cz',
-				subject: `Nově zaevidovaný regulátor ${fireData.ir.typ.vybrano} (${fireData.ir.cislo.text})`,
+				subject: `Nově zaevidovaný regulátor ${data.ir.typ.vybrano} (${data.ir.cislo.text})`,
 				html,
-				text,
+				text
 			});
 
 			console.log(response);
@@ -339,9 +344,9 @@
 	// $: console.log(data);
 </script>
 
-<main class="my-3 container">
-	{#if $prihlasenState == "null"}
-		<div class="spinner-border text-danger"></div>
+<main class="container my-3">
+	{#if $prihlasenState == 'null'}
+		<div class="spinner-border text-danger" />
 	{:else}
 		<div class="d-sm-flex flex-sm-row">
 			<h1 class="flex-grow-1">Evidence regulátorů IR</h1>
@@ -392,7 +397,9 @@
 			{/each}
 
 			<div class="d-inline-flex">
-				<button id="odeslat" type="button" class="btn btn-primary" on:click={odeslat}> Odeslat </button>
+				<button id="odeslat" type="button" class="btn btn-primary" on:click={odeslat}>
+					Odeslat
+				</button>
 				<p class:text-danger={!vysledek.success} class="ms-3 my-auto">{vysledek.text}</p>
 			</div>
 		{:else}
