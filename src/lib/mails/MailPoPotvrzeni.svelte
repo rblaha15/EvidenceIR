@@ -31,8 +31,8 @@
 	{data.koncovyUzivatel.prijmeni.text}, {data.koncovyUzivatel.jmeno.text} - {data.mistoRealizace
 		.obec.text}
 </p>
-<h2>Zodpovědná osoba: {osoba}</h2>
-<p></p>
+<h2>Zodpovědná osoba:</h2>
+<p>{osoba}</p>
 <h2>Adresa:</h2>
 <p><b>Město:</b> {data.mistoRealizace.obec.text}</p>
 <p><b>Ulice:</b> {data.mistoRealizace.ulice.text}</p>
