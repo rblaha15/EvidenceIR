@@ -6,10 +6,10 @@
 		zmenitHeslo,
 		prihlasenState,
 		zodpovednaOsoba,
-		seznamLidi,
+		seznamLidi
 	} from '$lib/firebase';
 
-	$: prihlasenyEmail = $prihlasenState?.email ?? '';
+	$: prihlasenyEmail = ($prihlasenState == 'null' ? null : $prihlasenState)?.email ?? '';
 	$: osoba = $zodpovednaOsoba ?? 'Žádná';
 	$: jePrihlasen = prihlasenyEmail != '';
 
@@ -42,24 +42,27 @@
 								.split('\n')
 								.filter((radek) => radek != '')
 								.map((radek) => radek.split(';').filter((vec) => vec != ''))
+								.map(
+									([email, montazky, uvadeci, osoba]) =>
+										[
+											email,
+											montazky.split('#').filter((vec) => vec != ''),
+											uvadeci.split('#').filter((vec) => vec != ''),
+											osoba
+										] as [string, string[], string[], string]
+								)
 								.map(([email, montazky, uvadeci, osoba]) => [
 									email,
-									montazky.split('#').filter((vec) => vec != ''),
-									uvadeci.split('#').filter((vec) => vec != ''),
-									osoba,
-								])
-								.map(([email, montazky, uvadeci, osoba]) => [
-									email,
-									Object.fromEntries(montazky.map(ico => [ico, ico])),
-									Object.fromEntries(uvadeci.map(ico => [ico, ico])),
-									osoba,
+									Object.fromEntries(montazky.map((ico) => [ico, ico])),
+									Object.fromEntries(uvadeci.map((ico) => [ico, ico])),
+									osoba
 								])
 						})
 					});
 				}
 			};
 		}
-	};
+	}
 	function prihlasitSe() {
 		errorP = '';
 		prihlasit(email, heslo)
@@ -69,7 +72,8 @@
 				if (e.code == 'auth/network-request-failed') {
 					errorP = 'Zkontrolujte připojení k internetu!';
 				} else if (e.code == 'auth/user-not-found') {
-					errorP = 'Takový účet neexistuje! <a href="/" data-bs-toggle="modal" data-bs-target="#registrace">Vytvořit ho?</a>';
+					errorP =
+						'Takový účet neexistuje! <a href="/" data-bs-toggle="modal" data-bs-target="#registrace">Vytvořit ho?</a>';
 				} else if (e.code == 'auth/wrong-password') {
 					errorP = 'Špatné heslo!';
 				} else if (e.code == 'auth/too-many-requests') {
@@ -79,30 +83,30 @@
 				}
 			});
 	}
-function registrovatSe() {
-	errorR = '';
-	if (heslo === hesloZnovu) {
-	console.log(zrusitBtnR)
-		zmenitHeslo(email, heslo)
-			.then(() => zrusitBtnR.click())
-			.catch((e) => {
-				console.log(e.code);
-				if (e.code == 'auth/network-request-failed') {
-					errorR = 'Zkontrolujte připojení k internetu!';
-				} else if (e.code == 'auth/weak-password') {
-					errorR = 'Heslo je příliš slabé!';
-				} else if (e.code == 'auth/user-not-found') {
-					errorR = 'Prosím zadejte Váš firemní email';
-				} else if (e.code == 'auth/email-already-in-use') {
-					errorR = 'Tento účet již existuje';
-				} else {
-					errorR = 'Něco se nepovedlo :\\';
-				}
-			});
-	} else {
-		errorR = 'Hesla se neshodují!';
+	function registrovatSe() {
+		errorR = '';
+		if (heslo === hesloZnovu) {
+			console.log(zrusitBtnR);
+			zmenitHeslo(email, heslo)
+				.then(() => zrusitBtnR.click())
+				.catch((e) => {
+					console.log(e.code);
+					if (e.code == 'auth/network-request-failed') {
+						errorR = 'Zkontrolujte připojení k internetu!';
+					} else if (e.code == 'auth/weak-password') {
+						errorR = 'Heslo je příliš slabé!';
+					} else if (e.code == 'auth/user-not-found') {
+						errorR = 'Prosím zadejte Váš firemní email';
+					} else if (e.code == 'auth/email-already-in-use') {
+						errorR = 'Tento účet již existuje';
+					} else {
+						errorR = 'Něco se nepovedlo :\\';
+					}
+				});
+		} else {
+			errorR = 'Hesla se neshodují!';
+		}
 	}
-}
 </script>
 
 <div class="d-flex flex-column align-items-end">
@@ -128,7 +132,7 @@ function registrovatSe() {
 
 			<div class="modal-body">
 				<form>
-					<div class="mt-3 mx-2">
+					<div class="mx-2 mt-3">
 						<input
 							autocomplete="email"
 							type="email"
@@ -137,7 +141,7 @@ function registrovatSe() {
 							bind:value={email}
 						/>
 					</div>
-					<div class="mt-3 mx-2">
+					<div class="mx-2 mt-3">
 						<input
 							autocomplete="current-password"
 							type="password"
@@ -147,16 +151,12 @@ function registrovatSe() {
 						/>
 					</div>
 					{#if errorP}
-						<p class="mt-3 mx-2 mb-0 text-danger">{@html errorP}</p>
+						<p class="text-danger mx-2 mt-3 mb-0">{@html errorP}</p>
 					{/if}
-					<button
-						type="submit"
-						class="btn btn-primary mt-3 mx-2"
-						on:click={prihlasitSe}
-					>
+					<button type="submit" class="btn btn-primary mx-2 mt-3" on:click={prihlasitSe}>
 						Přihlásit se
 					</button>
-					<p class="mt-3 mx-2">
+					<p class="mx-2 mt-3">
 						Nemáte účet? <a href="/" data-bs-toggle="modal" data-bs-target="#registrace"
 							>Registrovat se</a
 						>
@@ -187,7 +187,7 @@ function registrovatSe() {
 			<div class="modal-body">
 				<form>
 					<div class="col">
-						<div class="row mt-3 mx-2">
+						<div class="row mx-2 mt-3">
 							<input
 								autocomplete="email"
 								type="email"
@@ -196,7 +196,7 @@ function registrovatSe() {
 								bind:value={email}
 							/>
 						</div>
-						<div class="row mt-3 mx-2">
+						<div class="row mx-2 mt-3">
 							<input
 								autocomplete="new-password"
 								type="password"
@@ -205,7 +205,7 @@ function registrovatSe() {
 								bind:value={heslo}
 							/>
 						</div>
-						<div class="row mt-3 mx-2">
+						<div class="row mx-2 mt-3">
 							<input
 								autocomplete="new-password"
 								type="password"
@@ -216,13 +216,9 @@ function registrovatSe() {
 						</div>
 					</div>
 					{#if errorR}
-						<p class="mt-3 mx-2 mb-0 text-danger">{@html errorR}</p>
+						<p class="text-danger mx-2 mt-3 mb-0">{@html errorR}</p>
 					{/if}
-					<button
-						type="submit"
-						class="btn btn-primary mt-3 mx-2"
-						on:click={registrovatSe}
-					>
+					<button type="submit" class="btn btn-primary mx-2 mt-3" on:click={registrovatSe}>
 						Registrovat
 					</button>
 				</form>
@@ -251,8 +247,9 @@ function registrovatSe() {
 			<label class="mx-3 mt-2">
 				<p>
 					Vložte csv soubor oddělený středníky, kde v prvním sloupci je email, v druhém sloupci iča
-					montážních firem oddělená hashy (#), v třetím slopci jsou stejně oddělená iča uvaděčů a ve čtvrtém spoupci jméno odpovědné osoby: <br
-					/>Př.: email@example.com;12345678#87654321;14725836#63852741;Jan Novák
+					montážních firem oddělená hashy (#), v třetím slopci jsou stejně oddělená iča uvaděčů a ve
+					čtvrtém spoupci jméno odpovědné osoby: <br />Př.:
+					email@example.com;12345678#87654321;14725836#63852741;Jan Novák
 				</p>
 				<p><input type="file" accept="csv" on:change={poVybrani} /></p>
 			</label>
@@ -261,18 +258,17 @@ function registrovatSe() {
 				<p>
 					{$seznamLidi
 						.map(
-							([email, montazky, uvadeci, osoba]) => `${email};${Object.values(montazky).join('#')};${Object.values(uvadeci).join('#')};${osoba}`
+							([email, montazky, uvadeci, osoba]) =>
+								`${email};${Object.values(montazky).join('#')};${Object.values(uvadeci).join(
+									'#'
+								)};${osoba}`
 						)
 						.join('\n')}
 				</p>
 			</div>
 
 			<div class="modal-footer">
-				<button
-					type="button"
-					class="btn btn-outline-danger"
-					data-bs-dismiss="modal">Zavřít</button
-				>
+				<button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Zavřít</button>
 			</div>
 		</div>
 	</div>

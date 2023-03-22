@@ -1,6 +1,7 @@
 import { initializeApp } from '@firebase/app';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { getDatabase, ref, onValue } from '@firebase/database';
+import { FirebaseError } from '@firebase/util/dist';
 import { writable, derived } from 'svelte/store';
 
 export type Firma = [string, string, string, string];
@@ -41,18 +42,21 @@ export const zmenitHeslo = async (email: string, heslo: string) => {
 	try {
 		const user = await signInWithEmailAndPassword(auth, email, "123456");
 		return updatePassword(user.user, heslo);
-	} catch ({ code }) {
-        if (code == "auth/wrong-password") {
-			throw {
-				code: "auth/email-already-in-use"
-			}
-		} else if (code == "auth/user-not-found") {
-			if (email.endsWith("@regulus.cz")) {
-				await createUserWithEmailAndPassword(auth, email, heslo)
-				return
-			}
-		}
-		throw  { code }
+	} catch (err) {
+        if (err instanceof FirebaseError) {
+            if (err.code == "auth/wrong-password") {
+                throw {
+                    code: "auth/email-already-in-use"
+                }
+            } else if (err.code == "auth/user-not-found") {
+                if (email.endsWith("@regulus.cz")) {
+                    await createUserWithEmailAndPassword(auth, email, heslo)
+                    return
+                }
+            }
+            throw  err
+        }
+        throw err
 	}
 };
 export const odhlasit = async () => {
