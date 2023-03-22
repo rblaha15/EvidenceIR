@@ -1,7 +1,6 @@
 import { initializeApp } from '@firebase/app';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { getDatabase, ref, onValue } from '@firebase/database';
-import { FirebaseError } from '@firebase/util/dist';
 import { writable, derived } from 'svelte/store';
 
 export type Firma = [string, string, string, string];
@@ -24,44 +23,44 @@ const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
-export const prihlasenState = writable("null" as import('@firebase/auth').User | null | "null");
+export const prihlasenState = writable('null' as import('@firebase/auth').User | null | 'null');
 onAuthStateChanged(auth, (usr) => prihlasenState.set(usr));
 
 export const prihlasit = async (email: string, heslo: string) => {
-	if (heslo == "123456") throw {
-		code: "auth/user-not-found"
-	}
+	if (heslo == '123456')
+		throw {
+			code: 'auth/user-not-found'
+		};
 	const { signInWithEmailAndPassword } = await import('@firebase/auth');
 	return signInWithEmailAndPassword(auth, email, heslo);
 };
 export const zmenitHeslo = async (email: string, heslo: string) => {
-	if (heslo == "123456") throw {
-		code: "auth/weak-password"
-	}
-	const { signInWithEmailAndPassword, updatePassword, createUserWithEmailAndPassword } = await import('@firebase/auth');
+	if (heslo == '123456')
+		throw {
+			code: 'auth/weak-password'
+		};
+	const { signInWithEmailAndPassword, updatePassword, createUserWithEmailAndPassword } =
+		await import('@firebase/auth');
 	try {
-		const user = await signInWithEmailAndPassword(auth, email, "123456");
+		const user = await signInWithEmailAndPassword(auth, email, '123456');
 		return updatePassword(user.user, heslo);
 	} catch (err) {
-        if (err instanceof FirebaseError) {
-            if (err.code == "auth/wrong-password") {
-                throw {
-                    code: "auth/email-already-in-use"
-                }
-            } else if (err.code == "auth/user-not-found") {
-                if (email.endsWith("@regulus.cz")) {
-                    await createUserWithEmailAndPassword(auth, email, heslo)
-                    return
-                }
-            }
-            throw  err
-        }
-        throw err
+		if ((err as { code: string }).code == 'auth/wrong-password') {
+			throw {
+				code: 'auth/email-already-in-use'
+			};
+		} else if ((err as { code: string }).code == 'auth/user-not-found') {
+			if (email.endsWith('@regulus.cz')) {
+				await createUserWithEmailAndPassword(auth, email, heslo);
+				return;
+			}
+		}
+		throw err;
 	}
 };
 export const odhlasit = async () => {
 	const { signOut } = await import('@firebase/auth');
-	console.log(auth.currentUser)
+	console.log(auth.currentUser);
 	return signOut(auth);
 };
 
@@ -79,26 +78,33 @@ const sprateleneFirmy_ = async (
 		return [[], []];
 	}
 	const { get, child } = await import('@firebase/database');
-	if (user.email?.endsWith('@regulus.cz') || await jeAdmin_(user)) {
+	if (user.email?.endsWith('@regulus.cz') || (await jeAdmin_(user))) {
 		const vsechnyFirmy = (await get(firmyRef)).val() as { [ico: string]: Firma };
-		console.log(vsechnyFirmy)
+		console.log(vsechnyFirmy);
 		return [Object.values(vsechnyFirmy), Object.values(vsechnyFirmy)];
 	}
-	console.log({lidiRef, uid: user.uid, ch: child(lidiRef, user.uid)})
+	console.log({ lidiRef, uid: user.uid, ch: child(lidiRef, user.uid) });
 	const ja = (await get(child(lidiRef, user.uid))).val() as Clovek;
 	if (ja[0] !== user.email) {
 		return [[], []];
 	}
-	const dovolenaIca = (ja?.slice(1, 3).map(ica => Object.keys(ica)) as [string[], string[]] | null) ?? [[], []];
-	console.log({dovolenaIca})
-	return await Promise.all(dovolenaIca.map(async ica =>
-		await Promise.all(ica.map(async ico => (await get(child(firmyRef, ico))).val() as Firma)) as Firma[],
- 	)) as [Firma[], Firma[]];
+	const dovolenaIca = (ja?.slice(1, 3).map((ica) => Object.keys(ica)) as
+		| [string[], string[]]
+		| null) ?? [[], []];
+	console.log({ dovolenaIca });
+	return (await Promise.all(
+		dovolenaIca.map(
+			async (ica) =>
+				(await Promise.all(
+					ica.map(async (ico) => (await get(child(firmyRef, ico))).val() as Firma)
+				)) as Firma[]
+		)
+	)) as [Firma[], Firma[]];
 };
 export const sprateleneFirmy = derived(
 	prihlasenState,
 	(user, set) => {
-		(async () => set(user != "null" ? await sprateleneFirmy_(user) : [[], []]))();
+		(async () => set(user != 'null' ? await sprateleneFirmy_(user) : [[], []]))();
 	},
 	[[], []] as [Firma[], Firma[]]
 );
@@ -108,22 +114,22 @@ const jeAdmin_ = async (user: import('@firebase/auth').User | null) =>
 export const jeAdmin = derived(
 	prihlasenState,
 	(user, set) => {
-		(async () => set(user != "null" ? await jeAdmin_(user) : false))();
+		(async () => set(user != 'null' ? await jeAdmin_(user) : false))();
 	},
 	false
 );
 
 const zodpovednaOsoba_ = async (user: import('@firebase/auth').User | null) => {
-	if (!user) return  null
+	if (!user) return null;
 	const { get, child } = await import('@firebase/database');
 	const ja = (await get(child(lidiRef, user.uid))).val() as Clovek;
-	return ja[3]
-}
+	return ja[3];
+};
 
 export const zodpovednaOsoba = derived(
 	prihlasenState,
 	(user, set) => {
-		(async () => set(user != "null" ? await zodpovednaOsoba_(user) : null))();
+		(async () => set(user != 'null' ? await zodpovednaOsoba_(user) : null))();
 	},
 	null as string | null
 );
