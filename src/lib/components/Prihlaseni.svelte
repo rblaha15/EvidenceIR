@@ -86,7 +86,6 @@
 	function registrovatSe() {
 		errorR = '';
 		if (heslo === hesloZnovu) {
-			console.log(zrusitBtnR);
 			zmenitHeslo(email, heslo)
 				.then(() => zrusitBtnR.click())
 				.catch((e) => {

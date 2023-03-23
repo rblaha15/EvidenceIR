@@ -60,7 +60,6 @@ export const zmenitHeslo = async (email: string, heslo: string) => {
 };
 export const odhlasit = async () => {
 	const { signOut } = await import('@firebase/auth');
-	console.log(auth.currentUser);
 	return signOut(auth);
 };
 
@@ -80,10 +79,8 @@ const sprateleneFirmy_ = async (
 	const { get, child } = await import('@firebase/database');
 	if (user.email?.endsWith('@regulus.cz') || (await jeAdmin_(user))) {
 		const vsechnyFirmy = (await get(firmyRef)).val() as { [ico: string]: Firma };
-		console.log(vsechnyFirmy);
 		return [Object.values(vsechnyFirmy), Object.values(vsechnyFirmy)];
 	}
-	console.log({ lidiRef, uid: user.uid, ch: child(lidiRef, user.uid) });
 	const ja = (await get(child(lidiRef, user.uid))).val() as Clovek;
 	if (ja[0] !== user.email) {
 		return [[], []];
@@ -91,7 +88,6 @@ const sprateleneFirmy_ = async (
 	const dovolenaIca = (ja?.slice(1, 3).map((ica) => Object.keys(ica)) as
 		| [string[], string[]]
 		| null) ?? [[], []];
-	console.log({ dovolenaIca });
 	return (await Promise.all(
 		dovolenaIca.map(
 			async (ica) =>
@@ -123,7 +119,7 @@ const zodpovednaOsoba_ = async (user: import('@firebase/auth').User | null) => {
 	if (!user) return null;
 	const { get, child } = await import('@firebase/database');
 	const ja = (await get(child(lidiRef, user.uid))).val() as Clovek;
-	return ja[3];
+	return ja?.[3];
 };
 
 export const zodpovednaOsoba = derived(

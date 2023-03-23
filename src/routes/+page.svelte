@@ -33,8 +33,6 @@
 	$: montazky = $sprateleneFirmy[0] ?? [];
 	$: uvadeci = $sprateleneFirmy[1] ?? [];
 
-	$: console.log($prihlasenState);
-
 	$: [vyfiltrovanyMontazky, vyfiltrovanyUvadeci] = $sprateleneFirmy.map((firmy) =>
 		firmy.filter(([jmeno]) =>
 			filtr
@@ -201,11 +199,8 @@
 				url: `http://wwwinfo.mfcr.cz/cgi-bin/ares/ares_es.cgi?ico=${ico}`
 			})
 		});
-		// console.log(response);
 		const text = await response.text();
-		// console.log(text);
 		const doc = new DOMParser().parseFromString(text, 'text/xml');
-		console.log(doc);
 		return doc
 			.querySelector('Ares_odpovedi')
 			?.querySelector('Odpoved')
@@ -227,6 +222,11 @@
 			return;
 		}
 
+		vysledek = {
+			success: true,
+			text: 'Odesílání...'
+		};
+
 		const div = document.createElement('div');
 		new MailSDaty({
 			target: div,
@@ -243,8 +243,6 @@
 			text,
 			html
 		};
-
-		console.log(message1);
 
 		if (data.vzdalenyPristup.chce) {
 			const montazka = (await nazevFirmy(data.montazka.ico.text)) ?? null;
@@ -263,8 +261,6 @@
 				html,
 				text
 			});
-
-			console.log(response);
 		}
 
 		const response = await fetch(`/api/poslatEmail`, {
@@ -274,8 +270,6 @@
 				'content-type': 'application/json'
 			}
 		});
-
-		console.log(response);
 
 		if (response.ok) {
 			vysledek = {
@@ -291,8 +285,6 @@
 	};
 
 	$: {
-		console.log(data.zodpovednaOsoba.jmeno);
-		console.log($zodpovednaOsoba);
 		data.zodpovednaOsoba.jmeno.zobrazit = $zodpovednaOsoba == null;
 		if ($zodpovednaOsoba != null) data.zodpovednaOsoba.jmeno.text = $zodpovednaOsoba;
 	}
@@ -353,7 +345,6 @@
 		data.vzdalenyPristup.pristupMa.zobrazit = data.vzdalenyPristup.chce.zaskrtnuto;
 		data.vzdalenyPristup.pristupMa.nutne = data.vzdalenyPristup.chce.zaskrtnuto;
 	}
-	// $: console.log(data);
 	$: vybranaMontazka = montazky.find(([_, ico]) => ico == data.montazka.ico.text)?.[0] ?? 'Neznámá';
 	$: vybranyUvadec = uvadeci.find(([_, ico]) => ico == data.uvedeni.ico.text)?.[0] ?? 'Neznámá';
 </script>
