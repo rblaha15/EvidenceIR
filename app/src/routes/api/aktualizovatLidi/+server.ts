@@ -1,10 +1,11 @@
 import type { RequestHandler } from './$types';
 import type { Clovek } from '$lib/firebase';
 import { initializeApp } from 'firebase-admin/app';
-import { credential } from 'firebase-admin';
+import admin from 'firebase-admin';
 import { getAuth, type UserRecord } from 'firebase-admin/auth';
 import { getDatabase } from 'firebase-admin/database';
 import { writeFile } from 'fs/promises';
+const { credential } = admin;
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -26,7 +27,6 @@ const realtime = getDatabase();
 export const POST: RequestHandler = async ({ request }) => {
 	const { lidi }: { lidi: Clovek[] } = await request.json();
 
-	console.log(lidi);
 	for (const [email, montazky, uvadeci, osoba] of lidi) {
 		const user: UserRecord = await (async () => {
 			try {
