@@ -237,7 +237,7 @@
 </div>
 
 <div class="modal" id="admin">
-	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+	<div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
 		<div class="modal-content">
 			<div class="modal-header ">
 				<h4 class="modal-title">Seznam emailů a příslušných firem</h4>
@@ -255,16 +255,13 @@
 			</label>
 
 			<div class="modal-body">
-				<p>
-					{$seznamLidi
-						.map(
-							([email, montazky, uvadeci, osoba]) =>
-								`${email};${Object.values(montazky).join('#')};${Object.values(uvadeci).join(
-									'#'
-								)};${osoba}`
-						)
-						.join('\n')}
-				</p>
+				{#each $seznamLidi as [email, montazky, uvadeci, osoba]}
+					<span>
+						{`${email};${Object.values(montazky).join('#')};${Object.values(uvadeci).join(
+							'#'
+						)};${osoba}`}
+					</span> <br />
+				{/each}
 			</div>
 
 			<div class="modal-footer">

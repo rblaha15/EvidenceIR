@@ -227,4 +227,7 @@ export interface Data {
 		pristupMa: MultiZaskrtavatkova;
 		fakturuje: Radiova;
 	};
+	zodpovednaOsoba: {
+		jmeno: Pisatkova;
+	};
 }

@@ -19,7 +19,6 @@
 
 	export let montazka: string | null;
 	export let uvadec: string | null;
-	export let osoba: string;
 </script>
 
 <h1>Regulátor</h1>
@@ -32,15 +31,17 @@
 		.obec.text}
 </p>
 <h2>Zodpovědná osoba:</h2>
-<p>{osoba}</p>
+<p>{data.zodpovednaOsoba.jmeno.text}</p>
 <h2>Adresa:</h2>
 <p><b>Město:</b> {data.mistoRealizace.obec.text}</p>
 <p><b>Ulice:</b> {data.mistoRealizace.ulice.text}</p>
 <p><b>PSČ:</b> {data.mistoRealizace.psc.text}</p>
-<br />
-<br />
-<p>K regulátoru chce mít přístup {data.vzdalenyPristup.pristupMa.vybrano.join(', ')}</p>
-<p>Vzdálený přístup bude fakturovat {data.vzdalenyPristup.fakturuje.vybrano}</p>
+
+{#if data.vzdalenyPristup.chce.zaskrtnuto}
+	<h2>Vzdálený přístup</h2>
+	<p>K regulátoru chce mít přístup {data.vzdalenyPristup.pristupMa.vybrano.join(', ')}</p>
+	<p>Vzdálený přístup bude fakturovat {data.vzdalenyPristup.fakturuje.vybrano}</p>
+{/if}
 
 <h1>Uživatel</h1>
 <p><b>Jméno:</b> {data.koncovyUzivatel.jmeno.text}</p>
