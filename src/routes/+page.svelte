@@ -36,19 +36,21 @@
 	$: console.log($prihlasenState);
 
 	$: [vyfiltrovanyMontazky, vyfiltrovanyUvadeci] = $sprateleneFirmy.map((firmy) =>
-		firmy
-			.map(([jmeno, ico, email, zastupce]) => [jmeno.normalize(), ico, email, zastupce] as Firma)
-			.filter(([jmeno]) =>
-				filtr
-					.toLowerCase()
-					.split(' ')
-					.every((slovoFiltru) =>
-						jmeno
-							.toLowerCase()
-							.split(' ')
-							.some((slovoJmena) => slovoJmena.startsWith(slovoFiltru))
-					)
-			)
+		firmy.filter(([jmeno]) =>
+			filtr
+				.normalize('NFD')
+				.replace(/\p{Diacritic}/gu, '')
+				.toLowerCase()
+				.split(' ')
+				.every((slovoFiltru) =>
+					jmeno
+						.normalize('NFD')
+						.replace(/\p{Diacritic}/gu, '')
+						.toLowerCase()
+						.split(' ')
+						.some((slovoJmena) => slovoJmena.startsWith(slovoFiltru))
+				)
+		)
 	);
 
 	const data: Data = {
@@ -140,7 +142,7 @@
 		},
 		vzdalenyPristup: {
 			nadpis: new Nadpisova('Vzdálený přístup'),
-			chce: new Zaskrtavatkova('Chcete založit vzdálený přístup k regulátoru?'),
+			chce: new Zaskrtavatkova('Chcete založit vzdálený přístup k regulátoru?', undefined, false),
 			pristupMa: new MultiZaskrtavatkova('Kdo k němu bude mít přístup?', [
 				'Koncový zákazník',
 				'Montážní firma',
@@ -151,6 +153,9 @@
 				'Koncový zákazník',
 				'Nefakturovat'
 			])
+		},
+		zodpovednaOsoba: {
+			jmeno: new Pisatkova('Zodpovědná osoba')
 		}
 	};
 
@@ -247,7 +252,7 @@
 			const div = document.createElement('div');
 			new MailPoPotvrzeni({
 				target: div,
-				props: { data, montazka, uvadec, osoba: $zodpovednaOsoba ?? 'Žádná' }
+				props: { data, montazka, uvadec }
 			});
 			const html = div.innerHTML;
 			const text = htmlToText(html);
@@ -286,6 +291,13 @@
 	};
 
 	$: {
+		console.log(data.zodpovednaOsoba.jmeno);
+		console.log($zodpovednaOsoba);
+		data.zodpovednaOsoba.jmeno.zobrazit = $zodpovednaOsoba == null;
+		if ($zodpovednaOsoba != null) data.zodpovednaOsoba.jmeno.text = $zodpovednaOsoba;
+	}
+
+	$: {
 		if (data.uvedeni.jakoMontazka.zaskrtnuto) {
 			data.uvedeni.ico = data.montazka.ico.copy();
 			data.uvedeni.zastupce = data.montazka.zastupce.copy();
@@ -297,7 +309,7 @@
 	}
 
 	$: {
-		let jeCTC = ['IR RegulusBOX CTC', 'IR 14 CTC', 'IR 12 CTC'].includes(data.ir.typ.vybrano);
+		let jeCTC = data.ir.typ.vybrano.includes('CTC');
 
 		data.tc.druh.zobrazit = jeCTC;
 		data.tc.typ.zobrazit = data.ir.typ.vybrano != '' && (!jeCTC || data.tc.druh.vybrano != '');
@@ -342,6 +354,8 @@
 		data.vzdalenyPristup.pristupMa.nutne = data.vzdalenyPristup.chce.zaskrtnuto;
 	}
 	// $: console.log(data);
+	$: vybranaMontazka = montazky.find(([_, ico]) => ico == data.montazka.ico.text)?.[0] ?? 'Neznámá';
+	$: vybranyUvadec = uvadeci.find(([_, ico]) => ico == data.uvedeni.ico.text)?.[0] ?? 'Neznámá';
 </script>
 
 <main class="container my-3">
@@ -355,25 +369,31 @@
 		</div>
 		{#if $prihlasenState}
 			{#each seznam as vec}
-				{#if vec === data.montazka.ico && vec.zobrazit && montazky.length > 1}
-					<VybiratkoFirmy
-						id="montazka"
-						bind:emailVec={data.montazka.email}
-						bind:zastupceVec={data.montazka.zastupce}
-						bind:icoVec={data.montazka.ico}
-						bind:filtr
-						bind:vyfiltrovanyFirmy={vyfiltrovanyMontazky}
-					/>
+				{#if vec === data.montazka.ico && vec.zobrazit}
+					{#if montazky.length > 1}
+						<VybiratkoFirmy
+							id="montazka"
+							bind:emailVec={data.montazka.email}
+							bind:zastupceVec={data.montazka.zastupce}
+							bind:icoVec={data.montazka.ico}
+							bind:filtr
+							bind:vyfiltrovanyFirmy={vyfiltrovanyMontazky}
+						/>
+					{/if}
+					<p>Vybraná firma: {vybranaMontazka}</p>
 				{/if}
-				{#if vec === data.uvedeni.ico && vec.zobrazit && uvadeci.length > 1}
-					<VybiratkoFirmy
-						id="uvedeni"
-						bind:emailVec={data.uvedeni.email}
-						bind:zastupceVec={data.uvedeni.zastupce}
-						bind:icoVec={data.uvedeni.ico}
-						bind:filtr
-						bind:vyfiltrovanyFirmy={vyfiltrovanyUvadeci}
-					/>
+				{#if vec === data.uvedeni.ico && vec.zobrazit}
+					{#if uvadeci.length > 1}
+						<VybiratkoFirmy
+							id="uvedeni"
+							bind:emailVec={data.uvedeni.email}
+							bind:zastupceVec={data.uvedeni.zastupce}
+							bind:icoVec={data.uvedeni.ico}
+							bind:filtr
+							bind:vyfiltrovanyFirmy={vyfiltrovanyUvadeci}
+						/>
+					{/if}
+					<p>Vybraná firma: {vybranyUvadec}</p>
 				{/if}
 				{#if vec === data.tc.cislo && vec.zobrazit}
 					<Scanner
