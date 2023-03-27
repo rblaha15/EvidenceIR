@@ -146,11 +146,10 @@
 				'Montážní firma',
 				'Firma uvádějicí do provozu'
 			]),
-			fakturuje: new Radiova('Komu bude vzdálený přístup fakturován? (jednorázová cena 500 Kč)', [
-				'Montážní firma',
-				'Koncový zákazník',
-				'Nefakturovat'
-			])
+			fakturuje: new Radiova(
+				'Komu bude vzdálený přístup fakturován? (jednorázová cena 1000 Kč včetně DPH)',
+				['Montážní firma', 'Koncový zákazník', 'Nefakturovat']
+			)
 		},
 		zodpovednaOsoba: {
 			jmeno: new Pisatkova('Zodpovědná osoba')
