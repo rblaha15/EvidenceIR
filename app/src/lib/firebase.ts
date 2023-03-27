@@ -23,8 +23,10 @@ const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
+let lock = false;
+
 export const prihlasenState = writable('null' as import('@firebase/auth').User | null | 'null');
-onAuthStateChanged(auth, (usr) => prihlasenState.set(usr));
+onAuthStateChanged(auth, (usr) => prihlasenState.set(lock ? null : usr));
 
 export const prihlasit = async (email: string, heslo: string) => {
 	if (heslo == '123456')
@@ -32,7 +34,27 @@ export const prihlasit = async (email: string, heslo: string) => {
 			code: 'auth/user-not-found'
 		};
 	const { signInWithEmailAndPassword } = await import('@firebase/auth');
-	return signInWithEmailAndPassword(auth, email, heslo);
+	try {
+		return await signInWithEmailAndPassword(auth, email, heslo);
+	} catch (err) {
+		if ((err as { code: string }).code == 'auth/wrong-password') {
+			lock = true;
+
+			try {
+				await signInWithEmailAndPassword(auth, email, '123456');
+			} catch (err) {
+				lock = false;
+				throw err;
+			}
+
+			const { signOut } = await import('@firebase/auth');
+			await signOut(auth);
+
+			lock = false;
+			throw { code: 'auth/user-not-found' };
+		}
+		throw err;
+	}
 };
 export const zmenitHeslo = async (email: string, heslo: string) => {
 	if (heslo == '123456')
@@ -43,7 +65,7 @@ export const zmenitHeslo = async (email: string, heslo: string) => {
 		await import('@firebase/auth');
 	try {
 		const user = await signInWithEmailAndPassword(auth, email, '123456');
-		return updatePassword(user.user, heslo);
+		return await updatePassword(user.user, heslo);
 	} catch (err) {
 		if ((err as { code: string }).code == 'auth/wrong-password') {
 			throw {
