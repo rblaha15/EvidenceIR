@@ -1,6 +1,7 @@
 import { initializeApp } from '@firebase/app';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { getDatabase, ref, onValue } from '@firebase/database';
+import { getFirestore } from '@firebase/firestore';
 import { writable, derived } from 'svelte/store';
 
 export type Firma = [string, string, string, string];
@@ -159,3 +160,19 @@ jeAdmin.subscribe(() => {
 		seznamLidi.set(Object.values(data.val() as { [uid: string]: Clovek }));
 	});
 });
+
+
+export const db = getFirestore(app);
+
+export const uzivatel = async (uid: string) => {
+	const { getDoc, doc } = await import('@firebase/firestore');
+	return await getDoc(doc(db, 'uzivatele', `/${uid}`));
+};
+export const novyUzivatel = async (data: { veci: string }) => {
+	const { addDoc, collection } = await import('@firebase/firestore');
+	return (await addDoc(collection(db, 'uzivatele'), data)).id;
+};
+export const odstranitUzivatele = async (uid: string) => {
+	const { deleteDoc, doc } = await import('@firebase/firestore');
+	return await deleteDoc(doc(db, 'uzivatele', `/${uid}`));
+};

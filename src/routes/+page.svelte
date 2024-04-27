@@ -16,7 +16,10 @@
 		Nadpisova,
 		Zaskrtavatkova,
 		MultiZaskrtavatkova,
-		Vec
+		Vec,
+
+		convertData
+
 	} from '$lib/Vec';
 	import { sprateleneFirmy, type Firma, prihlasenState, zodpovednaOsoba } from '$lib/firebase';
 
@@ -191,25 +194,9 @@
 		success: true
 	};
 
-	const nazevFirmy = async (ico: string) => {
-		const response = await fetch(`/api/getWebsite`, {
-			method: 'POST',
-			body: JSON.stringify({
-				url: `http://wwwinfo.mfcr.cz/cgi-bin/ares/ares_es.cgi?ico=${ico}`
-			})
-		});
-		const text = await response.text();
-		const doc = new DOMParser().parseFromString(text, 'text/xml');
-		return doc
-			.querySelector('Ares_odpovedi')
-			?.querySelector('Odpoved')
-			?.querySelector('V')
-			?.querySelector('S')
-			?.querySelector('ojm')?.textContent;
-	};
-
 	const odeslat = async () => {
-		const { poslatEmail, sender } = await import('$lib/constants');
+		const { novyUzivatel } = await import('$lib/firebase');
+		const { poslatEmail, nazevFirmy, sender } = await import('$lib/constants');
 		const { htmlToText } = await import('html-to-text');
 		const MailPoPotvrzeni = (await import('$lib/mails/MailPoPotvrzeni.svelte')).default;
 		const MailSDaty = (await import('$lib/mails/MailSDaty.svelte')).default;
@@ -242,6 +229,8 @@
 			text,
 			html
 		};
+			
+		const id = await novyUzivatel({ veci: JSON.stringify(convertData(data)) });
 
 		if (data.vzdalenyPristup.chce) {
 			const montazka = (await nazevFirmy(data.montazka.ico.text)) ?? null;
@@ -275,6 +264,7 @@
 				text: 'Email úspěšně odeslán',
 				success: true
 			};
+			window.location.href = `${$page.url.origin}/odeslano/${id}`;
 		} else {
 			vysledek = {
 				text: `Email se nepodařilo odeslat: ${response.status} ${response.statusText}`,
@@ -411,7 +401,7 @@
 					Odeslat
 				</button>
 				<p class:text-danger={!vysledek.success} class="ms-3 my-auto">{vysledek.text}</p>
-			</div>
+			</div>	
 		{:else}
 			<p>Pro zobrazení a vyplnění formuláře je nutné se přihlásit!</p>
 		{/if}

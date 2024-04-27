@@ -27,13 +27,3 @@ export const POST: RequestHandler = async ({ request }) => {
 		status: Number(response.slice(0, 3))
 	});
 };
-
-export const GET: RequestHandler = async () => {
-
-	throw Error("izfhvjkgzfujgvb")
-	console.log("Hi")
-	
-	return new Response(null, {
-		status: 200
-	});
-}

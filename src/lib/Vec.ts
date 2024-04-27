@@ -231,3 +231,92 @@ export interface Data {
 		jmeno: Pisatkova;
 	};
 }
+
+
+export interface RawData {
+	ir: {
+		typ: string;
+		cislo: string;
+	};
+	tc: {
+		druh: string;
+		typ: string;
+		cislo: string;
+	};
+	koncovyUzivatel: {
+		jmeno: string;
+		prijmeni: string;
+		narozeni: string;
+		telefon: string;
+		email: string;
+	};
+	mistoRealizace: {
+		obec: string;
+		ulice: string;
+		psc: string;
+	};
+	montazka: {
+		ico: string;
+		zastupce: string;
+		email: string;
+	};
+	uvedeni: {
+		jakoMontazka: boolean;
+		ico: string;
+		zastupce: string;
+		email: string;
+	};
+	vzdalenyPristup: {
+		chce: boolean;
+		pristupMa: string[];
+		fakturuje: string;
+	};
+	zodpovednaOsoba: {
+		jmeno: string;
+	};
+}
+
+export const convertData = (data: Data): RawData => {
+	return {
+		ir: {
+			typ: data.ir.typ.vybrano,
+			cislo: data.ir.cislo.text,
+		},
+		tc: {
+			druh: data.tc.cislo.text,
+			typ: data.tc.typ.vybrano,
+			cislo: data.tc.cislo.text,
+		},
+		koncovyUzivatel: {
+			jmeno: data.koncovyUzivatel.jmeno.text,
+			prijmeni: data.koncovyUzivatel.prijmeni.text,
+			narozeni: data.koncovyUzivatel.narozeni.text,
+			telefon: data.koncovyUzivatel.telefon.text,
+			email: data.koncovyUzivatel.email.text,
+		},
+		mistoRealizace: {
+			obec: data.mistoRealizace.obec.text,
+			ulice: data.mistoRealizace.ulice.text,
+			psc: data.mistoRealizace.psc.text,
+		},
+		montazka: {
+			ico: data.montazka.ico.text,
+			zastupce: data.montazka.zastupce.text,
+			email: data.montazka.email.text,
+		},
+		uvedeni: {
+			jakoMontazka: data.uvedeni.jakoMontazka.zaskrtnuto,
+			ico: data.uvedeni.ico.text,
+			zastupce: data.uvedeni.zastupce.text,
+			email: data.uvedeni.email.text,
+		},
+		vzdalenyPristup: {
+			chce: data.vzdalenyPristup.chce.zaskrtnuto,
+			pristupMa: data.vzdalenyPristup.pristupMa.vybrano,
+			fakturuje: data.vzdalenyPristup.fakturuje.vybrano,
+		},
+		zodpovednaOsoba: {
+			jmeno: data.zodpovednaOsoba.jmeno.text,
+		},
+	}
+}
