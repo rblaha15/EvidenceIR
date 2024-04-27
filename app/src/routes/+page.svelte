@@ -235,7 +235,7 @@
 		const html = div.innerHTML;
 		const text = htmlToText(html);
 
-		const message1 = {
+		const email1 = {
 			from: sender,
 			to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
 			subject: `Nově zaevidovaný regulátor ${data.ir.typ.vybrano} (${data.ir.cislo.text})`,
@@ -264,7 +264,7 @@
 
 		const response = await fetch(`/api/poslatEmail`, {
 			method: 'POST',
-			body: JSON.stringify({ message: message1 }),
+			body: JSON.stringify({ message: email1 }),
 			headers: {
 				'content-type': 'application/json'
 			}
