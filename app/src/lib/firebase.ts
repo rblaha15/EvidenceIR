@@ -3,6 +3,7 @@ import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { getDatabase, ref, onValue } from '@firebase/database';
 import { getFirestore } from '@firebase/firestore';
 import { writable, derived } from 'svelte/store';
+import type { RawData } from './Vec';
 
 export type Firma = [string, string, string, string];
 export type Clovek = [string, { [ico: string]: string }, { [ico: string]: string }, string];
@@ -164,15 +165,16 @@ jeAdmin.subscribe(() => {
 
 export const db = getFirestore(app);
 
-export const uzivatel = async (uid: string) => {
+export const evidence = async (user: string, id: string) => {
 	const { getDoc, doc } = await import('@firebase/firestore');
-	return await getDoc(doc(db, 'uzivatele', `/${uid}`));
+	return await getDoc(doc(db, 'uzivatele', `/${user}`, "evidence", `/${id}`));
 };
-export const novyUzivatel = async (data: { veci: string }) => {
+export const novaEvidence = async (data: RawData) => {
 	const { addDoc, collection } = await import('@firebase/firestore');
-	return (await addDoc(collection(db, 'uzivatele'), data)).id;
+	const user = auth.currentUser?.uid
+	return (await addDoc(collection(db, 'uzivatele', `/${user}`, "evidence"), data)).id;
 };
-export const odstranitUzivatele = async (uid: string) => {
+export const odstranitEvidenci = async (user: string, id: string) => {
 	const { deleteDoc, doc } = await import('@firebase/firestore');
-	return await deleteDoc(doc(db, 'uzivatele', `/${uid}`));
+	return await deleteDoc(doc(db, 'uzivatele', `/${user}`, 'evidence', `/${id}`));
 };
