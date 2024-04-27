@@ -30,6 +30,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 export const GET: RequestHandler = async () => {
 
+	throw Error("izfhvjkgzfujgvb")
 	console.log("Hi")
 	
 	return new Response(null, {

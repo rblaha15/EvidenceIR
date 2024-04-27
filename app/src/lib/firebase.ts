@@ -1,7 +1,8 @@
 import { initializeApp } from '@firebase/app';
-import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { getDatabase, ref, onValue } from '@firebase/database';
 import { writable, derived } from 'svelte/store';
+
+const { getAuth, onAuthStateChanged } = await import('@firebase/auth');
 
 export type Firma = [string, string, string, string];
 export type Clovek = [string, { [ico: string]: string }, { [ico: string]: string }, string];
