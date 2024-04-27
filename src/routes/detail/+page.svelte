@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { odstranitUzivatele, uzivatel } from '$lib/firebase';
+	import { odstranitEvidenci, evidence } from '$lib/firebase';
 	import { onMount } from 'svelte';
 	// import { readFile } from 'fs/promises';
 	import { type RawData } from '$lib/Vec';
 	import download from 'downloadjs';
 	import { nazevFirmy } from '$lib/constants';
 
-	export let data: { uid: string; souhlas: boolean };
+	export let data: { id: string; user: string };
 
 	let nacita = true;
 	let existuje: boolean;
@@ -15,36 +15,26 @@
 	onMount(async () => {
 		let snapshot;
 		try {
-			snapshot = await uzivatel(data.uid);
+			snapshot = await evidence(data.user, data.id);
 		} catch {
 			console.log('Nepovedlo se načíst data z firebase');
 			existuje = false;
 			nacita = false;
 			return;
 		}
-		console.log(snapshot);
 
 		existuje = snapshot.exists();
 		nacita = false;
 		if (!existuje) return;
 
-		const dataJson = (snapshot.data() as { veci: string }).veci;
-		veci = JSON.parse(dataJson) as RawData;
-
-		console.log(veci);
-		// odstranitUzivatele(data.uid);
+		veci = (snapshot.data() as RawData);
 	});
-	$: {
-		console.log(veci);
-	}
 
-	const onclick = async () => {
-		if (veci == undefined) return;
-
+	const downloadPdf1 = async () => {
 		const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
 
 		// const formPdfBytes = await fetch("file:///home/rblaha15/Projects/8%20Web/EvidenceIR/static/form.pdf").then(res => res.arrayBuffer())
-		const formPdfBytes = await (await fetch('/form.pdf')).arrayBuffer();
+		const formPdfBytes = await (await fetch('/route.pdf')).arrayBuffer();
 		// const formPdfBytes = (await readFile('form.pdf')).buffer;
 
 		const pdfDoc = await PDFDocument.load(formPdfBytes);
@@ -105,12 +95,27 @@
 		const Writer = useObjectStreams ? PDFStreamWriter : PDFWriter;
 		const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer();
 
-		download(pdfBytes, 'pdf-lib_form_creation_example.pdf', 'application/pdf');
+		download(pdfBytes, 'Formulář RegulusRoute.pdf', 'application/pdf');
 	};
+
+	const remove = async () => {
+		await odstranitEvidenci(data.user, data.id);
+	}
 </script>
 
 <main class="my-3 container">
-	<h1>Potvrzení o založení vzdáleného přístupu</h1>
+	<h1>Podrobnosti o evidenci</h1>
 
-	<button class="btn btn-primary" on:click={onclick}> A </button>
+	{#if nacita}
+		<div class="d-flex justify-content-center align-items-center">
+			<div class="spinner-border me-2" />
+			<span>Načítání dat...</span>
+		</div>
+	{:else if !existuje}
+		<p>Omlouváme se, něco se nepovedlo.</p>
+		<p>Buď je odkaz na tuto stránku nesprávný, nebo je již záznam o evidenci odstraněný.</p>
+	{:else}
+		<button class="btn btn-primary my-1" on:click={downloadPdf1}>Stáhnout formulář o zpřístupění regulátoru službě IR RegulusRoute (pdf)</button>
+		<button class="btn btn-danger my-1" on:click={remove}>Odstranit tento záznam evidence</button>
+	{/if}
 </main>

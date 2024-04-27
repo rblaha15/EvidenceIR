@@ -30,6 +30,7 @@
 	// 3rd-party
 	import Scanner from '$lib/components/Scanner.svelte';
 	import Prihlaseni from '$lib/components/Prihlaseni.svelte';
+	import type { User } from 'firebase/auth';
 
 	let filtr = '';
 
@@ -195,7 +196,7 @@
 	};
 
 	const odeslat = async () => {
-		const { novyUzivatel } = await import('$lib/firebase');
+		const { novaEvidence } = await import('$lib/firebase');
 		const { poslatEmail, nazevFirmy, sender } = await import('$lib/constants');
 		const { htmlToText } = await import('html-to-text');
 		const MailPoPotvrzeni = (await import('$lib/mails/MailPoPotvrzeni.svelte')).default;
@@ -229,8 +230,8 @@
 			text,
 			html
 		};
-			
-		const id = await novyUzivatel({ veci: JSON.stringify(convertData(data)) });
+
+		const id = await novaEvidence(convertData(data));
 
 		if (data.vzdalenyPristup.chce) {
 			const montazka = (await nazevFirmy(data.montazka.ico.text)) ?? null;
@@ -264,7 +265,7 @@
 				text: 'Email úspěšně odeslán',
 				success: true
 			};
-			window.location.href = `${$page.url.origin}/odeslano/${id}`;
+			window.location.href = `${$page.url.origin}/detail/?user=${($prihlasenState as User).uid}&id=${id}`;
 		} else {
 			vysledek = {
 				text: `Email se nepodařilo odeslat: ${response.status} ${response.statusText}`,
