@@ -5,3 +5,5 @@ export const load: PageLoad = ({ url }) => {
 
 	return { email };
 };
+
+export const prerender = false;
