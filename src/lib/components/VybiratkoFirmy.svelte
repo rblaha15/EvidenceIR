@@ -11,7 +11,7 @@
 
 <button
 	type="button"
-	class="btn btn-outline-secondary mt-1"
+	class="btn btn-outline-secondary"
 	data-bs-toggle="modal"
 	data-bs-target="#vyberFirem{id}">Vyberte ze seznamu</button
 >

@@ -17,11 +17,9 @@
 		Zaskrtavatkova,
 		MultiZaskrtavatkova,
 		Vec,
-
 		convertData
-
 	} from '$lib/Vec';
-	import { sprateleneFirmy, type Firma, prihlasenState, zodpovednaOsoba } from '$lib/firebase';
+	import { sprateleneFirmy, prihlasenState, zodpovednaOsoba } from '$lib/firebase';
 
 	// Svelte
 	import { dev } from '$app/environment';
@@ -34,10 +32,10 @@
 
 	let filtr = '';
 
-	$: montazky = $sprateleneFirmy[0] ?? [];
-	$: uvadeci = $sprateleneFirmy[1] ?? [];
+	$: montazky = $sprateleneFirmy[0].sort(([a], [b]) => a.localeCompare(b)) ?? [];
+	$: uvadeci = $sprateleneFirmy[1].sort(([a], [b]) => a.localeCompare(b)) ?? [];
 
-	$: [vyfiltrovanyMontazky, vyfiltrovanyUvadeci] = $sprateleneFirmy.map((firmy) =>
+	$: [vyfiltrovanyMontazky, vyfiltrovanyUvadeci] = [montazky, uvadeci].map((firmy) =>
 		firmy.filter(([jmeno]) =>
 			filtr
 				.normalize('NFD')
@@ -177,16 +175,18 @@
 		data.vzdalenyPristup.chce.zaskrtnuto = true;
 	}
 
-	$: if (montazky.length == 1) {
-		data.montazka.ico.text = montazky[0][1];
-		data.montazka.email.text = montazky[0][2];
-		data.montazka.zastupce.text = montazky[0][3];
-	}
-	$: if (uvadeci.length == 1) {
-		data.uvedeni.ico.text = uvadeci[0][1];
-		data.uvedeni.email.text = uvadeci[0][2];
-		data.uvedeni.zastupce.text = uvadeci[0][3];
-	}
+	sprateleneFirmy.subscribe(([montazky, uvadeci]) => {
+		if (montazky.length == 1) {
+			data.montazka.ico.text = montazky[0][1];
+			data.montazka.email.text = montazky[0][2];
+			data.montazka.zastupce.text = montazky[0][3];
+		}
+		if (uvadeci.length == 1) {
+			data.uvedeni.ico.text = uvadeci[0][1];
+			data.uvedeni.email.text = uvadeci[0][2];
+			data.uvedeni.zastupce.text = uvadeci[0][3];
+		}
+	});
 
 	$: seznam = (Object.values(data) as Object[]).flatMap((obj) => Object.values(obj) as Vec[]);
 
@@ -339,18 +339,20 @@
 	$: vybranyUvadec = uvadeci.find(([_, ico]) => ico == data.uvedeni.ico.text)?.[0] ?? 'Neznámá';
 </script>
 
-<main class="container my-3">
-	{#if $prihlasenState == 'null'}
-		<div class="spinner-border text-danger" />
-	{:else}
-		<div class="d-sm-flex flex-sm-row">
+{#if $prihlasenState == 'null'}
+	<div class="spinner-border text-danger m-2" />
+{:else}
+	<main class="container my-3">
+		<div class="d-flex flex-column flex-md-row align-items-start">
 			<h1 class="flex-grow-1">Evidence regulátorů IR</h1>
 
 			<Prihlaseni />
 		</div>
 		{#if $prihlasenState}
+			<hr class="d-md-none" />
 			{#each seznam as vec}
 				{#if vec === data.montazka.ico && vec.zobrazit}
+					<p>Vybraná firma: {vybranaMontazka}</p>
 					{#if montazky.length > 1}
 						<VybiratkoFirmy
 							id="montazka"
@@ -361,9 +363,9 @@
 							bind:vyfiltrovanyFirmy={vyfiltrovanyMontazky}
 						/>
 					{/if}
-					<p>Vybraná firma: {vybranaMontazka}</p>
 				{/if}
 				{#if vec === data.uvedeni.ico && vec.zobrazit}
+					<p>Vybraná firma: {vybranyUvadec}</p>
 					{#if uvadeci.length > 1}
 						<VybiratkoFirmy
 							id="uvedeni"
@@ -374,7 +376,6 @@
 							bind:vyfiltrovanyFirmy={vyfiltrovanyUvadeci}
 						/>
 					{/if}
-					<p>Vybraná firma: {vybranyUvadec}</p>
 				{/if}
 				{#if vec === data.tc.cislo && vec.zobrazit}
 					<Scanner
@@ -398,21 +399,13 @@
 			{/each}
 
 			<div class="d-inline-flex">
-				<button id="odeslat" type="button" class="btn btn-primary" on:click={odeslat}>
+				<button id="odeslat" type="button" class="btn btn-success" on:click={odeslat}>
 					Odeslat
 				</button>
 				<p class:text-danger={!vysledek.success} class="ms-3 my-auto">{vysledek.text}</p>
-			</div>	
+			</div>
 		{:else}
 			<p>Pro zobrazení a vyplnění formuláře je nutné se přihlásit!</p>
 		{/if}
-	{/if}
-</main>
-
-<style>
-	#odeslat {
-		background-color: #5dabc8;
-		border-color: #5dabc8;
-		color: #000000;
-	}
-</style>
+	</main>
+{/if}
