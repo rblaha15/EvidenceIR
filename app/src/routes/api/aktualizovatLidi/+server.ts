@@ -2,27 +2,30 @@ import type { RequestHandler } from './$types';
 import type { Clovek } from '$lib/firebase';
 import { initializeApp } from 'firebase-admin/app';
 import admin from 'firebase-admin';
-import { getAuth, type UserRecord } from 'firebase-admin/auth';
-import { getDatabase } from 'firebase-admin/database';
+import { Auth, getAuth, type UserRecord } from 'firebase-admin/auth';
+import { getDatabase, type Database } from 'firebase-admin/database';
 import { writeFile } from 'fs/promises';
 const { credential } = admin;
 
 import dotenv from 'dotenv';
 dotenv.config();
 
+let auth: Auth
+let realtime: Database
+
 try {
 	await writeFile('./firebase-adminsdk.json', process.env.FIREBASE_INFO ?? '');
 
-	initializeApp({
+	const app = initializeApp({
 		credential: credential.cert('./firebase-adminsdk.json'),
 		databaseURL: 'https://evidence-ir-default-rtdb.europe-west1.firebasedatabase.app'
-	});
+	}, Math.random().toString());
+
+	auth = getAuth(app);
+	realtime = getDatabase(app);
 } catch (e) {
 	console.error(e);
 }
-
-const auth = getAuth();
-const realtime = getDatabase();
 
 export const POST: RequestHandler = async ({ request }) => {
 	const { lidi }: { lidi: Clovek[] } = await request.json();

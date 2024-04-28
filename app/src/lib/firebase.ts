@@ -131,6 +131,7 @@ export const sprateleneFirmy = derived(
 
 const jeAdmin_ = async (user: import('@firebase/auth').User | null) =>
 	!!(await user?.getIdTokenResult())?.claims?.admin;
+
 export const jeAdmin = derived(
 	prihlasenState,
 	(user, set) => {

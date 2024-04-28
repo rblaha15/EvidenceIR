@@ -5,6 +5,7 @@
 	import { type RawData } from '$lib/Vec';
 	import download from 'downloadjs';
 	import { nazevFirmy } from '$lib/constants';
+	import { page } from '$app/stores';
 
 	export let data: { id: string; user: string };
 
@@ -27,7 +28,7 @@
 		nacita = false;
 		if (!existuje) return;
 
-		veci = (snapshot.data() as RawData);
+		veci = snapshot.data() as RawData;
 	});
 
 	const downloadPdf1 = async () => {
@@ -100,22 +101,42 @@
 
 	const remove = async () => {
 		await odstranitEvidenci(data.user, data.id);
-	}
+	};
+
+	const copyLink = async () => {
+		navigator.clipboard.writeText($page.url.href);
+	};
 </script>
 
 <main class="my-3 container">
 	<h1>Podrobnosti o evidenci</h1>
 
 	{#if nacita}
-		<div class="d-flex justify-content-center align-items-center">
+		<div class="d-flex justify-content-start align-items-center">
 			<div class="spinner-border me-2" />
 			<span>Načítání dat...</span>
 		</div>
 	{:else if !existuje}
-		<p>Omlouváme se, něco se nepovedlo.</p>
-		<p>Buď je odkaz na tuto stránku nesprávný, nebo je již záznam o evidenci odstraněný.</p>
+		<p class="mt-2">Omlouváme se, něco se nepovedlo.</p>
+		<p class="mt-2">
+			Buď je odkaz na tuto stránku nesprávný, nebo je již záznam o evidenci odstraněný.
+		</p>
 	{:else}
-		<button class="btn btn-primary my-1" on:click={downloadPdf1}>Stáhnout formulář o zpřístupění regulátoru službě IR RegulusRoute (pdf)</button>
-		<button class="btn btn-danger my-1" on:click={remove}>Odstranit tento záznam evidence</button>
+		<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mt-2">
+			<span>Odkaz na tuto stránku</span>
+			<button class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" on:click={copyLink}
+				>Kopírovat</button
+			>
+		</div>
+		<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mt-2">
+			<span>Předvyplněný formulář o zpřístupění regulátoru službě IR RegulusRoute</span>
+			<button class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" on:click={downloadPdf1}
+				>Stáhnout (pdf)</button
+			>
+		</div>
+		<button class="btn btn-outline-danger mt-2" on:click={remove}
+			>Odstranit tento záznam evidence</button
+		>
+		<p class="mt-2">{JSON.stringify(veci)}</p>
 	{/if}
 </main>
