@@ -66,7 +66,7 @@
 			<span>Předvyplněný formulář o zpřístupění regulátoru službě IR RegulusRoute</span>
 			<a
 				class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0"
-				href={`/detail/Formulář RegulusRoute.pdf?user=${data.user}&id=${data.id}`}
+				href={`/detail/form?user=${data.user}&id=${data.id}`}
 				target="_blank">Otevřít (pdf)</a
 			>
 			<!-- <button class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" on:click={downloadPdf1}
