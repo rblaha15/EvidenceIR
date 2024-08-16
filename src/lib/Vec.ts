@@ -1,8 +1,9 @@
-export abstract class Vec {
+export abstract class Vec<T> {
 	abstract nazev: string;
 	abstract onError: string;
 	zobrazitErrorVeto = false;
 	abstract zobrazit: boolean;
+	abstract rawData(): T;
 
 	abstract get zpravaJeChybna(): boolean;
 
@@ -14,10 +15,11 @@ export abstract class Vec {
 	}
 }
 
-export class Nadpisova extends Vec {
+export class Nadpisova extends Vec<undefined> {
 	nazev: string;
 	onError = '';
 	zobrazit: boolean;
+	rawData() { return undefined }
 	get zpravaJeChybna(): boolean {
 		return false;
 	}
@@ -27,13 +29,14 @@ export class Nadpisova extends Vec {
 		this.zobrazit = zobrazit;
 	}
 }
-export class Vybiratkova extends Vec {
+export class Vybiratkova extends Vec<string> {
 	nazev: string;
 	onError: string;
 	zobrazit: boolean;
 	moznosti: string[];
 	vybrano: string;
 	nutne: boolean;
+	rawData() { return this.vybrano }
 
 	get zpravaJeChybna(): boolean {
 		return this.vybrano == '' && this.nutne;
@@ -56,13 +59,14 @@ export class Vybiratkova extends Vec {
 		this.nutne = nutne;
 	}
 }
-export class Radiova extends Vec {
+export class Radiova extends Vec<string> {
 	nazev: string;
 	onError: string;
 	zobrazit: boolean;
 	moznosti: string[];
 	vybrano: string;
 	nutne: boolean;
+	rawData() { return this.vybrano }
 
 	get zpravaJeChybna(): boolean {
 		return this.vybrano == '' && this.nutne;
@@ -85,13 +89,14 @@ export class Radiova extends Vec {
 		this.nutne = nutne;
 	}
 }
-export class MultiZaskrtavatkova extends Vec {
+export class MultiZaskrtavatkova extends Vec<string[]> {
 	nazev: string;
 	onError: string;
 	zobrazit: boolean;
 	moznosti: string[];
 	vybrano: string[];
 	nutne: boolean;
+	rawData() { return this.vybrano }
 
 	get zpravaJeChybna(): boolean {
 		return this.vybrano.length == 0 && this.nutne;
@@ -114,7 +119,7 @@ export class MultiZaskrtavatkova extends Vec {
 		this.nutne = nutne;
 	}
 }
-export class Pisatkova extends Vec {
+export class Pisatkova extends Vec<string> {
 	copy = () =>
 		new Pisatkova(
 			this.nazev,
@@ -133,6 +138,7 @@ export class Pisatkova extends Vec {
 	napoveda: string;
 	regex: RegExp;
 	nutne: boolean;
+	rawData() { return this.text }
 
 	get zpravaJeChybna(): boolean {
 		return (this.text == '' && this.nutne) || (this.text != '' && !this.regex.test(this.text));
@@ -157,12 +163,13 @@ export class Pisatkova extends Vec {
 		this.nutne = nutne;
 	}
 }
-export class Zaskrtavatkova extends Vec {
+export class Zaskrtavatkova extends Vec<boolean> {
 	nazev: string;
 	onError: string;
 	zobrazit: boolean;
 	zaskrtnuto: boolean;
 	nutne: boolean;
+	rawData() { return this.zaskrtnuto }
 
 	get zpravaJeChybna(): boolean {
 		return !this.zaskrtnuto && this.nutne;
@@ -232,91 +239,30 @@ export interface Data {
 	};
 }
 
+export type RawData = {
+	[K in keyof Data]: {
+		[K2 in keyof Data[K]]: ReturnType<(Vec<any> & Data[K][K2])["rawData"]>
+	}
+}
 
-export interface RawData {
-	ir: {
-		typ: string;
-		cislo: string;
-	};
-	tc: {
-		druh: string;
-		typ: string;
-		cislo: string;
-	};
-	koncovyUzivatel: {
-		jmeno: string;
-		prijmeni: string;
-		narozeni: string;
-		telefon: string;
-		email: string;
-	};
-	mistoRealizace: {
-		obec: string;
-		ulice: string;
-		psc: string;
-	};
-	montazka: {
-		ico: string;
-		zastupce: string;
-		email: string;
-	};
-	uvedeni: {
-		jakoMontazka: boolean;
-		ico: string;
-		zastupce: string;
-		email: string;
-	};
-	vzdalenyPristup: {
-		chce: boolean;
-		pristupMa: string[];
-		fakturuje: string;
-	};
-	zodpovednaOsoba: {
-		jmeno: string;
-	};
+type DataAsRecord = {
+	[K in keyof Data]: {
+		[K2 in keyof Data[K]]: Data[K][K2]
+	}
 }
 
 export const convertData = (data: Data): RawData => {
-	return {
-		ir: {
-			typ: data.ir.typ.vybrano,
-			cislo: data.ir.cislo.text,
-		},
-		tc: {
-			druh: data.tc.cislo.text,
-			typ: data.tc.typ.vybrano,
-			cislo: data.tc.cislo.text,
-		},
-		koncovyUzivatel: {
-			jmeno: data.koncovyUzivatel.jmeno.text,
-			prijmeni: data.koncovyUzivatel.prijmeni.text,
-			narozeni: data.koncovyUzivatel.narozeni.text,
-			telefon: data.koncovyUzivatel.telefon.text,
-			email: data.koncovyUzivatel.email.text,
-		},
-		mistoRealizace: {
-			obec: data.mistoRealizace.obec.text,
-			ulice: data.mistoRealizace.ulice.text,
-			psc: data.mistoRealizace.psc.text,
-		},
-		montazka: {
-			ico: data.montazka.ico.text,
-			zastupce: data.montazka.zastupce.text,
-			email: data.montazka.email.text,
-		},
-		uvedeni: {
-			jakoMontazka: data.uvedeni.jakoMontazka.zaskrtnuto,
-			ico: data.uvedeni.ico.text,
-			zastupce: data.uvedeni.zastupce.text,
-			email: data.uvedeni.email.text,
-		},
-		vzdalenyPristup: {
-			chce: data.vzdalenyPristup.chce.zaskrtnuto,
-			pristupMa: data.vzdalenyPristup.pristupMa.vybrano,
-			fakturuje: data.vzdalenyPristup.fakturuje.vybrano,
-		},
-		zodpovednaOsoba: {
-			jmeno: data.zodpovednaOsoba.jmeno.text,
-		},
-	}
+	const recordData = data as DataAsRecord
+	const entries1 = Object.entries(recordData)
+	const recordRawData = entries1.map(([key, subData]) => {
+		const subEntries = Object.entries(subData)
+		const recordRawSubData = subEntries.map(([subKey, vec]) => {
+			if (vec.rawData() == undefined) return undefined
+			else return [subKey, vec.rawData()] as const
+		}).filter(it => it != undefined)
+		const rawSubData = Object.fromEntries(recordRawSubData)
+		return [key, rawSubData] as const
+	})
+	const rawData = Object.fromEntries(recordRawData)
+	return rawData as RawData
 }

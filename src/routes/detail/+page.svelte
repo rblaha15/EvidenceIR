@@ -29,9 +29,9 @@
 		veci = snapshot.data() as RawData;
 	});
 
-	const downloadPdf1 = async () => {
-		window.location.href = $page.url.href.replace("/detail?", "/detail/Formulář RegulusRoute.pdf?")
-	};
+	// const downloadPdf1 = async () => {
+	// window.location.href = $page.url.href.replace("/detail?", "/detail/Formulář RegulusRoute.pdf?")
+	// };
 
 	const remove = async () => {
 		await odstranitEvidenci(data.user, data.id);
@@ -64,9 +64,14 @@
 		</div>
 		<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mt-2">
 			<span>Předvyplněný formulář o zpřístupění regulátoru službě IR RegulusRoute</span>
-			<button class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" on:click={downloadPdf1}
-				>Stáhnout (pdf)</button
+			<a
+				class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0"
+				href={`/detail/Formulář RegulusRoute.pdf?user=${data.user}&id=${data.id}`}
+				target="_blank">Otevřít (pdf)</a
 			>
+			<!-- <button class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" on:click={downloadPdf1}
+				>Stáhnout (pdf)</button
+			> -->
 		</div>
 		<button class="btn btn-outline-danger mt-2" on:click={remove}
 			>Odstranit tento záznam evidence</button
