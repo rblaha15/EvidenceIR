@@ -1,7 +1,6 @@
 import { error, type RequestHandler } from '@sveltejs/kit';
 import { evidence } from '$lib/firebase';
 import { type RawData } from '$lib/Vec';
-import download from 'downloadjs';
 import { nazevFirmy } from '$lib/constants';
 
 export const GET: RequestHandler = async ({ url, fetch }) => {
