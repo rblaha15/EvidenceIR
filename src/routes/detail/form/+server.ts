@@ -10,6 +10,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	if (!user || !id) error(404, "Not Found")
 
+	console.log(user)
 	let snapshot;
 	try {
 		snapshot = await evidence(user, id);
