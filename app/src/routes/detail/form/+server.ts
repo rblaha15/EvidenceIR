@@ -26,7 +26,11 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
 
-	const b = await fetch("/route.pdf")
+	try {
+		const b = await fetch("/route.pdf")
+	} catch (e) {
+		error(500, `Kurva, ${e}`)
+	}
 
 	// const formPdfBytes = new TextEncoder().encode(routepdf)
 
@@ -90,7 +94,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 	
 	const encodedName = encodeURIComponent("Formulář RegulusRoute.pdf")
 
-	return new Response(await b.body, {
+	return new Response(encodedName, {
 		headers: {
 			'Content-Type': 'application/pdf',
 			// 'Content-Disposition': 'inline; filename=' + encodedName,
