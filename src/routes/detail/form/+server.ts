@@ -27,12 +27,12 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	const formPdfBytes = await (await fetch('/route.pdf')).arrayBuffer();
 
-	const pdfDoc = await PDFDocument.load(formPdfBytes);
+	/* const pdfDoc = await PDFDocument.load(formPdfBytes);
 	pdfDoc.setTitle("Souhlas se zpřístupněním regulátoru IR službě RegulusRoute")
 	
 	const form = pdfDoc.getForm();
 
-	/* const icoMontaznik = form.getTextField('Text1');
+	const icoMontaznik = form.getTextField('Text1');
 	const firmaMontaznik = form.getTextField('Text2');
 	const jmenoMontaznik = form.getTextField('Text3');
 	const icoUvadec = form.getTextField('Text4');
@@ -87,9 +87,9 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 	
 	const encodedName = encodeURIComponent("Formulář RegulusRoute.pdf")
 
-	return new Response(JSON.stringify(veci), {
+	return new Response(formPdfBytes, {
 		headers: {
-			// 'Content-Type': 'application/pdf',
+			'Content-Type': 'application/pdf',
 			// 'Content-Disposition': 'inline; filename=' + encodedName,
 		},
 		status: 200,
