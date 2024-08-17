@@ -21,7 +21,9 @@ export const poslatEmail = async (message: import('nodemailer/lib/mailer').Optio
 	});
 };
 
-export const nazevFirmy = async (ico: string) => {
+const node_fetch = fetch
+
+export const nazevFirmy = async (ico: string, fetch: typeof node_fetch = node_fetch) => {
 
 	let response
 	try {

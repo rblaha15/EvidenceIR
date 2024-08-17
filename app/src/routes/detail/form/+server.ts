@@ -24,14 +24,11 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	let veci = snapshot.data() as RawData;
 
-	PDFDocument
-	PDFStreamWriter
-	PDFWriter
+	const formPdfBytes = await (await fetch('/route.pdf')).arrayBuffer();
 
-	// const formPdfBytes = new TextEncoder().encode(routepdf)
+	const pdfDoc = await PDFDocument.load(formPdfBytes);
 
-	// const pdfDoc = await PDFDocument.load(routepdf);
-	/* pdfDoc.setTitle("Souhlas se zpřístupněním regulátoru IR službě RegulusRoute")
+	pdfDoc.setTitle("Souhlas se zpřístupněním regulátoru IR službě RegulusRoute")
 	
 	const form = pdfDoc.getForm();
 
@@ -58,10 +55,10 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 	// const podpis = form.getTextField("Text21")
 
 	icoMontaznik.setText(veci.montazka.ico);
-	firmaMontaznik.setText((await nazevFirmy(veci.montazka.ico)) ?? '');
+	firmaMontaznik.setText((await nazevFirmy(veci.montazka.ico, fetch)) ?? '');
 	jmenoMontaznik.setText(veci.montazka.zastupce);
 	icoUvadec.setText(veci.uvedeni.ico);
-	firmaUvadec.setText((await nazevFirmy(veci.uvedeni.ico)) ?? '');
+	firmaUvadec.setText((await nazevFirmy(veci.uvedeni.ico, fetch)) ?? '');
 	jmenoUvadec.setText(veci.uvedeni.zastupce);
 	jmenoPrimeni.setText(`${veci.koncovyUzivatel.jmeno} ${veci.koncovyUzivatel.prijmeni}`);
 	narozeni.setText(veci.koncovyUzivatel.narozeni);
@@ -86,14 +83,14 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 	await pdfDoc.flush();
 
 	const Writer = useObjectStreams ? PDFStreamWriter : PDFWriter;
-	const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer(); */
+	const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer();
 	
 	const encodedName = encodeURIComponent("Formulář RegulusRoute.pdf")
 
-	return new Response(encodedName, {
+	return new Response(pdfBytes, {
 		headers: {
 			'Content-Type': 'application/pdf',
-			// 'Content-Disposition': 'inline; filename=' + encodedName,
+			'Content-Disposition': 'inline; filename=' + encodedName,
 		},
 		status: 200,
 	});
