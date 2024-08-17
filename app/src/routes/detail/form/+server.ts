@@ -2,7 +2,7 @@ import { error, type RequestHandler } from '@sveltejs/kit';
 import { evidence } from '$lib/firebase';
 import { type RawData } from '$lib/Vec';
 import { nazevFirmy } from '$lib/constants';
-import routepdf from '../../../../static/route.pdf';
+import { PDFDocument, PDFStreamWriter, PDFWriter } from 'pdf-lib';
 
 export const GET: RequestHandler = async ({ url, fetch }) => {
 
@@ -24,11 +24,9 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	let veci = snapshot.data() as RawData;
 
-	try {
-		const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
-	} catch (e) {
-		error(500, `Kurva, ${e}`)
-	}
+	PDFDocument
+	PDFStreamWriter
+	PDFWriter
 
 	// const formPdfBytes = new TextEncoder().encode(routepdf)
 
