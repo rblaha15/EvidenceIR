@@ -25,11 +25,11 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 	try {
 		let veci = snapshot.data() as RawData;
 
-		const formPdfBytes = await (await fetch('/route.pdf')).text();
+		const formPdfBytes = await (await fetch('/route.pdf')).text() ?? error(500, "Nepovedlo se načíst PDF");
 
-		/* const pdfDoc = await PDFDocument.load(formPdfBytes);
+		// const pdfDoc = await PDFDocument.load(formPdfBytes.);
 
-		pdfDoc.setTitle("Souhlas se zpřístupněním regulátoru IR službě RegulusRoute")
+		/* pdfDoc.setTitle("Souhlas se zpřístupněním regulátoru IR službě RegulusRoute")
 
 		const form = pdfDoc.getForm();
 
@@ -90,7 +90,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 		return new Response(formPdfBytes, {
 			headers: {
-				'Content-Type': 'application/pdf',
+				// 'Content-Type': 'application/pdf',
 				'Content-Disposition': 'inline; filename=' + encodedName,
 			},
 			status: 200,
