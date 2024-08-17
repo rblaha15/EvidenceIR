@@ -2,6 +2,7 @@ import { error, type RequestHandler } from '@sveltejs/kit';
 import { evidence } from '$lib/firebase';
 import { type RawData } from '$lib/Vec';
 import { nazevFirmy } from '$lib/constants';
+import routepdf from '../../../../static/route.pdf';
 
 export const GET: RequestHandler = async ({ url, fetch }) => {
 
@@ -25,10 +26,12 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
 
-	/* const formPdfBytes = await ( */await fetch('https://github.com/rblaha15/EvidenceIR/blob/main/static/route.pdf?raw=true')/* ).arrayBuffer() */;
+	const b = await fetch("/route.pdf")
 
-	/* const pdfDoc = await PDFDocument.load(formPdfBytes);
-	pdfDoc.setTitle("Souhlas se zpřístupněním regulátoru IR službě RegulusRoute")
+	// const formPdfBytes = new TextEncoder().encode(routepdf)
+
+	// const pdfDoc = await PDFDocument.load(routepdf);
+	/* pdfDoc.setTitle("Souhlas se zpřístupněním regulátoru IR službě RegulusRoute")
 	
 	const form = pdfDoc.getForm();
 
@@ -87,7 +90,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 	
 	const encodedName = encodeURIComponent("Formulář RegulusRoute.pdf")
 
-	return new Response(encodedName, {
+	return new Response(await b.body, {
 		headers: {
 			'Content-Type': 'application/pdf',
 			// 'Content-Disposition': 'inline; filename=' + encodedName,
