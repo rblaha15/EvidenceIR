@@ -24,13 +24,11 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	let veci = snapshot.data() as RawData;
 
-	// const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
-
-	// try {
-		// await fetch("/route.pdf")
-	// } catch (e) {
-		// error(500, `Kurva, ${e}`)
-	// }
+	try {
+		const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
+	} catch (e) {
+		error(500, `Kurva, ${e}`)
+	}
 
 	// const formPdfBytes = new TextEncoder().encode(routepdf)
 
