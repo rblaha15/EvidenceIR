@@ -27,7 +27,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 		const formPdfBytes = await (await fetch('/route.pdf')).arrayBuffer();
 
-		const pdfDoc = await PDFDocument.load(formPdfBytes);
+		/* const pdfDoc = await PDFDocument.load(formPdfBytes);
 
 		pdfDoc.setTitle("Souhlas se zpřístupněním regulátoru IR službě RegulusRoute")
 
@@ -84,11 +84,11 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 		await pdfDoc.flush();
 
 		const Writer = useObjectStreams ? PDFStreamWriter : PDFWriter;
-		const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer();
+		const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer(); */
 
 		const encodedName = encodeURIComponent("Formulář RegulusRoute.pdf")
 
-		return new Response(pdfBytes, {
+		return new Response(formPdfBytes, {
 			headers: {
 				'Content-Type': 'application/pdf',
 				'Content-Disposition': 'inline; filename=' + encodedName,
