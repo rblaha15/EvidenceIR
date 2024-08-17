@@ -92,7 +92,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 	return new Response(pdfBytes, {
 		headers: {
 			'Content-Type': 'application/pdf',
-			'Content-Disposition': 'inline; filename=' + encodedName,
+			// 'Content-Disposition': 'inline; filename=' + encodedName,
 		}
 	});
 }
