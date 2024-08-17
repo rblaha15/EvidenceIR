@@ -26,11 +26,11 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
 
-	try {
+	// try {
 		// await fetch("/route.pdf")
-	} catch (e) {
-		error(500, `Kurva, ${e}`)
-	}
+	// } catch (e) {
+		// error(500, `Kurva, ${e}`)
+	// }
 
 	// const formPdfBytes = new TextEncoder().encode(routepdf)
 
