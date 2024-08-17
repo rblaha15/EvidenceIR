@@ -24,7 +24,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	let veci = snapshot.data() as RawData;
 
-	const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
+	// const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
 
 	// try {
 		// await fetch("/route.pdf")
