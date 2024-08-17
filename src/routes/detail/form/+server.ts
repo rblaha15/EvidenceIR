@@ -22,80 +22,76 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	if (!snapshot.exists()) error(500, 'Nepovedlo se nalézt data ve firebase');
 
-	try {
-		let veci = snapshot.data() as RawData;
+	let veci = snapshot.data() as RawData;
 
-		const formPdfBytes = await (await fetch('/route.pdf')).text() ?? error(500, "Nepovedlo se načíst PDF");
+	const formPdfBytes = await (await fetch('/route.pdf')).arrayBuffer() ?? error(500, "Nepovedlo se načíst PDF");
 
-		// const pdfDoc = await PDFDocument.load(formPdfBytes.);
+	const pdfDoc = await PDFDocument.load(formPdfBytes);
 
-		/* pdfDoc.setTitle("Souhlas se zpřístupněním regulátoru IR službě RegulusRoute")
+	pdfDoc.setTitle("Souhlas se zpřístupněním regulátoru IR službě RegulusRoute")
 
-		const form = pdfDoc.getForm();
+	const form = pdfDoc.getForm();
 
-		const icoMontaznik = form.getTextField('Text1');
-		const firmaMontaznik = form.getTextField('Text2');
-		const jmenoMontaznik = form.getTextField('Text3');
-		const icoUvadec = form.getTextField('Text4');
-		const firmaUvadec = form.getTextField('Text5');
-		const jmenoUvadec = form.getTextField('Text6');
-		const jmenoPrimeni = form.getTextField('Text7');
-		const narozeni = form.getTextField('Text8');
-		// const bydliste = form.getTextField("Text9")
-		const adresa = form.getTextField('Text10');
-		const adresa2 = form.getTextField('Text11');
-		const email = form.getTextField('Text12');
-		const telefon = form.getTextField('Text13');
-		const typIR = form.getTextField('Text14');
-		const serCis = form.getTextField('Text15');
-		const serCis2 = form.getTextField('Text16');
-		// const cisloBOX = form.getTextField("Text17")
-		const cisloTC = form.getTextField('Text18');
-		const cenaRoute = form.getTextField('Text19');
-		// const datum = form.getTextField("Text20")
-		// const podpis = form.getTextField("Text21")
+	const icoMontaznik = form.getTextField('Text1');
+	const firmaMontaznik = form.getTextField('Text2');
+	const jmenoMontaznik = form.getTextField('Text3');
+	const icoUvadec = form.getTextField('Text4');
+	const firmaUvadec = form.getTextField('Text5');
+	const jmenoUvadec = form.getTextField('Text6');
+	const jmenoPrimeni = form.getTextField('Text7');
+	const narozeni = form.getTextField('Text8');
+	// const bydliste = form.getTextField("Text9")
+	const adresa = form.getTextField('Text10');
+	const adresa2 = form.getTextField('Text11');
+	const email = form.getTextField('Text12');
+	const telefon = form.getTextField('Text13');
+	const typIR = form.getTextField('Text14');
+	const serCis = form.getTextField('Text15');
+	const serCis2 = form.getTextField('Text16');
+	// const cisloBOX = form.getTextField("Text17")
+	const cisloTC = form.getTextField('Text18');
+	const cenaRoute = form.getTextField('Text19');
+	// const datum = form.getTextField("Text20")
+	// const podpis = form.getTextField("Text21")
 
-		icoMontaznik.setText(veci.montazka.ico);
-		firmaMontaznik.setText((await nazevFirmy(veci.montazka.ico, fetch)) ?? '');
-		jmenoMontaznik.setText(veci.montazka.zastupce);
-		icoUvadec.setText(veci.uvedeni.ico);
-		firmaUvadec.setText((await nazevFirmy(veci.uvedeni.ico, fetch)) ?? '');
-		jmenoUvadec.setText(veci.uvedeni.zastupce);
-		jmenoPrimeni.setText(`${veci.koncovyUzivatel.jmeno} ${veci.koncovyUzivatel.prijmeni}`);
-		narozeni.setText(veci.koncovyUzivatel.narozeni);
-		// bydliste.setText("")
-		adresa.setText(veci.mistoRealizace.ulice);
-		adresa2.setText(`${veci.mistoRealizace.psc} ${veci.mistoRealizace.obec}`);
-		email.setText(veci.koncovyUzivatel.email);
-		telefon.setText(veci.koncovyUzivatel.telefon);
-		typIR.setText(veci.ir.typ);
-		serCis.setText(veci.ir.cislo.split(' ')[0] ?? '');
-		serCis2.setText(veci.ir.cislo.split(' ')[1] ?? '');
-		// cisloBOX.setText("")
-		cisloTC.setText(veci.tc.cislo);
-		cenaRoute.setText('1000');
-		// datum.setText("")
-		// podpis.setText("")
+	icoMontaznik.setText(veci.montazka.ico);
+	firmaMontaznik.setText((await nazevFirmy(veci.montazka.ico, fetch)) ?? '');
+	jmenoMontaznik.setText(veci.montazka.zastupce);
+	icoUvadec.setText(veci.uvedeni.ico);
+	firmaUvadec.setText((await nazevFirmy(veci.uvedeni.ico, fetch)) ?? '');
+	jmenoUvadec.setText(veci.uvedeni.zastupce);
+	jmenoPrimeni.setText(`${veci.koncovyUzivatel.jmeno} ${veci.koncovyUzivatel.prijmeni}`);
+	narozeni.setText(veci.koncovyUzivatel.narozeni);
+	// bydliste.setText("")
+	adresa.setText(veci.mistoRealizace.ulice);
+	adresa2.setText(`${veci.mistoRealizace.psc} ${veci.mistoRealizace.obec}`);
+	email.setText(veci.koncovyUzivatel.email);
+	telefon.setText(veci.koncovyUzivatel.telefon);
+	typIR.setText(veci.ir.typ);
+	serCis.setText(veci.ir.cislo.split(' ')[0] ?? '');
+	serCis2.setText(veci.ir.cislo.split(' ')[1] ?? '');
+	// cisloBOX.setText("")
+	cisloTC.setText(veci.tc.cislo);
+	cenaRoute.setText('1000');
+	// datum.setText("")
+	// podpis.setText("")
 
-		const { useObjectStreams = true, objectsPerTick = 50 } = {};
+	const { useObjectStreams = true, objectsPerTick = 50 } = {};
 
-		if (pdfDoc.getPageCount() === 0) pdfDoc.addPage();
+	if (pdfDoc.getPageCount() === 0) pdfDoc.addPage();
 
-		await pdfDoc.flush();
+	await pdfDoc.flush();
 
-		const Writer = useObjectStreams ? PDFStreamWriter : PDFWriter;
-		const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer(); */
+	const Writer = useObjectStreams ? PDFStreamWriter : PDFWriter;
+	const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer();
 
-		const encodedName = encodeURIComponent("Formulář RegulusRoute.pdf")
+	const encodedName = encodeURIComponent("Formulář RegulusRoute.pdf")
 
-		return new Response(formPdfBytes, {
-			headers: {
-				// 'Content-Type': 'application/pdf',
-				'Content-Disposition': 'inline; filename=' + encodedName,
-			},
-			status: 200,
-		});
-	} catch (e) {
-		return error(500, `${e}`)
-	}
+	return new Response(pdfBytes, {
+		headers: {
+			'Content-Type': 'application/pdf',
+			'Content-Disposition': 'inline; filename=' + encodedName,
+		},
+		status: 200,
+	});
 }
