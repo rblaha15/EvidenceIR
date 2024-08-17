@@ -25,7 +25,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
 
-	/* const formPdfBytes = await ( */await fetch('/route.pdf')/* ).arrayBuffer() */;
+	/* const formPdfBytes = await ( */await fetch('https://github.com/rblaha15/EvidenceIR/blob/main/static/route.pdf?raw=true')/* ).arrayBuffer() */;
 
 	/* const pdfDoc = await PDFDocument.load(formPdfBytes);
 	pdfDoc.setTitle("Souhlas se zpřístupněním regulátoru IR službě RegulusRoute")
