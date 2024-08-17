@@ -25,7 +25,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 	try {
 		let veci = snapshot.data() as RawData;
 
-		const formPdfBytes = await (await fetch('/route.pdf')).arrayBuffer();
+		const formPdfBytes = await (await fetch('/route.pdf')).text();
 
 		/* const pdfDoc = await PDFDocument.load(formPdfBytes);
 
