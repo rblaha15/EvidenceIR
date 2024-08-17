@@ -23,7 +23,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	let veci = snapshot.data() as RawData;
 
-	const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
+	/* const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
 
 	const formPdfBytes = await (await fetch('/route.pdf')).arrayBuffer();
 
@@ -83,16 +83,17 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 	await pdfDoc.flush();
 
 	const Writer = useObjectStreams ? PDFStreamWriter : PDFWriter;
-	const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer();
+	const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer(); */
 
 	// download(pdfBytes, 'Formulář RegulusRoute.pdf', 'application/pdf');
 	
 	const encodedName = encodeURIComponent("Formulář RegulusRoute.pdf")
 
-	return new Response(pdfBytes, {
+	return new Response(JSON.stringify(veci), {
 		headers: {
-			'Content-Type': 'application/pdf',
+			// 'Content-Type': 'application/pdf',
 			// 'Content-Disposition': 'inline; filename=' + encodedName,
-		}
+		},
+		status: 200,
 	});
 }
