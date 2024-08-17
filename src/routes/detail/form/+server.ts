@@ -27,7 +27,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 	const { PDFDocument, PDFStreamWriter, PDFWriter } = await import('pdf-lib/');
 
 	try {
-		const b = await fetch("/route.pdf")
+		// await fetch("/route.pdf")
 	} catch (e) {
 		error(500, `Kurva, ${e}`)
 	}
