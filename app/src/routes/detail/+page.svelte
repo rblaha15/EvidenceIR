@@ -4,19 +4,22 @@
 	// import { readFile } from 'fs/promises';
 	import { type RawData } from '$lib/Vec';
 	import { page } from '$app/stores';
+	import type { FirebaseError } from 'firebase/app';
 
 	export let data: { id: string; user: string };
 
 	let nacita = true;
 	let existuje: boolean;
+	let error = "";
 	let veci: RawData;
 
 	onMount(async () => {
 		let snapshot;
 		try {
 			snapshot = await evidence(data.user, data.id);
-		} catch {
+		} catch (e) {
 			console.log('Nepovedlo se načíst data z firebase');
+			error = (e as FirebaseError).name
 			existuje = false;
 			nacita = false;
 			return;
@@ -28,10 +31,6 @@
 
 		veci = snapshot.data() as RawData;
 	});
-
-	// const downloadPdf1 = async () => {
-	// window.location.href = $page.url.href.replace("/detail?", "/detail/Formulář RegulusRoute.pdf?")
-	// };
 
 	const remove = async () => {
 		await odstranitEvidenci(data.user, data.id);
@@ -50,6 +49,11 @@
 			<div class="spinner-border me-2" />
 			<span>Načítání dat...</span>
 		</div>
+	{:else if error}
+		<p class="mt-2">Omlouváme se, něco se nepovedlo.</p>
+		<p class="mt-2">
+			Error code: {error}
+		</p>
 	{:else if !existuje}
 		<p class="mt-2">Omlouváme se, něco se nepovedlo.</p>
 		<p class="mt-2">
@@ -69,9 +73,6 @@
 				href={`/detail/form?user=${data.user}&id=${data.id}`}
 				target="_blank">Otevřít (pdf)</a
 			>
-			<!-- <button class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" on:click={downloadPdf1}
-				>Stáhnout (pdf)</button
-			> -->
 		</div>
 		<button class="btn btn-outline-danger mt-2" on:click={remove}
 			>Odstranit tento záznam evidence</button
