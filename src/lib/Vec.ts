@@ -1,268 +1,236 @@
-export abstract class Vec<T> {
-	abstract nazev: string;
-	abstract onError: string;
-	zobrazitErrorVeto = false;
-	abstract zobrazit: boolean;
-	abstract rawData(): T;
+import type { Translations as T } from "./translations";
+import type { Data } from "./Data";
+import type { HTMLInputTypeAttribute } from "svelte/elements";
 
-	abstract get zpravaJeChybna(): boolean;
+type Get<U = string> = (t: T, data: Data) => U
+type GetOrVal<U = string> = Get<U> | U
+const toGet = <U>(getOrValue: GetOrVal<U>) => getOrValue instanceof Function ? getOrValue : () => getOrValue
 
-	get zobrazitError(): boolean {
-		return this.zobrazitErrorVeto && this.zpravaJeChybna;
-	}
-	set zobrazitError(_) {
-		_;
-	}
+type Opts = {
+    mask: string,
+    definitions: {
+        [key: string]: RegExp,
+    },
+} | undefined
+
+export abstract class Vec<U> {
+    abstract nazev: Get;
+    abstract onError: Get;
+    zobrazitErrorVeto = false;
+    abstract zobrazit: Get<boolean>;
+    abstract rawData: Get<U>;
+
+    abstract zpravaJeChybna: Get<boolean>;
+    zobrazitError: Get<boolean> = (t, data) => this.zobrazitErrorVeto && this.zpravaJeChybna(t, data);
 }
 
 export class Nadpisova extends Vec<undefined> {
-	nazev: string;
-	onError = '';
-	zobrazit: boolean;
-	rawData() { return undefined }
-	get zpravaJeChybna(): boolean {
-		return false;
-	}
-	constructor(nazev = '', zobrazit = true) {
-		super();
-		this.nazev = nazev;
-		this.zobrazit = zobrazit;
-	}
+    nazev: Get;
+    onError = () => '';
+    zobrazit: Get<boolean>;
+    rawData = () => undefined
+    zpravaJeChybna: Get<boolean> = () => false;
+    constructor(args: {
+        nazev: GetOrVal,
+        zobrazit?: GetOrVal<boolean>
+    }) {
+        super();
+        this.nazev = toGet(args.nazev);
+        this.zobrazit = toGet(args.zobrazit ?? true);
+    }
 }
 export class Vybiratkova extends Vec<string> {
-	nazev: string;
-	onError: string;
-	zobrazit: boolean;
-	moznosti: string[];
-	vybrano: string;
-	nutne: boolean;
-	rawData() { return this.vybrano }
+    nazev: Get;
+    onError: Get;
+    zobrazit: Get<boolean>;
+    moznosti: Get<string[]>;
+    vybrano: number | null;
+    nutne: Get<boolean>;
+    rawData: Get = (t, data) => this.value(t, data)
+    value: Get = (t, data) => this.vybrano == null ? '' : this.moznosti(t, data)[this.vybrano]
+    zpravaJeChybna: Get<boolean> = (t, data) => this.vybrano == null && this.nutne(t, data);
+    constructor(args: {
+        nazev: GetOrVal,
+        moznosti: GetOrVal<string[]>,
+        onError?: GetOrVal,
+        nutne?: GetOrVal<boolean>,
+        zobrazit?: GetOrVal<boolean>,
+        vybrano?: null | number,
+    }) {
+        super();
 
-	get zpravaJeChybna(): boolean {
-		return this.vybrano == '' && this.nutne;
-	}
-	constructor(
-		nazev = '',
-		moznosti: string[] = [],
-		onError = 'Toto pole je povinné',
-		nutne = true,
-		zobrazit = true,
-		vybrano = ''
-	) {
-		super();
+        this.nazev = toGet(args.nazev);
+        this.moznosti = toGet(args.moznosti);
+        this.onError = toGet(args.onError ?? ((t) => t.requiredField));
+        this.nutne = toGet(args.nutne ?? true);
+        this.zobrazit = toGet(args.zobrazit ?? true);
+        this.vybrano = (args.vybrano ?? null);
+    }
+}
 
-		this.nazev = nazev;
-		this.onError = onError;
-		this.zobrazit = zobrazit;
-		this.moznosti = moznosti;
-		this.vybrano = vybrano;
-		this.nutne = nutne;
-	}
+type Pair = readonly [string, string]
+export class DvojVybiratkova extends Vec<Pair> {
+    nazev: Get;
+    onError: Get;
+    zobrazit: Get<boolean>;
+    moznosti1: Get<string[]>;
+    moznosti2: Get<string[]>;
+    vybrano1: number | null;
+    vybrano2: number | null;
+    nutne: Get<boolean>;
+    rawData: Get<Pair> = (t, data) => this.value(t, data)
+
+    value: Get<Pair> = (t, data) => [
+        this.vybrano1 == null ? '' : this.moznosti1(t, data)[this.vybrano1],
+        this.vybrano2 == null ? '' : this.moznosti2(t, data)[this.vybrano2],
+    ] as const
+
+    zpravaJeChybna: Get<boolean> = (t, data) => (this.vybrano1 == null || this.vybrano2 == null) && this.nutne(t, data);
+    constructor(args: {
+        nazev: GetOrVal,
+        moznosti1: GetOrVal<string[]>,
+        moznosti2: GetOrVal<string[]>,
+        onError?: GetOrVal,
+        nutne?: GetOrVal<boolean>,
+        zobrazit?: GetOrVal<boolean>,
+        vybrano1?: null | number,
+        vybrano2?: null | number,
+    }) {
+        super();
+
+        this.nazev = toGet(args.nazev);
+        this.moznosti1 = toGet(args.moznosti1);
+        this.moznosti2 = toGet(args.moznosti2);
+        this.onError = toGet(args.onError ?? ((t) => t.requiredField));
+        this.nutne = toGet(args.nutne ?? true);
+        this.zobrazit = toGet(args.zobrazit ?? true);
+        this.vybrano1 = (args.vybrano1 ?? null);
+        this.vybrano2 = (args.vybrano2 ?? null);
+    }
 }
 export class Radiova extends Vec<string> {
-	nazev: string;
-	onError: string;
-	zobrazit: boolean;
-	moznosti: string[];
-	vybrano: string;
-	nutne: boolean;
-	rawData() { return this.vybrano }
+    nazev: Get;
+    onError: Get;
+    zobrazit: Get<boolean>;
+    moznosti: Get<string[]>;
+    vybrano: number | null;
+    nutne: Get<boolean>;
+    rawData: Get = (t, data) => this.value(t, data)
 
-	get zpravaJeChybna(): boolean {
-		return this.vybrano == '' && this.nutne;
-	}
-	constructor(
-		nazev = '',
-		moznosti: string[] = [],
-		onError = 'Toto pole je povinné',
-		nutne = true,
-		zobrazit = true,
-		vybrano = ''
-	) {
-		super();
+    value: Get = (t, data) => this.vybrano == null ? '' : this.moznosti(t, data)[this.vybrano!]
 
-		this.nazev = nazev;
-		this.onError = onError;
-		this.zobrazit = zobrazit;
-		this.moznosti = moznosti;
-		this.vybrano = vybrano;
-		this.nutne = nutne;
-	}
+    zpravaJeChybna: Get<boolean> = (t, data) => this.vybrano == null && this.nutne(t, data);
+    constructor(args: {
+        nazev: GetOrVal,
+        moznosti: GetOrVal<string[]>,
+        onError?: GetOrVal,
+        nutne?: GetOrVal<boolean>,
+        zobrazit?: GetOrVal<boolean>,
+        vybrano?: null | number,
+    }) {
+        super();
+
+        this.nazev = toGet(args.nazev);
+        this.moznosti = toGet(args.moznosti);
+        this.onError = toGet(args.onError ?? ((t) => t.requiredField));
+        this.nutne = toGet(args.nutne ?? true);
+        this.zobrazit = toGet(args.zobrazit ?? true);
+        this.vybrano = (args.vybrano ?? null);
+    }
 }
-export class MultiZaskrtavatkova extends Vec<string[]> {
-	nazev: string;
-	onError: string;
-	zobrazit: boolean;
-	moznosti: string[];
-	vybrano: string[];
-	nutne: boolean;
-	rawData() { return this.vybrano }
 
-	get zpravaJeChybna(): boolean {
-		return this.vybrano.length == 0 && this.nutne;
-	}
-	constructor(
-		nazev = '',
-		moznosti: string[] = [],
-		onError = 'Toto pole je povinné',
-		nutne = true,
-		zobrazit = true,
-		vybrano: string[] = []
-	) {
-		super();
+type Arr = string[]
+export class MultiZaskrtavatkova extends Vec<Arr> {
+    nazev: Get;
+    onError: Get;
+    zobrazit: Get<boolean>;
+    moznosti: Get<string[]>;
+    vybrano: number[];
+    nutne: Get<boolean>;
+    rawData: Get<Arr> = (t, data) => this.values(t, data)
+    values: Get<Arr> = (t, data) => this.vybrano.map(i => this.moznosti(t, data)[i])
 
-		this.nazev = nazev;
-		this.onError = onError;
-		this.zobrazit = zobrazit;
-		this.moznosti = moznosti;
-		this.vybrano = vybrano;
-		this.nutne = nutne;
-	}
+    zpravaJeChybna: Get<boolean> = (t, data) => this.vybrano.length == 0 && this.nutne(t, data);
+    constructor(args: {
+        nazev: GetOrVal,
+        moznosti: GetOrVal<string[]>,
+        onError?: GetOrVal,
+        nutne?: GetOrVal<boolean>,
+        zobrazit?: GetOrVal<boolean>,
+        vybrano?: number[],
+    }) {
+        super();
+
+        this.nazev = toGet(args.nazev);
+        this.moznosti = toGet(args.moznosti);
+        this.onError = toGet(args.onError ?? ((t) => t.requiredField));
+        this.nutne = toGet(args.nutne ?? true);
+        this.zobrazit = toGet(args.zobrazit ?? true);
+        this.vybrano = (args.vybrano ?? []);
+    }
 }
 export class Pisatkova extends Vec<string> {
-	copy = () =>
-		new Pisatkova(
-			this.nazev,
-			this.onError,
-			this.regex,
-			this.nutne,
-			this.napoveda,
-			this.zobrazit,
-			this.text
-		);
+    nazev: Get;
+    type: Get<HTMLInputTypeAttribute>;
+    autocomplete: Get;
+    onError: Get;
+    zobrazit: Get<boolean>;
+    text: string;
+    updateText: (text: string) => void = () => {};
+    maskOptions: Get<Opts>;
+    regex: Get<RegExp>;
+    nutne: Get<boolean>;
+    rawData = () => this.text
+    zpravaJeChybna: Get<boolean> = (t, data) => (this.text == '' && this.nutne(t, data)) ||
+        (this.text != '' && !this.regex(t, data).test(this.text));
 
-	nazev: string;
-	onError: string;
-	zobrazit: boolean;
-	text: string;
-	napoveda: string;
-	regex: RegExp;
-	nutne: boolean;
-	rawData() { return this.text }
+    constructor(args: {
+        nazev: GetOrVal,
+        onError?: GetOrVal,
+        regex?: GetOrVal<RegExp>,
+        nutne?: GetOrVal<boolean>,
+        maskOptions?: GetOrVal<Opts>,
+        type?: GetOrVal<HTMLInputTypeAttribute>,
+        autocomplete?: GetOrVal,
+        zobrazit?: GetOrVal<boolean>,
+        text?: string,
+    }) {
+        super();
 
-	get zpravaJeChybna(): boolean {
-		return (this.text == '' && this.nutne) || (this.text != '' && !this.regex.test(this.text));
-	}
-	constructor(
-		nazev = '',
-		onError = 'Toto pole je povinné',
-		regex = /.*/,
-		nutne = true,
-		napoveda = '',
-		zobrazit = true,
-		text = ''
-	) {
-		super();
-
-		this.nazev = nazev;
-		this.onError = onError;
-		this.zobrazit = zobrazit;
-		this.text = text;
-		this.napoveda = napoveda;
-		this.regex = regex;
-		this.nutne = nutne;
-	}
+        this.nazev = toGet(args.nazev);
+        this.onError = toGet(args.onError ?? ((t) => t.requiredField));
+        this.regex = toGet(args.regex ?? /.*/);
+        this.nutne = toGet(args.nutne ?? true);
+        this.maskOptions = toGet(args.maskOptions ?? undefined);
+        this.type = toGet(args.type ?? "text");
+        this.autocomplete = toGet(args.autocomplete ?? "off");
+        this.zobrazit = toGet(args.zobrazit ?? true);
+        this.text = args.text ?? '';
+    }
 }
+
 export class Zaskrtavatkova extends Vec<boolean> {
-	nazev: string;
-	onError: string;
-	zobrazit: boolean;
-	zaskrtnuto: boolean;
-	nutne: boolean;
-	rawData() { return this.zaskrtnuto }
+    nazev: Get;
+    onError: Get;
+    zobrazit: Get<boolean>;
+    zaskrtnuto: boolean;
+    nutne: Get<boolean>;
+    rawData = () => this.zaskrtnuto
 
-	get zpravaJeChybna(): boolean {
-		return !this.zaskrtnuto && this.nutne;
-	}
-	constructor(
-		nazev = '',
-		onError = 'Toto pole je povinné',
-		nutne = true,
-		zobrazit = true,
-		zaskrtnuto = false
-	) {
-		super();
+    zpravaJeChybna: Get<boolean> = (t, data) => !this.zaskrtnuto && this.nutne(t, data);
+    constructor(args: {
+        nazev: GetOrVal,
+        onError?: GetOrVal,
+        nutne?: GetOrVal<boolean>,
+        zobrazit?: GetOrVal<boolean>,
+        zaskrtnuto?: boolean,
+    }) {
+        super();
 
-		this.nazev = nazev;
-		this.onError = onError;
-		this.zobrazit = zobrazit;
-		this.zaskrtnuto = zaskrtnuto;
-		this.nutne = nutne;
-	}
-}
-
-export interface Data {
-	ir: {
-		typ: Vybiratkova;
-		cislo: Pisatkova;
-	};
-	tc: {
-		druh: Radiova;
-		typ: Vybiratkova;
-		cislo: Pisatkova;
-	};
-	koncovyUzivatel: {
-		nadpis: Nadpisova;
-		jmeno: Pisatkova;
-		prijmeni: Pisatkova;
-		narozeni: Pisatkova;
-		telefon: Pisatkova;
-		email: Pisatkova;
-	};
-	mistoRealizace: {
-		nadpis: Nadpisova;
-		obec: Pisatkova;
-		ulice: Pisatkova;
-		psc: Pisatkova;
-	};
-	montazka: {
-		nadpis: Nadpisova;
-		ico: Pisatkova;
-		zastupce: Pisatkova;
-		email: Pisatkova;
-	};
-	uvedeni: {
-		nadpis: Nadpisova;
-		jakoMontazka: Zaskrtavatkova;
-		ico: Pisatkova;
-		zastupce: Pisatkova;
-		email: Pisatkova;
-	};
-	vzdalenyPristup: {
-		nadpis: Nadpisova;
-		chce: Zaskrtavatkova;
-		pristupMa: MultiZaskrtavatkova;
-		fakturuje: Radiova;
-	};
-	zodpovednaOsoba: {
-		jmeno: Pisatkova;
-	};
-}
-
-export type RawData = {
-	[K in keyof Data]: {
-		[K2 in keyof Data[K]]: ReturnType<(Vec<any> & Data[K][K2])["rawData"]>
-	}
-}
-
-type DataAsRecord = {
-	[K in keyof Data]: {
-		[K2 in keyof Data[K]]: Data[K][K2]
-	}
-}
-
-export const convertData = (data: Data): RawData => {
-	const recordData = data as DataAsRecord
-	const entries1 = Object.entries(recordData)
-	const recordRawData = entries1.map(([key, subData]) => {
-		const subEntries = Object.entries(subData)
-		const recordRawSubData = subEntries.map(([subKey, vec]) => {
-			if (vec.rawData() == undefined) return undefined
-			else return [subKey, vec.rawData()] as const
-		}).filter(it => it != undefined)
-		const rawSubData = Object.fromEntries(recordRawSubData)
-		return [key, rawSubData] as const
-	})
-	const rawData = Object.fromEntries(recordRawData)
-	return rawData as RawData
+        this.nazev = toGet(args.nazev);
+        this.onError = toGet(args.onError ?? ((t) => t.requiredField));
+        this.nutne = toGet(args.nutne ?? true);
+        this.zobrazit = toGet(args.zobrazit ?? true);
+        this.zaskrtnuto = (args.zaskrtnuto ?? false);
+    }
 }

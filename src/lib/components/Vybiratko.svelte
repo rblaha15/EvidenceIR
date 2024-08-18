@@ -3,27 +3,31 @@
 </script>
 
 <script lang="ts">
+	import type { Data } from '$lib/Data';
+
+	import type { Translations } from '$lib/translations';
 	import type { Vybiratkova } from '$lib/Vec';
 
+	export let t: Translations;
 	export let vec: Vybiratkova;
-	const id = lastId++;
+	export let data: Data;
 </script>
 
-{#if vec.zobrazit}
+{#if vec.zobrazit(t, data)}
 	<label>
-		{vec.nazev}
+		{vec.nazev(t, data)}
 		<div class="dropdown">
 			<button
 				type="button"
 				class="btn btn-outline-secondary dropdown-toggle"
 				data-bs-toggle="dropdown"
 			>
-				{vec.vybrano != '' ? vec.vybrano : 'Nevybráno'}
+				{vec.vybrano != null ? vec.value(t, data) : t.notChosen}
 			</button>
 			<ul class="dropdown-menu">
-				{#each vec.moznosti as moznost}
+				{#each vec.moznosti(t, data) as moznost, i}
 					<li>
-						<button class="dropdown-item" on:click={() => (vec.vybrano = moznost)}>
+						<button class="dropdown-item" on:click={() => (vec.vybrano = i)}>
 							{moznost}
 						</button>
 					</li>
@@ -32,7 +36,7 @@
 		</div>
 	</label>
 
-	{#if vec.zobrazitError}
-		<p class="text-danger">{vec.onError}</p>
+	{#if vec.zobrazitError(t, data)}
+		<p class="text-danger">{vec.onError(t, data)}</p>
 	{/if}
 {/if}

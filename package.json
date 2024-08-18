@@ -43,11 +43,12 @@
 		"downloadjs": "^1.4.7",
 		"firebase": "^9.23.0",
 		"firebase-admin": "^12.1.0",
+		"flag-icons": "^7.2.3",
 		"html-to-text": "^9.0.5",
 		"html5-qrcode": "^2.3.8",
+		"imask": "^7.6.1",
 		"lodash.isstring": "^4.0.1",
 		"nodemailer": "^6.9.13",
-		"pdf-lib": "^1.17.1",
-		"svelte-input-mask": "^1.1.0"
+		"pdf-lib": "^1.17.1"
 	}
 }

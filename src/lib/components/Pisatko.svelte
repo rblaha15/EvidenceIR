@@ -1,88 +1,87 @@
 <script lang="ts">
+	import type { Data } from '$lib/Data';
+	import type { Translations } from '$lib/translations';
 	import type { Pisatkova } from '$lib/Vec';
-	import MaskInput from 'svelte-input-mask';
+	import IMask, { InputMask } from 'imask';
+	import { onDestroy, onMount } from 'svelte';
 
+	export let t: Translations;
 	export let vec: Pisatkova;
+	const editVec: (edit: (vec: Pisatkova) => Pisatkova) => void = (edit) => { vec = edit(vec) };
+	export let type: string = 'text';
 	export let w: string = '100';
+	export let data: Data;
+
+	type MyOpts = {
+		lazy: boolean;
+		overwrite: boolean;
+		mask: string;
+		definitions: {
+			[key: string]: RegExp;
+		};
+		value?: string;
+	};
+
+	let input: HTMLInputElement;
+	let mask: InputMask<MyOpts> | undefined = undefined;
+
+	$: opts = vec.maskOptions(t, data);
+
+	$: options = !opts
+		? undefined
+		: ({
+				lazy: false,
+				overwrite: true,
+				...opts
+			} as MyOpts);
+
+	onMount(() => {
+		if (options != undefined) {
+			mask = IMask(input, options);
+			mask.value = vec.text;
+		}
+	});
+
+	onDestroy(() => {
+		mask = undefined;
+	});
+
+	$: {
+		if (mask) editVec((v) => { v.text = mask!.value; return v });
+		mask?.updateValue();
+	}
+
+	$: {
+		if (opts != undefined) mask?.updateOptions(opts);
+	}
+
+	vec.updateText = ((text) => {
+		vec.text = text
+		if (mask) mask.value = text
+	})
 </script>
 
-{#if vec.zobrazit}
-	{#if vec.napoveda != ''}
-		<!-- svelte-ignore a11y-label-has-associated-control -->
+{#if vec.zobrazit(t, data)}
+	{#if options != undefined}
 		<label class="w-{w}">
-			{vec.nazev}
-			<MaskInput
-				type="text"
-				class="form-control"
-				bind:value={vec.text}
-				mask={vec.napoveda}
-				placeholder={vec.napoveda}
-				on:change={({ detail }) => (vec.text = detail.inputState.maskedValue)}
-				maskFormat={[
-					{
-						str: 'A',
-						regexp: /[A-Z]/
-					},
-					{
-						str: 'B',
-						regexp: /[A-Z]/
-					},
-					{
-						str: 'C',
-						regexp: /[A-Z]/
-					},
-					{
-						str: 'D',
-						regexp: /[A-Z]/
-					},
-					{
-						str: '9',
-						regexp: /[1-9OND]/
-					},
-					{
-						str: '1',
-						regexp: /\d/
-					},
-					{
-						str: '2',
-						regexp: /\d/
-					},
-					{
-						str: '3',
-						regexp: /\d/
-					},
-					{
-						str: '4',
-						regexp: /\d/
-					},
-					{
-						str: '5',
-						regexp: /\d/
-					},
-					{
-						str: '6',
-						regexp: /\d/
-					},
-					{
-						str: '7',
-						regexp: /\d/
-					},
-					{
-						str: '8',
-						regexp: /\d/
-					}
-				]}
-				{...$$restProps}
-			/>
+			{vec.nazev(t, data)}
+			<input {type} class="form-control" bind:this={input} {...$$restProps} />
 		</label>
 	{:else}
 		<label class="w-{w}">
-			{vec.nazev}
-			<input type="text" class="form-control" bind:value={vec.text} {...$$restProps} />
+			{vec.nazev(t, data)}
+			<input
+				{type}
+				class="form-control"
+				bind:this={input}
+				value={vec.text}
+				on:input={() => (vec.text = input.value)}
+				{...$$restProps}
+			/>
 		</label>
 	{/if}
 
-	{#if vec.zobrazitError}
-		<span class="text-danger help-block">{vec.onError}</span>
+	{#if vec.zobrazitError(t, data)}
+		<span class="text-danger help-block">{vec.onError(t, data)}</span>
 	{/if}
 {/if}

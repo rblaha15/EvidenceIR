@@ -3,7 +3,7 @@ import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { getDatabase, ref, onValue } from '@firebase/database';
 import { getFirestore } from '@firebase/firestore';
 import { writable, derived } from 'svelte/store';
-import type { RawData } from './Vec';
+import type { RawData } from "./Data";
 
 export type Firma = [string, string, string, string];
 export type Clovek = [string, { [ico: string]: string }, { [ico: string]: string }, string];
@@ -28,7 +28,7 @@ const auth = getAuth(app);
 let lock = false;
 
 export const prihlasenState = writable('null' as import('@firebase/auth').User | null | 'null');
-onAuthStateChanged(auth, (usr) => prihlasenState.set(lock ? null : usr));
+onAuthStateChanged(auth, (usr) => prihlasenState.set(lock ? "null" : usr));
 
 export const prihlasit = async (email: string, heslo: string) => {
 	if (heslo == '123456')

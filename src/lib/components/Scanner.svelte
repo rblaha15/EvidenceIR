@@ -1,11 +1,15 @@
 <script lang="ts">
-	import type { Data, Pisatkova } from '$lib/Vec';
+	import type { Pisatkova } from '$lib/Vec';
 	import { Html5Qrcode } from 'html5-qrcode';
 	import { onMount } from 'svelte';
 	import Pisatko from './Pisatko.svelte';
+	import type { Translations } from '$lib/translations';
+	import type { Data } from '$lib/Data';
 
 	onMount(async () => {});
 
+	export let data: Data
+	export let t: Translations
 	export let onScan: (text: string) => void;
 
 	let zrusitBtn: HTMLButtonElement;
@@ -49,9 +53,9 @@
 </script>
 
 <div class="d-sm-flex flex-sm-row align-items-end mb-2">
-	<div class="flex-grow-1"><Pisatko bind:vec /></div>
+	<div class="flex-grow-1"><Pisatko bind:vec {t} {data} /></div>
 	{#if zobrazit}
-		<span class="m-2"> nebo </span>
+		<span class="m-2"> {t.or} </span>
 		<div>
 			<button
 				type="button"
@@ -60,7 +64,7 @@
 				data-bs-target="#cam"
 				on:click={onClick}
 			>
-				Naskenujte čárový kód z TČ
+				{t.scanBarcode}
 			</button>
 		</div>
 	{/if}
@@ -69,13 +73,13 @@
 	<div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
 		<div class="modal-content">
 			<div class="modal-header ">
-				<h4 class="modal-title">Naskenujte kód:</h4>
+				<h4 class="modal-title">{t.scanCode}:</h4>
 				<button
 					type="button"
 					class="btn-close"
 					data-bs-dismiss="modal"
 					on:click={zrusit}
-					title="Zrušit"
+					title={t.cancel}
 				/>
 			</div>
 
@@ -89,7 +93,7 @@
 					class="btn btn-outline-danger"
 					bind:this={zrusitBtn}
 					on:click={zrusit}
-					data-bs-dismiss="modal">Zrušit</button
+					data-bs-dismiss="modal">{t.cancel}</button
 				>
 			</div>
 		</div>

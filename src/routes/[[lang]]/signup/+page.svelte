@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { zmenitHeslo } from '$lib/firebase';
+	import type { Translations } from '$lib/translations';
 
 	export let data: { email: string | null };
+
+	const t: Translations = $page.data.translations
 
 	let email: string = data.email ?? '';
 	let heslo: string;
@@ -18,25 +21,25 @@
 				.catch((e) => {
 					console.log(e.code);
 					if (e.code == 'auth/network-request-failed') {
-						error = 'Zkontrolujte připojení k internetu!';
+						error = t.checkInternet;
 					} else if (e.code == 'auth/weak-password') {
-						error = 'Heslo je příliš slabé!';
+						error = t.passwordTooWeak;
 					} else if (e.code == 'auth/user-not-found') {
-						error = 'Prosím zadejte Váš firemní email';
+						error = t.pleaseUseBuisnessEmail;
 					} else if (e.code == 'auth/email-already-in-use') {
-						error = 'Tento účet již existuje';
+						error = t.emailInUse;
 					} else {
-						error = 'Něco se nepovedlo :\\';
+						error = t.somethingWentWrong;
 					}
 				});
 		} else {
-			error = 'Hesla se neshodují!';
+			error = t.passwordsDoNotMatch;
 		}
 	}
 </script>
 
 <div class="container my-3">
-	<h1>Registrace</h1>
+	<h1>{t.registration}</h1>
 
 	<form>
 		<div class="mt-3">
@@ -44,7 +47,7 @@
 				autocomplete="email"
 				type="email"
 				class="form-control"
-				placeholder="Email"
+				placeholder={t.email}
 				bind:value={email}
 			/>
 		</div>
@@ -53,7 +56,7 @@
 				autocomplete="new-password"
 				type="password"
 				class="form-control"
-				placeholder="Heslo"
+				placeholder={t.password}
 				bind:value={heslo}
 			/>
 		</div>
@@ -62,7 +65,7 @@
 				autocomplete="new-password"
 				type="password"
 				class="form-control"
-				placeholder="Potvrďte heslo"
+				placeholder={t.confirmPassword}
 				bind:value={hesloZnovu}
 			/>
 		</div>
@@ -71,10 +74,10 @@
 		{/if}
 		<div class="d-flex align-content-center mt-3">
 			<button type="submit" class="btn btn-primary me-2" on:click={registrovatSe}>
-				Registrovat
+				{t.registrate}
 			</button>
 			<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
-				Zpět
+				{t.back}
 			</button>
 		</div>
 	</form>
