@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Prihlaseni from '$lib/components/Prihlaseni.svelte';
 	import { jeAdmin, prihlasenState, seznamLidi } from '$lib/firebase';
+	import cs from '$lib/translations/cs';
+	import en from '$lib/translations/en';
 	import { diffLines, type Change } from 'diff';
 	import download from 'downloadjs';
 
@@ -73,7 +75,7 @@
 		<div class="d-flex flex-column flex-md-row align-items-start">
 			<h1 class="flex-grow-1">Seznam emailů a příslušných firem</h1>
 
-			<Prihlaseni />
+			<Prihlaseni t={cs} />
 		</div>
 
 		<p class="mt-3 mb-0">
@@ -147,7 +149,7 @@
 				<p>Unautorized</p>
 			</div>
 
-			<Prihlaseni />
+			<Prihlaseni t={en} />
 		</div>
 	{/if}
 </div>

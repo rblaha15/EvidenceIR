@@ -1,6 +1,9 @@
 <script lang="ts">
+	import type { Data } from '$lib/Data';
+	import type { Translations } from '$lib/translations';
 	import type { Pisatkova } from '$lib/Vec';
 
+	export let t: Translations;
 	export let id: string;
 	export let emailVec: Pisatkova;
 	export let zastupceVec: Pisatkova;
@@ -22,7 +25,7 @@
 		<div class="modal-content">
 			<div class="modal-header ">
 				<h4 class="modal-title">Vyberte firmu ze seznamu:</h4>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" title="Zrušit" />
+				<button type="button" class="btn-close" data-bs-dismiss="modal" title={t.cancel} />
 			</div>
 			<div class="d-flex m-2 align-center align-content-center align-items-center">
 				<label class="m-1">
@@ -39,7 +42,7 @@
 						on:click={() => {
 							emailVec.text = email;
 							zastupceVec.text = zastupce;
-							icoVec.text = ico;
+							icoVec.updateText(ico);
 							filtr = '';
 						}}>{jmeno} - {ico}</button
 					>

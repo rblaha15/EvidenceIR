@@ -1,12 +1,20 @@
 <script lang="ts">
 	import { dev } from '$app/environment';
+	import { page } from '$app/stores';
+	import { preferedLanguage } from '$lib/languages';
 	import { onMount } from 'svelte';
 
+	const t = $page.data.translations;
+
 	onMount(() => {
+		console.log('0');
 		document.documentElement.setAttribute(
-			'dta-bs-theme',
+			'data-bs-theme',
 			window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 		);
+
+		if (!$page.data.areTranslationsFromRoute)
+			window.location.replace($page.route.id!.replace('[[lang]]', preferedLanguage()) + $page.url?.search ?? '');
 
 		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
 			document.documentElement.setAttribute(
@@ -29,6 +37,6 @@
 	></script>
 </svelte:head>
 
-<title>{dev ? '(dev) ' : ''}Evidence regulátorů IR</title>
+<title>{dev ? '(dev) ' : ''}{t.longAppName}</title>
 
 <slot />

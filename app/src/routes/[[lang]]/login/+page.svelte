@@ -1,6 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { relUrl } from '$lib/constants';
 	import { prihlasit } from '$lib/firebase';
+	import type { Translations } from '$lib/translations';
+
+	const format = function (format: string, ...args: string[]) {
+		return format.replace(/{(\d+)}/g, function (match, number) {
+			return typeof args[number] != 'undefined' ? args[number] : match;
+		});
+	};
+
+	const t: Translations = $page.data.translations;
 
 	let email: string;
 	let heslo: string;
@@ -14,22 +24,22 @@
 			.catch((e) => {
 				console.log(e.code);
 				if (e.code == 'auth/network-request-failed') {
-					error = 'Zkontrolujte připojení k internetu!';
+					error = t.checkInternet;
 				} else if (e.code == 'auth/user-not-found') {
-					error = `Takový účet neexistuje! <a href="/signup?email=${email}">Vytvořit ho?</a>`;
+					error = format(t.inexistantEmailHtml, $relUrl(`/signup?email=${email}`));
 				} else if (e.code == 'auth/wrong-password') {
-					error = 'Špatné heslo!';
+					error = t.wrongPassword;
 				} else if (e.code == 'auth/too-many-requests') {
-					error = 'Moc žádostí! Počkejte prosím chvíli';
+					error = t.tooManyRequests;
 				} else {
-					error = 'Něco se nepovedlo :\\';
+					error = t.somethingWentWrong;
 				}
 			});
 	}
 </script>
 
 <div class="container my-3">
-	<h1>Přihlášení</h1>
+	<h1>{t.logIn}</h1>
 
 	<form>
 		<div class="mt-3">
@@ -55,14 +65,14 @@
 		{/if}
 		<div class="d-flex align-content-center mt-3">
 			<button type="submit" class="btn btn-primary me-2" on:click={prihlasitSe}>
-				Přihlásit se
+				{t.toLogIn}
 			</button>
 			<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
-				Zpět
+				{t.back}
 			</button>
 		</div>
 		<p class="mt-3">
-			Nemáte účet? <a href="/signup">Registrovat se</a>
+			{t.dontHaveAccount} <a class="btn btn-link" href={$relUrl('/signup')}>Registrovat se</a>
 		</p>
 	</form>
 </div>

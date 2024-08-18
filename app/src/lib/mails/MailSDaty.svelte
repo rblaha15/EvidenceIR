@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Data } from '$lib/Vec';
+		import type { Data } from "$lib/Data";
 
 	export let data: Data;
 

@@ -1,4 +1,7 @@
-import type { HttpError } from '@sveltejs/kit';
+import type { HttpError, Page } from '@sveltejs/kit';
+import type { LanguageCode } from './languages';
+import { derived, get, writable, type Writable } from 'svelte/store';
+import { page } from '$app/stores';
 
 export const sender = '"Regulus Evidence IR" aplikace.regulus@centrum.cz';
 
@@ -38,3 +41,29 @@ export const nazevFirmy = async (ico: string, fetch: typeof node_fetch = node_fe
 	const json = await response.json();
 	return json.obchodniJmeno as string
 };
+
+export const relUrl = derived(page, (page) => (url: string) => "/" + page.params.lang + url)
+
+export function storable<T>(data: T | undefined, name: string): Writable<T> {
+	const store = writable(data);
+	const isBrowser = () => typeof window !== 'undefined';
+
+	const address = `storable-${name}`
+
+	if (isBrowser() && localStorage[address])
+		store.set(JSON.parse(localStorage[address]));
+
+	return {
+		subscribe: store.subscribe,
+		set: value => {
+			if (isBrowser()) localStorage[address] = JSON.stringify(value);
+			store.set(value);
+		},
+		update: (updater) => {
+			const updated = updater(get(store));
+
+			if (isBrowser()) localStorage[address] = JSON.stringify(updated);
+			store.set(updated);
+		}
+	};
+}

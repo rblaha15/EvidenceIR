@@ -1,6 +1,7 @@
 import { error, type RequestHandler } from '@sveltejs/kit';
 import { evidence } from '$lib/firebase';
-import { type RawData } from '$lib/Vec';
+import type { DocumentSnapshot } from '@firebase/firestore';
+import { type RawData } from "$lib/Data";
 import { nazevFirmy } from '$lib/constants';
 import { PDFDocument, PDFStreamWriter, PDFWriter } from 'pdf-lib';
 
@@ -11,8 +12,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	if (!user || !id) error(404, "Not Found")
 
-	console.log(user)
-	let snapshot;
+	let snapshot: DocumentSnapshot;
 	try {
 		snapshot = await evidence(user, id);
 	} catch (e) {
@@ -22,7 +22,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	if (!snapshot.exists()) error(500, 'Nepovedlo se nalézt data ve firebase');
 
-	let veci = snapshot.data() as RawData;
+	const veci = snapshot.data() as RawData;
 
 	const formPdfBytes = await (await fetch('/route.pdf')).arrayBuffer() ?? error(500, "Nepovedlo se načíst PDF");
 
@@ -67,7 +67,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 	adresa2.setText(`${veci.mistoRealizace.psc} ${veci.mistoRealizace.obec}`);
 	email.setText(veci.koncovyUzivatel.email);
 	telefon.setText(veci.koncovyUzivatel.telefon);
-	typIR.setText(veci.ir.typ);
+	typIR.setText(veci.ir.typ[0] + ' ' + veci.ir.typ[1]);
 	serCis.setText(veci.ir.cislo.split(' ')[0] ?? '');
 	serCis2.setText(veci.ir.cislo.split(' ')[1] ?? '');
 	// cisloBOX.setText("")
