@@ -13,3 +13,6 @@ export const load: Load = ({ params }): App.PageData => {
         languageCode: lang ?? defaultLanguage,
     }
 }
+
+export const prerender = false
+export const ssr = true
