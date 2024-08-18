@@ -11,8 +11,10 @@
 
 <div class="dropdown">
 	<button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
-		<span class="me-1 fi fi-{languageFlags[$page.data.languageCode]}" />
-		{languageNames[$page.data.languageCode]}
+		<!-- <span class="me-1 fi fi-{languageFlags[$page.data.languageCode]}" /> -->
+		<span class="me-1 fi fi-eu" />
+		<span style="font-size: 1.25rem">{$page.data.languageCode.toUpperCase()}</span>
+		<!-- {languageNames[$page.data.languageCode]} -->
 	</button>
 	<ul class="dropdown-menu">
 		{#each languageCodes as code}
@@ -24,7 +26,8 @@
 						redirect(code);
 					}}
 				>
-					<span class="me-1 fi fi-{languageFlags[code]}" />
+                    <span style="font-size: 1.25rem">{code.toUpperCase()}</span>
+					<!-- <span class="me-1 fi fi-{languageFlags[code]}" /> -->
 					{languageNames[code]}
 				</button>
 			</li>
