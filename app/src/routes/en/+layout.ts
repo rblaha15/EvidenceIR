@@ -2,7 +2,7 @@ import { type Load } from "@sveltejs/kit";
 import { asLanguageCodeOrNull, defaultLanguage } from "$lib/languages";
 import { getTranslations } from "$lib/translations";
 
-/* export const load: Load = ({ params }): App.PageData => {
+export const load: Load = ({ params }): App.PageData => {
     const lang = "en"//asLanguageCodeOrNull(params.lang)
 
     console.log(lang)
@@ -12,6 +12,6 @@ import { getTranslations } from "$lib/translations";
         areTranslationsFromRoute: lang != null,
         languageCode: lang ?? defaultLanguage,
     }
-} */
+}
 
 export const prerender = false
