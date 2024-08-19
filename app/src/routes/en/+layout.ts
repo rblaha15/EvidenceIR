@@ -12,7 +12,6 @@ import { getTranslations } from "$lib/translations";
         areTranslationsFromRoute: lang != null,
         languageCode: lang ?? defaultLanguage,
     }
-}
+} */
 
 export const prerender = false
-export const ssr = false */
