@@ -1,7 +1,7 @@
 import { initializeApp } from '@firebase/app';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { getDatabase, ref, onValue } from '@firebase/database';
-import { getFirestore } from '@firebase/firestore';
+import { collection, getFirestore, QueryDocumentSnapshot, type DocumentData, type WithFieldValue } from '@firebase/firestore';
 import { writable, derived } from 'svelte/store';
 import type { RawData } from "./Data";
 
@@ -87,6 +87,18 @@ export const odhlasit = async () => {
 	return signOut(auth);
 };
 
+export const checkAuth = async () => {
+	let value: boolean | undefined = undefined
+	const unsub = prihlasenState.subscribe((it) => {
+		if (it == "null") {}
+		else if (it == null) return false
+		else return true
+	})
+	while (value == undefined) {}
+	unsub()
+	return value
+}
+
 //// REALTIME: lidé a firmy k nim příslušející + admini
 
 export const realtime = getDatabase(app);
@@ -163,19 +175,36 @@ jeAdmin.subscribe(() => {
 	});
 });
 
+//// FIRESTORE
 
 export const db = getFirestore(app);
 
-export const evidence = async (user: string, id: string) => {
+type Kontrola = {
+	a: string
+}
+
+type IR = {
+	evidence: RawData,
+	kontroly: {
+		[rok: number]: Kontrola
+	},
+}
+
+const irCollection = collection(db, 'ir').withConverter<IR>({
+	toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
+	fromFirestore: (snapshot: QueryDocumentSnapshot<DocumentData>) => snapshot.data() as IR,
+})
+
+export const evidence = async (ir: string) => {
 	const { getDoc, doc } = await import('@firebase/firestore');
-	return await getDoc(doc(db, 'uzivatele', `/${user}`, "evidence", `/${id}`));
+	return await getDoc(doc(irCollection, ir));
 };
 export const novaEvidence = async (data: RawData) => {
-	const { addDoc, collection } = await import('@firebase/firestore');
-	const user = auth.currentUser?.uid
-	return (await addDoc(collection(db, 'uzivatele', `/${user}`, "evidence"), data)).id;
+	const { addDoc } = await import('@firebase/firestore');
+	const ir = data.ir.cislo
+	return (await addDoc(collection(irCollection, ir), { evidence: data })).id;
 };
-export const odstranitEvidenci = async (user: string, id: string) => {
+export const odstranitEvidenci = async (ir: string) => {
 	const { deleteDoc, doc } = await import('@firebase/firestore');
-	return await deleteDoc(doc(db, 'uzivatele', `/${user}`, 'evidence', `/${id}`));
+	return await deleteDoc(doc(db, 'ir', `/${ir}`));
 };

@@ -7,7 +7,6 @@
 	const t = $page.data.translations;
 
 	onMount(() => {
-		console.log('0');
 		document.documentElement.setAttribute(
 			'data-bs-theme',
 			window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
