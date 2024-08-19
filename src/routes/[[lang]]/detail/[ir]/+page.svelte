@@ -1,52 +1,55 @@
 <script lang="ts">
 	import { odstranitEvidenci, evidence } from '$lib/firebase';
 	import { onMount } from 'svelte';
-	import { type RawData } from "$lib/Data";
+	import { type RawData } from '$lib/Data';
 	import { page } from '$app/stores';
 	import type { FirebaseError } from 'firebase/app';
 	import type { PageData } from './$types';
 	import { languageCodes, type LanguageCode } from '$lib/languages';
 	import { languageNames } from '$lib/translations';
 	import LanguageSelector from '$lib/components/LanguageSelector.svelte';
-	
+
 	export let data: PageData;
-	
-	const t = data.translations
+
+	const t = data.translations;
 
 	let nacita = true;
 	let existuje: boolean;
-	let error = "";
+	let error = '';
 	let veci: RawData;
 
 	onMount(async () => {
 		let snapshot;
 		try {
-			snapshot = await evidence(data.user, data.id);
+			snapshot = await evidence(data.ir);
 		} catch (e) {
 			console.log('Nepovedlo se načíst data z firebase');
-			error = (e as FirebaseError).name
+			error = (e as FirebaseError).name;
 			existuje = false;
 			nacita = false;
 			return;
 		}
 
-		existuje = snapshot.exists();
+		const ir = snapshot.data();
 		nacita = false;
-		if (!existuje) return;
+		if (!snapshot.exists() || ir == undefined) {
+			existuje = false;
+			return;
+		}
 
-		veci = snapshot.data() as RawData;
-		console.log(veci)
+		veci = ir.evidence;
+		console.log(veci);
 	});
 
 	const remove = async () => {
-		await odstranitEvidenci(data.user, data.id);
+		await odstranitEvidenci(data.ir);
 	};
 
 	const copyLink = async () => {
 		navigator.clipboard.writeText($page.url.href);
 	};
 
-	let formLang: LanguageCode = data.languageCode
+	let formLang: LanguageCode = data.languageCode;
 </script>
 
 <main class="my-3 container">
@@ -76,19 +79,17 @@
 			>
 		</div>
 
-		<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mt-2 flex-grow-1">
+		<div
+			class="d-flex flex-column flex-md-row align-items-start align-items-md-center mt-2 flex-grow-1"
+		>
 			<span>{t.regulusRouteForm}</span>
 			<a
 				class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0"
-				href={`/${formLang}/detail/form?user=${data.user}&id=${data.id}`}
+				href={`/${formLang}/detail/${data.ir}/rroute`}
 				target="_blank">{t.openPdf} ({formLang})</a
 			>
 			<div class="dropdown">
-				<button
-					type="button"
-					class="btn btn-link dropdown-toggle"
-					data-bs-toggle="dropdown"
-				>
+				<button type="button" class="btn btn-link dropdown-toggle" data-bs-toggle="dropdown">
 					{t.changeLang}
 				</button>
 				<ul class="dropdown-menu">
@@ -102,8 +103,6 @@
 				</ul>
 			</div>
 		</div>
-		<button class="btn btn-outline-danger mt-2" on:click={remove}
-			>{t.deleteThisEvidence}</button
-		>
+		<button class="btn btn-outline-danger mt-2" on:click={remove}>{t.deleteThisEvidence}</button>
 	{/if}
 </main>
