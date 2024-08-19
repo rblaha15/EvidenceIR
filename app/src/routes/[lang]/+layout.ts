@@ -3,7 +3,7 @@ import { asLanguageCodeOrNull, defaultLanguage } from "$lib/languages";
 import { getTranslations } from "$lib/translations";
 
 export const load: Load = ({ params }): App.PageData => {
-    const lang = "en"//asLanguageCodeOrNull(params.lang)
+    const lang = asLanguageCodeOrNull(params.lang)
 
     console.log(lang)
     // console.log(getTranslations(lang ?? defaultLanguage))
