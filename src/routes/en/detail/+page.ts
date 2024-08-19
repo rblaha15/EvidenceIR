@@ -9,5 +9,3 @@ export const load: PageLoad = ({ url }) => {
 
 	return { user, id };
 };
-
-export const prerender = false;
