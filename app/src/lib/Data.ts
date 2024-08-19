@@ -1,12 +1,16 @@
 import defaultData from "./defaultData";
-import type { DvojVybiratkova, Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, Vec } from "./Vec";
+import type { DvojVybiratkova, Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, Vec, Textova } from "./Vec";
 
 export interface Data {
 	ir: {
 		typ: DvojVybiratkova;
 		cislo: Pisatkova;
+		cisloBOX: Pisatkova;
+		chceVyplnitK: MultiZaskrtavatkova;
 	};
 	tc: {
+		nadpis: Nadpisova;
+		poznamka: Textova;
 		druh: Radiova;
 		typ: Vybiratkova;
 		cislo: Pisatkova;

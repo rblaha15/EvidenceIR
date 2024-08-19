@@ -18,7 +18,8 @@
 		Zaskrtavatkova,
 		MultiZaskrtavatkova,
 		Vec,	
-		DvojVybiratkova} from '$lib/Vec';
+		DvojVybiratkova,
+		Textova} from '$lib/Vec';
 	import { convertData } from "$lib/Data";
 	import { Data } from "$lib/Data";
 	import { sprateleneFirmy, prihlasenState, zodpovednaOsoba } from '$lib/firebase';
@@ -79,18 +80,18 @@
 
 	sprateleneFirmy.subscribe(([montazky, uvadeci]) => {
 		if (montazky.length == 1) {
-			data.montazka.ico.text = montazky[0][1];
+			data.montazka.ico.updateText(montazky[0][1]);
 			data.montazka.email.text = montazky[0][2];
 			data.montazka.zastupce.text = montazky[0][3];
 		}
 		if (uvadeci.length == 1) {
-			data.uvedeni.ico.text = uvadeci[0][1];
+			data.uvedeni.ico.updateText(uvadeci[0][1]);
 			data.uvedeni.email.text = uvadeci[0][2];
 			data.uvedeni.zastupce.text = uvadeci[0][3];
 		}
 	});
 
-	$: seznam = (Object.values(data) as Object[]).flatMap((obj) => Object.values(obj) as Vec<any>[]);
+	$: seznam = (Object.values(data) as Data[keyof Data][]).flatMap((obj) => Object.values(obj) as Vec<any>[]);
 
 	let vysledek = {
 		text: '',
@@ -190,7 +191,7 @@
 	}
 
 	$: {
-		if (!data.tc.typ.moznosti(t, data).includes(data.tc.typ.value(t, data))) {
+		if (!data.tc.typ.moznosti({ t, data }).includes(data.tc.typ.value({ t, data }))) {
 			data.tc.typ.vybrano = null;
 		}
 	}
@@ -211,7 +212,7 @@
 		{#if $prihlasenState}
 			<hr class="d-md-none" />
 			{#each seznam as vec}
-				{#if vec === data.montazka.ico && vec.zobrazit(t, data)}
+				{#if vec === data.montazka.ico && vec.zobrazit({ t, data })}
 					<p>{t.chosenCompany}: {vybranaMontazka}</p>
 					{#if montazky.length > 1}
 						<VybiratkoFirmy
@@ -225,7 +226,7 @@
 						/>
 					{/if}
 				{/if}
-				{#if vec === data.uvedeni.ico && vec.zobrazit(t, data)}
+				{#if vec === data.uvedeni.ico && vec.zobrazit({ t, data })}
 					<p>{t.chosenCompany}: {vybranyUvadec}</p>
 					{#if uvadeci.length > 1}
 						<VybiratkoFirmy
@@ -239,26 +240,28 @@
 						/>
 					{/if}
 				{/if}
-				{#if vec === data.tc.cislo && vec.zobrazit(t, data)}
+				{#if vec === data.tc.cislo && vec.zobrazit({ t, data })}
 					<Scanner
 						bind:vec={data.tc.cislo}
 						zobrazit={data.ir.typ.vybrano2 == 0}
 						onScan={(text) => (data.tc.cislo.text = text.slice(8))}
 						{t} {data}
 					/>
-				{:else if vec instanceof Nadpisova && vec.zobrazit(t, data)}
-					<h2>{vec.nazev(t, data)}</h2>
-				{:else if vec instanceof Pisatkova && vec.zobrazit(t, data)}
+				{:else if vec instanceof Nadpisova && vec.zobrazit({ t, data })}
+					<h2>{vec.nazev({ t, data })}</h2>
+				{:else if vec instanceof Textova && vec.zobrazit({ t, data })}
+					<p>{vec.nazev({ t, data })}</p>
+				{:else if vec instanceof Pisatkova && vec.zobrazit({ t, data })}
 					<p><Pisatko bind:vec {t} {data} /></p>
-				{:else if vec instanceof DvojVybiratkova && vec.zobrazit(t, data)}
+				{:else if vec instanceof DvojVybiratkova && vec.zobrazit({ t, data })}
 					<p><DvojVybiratko bind:vec {t} {data} /></p>
-				{:else if vec instanceof Vybiratkova && vec.zobrazit(t, data)}
+				{:else if vec instanceof Vybiratkova && vec.zobrazit({ t, data })}
 					<p><Vybiratko bind:vec {t} {data} /></p>
-				{:else if vec instanceof Radiova && vec.zobrazit(t, data)}
+				{:else if vec instanceof Radiova && vec.zobrazit({ t, data })}
 					<p><Radio bind:vec {t} {data} /></p>
-				{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit(t, data)}
+				{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit({ t, data })}
 					<p><MultiZaskrtavatko bind:vec {t} {data} /></p>
-				{:else if vec instanceof Zaskrtavatkova && vec.zobrazit(t, data)}
+				{:else if vec instanceof Zaskrtavatkova && vec.zobrazit({ t, data })}
 					<p><Zaskrtavatko bind:vec {t} {data} /></p>
 				{/if}
 			{/each}

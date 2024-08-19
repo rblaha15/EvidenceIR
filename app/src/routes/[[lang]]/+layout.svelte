@@ -13,7 +13,7 @@
 		);
 
 		if (!$page.data.areTranslationsFromRoute)
-			window.location.replace($page.route.id!.replace('[lang]', preferedLanguage()) + $page.url?.search ?? '');
+			window.location.replace($page.route.id!.replace('[[lang]]', preferedLanguage()) + $page.url?.search ?? '');
 
 		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
 			document.documentElement.setAttribute(

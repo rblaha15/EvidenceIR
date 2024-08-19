@@ -5,7 +5,7 @@
 	import 'flag-icons/css/flag-icons.min.css';
 
 	const redirect = (code: LanguageCode) => {
-		window.location.replace($page.route.id!.replace('[lang]', code) + $page.url?.search ?? '');
+		window.location.replace($page.route.id!.replace('[[lang]]', code) + $page.url?.search ?? '');
 	};
 </script>
 

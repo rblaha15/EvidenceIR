@@ -6,26 +6,26 @@
 	import type { Data } from '$lib/Data';
 
 	import type { Translations } from '$lib/translations';
-	import type { Vybiratkova } from '$lib/Vec';
+	import { nazevSHvezdou, type Vybiratkova } from '$lib/Vec';
 
 	export let t: Translations;
 	export let vec: Vybiratkova;
 	export let data: Data;
 </script>
 
-{#if vec.zobrazit(t, data)}
+{#if vec.zobrazit({ t, data })}
 	<label>
-		{vec.nazev(t, data)}
+		{nazevSHvezdou(vec, { t, data })}
 		<div class="dropdown">
 			<button
 				type="button"
 				class="btn btn-outline-secondary dropdown-toggle"
 				data-bs-toggle="dropdown"
 			>
-				{vec.vybrano != null ? vec.value(t, data) : t.notChosen}
+				{vec.vybrano != null ? vec.value({ t, data }) : t.notChosen}
 			</button>
 			<ul class="dropdown-menu">
-				{#each vec.moznosti(t, data) as moznost, i}
+				{#each vec.moznosti({ t, data }) as moznost, i}
 					<li>
 						<button class="dropdown-item" on:click={() => (vec.vybrano = i)}>
 							{moznost}
@@ -36,7 +36,7 @@
 		</div>
 	</label>
 
-	{#if vec.zobrazitError(t, data)}
-		<p class="text-danger">{vec.onError(t, data)}</p>
+	{#if vec.zobrazitError({ t, data })}
+		<p class="text-danger">{vec.onError({ t, data })}</p>
 	{/if}
 {/if}

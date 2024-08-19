@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Data } from '$lib/Data';
 	import type { Translations } from '$lib/translations';
-	import type { Pisatkova } from '$lib/Vec';
+	import { nazevSHvezdou, type Pisatkova } from '$lib/Vec';
 	import IMask, { InputMask } from 'imask';
 	import { onDestroy, onMount } from 'svelte';
 
@@ -25,7 +25,7 @@
 	let input: HTMLInputElement;
 	let mask: InputMask<MyOpts> | undefined = undefined;
 
-	$: opts = vec.maskOptions(t, data);
+	$: opts = vec.maskOptions({ t, data });
 
 	$: options = !opts
 		? undefined
@@ -61,15 +61,15 @@
 	})
 </script>
 
-{#if vec.zobrazit(t, data)}
+{#if vec.zobrazit({ t, data })}
 	{#if options != undefined}
 		<label class="w-{w}">
-			{vec.nazev(t, data)}
+			{nazevSHvezdou(vec, { t, data })}
 			<input {type} class="form-control" bind:this={input} {...$$restProps} />
 		</label>
 	{:else}
 		<label class="w-{w}">
-			{vec.nazev(t, data)}
+			{nazevSHvezdou(vec, { t, data })}
 			<input
 				{type}
 				class="form-control"
@@ -81,7 +81,7 @@
 		</label>
 	{/if}
 
-	{#if vec.zobrazitError(t, data)}
-		<span class="text-danger help-block">{vec.onError(t, data)}</span>
+	{#if vec.zobrazitError({ t, data })}
+		<span class="text-danger help-block">{vec.onError({ t, data })}</span>
 	{/if}
 {/if}

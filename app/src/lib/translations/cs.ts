@@ -1,10 +1,8 @@
-import type { LanguageCode } from "$lib/languages";
-
 export default {
     longAppName: "Evidence regulátorů IR",
     appName: "Evidence IR",
     requiredField: 'Toto pole je povinné',
-    controllerType: 'Typ regulátoru',
+    controllerType: 'Typ regulátoru IR',
     serialNumber: 'Sériové číslo regulátoru',
     wrongNumberFormat: 'Nesprávný formát čísla',
     heatPumpType: 'Typ tepelného čerpadla',
@@ -79,4 +77,7 @@ export default {
     scanBarcode: 'Naskenujte čárový kód z TČ',
     scanCode: 'Naskenujte kód',
     residence: 'Bydliště',
+    whatToAddInfoTo: 'K čemu byste chtěli přidat podrobnější informace?',
+    heatPump: 'Tepelné čerpadlo',
+    pleaseFillInIrType: 'Prosím, vyplňte typ IR.'
 }

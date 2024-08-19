@@ -2,16 +2,19 @@ import type { Translations as T } from "./translations";
 import type { Data } from "./Data";
 import type { HTMLInputTypeAttribute } from "svelte/elements";
 
-type Get<U = string> = (t: T, data: Data) => U
+type Get<U = string> = (args: { t: T, data: Data }) => U
 type GetOrVal<U = string> = Get<U> | U
 const toGet = <U>(getOrValue: GetOrVal<U>) => getOrValue instanceof Function ? getOrValue : () => getOrValue
 
 type Opts = {
     mask: string,
-    definitions: {
+    definitions?: {
         [key: string]: RegExp,
     },
 } | undefined
+
+
+export const nazevSHvezdou = (vec: Vec<any> & { nutne: Get<Boolean> }, args: { t: T, data: Data }) => !vec.nutne(args) ? vec.nazev(args) : vec.nazev(args) + " *"
 
 export abstract class Vec<U> {
     abstract nazev: Get;
@@ -21,7 +24,7 @@ export abstract class Vec<U> {
     abstract rawData: Get<U>;
 
     abstract zpravaJeChybna: Get<boolean>;
-    zobrazitError: Get<boolean> = (t, data) => this.zobrazitErrorVeto && this.zpravaJeChybna(t, data);
+    zobrazitError: Get<boolean> = a => this.zobrazitErrorVeto && this.zpravaJeChybna(a);
 }
 
 export class Nadpisova extends Vec<undefined> {
@@ -39,6 +42,23 @@ export class Nadpisova extends Vec<undefined> {
         this.zobrazit = toGet(args.zobrazit ?? true);
     }
 }
+
+export class Textova extends Vec<undefined> {
+    nazev: Get;
+    onError = () => '';
+    zobrazit: Get<boolean>;
+    rawData = () => undefined
+    zpravaJeChybna: Get<boolean> = () => false;
+    constructor(args: {
+        nazev: GetOrVal,
+        zobrazit?: GetOrVal<boolean>
+    }) {
+        super();
+        this.nazev = toGet(args.nazev);
+        this.zobrazit = toGet(args.zobrazit ?? true);
+    }
+}
+
 export class Vybiratkova extends Vec<string> {
     nazev: Get;
     onError: Get;
@@ -46,9 +66,9 @@ export class Vybiratkova extends Vec<string> {
     moznosti: Get<string[]>;
     vybrano: number | null;
     nutne: Get<boolean>;
-    rawData: Get = (t, data) => this.value(t, data)
-    value: Get = (t, data) => this.vybrano == null ? '' : this.moznosti(t, data)[this.vybrano]
-    zpravaJeChybna: Get<boolean> = (t, data) => this.vybrano == null && this.nutne(t, data);
+    rawData: Get = a => this.value(a)
+    value: Get = a => this.vybrano == null ? '' : this.moznosti(a)[this.vybrano]
+    zpravaJeChybna: Get<boolean> = a => this.vybrano == null && this.nutne(a);
     constructor(args: {
         nazev: GetOrVal,
         moznosti: GetOrVal<string[]>,
@@ -61,7 +81,7 @@ export class Vybiratkova extends Vec<string> {
 
         this.nazev = toGet(args.nazev);
         this.moznosti = toGet(args.moznosti);
-        this.onError = toGet(args.onError ?? ((t) => t.requiredField));
+        this.onError = toGet(args.onError ?? (({ t }) => t.requiredField));
         this.nutne = toGet(args.nutne ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
         this.vybrano = (args.vybrano ?? null);
@@ -78,14 +98,14 @@ export class DvojVybiratkova extends Vec<Pair> {
     vybrano1: number | null;
     vybrano2: number | null;
     nutne: Get<boolean>;
-    rawData: Get<Pair> = (t, data) => this.value(t, data)
+    rawData: Get<Pair> = a => this.value(a)
 
-    value: Get<Pair> = (t, data) => [
-        this.vybrano1 == null ? '' : this.moznosti1(t, data)[this.vybrano1],
-        this.vybrano2 == null ? '' : this.moznosti2(t, data)[this.vybrano2],
+    value: Get<Pair> = a => [
+        this.vybrano1 == null ? '' : this.moznosti1(a)[this.vybrano1],
+        this.vybrano2 == null ? '' : this.moznosti2(a)[this.vybrano2],
     ] as const
 
-    zpravaJeChybna: Get<boolean> = (t, data) => (this.vybrano1 == null || this.vybrano2 == null) && this.nutne(t, data);
+    zpravaJeChybna: Get<boolean> = a => (this.vybrano1 == null || this.vybrano2 == null) && this.nutne(a);
     constructor(args: {
         nazev: GetOrVal,
         moznosti1: GetOrVal<string[]>,
@@ -101,7 +121,7 @@ export class DvojVybiratkova extends Vec<Pair> {
         this.nazev = toGet(args.nazev);
         this.moznosti1 = toGet(args.moznosti1);
         this.moznosti2 = toGet(args.moznosti2);
-        this.onError = toGet(args.onError ?? ((t) => t.requiredField));
+        this.onError = toGet(args.onError ?? (({ t }) => t.requiredField));
         this.nutne = toGet(args.nutne ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
         this.vybrano1 = (args.vybrano1 ?? null);
@@ -115,11 +135,11 @@ export class Radiova extends Vec<string> {
     moznosti: Get<string[]>;
     vybrano: number | null;
     nutne: Get<boolean>;
-    rawData: Get = (t, data) => this.value(t, data)
+    rawData: Get = a => this.value(a)
 
-    value: Get = (t, data) => this.vybrano == null ? '' : this.moznosti(t, data)[this.vybrano!]
+    value: Get = a => this.vybrano == null ? '' : this.moznosti(a)[this.vybrano!]
 
-    zpravaJeChybna: Get<boolean> = (t, data) => this.vybrano == null && this.nutne(t, data);
+    zpravaJeChybna: Get<boolean> = a => this.vybrano == null && this.nutne(a);
     constructor(args: {
         nazev: GetOrVal,
         moznosti: GetOrVal<string[]>,
@@ -132,7 +152,7 @@ export class Radiova extends Vec<string> {
 
         this.nazev = toGet(args.nazev);
         this.moznosti = toGet(args.moznosti);
-        this.onError = toGet(args.onError ?? ((t) => t.requiredField));
+        this.onError = toGet(args.onError ?? (({ t }) => t.requiredField));
         this.nutne = toGet(args.nutne ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
         this.vybrano = (args.vybrano ?? null);
@@ -147,10 +167,10 @@ export class MultiZaskrtavatkova extends Vec<Arr> {
     moznosti: Get<string[]>;
     vybrano: number[];
     nutne: Get<boolean>;
-    rawData: Get<Arr> = (t, data) => this.values(t, data)
-    values: Get<Arr> = (t, data) => this.vybrano.map(i => this.moznosti(t, data)[i])
+    rawData: Get<Arr> = a => this.values(a)
+    values: Get<Arr> = a => this.vybrano.map(i => this.moznosti(a)[i])
 
-    zpravaJeChybna: Get<boolean> = (t, data) => this.vybrano.length == 0 && this.nutne(t, data);
+    zpravaJeChybna: Get<boolean> = a => this.vybrano.length == 0 && this.nutne(a);
     constructor(args: {
         nazev: GetOrVal,
         moznosti: GetOrVal<string[]>,
@@ -163,7 +183,7 @@ export class MultiZaskrtavatkova extends Vec<Arr> {
 
         this.nazev = toGet(args.nazev);
         this.moznosti = toGet(args.moznosti);
-        this.onError = toGet(args.onError ?? ((t) => t.requiredField));
+        this.onError = toGet(args.onError ?? (({ t }) => t.requiredField));
         this.nutne = toGet(args.nutne ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
         this.vybrano = (args.vybrano ?? []);
@@ -176,13 +196,13 @@ export class Pisatkova extends Vec<string> {
     onError: Get;
     zobrazit: Get<boolean>;
     text: string;
-    updateText: (text: string) => void = () => {};
+    updateText: (text: string) => void = () => { };
     maskOptions: Get<Opts>;
     regex: Get<RegExp>;
     nutne: Get<boolean>;
     rawData = () => this.text
-    zpravaJeChybna: Get<boolean> = (t, data) => (this.text == '' && this.nutne(t, data)) ||
-        (this.text != '' && !this.regex(t, data).test(this.text));
+    zpravaJeChybna: Get<boolean> = a => (this.text == '' && this.nutne(a)) ||
+        (this.text != '' && !this.regex(a).test(this.text));
 
     constructor(args: {
         nazev: GetOrVal,
@@ -198,7 +218,7 @@ export class Pisatkova extends Vec<string> {
         super();
 
         this.nazev = toGet(args.nazev);
-        this.onError = toGet(args.onError ?? ((t) => t.requiredField));
+        this.onError = toGet(args.onError ?? (({ t }) => t.requiredField));
         this.regex = toGet(args.regex ?? /.*/);
         this.nutne = toGet(args.nutne ?? true);
         this.maskOptions = toGet(args.maskOptions ?? undefined);
@@ -217,7 +237,7 @@ export class Zaskrtavatkova extends Vec<boolean> {
     nutne: Get<boolean>;
     rawData = () => this.zaskrtnuto
 
-    zpravaJeChybna: Get<boolean> = (t, data) => !this.zaskrtnuto && this.nutne(t, data);
+    zpravaJeChybna: Get<boolean> = a => !this.zaskrtnuto && this.nutne(a);
     constructor(args: {
         nazev: GetOrVal,
         onError?: GetOrVal,
@@ -228,7 +248,7 @@ export class Zaskrtavatkova extends Vec<boolean> {
         super();
 
         this.nazev = toGet(args.nazev);
-        this.onError = toGet(args.onError ?? ((t) => t.requiredField));
+        this.onError = toGet(args.onError ?? (({ t }) => t.requiredField));
         this.nutne = toGet(args.nutne ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
         this.zaskrtnuto = (args.zaskrtnuto ?? false);
