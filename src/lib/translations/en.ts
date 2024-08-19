@@ -4,13 +4,13 @@ const en: Translations = {
     longAppName: "IR Controller Registration",
     appName: "IR Registration",
     requiredField: 'This field is required',
-    controllerType: 'Controller type',
+    controllerType: 'IR Controller type',
     serialNumber: 'Controller serial number',
     wrongNumberFormat: 'Invalid number format',
     heatPumpType: 'Heat pump type',
     airToWater: 'Air-to-Water',
     groundToWater: 'Ground-to-Water',
-    heatPumpModel: 'Model tepelného čerpadla',
+    heatPumpModel: 'Heat pump model',
     heatPumpManufactureNumber: 'Heat pump manufacture number',
     endUser: 'End user',
     name: 'Name',
@@ -79,5 +79,8 @@ const en: Translations = {
     scanBarcode: 'Scan barcode from the heat pump',
     scanCode: 'Scan barcode',
     residence: 'Place of residence',
+    whatToAddInfoTo: 'What would you like to add more detailed information to?',
+    heatPump: 'Heat pump',
+    pleaseFillInIrType: 'Please, fill in the IR type'
 }
 export default en
