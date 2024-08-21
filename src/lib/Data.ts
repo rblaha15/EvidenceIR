@@ -1,4 +1,6 @@
 import defaultData from "./defaultData";
+import type { LanguageCode } from "./languages";
+import type { Translations } from "./translations";
 import type { DvojVybiratkova, Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, Vec, Textova } from "./Vec";
 
 export interface Data {
@@ -54,8 +56,9 @@ export interface Data {
 		pristupMa: MultiZaskrtavatkova;
 		fakturuje: Radiova;
 	};
-	zodpovednaOsoba: {
-		jmeno: Pisatkova;
+	ostatni: {
+		zodpovednaOsoba: Pisatkova;
+		poznamka: Pisatkova;
 	};
 }
 
@@ -70,10 +73,12 @@ type MediumData = {
 	[K in keyof Data]: NonUndefinedProperties<{
 		[K2 in keyof Data[K]]: ReturnType<(Vec<any> & Data[K][K2])["rawData"]>;
 	}>;
+} & {
+	language: LanguageCode,
 };
 
 export type RawData = {
-	[K in keyof MediumData]: {
+	[K in keyof MediumData]: MediumData[K] extends string ? MediumData[K] : {
 		[K2 in keyof MediumData[K]]: MediumData[K][K2];
 	};
 };
@@ -84,19 +89,21 @@ export type DataAsRecord = {
 	};
 };
 
-export const convertData = (data: Data): RawData => {
-	const recordData = data as DataAsRecord;
+export const convertData = (args: { t: Translations, data: Data, lang: LanguageCode }): RawData => {
+	const recordData = args.data as DataAsRecord;
 	const entries1 = Object.entries(recordData);
 	const recordRawData = entries1.map(([key, subData]) => {
-		const subEntries = Object.entries(subData);
+		const subEntries = Object.entries(subData) as [string, Vec<any>][];
 		const recordRawSubData = subEntries.map(([subKey, vec]) => {
-			if (vec.rawData() == undefined) return undefined;
-			else return [subKey, vec.rawData()] as const;
+			if (vec.rawData(args) == undefined) return undefined;
+			else return [subKey, vec.rawData(args)] as const;
 		}).filter(it => it != undefined);
 		const rawSubData = Object.fromEntries(recordRawSubData);
 		return [key, rawSubData] as const;
 	});
-	const rawData = Object.fromEntries(recordRawData);
+	const rawData = {
+		language: args.lang,
+		...Object.fromEntries(recordRawData)
+	};
 	return rawData as RawData;
 };
-

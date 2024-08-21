@@ -88,7 +88,10 @@ export class Vybiratkova extends Vec<string> {
     }
 }
 
-type Pair = readonly [string, string]
+type Pair = {
+    first: string,
+    second: string,
+}
 export class DvojVybiratkova extends Vec<Pair> {
     nazev: Get;
     onError: Get;
@@ -100,10 +103,10 @@ export class DvojVybiratkova extends Vec<Pair> {
     nutne: Get<boolean>;
     rawData: Get<Pair> = a => this.value(a)
 
-    value: Get<Pair> = a => [
-        this.vybrano1 == null ? '' : this.moznosti1(a)[this.vybrano1],
-        this.vybrano2 == null ? '' : this.moznosti2(a)[this.vybrano2],
-    ] as const
+    value: Get<Pair> = a => ({
+        first: this.vybrano1 == null ? '' : this.moznosti1(a)[this.vybrano1],
+        second: this.vybrano2 == null ? '' : this.moznosti2(a)[this.vybrano2],
+    })
 
     zpravaJeChybna: Get<boolean> = a => (this.vybrano1 == null || this.vybrano2 == null) && this.nutne(a);
     constructor(args: {

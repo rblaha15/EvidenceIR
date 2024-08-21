@@ -1,7 +1,6 @@
-import type { HttpError, Page } from '@sveltejs/kit';
-import type { LanguageCode } from './languages';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { page } from '$app/stores';
+import { getToken } from '$lib/client/auth';
 
 export const sender = '"Regulus Evidence IR" aplikace.regulus@centrum.cz';
 
@@ -15,7 +14,10 @@ export const poslatEmail = async (message: import('nodemailer/lib/mailer').Optio
 	if (isString(message.html)) {
 		message.text = message.text ?? htmlToText(message.html);
 	}
-	return await fetch(`/api/poslatEmail`, {
+
+	const token = await getToken()
+
+	return await fetch(`/api/poslatEmail?token=${token}`, {
 		method: 'POST',
 		body: JSON.stringify({ message }),
 		headers: {
@@ -40,6 +42,22 @@ export const nazevFirmy = async (ico: string, fetch: typeof node_fetch = node_fe
 
 	const json = await response.json();
 	return json.obchodniJmeno as string
+};
+
+export const nazevAdresaFirmy = async (ico: string, fetch: typeof node_fetch = node_fetch) => {
+
+	let response
+	try {
+		response = await fetch(`https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/${ico}`, {
+			method: 'GET'
+		});
+	} catch {
+		return undefined
+	}
+	if (!response.ok) return undefined
+
+	const json = await response.json();
+	return json as { obchodniJmeno: string, sidlo: { textovaAdresa: string } }
 };
 
 export const relUrl = derived(page, (page) => (url: string) => "/" + page.params.lang + url)

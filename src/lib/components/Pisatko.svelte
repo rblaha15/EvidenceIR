@@ -7,7 +7,6 @@
 
 	export let t: Translations;
 	export let vec: Pisatkova;
-	const editVec: (edit: (vec: Pisatkova) => Pisatkova) => void = (edit) => { vec = edit(vec) };
 	export let type: string = 'text';
 	export let w: string = '100';
 	export let data: Data;
@@ -39,6 +38,7 @@
 		if (options != undefined) {
 			mask = IMask(input, options);
 			mask.value = vec.text;
+			mask.on("accept", _ => vec.text = mask!.value)
 		}
 	});
 
@@ -47,7 +47,6 @@
 	});
 
 	$: {
-		if (mask) editVec((v) => { v.text = mask!.value; return v });
 		mask?.updateValue();
 	}
 

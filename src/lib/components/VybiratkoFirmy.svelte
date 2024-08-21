@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Company } from '$lib/client/realtime';
 	import type { Data } from '$lib/Data';
 	import type { Translations } from '$lib/translations';
 	import type { Pisatkova } from '$lib/Vec';
@@ -9,7 +10,7 @@
 	export let zastupceVec: Pisatkova;
 	export let icoVec: Pisatkova;
 	export let filtr: string;
-	export let vyfiltrovanyFirmy: string[][];
+	export let vyfiltrovanyFirmy: Company[];
 </script>
 
 <button
@@ -35,16 +36,16 @@
 			</div>
 
 			<div class="modal-body list-group list-group-flush">
-				{#each vyfiltrovanyFirmy as [jmeno, ico, email, zastupce]}
+				{#each vyfiltrovanyFirmy as company}
 					<button
 						data-bs-dismiss="modal"
 						class="list-group-item list-group-item-action"
 						on:click={() => {
-							emailVec.text = email;
-							zastupceVec.text = zastupce;
-							icoVec.updateText(ico);
+							emailVec.text = company.email ?? '';
+							zastupceVec.text = company.representative ?? '';
+							icoVec.updateText(company.crn);
 							filtr = '';
-						}}>{jmeno} - {ico}</button
+						}}>{company.companyName} - {company.crn}</button
 					>
 				{/each}
 			</div>

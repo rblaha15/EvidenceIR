@@ -25,14 +25,10 @@ const defaultData = (): Data => ({
 			onError: ({ t }) => t.wrongNumberFormat,
 			regex: /([A-Z][1-9OND]) ([0-9]{4})/,
 			maskOptions: ({
-				mask: 'A1 2345',
+				mask: 'A1 0000',
 				definitions: {
 					'A': /[A-Z]/,
 					'1': /[1-9OND]/,
-					'2': /[0-9]/,
-					'3': /[0-9]/,
-					'4': /[0-9]/,
-					'5': /[0-9]/,
 				}
 			}),
 		}),
@@ -43,7 +39,7 @@ const defaultData = (): Data => ({
 			maskOptions: ({
 				mask: '0000000-0000000',
 			}),
-			zobrazit: (args) => args.data.ir.typ.value(args)[0].includes("BOX"),
+			zobrazit: (args) => args.data.ir.typ.value(args).first.includes("BOX"),
 		}),
 		chceVyplnitK: new MultiZaskrtavatkova({
 			nazev: ({ t }) => t.whatToAddInfoTo,
@@ -135,7 +131,6 @@ const defaultData = (): Data => ({
 		obec: new Pisatkova({ nazev: ({ t }) => t.town, autocomplete: "section-user billing home city" }),
 		ulice: new Pisatkova({
 			nazev: ({ t }) => t.street,
-			nutne: false,
 			autocomplete: "section-user billing home street-address",
 		}),
 		psc: new Pisatkova({
@@ -235,8 +230,9 @@ const defaultData = (): Data => ({
 			nutne: ({ data }) => data.vzdalenyPristup.chce.zaskrtnuto,
 		})
 	},
-	zodpovednaOsoba: {
-		jmeno: new Pisatkova({ nazev: ({ t }) => t.responsiblePerson, autocomplete: "section-resp billing name" })
+	ostatni: {
+		zodpovednaOsoba: new Pisatkova({ nazev: ({ t }) => t.responsiblePerson, autocomplete: "section-resp billing name" }),
+		poznamka: new Pisatkova({ nazev: ({ t }) => t.note, nutne: false, })
 	},
 })
 

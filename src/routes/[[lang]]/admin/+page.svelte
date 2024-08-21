@@ -1,12 +1,16 @@
 <script lang="ts">
-	import Prihlaseni from '$lib/components/Prihlaseni.svelte';
-	import { jeAdmin, prihlasenState, seznamLidi } from '$lib/firebase';
+	import { getToken, isAdmin, prihlasenState } from '$lib/client/auth';
+	import { seznamLidi, type Person } from '$lib/client/realtime';
+	import Navigation from '$lib/components/Navigation.svelte';
 	import cs from '$lib/translations/cs';
-	import en from '$lib/translations/en';
 	import { diffLines, type Change } from 'diff';
 	import download from 'downloadjs';
+	import { onMount } from 'svelte';
 
-	let loading = false
+	let nacita = true;
+	onMount(() => (nacita = false));
+
+	let loading = false;
 
 	const poVybrani = (
 		ev: Event & {
@@ -25,41 +29,42 @@
 	};
 
 	const stahnout = () => {
-		download(new File([oldData], 'firmy.csv'), 'firmy.csv', 'text/csv');
+		download(new File([oldData], 'lidi.csv'), 'lidi.csv', 'text/csv');
 	};
 
 	const potvrdit = async () => {
-		loading = true
-		await fetch(`/api/aktualizovatLidi`, {
+		loading = true;
+
+		const token = await getToken();
+
+		await fetch(`/api/aktualizovatLidi?token=${token}`, {
 			method: 'POST',
 			body: JSON.stringify({
 				lidi: newData
 					.split('\n')
 					.filter((radek) => radek != '')
 					.map((radek) => radek.split(';').filter((vec) => vec != ''))
-					.map(
-						([email, montazky, uvadeci, osoba]) =>
-							[
-								email,
-								montazky.split('#').filter((vec) => vec != ''),
-								uvadeci.split('#').filter((vec) => vec != ''),
-								osoba
-							] as [string, string[], string[], string]
-					)
-					.map(([email, montazky, uvadeci, osoba]) => [
+					.map(([email, montazky, uvadeci, osoba]) => ({
 						email,
-						Object.fromEntries(montazky.map((ico) => [ico, ico])),
-						Object.fromEntries(uvadeci.map((ico) => [ico, ico])),
-						osoba
-					])
+						assembly: montazky.split('#').filter((vec) => vec != ''),
+						commissioning: uvadeci.split('#').filter((vec) => vec != ''),
+						responsible: osoba
+					}))
+					.map(({ assembly, commissioning, email, responsible }) => ({
+						email,
+						assemblyCompanies: Object.fromEntries(assembly.map((crn) => [crn, crn])),
+						commissioningCompanies: Object.fromEntries(commissioning.map((crn) => [crn, crn])),
+						responsiblePerson: responsible
+					})) as Person[]
 			})
 		});
-		loading = false
+		loading = false;
 		newData = '';
 	};
 
-	$: textovySeznam = $seznamLidi.map(([email, montazky, uvadeci, osoba]) =>
-		`${email};${Object.values(montazky).join('#')};${Object.values(uvadeci).join('#')};${osoba ?? ''}`.trim()
+	$: textovySeznam = $seznamLidi.map(
+		({ email, assemblyCompanies, commissioningCompanies, responsiblePerson }) =>
+			`${email};${Object.values(assemblyCompanies).join('#')};${Object.values(commissioningCompanies).join('#')};${responsiblePerson ?? ''}`.trim()
 	);
 
 	$: oldData = textovySeznam.join('\n');
@@ -68,16 +73,12 @@
 	$: onlyDiff = diff.filter((part) => part.added || part.removed);
 </script>
 
-<div class="container my-3">
-	{#if $prihlasenState == 'null'}
-		<div class="spinner-border text-danger" />
-	{:else if $jeAdmin}
-		<div class="d-flex flex-column flex-md-row align-items-start">
-			<h1 class="flex-grow-1">Seznam emailů a příslušných firem</h1>
-
-			<Prihlaseni t={cs} />
-		</div>
-
+{#if $prihlasenState == 'null' || nacita}
+	<div class="spinner-border text-danger" />
+{:else if $isAdmin}
+	<Navigation t={cs} />
+	<main class="container my-3">
+		<h1>Seznam uživatelů a příslušných firem</h1>
 		<p class="mt-3 mb-0">
 			Vložte .csv soubor oddělený středníky (;), kde v prvním sloupci je email, v druhém sloupci iča
 			montážních firem oddělená hashy (#), v třetím slopci jsou stejně oddělená iča uvaděčů a ve
@@ -89,7 +90,7 @@
 			{#if loading}
 				<div class="d-flex align-items-center">
 					<span>Odesílání dat</span>
-					<div class="spinner-border text-primary ms-2" />
+					<div class="spinner-border text-danger ms-2" />
 				</div>
 			{:else if newData == ''}
 				<button
@@ -100,9 +101,7 @@
 					Vybrat soubor
 				</button>
 			{:else}
-				<button type="button" class="btn btn-danger" on:click={potvrdit}>
-					Potvrdit změny
-				</button>
+				<button type="button" class="btn btn-danger" on:click={potvrdit}> Potvrdit změny </button>
 				<button
 					type="button"
 					class="btn btn-outline-primary mt-2 ms-md-2 mt-md-0"
@@ -111,10 +110,18 @@
 					Vybrat jiný soubor
 				</button>
 			{/if}
-			<button type="button" class="btn btn-outline-primary mt-2 ms-md-2 mt-md-0" on:click={stahnout}>
+			<button
+				type="button"
+				class="btn btn-outline-primary mt-2 ms-md-2 mt-md-0"
+				on:click={stahnout}
+			>
 				Stáhnout aktuální data
 			</button>
-			<button type="button" class="btn btn-outline-secondary mt-2 ms-md-2 mt-md-0" on:click={() => history.back()}>
+			<button
+				type="button"
+				class="btn btn-outline-secondary mt-2 ms-md-2 mt-md-0"
+				on:click={() => history.back()}
+			>
 				Zpět
 			</button>
 		</div>
@@ -142,14 +149,12 @@
 		</div>
 
 		<input style="display: none;" id="file" type="file" accept="text/csv" on:change={poVybrani} />
-	{:else}
-		<div class="d-flex flex-column flex-md-row align-items-start">
-			<div class="flex-grow-1">
-				<h1>401</h1>
-				<p>Unautorized</p>
-			</div>
-
-			<Prihlaseni t={en} />
+	</main>
+{:else}
+	<div class="d-flex flex-column flex-md-row align-items-start">
+		<div class="flex-grow-1">
+			<h1>401</h1>
+			<p>Unautorized</p>
 		</div>
-	{/if}
-</div>
+	</div>
+{/if}
