@@ -12,7 +12,7 @@
 
 	const open = async (lang: LanguageCode) => {
 		const token = await getToken();
-		window.open(`/${lang}/detail/${data.ir}/${linkName}?token=${token}`);
+		window.open(`/${lang}/detail/${data.ir}/pdf/${linkName}?token=${token}`);
 	};
 </script>
 
