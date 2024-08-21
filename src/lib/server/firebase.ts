@@ -7,12 +7,12 @@ import { writeFile } from 'fs/promises';
 
 const initApp = async () => {
     try {
-        await writeFile('./firebase-adminsdk.json', FIREBASE_INFO);
+        const cred = JSON.parse(FIREBASE_INFO);
 
         return initializeApp({
-            credential: cert('./firebase-adminsdk.json'),
+            credential: cert(cred),
             databaseURL: 'https://evidence-ir-default-rtdb.europe-west1.firebasedatabase.app'
-        }, Math.random().toString());
+        });
     } catch (e) {
         console.error(e)
     }

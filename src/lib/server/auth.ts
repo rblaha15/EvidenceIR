@@ -1,7 +1,6 @@
 import { getAuth, UserRecord, type CreateRequest, type DecodedIdToken } from "firebase-admin/auth";
 import { app } from "./firebase";
 
-// AUTH
 const auth = getAuth(app);
 
 export const checkToken = (token: string | undefined | null) =>
