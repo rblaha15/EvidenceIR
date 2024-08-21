@@ -5,7 +5,7 @@ import { generatePdf } from "../pdf";
 
 const node_fetch = fetch
 
-export default ({ lang, ir }: { lang: LanguageCode, ir: string, fetch: typeof node_fetch }) => generatePdf({
+export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: typeof node_fetch }) => generatePdf({
     lang, ir, fetch,
     getFirebaseData: async () => evidence(ir),
     formLocation: '/rroute_cs.pdf',
