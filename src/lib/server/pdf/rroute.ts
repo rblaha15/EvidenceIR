@@ -1,26 +1,17 @@
-import { evidence } from '$lib/server/firestore';
-import { checkToken } from '$lib/server/auth';
-import { nazevFirmy } from '$lib/constants';
-import { generatePdf } from '$lib/server/pdf';
-// import type { RequestHandler } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
-import { error } from '@sveltejs/kit';
+import { nazevFirmy } from "$lib/constants";
+import type { LanguageCode } from "$lib/languages";
+import { evidence } from "../firestore";
+import { generatePdf } from "../pdf";
 
-export const GET: RequestHandler = async ({ url, fetch, params }) => {
-	const lang = params.lang!
-	const ir = params.ir
-	const t = url.searchParams.get("token")
+const node_fetch = fetch
 
-	const token = await checkToken(t)
-	if (!token) error(401, "Unauthorized")
-
-	return generatePdf({
-		lang, ir, fetch,
-		getFirebaseData: async () => evidence(ir),
-		formLocation: '/rroute_cs.pdf',
-		title: "Souhlas se zpřístupněním regulátoru IR službě RegulusRoute",
-		fileName: "Formulář RegulusRoute.pdf",
-		getFormData: async ({ evidence: e }) => ({
+export default ({ lang, ir }: { lang: LanguageCode, ir: string, fetch: typeof node_fetch }) => generatePdf({
+    lang, ir, fetch,
+    getFirebaseData: async () => evidence(ir),
+    formLocation: '/rroute_cs.pdf',
+    title: "Souhlas se zpřístupněním regulátoru IR službě RegulusRoute",
+    fileName: "Formulář RegulusRoute.pdf",
+    getFormData: async ({ evidence: e }) => ({
 /*   icoMontaznik */ Text1: e.montazka.ico,
 /* firmaMontaznik */ Text2: (await nazevFirmy(e.montazka.ico, fetch)) ?? '',
 /* jmenoMontaznik */ Text3: e.montazka.zastupce,
@@ -42,6 +33,5 @@ export const GET: RequestHandler = async ({ url, fetch, params }) => {
 /*      cenaRoute */ Text19: '1000',
 /*          datum */ // Text20: '',
 /*         podpis */ // Text21: '',
-		}),
-	})
-}
+    }),
+})
