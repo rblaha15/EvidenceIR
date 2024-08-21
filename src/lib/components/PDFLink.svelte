@@ -23,9 +23,9 @@
 		<button
 			on:click={() => open(data.languageCode)}
 			type="button"
-			class="btn btn-outline-primary text-nowrap">{t.openPdf}</button
+			class="btn btn-outline-info text-nowrap">{t.openPdf}</button
 		>
-		<button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+		<button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
 			<span>{data.languageCode.toUpperCase()}</span>
 		</button>
 		<ul class="dropdown-menu">
@@ -34,7 +34,7 @@
 					<button
 						on:click={() => open(code)}
 						type="button"
-						class="btn btn-outline-primary text-nowrap dropdown-item"
+						class="dropdown-item"
 					>
 						<span class="fs-5">{code.toUpperCase()}</span>
 						{languageNames[code]}

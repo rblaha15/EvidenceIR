@@ -96,5 +96,8 @@ const en: Translations = {
     warranty: 'Heat pump warranty',
     instalationProtocol: 'Heat pump instalation protocol',
     installationApproval: 'Heat pump instalation approval',
+    yearlyCheck: 'Yearly heat pump check',
+    doYearlyCheck: 'Do a yearly heat pump check',
+    filledYearlyCheck: 'Filled yearly heat pump check',
 }
 export default en

@@ -94,4 +94,7 @@ export default {
     warranty: 'Záruční list k TČ',
     instalationProtocol: 'Protokol o instalaci TČ',
     installationApproval: 'Schválení instalace TČ',
+    yearlyCheck: 'Roční kontrola TČ',
+    doYearlyCheck: 'Udělat roční kontrolu TČ',
+    filledYearlyCheck: 'Vyplněná roční kontrola TČ',
 }

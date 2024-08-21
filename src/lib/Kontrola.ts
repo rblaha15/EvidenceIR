@@ -1,61 +1,84 @@
-import type { BundleBuilder } from "firebase-admin/firestore";
 import type { LanguageCode } from "./languages";
 
-type Order = typeof order
+type Order = typeof kontrolaOrder
 type KeyOfArray<Array> = Exclude<keyof Array, keyof any[]>
 
-type KontrolaBezJazyka = {
+export type KontrolaMetadata = {
+    meta: {
+        osoba: string,
+        datum: string,
+        language: LanguageCode,
+    }
+}
+
+export type KontrolaBezMety = {
     [K in KeyOfArray<Order> as Order[K][0]]: {
-        [K2 in KeyOfArray<Order[K][1]> as Order[K][1][K2] extends string ? Order[K][1][K2] : ""]: (Order[K][1][K2] extends `${string}B` ? boolean : string) | undefined
+        [K2 in KeyOfArray<Order[K][1]> as Order[K][1][K2] extends string ? Order[K][1][K2] : ""]?: (Order[K][1][K2] extends `${string}B` ? boolean : string)
+    }
+}
+
+export type KontrolaTypes = {
+    [K in KeyOfArray<Order> as Order[K][0]]: {
+        [K2 in KeyOfArray<Order[K][1]> as Order[K][1][K2] extends string ? Order[K][1][K2] : ""]: (Order[K][1][K2] extends `${string}B` ? 'boolean' : Order[K][1][K2] extends `${string}T` ? 'tlak' : 'string')
+    } & {
+        'nadpis': 'nadpis'
     }
 }
 
 type KontrolaAsArray = ({
-    [K in keyof KontrolaBezJazyka]: (x: {
-        [K2 in keyof KontrolaBezJazyka[K]]: {
-            type: K2 extends `${string}B` ? "boolean" : "string",
-            value: KontrolaBezJazyka[K][K2]
+    [K in keyof KontrolaBezMety]: (x: {
+        [K2 in keyof KontrolaBezMety[K]]-?: {
+            type: K2 extends `${string}B` ? "boolean" : K2 extends `${string}T` ? 'tlak' : "string",
+            value: KontrolaBezMety[K][K2]
             key1: K,
             key2: K2,
         }
     }) => void
-}) extends Record<keyof KontrolaBezJazyka, (y: infer U) => void>
+}) extends Record<keyof KontrolaBezMety, (y: infer U) => void>
     ? (U[keyof U] | {
-        [K in keyof KontrolaBezJazyka as `${K}Name`]: {
+        [K in keyof KontrolaBezMety as `${K}Name`]: {
             type: 'nadpis',
             value: Nazvy[`${K}Name`]
             key: K,
         }
-    }[`${keyof KontrolaBezJazyka}Name`])[]
+    }[`${keyof KontrolaBezMety}Name`])[]
     : never
 
-export type Kontrola = KontrolaBezJazyka & {
-    language: LanguageCode
-}
+type OrderAsArray = ({
+    [K in KeyOfArray<Order> as Order[K][0]]: (x: {
+        [K2 in KeyOfArray<Order[K][1]> as `${K}.${K2 extends number ? K2 : ''}`]: {
+            key1: Order[K][0],
+            key2: Order[K][1][K2],
+        }
+    }) => void
+}) extends Record<Order[number][0], (y: infer U) => void>
+    ? (U[keyof U] | {
+        [K in keyof KontrolaBezMety as `${K}Name`]: {
+            key1: K,
+            key2: 'nadpis',
+        }
+    }[`${keyof KontrolaBezMety}Name`])[]
+    : never
 
-export type KontrolaAsRecord = {
-    language: LanguageCode
-} & Record<keyof KontrolaBezJazyka, Record<string, string | boolean | undefined>>
+export type Kontrola = KontrolaBezMety & KontrolaMetadata
 
-type NazvyBezJazyka = {
-    [K in keyof KontrolaBezJazyka]: {
-        [K2 in keyof KontrolaBezJazyka[K]]: string
+export type KontrolaAsRecord = KontrolaMetadata & Record<keyof KontrolaBezMety, Record<string, string | boolean | undefined>>
+
+type NazvyBezMety = {
+    [K in keyof KontrolaBezMety]: {
+        [K2 in keyof KontrolaBezMety[K]]: string
     }
 } & {
-    [K in keyof KontrolaBezJazyka as `${K}Name`]: string
+    [K in keyof KontrolaBezMety as `${K}Name`]: string
 }
 
 export type NazvyAsRecord = {
-    language: LanguageCode
+    [K in keyof KontrolaBezMety]: Record<string, string>
 } & {
-    [K in keyof KontrolaBezJazyka]: Record<string, string>
-} & {
-    [K in keyof KontrolaBezJazyka as `${K}Name`]: string
+    [K in keyof KontrolaBezMety as `${K}Name`]: string
 }
 
-type Nazvy = NazvyBezJazyka & {
-    language: LanguageCode
-}
+type Nazvy = NazvyBezMety
 
 export const nazvyKontrol: Nazvy = {
     kontrolniElektroinstalaceName: "Kontrolní elektroinstalace",
@@ -63,6 +86,7 @@ export const nazvyKontrol: Nazvy = {
     kontrolniUkonyRegulaceName: "Kontrolní úkony regulace",
     kontrolniUkonyOtopneSoustavyName: "Kontrolní úkony otopné soustavy",
     kontrolaZasobnikuTvName: "Kontrola zásobníku TV",
+
     kontrolniElektroinstalace: {
         kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulaceB: "Kontrola funkce všech elektrických spotřebičů zapojených do regulace",
         kontrolaDotazeniSvorkovychSpoju: "Kontrola dotažení svorkových spojů",
@@ -86,14 +110,14 @@ export const nazvyKontrol: Nazvy = {
         kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricinB: "Kontrola chybových a informačních hlášení regulátoru a jejich příčin",
         kontrolaNastaveniParametruRegulatoruB: "Kontrola nastavení parametrů regulátoru",
         preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveniB: "Preventivní proškolení obsluhy z hlediska uživatelského nastavení",
-        stavPocitadlaCelkovychProvoznichHodinKompresoruB: "Stav počítadla celkových provozních hodin kompresoru",
-        stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulaceB: "Stav počítadla provozních hodin do TV (umožňuje-li to regulace)",
-        stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulaceB: "Stav celkového počtu startů tep. čerpadla (umožňuje-li to regulace)",
-        stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulaceB: "Stav počtu startů tepel. čerpadla do TV (umožňuje-li to regulace)",
-        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeB: "Stav počítadla celkových provozních hodin doplňkového zdroje",
-        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTvB: "Stav počítadla celkových provozních hodin doplňkového zdroje TV",
-        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontrolyB: "Průměrná celková doba chodu kompresoru [min] - od poslední kontroly",
-        prumernaDobaChoduKompresoruDoTvMinOdPosledniKontrolyB: "Průměrná doba chodu kompresoru do TV [min] - od poslední kontroly",
+        stavPocitadlaCelkovychProvoznichHodinKompresoru: "Stav počítadla celkových provozních hodin kompresoru",
+        stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace: "Stav počítadla provozních hodin do TV (umožňuje-li to regulace)",
+        stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace: "Stav celkového počtu startů tep. čerpadla (umožňuje-li to regulace)",
+        stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace: "Stav počtu startů tepel. čerpadla do TV (umožňuje-li to regulace)",
+        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje: "Stav počítadla celkových provozních hodin doplňkového zdroje",
+        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv: "Stav počítadla celkových provozních hodin doplňkového zdroje TV",
+        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: "Průměrná celková doba chodu kompresoru [min] - od poslední kontroly",
+        prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly: "Průměrná doba chodu kompresoru do TV [min] - od poslední kontroly",
     },
 
     kontrolniUkonyOtopneSoustavy: {
@@ -103,29 +127,20 @@ export const nazvyKontrol: Nazvy = {
         kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovychB: "Kontrola funkce všech motorických ventilů (směšovací, zónových)",
         kontrolaTesnostiOtopneSoustavyB: "Kontrola těsnosti otopné soustavy",
         kontrolaTlakuVExpanzniNadobeOtopneSoustavyB: "Kontrola tlaku v expanzní nádobě otopné soustavy",
-        nastavenyTlakPriUvadeniDoProvozuB: "Nastavený tlak při uvádění do provozu:",
+        nastavenyTlakPriUvadeniDoProvozuT: "Nastavený tlak při uvádění do provozu:",
         pripadneProvedteKontroluTlakuVOtopneSoustaveB: "Případně proveďte kontrolu tlaku v otopné soustavě",
-        nastavenyTlakPriUvadeniDoProvozu2B: "Nastavený tlak při uvádění do provozu:",
+        nastavenyTlakPriUvadeniDoProvozu2T: "Nastavený tlak při uvádění do provozu:",
     },
 
     kontrolaZasobnikuTv: {
         kontrolaMgAnodyVZasobnikuPripVymenaB: "Kontrola Mg anody v zásobníku, příp. výměna",
         kontrolaPojistovacihoVentiluB: "Kontrola pojišťovacího ventilu",
         pripadneProvedteKontroluTlakuVEnTepleVodyB: "Případně proveďte kontrolu tlaku v EN teplé vody",
-        nastavenyTlakPriUvadeniDoProvozuNewlineB: "Nastavený tlak při uvádění do provozu:",
+        nastavenyTlakPriUvadeniDoProvozuT: "Nastavený tlak při uvádění do provozu:",
     },
-
-    language: 'cs',
 }
 
-const order = [
-    ["kontrolniElektroinstalace", [
-        "kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulaceB",
-        "kontrolaDotazeniSvorkovychSpoju",
-        "vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeniB",
-        "kontrolaSepnutiDohrevuSepnutiStykacePripadneReleB",
-    ]],
-
+export const kontrolaOrder = [
     ["kontrolniUkonyTepelnehoCerpadla", [
         "kontrolaChoduKompresoruB",
         "optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhuB",
@@ -142,14 +157,21 @@ const order = [
         "kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricinB",
         "kontrolaNastaveniParametruRegulatoruB",
         "preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveniB",
-        "stavPocitadlaCelkovychProvoznichHodinKompresoruB",
-        "stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulaceB",
-        "stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulaceB",
-        "stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulaceB",
-        "stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeB",
-        "stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTvB",
-        "prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontrolyB",
-        "prumernaDobaChoduKompresoruDoTvMinOdPosledniKontrolyB",
+        "stavPocitadlaCelkovychProvoznichHodinKompresoru",
+        "stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace",
+        "stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace",
+        "stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace",
+        "stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje",
+        "stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv",
+        "prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly",
+        "prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly",
+    ]],
+
+    ["kontrolniElektroinstalace", [
+        "kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulaceB",
+        "kontrolaDotazeniSvorkovychSpoju",
+        "vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeniB",
+        "kontrolaSepnutiDohrevuSepnutiStykacePripadneReleB",
     ]],
 
     ["kontrolniUkonyOtopneSoustavy", [
@@ -159,28 +181,44 @@ const order = [
         "kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovychB",
         "kontrolaTesnostiOtopneSoustavyB",
         "kontrolaTlakuVExpanzniNadobeOtopneSoustavyB",
-        "nastavenyTlakPriUvadeniDoProvozuB",
+        "nastavenyTlakPriUvadeniDoProvozuT",
         "pripadneProvedteKontroluTlakuVOtopneSoustaveB",
-        "nastavenyTlakPriUvadeniDoProvozu2B",
+        "nastavenyTlakPriUvadeniDoProvozu2T",
     ]],
 
     ["kontrolaZasobnikuTv", [
         "kontrolaMgAnodyVZasobnikuPripVymenaB",
         "kontrolaPojistovacihoVentiluB",
         "pripadneProvedteKontroluTlakuVEnTepleVodyB",
-        "nastavenyTlakPriUvadeniDoProvozuNewlineB",
+        "nastavenyTlakPriUvadeniDoProvozuT",
     ]],
 ] as const
 
-export const kontrola = (language: LanguageCode): Kontrola => ({
-    ...Object.fromEntries(order.map(([key, sekce]) => [key,
-        Object.fromEntries(sekce.map(key2 => [key2, undefined]))
-    ])) as KontrolaBezJazyka, language
+export const kontrola = (language: LanguageCode, osoba: string, datum: string): Kontrola => ({
+    ...Object.fromEntries(kontrolaOrder.map(([key]) => [key, {}])) as KontrolaBezMety, meta: {
+        osoba, language, datum
+    }
 })
+
+export const kontrolaTypes: Record<string, Record<string, 'boolean' | 'string' | 'tlak' | 'nadpis'>> = Object.fromEntries(kontrolaOrder.map(([key, sekce]) => [key,
+    {
+        'nadpis': 'nadpis' as const,
+        ...Object.fromEntries(sekce.map(key2 => [key2, key2.endsWith("B") ? "boolean" : key2.endsWith("T") ? 'tlak' : "string"])),
+    }
+])) as KontrolaTypes
 
 type R = Record<string, string | boolean | undefined>
 
-export const arrayFrom = (kontrola: Kontrola | KontrolaAsRecord): KontrolaAsArray => order.flatMap(([key1, sekce]) => [
+export const arrayFrom = (kontrola: Kontrola | KontrolaAsRecord | KontrolaBezMety): KontrolaAsArray => kontrolaOrder.flatMap(([key1, sekce]) => [
     { key: key1, type: 'nadpis', value: nazvyKontrol[`${key1}Name`] } as const,
-    ...sekce.map(key2 => ({ key1, key2, value: (kontrola[key1] as R)[key2], type: key2.endsWith("B") ? "boolean" : "string" }))
+    ...sekce.map(key2 => ({ key1, key2, value: (kontrola[key1] as R)[key2], type: key2.endsWith("B") ? "boolean" : key2.endsWith("T") ? 'tlak' : "string" }))
 ]) as KontrolaAsArray
+
+export const orderArray: OrderAsArray = kontrolaOrder.flatMap(([key1, sekce]) => [
+    { key1, key2: 'nadpis' },
+    ...sekce.map(key2 => ({ key1, key2 }))
+]) as OrderAsArray
+
+export const bezMety = (kontrola: Kontrola | KontrolaAsRecord): KontrolaBezMety => Object.fromEntries(kontrolaOrder.map(([key, sekce]) => [key,
+    kontrola[key]
+])) as KontrolaBezMety

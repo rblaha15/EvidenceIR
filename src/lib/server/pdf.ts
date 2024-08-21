@@ -44,6 +44,8 @@ export const generatePdf = async <T>(args: {
     // fields.forEach(field => {
     //     const type = field.constructor.name
     //     const name = field.getName()
+    //     const f = form.getTextField(name)
+    //     f.setText(name)
     //     console.log(`${type}: ${name}`)
     // })
 
