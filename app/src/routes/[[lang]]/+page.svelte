@@ -7,7 +7,7 @@
 	import Radio from '$lib/components/Radio.svelte';
 	import VybiratkoFirmy from '$lib/components/VybiratkoFirmy.svelte';
 	import Scanner from '$lib/components/Scanner.svelte';
-	import Prihlaseni from '$lib/components/Prihlaseni.svelte';
+	import Navigation from '$lib/components/Navigation.svelte';
 
 	// Other
 	import {
@@ -17,38 +17,41 @@
 		Nadpisova,
 		Zaskrtavatkova,
 		MultiZaskrtavatkova,
-		Vec,	
+		Vec,
 		DvojVybiratkova,
-		Textova} from '$lib/Vec';
-	import { convertData } from "$lib/Data";
-	import { Data } from "$lib/Data";
-	import { sprateleneFirmy, prihlasenState, zodpovednaOsoba } from '$lib/firebase';
-	import type { Translations } from '$lib/translations';
-
+		Textova
+	} from '$lib/Vec';
+	import { convertData } from '$lib/Data';
+	import { Data } from '$lib/Data';
+	import { prihlasenState } from '$lib/client/auth';
+	import { sprateleneFirmy, zodpovednaOsoba } from '$lib/client/realtime';
 	// Svelte
 	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
 
 	// 3rd-party
-	import type { User } from 'firebase/auth';
 	import DvojVybiratko from '$lib/components/DvojVybiratko.svelte';
+	import { relUrl } from '$lib/constants';
+	import { onMount } from 'svelte';
 
-	const t = $page.data.translations
+	const t = $page.data.translations;
 
 	let filtr = '';
 
-	$: montazky = $sprateleneFirmy[0].sort(([a], [b]) => a.localeCompare(b)) ?? [];
-	$: uvadeci = $sprateleneFirmy[1].sort(([a], [b]) => a.localeCompare(b)) ?? [];
+	$: montazky = $sprateleneFirmy.assemblyCompanies ?? [];
+	// $: montazky = montazky1.sort((a, b) => a.companyName.localeCompare(b.companyName)) ?? [];
+	$: uvadeci = $sprateleneFirmy.commissioningCompanies ?? [];
+	// $: uvadeci = uvadeci1.sort((a, b) => a.companyName.localeCompare(b.companyName)) ?? [];
 
 	$: [vyfiltrovanyMontazky, vyfiltrovanyUvadeci] = [montazky, uvadeci].map((firmy) =>
-		firmy.filter(([jmeno]) =>
+		firmy.filter(({ companyName }) =>
 			filtr
 				.normalize('NFD')
 				.replace(/\p{Diacritic}/gu, '')
 				.toLowerCase()
 				.split(' ')
 				.every((slovoFiltru) =>
-					jmeno
+					companyName
 						.normalize('NFD')
 						.replace(/\p{Diacritic}/gu, '')
 						.toLowerCase()
@@ -58,69 +61,94 @@
 		)
 	);
 
+	let nacita = true;
+	onMount(() => (nacita = false));
+
 	const data = Data();
 
 	if (dev) {
-		// data.ir.typ.vybrano1 = 2;
-		// data.ir.typ.vybrano2 = 0;
-		// data.ir.cislo.text = 'A9 1234';
-		// data.tc.druh.vybrano = 0;
-		// data.tc.typ.vybrano = 3;
-		// data.tc.cislo.text = '3514-3564-6321';
+		data.ir.typ.vybrano1 = 2;
+		data.ir.typ.vybrano2 = 0;
+		data.ir.cislo.text = 'A9 1234';
+		data.ir.cisloBOX.text = '2167853-2465453';
+		data.ir.chceVyplnitK.vybrano = [0];
+		data.tc.druh.vybrano = 0;
+		data.tc.typ.vybrano = 3;
+		data.tc.cislo.text = '3514-3564-6321';
 		data.koncovyUzivatel.jmeno.text = 'Radek';
 		data.koncovyUzivatel.prijmeni.text = 'Bláha';
 		data.koncovyUzivatel.narozeni.text = '15. 3. 2007';
 		data.koncovyUzivatel.telefon.text = '+420 792 313 555';
 		data.koncovyUzivatel.email.text = 'radek.blaha.15@gmail.com';
+		data.bydliste.obec.text = 'České Budějovice';
+		data.bydliste.ulice.text = 'Josefa Hory 18';
+		data.bydliste.psc.text = '370 06';
 		data.mistoRealizace.obec.text = 'České Budějovice';
-		data.mistoRealizace.ulice.text = 'Josefa Hory 18';
 		data.mistoRealizace.psc.text = '370 06';
 		data.vzdalenyPristup.chce.zaskrtnuto = true;
 	}
 
-	sprateleneFirmy.subscribe(([montazky, uvadeci]) => {
-		if (montazky.length == 1) {
-			data.montazka.ico.updateText(montazky[0][1]);
-			data.montazka.email.text = montazky[0][2];
-			data.montazka.zastupce.text = montazky[0][3];
+	sprateleneFirmy.subscribe(({ assemblyCompanies, commissioningCompanies }) => {
+		if (assemblyCompanies.length == 1) {
+			data.montazka.ico.updateText(assemblyCompanies[0].crn);
+			data.montazka.email.text = assemblyCompanies[0].email ?? '';
+			data.montazka.zastupce.text = assemblyCompanies[0].representative ?? '';
 		}
-		if (uvadeci.length == 1) {
-			data.uvedeni.ico.updateText(uvadeci[0][1]);
-			data.uvedeni.email.text = uvadeci[0][2];
-			data.uvedeni.zastupce.text = uvadeci[0][3];
+		if (commissioningCompanies.length == 1) {
+			data.uvedeni.ico.updateText(commissioningCompanies[0].crn);
+			data.uvedeni.email.text = commissioningCompanies[0].email ?? '';
+			data.uvedeni.zastupce.text = commissioningCompanies[0].representative ?? '';
 		}
 	});
 
-	$: seznam = (Object.values(data) as Data[keyof Data][]).flatMap((obj) => Object.values(obj) as Vec<any>[]);
+	$: seznam = (Object.values(data) as Data[keyof Data][]).flatMap(
+		(obj) => Object.values(obj) as Vec<any>[]
+	);
 
 	let vysledek = {
 		text: '',
-		success: true
+		red: false,
+		load: false
 	};
+	let doNotSend = false;
 
-	const odeslat = async () => {
-		const { novaEvidence } = await import('$lib/firebase');
+	const odeslat = async function () {
+		const { novaEvidence } = await import('$lib/client/firestore');
 		const { poslatEmail, nazevFirmy, sender } = await import('$lib/constants');
 		const { htmlToText } = await import('html-to-text');
-		const MailPoPotvrzeni = (await import('$lib/mails/MailPoPotvrzeni.svelte')).default;
-		const MailSDaty = (await import('$lib/mails/MailSDaty.svelte')).default;
+		const MailRRoute = (await import('$lib/emails/MailRRoute.svelte')).default;
+		const MailSDaty = (await import('$lib/emails/MailSDaty.svelte')).default;
 
-		if (!seznam.every((it) => !it.zpravaJeChybna)) {
+		if (seznam.some((it) => it.zpravaJeChybna({ t, data }))) {
 			for (let i = 0; i < seznam.length; i++) {
 				seznam[i].zobrazitErrorVeto = true;
 			}
+			vysledek = {
+				red: true,
+				text: t.youHaveAMistake,
+				load: false
+			};
 			return;
 		}
 
 		vysledek = {
-			success: true,
-			text: 'Odesílání...'
+			red: false,
+			text: t.saving,
+			load: true
 		};
+
+		if (data.uvedeni.jakoMontazka.zaskrtnuto) {
+			data.uvedeni.ico.updateText(data.montazka.ico.text);
+			data.uvedeni.zastupce.text = data.montazka.zastupce.text;
+			data.uvedeni.email.text = data.montazka.email.text;
+		}
+
+		const rawData = convertData({ t, data, lang: $page.data.languageCode });
 
 		const div = document.createElement('div');
 		new MailSDaty({
 			target: div,
-			props: { data }
+			props: { data: rawData }
 		});
 
 		const html = div.innerHTML;
@@ -129,64 +157,81 @@
 		const email1 = {
 			from: sender,
 			to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
-			subject: `Nově zaevidovaný regulátor ${data.ir.typ.vybrano1} ${data.ir.typ.vybrano2} (${data.ir.cislo.text})`,
+			subject: `Nově zaevidovaný regulátor ${rawData.ir.typ.first} ${rawData.ir.typ.second} (${rawData.ir.cislo})`,
 			text,
 			html
 		};
 
-		const id = await novaEvidence(convertData(data));
+		const id = await novaEvidence({ evidence: rawData, kontroly: {} });
 
-		if (data.vzdalenyPristup.chce) {
-			const montazka = (await nazevFirmy(data.montazka.ico.text)) ?? null;
-			const uvadec = (await nazevFirmy(data.uvedeni.ico.text)) ?? null;
+		if (rawData.vzdalenyPristup.chce) {
+			const montazka = (await nazevFirmy(rawData.montazka.ico)) ?? null;
+			const uvadec = (await nazevFirmy(rawData.uvedeni.ico)) ?? null;
 			const div = document.createElement('div');
-			new MailPoPotvrzeni({
+			new MailRRoute({
 				target: div,
-				props: { data, montazka, uvadec }
+				props: { data: rawData, montazka, uvadec }
 			});
 			const html = div.innerHTML;
 			const text = htmlToText(html);
-			const response = await poslatEmail({
-				from: sender,
-				to: dev ? 'radek.blaha.15@gmail.com' : 'blaha@regulus.cz',
-				subject: `Nově zaevidovaný regulátor ${data.ir.typ.vybrano1} ${data.ir.typ.vybrano2} (${data.ir.cislo.text})`,
-				html,
-				text
-			});
+			if (!doNotSend)
+				await poslatEmail({
+					from: sender,
+					to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
+					subject: `Nově zaevidovaný regulátor ${rawData.ir.typ.first} ${rawData.ir.typ.second} (${rawData.ir.cislo})`,
+					html,
+					text
+				});
 		}
 
-		const response = await fetch(`/api/poslatEmail`, {
-			method: 'POST',
-			body: JSON.stringify({ message: email1 }),
-			headers: {
-				'content-type': 'application/json'
-			}
-		});
+		const response = doNotSend ? undefined : await poslatEmail(email1);
 
-		if (response.ok) {
+		if (doNotSend || response!.ok) {
 			vysledek = {
-				text: 'Email úspěšně odeslán',
-				success: true
+				text: 'Přesměrování...',
+				red: false,
+				load: true
 			};
-			window.location.href = `${$page.url.origin}/detail/?user=${($prihlasenState as User).uid}&id=${id}`;
+			const id = rawData.ir.cislo.replace(' ', '');
+			window.location.href = $relUrl(`/detail/${id}`);
+			setTimeout(() => {
+				vysledek = {
+					text: `Přesměrování se nezdařilo. Prosím, přejděte na tuto adresu: <a href="${$relUrl(`/detail/${id}`)}">${$page.url.origin}${$relUrl(`/detail/${rawData.ir.cislo}`)}</a>`,
+					red: true,
+					load: false
+				};
+			}, 1000);
 		} else {
 			vysledek = {
-				text: `Email se nepodařilo odeslat: ${response.status} ${response.statusText}`,
-				success: false
+				text: `Email se nepodařilo odeslat: ${response!.status} ${response!.statusText}`,
+				red: true,
+				load: false
 			};
 		}
 	};
 
 	$: {
-		data.zodpovednaOsoba.jmeno.zobrazit = () => $zodpovednaOsoba == null;
-		if ($zodpovednaOsoba != null) data.zodpovednaOsoba.jmeno.text = $zodpovednaOsoba;
+		data.ostatni.zodpovednaOsoba.zobrazit = () => $zodpovednaOsoba == null;
+		if ($zodpovednaOsoba != null) data.ostatni.zodpovednaOsoba.text = $zodpovednaOsoba;
 	}
 
 	$: {
 		if (data.uvedeni.jakoMontazka.zaskrtnuto) {
-			data.uvedeni.ico.text = data.montazka.ico.text;
-			data.uvedeni.zastupce.text = data.montazka.zastupce.text;
-			data.uvedeni.email.text = data.montazka.email.text;
+			data.uvedeni.ico.updateText('');
+			data.uvedeni.zastupce.text = '';
+			data.uvedeni.email.text = '';
+		} else if (
+			data.uvedeni.ico.text == data.montazka.ico.text &&
+			data.uvedeni.ico.text != '' &&
+			data.uvedeni.zastupce.text == data.montazka.zastupce.text &&
+			data.uvedeni.zastupce.text != '' &&
+			data.uvedeni.email.text == data.montazka.email.text &&
+			data.uvedeni.email.text != ''
+		) {
+			data.uvedeni.jakoMontazka.zaskrtnuto = true;
+			data.uvedeni.ico.updateText(''); // data.montazka.ico.text;
+			data.uvedeni.zastupce.text = ''; // data.montazka.zastupce.text;
+			data.uvedeni.email.text = ''; // data.montazka.email.text;
 		}
 	}
 
@@ -196,19 +241,17 @@
 		}
 	}
 
-	$: vybranaMontazka = montazky.find(([_, ico]) => ico == data.montazka.ico.text)?.[0] ?? t.unknown_Company;
-	$: vybranyUvadec = uvadeci.find(([_, ico]) => ico == data.uvedeni.ico.text)?.[0] ?? t.unknown_Company;
+	$: vybranaMontazka =
+		montazky.find((c) => c.crn == data.montazka.ico.text)?.companyName ?? t.unknown_Company;
+	$: vybranyUvadec =
+		uvadeci.find((c) => c.crn == data.uvedeni.ico.text)?.companyName ?? t.unknown_Company;
 </script>
 
-{#if $prihlasenState == 'null'}
+{#if $prihlasenState == 'null' || nacita}
 	<div class="spinner-border text-danger m-2" />
 {:else}
+	<Navigation {t} />
 	<main class="container my-3">
-		<div class="d-flex flex-column flex-md-row align-items-start">
-			<h1 class="flex-grow-1">{t.longAppName}</h1>
-
-			<Prihlaseni {t} />
-		</div>
 		{#if $prihlasenState}
 			<hr class="d-md-none" />
 			{#each seznam as vec}
@@ -245,7 +288,8 @@
 						bind:vec={data.tc.cislo}
 						zobrazit={data.ir.typ.vybrano2 == 0}
 						onScan={(text) => (data.tc.cislo.text = text.slice(8))}
-						{t} {data}
+						{t}
+						{data}
 					/>
 				{:else if vec instanceof Nadpisova && vec.zobrazit({ t, data })}
 					<h2>{vec.nazev({ t, data })}</h2>
@@ -266,11 +310,26 @@
 				{/if}
 			{/each}
 
+			{#if dev}
+				<div class="form-check">
+					<p>
+						<label class="form-check-label">
+							<input class="form-check-input" type="checkbox" bind:checked={doNotSend} />
+							Neodesílat emaily
+						</label>
+					</p>
+				</div>
+			{/if}
+
 			<div class="d-inline-flex">
 				<button id="odeslat" type="button" class="btn btn-success" on:click={odeslat}>
-					{t.send}
+					{t.save}
 				</button>
-				<p class:text-danger={!vysledek.success} class="ms-3 my-auto">{vysledek.text}</p>
+
+				{#if vysledek.load}
+					<div class="spinner-border text-danger ms-2" />
+				{/if}
+				<p class:text-danger={vysledek.red} class="ms-2 my-auto">{@html vysledek.text}</p>
 			</div>
 		{:else}
 			<p>{t.logInNeeded}</p>

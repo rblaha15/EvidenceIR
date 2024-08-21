@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { zmenitHeslo } from '$lib/firebase';
+	import { zmenitHeslo } from '$lib/client/auth';
+	import Navigation from '$lib/components/Navigation.svelte';
 	import type { Translations } from '$lib/translations';
 
-	export let data: { email: string | null };
+	let email = $page.url.searchParams.get('email') ?? '';
 
-	const t: Translations = $page.data.translations
+	const t: Translations = $page.data.translations;
 
-	let email: string = data.email ?? '';
 	let heslo: string;
 	let hesloZnovu: string;
 
@@ -38,8 +38,9 @@
 	}
 </script>
 
+<Navigation {t} />
 <div class="container my-3">
-	<h1>{t.registration}</h1>
+	<h1>{t.signUp}</h1>
 
 	<form>
 		<div class="mt-3">
@@ -74,7 +75,7 @@
 		{/if}
 		<div class="d-flex align-content-center mt-3">
 			<button type="submit" class="btn btn-primary me-2" on:click={registrovatSe}>
-				{t.registrate}
+				{t.toSignUp}
 			</button>
 			<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
 				{t.back}

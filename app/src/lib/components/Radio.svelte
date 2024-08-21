@@ -10,11 +10,11 @@
 
 {#if vec.zobrazit({ t, data })}
 	<label for="">{nazevSHvezdou(vec, { t, data })}</label>
-	{#each vec.moznosti({ t, data }) as moznost}
+	{#each vec.moznosti({ t, data }) as moznost, i}
 		<div class="form-check">
 			<label class="form-check-label">
 				{moznost}
-				<input type="radio" class="form-check-input" bind:group={vec.vybrano} value={moznost} />
+				<input type="radio" class="form-check-input" bind:group={vec.vybrano} value={i} />
 			</label>
 		</div>
 	{/each}

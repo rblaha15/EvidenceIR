@@ -1,6 +1,9 @@
-import type { DocumentSnapshot } from "@firebase/firestore"
 import { error } from "@sveltejs/kit";
 import { PDFDocument, PDFStreamWriter, PDFWriter, type SaveOptions } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit"
+import type { DocumentSnapshot } from "firebase-admin/firestore";
+
+const node_fetch = fetch
 
 export const generatePdf = async <T>(args: {
     lang: string,
@@ -13,6 +16,7 @@ export const generatePdf = async <T>(args: {
         [fieldName: string]: string,
     }>,
     saveOptions?: SaveOptions,
+    fetch?: typeof node_fetch
 }) => {
     let snapshot: DocumentSnapshot<T | undefined>;
     try {
@@ -22,13 +26,13 @@ export const generatePdf = async <T>(args: {
         error(500, `Nepovedlo se načíst data z firebase ${args.lang}, ${args.ir}, ${e}`)
     }
 
-    if (!snapshot.exists()) error(500, 'Nepovedlo se nalézt data ve firebase');
-    
+    if (!snapshot.exists) error(500, 'Nepovedlo se nalézt data ve firebase');
+
     const data = snapshot.data()
 
     if (!data) error(500, 'Nepovedlo se nalézt data ve firebase');
 
-    const formPdfBytes = await (await fetch(args.formLocation)).arrayBuffer() ?? error(500, "Nepovedlo se načíst PDF");
+    const formPdfBytes = await (await (args.fetch ?? node_fetch)(args.formLocation)).arrayBuffer() ?? error(500, "Nepovedlo se načíst PDF");
 
     const pdfDoc = await PDFDocument.load(formPdfBytes);
 
@@ -36,10 +40,25 @@ export const generatePdf = async <T>(args: {
 
     const form = pdfDoc.getForm();
 
-    for (const [fieldName, fieldValue] of Object.entries(args.getFormData(data))) {
+    // const fields = form.getFields()
+    // fields.forEach(field => {
+    //     const type = field.constructor.name
+    //     const name = field.getName()
+    //     console.log(`${type}: ${name}`)
+    // })
+
+    for (const [fieldName, fieldValue] of Object.entries(await args.getFormData(data))) {
         const field = form.getTextField(fieldName)
         field.setText(fieldValue)
     }
+
+    const url = 'https://pdf-lib.js.org/assets/ubuntu/Ubuntu-R.ttf'
+    const fontBytes = await (args.fetch ?? node_fetch)(url).then((res) => res.arrayBuffer())
+
+    pdfDoc.registerFontkit(fontkit)
+    const ubuntuFont = await pdfDoc.embedFont(fontBytes)
+
+    form.updateFieldAppearances(ubuntuFont)
 
     pdfDoc.save()
 
@@ -56,13 +75,13 @@ export const generatePdf = async <T>(args: {
     const Writer = useObjectStreams ? PDFStreamWriter : PDFWriter;
     const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer();
 
-	const encodedName = encodeURIComponent(args.fileName)
+    const encodedName = encodeURIComponent(args.fileName)
 
-	return new Response(pdfBytes, {
-		headers: {
-			'Content-Type': 'application/pdf',
-			'Content-Disposition': 'inline; filename=' + encodedName,
-		},
-		status: 200,
-	});
+    return new Response(pdfBytes, {
+        headers: {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': 'inline; filename=' + encodedName,
+        },
+        status: 200,
+    });
 }

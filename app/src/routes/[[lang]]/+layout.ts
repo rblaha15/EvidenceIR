@@ -5,8 +5,6 @@ import { getTranslations } from "$lib/translations";
 export const load: Load = ({ params }): App.PageData => {
     const lang = asLanguageCodeOrNull(params.lang)
 
-    console.log(lang)
-    // console.log(getTranslations(lang ?? defaultLanguage))
     return {
         translations: getTranslations(lang ?? defaultLanguage),
         areTranslationsFromRoute: lang != null,

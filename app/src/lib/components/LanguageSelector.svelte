@@ -5,16 +5,14 @@
 	import 'flag-icons/css/flag-icons.min.css';
 
 	const redirect = (code: LanguageCode) => {
-		window.location.replace($page.route.id!.replace('[[lang]]', code) + $page.url?.search ?? '');
+		window.location.replace("/" + code + $page.url.pathname.slice($page.data.languageCode.length + 1));
 	};
 </script>
 
 <div class="dropdown">
 	<button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
-		<!-- <span class="me-1 fi fi-{languageFlags[$page.data.languageCode]}" /> -->
 		<span class="me-1 fi fi-eu" />
-		<span style="font-size: 1.25rem">{$page.data.languageCode.toUpperCase()}</span>
-		<!-- {languageNames[$page.data.languageCode]} -->
+		<span class="fs-5">{$page.data.languageCode.toUpperCase()}</span>
 	</button>
 	<ul class="dropdown-menu">
 		{#each languageCodes as code}
@@ -26,8 +24,7 @@
 						redirect(code);
 					}}
 				>
-                    <span style="font-size: 1.25rem">{code.toUpperCase()}</span>
-					<!-- <span class="me-1 fi fi-{languageFlags[code]}" /> -->
+                    <span class="fs-5">{code.toUpperCase()}</span>
 					{languageNames[code]}
 				</button>
 			</li>

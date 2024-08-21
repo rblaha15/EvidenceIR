@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { prihlasit } from '$lib/client/auth';
+	import Navigation from '$lib/components/Navigation.svelte';
 	import { relUrl } from '$lib/constants';
-	import { prihlasit } from '$lib/firebase';
 	import type { Translations } from '$lib/translations';
 
 	const format = function (format: string, ...args: string[]) {
@@ -38,9 +39,9 @@
 	}
 </script>
 
+<Navigation {t} />
 <div class="container my-3">
 	<h1>{t.logIn}</h1>
-
 	<form>
 		<div class="mt-3">
 			<input
@@ -72,7 +73,7 @@
 			</button>
 		</div>
 		<p class="mt-3">
-			{t.dontHaveAccount} <a class="btn btn-link" href={$relUrl('/signup')}>Registrovat se</a>
+			{t.dontHaveAccount} <a class="btn btn-link" href={$relUrl('/signup')}>{t.toSignUp}</a>
 		</p>
 	</form>
 </div>

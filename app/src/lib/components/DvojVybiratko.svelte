@@ -23,7 +23,7 @@
 				class="btn btn-outline-secondary dropdown-toggle"
 				data-bs-toggle="dropdown"
 			>
-				{vec.vybrano1 != null ? vec.value({ t, data })[0] : t.notChosen}
+				{vec.vybrano1 != null ? vec.value({ t, data }).first : t.notChosen}
 			</button>
 			<ul class="dropdown-menu">
 				{#each vec.moznosti1({ t, data }) as moznost, i}
@@ -42,7 +42,7 @@
 					class="btn btn-outline-secondary dropdown-toggle"
 					data-bs-toggle="dropdown"
 				>
-					{vec.vybrano2 != null ? vec.value({ t, data })[1] : t.notChosen}
+					{vec.vybrano2 != null ? vec.value({ t, data }).second : t.notChosen}
 				</button>
 				<ul class="dropdown-menu">
 					{#each vec.moznosti2({ t, data }) as moznost, i}
