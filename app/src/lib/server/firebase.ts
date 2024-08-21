@@ -3,7 +3,6 @@ import { cert, getApps, initializeApp } from 'firebase-admin/app';
 import {
     FIREBASE_INFO,
 } from "$env/static/private";
-import { writeFile } from 'fs/promises';
 
 const initApp = async () => {
     try {

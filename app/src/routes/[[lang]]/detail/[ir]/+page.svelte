@@ -97,6 +97,10 @@
 				<PdfLink name={t.warranty} {t} linkName="warranty" {data} />
 				<PdfLink name={t.instalationProtocol} {t} linkName="instalationProtocol" {data} />
 				<PdfLink name={t.installationApproval} {t} linkName="installationApproval" {data} />
+				<PdfLink name={t.filledYearlyCheck} {t} linkName="checkResult" {data} />
+				<button class="btn btn-outline-info d-block mt-2" on:click={() => window.location.href = $relUrl(`/detail/${data.ir}/check`)}
+					>{t.doYearlyCheck}</button
+				>
 			{/if}
 			{#if change == 'no'}
 				<button class="btn btn-outline-danger d-block mt-2" on:click={() => (change = 'input')}
