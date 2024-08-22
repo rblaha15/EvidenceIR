@@ -48,7 +48,7 @@ export default {
     unknown_Company: 'Neznámá',
     checkInternet: 'Zkontrolujte připojení k internetu!',
     inexistantEmailHtml: 'Takový účet neexistuje! <a href="{0}">Vytvořit ho?</a>',
-    wrongPassword: 'Špatné heslo! Zapoměli jste heslo? Kontaktujte nás.',
+    wrongPassword: 'Špatné heslo! <a href="{0}">Zapomenuté heslo?</a>',
     tooManyRequests: 'Moc žádostí! Počkejte prosím chvíli',
     somethingWentWrong: 'Něco se nepovedlo :\\',
     passwordTooWeak: 'Heslo je příliš slabé!',
@@ -97,4 +97,7 @@ export default {
     yearlyCheck: 'Roční kontrola TČ',
     doYearlyCheck: 'Udělat roční kontrolu TČ',
     filledYearlyCheck: 'Vyplněná roční kontrola TČ',
+    wrongTime: 'Pokud po otevření souborů dostáváte chybu 401: Unathorized, zkontrolujte prosím nastavení času svého zařízení.',
+    chooseFromList: 'Vyberte ze seznamu',
+    chooseCompanyFromList: 'Vyberte firmu ze seznamu:',
 }

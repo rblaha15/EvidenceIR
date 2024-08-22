@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
 	import type { PageData } from './$types';
 	import Navigation from '$lib/components/Navigation.svelte';
 	import PdfLink from '$lib/components/PDFLink.svelte';
@@ -8,9 +7,7 @@
 	import { evidence, novaEvidence, odstranitEvidenci, type IR } from '$lib/client/firestore';
 	import IMask from 'imask';
 	import { relUrl } from '$lib/constants';
-	import { getTranslations } from '$lib/translations';
-	import { arrayFrom, kontrola, type Kontrola, type KontrolaAsRecord } from '$lib/Kontrola';
-	import { addRandomSuffix } from 'pdf-lib';
+	import { getTranslations } from '$lib/translations';	
 
 	export let data: PageData;
 	const t = data.translations;
@@ -102,6 +99,7 @@
 					>{t.doYearlyCheck}</button
 				>
 			{/if}
+			<p class="mt-2">{t.wrongTime}</p>
 			{#if change == 'no'}
 				<button class="btn btn-outline-danger d-block mt-2" on:click={() => (change = 'input')}
 					>{t.changeController}</button

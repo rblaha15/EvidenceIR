@@ -3,7 +3,9 @@
 	import { page } from '$app/stores';
 	import { zmenitHeslo } from '$lib/client/auth';
 	import Navigation from '$lib/components/Navigation.svelte';
+	import { relUrl } from '$lib/constants';
 	import type { Translations } from '$lib/translations';
+	import { onMount } from 'svelte';
 
 	let email = browser ? $page.url.searchParams.get('email') ?? '' : '';
 
@@ -11,6 +13,8 @@
 
 	let heslo: string;
 	let hesloZnovu: string;
+	let redirect: string = '/';
+	onMount(() => (redirect = $page.url.searchParams.get('redirect') ?? '/'));
 
 	let error: string | null = null;
 
@@ -18,7 +22,7 @@
 		error = '';
 		if (heslo === hesloZnovu) {
 			zmenitHeslo(email, heslo)
-				.then(() => (window.location.href = `${$page.url.origin}/`))
+				.then(() => (window.location.href = $page.url.origin + redirect))
 				.catch((e) => {
 					console.log(e.code);
 					if (e.code == 'auth/network-request-failed') {
@@ -30,7 +34,7 @@
 					} else if (e.code == 'auth/email-already-in-use') {
 						error = t.emailInUse;
 					} else {
-						error = t.somethingWentWrong;
+						error = t.somethingWentWrong + e.code;
 					}
 				});
 		} else {

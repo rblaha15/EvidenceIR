@@ -2,7 +2,7 @@
 	import type { Pisatkova } from '$lib/Vec';
 	import { Html5Qrcode } from 'html5-qrcode';
 	import { onMount } from 'svelte';
-	import Pisatko from './Pisatko.svelte';
+	import Pisatko from './veci/Pisatko.svelte';
 	import type { Translations } from '$lib/translations';
 	import type { Data } from '$lib/Data';
 

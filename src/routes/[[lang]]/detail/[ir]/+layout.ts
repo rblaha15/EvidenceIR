@@ -1,10 +1,10 @@
-import { error } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { checkAuth } from '$lib/client/auth';
 import { browser } from '$app/environment';
 import type { LayoutLoad } from './$types';
 
-export const load: LayoutLoad = async ({ params }) => {
-	if (!(await checkAuth()) && browser) return error(404, "Not Found")
+export const load: LayoutLoad = async ({ params, url }) => {
+	if (!(await checkAuth()) && browser) return redirect(302, "/" + params.lang + "/login?redirect=" + url.pathname + url.search)
 
 	return {
 		ir: params.ir

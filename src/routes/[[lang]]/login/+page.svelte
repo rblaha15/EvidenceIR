@@ -4,6 +4,7 @@
 	import Navigation from '$lib/components/Navigation.svelte';
 	import { relUrl } from '$lib/constants';
 	import type { Translations } from '$lib/translations';
+	import { onMount } from 'svelte';
 
 	const format = function (format: string, ...args: string[]) {
 		return format.replace(/{(\d+)}/g, function (match, number) {
@@ -15,19 +16,23 @@
 
 	let email: string;
 	let heslo: string;
+	let redirect: string = '/';
+	onMount(() => (redirect = $page.url.searchParams.get('redirect') ?? '/'));
+
+	$: signUpLink = $relUrl(`/signup?email=${email}` + (redirect == '/' ? '' : `&redirect=${redirect}`));
 
 	let error: string | null = null;
 
 	function prihlasitSe() {
 		error = '';
 		prihlasit(email, heslo)
-			.then(() => (window.location.href = `${$page.url.origin}/`))
+			.then(() => (window.location.href = $page.url.origin + redirect))
 			.catch((e) => {
 				console.log(e.code);
 				if (e.code == 'auth/network-request-failed') {
 					error = t.checkInternet;
 				} else if (e.code == 'auth/user-not-found') {
-					error = format(t.inexistantEmailHtml, $relUrl(`/signup?email=${email}`));
+					error = format(t.inexistantEmailHtml, signUpLink);
 				} else if (e.code == 'auth/wrong-password') {
 					error = t.wrongPassword;
 				} else if (e.code == 'auth/too-many-requests') {
@@ -73,7 +78,8 @@
 			</button>
 		</div>
 		<p class="mt-3">
-			{t.dontHaveAccount} <a class="btn btn-link" href={$relUrl('/signup')}>{t.toSignUp}</a>
+			{t.dontHaveAccount}
+			<a class="btn btn-link" href={signUpLink}>{t.toSignUp}</a>
 		</p>
 	</form>
 </div>

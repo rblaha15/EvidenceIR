@@ -3,8 +3,8 @@
 	import Navigation from '$lib/components/Navigation.svelte';
 	import { relUrl } from '$lib/constants';
 	import type { Translations } from '$lib/translations';
-	import IMask, { InputMask } from 'imask';
-	import { onDestroy, onMount } from 'svelte';
+	import IMask from 'imask';
+	import { onMount } from 'svelte';
 
 	let nacita = true;
 	onMount(() => (nacita = false));
@@ -40,14 +40,14 @@
 	<Navigation {t} />
 	<main class="container my-3">
 		<h1>{t.controllerSearch}</h1>
-		<form class="d-flex" role="search">
+		<form class="d-flex" role="search" action={$relUrl(`/detail/${search.replace(' ', '')}`)}>
 			<input
 				type="search"
 				class="form-control me-2"
 				placeholder={t.serialNumber}
 				bind:this={input}
 			/>
-			<a class="btn btn-success" href={$relUrl(`/detail/${search.replace(' ', '')}`)}>{t.search}</a>
+			<button class="btn btn-success" type="submit">{t.search}</button>
 		</form>
 	</main>
 {/if}

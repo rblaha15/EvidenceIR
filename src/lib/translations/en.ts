@@ -50,7 +50,7 @@ const en: Translations = {
     unknown_Company: 'Unknown',
     checkInternet: 'Check your Internet connection!',
     inexistantEmailHtml: 'That account does not exist! <a href="{0}">Create it?</a>',
-    wrongPassword: 'Wrong password! Forgotten password? Contact us.',
+    wrongPassword: 'Wrong password! <a href="{0}">Forgotten password?</a>',
     tooManyRequests: 'Too many requests! Please wait a bit',
     somethingWentWrong: 'Something went wrong :\\',
     passwordTooWeak: 'Password is too weak!',
@@ -99,5 +99,8 @@ const en: Translations = {
     yearlyCheck: 'Yearly heat pump check',
     doYearlyCheck: 'Do a yearly heat pump check',
     filledYearlyCheck: 'Filled yearly heat pump check',
+    wrongTime: 'If you are getting a 401: Unathorized error after opening the files, please check your device time setting.',
+    chooseFromList: 'Choose from list',
+    chooseCompanyFromList: 'Choose company from list:',
 }
 export default en
