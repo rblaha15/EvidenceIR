@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import Navigation from '$lib/components/Navigation.svelte';
-	import { relUrl } from '$lib/constants';
+		import { relUrl } from '$lib/helpers/stores';
 	import type { Translations } from '$lib/translations';
 	import IMask from 'imask';
 	import { onMount } from 'svelte';

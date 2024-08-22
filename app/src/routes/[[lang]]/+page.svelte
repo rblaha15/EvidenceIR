@@ -23,13 +23,14 @@
 		Textova
 	} from '$lib/Vec';
 	import { convertData, Data } from '$lib/Data';
-	import { prihlasenState } from '$lib/client/auth';
 	import { sprateleneFirmy, zodpovednaOsoba } from '$lib/client/realtime';
-	import { relUrl } from '$lib/constants';
+		import { relUrl } from '$lib/helpers/stores';
 	// Svelte
 	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { sendEmail, sender } from '$lib/client/email';
+	import { nazevFirmy } from '$lib/helpers/ares';
 
 	const t = $page.data.translations;
 
@@ -111,7 +112,6 @@
 
 	const odeslat = async function () {
 		const { novaEvidence } = await import('$lib/client/firestore');
-		const { poslatEmail, nazevFirmy, sender } = await import('$lib/constants');
 		const { htmlToText } = await import('html-to-text');
 		const MailRRoute = (await import('$lib/emails/MailRRoute.svelte')).default;
 		const MailSDaty = (await import('$lib/emails/MailSDaty.svelte')).default;
@@ -172,7 +172,7 @@
 			const html = div.innerHTML;
 			const text = htmlToText(html);
 			if (!doNotSend)
-				await poslatEmail({
+				await sendEmail({
 					from: sender,
 					to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
 					subject: `Nově zaevidovaný regulátor ${rawData.ir.typ.first} ${rawData.ir.typ.second} (${rawData.ir.cislo})`,
@@ -181,7 +181,7 @@
 				});
 		}
 
-		const response = doNotSend ? undefined : await poslatEmail(email1);
+		const response = doNotSend ? undefined : await sendEmail(email1);
 
 		if (doNotSend || response!.ok) {
 			vysledek = {
@@ -244,92 +244,88 @@
 		uvadeci.find((c) => c.crn == data.uvedeni.ico.text)?.companyName ?? t.unknown_Company;
 </script>
 
-{#if $prihlasenState == 'null' || nacita}
+{#if nacita}
 	<div class="spinner-border text-danger m-2" />
 {:else}
 	<Navigation {t} />
 	<main class="container my-3">
-		{#if $prihlasenState}
-			<hr class="d-md-none" />
-			{#each seznam as vec}
-				{#if vec === data.montazka.ico && vec.zobrazit({ t, data })}
-					<p>{t.chosenCompany}: {vybranaMontazka}</p>
-					{#if montazky.length > 1}
-						<VybiratkoFirmy
-							id="montazka"
-							bind:emailVec={data.montazka.email}
-							bind:zastupceVec={data.montazka.zastupce}
-							bind:icoVec={data.montazka.ico}
-							bind:filtr
-							bind:vyfiltrovanyFirmy={vyfiltrovanyMontazky}
-							{t}
-						/>
-					{/if}
-				{/if}
-				{#if vec === data.uvedeni.ico && vec.zobrazit({ t, data })}
-					<p>{t.chosenCompany}: {vybranyUvadec}</p>
-					{#if uvadeci.length > 1}
-						<VybiratkoFirmy
-							id="uvedeni"
-							bind:emailVec={data.uvedeni.email}
-							bind:zastupceVec={data.uvedeni.zastupce}
-							bind:icoVec={data.uvedeni.ico}
-							bind:filtr
-							bind:vyfiltrovanyFirmy={vyfiltrovanyUvadeci}
-							{t}
-						/>
-					{/if}
-				{/if}
-				{#if vec === data.tc.cislo && vec.zobrazit({ t, data })}
-					<Scanner
-						bind:vec={data.tc.cislo}
-						zobrazit={data.ir.typ.vybrano2 == 0}
-						onScan={(text) => (data.tc.cislo.text = text.slice(8))}
+		<hr class="d-md-none" />
+		{#each seznam as vec}
+			{#if vec === data.montazka.ico && vec.zobrazit({ t, data })}
+				<p>{t.chosenCompany}: {vybranaMontazka}</p>
+				{#if montazky.length > 1}
+					<VybiratkoFirmy
+						id="montazka"
+						bind:emailVec={data.montazka.email}
+						bind:zastupceVec={data.montazka.zastupce}
+						bind:icoVec={data.montazka.ico}
+						bind:filtr
+						bind:vyfiltrovanyFirmy={vyfiltrovanyMontazky}
 						{t}
-						{data}
 					/>
-				{:else if vec instanceof Nadpisova && vec.zobrazit({ t, data })}
-					<h2>{vec.nazev({ t, data })}</h2>
-				{:else if vec instanceof Textova && vec.zobrazit({ t, data })}
-					<p>{vec.nazev({ t, data })}</p>
-				{:else if vec instanceof Pisatkova && vec.zobrazit({ t, data })}
-					<p><Pisatko bind:vec {t} {data} /></p>
-				{:else if vec instanceof DvojVybiratkova && vec.zobrazit({ t, data })}
-					<p><DvojVybiratko bind:vec {t} {data} /></p>
-				{:else if vec instanceof Vybiratkova && vec.zobrazit({ t, data })}
-					<p><Vybiratko bind:vec {t} {data} /></p>
-				{:else if vec instanceof Radiova && vec.zobrazit({ t, data })}
-					<p><Radio bind:vec {t} {data} /></p>
-				{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit({ t, data })}
-					<p><MultiZaskrtavatko bind:vec {t} {data} /></p>
-				{:else if vec instanceof Zaskrtavatkova && vec.zobrazit({ t, data })}
-					<p><Zaskrtavatko bind:vec {t} {data} /></p>
 				{/if}
-			{/each}
-
-			{#if dev}
-				<div class="form-check">
-					<p>
-						<label class="form-check-label">
-							<input class="form-check-input" type="checkbox" bind:checked={doNotSend} />
-							Neodesílat emaily
-						</label>
-					</p>
-				</div>
 			{/if}
-
-			<div class="d-inline-flex">
-				<button id="odeslat" type="button" class="btn btn-success" on:click={odeslat}>
-					{t.save}
-				</button>
-
-				{#if vysledek.load}
-					<div class="spinner-border text-danger ms-2" />
+			{#if vec === data.uvedeni.ico && vec.zobrazit({ t, data })}
+				<p>{t.chosenCompany}: {vybranyUvadec}</p>
+				{#if uvadeci.length > 1}
+					<VybiratkoFirmy
+						id="uvedeni"
+						bind:emailVec={data.uvedeni.email}
+						bind:zastupceVec={data.uvedeni.zastupce}
+						bind:icoVec={data.uvedeni.ico}
+						bind:filtr
+						bind:vyfiltrovanyFirmy={vyfiltrovanyUvadeci}
+						{t}
+					/>
 				{/if}
-				<p class:text-danger={vysledek.red} class="ms-2 my-auto">{@html vysledek.text}</p>
+			{/if}
+			{#if vec === data.tc.cislo && vec.zobrazit({ t, data })}
+				<Scanner
+					bind:vec={data.tc.cislo}
+					zobrazit={data.ir.typ.vybrano2 == 0}
+					onScan={(text) => (data.tc.cislo.text = text.slice(8))}
+					{t}
+					{data}
+				/>
+			{:else if vec instanceof Nadpisova && vec.zobrazit({ t, data })}
+				<h2>{vec.nazev({ t, data })}</h2>
+			{:else if vec instanceof Textova && vec.zobrazit({ t, data })}
+				<p>{vec.nazev({ t, data })}</p>
+			{:else if vec instanceof Pisatkova && vec.zobrazit({ t, data })}
+				<p><Pisatko bind:vec {t} {data} /></p>
+			{:else if vec instanceof DvojVybiratkova && vec.zobrazit({ t, data })}
+				<p><DvojVybiratko bind:vec {t} {data} /></p>
+			{:else if vec instanceof Vybiratkova && vec.zobrazit({ t, data })}
+				<p><Vybiratko bind:vec {t} {data} /></p>
+			{:else if vec instanceof Radiova && vec.zobrazit({ t, data })}
+				<p><Radio bind:vec {t} {data} /></p>
+			{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit({ t, data })}
+				<p><MultiZaskrtavatko bind:vec {t} {data} /></p>
+			{:else if vec instanceof Zaskrtavatkova && vec.zobrazit({ t, data })}
+				<p><Zaskrtavatko bind:vec {t} {data} /></p>
+			{/if}
+		{/each}
+
+		{#if dev}
+			<div class="form-check">
+				<p>
+					<label class="form-check-label">
+						<input class="form-check-input" type="checkbox" bind:checked={doNotSend} />
+						Neodesílat emaily
+					</label>
+				</p>
 			</div>
-		{:else}
-			<p>{t.logInNeeded}</p>
 		{/if}
+
+		<div class="d-inline-flex">
+			<button id="odeslat" type="button" class="btn btn-success" on:click={odeslat}>
+				{t.save}
+			</button>
+
+			{#if vysledek.load}
+				<div class="spinner-border text-danger ms-2" />
+			{/if}
+			<p class:text-danger={vysledek.red} class="ms-2 my-auto">{@html vysledek.text}</p>
+		</div>
 	</main>
 {/if}

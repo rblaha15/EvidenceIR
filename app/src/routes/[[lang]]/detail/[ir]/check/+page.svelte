@@ -1,10 +1,7 @@
 <script lang="ts">
 	import { evidence, posledniKontrola, pridatKontrolu } from '$lib/client/firestore';
 	import {
-		arrayFrom,
-		bezMety,
 		kontrola,
-		kontrolaOrder,
 		kontrolaTypes,
 		nazvyKontrol,
 		orderArray,

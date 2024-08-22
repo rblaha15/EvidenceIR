@@ -14,7 +14,7 @@
 		<span class="me-1 fi fi-eu" />
 		<span class="fs-5">{$page.data.languageCode.toUpperCase()}</span>
 	</button>
-	<ul class="dropdown-menu">
+	<ul class="dropdown-menu dropdown-menu-end">
 		{#each languageCodes as code}
 			<li>
 				<button

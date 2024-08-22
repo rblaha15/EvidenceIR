@@ -1,35 +1,29 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { isAdmin, odhlasit, prihlasenState } from '$lib/client/auth';
+	import { isUserAdmin, logOut, currentUser } from '$lib/client/auth';
 	import { zodpovednaOsoba } from '$lib/client/realtime';
-	import { relUrl } from '$lib/constants';
+		import { relUrl } from '$lib/helpers/stores';
 	import type { Translations } from '$lib/translations';
+	import { redirect } from '@sveltejs/kit';
 	import LanguageSelector from './LanguageSelector.svelte';
 
 	export let t: Translations;
 
-	$: prihlasenyEmail = ($prihlasenState == 'null' ? null : $prihlasenState)?.email ?? '';
+	$: prihlasenyEmail = $currentUser?.email ?? '';
 	$: osoba = $zodpovednaOsoba ?? t.no_Person;
-	$: jePrihlasen = prihlasenyEmail != '';
+	$: jePrihlasen = $currentUser != null;
 </script>
 
 <nav class="navbar sticky-top gray flex-wrap">
 	<div class="container-fluid">
 		<img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
-		<span class="navbar-brand me-sm-3" class:me-auto={jePrihlasen}>{t.appName}</span>
+		<span class="navbar-brand me-sm-3 me-auto">{t.appName}</span>
 		{#if jePrihlasen}
 			<ul class="navbar-nav me-auto d-none d-md-flex flex-row">
 				<a class="nav-link" href={$relUrl('/')}>{t.home}</a>
 				<a class="nav-link ms-3" href={$relUrl('/search')}>{t.controllerSearch}</a>
 			</ul>
-		{/if}
 
-		{#if !jePrihlasen}
-			<ul class="navbar-nav me-auto flex-row">
-				<a class="nav-link" href={$relUrl('/')}>{t.home}</a>
-			</ul>
-		{/if}
-		{#if jePrihlasen}
 			<div class="d-flex flex-row ms-auto ms-md-0">
 				<div>
 					<LanguageSelector />
@@ -63,9 +57,9 @@
 						<li><span class="dropdown-item-text">{t.responsiblePerson}:<br />{osoba}</span></li>
 						<li><hr class="dropdown-divider" /></li>
 						<li>
-							<button class="dropdown-item text-danger" on:click={odhlasit}>{t.toLogOut}</button>
+							<button class="dropdown-item text-danger" on:click={logOut}>{t.toLogOut}</button>
 						</li>
-						{#if $isAdmin && !$page.route.id?.endsWith('admin')}
+						{#if $isUserAdmin && !$page.route.id?.endsWith('admin')}
 							<li>
 								<a href={$relUrl('/admin')} class="dropdown-item text-info">Upravit seznam lidí</a>
 							</li>
@@ -74,15 +68,21 @@
 				</div>
 			</div>
 		{:else}
-			<div class="ms-auto ms-md-0">
+			<div class="ms-auto">
 				<LanguageSelector />
 			</div>
 			<div class="d-flex flex-row">
 				{#if !$page.route.id?.endsWith('login')}
-					<a href={$relUrl('/login')} class="btn btn-info ms-2">{t.toLogIn}</a>
+					<a
+						href={$relUrl(`/login?redirect=${$page.url.searchParams.get('redirect') ?? '/'}`)}
+						class="btn btn-info ms-2">{t.toLogIn}</a
+					>
 				{/if}
 				{#if !$page.route.id?.endsWith('signup')}
-					<a href={$relUrl('/signup')} class="btn btn-success ms-2">{t.toSignUp}</a>
+					<a
+						href={$relUrl(`/signup?redirect=${$page.url.searchParams.get('redirect') ?? '/'}`)}
+						class="btn btn-success ms-2">{t.toSignUp}</a
+					>
 				{/if}
 			</div>
 		{/if}

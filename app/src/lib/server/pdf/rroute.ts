@@ -1,4 +1,4 @@
-import { nazevFirmy } from "$lib/constants";
+import { nazevFirmy } from "$lib/helpers/ares";
 import type { LanguageCode } from "$lib/languages";
 import { evidence } from "../firestore";
 import { generatePdf } from "../pdf";

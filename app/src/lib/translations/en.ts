@@ -85,6 +85,7 @@ const en: Translations = {
     whatToAddInfoTo: 'What would you like to add more detailed information to?',
     heatPump: 'Heat pump',
     pleaseFillInIrType: 'Please, fill in the IR type',
+    fillInPassword: 'Please, enter your password.',
     search: 'Search',
     controllerSearch: 'Search registrations',
     home: 'Home',
@@ -102,5 +103,7 @@ const en: Translations = {
     wrongTime: 'If you are getting a 401: Unathorized error after opening the files, please check your device time setting.',
     chooseFromList: 'Choose from list',
     chooseCompanyFromList: 'Choose company from list:',
+    newPassword: 'New Password',
+    sendConfirmEmail: 'Send confirmation email',
 }
 export default en

@@ -1,7 +1,7 @@
-import { getDatabase, onValue, ref, set, get } from '@firebase/database';
+import { getDatabase, onValue, ref } from '@firebase/database';
 import { app } from './firebase';
 import { derived, writable } from 'svelte/store';
-import { checkAdmin, isAdmin, prihlasenState } from './auth';
+import { checkAdmin, currentUser } from './auth';
 
 type SelfObject<T extends PropertyKey> = { [key in T]: key }
 type CRN = string
@@ -38,7 +38,7 @@ const _sprateleneFirmy = async (
 		return FriendlyCompanies([]);
 	}
 	const { get, child } = await import('@firebase/database');
-	if (user.email?.endsWith('@regulus.cz') || (await checkAdmin(user))) {
+	if (user.email?.endsWith('@regulus.cz') || (await checkAdmin())) {
 		const vsechnyFirmy = (await get(firmyRef)).val() as { [crn: CRN]: Company };
 		return FriendlyCompanies(Object.values(vsechnyFirmy));
 	}
@@ -60,9 +60,9 @@ const _sprateleneFirmy = async (
 	} as FriendlyCompanies
 };
 export const sprateleneFirmy = derived(
-	prihlasenState,
+	currentUser,
 	(user, set) => {
-		(async () => set(user != 'null' ? await _sprateleneFirmy(user) : FriendlyCompanies([])))();
+		(async () => set(user ? await _sprateleneFirmy(user) : FriendlyCompanies([])))();
 	},
 	FriendlyCompanies([])
 );
@@ -75,17 +75,17 @@ const _zodpovednaOsoba = async (user: import('@firebase/auth').User | null) => {
 };
 
 export const zodpovednaOsoba = derived(
-	prihlasenState,
+	currentUser,
 	(user, set) => {
-		(async () => set(user != 'null' ? await _zodpovednaOsoba(user) : null))();
+		(async () => set(user ? await _zodpovednaOsoba(user) : null))();
 	},
 	null as string | null
 );
 
 export const seznamLidi = writable([] as Person[]);
 
-isAdmin.subscribe((je) => {
-	if (je) onValue(lidiRef, (data) => {
-		seznamLidi.set(Object.values(data.val() as { [uid: string]: Person }));
+export const startLidiListening = () => {
+	return onValue(lidiRef, (data) => {
+		seznamLidi.set(Object.values(data.val() as { [uid: string]: Person } ?? {}));
 	});
-});
+}
