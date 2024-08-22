@@ -12,4 +12,4 @@ export const load: Load = ({ params }): App.PageData => {
     }
 }
 
-export const prerender = false
+export const prerender = true

@@ -10,3 +10,5 @@ export const load: LayoutLoad = async ({ params }) => {
 		ir: params.ir
 	}
 };
+
+export const prerender = false
