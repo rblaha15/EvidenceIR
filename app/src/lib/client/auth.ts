@@ -76,13 +76,18 @@ export const getToken = async () => {
 	return auth.currentUser!.getIdToken(true)
 }
 
-export const checkAdmin = async (user: import('@firebase/auth').User | null) =>
+const _checkAdmin = async (user: import('@firebase/auth').User | null) =>
 	!!(await user?.getIdTokenResult())?.claims?.admin;
+
+export const checkAdmin = async () => {
+	await auth.authStateReady()
+	return await checkAuth() && _checkAdmin(auth.currentUser)
+}
 
 export const isAdmin = derived(
 	prihlasenState,
 	(user, set) => {
-		(async () => set(user != 'null' ? await checkAdmin(user) : false))();
+		(async () => set(user != 'null' ? await _checkAdmin(user) : false))();
 	},
 	false
 );

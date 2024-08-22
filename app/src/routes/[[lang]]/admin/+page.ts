@@ -1,7 +1,7 @@
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 import { browser } from '$app/environment';
-import { checkAuth } from '$lib/client/auth';
+import { checkAdmin, checkAuth, prihlasenState } from '$lib/client/auth';
 import { languageCodes } from "$lib/languages";
 import type { EntryGenerator } from "./$types";
 
@@ -10,6 +10,7 @@ export const entries: EntryGenerator = () => [
 	{ lang: '' }
 ];
 
-export const load: PageLoad = async () => {
-	if (!(await checkAuth()) && browser) return error(404, "Not Found")
+export const load: PageLoad = async ({ params, url }) => {
+	if (!(await checkAuth()) && browser) return redirect(302, "/" + params.lang + "/login?redirect=" + url.pathname + url.search)
+	if (!(await checkAdmin()) && browser) return error(401, "Unauthorized")
 };

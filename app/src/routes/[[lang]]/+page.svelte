@@ -1,10 +1,11 @@
 <script lang="ts">
 	// Components
-	import Pisatko from '$lib/components/Pisatko.svelte';
-	import Vybiratko from '$lib/components/Vybiratko.svelte';
-	import Zaskrtavatko from '$lib/components/Zaskrtavatko.svelte';
-	import MultiZaskrtavatko from '$lib/components/MultiZaskrtavatko.svelte';
-	import Radio from '$lib/components/Radio.svelte';
+	import Pisatko from '$lib/components/veci/Pisatko.svelte';
+	import Vybiratko from '$lib/components/veci/Vybiratko.svelte';
+	import Zaskrtavatko from '$lib/components/veci/Zaskrtavatko.svelte';
+	import MultiZaskrtavatko from '$lib/components/veci/MultiZaskrtavatko.svelte';
+	import Radio from '$lib/components/veci/Radio.svelte';
+	import DvojVybiratko from '$lib/components/veci/DvojVybiratko.svelte';
 	import VybiratkoFirmy from '$lib/components/VybiratkoFirmy.svelte';
 	import Scanner from '$lib/components/Scanner.svelte';
 	import Navigation from '$lib/components/Navigation.svelte';
@@ -21,17 +22,13 @@
 		DvojVybiratkova,
 		Textova
 	} from '$lib/Vec';
-	import { convertData } from '$lib/Data';
-	import { Data } from '$lib/Data';
+	import { convertData, Data } from '$lib/Data';
 	import { prihlasenState } from '$lib/client/auth';
 	import { sprateleneFirmy, zodpovednaOsoba } from '$lib/client/realtime';
+	import { relUrl } from '$lib/constants';
 	// Svelte
 	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
-
-	// 3rd-party
-	import DvojVybiratko from '$lib/components/DvojVybiratko.svelte';
-	import { relUrl } from '$lib/constants';
 	import { onMount } from 'svelte';
 
 	const t = $page.data.translations;
@@ -162,7 +159,7 @@
 			html
 		};
 
-		const id = await novaEvidence({ evidence: rawData, kontroly: {} });
+		await novaEvidence({ evidence: rawData, kontroly: {} });
 
 		if (rawData.vzdalenyPristup.chce) {
 			const montazka = (await nazevFirmy(rawData.montazka.ico)) ?? null;
@@ -196,7 +193,7 @@
 			window.location.href = $relUrl(`/detail/${id}`);
 			setTimeout(() => {
 				vysledek = {
-					text: `Přesměrování se nezdařilo. Prosím, přejděte na tuto adresu: <a href="${$relUrl(`/detail/${id}`)}">${$page.url.origin}${$relUrl(`/detail/${rawData.ir.cislo}`)}</a>`,
+					text: `Přesměrování se nezdařilo. Prosím, přejděte na tuto adresu: <a href="${$relUrl(`/detail/${id}`)}">${$page.url.origin}${$relUrl(`/detail/${id}`)}</a>`,
 					red: true,
 					load: false
 				};
