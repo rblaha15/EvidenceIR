@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import { zmenitHeslo } from '$lib/client/auth';
 	import Navigation from '$lib/components/Navigation.svelte';
 	import type { Translations } from '$lib/translations';
 
-	let email = $page.url.searchParams.get('email') ?? '';
+	let email = browser ? $page.url.searchParams.get('email') ?? '' : '';
 
 	const t: Translations = $page.data.translations;
 
