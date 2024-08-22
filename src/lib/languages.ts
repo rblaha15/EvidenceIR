@@ -1,5 +1,5 @@
 import { get } from "svelte/store"
-import { storable } from "./constants"
+import { storable } from './helpers/stores'
 
 export const languageCodes = ["cs", "en", "sk", "de"] as const
 

@@ -6,7 +6,7 @@
 	import { checkAuth } from '$lib/client/auth';
 	import { evidence, novaEvidence, odstranitEvidenci, type IR } from '$lib/client/firestore';
 	import IMask from 'imask';
-	import { relUrl } from '$lib/constants';
+		import { relUrl } from '$lib/helpers/stores';
 	import { getTranslations } from '$lib/translations';	
 
 	export let data: PageData;
@@ -73,9 +73,7 @@
 </script>
 
 {#if nacita}
-	<div class="d-flex justify-content-start align-items-center">
-		<div class="spinner-border text-danger me-2" />
-	</div>
+	<div class="spinner-border text-danger m-2" />
 {:else}
 	<Navigation {t} />
 	<main class="my-3 container">

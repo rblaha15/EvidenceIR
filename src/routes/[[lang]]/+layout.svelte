@@ -17,7 +17,7 @@
 			window.location.replace(
 				'/' +
 					preferedLanguage() +
-					$page.url.pathname.slice(currentLang.length) +
+					$page.url.pathname.slice(currentLang.length + 1) +
 					$page.url?.search ?? ''
 				// $page.route.id!.replace('[[lang]]', preferedLanguage()) + $page.url?.search ?? ''
 			);

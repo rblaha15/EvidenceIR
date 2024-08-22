@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getToken, isAdmin, prihlasenState } from '$lib/client/auth';
-	import { seznamLidi, type Person } from '$lib/client/realtime';
+	import { getToken } from '$lib/client/auth';
+	import { seznamLidi, startLidiListening, type Person } from '$lib/client/realtime';
 	import Navigation from '$lib/components/Navigation.svelte';
 	import cs from '$lib/translations/cs';
 	import { diffLines, type Change } from 'diff';
@@ -8,7 +8,10 @@
 	import { onMount } from 'svelte';
 
 	let nacita = true;
-	onMount(() => (nacita = false));
+	onMount(() => {
+		nacita = false;
+		startLidiListening();
+	});
 
 	let loading = false;
 
@@ -40,7 +43,7 @@
 		await fetch(`/api/aktualizovatLidi?token=${token}`, {
 			method: 'POST',
 			body: JSON.stringify({
-				lidi: newData
+				people: newData
 					.split('\n')
 					.filter((radek) => radek != '')
 					.map((radek) => radek.split(';').filter((vec) => vec != ''))
@@ -62,20 +65,21 @@
 		newData = '';
 	};
 
-	$: textovySeznam = $seznamLidi.map(
+	$: oldList = $seznamLidi.map(
 		({ email, assemblyCompanies, commissioningCompanies, responsiblePerson }) =>
 			`${email};${Object.values(assemblyCompanies).join('#')};${Object.values(commissioningCompanies).join('#')};${responsiblePerson ?? ''}`.trim()
 	);
 
-	$: oldData = textovySeznam.join('\n');
+	$: oldData = oldList.join('\n');
 	let newData = '';
-	$: diff = diffLines(oldData.trim(), newData.trim()) as Change[];
-	$: onlyDiff = diff.filter((part) => part.added || part.removed);
+	$: newList = newData.split(/\n|\r\n/);
+	$: removals = oldList.filter((p) => p != '' && !newList.some((p2) => p == p2));
+	$: additions = newList.filter((p) => p != '' && !oldList.some((p2) => p == p2));
 </script>
 
-{#if $prihlasenState == 'null' || nacita}
+{#if nacita}
 	<div class="spinner-border text-danger" />
-{:else if $isAdmin}
+{:else}
 	<Navigation t={cs} />
 	<main class="container my-3">
 		<h1>Seznam uživatelů a příslušných firem</h1>
@@ -104,7 +108,14 @@
 				<button type="button" class="btn btn-danger" on:click={potvrdit}> Potvrdit změny </button>
 				<button
 					type="button"
-					class="btn btn-outline-primary mt-2 ms-md-2 mt-md-0"
+					class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+					on:click={() => (newData = '')}
+				>
+					Zrušit změny
+				</button>
+				<button
+					type="button"
+					class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
 					on:click={() => document.getElementById('file')?.click()}
 				>
 					Vybrat jiný soubor
@@ -117,44 +128,30 @@
 			>
 				Stáhnout aktuální data
 			</button>
-			<button
-				type="button"
-				class="btn btn-outline-secondary mt-2 ms-md-2 mt-md-0"
-				on:click={() => history.back()}
-			>
-				Zpět
-			</button>
 		</div>
 
 		{#if newData != '' && !loading}
 			<h4 class="mt-3">Změny, které se chystáte provést:</h4>
-			<p>
-				{#each onlyDiff as part}
-					{part.added ? '+' : part.removed ? '-' : ''}
-					<span style="color: {part.added ? 'green' : part.removed ? 'red' : ''};">
-						{@html part.value.replaceAll('\n', '<br />')}
-					</span>
-				{/each}
-			</p>
-			{#if onlyDiff.length == 0}
+			{#if additions.length == 0 && removals.length == 0}
 				<p>Žádné změny</p>
 			{/if}
+			<p>
+				{#each additions as addition}
+					+<span class="text-success">{addition}</span> <br />
+				{/each}
+				{#each removals as removal}
+					-<span class="text-danger">{removal}</span> <br />
+				{/each}
+			</p>
 		{/if}
 
 		<div class="mt-3">
 			<h4>Aktuálně uložená data:</h4>
-			{#each textovySeznam as clovek}
+			{#each oldList as clovek}
 				<span>{clovek}</span> <br />
 			{/each}
 		</div>
 
 		<input style="display: none;" id="file" type="file" accept="text/csv" on:change={poVybrani} />
 	</main>
-{:else}
-	<div class="d-flex flex-column flex-md-row align-items-start">
-		<div class="flex-grow-1">
-			<h1>401</h1>
-			<p>Unautorized</p>
-		</div>
-	</div>
 {/if}

@@ -1,5 +1,5 @@
 import { browser } from "$app/environment";
-import { checkAuth } from "$lib/client/auth";
+import { verifyCode } from "$lib/client/auth";
 import { languageCodes } from "$lib/languages";
 import { redirect } from "@sveltejs/kit";
 import type { EntryGenerator, PageLoad } from "./$types";
@@ -10,5 +10,11 @@ export const entries: EntryGenerator = () => [
 ];
 
 export const load: PageLoad = async ({ params, url }) => {
-	if (!(await checkAuth()) && browser) return redirect(302, "/" + params.lang + "/login?redirect=/" + url.pathname.slice(params.lang!.length + 1) + url.search)
+    const oob = url.searchParams.get('oobCode')
+    const email = oob ? await verifyCode(oob) : null
+	if (browser && oob && !email) return redirect(302, "/" + params.lang + "/login?redirect=" + url.searchParams.get('redirect'))
+
+    return {
+        email
+    }
 };

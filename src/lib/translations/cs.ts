@@ -83,6 +83,7 @@ export default {
     whatToAddInfoTo: 'K čemu byste chtěli přidat podrobnější informace?',
     heatPump: 'Tepelné čerpadlo',
     pleaseFillInIrType: 'Prosím, vyplňte typ IR.',
+    fillInPassword: 'Prosím, zadejte heslo.',
     search: 'Vyhledat',
     controllerSearch: 'Vyhledávání evidencí',
     home: 'Domů',
@@ -100,4 +101,6 @@ export default {
     wrongTime: 'Pokud po otevření souborů dostáváte chybu 401: Unathorized, zkontrolujte prosím nastavení času svého zařízení.',
     chooseFromList: 'Vyberte ze seznamu',
     chooseCompanyFromList: 'Vyberte firmu ze seznamu:',
+    newPassword: 'Nové heslo',
+    sendConfirmEmail: 'Odeslat potvrzovací email',
 }
