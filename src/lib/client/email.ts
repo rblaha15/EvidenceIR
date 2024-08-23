@@ -1,13 +1,13 @@
 import type { Options } from "nodemailer/lib/mailer";
 import { getToken } from "./auth";
+import { htmlToText } from "html-to-text";
+import { isString } from "lodash-es";
 
 /**
  * Pošle email a pokud tam je html, převede to na text
  */
 
 export const sendEmail = async (message: Options) => {
-	const { htmlToText } = await import('html-to-text');
-	const isString = (await import('lodash.isstring')).default;
 
 	if (isString(message.html)) {
 		message.text = message.text ?? htmlToText(message.html);
@@ -24,5 +24,5 @@ export const sendEmail = async (message: Options) => {
 	});
 };
 
-export const sender = '"Regulus Evidence IR" aplikace.regulus@centrum.cz';
+export const SENDER = '"Regulus Evidence IR" aplikace.regulus@centrum.cz';
 

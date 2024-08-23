@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
-	// import { zmenitHeslo } from '$lib/client/auth';
 	import Navigation from '$lib/components/Navigation.svelte';
 	import type { Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
-	import authentication from '../../api/authentication';
+	import authentication from '$lib/client/authentication';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 
 	let nacita = true;

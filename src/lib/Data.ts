@@ -62,7 +62,33 @@ export interface Data {
 	};
 }
 
-export const Data = defaultData
+export const Data = (dev: boolean) => {
+	const data = defaultData()
+	
+	if (dev) {
+		data.ir.typ.vybrano1 = 2;
+		data.ir.typ.vybrano2 = 0;
+		data.ir.cislo.text = 'A9 1234';
+		data.ir.cisloBOX.text = '2167853-2465453';
+		data.ir.chceVyplnitK.vybrano = [0];
+		data.tc.druh.vybrano = 0;
+		data.tc.typ.vybrano = 3;
+		data.tc.cislo.text = '3514-3564-6321';
+		data.koncovyUzivatel.jmeno.text = 'Radek';
+		data.koncovyUzivatel.prijmeni.text = 'Bláha';
+		data.koncovyUzivatel.narozeni.text = '15. 3. 2007';
+		data.koncovyUzivatel.telefon.text = '+420 792 313 555';
+		data.koncovyUzivatel.email.text = 'radek.blaha.15@gmail.com';
+		data.bydliste.obec.text = 'České Budějovice';
+		data.bydliste.ulice.text = 'Josefa Hory 18';
+		data.bydliste.psc.text = '370 06';
+		data.mistoRealizace.obec.text = 'České Budějovice';
+		data.mistoRealizace.psc.text = '370 06';
+		data.vzdalenyPristup.chce.zaskrtnuto = true;
+	}
+
+	return data
+}
 
 type NonUndefinedKeys<T> = {
 	[K in keyof T]: T[K] extends undefined ? never : K;
