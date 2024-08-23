@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { isUserAdmin, logOut, currentUser } from '$lib/client/auth';
-	import { zodpovednaOsoba } from '$lib/client/realtime';
+	import { responsiblePerson } from '$lib/client/realtime';
 		import { relUrl } from '$lib/helpers/stores';
 	import type { Translations } from '$lib/translations';
 	import { redirect } from '@sveltejs/kit';
@@ -10,7 +10,7 @@
 	export let t: Translations;
 
 	$: prihlasenyEmail = $currentUser?.email ?? '';
-	$: osoba = $zodpovednaOsoba ?? t.no_Person;
+	$: osoba = $responsiblePerson ?? t.no_Person;
 	$: jePrihlasen = $currentUser != null;
 </script>
 

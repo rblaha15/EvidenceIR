@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
-	// import { sendPasswordResetEmail, zmenitHeslo } from '$lib/client/auth';
 	import Navigation from '$lib/components/Navigation.svelte';
 	import { relUrl } from '$lib/helpers/stores';
 	import type { Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
-	import authentication from '../../api/authentication';
+	import authentication from '$lib/client/authentication';
 	import { changePassword } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import type { PageData } from './$types';
@@ -17,7 +16,7 @@
 
 	const t: Translations = data.translations;
 
-	const oobCode = $page.url.searchParams.get('oobCode');
+	const oobCode = browser ? $page.url.searchParams.get('oobCode') : null;
 
 	let heslo: string;
 	let sending = false;

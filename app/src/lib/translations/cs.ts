@@ -103,4 +103,11 @@ export default {
     chooseCompanyFromList: 'Vyberte firmu ze seznamu:',
     newPassword: 'Nové heslo',
     sendConfirmEmail: 'Odeslat potvrzovací email',
+    passwordReset: 'Obnovení hesla',
+    passwordResetEmailHtml: `<p>Hello,</p>
+<p>Follow this link to reset your IR Registration password for your account %EMAIL%:</p>
+<p><a href="%LINK%">%LINK%</a></p>
+<p>If you have not asked to reset your password, you can ignore this email.</p>
+<p>Thanks</p>
+<p>IR Registration</p>`,
 }

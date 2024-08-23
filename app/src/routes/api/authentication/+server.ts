@@ -1,51 +1,9 @@
-import { sender } from '$lib/client/email';
-import type { LanguageCode } from '$lib/languages';
+import type { AuthTypes } from '$lib/client/authentication';
+import { SENDER } from '$lib/client/email';
 import { createUser, getPasswordResetLink, getUserByEmail, updateUser } from '$lib/server/auth';
 import { sendEmail } from '$lib/server/email';
+import { getTranslations } from '$lib/translations';
 import type { RequestHandler } from './$types';
-
-export type AuthTypes = {
-    createUser: {
-        params: {
-            email: string,
-        }
-        returns: {
-            uid: string,
-        }
-    },
-    checkEnabled: {
-        params: {
-            email: string,
-        }
-        returns: {
-            enabled: boolean | null,
-        }
-    },
-    getPasswordResetLink: {
-        params: {
-            email: string,
-            redirect: string,
-            lang: LanguageCode,
-        }
-        returns: {
-            link: string
-        }
-    },
-    sendPasswordResetEmail: {
-        params: {
-            email: string,
-            redirect: string,
-            lang: LanguageCode,
-        }
-        returns: {}
-    },
-    enableUser: {
-        params: {
-            email: string,
-        }
-        returns: {}
-    },
-}
 
 type Params = {
     [Type in keyof AuthTypes]: { action: Type } & AuthTypes[Type]['params']
@@ -84,23 +42,21 @@ export const POST: RequestHandler = async ({ request, url }) => {
         )
     }
     else if (data.action == 'getPasswordResetLink') {
-        const link = await getPasswordResetLink(data.email, data.lang, data.redirect )
+        const link = await getPasswordResetLink(data.email, data.lang, data.redirect)
         result = {
             link
         }
     }
     else if (data.action == 'sendPasswordResetEmail') {
-        const link = url.origin + await getPasswordResetLink(data.email, data.lang, data.redirect )
+        const link = url.origin + await getPasswordResetLink(data.email, data.lang, data.redirect)
+        const t = getTranslations(data.lang)
         sendEmail({
-            from: sender,
+            from: SENDER,
             to: data.email,
-            subject: `Obnovení hesla`,
-            html: `<p>Dobrý den,</p>
-<p>pomocí tohoto odkazu můžete obnovit heslo pro aplikaci Evidence IR pro váš účet ${data.email}:</p>
-<p><a href="${link}">${link}</a></p>
-<p>Pokud jste o obnovení hesla nepožádali, můžete tento e-mail ignorovat.</p>
-<p>S pozdravem</p>
-<p>Evidence IR</p>`,
+            subject: t.passwordReset,
+            html: t.passwordResetEmailHtml
+                .replace('%LINK%', link)
+                .replace('%EMAIL%', data.email),
         })
         result = {}
     }
