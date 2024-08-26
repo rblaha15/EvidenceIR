@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Company } from '$lib/client/realtime';
-	import type { Data } from '$lib/Data';
 	import type { Translations } from '$lib/translations';
 	import type { Pisatkova } from '$lib/Vec';
 
@@ -38,8 +37,8 @@
 							data-bs-dismiss="modal"
 							class="list-group-item list-group-item-action"
 							on:click={() => {
-								emailVec.text = company.email ?? '';
-								zastupceVec.text = company.representative ?? '';
+								emailVec.value = company.email ?? '';
+								zastupceVec.value = company.representative ?? '';
 								icoVec.updateText(company.crn);
 								filtr = '';
 							}}>{company.companyName} - {company.crn}</button

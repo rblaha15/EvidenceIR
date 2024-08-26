@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { languageCodes, setUserPreferedLanguage, type LanguageCode } from '$lib/languages';
-	import { languageFlags, languageNames } from '$lib/translations';
+	import { languageNames } from '$lib/translations';
 	import 'flag-icons/css/flag-icons.min.css';
 
 	const redirect = (code: LanguageCode) => {

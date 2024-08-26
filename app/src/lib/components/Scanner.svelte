@@ -27,7 +27,6 @@
 		const devices = await Html5Qrcode.getCameras();
 
 		if (devices && devices.length) {
-			const cameraId = devices[0].id;
 			html5QrCode
 				.start(
 					{ facingMode: 'environment' },

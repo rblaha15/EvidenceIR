@@ -4,25 +4,25 @@ import { derived, get, writable, type Writable } from 'svelte/store';
 
 export const relUrl = derived(page, (page) => (url: string) => "/" + page.params.lang + url);
 
-export function storable<T>(data: T | undefined, name: string): Writable<T> {
-    const store = writable(data);
+export function storable<T>(data: T | null, key: string): Writable<T | null> {
+    const store = writable<T | null>(data);
     const isBrowser = () => browser;
 
-    const address = `storable-${name}`;
+    key = `storable-${key}`;
 
-    if (isBrowser() && localStorage[address])
-        store.set(JSON.parse(localStorage[address]));
+    if (isBrowser() && localStorage.getItem(key))
+        store.set(JSON.parse(localStorage[key]));
 
     return {
         subscribe: store.subscribe,
         set: value => {
-            if (isBrowser()) localStorage[address] = JSON.stringify(value);
+            if (isBrowser()) value != null ? localStorage.setItem(key, JSON.stringify(value)) : localStorage.removeItem(key)
             store.set(value);
         },
         update: (updater) => {
             const updated = updater(get(store));
 
-            if (isBrowser()) localStorage[address] = JSON.stringify(updated);
+            if (isBrowser()) updated != null ? localStorage.setItem(key, JSON.stringify(updated)) : localStorage.removeItem(key)
             store.set(updated);
         }
     };

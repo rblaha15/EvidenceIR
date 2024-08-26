@@ -1,6 +1,7 @@
-import type { Translations } from "$lib/translations"
+import type { PlainTranslations } from "$lib/translations"
+import { template as t } from "$lib/helpers/templates"
 
-const en: Translations = {
+const en: PlainTranslations = {
     longAppName: "IR Controller Registration",
     appName: "IR Registration",
     requiredField: 'This field is required',
@@ -49,8 +50,8 @@ const en: Translations = {
     notChosen: 'Not chosen',
     unknown_Company: 'Unknown',
     checkInternet: 'Check your Internet connection!',
-    inexistantEmailHtml: 'That account does not exist! <a href="{0}">Create it?</a>',
-    wrongPassword: 'Wrong password! <a href="{0}">Forgotten password?</a>',
+    inexistantEmailHtml: t`That account does not exist! <a href="${'link'}">Create it?</a>`,
+    wrongPasswordHtml: t`Wrong password! <a href="${'link'}">Forgotten password?</a>`,
     tooManyRequests: 'Too many requests! Please wait a bit',
     somethingWentWrong: 'Something went wrong :\\',
     passwordTooWeak: 'Password is too weak!',
@@ -105,5 +106,19 @@ const en: Translations = {
     chooseCompanyFromList: 'Choose company from list:',
     newPassword: 'New Password',
     sendConfirmEmail: 'Send confirmation email',
+    emailNotSent: t`The email could not be sent: ${'status'} ${'statusText'}`,
+    redirectFailedHtml: t`Redirection has failed. Please, navigate to this address: <a href="${'link'}">${'link'}</a>`,
+    irExistsHtml: t`This controller is already registered (<a href="${'link'}">detail</a>)`,
+    editRegistration: `Edit registration record`,
+    passwordReset: `Password reset`,
+    passwordResetEmailHtml: t`<p>Hello,</p>
+<p>Follow this link to reset your IR Registration password for your account ${'email'}:</p>
+<p><a href="${'link'}">${'link'}</a></p>
+<p>If you have not asked to reset your password, you can ignore this email.</p>
+<p>Thanks</p>
+<p>IR Registration</p>`,
+    requiresLogIn: `This site requirees log in.`,
+    emptyForm: `Clear form`,
+    siteNotFound: `Site not found.`
 }
 export default en

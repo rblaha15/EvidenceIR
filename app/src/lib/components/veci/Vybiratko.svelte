@@ -1,7 +1,3 @@
-<script context="module" lang="ts">
-	let lastId = -1;
-</script>
-
 <script lang="ts">
 	import type { Data } from '$lib/Data';
 
@@ -13,22 +9,22 @@
 	export let data: Data;
 </script>
 
-{#if vec.zobrazit({ t, data })}
+{#if vec.zobrazit(data)}
 	<label>
-		{nazevSHvezdou(vec, { t, data })}
+		{nazevSHvezdou(vec, data, t)}
 		<div class="dropdown">
 			<button
 				type="button"
 				class="btn btn-outline-secondary dropdown-toggle"
 				data-bs-toggle="dropdown"
 			>
-				{vec.vybrano != null ? vec.value({ t, data }) : t.notChosen}
+				{t.getN(vec.value) ?? t.notChosen}
 			</button>
 			<ul class="dropdown-menu">
-				{#each vec.moznosti({ t, data }) as moznost, i}
+				{#each vec.moznosti(data) as moznost}
 					<li>
-						<button class="dropdown-item" on:click={() => (vec.vybrano = i)}>
-							{moznost}
+						<button class="dropdown-item" on:click={() => (vec.value = moznost)}>
+							{t.get(moznost)}
 						</button>
 					</li>
 				{/each}
@@ -36,7 +32,7 @@
 		</div>
 	</label>
 
-	{#if vec.zobrazitError({ t, data })}
-		<p class="text-danger">{vec.onError({ t, data })}</p>
+	{#if vec.zobrazitError(data)}
+		<p class="text-danger">{t.get(vec.onError(data))}</p>
 	{/if}
 {/if}

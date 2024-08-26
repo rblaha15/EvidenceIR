@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { isUserAdmin, logOut, currentUser } from '$lib/client/auth';
+	import authentication from '$lib/client/authentication';
 	import { responsiblePerson } from '$lib/client/realtime';
-		import { relUrl } from '$lib/helpers/stores';
+	import { relUrl } from '$lib/helpers/stores';
 	import type { Translations } from '$lib/translations';
-	import { redirect } from '@sveltejs/kit';
 	import LanguageSelector from './LanguageSelector.svelte';
 
 	export let t: Translations;
@@ -55,6 +55,19 @@
 						<li><hr class="dropdown-divider d-md-none" /></li>
 						<li><span class="dropdown-item-text">{t.email}:<br />{prihlasenyEmail}</span></li>
 						<li><span class="dropdown-item-text">{t.responsiblePerson}:<br />{osoba}</span></li>
+						<li>
+							<button
+								on:click={async () => {
+									const { link } = await authentication('getPasswordResetLink', {
+										email: prihlasenyEmail,
+										lang: $page.data.languageCode,
+										redirect: $page.url.hostname + $page.url.search
+									});
+									window.location.replace(link)
+								}}
+								class="dropdown-item text-danger">Upravit seznam lidí</button
+							>
+						</li>
 						<li><hr class="dropdown-divider" /></li>
 						<li>
 							<button class="dropdown-item text-danger" on:click={logOut}>{t.toLogOut}</button>
@@ -74,13 +87,17 @@
 			<div class="d-flex flex-row">
 				{#if !$page.route.id?.endsWith('login')}
 					<a
-						href={$relUrl(`/login?redirect=${$page.url.searchParams.get('redirect') ?? '/'}`)}
+						href={$relUrl(
+							`/login?redirect=${$page.url.searchParams.get('redirect') ?? $page.url.pathname.slice($page.data.languageCode.length + 1) + $page.url.search}`
+						)}
 						class="btn btn-info ms-2">{t.toLogIn}</a
 					>
 				{/if}
 				{#if !$page.route.id?.endsWith('signup')}
 					<a
-						href={$relUrl(`/signup?redirect=${$page.url.searchParams.get('redirect') ?? '/'}`)}
+						href={$relUrl(
+							`/signup?redirect=${$page.url.searchParams.get('redirect') ?? $page.url.pathname.slice($page.data.languageCode.length + 1) + $page.url.search}`
+						)}
 						class="btn btn-success ms-2">{t.toSignUp}</a
 					>
 				{/if}
