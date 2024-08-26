@@ -28,8 +28,15 @@ export const novaEvidence = (data: IR) => {
 	const ir = data.evidence.ir.cislo.replace(" ", "")
 	return setDoc(doc(irCollection, ir), data);
 };
+export const upravitEvidenci = (rawData: RawData) => {
+	const ir = rawData.ir.cislo.replace(" ", "")
+	return updateDoc(doc(irCollection, ir), `evidence`, rawData)
+};
 export const odstranitEvidenci = (ir: string) => {
 	return deleteDoc(doc(firestore, 'ir', `/${ir.replace(" ", "")}`));
+};
+export const existuje = async (ir: string) => {
+	return (await getDoc(doc(irCollection, ir.replace(" ", "")))).exists();
 };
 
 export const posledniKontrola = async (ir: string) => {

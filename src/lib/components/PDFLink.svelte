@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { languageCodes, type LanguageCode } from '$lib/languages';
 	import { languageNames, type Translations } from '$lib/translations';
-	import { onMount } from 'svelte';
 	import type { PageData } from '../../routes/[[lang]]/detail/[ir]/$types';
 	import { getToken } from '$lib/client/auth';
 

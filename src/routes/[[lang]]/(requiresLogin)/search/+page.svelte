@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import Navigation from '$lib/components/Navigation.svelte';
-		import { relUrl } from '$lib/helpers/stores';
+	import { relUrl } from '$lib/helpers/stores';
 	import type { Translations } from '$lib/translations';
 	import IMask from 'imask';
 	import { onMount } from 'svelte';
@@ -34,20 +34,8 @@
 	$: mask?.on('accept', (_) => (search = mask.value));
 </script>
 
-{#if nacita}
-	<div class="spinner-border text-danger" />
-{:else}
-	<Navigation {t} />
-	<main class="container my-3">
-		<h1>{t.controllerSearch}</h1>
-		<form class="d-flex" role="search" action={$relUrl(`/detail/${search.replace(' ', '')}`)}>
-			<input
-				type="search"
-				class="form-control me-2"
-				placeholder={t.serialNumber}
-				bind:this={input}
-			/>
-			<button class="btn btn-success" type="submit">{t.search}</button>
-		</form>
-	</main>
-{/if}
+<h1>{t.controllerSearch}</h1>
+<form class="d-flex" role="search" action={$relUrl(`/detail/${search.replace(' ', '')}`)}>
+	<input type="search" class="form-control me-2" placeholder={t.serialNumber} bind:this={input} />
+	<button class="btn btn-success" type="submit">{t.search}</button>
+</form>

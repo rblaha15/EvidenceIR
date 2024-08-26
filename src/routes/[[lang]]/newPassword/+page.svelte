@@ -10,7 +10,7 @@
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import type { PageData } from './$types';
 
-	export let data: PageData
+	export let data: PageData;
 
 	let email = browser ? $page.url.searchParams.get('email') ?? data.email ?? '' : '';
 
@@ -68,77 +68,70 @@
 	};
 </script>
 
-{#if nacita}
-	<div class="spinner-border text-danger m-2" />
-{:else}
-	<Navigation {t} />
-	<div class="container my-3">
-		<h1>{t.newPassword}</h1>
+<h1>{t.newPassword}</h1>
 
-		{#if sent}
-			<p>Email odeslán. Nyní můžete toto okno zavřít.</p>
-		{:else if sending}
-			<div class="d-flex align-items-center">
-				<span>Odesílání</span>
-				<div class="spinner-border text-danger ms-2" />
-			</div>
-		{:else if !oobCode}
-			<form>
-				<FormDefaults />
-				<div class="mt-3">
-					<input
-						autocomplete="email"
-						type="email"
-						class="form-control"
-						placeholder={t.email}
-						bind:value={email}
-					/>
-				</div>
-				{#if error}
-					<p class="text-danger mt-3 mb-0">{@html error}</p>
-				{/if}
-				<div class="d-flex align-content-center mt-3">
-					<button type="submit" class="btn btn-primary me-2" on:click={sendCode}>
-						{t.sendConfirmEmail}
-					</button>
-					<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
-						{t.back}
-					</button>
-				</div>
-			</form>
-		{:else}
-			<form>
-				<FormDefaults />
-				<div class="mt-3">
-					<input
-						autocomplete="new-password"
-						type="password"
-						class="form-control"
-						placeholder={t.password}
-						bind:value={heslo}
-					/>
-				</div>
-				<div class="mt-3">
-					<input
-						autocomplete="new-password"
-						type="password"
-						class="form-control"
-						placeholder={t.confirmPassword}
-						bind:value={hesloZnovu}
-					/>
-				</div>
-				{#if error}
-					<p class="text-danger mt-3 mb-0">{@html error}</p>
-				{/if}
-				<div class="d-flex align-content-center mt-3">
-					<button type="submit" class="btn btn-primary me-2" on:click={resetPassword}>
-						{t.save}
-					</button>
-					<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
-						{t.back}
-					</button>
-				</div>
-			</form>
-		{/if}
+{#if sent}
+	<p>Email odeslán. Nyní můžete toto okno zavřít.</p>
+{:else if sending}
+	<div class="d-flex align-items-center">
+		<span>Odesílání</span>
+		<div class="spinner-border text-danger ms-2" />
 	</div>
+{:else if !oobCode}
+	<form>
+		<FormDefaults />
+		<div class="mt-3">
+			<input
+				autocomplete="email"
+				type="email"
+				class="form-control"
+				placeholder={t.email}
+				bind:value={email}
+			/>
+		</div>
+		{#if error}
+			<p class="text-danger mt-3 mb-0">{@html error}</p>
+		{/if}
+		<div class="d-flex align-content-center mt-3">
+			<button type="submit" class="btn btn-primary me-2" on:click={sendCode}>
+				{t.sendConfirmEmail}
+			</button>
+			<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
+				{t.back}
+			</button>
+		</div>
+	</form>
+{:else}
+	<form>
+		<FormDefaults />
+		<div class="mt-3">
+			<input
+				autocomplete="new-password"
+				type="password"
+				class="form-control"
+				placeholder={t.password}
+				bind:value={heslo}
+			/>
+		</div>
+		<div class="mt-3">
+			<input
+				autocomplete="new-password"
+				type="password"
+				class="form-control"
+				placeholder={t.confirmPassword}
+				bind:value={hesloZnovu}
+			/>
+		</div>
+		{#if error}
+			<p class="text-danger mt-3 mb-0">{@html error}</p>
+		{/if}
+		<div class="d-flex align-content-center mt-3">
+			<button type="submit" class="btn btn-primary me-2" on:click={resetPassword}>
+				{t.save}
+			</button>
+			<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
+				{t.back}
+			</button>
+		</div>
+	</form>
 {/if}

@@ -55,8 +55,9 @@ export const POST: RequestHandler = async ({ request, url }) => {
             to: data.email,
             subject: t.passwordReset,
             html: t.passwordResetEmailHtml
-                .replace('%LINK%', link)
-                .replace('%EMAIL%', data.email),
+                .parseTemplate({
+                    link, email: data.email,
+                })
         })
         result = {}
     }

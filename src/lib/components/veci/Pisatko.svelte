@@ -24,12 +24,12 @@
 	let input: HTMLInputElement;
 	let mask: InputMask<MyOpts> | undefined = undefined;
 
-	$: opts = vec.maskOptions({ t, data });
+	$: opts = vec.maskOptions(data);
 
 	$: options = !opts
 		? undefined
 		: ({
-				lazy: false,
+				lazy: true,
 				overwrite: true,
 				...opts
 			} as MyOpts);
@@ -37,8 +37,8 @@
 	onMount(() => {
 		if (options != undefined) {
 			mask = IMask(input, options);
-			mask.value = vec.text;
-			mask.on("accept", _ => vec.text = mask!.value)
+			mask.value = vec.value;
+			mask.on('accept', (_) => (vec.value = mask!.value));
 		}
 	});
 
@@ -54,33 +54,34 @@
 		if (opts != undefined) mask?.updateOptions(opts);
 	}
 
-	vec.updateText = ((text) => {
-		vec.text = text
-		if (mask) mask.value = text
-	})
+	vec.updateText = (text) => {
+		vec.value = text;
+		if (mask) mask.value = text;
+	};
 </script>
 
-{#if vec.zobrazit({ t, data })}
+{#if vec.zobrazit(data)}
 	{#if options != undefined}
-		<label class="w-{w}">
-			{nazevSHvezdou(vec, { t, data })}
-			<input {type} class="form-control" bind:this={input} {...$$restProps} />
-		</label>
+		<input
+			{type}
+			placeholder={nazevSHvezdou(vec, data, t)}
+			class="form-control w-{w}"
+			bind:this={input}
+			{...$$restProps}
+		/>
 	{:else}
-		<label class="w-{w}">
-			{nazevSHvezdou(vec, { t, data })}
-			<input
-				{type}
-				class="form-control"
-				bind:this={input}
-				value={vec.text}
-				on:input={() => (vec.text = input.value)}
-				{...$$restProps}
-			/>
-		</label>
+		<input
+			{type}
+			placeholder={nazevSHvezdou(vec, data, t)}
+			class="form-control w-{w}"
+			bind:this={input}
+			value={vec.value}
+			on:input={() => (vec.value = input.value)}
+			{...$$restProps}
+		/>
 	{/if}
 
-	{#if vec.zobrazitError({ t, data })}
-		<span class="text-danger help-block">{vec.onError({ t, data })}</span>
+	{#if vec.zobrazitError(data)}
+		<span class="text-danger help-block">{t.get(vec.onError(data))}</span>
 	{/if}
 {/if}

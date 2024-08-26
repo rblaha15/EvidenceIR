@@ -1,7 +1,3 @@
-<script context="module" lang="ts">
-	let lastId = -1;
-</script>
-
 <script lang="ts">
 	import type { Data } from '$lib/Data';
 
@@ -13,42 +9,42 @@
 	export let data: Data;
 </script>
 
-{#if vec.zobrazit({ t, data })}
-	<label for={nazevSHvezdou(vec, { t, data })}>{nazevSHvezdou(vec, { t, data })}</label>
+{#if vec.zobrazit(data)}
+	<label for={nazevSHvezdou(vec, data, t)}>{nazevSHvezdou(vec, data, t)}</label>
 	<div class="d-sm-flex flex-sm-row align-items-start justify-end mb-2">
 		<div class="dropdown">
 			<button
 				type="button"
-				id={nazevSHvezdou(vec, { t, data })}
+				id={nazevSHvezdou(vec, data, t)}
 				class="btn btn-outline-secondary dropdown-toggle"
 				data-bs-toggle="dropdown"
 			>
-				{vec.vybrano1 != null ? vec.value({ t, data }).first : t.notChosen}
+				{t.getN(vec.value.first) ?? t.notChosen}
 			</button>
 			<ul class="dropdown-menu">
-				{#each vec.moznosti1({ t, data }) as moznost, i}
+				{#each vec.moznosti1(data) as moznost}
 					<li>
-						<button class="dropdown-item" on:click={() => (vec.vybrano1 = i)}>
-							{moznost}
+						<button class="dropdown-item" on:click={() => (vec.value.first = moznost)}>
+							{t.get(moznost)}
 						</button>
 					</li>
 				{/each}
 			</ul>
 		</div>
-		{#if vec.vybrano1 != null}
+		{#if vec.value.first != null}
 			<div class="dropdown ms-sm-2 mt-sm-0 mt-2">
 				<button
 					type="button"
 					class="btn btn-outline-secondary dropdown-toggle"
 					data-bs-toggle="dropdown"
 				>
-					{vec.vybrano2 != null ? vec.value({ t, data }).second : t.notChosen}
+					{t.getN(vec.value.second) ?? t.notChosen}
 				</button>
 				<ul class="dropdown-menu">
-					{#each vec.moznosti2({ t, data }) as moznost, i}
+					{#each vec.moznosti2(data) as moznost}
 						<li>
-							<button class="dropdown-item" on:click={() => (vec.vybrano2 = i)}>
-								{moznost}
+							<button class="dropdown-item" on:click={() => (vec.value.second = moznost)}>
+								{t.get(moznost)}
 							</button>
 						</li>
 					{/each}
@@ -56,7 +52,7 @@
 			</div>
 		{/if}
 	</div>
-	{#if vec.zobrazitError({ t, data })}
-		<p class="text-danger">{vec.onError({ t, data })}</p>
+	{#if vec.zobrazitError(data)}
+		<p class="text-danger">{t.get(vec.onError(data))}</p>
 	{/if}
 {/if}

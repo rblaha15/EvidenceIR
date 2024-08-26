@@ -8,18 +8,18 @@
 	export let data: Data;
 </script>
 
-{#if vec.zobrazit({ t, data })}
-	<label for="">{nazevSHvezdou(vec, { t, data })}</label>
-	{#each vec.moznosti({ t, data }) as moznost, i}
+{#if vec.zobrazit(data)}
+	<label for="">{nazevSHvezdou(vec, data, t)}</label>
+	{#each vec.moznosti(data) as moznost}
 		<div class="form-check">
 			<label class="form-check-label">
-				{moznost}
-				<input type="checkbox" class="form-check-input" value={i} bind:group={vec.vybrano} />
+				{t.get(moznost)}
+				<input type="checkbox" class="form-check-input" value={moznost} bind:group={vec.value} />
 			</label>
 		</div>
 	{/each}
 
-	{#if vec.zobrazitError({ t, data })}
-		<p class="text-danger">{vec.onError({ t, data })}</p>
+	{#if vec.zobrazitError(data)}
+		<p class="text-danger">{t.get(vec.onError(data))}</p>
 	{/if}
 {/if}

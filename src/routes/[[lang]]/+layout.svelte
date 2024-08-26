@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
+	import Navigation from '$lib/components/Navigation.svelte';
 	import { preferedLanguage } from '$lib/languages';
 	import { onMount } from 'svelte';
 
 	const t = $page.data.translations;
 
+	let nacita = true;
 	onMount(() => {
+		nacita = false;
 		document.documentElement.setAttribute(
 			'data-bs-theme',
 			window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -48,4 +51,11 @@
 
 <title>{dev ? '(dev) ' : ''}{t.longAppName}</title>
 
-<slot />
+{#if nacita}
+	<div class="spinner-border text-danger m-2" />
+{:else}
+	<Navigation {t} />
+	<div class="container my-3">
+		<slot />
+	</div>
+{/if}
