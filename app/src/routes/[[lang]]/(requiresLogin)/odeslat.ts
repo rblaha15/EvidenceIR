@@ -104,7 +104,7 @@ export default async (
     if (doNotSend || response!.ok) {
         storedData.set(null)
         progress({
-            text: 'Přesměrování...',
+            text: t.redirecting,
             red: false,
             load: true
         });

@@ -12,6 +12,8 @@
 
 	const t: Translations = $page.data.translations;
 
+	const done = browser ? <'reset' | 'edit' | 'register'>$page.url.searchParams.get('done') : null;
+
 	let email = browser ? $page.url.searchParams.get('email') ?? '' : '';
 	let password: string;
 	let redirect: string = '/';
@@ -21,7 +23,7 @@
 		`/signup?email=${email}` + (redirect == '/' ? '' : `&redirect=${redirect}`)
 	);
 	$: resetLink = $relUrl(
-		`/newPassword?email=${email}` + (redirect == '/' ? '' : `&redirect=${redirect}`)
+		`/newPassword?email=${email}&mode=resetEmail` + (redirect == '/' ? '' : `&redirect=${redirect}`)
 	);
 
 	let error: string | null = null;
@@ -35,7 +37,7 @@
 				if (e.code == 'auth/network-request-failed') {
 					error = t.checkInternet;
 				} else if (e.code == 'auth/user-not-found' || e.code == 'auth/user-disabled') {
-					error = t.inexistantEmailHtml.parseTemplate({ link: redirect });
+					error = t.inexistantEmailHtml.parseTemplate({ link: signUpLink });
 				} else if (e.code == 'auth/wrong-password') {
 					error = t.wrongPasswordHtml.parseTemplate({ link: resetLink });
 				} else if (e.code == 'auth/missing-password') {
@@ -50,6 +52,17 @@
 </script>
 
 <h1>{t.logIn}</h1>
+{#if done}
+	<div class="alert alert-success" role="alert">
+		{#if done == 'edit'}
+			{t.passwordEdited}
+		{:else if done == 'register'}
+			{t.registered}
+		{:else if done == 'reset'}
+			{t.passwordHasBeenReset}
+		{/if}
+	</div>
+{/if}
 <form>
 	<FormDefaults />
 	<div class="mt-3">

@@ -15,12 +15,12 @@
 			window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 		);
 
-		const currentLang = $page.params.lang ?? '';
+		const currentLangLength = $page.params.lang?.length ?? -1;
 		if (!$page.data.areTranslationsFromRoute)
 			window.location.replace(
 				'/' +
 					preferedLanguage() +
-					$page.url.pathname.slice(currentLang.length + 1) +
+					$page.url.pathname.slice(currentLangLength + 1) +
 					$page.url?.search ?? ''
 				// $page.route.id!.replace('[[lang]]', preferedLanguage()) + $page.url?.search ?? ''
 			);

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import { isUserAdmin, logOut, currentUser } from '$lib/client/auth';
 	import authentication from '$lib/client/authentication';
@@ -50,6 +51,8 @@
 					<ul class="dropdown-menu dropdown-menu-end">
 						<li>
 							<a class="dropdown-item d-md-none" href={$relUrl('/')}>{t.home}</a>
+						</li>
+						<li>
 							<a class="dropdown-item d-md-none" href={$relUrl('/search')}>{t.controllerSearch}</a>
 						</li>
 						<li><hr class="dropdown-divider d-md-none" /></li>
@@ -61,11 +64,12 @@
 									const { link } = await authentication('getPasswordResetLink', {
 										email: prihlasenyEmail,
 										lang: $page.data.languageCode,
-										redirect: $page.url.hostname + $page.url.search
+										redirect: $page.url.pathname.slice($page.data.languageCode.length + 1) + $page.url.search,
+										mode: 'edit',
 									});
-									window.location.replace(link)
+									window.location.replace(link);
 								}}
-								class="dropdown-item text-danger">Upravit seznam lidí</button
+								class="dropdown-item text-warning">{t.changePassword}</button
 							>
 						</li>
 						<li><hr class="dropdown-divider" /></li>
@@ -87,17 +91,17 @@
 			<div class="d-flex flex-row">
 				{#if !$page.route.id?.endsWith('login')}
 					<a
-						href={$relUrl(
+						href={browser ? $relUrl(
 							`/login?redirect=${$page.url.searchParams.get('redirect') ?? $page.url.pathname.slice($page.data.languageCode.length + 1) + $page.url.search}`
-						)}
+						) : ''}
 						class="btn btn-info ms-2">{t.toLogIn}</a
 					>
 				{/if}
 				{#if !$page.route.id?.endsWith('signup')}
 					<a
-						href={$relUrl(
+						href={browser ? $relUrl(
 							`/signup?redirect=${$page.url.searchParams.get('redirect') ?? $page.url.pathname.slice($page.data.languageCode.length + 1) + $page.url.search}`
-						)}
+						) : ''}
 						class="btn btn-success ms-2">{t.toSignUp}</a
 					>
 				{/if}

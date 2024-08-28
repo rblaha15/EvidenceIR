@@ -90,7 +90,9 @@
 	let filter = '';
 	$: filtered = filteredCompanies(filter);
 	$: chosen =
-		mode != 'loading' ? chosenCompanies(data.montazka.ico.value, data.uvedeni.ico.value) : undefined;
+		mode != 'loading'
+			? chosenCompanies(data.montazka.ico.value, data.uvedeni.ico.value)
+			: undefined;
 
 	$: list =
 		mode != 'loading'
@@ -107,29 +109,35 @@
 	let doNotSend = false;
 </script>
 
-<div class="position-absolute end-0 d-flex me-2 justify-content-end align-items-center">
-	<button
-		class="btn"
-		on:click={() => {
-			$storedData = null;
-			window.location.reload();
-		}}
-	>
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			width="16"
-			height="16"
-			fill="currentColor"
-			viewBox="0 0 16 16"
+<h1>{mode == 'edit' ? t.editation : t.controllerRegistration}</h1>
+{#if mode == 'create' || mode == 'createdStored' }
+	<div class="position-absolute end-0 d-flex me-2 justify-content-end align-items-center">
+		<button
+			class="btn"
+			on:click={() => {
+				$storedData = null;
+				window.location.reload();
+			}}
 		>
-			<path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
-			<path
-				d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"
-			/>
-		</svg>
-		<span class="ms-2">{t.emptyForm}</span>
-	</button>
-</div>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="16"
+				height="16"
+				fill="currentColor"
+				viewBox="0 0 16 16"
+			>
+				<path
+					fill-rule="evenodd"
+					d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"
+				/>
+				<path
+					d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"
+				/>
+			</svg>
+			<span class="ms-2">{t.emptyForm}</span>
+		</button>
+	</div>
+{/if}
 
 {#each list as vec}
 	{#if vec === data.montazka.ico && vec.zobrazit(data)}
@@ -199,27 +207,29 @@
 {/if}
 
 <div class="d-inline-flex align-content-center">
-	<button
-		id="odeslat"
-		type="button"
-		class="btn btn-success"
-		on:click={() =>
-			odeslat(
-				data,
-				(v) => (vysledek = v),
-				doNotSend,
-				mode == 'edit',
-				() => {
-					for (let i = 0; i < list.length; i++) {
-						list[i].zobrazitErrorVeto = true;
+	{#if !vysledek.load}
+		<button
+			id="odeslat"
+			type="button"
+			class="btn btn-success"
+			on:click={() =>
+				odeslat(
+					data,
+					(v) => (vysledek = v),
+					doNotSend,
+					mode == 'edit',
+					() => {
+						for (const i in list) {
+							list[i].zobrazitErrorVeto = true;
+						}
 					}
-				}
-			)}
-	>
-		{t.save}
-	</button>
+				)}
+		>
+			{t.save}
+		</button>
+	{/if}
 	{#if mode == 'edit'}
-		<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
+		<button type="button" class="btn btn-outline-secondary ms-2" on:click={() => history.back()}>
 			{t.back}
 		</button>
 	{/if}

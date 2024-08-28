@@ -35,11 +35,11 @@ export const removeAccounts = async () => {
     (await auth.deleteUsers((await auth.listUsers()).users.filter(u => u.disabled).map(u => u.uid))).errors.forEach(e => console.error(e))
 }
 
-export const getPasswordResetLink = async (email: string, lang: LanguageCode, redirect: string) => {
+export const getPasswordResetLink = async (email: string, lang: LanguageCode, redirect: string, mode: string) => {
     const link = await auth.generatePasswordResetLink(email)
     const url = new URL(link)
 
-    return `/${lang}/newPassword?oobCode=${url.searchParams.get("oobCode")}&redirect=${redirect}`
+    return `/${lang}/newPassword?mode=${mode}&oobCode=${url.searchParams.get("oobCode")}&redirect=${redirect}`
 }
 
 export const updateUser = (uid: string, properties: UpdateRequest) => auth.updateUser(uid, properties)

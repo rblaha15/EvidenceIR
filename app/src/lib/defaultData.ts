@@ -39,6 +39,7 @@ export default (): Data => ({
                 mask: `0000000-0000000`,
             }),
             zobrazit: (data) => data.ir.typ.value.first?.includes(`BOX`) ?? false,
+            nutne: (data) => data.ir.typ.value.first?.includes(`BOX`) ?? false,
         }),
         chceVyplnitK: new MultiZaskrtavatkova({
             nazev: `whatToAddInfoTo`,
