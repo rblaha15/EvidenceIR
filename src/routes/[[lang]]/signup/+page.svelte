@@ -34,7 +34,8 @@
 		const { link } = await authentication('getPasswordResetLink', {
 			email,
 			lang: $page.data.languageCode,
-			redirect
+			redirect,
+			mode: 'register',
 		});
 		window.location.href = link;
 	};

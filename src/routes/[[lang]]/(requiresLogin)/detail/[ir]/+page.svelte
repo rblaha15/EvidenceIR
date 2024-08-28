@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
-	import Navigation from '$lib/components/Navigation.svelte';
 	import PdfLink from '$lib/components/PDFLink.svelte';
 	import { checkAuth } from '$lib/client/auth';
 	import { evidence, novaEvidence, odstranitEvidenci, type IR } from '$lib/client/firestore';
@@ -69,7 +68,7 @@
 	};
 </script>
 
-<h1>{t.evidenceDetails}</h1>
+<h1>{t.evidenceDetailsHtml.parseTemplate({irType: values ? `${t.getN(values.evidence.ir.typ.first)} ${t.getN(values.evidence.ir.typ.second)}` : '…', irNumber: values ? values.evidence.ir.cislo : ''})}</h1>
 {#if existuje == undefined}
 	<div class="spinner-border text-danger" />
 {:else if !existuje}
@@ -83,7 +82,7 @@
 	{#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
 		<PdfLink name={t.warranty} {t} linkName="warranty" {data} />
 		<PdfLink name={t.instalationProtocol} {t} linkName="instalationProtocol" {data} />
-		<PdfLink name={t.installationApproval} {t} linkName="installationApproval" {data} />
+		<!-- <PdfLink name={t.installationApproval} {t} linkName="installationApproval" {data} /> -->
 		<PdfLink name={t.filledYearlyCheck} {t} linkName="checkResult" {data} />
 		<button
 			class="btn btn-outline-info d-block mt-2"
@@ -93,7 +92,7 @@
 	{/if}
 	<p class="mt-2">{t.wrongTime}</p>
 	{#if change == 'no'}
-		<button class="btn btn-outline-danger d-block mt-2" on:click={() => (change = 'input')}
+		<button class="btn btn-outline-warning d-block mt-2" on:click={() => (change = 'input')}
 			>{t.changeController}</button
 		>
 	{:else if change == 'input'}
@@ -120,7 +119,7 @@
 		<p class="mt-2 text-danger">{t.changeWentWrong}</p>
 	{/if}
 	<button
-		class="btn btn-outline-info d-block mt-2"
+		class="btn btn-outline-warning d-block mt-2"
 		on:click={() => (window.location.href = $relUrl(`/?edit=${data.ir}`))}
 		>{t.editRegistration}</button
 	>

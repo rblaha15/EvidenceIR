@@ -42,13 +42,13 @@ export const POST: RequestHandler = async ({ request, url }) => {
         )
     }
     else if (data.action == 'getPasswordResetLink') {
-        const link = await getPasswordResetLink(data.email, data.lang, data.redirect)
+        const link = await getPasswordResetLink(data.email, data.lang, data.redirect, data.mode)
         result = {
             link
         }
     }
     else if (data.action == 'sendPasswordResetEmail') {
-        const link = url.origin + await getPasswordResetLink(data.email, data.lang, data.redirect)
+        const link = url.origin + await getPasswordResetLink(data.email, data.lang, data.redirect, 'reset')
         const t = getTranslations(data.lang)
         sendEmail({
             from: SENDER,

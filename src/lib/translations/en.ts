@@ -2,6 +2,7 @@ import type { PlainTranslations } from "$lib/translations"
 import { template as t } from "$lib/helpers/templates"
 
 const en: PlainTranslations = {
+    controllerRegistration: `New controller registration`,
     longAppName: "IR Controller Registration",
     appName: "IR Registration",
     requiredField: 'This field is required',
@@ -62,7 +63,7 @@ const en: PlainTranslations = {
     saving: 'Saving...',
     youHaveAMistake: 'You have a mistake in the form. Please, check the filled information.',
     logInNeeded: 'You must log in to view and fill out the form!',
-    evidenceDetails: 'Registration record details',
+    evidenceDetailsHtml: t`Installation with ${'irType'} ${'irNumber'} details`,
     loadingData: 'Loading data...',
     sorrySomethingWentWrong: 'Apologize, something went wrong.',
     linkInvalid: 'Either the link to this page is incorrect or the registration record has already been removed.',
@@ -89,7 +90,7 @@ const en: PlainTranslations = {
     fillInPassword: 'Please, enter your password.',
     search: 'Search',
     controllerSearch: 'Search registrations',
-    home: 'Home',
+    home: 'New registration',
     changeController: 'Change controller serial number',
     confirm: 'Confirm',
     changeWentWrong: 'Something went wrong. Refresh the page and try again.',
@@ -100,7 +101,7 @@ const en: PlainTranslations = {
     installationApproval: 'Heat pump instalation approval',
     yearlyCheck: 'Yearly heat pump check',
     doYearlyCheck: 'Do a yearly heat pump check',
-    filledYearlyCheck: 'Filled yearly heat pump check',
+    filledYearlyCheck: 'Yearly heat pump checks',
     wrongTime: 'If you are getting a 401: Unathorized error after opening the files, please check your device time setting.',
     chooseFromList: 'Choose from list',
     chooseCompanyFromList: 'Choose company from list:',
@@ -109,7 +110,7 @@ const en: PlainTranslations = {
     emailNotSent: t`The email could not be sent: ${'status'} ${'statusText'}`,
     redirectFailedHtml: t`Redirection has failed. Please, navigate to this address: <a href="${'link'}">${'link'}</a>`,
     irExistsHtml: t`This controller is already registered (<a href="${'link'}">detail</a>)`,
-    editRegistration: `Edit registration record`,
+    editRegistration: `Edit installation data`,
     passwordReset: `Password reset`,
     passwordResetEmailHtml: t`<p>Hello,</p>
 <p>Follow this link to reset your IR Registration password for your account ${'email'}:</p>
@@ -119,6 +120,13 @@ const en: PlainTranslations = {
 <p>IR Registration</p>`,
     requiresLogIn: `This site requirees log in.`,
     emptyForm: `Clear form`,
-    siteNotFound: `Site not found.`
+    siteNotFound: `Site not found.`,
+    changePassword: `Change password`,
+    year: `Year`,
+    redirecting: `Redirecting…`,
+    editation: `Editation`,
+    passwordEdited: `Password has been edited, log in please`,
+    registered: `Registration was successful, log in please`,
+    passwordHasBeenReset: `Password has been reset, log in please`,
 }
 export default en

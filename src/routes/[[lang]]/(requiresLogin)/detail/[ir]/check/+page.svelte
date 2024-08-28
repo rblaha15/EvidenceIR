@@ -12,7 +12,6 @@
 	} from '$lib/Kontrola';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
-	import Navigation from '$lib/components/Navigation.svelte';
 
 	export let data: PageData;
 	const ir = data.ir;
@@ -36,12 +35,27 @@
 		prvniKontrola = snapshot.data()?.kontroly?.[1];
 	});
 
-	const save = () => {
-		pridatKontrolu(ir, rok!, k as Kontrola);
+	let vysledek = {
+		text: '',
+		red: false,
+		load: false
+	};
+
+	const save = async () => {
+		vysledek = { load: true, red: false, text: t.saving };
+		await pridatKontrolu(ir, rok!, k as Kontrola);
+
+		vysledek = {
+			text: 'Přesměrování...',
+			red: false,
+			load: true
+		};
+		window.history.back();
 	};
 </script>
 
 <h1>{t.yearlyCheck}</h1>
+<h3>{t.year}: {rok ?? '…'}</h3>
 {#each orderArray as v}
 	{@const value = k[v.key1][v.key2]}
 	{@const type = kontrolaTypes[v.key1][v.key2]}
@@ -83,4 +97,12 @@
 		</p>
 	{/if}
 {/each}
-<button on:click={save} class="btn btn-primary">{t.save}</button>
+<div class="d-inline-flex align-content-center">
+	{#if !vysledek.load}
+		<button on:click={save} class="btn btn-success">{t.save}</button>
+	{/if}
+	{#if vysledek.load}
+		<div class="spinner-border text-danger ms-2" />
+	{/if}
+	<p class:text-danger={vysledek.red} class="ms-2 my-auto">{@html vysledek.text}</p>
+</div>

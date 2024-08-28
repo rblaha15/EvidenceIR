@@ -1,6 +1,8 @@
+import { changePassword } from "$lib/client/auth"
 import { template as t } from "$lib/helpers/templates"
 
 export default {
+    controllerRegistration: `Registrace nového regulátoru`,
     longAppName: `Evidence regulátorů IR`,
     appName: `Evidence IR`,
     requiredField: `Toto pole je povinné`,
@@ -61,7 +63,7 @@ export default {
     saving: `Ukládání...`,
     youHaveAMistake: `Ve formuláři máte chybu. Prosím, zkontrolujte vyplněné informace.`,
     logInNeeded: `Pro zobrazení a vyplnění formuláře je nutné se přihlásit!`,
-    evidenceDetails: `Podrobnosti o evidenci`,
+    evidenceDetailsHtml: t`Podrobnosti o instalaci s ${'irType'} ${'irNumber'}`,
     loadingData: `Načítání dat...`,
     sorrySomethingWentWrong: `Omlouváme se, něco se nepovedlo.`,
     linkInvalid: `Buď je odkaz na tuto stránku nesprávný, nebo je již záznam o evidenci odstraněný.`,
@@ -88,7 +90,7 @@ export default {
     fillInPassword: `Prosím, zadejte heslo.`,
     search: `Vyhledat`,
     controllerSearch: `Vyhledávání evidencí`,
-    home: `Domů`,
+    home: `Nová registrace`,
     changeController: `Změnit sériové číslo regulátoru`,
     confirm: `Potvrdit`,
     changeWentWrong: `Něco ne nepovedlo. Obnovte stránku a zkuste to znovu.`,
@@ -99,7 +101,7 @@ export default {
     installationApproval: `Schválení instalace TČ`,
     yearlyCheck: `Roční kontrola TČ`,
     doYearlyCheck: `Udělat roční kontrolu TČ`,
-    filledYearlyCheck: `Vyplněná roční kontrola TČ`,
+    filledYearlyCheck: `Roční kontroly TČ`,
     wrongTime: `Pokud po otevření souborů dostáváte chybu 401: Unathorized, zkontrolujte prosím nastavení času svého zařízení.`,
     chooseFromList: `Vyberte ze seznamu`,
     chooseCompanyFromList: `Vyberte firmu ze seznamu:`,
@@ -115,8 +117,15 @@ export default {
     emailNotSent: t`Email se nepodařilo odeslat: ${'status'} ${'statusText'}`,
     redirectFailedHtml: t`Přesměrování se nezdařilo. Prosím, přejděte na tuto adresu: <a href="${'link'}">${'link'}</a>`,
     irExistsHtml: t`Tento regulátor je již zaevidovaný (<a href="${'link'}">detail</a>)`,
-    editRegistration: `Upravit evidenci`,
+    editRegistration: `Upravit údaje o instalaci`,
     requiresLogIn: `Tato stránka vyžaduje přihlášení.`,
     emptyForm: `Vymazat data`,
-    siteNotFound: `Stránka nenalezena.`
+    siteNotFound: `Stránka nenalezena.`,
+    changePassword: `Změnit heslo`,
+    year: `Rok`,
+    redirecting: `Přesměrování…`,
+    editation: `Editace`,
+    passwordEdited: `Heslo upraveno, přihlašte se prosím`,
+    registered: `Registrace proběhla úspěšně, přihlašte se prosím`,
+    passwordHasBeenReset: `Heslo resetováno, přihlašte se prosím`,
 }

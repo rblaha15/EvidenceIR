@@ -22,6 +22,7 @@ export type AuthTypes = {
 			email: string,
 			redirect: string,
 			lang: LanguageCode,
+			mode: 'edit' | 'register',
 		}
 		returns: {
 			link: string

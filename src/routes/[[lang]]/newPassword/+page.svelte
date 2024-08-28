@@ -17,29 +17,34 @@
 	const t: Translations = data.translations;
 
 	const oobCode = browser ? $page.url.searchParams.get('oobCode') : null;
+	let mode:
+		| 'resetEmail'
+		| 'resetSending'
+		| 'resetSent'
+		| 'reset'
+		| 'edit'
+		| 'register'
+		| 'loading' = 'loading';
 
 	let heslo: string;
-	let sending = false;
 	let hesloZnovu: string;
 
 	let redirect: string = '/';
-	let nacita = true;
 	onMount(() => {
-		nacita = false;
 		redirect = $page.url.searchParams.get('redirect') ?? '/';
+		mode = $page.url.searchParams.get('mode') as typeof mode;
 	});
 
 	let error: string | null = null;
-	const sent = Boolean($page.url.searchParams.get('sent'));
 
 	const sendCode = async () => {
-		sending = true;
+		mode = 'resetSending';
 		await authentication('sendPasswordResetEmail', {
 			email,
 			redirect,
 			lang: data.languageCode
 		});
-		window.location.replace($relUrl('/newPassword?sent=true'));
+		window.location.replace($relUrl('/newPassword?mode=resetSent'));
 	};
 
 	const resetPassword = async () => {
@@ -48,9 +53,13 @@
 			error = t.passwordsDoNotMatch;
 			return;
 		}
-		await authentication('enableUser', { email });
+		if (mode == 'register') {
+			await authentication('enableUser', { email });
+		}
 		changePassword(oobCode!, heslo)
-			.then(() => (window.location.href = $relUrl(`/login?email=${email}&redirect=${redirect}`)))
+			.then(() => {
+				window.location.href = $relUrl(`/login?email=${email}&done=${mode}&redirect=${redirect}`)
+			})
 			.catch((e) => {
 				console.log(e.code);
 				if (e.code == 'auth/network-request-failed') {
@@ -70,14 +79,14 @@
 
 <h1>{t.newPassword}</h1>
 
-{#if sent}
+{#if mode == 'resetSent'}
 	<p>Email odeslán. Nyní můžete toto okno zavřít.</p>
-{:else if sending}
+{:else if mode == 'resetSending'}
 	<div class="d-flex align-items-center">
 		<span>Odesílání</span>
 		<div class="spinner-border text-danger ms-2" />
 	</div>
-{:else if !oobCode}
+{:else if mode == 'resetEmail' || !oobCode}
 	<form>
 		<FormDefaults />
 		<div class="mt-3">

@@ -89,7 +89,7 @@ export const nazvyKontrol: Nazvy = {
 
     kontrolniElektroinstalace: {
         kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulaceB: "Kontrola funkce všech elektrických spotřebičů zapojených do regulace",
-        kontrolaDotazeniSvorkovychSpoju: "Kontrola dotažení svorkových spojů",
+        kontrolaDotazeniSvorkovychSpojuB: "Kontrola dotažení svorkových spojů",
         vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeniB: "Vizuální kontrola všech přístupných vodičů v instalaci (natavení, mech.poškození)",
         kontrolaSepnutiDohrevuSepnutiStykacePripadneReleB: "Kontrola sepnutí dohřevu (sepnutí stykače, případně relé)",
     },
@@ -169,7 +169,7 @@ export const kontrolaOrder = [
 
     ["kontrolniElektroinstalace", [
         "kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulaceB",
-        "kontrolaDotazeniSvorkovychSpoju",
+        "kontrolaDotazeniSvorkovychSpojuB",
         "vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeniB",
         "kontrolaSepnutiDohrevuSepnutiStykacePripadneReleB",
     ]],
