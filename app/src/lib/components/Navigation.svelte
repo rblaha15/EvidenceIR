@@ -58,6 +58,7 @@
 						<li><hr class="dropdown-divider d-md-none" /></li>
 						<li><span class="dropdown-item-text">{t.email}:<br />{prihlasenyEmail}</span></li>
 						<li><span class="dropdown-item-text">{t.responsiblePerson}:<br />{osoba}</span></li>
+						<li><hr class="dropdown-divider" /></li>
 						<li>
 							<button
 								on:click={async () => {
@@ -72,7 +73,6 @@
 								class="dropdown-item text-warning">{t.changePassword}</button
 							>
 						</li>
-						<li><hr class="dropdown-divider" /></li>
 						<li>
 							<button class="dropdown-item text-danger" on:click={logOut}>{t.toLogOut}</button>
 						</li>
