@@ -90,7 +90,7 @@ const en: PlainTranslations = {
     fillInPassword: 'Please, enter your password.',
     search: 'Search',
     controllerSearch: 'Search registrations',
-    home: 'New registration',
+    new: 'New registration',
     changeController: 'Change controller serial number',
     confirm: 'Confirm',
     changeWentWrong: 'Something went wrong. Refresh the page and try again.',

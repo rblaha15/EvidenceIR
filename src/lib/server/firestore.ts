@@ -1,4 +1,4 @@
-import { getFirestore, QueryDocumentSnapshot, type WithFieldValue } from 'firebase-admin/firestore';
+import { getFirestore, type QueryDocumentSnapshot, type WithFieldValue } from 'firebase-admin/firestore';
 import { app } from './firebase';
 import type { IR } from '$lib/client/firestore';
 

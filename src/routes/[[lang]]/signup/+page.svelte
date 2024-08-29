@@ -13,8 +13,8 @@
 
 	const t: Translations = $page.data.translations;
 
-	let redirect: string = '/';
-	onMount(() => (redirect = $page.url.searchParams.get('redirect') ?? '/'));
+	let redirect: string = '/new';
+	onMount(() => (redirect = $page.url.searchParams.get('redirect') ?? '/new'));
 
 	let error: string | null = null;
 

@@ -21,7 +21,7 @@
 		<span class="navbar-brand me-sm-3 me-auto">{t.appName}</span>
 		{#if jePrihlasen}
 			<ul class="navbar-nav me-auto d-none d-md-flex flex-row">
-				<a class="nav-link" href={$relUrl('/')}>{t.home}</a>
+				<a class="nav-link" href={$relUrl('/new')}>{t.new}</a>
 				<a class="nav-link ms-3" href={$relUrl('/search')}>{t.controllerSearch}</a>
 			</ul>
 
@@ -50,7 +50,7 @@
 					</button>
 					<ul class="dropdown-menu dropdown-menu-end">
 						<li>
-							<a class="dropdown-item d-md-none" href={$relUrl('/')}>{t.home}</a>
+							<a class="dropdown-item d-md-none" href={$relUrl('/new')}>{t.new}</a>
 						</li>
 						<li>
 							<a class="dropdown-item d-md-none" href={$relUrl('/search')}>{t.controllerSearch}</a>

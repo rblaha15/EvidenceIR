@@ -90,7 +90,7 @@ export default {
     fillInPassword: `Prosím, zadejte heslo.`,
     search: `Vyhledat`,
     controllerSearch: `Vyhledávání evidencí`,
-    home: `Nová registrace`,
+    new: `Nová registrace`,
     changeController: `Změnit sériové číslo regulátoru`,
     confirm: `Potvrdit`,
     changeWentWrong: `Něco ne nepovedlo. Obnovte stránku a zkuste to znovu.`,

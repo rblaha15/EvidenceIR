@@ -1,6 +1,7 @@
-<script lang="ts">import type { PageData } from './$types';
+<script lang="ts">
+	import type { LayoutData } from './$types';
 
-	export let data: PageData;
+	export let data: LayoutData;
 </script>
 
 {#if data.isLoggedIn}
