@@ -10,7 +10,7 @@ export const entries: EntryGenerator = () => [
 ];
 
 export const load: PageLoad = async ({ params, url }) => {
-    const oob = url.searchParams.get('oobCode')
+    const oob = browser ? url.searchParams.get('oobCode') : null
     const email = oob ? await verifyCode(oob) : null
 	if (browser && oob && !email) return redirect(302, "/" + params.lang + "/login?redirect=" + url.searchParams.get('redirect'))
 
