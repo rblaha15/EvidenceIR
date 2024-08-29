@@ -1,5 +1,6 @@
 import { kontrolaTypes, orderArray, type KontrolaAsRecord } from "$lib/Kontrola"
 import type { LanguageCode } from "$lib/languages"
+import { p } from "$lib/Vec"
 import { evidence } from "../firestore"
 import { generatePdf } from "../pdf"
 
@@ -9,8 +10,8 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
     lang, ir, fetch,
     getFirebaseData: async () => evidence(ir),
     formLocation: '/check_cs.pdf',
-    title: "Popis úkonů při provádění preventivní roční prohlídky vzduchového tepelného čerpadla",
-    fileName: "Roční prohlídka.pdf",
+    title: p`Popis úkonů při provádění preventivní roční prohlídky vzduchového tepelného čerpadla`,
+    fileName: p`Roční prohlídka.pdf`,
     getFormData: async ({ kontroly }) => {
         const start = {
 /*          TEXT1 */ Text1: '',

@@ -6,6 +6,7 @@ import { error } from '@sveltejs/kit';
 import type { LanguageCode } from '$lib/languages';
 import warranty from '$lib/server/pdf/warranty';
 import rroute from '$lib/server/pdf/rroute';
+import guide from '$lib/server/pdf/guide';
 
 export const GET: RequestHandler = async ({ url, fetch, params }) => {
     const pdfname = params.pdfname
@@ -17,6 +18,7 @@ export const GET: RequestHandler = async ({ url, fetch, params }) => {
     if (pdfname == "checkResult") return checkResult({ ir: params.ir, lang: params.lang as LanguageCode, fetch })
     if (pdfname == "warranty") return warranty({ ir: params.ir, lang: params.lang as LanguageCode, fetch })
     if (pdfname == "rroute") return rroute({ ir: params.ir, lang: params.lang as LanguageCode, fetch })
+    if (pdfname == "guide") return guide({ ir: params.ir, lang: params.lang as LanguageCode, fetch })
 
     return error(400);
 }

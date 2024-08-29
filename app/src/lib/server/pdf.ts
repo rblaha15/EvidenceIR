@@ -2,17 +2,19 @@ import { error } from "@sveltejs/kit";
 import { PDFDocument, PDFStreamWriter, PDFWriter, type SaveOptions } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit"
 import type { DocumentSnapshot } from "firebase-admin/firestore";
+import { getTranslations, type TranslationReference, type Translations } from "$lib/translations";
+import type { LanguageCode } from "$lib/languages";
 
 const node_fetch = fetch
 
 export const generatePdf = async <T>(args: {
-    lang: string,
+    lang: LanguageCode,
     ir: string,
     getFirebaseData: () => Promise<DocumentSnapshot<T | undefined>>
     formLocation: string,
-    title: string,
-    fileName: string,
-    getFormData: (data: T) => Promise<{
+    title: TranslationReference,
+    fileName: TranslationReference,
+    getFormData: (data: T, t: Translations) => Promise<{
         [fieldName: string]: string,
     }>,
     saveOptions?: SaveOptions,
@@ -25,6 +27,7 @@ export const generatePdf = async <T>(args: {
         console.log(`Nepovedlo se načíst data z firebase ${{ lang: args.lang, ir: args.ir }}`);
         error(500, `Nepovedlo se načíst data z firebase ${args.lang}, ${args.ir}, ${e}`)
     }
+    const t = getTranslations(args.lang)
 
     if (!snapshot.exists) error(500, 'Nepovedlo se nalézt data ve firebase');
 
@@ -36,20 +39,20 @@ export const generatePdf = async <T>(args: {
 
     const pdfDoc = await PDFDocument.load(formPdfBytes);
 
-    pdfDoc.setTitle(args.title)
+    pdfDoc.setTitle(t.get(args.title))
 
     const form = pdfDoc.getForm();
 
-    // const fields = form.getFields()
-    // fields.forEach(field => {
-    //     const type = field.constructor.name
-    //     const name = field.getName()
-    //     const f = form.getTextField(name)
-    //     f.setText(name)
-    //     console.log(`${type}: ${name}`)
-    // })
+    const fields = form.getFields()
+    fields.forEach(field => {
+        const type = field.constructor.name
+        const name = field.getName()
+        const f = form.getTextField(name)
+        f.setText(name)
+        console.log(`${type}: ${name}`)
+    })
 
-    for (const [fieldName, fieldValue] of Object.entries(await args.getFormData(data))) {
+    for (const [fieldName, fieldValue] of Object.entries(await args.getFormData(data, t))) {
         const field = form.getTextField(fieldName)
         field.setText(fieldValue)
     }
@@ -77,7 +80,7 @@ export const generatePdf = async <T>(args: {
     const Writer = useObjectStreams ? PDFStreamWriter : PDFWriter;
     const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer();
 
-    const encodedName = encodeURIComponent(args.fileName)
+    const encodedName = encodeURIComponent(t.get(args.fileName))
 
     return new Response(pdfBytes, {
         headers: {

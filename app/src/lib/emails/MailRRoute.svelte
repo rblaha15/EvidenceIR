@@ -25,7 +25,7 @@
 <p><b>Přihlášení:</b> {zarizeni(data)}</p>
 <p>
 	<b>Poznámka:</b>
-	{data.koncovyUzivatel.prijmeni}, {data.koncovyUzivatel.jmeno} - {data.mistoRealizace.obec}
+	{data.koncovyUzivatel.prijmeni} {data.koncovyUzivatel.jmeno} - {data.mistoRealizace.obec}
 </p>
 <h2>Zodpovědná osoba:</h2>
 <p>{data.ostatni.zodpovednaOsoba}</p>
