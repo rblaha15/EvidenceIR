@@ -1,5 +1,6 @@
 import { nazevFirmy } from "$lib/helpers/ares";
 import type { LanguageCode } from "$lib/languages";
+import { p } from "$lib/Vec";
 import { evidence } from "../firestore";
 import { generatePdf } from "../pdf";
 
@@ -9,9 +10,9 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
     lang, ir, fetch,
     getFirebaseData: async () => evidence(ir),
     formLocation: '/rroute_cs.pdf',
-    title: "Souhlas se zpřístupněním regulátoru IR službě RegulusRoute",
-    fileName: "Formulář RegulusRoute.pdf",
-    getFormData: async ({ evidence: e }) => ({
+    title: p`Souhlas se zpřístupněním regulátoru IR službě RegulusRoute`,
+    fileName: p`Formulář RegulusRoute.pdf`,
+    getFormData: async ({ evidence: e }, t) => ({
 /*   icoMontaznik */ Text1: e.montazka.ico,
 /* firmaMontaznik */ Text2: (await nazevFirmy(e.montazka.ico, fetch)) ?? '',
 /* jmenoMontaznik */ Text3: e.montazka.zastupce,
@@ -25,7 +26,7 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
 /*        adresa2 */ Text11: `${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,
 /*          email */ Text12: e.koncovyUzivatel.email,
 /*        telefon */ Text13: e.koncovyUzivatel.telefon,
-/*          typIR */ Text14: e.ir.typ.first + ' ' + e.ir.typ.second,
+/*          typIR */ Text14: t.getT`${e.ir.typ.first!} ${e.ir.typ.second!}`,
 /*         serCis */ Text15: e.ir.cislo.split(' ')[0],
 /*        serCis2 */ Text16: e.ir.cislo.split(' ')[1],
 /*       cisloBOX */ Text17: e.ir.cisloBOX,

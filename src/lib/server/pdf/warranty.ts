@@ -1,5 +1,6 @@
 import { nazevAdresaFirmy } from "$lib/helpers/ares";
 import type { LanguageCode } from "$lib/languages";
+import { p } from "$lib/Vec";
 import { evidence } from "../firestore";
 import { generatePdf } from "../pdf";
 
@@ -9,9 +10,9 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
     lang, ir, fetch,
     getFirebaseData: async () => evidence(ir),
     formLocation: '/warranty_cs.pdf',
-    title: "Záruční list tepelného čerpadla",
-    fileName: "Záruční list.pdf",
-    getFormData: async ({ evidence: e }) => {
+    title: p`Záruční list tepelného čerpadla`,
+    fileName: p`Záruční list.pdf`,
+    getFormData: async ({ evidence: e }, t) => {
         const today = new Date();
         const dd = String(today.getDate()).padStart(2, '0');
         const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -22,7 +23,7 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
         const uvedeni = await nazevAdresaFirmy(e.uvedeni.ico, fetch)
         const montazka = await nazevAdresaFirmy(e.montazka.ico, fetch)
         return {
-    /*        tcModel */ Text1: e.tc.typ,
+    /*        tcModel */ Text1: t.get(e.tc.typ!),
     /*        tcCislo */ Text2: e.tc.cislo,
     /*       montazka */ Text3: `${e.montazka.ico} — ${montazka?.obchodniJmeno ?? ''}`,
     /* adresaMontazka */ Text4: montazka?.sidlo?.textovaAdresa ?? '',

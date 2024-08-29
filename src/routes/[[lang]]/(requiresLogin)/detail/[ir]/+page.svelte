@@ -68,7 +68,14 @@
 	};
 </script>
 
-<h1>{t.evidenceDetailsHtml.parseTemplate({irType: values ? `${t.getN(values.evidence.ir.typ.first)} ${t.getN(values.evidence.ir.typ.second)}` : '…', irNumber: values ? values.evidence.ir.cislo : ''})}</h1>
+<h1>
+	{t.evidenceDetailsHtml.parseTemplate({
+		irType: values
+			? `${t.getN(values.evidence.ir.typ.first)} ${t.getN(values.evidence.ir.typ.second)}`
+			: '…',
+		irNumber: values ? values.evidence.ir.cislo : ''
+	})}
+</h1>
 {#if existuje == undefined}
 	<div class="spinner-border text-danger" />
 {:else if !existuje}
@@ -77,8 +84,8 @@
 {:else}
 	{#if values.evidence.vzdalenyPristup.chce}
 		<PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
-		<PdfLink name={t.routeGuide} {t} linkName="routeguide" {data} />
 	{/if}
+	<PdfLink name={t.routeGuide} {t} linkName="guide" {data} />
 	{#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
 		<PdfLink name={t.warranty} {t} linkName="warranty" {data} />
 		<PdfLink name={t.instalationProtocol} {t} linkName="instalationProtocol" {data} />

@@ -10,7 +10,7 @@ export default (): Data => ({
                 p`IR RegulusHBOX`,
                 p`IR RegulusHBOX 112`,
                 p`IR RegulusHBOX 212`,
-                p`IR RegulusHBOX K`,
+                p`IR RegulusHBOXK`,
                 p`IR 14`,
                 p`IR 12`,
             ],
@@ -196,10 +196,12 @@ export default (): Data => ({
                 mask: `00000000`,
             }),
             zobrazit: data => !data.uvedeni.jakoMontazka.value,
+            nutne: data => !data.uvedeni.jakoMontazka.value,
         }),
         zastupce: new Pisatkova({
             nazev: `representativeName`,
             zobrazit: data => !data.uvedeni.jakoMontazka.value,
+            nutne: data => !data.uvedeni.jakoMontazka.value,
             autocomplete: `section-commissioningRepr billing name`,
         }),
         email: new Pisatkova({
@@ -207,6 +209,7 @@ export default (): Data => ({
             onError: `wrongEmailFormat`,
             regex: /^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             zobrazit: data => !data.uvedeni.jakoMontazka.value,
+            nutne: data => !data.uvedeni.jakoMontazka.value,
             autocomplete: `section-commissioning billing work email`,
         })
     },

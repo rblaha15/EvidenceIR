@@ -18,8 +18,13 @@ const template = (strings: TemplateStringsArray, ...args: string[]) => {
     return zip(strings, args).flat().slice(0, -1).join('')
 }
 
-const createTemplate = <U>(edit: (string: string) => U): (strings: TemplateStringsArray, ...args: string[]) => U =>
+export const createTemplate = <U>(edit: (string: string) => U): (strings: TemplateStringsArray, ...args: string[]) => U =>
     (strings: TemplateStringsArray, ...args: string[]) => edit(template(strings, ...args))
+export const createTemplateG = <T extends string, U>(edit: (args: { strings: TemplateStringsArray, args: T[] }) => { strings: TemplateStringsArray, args: string[] }, edit2: (string: string) => U): (strings: TemplateStringsArray, ...args: T[]) => U =>
+    (strings: TemplateStringsArray, ...args: T[]) => {
+        const t = edit({strings, args})
+        return edit2(template(t.strings, ...t.args))
+    }
 
 export const p = createTemplate((plainString: string) => `PLAIN_${plainString}` as TranslationReference)
 export const t = (ref: TranslationReference) => ref

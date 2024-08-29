@@ -95,7 +95,7 @@ const en: PlainTranslations = {
     confirm: 'Confirm',
     changeWentWrong: 'Something went wrong. Refresh the page and try again.',
     note: 'Note',
-    routeGuide: 'Instructions for logging into RegulusRoute',
+    routeGuide: 'Instructions for logging into the controller',
     warranty: 'Heat pump warranty',
     instalationProtocol: 'Heat pump instalation protocol',
     installationApproval: 'Heat pump instalation approval',

@@ -95,7 +95,7 @@ export default {
     confirm: `Potvrdit`,
     changeWentWrong: `Něco ne nepovedlo. Obnovte stránku a zkuste to znovu.`,
     note: `Poznámka`,
-    routeGuide: `Návod na přihlášení k RegulusRoute`,
+    routeGuide: `Návod na přihlášení k regulátoru`,
     warranty: `Záruční list k TČ`,
     instalationProtocol: `Protokol o instalaci TČ`,
     installationApproval: `Schválení instalace TČ`,

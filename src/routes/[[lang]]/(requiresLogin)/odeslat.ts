@@ -41,7 +41,10 @@ export default async (
         (obj) => Object.values(obj) as Vec<any>[]
     );
 
-    if (seznam.some((it) => it.zpravaJeChybna(data))) {
+    if (seznam.some((it) => {
+        if (it.zpravaJeChybna(data)) console.log(it)
+        return it.zpravaJeChybna(data)
+    })) {
         zobrazitError()
         progress({
             red: true,
