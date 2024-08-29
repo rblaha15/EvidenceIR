@@ -16,14 +16,14 @@
 
 	let email = browser ? $page.url.searchParams.get('email') ?? '' : '';
 	let password: string;
-	let redirect: string = '/';
-	onMount(() => (redirect = $page.url.searchParams.get('redirect') ?? '/'));
+	let redirect: string = '/new';
+	onMount(() => (redirect = $page.url.searchParams.get('redirect') ?? '/new'));
 
 	$: signUpLink = $relUrl(
-		`/signup?email=${email}` + (redirect == '/' ? '' : `&redirect=${redirect}`)
+		`/signup?email=${email}&redirect=${redirect}`
 	);
 	$: resetLink = $relUrl(
-		`/newPassword?email=${email}&mode=resetEmail` + (redirect == '/' ? '' : `&redirect=${redirect}`)
+		`/newPassword?email=${email}&mode=resetEmail&redirect=${redirect}`
 	);
 
 	let error: string | null = null;

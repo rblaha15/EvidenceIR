@@ -29,9 +29,9 @@
 	let heslo: string;
 	let hesloZnovu: string;
 
-	let redirect: string = '/';
+	let redirect: string = '/new';
 	onMount(() => {
-		redirect = $page.url.searchParams.get('redirect') ?? '/';
+		redirect = $page.url.searchParams.get('redirect') ?? '/new';
 		mode = $page.url.searchParams.get('mode') as typeof mode;
 	});
 

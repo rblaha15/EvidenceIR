@@ -1,9 +1,6 @@
 <script lang="ts">
 	import { getToken } from '$lib/client/auth';
 	import { seznamLidi, startLidiListening, type Person } from '$lib/client/realtime';
-	import Navigation from '$lib/components/Navigation.svelte';
-	import cs from '$lib/translations/cs';
-	import { diffLines, type Change } from 'diff';
 	import download from 'downloadjs';
 	import { onMount } from 'svelte';
 

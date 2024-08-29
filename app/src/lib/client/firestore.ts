@@ -1,8 +1,7 @@
-import { collection, deleteDoc, doc, getDoc, getFirestore, QueryDocumentSnapshot, setDoc, updateDoc, type WithFieldValue } from '@firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getFirestore, type QueryDocumentSnapshot, setDoc, updateDoc, type WithFieldValue } from '@firebase/firestore';
 import { app } from './firebase';
 import type { RawData } from '$lib/Data';
 import type { Kontrola } from '$lib/Kontrola';
-import type { UpdateData } from 'firebase-admin/firestore';
 
 export const firestore = getFirestore(app);
 

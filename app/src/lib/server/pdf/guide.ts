@@ -12,8 +12,8 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
     lang, ir, fetch,
     getFirebaseData: async () => evidence(ir),
     formLocation: '/guide_cs.pdf',
-    title: p`Souhlas se zpřístupněním regulátoru IR službě RegulusRoute`,
-    fileName: p`Formulář RegulusRoute.pdf`,
+    title: p`Návod na přístup do regulátoru IR`,
+    fileName: p`Návod IR.pdf`,
     getFormData: async ({ evidence: e }, t) => {
         const nazevIR = ({first, second}: Pair) => first?.includes('BOX') ? t.getT`${<TranslationReference>first!.split(' ').slice(0, 2).join(' ')} ${second!}` : t.getT`${<TranslationReference>first!.replaceAll(' ', '')}${second!}`
         return {
