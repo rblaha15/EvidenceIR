@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type { Data } from '$lib/Data';
+	type D = $$Generic;
 	import type { Translations } from '$lib/translations';
 	import { nazevSHvezdou, type Pisatkova } from '$lib/Vec';
 	import IMask, { InputMask } from 'imask';
 	import { onDestroy, onMount } from 'svelte';
 
 	export let t: Translations;
-	export let vec: Pisatkova;
+	export let vec: Pisatkova<D>;
 	export let type: string = 'text';
 	export let w: string = '100';
-	export let data: Data;
+	export let data: D;
 
 	type MyOpts = {
 		lazy: boolean;

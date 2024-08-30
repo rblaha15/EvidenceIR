@@ -2,17 +2,19 @@ import { collection, deleteDoc, doc, getDoc, getFirestore, type QueryDocumentSna
 import { app } from './firebase';
 import type { RawData } from '$lib/Data';
 import type { Kontrola } from '$lib/Kontrola';
+import type { RawUvedeni } from '$lib/Uvedeni';
 
 export const firestore = getFirestore(app);
 
 export type IR = {
 	evidence: RawData,
+	uvedeni?: RawUvedeni,
 	kontroly: {
 		1?: Kontrola,
 		2?: Kontrola,
 		3?: Kontrola,
 		4?: Kontrola,
-	}
+	},
 }
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({
@@ -47,4 +49,8 @@ export const posledniKontrola = async (ir: string) => {
 
 export const pridatKontrolu = (ir: string, rok: number, kontrola: Kontrola) => {
 	return updateDoc(doc(irCollection, ir.replace(" ", "")), `kontroly.${rok}`, kontrola)
+}
+
+export const uvestDoProvozu = (ir: string, uvedeni: RawUvedeni) => {
+	return updateDoc(doc(irCollection, ir.replace(" ", "")), `uvedeni`, uvedeni)
 }

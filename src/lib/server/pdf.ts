@@ -43,18 +43,20 @@ export const generatePdf = async <T>(args: {
 
     const form = pdfDoc.getForm();
 
-    const fields = form.getFields()
-    fields.forEach(field => {
-        const type = field.constructor.name
-        const name = field.getName()
-        const f = form.getTextField(name)
-        f.setText(name)
-        console.log(`${type}: ${name}`)
-    })
+    // const fields = form.getFields()
+    // fields.forEach(field => {
+    //     const type = field.constructor.name
+    //     const name = field.getName()
+    //     const f = form.getTextField(name)
+    //     f.setText(name)
+    //     console.log(`${type}: ${name}`)
+    // })
 
     for (const [fieldName, fieldValue] of Object.entries(await args.getFormData(data, t))) {
         const field = form.getTextField(fieldName)
         field.setText(fieldValue)
+        field.disableSpellChecking()
+        field.enableReadOnly()
     }
 
     const url = 'https://pdf-lib.js.org/assets/ubuntu/Ubuntu-R.ttf'

@@ -1,12 +1,11 @@
 <script lang="ts">
-	import type { Data } from '$lib/Data';
-
+	type D = $$Generic;
 	import type { Translations } from '$lib/translations';
 	import { nazevSHvezdou, type Vybiratkova } from '$lib/Vec';
 
 	export let t: Translations;
-	export let vec: Vybiratkova;
-	export let data: Data;
+	export let vec: Vybiratkova<D>;
+	export let data: D;
 </script>
 
 {#if vec.zobrazit(data)}

@@ -1,67 +1,68 @@
 import defaultData from "./defaultData";
-import { DvojVybiratkova, Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, Vec, Textova } from "./Vec";
+import type { TranslationReference, Translations } from "./translations";
+import { DvojVybiratkova, Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, Vec, Textova, type Pair, Prepinatkova, type Raw } from "./Vec";
 
 export type Data = {
 	ir: {
-		typ: DvojVybiratkova;
-		cislo: Pisatkova;
-		cisloBOX: Pisatkova;
-		chceVyplnitK: MultiZaskrtavatkova;
+		typ: DvojVybiratkova<Data>;
+		cislo: Pisatkova<Data>;
+		cisloBOX: Pisatkova<Data>;
+		chceVyplnitK: MultiZaskrtavatkova<Data>;
 	};
 	tc: {
-		nadpis: Nadpisova;
-		poznamka: Textova;
-		druh: Radiova;
-		typ: Vybiratkova;
-		cislo: Pisatkova;
+		nadpis: Nadpisova<Data>;
+		poznamka: Textova<Data>;
+		typ: Radiova<Data>;
+		model: Vybiratkova<Data>;
+		cislo: Pisatkova<Data>;
 	};
 	koncovyUzivatel: {
-		nadpis: Nadpisova;
-		jmeno: Pisatkova;
-		prijmeni: Pisatkova;
-		narozeni: Pisatkova;
-		telefon: Pisatkova;
-		email: Pisatkova;
+		nadpis: Nadpisova<Data>;
+		jmeno: Pisatkova<Data>;
+		prijmeni: Pisatkova<Data>;
+		narozeni: Pisatkova<Data>;
+		telefon: Pisatkova<Data>;
+		email: Pisatkova<Data>;
 	};
 	bydliste: {
-		nadpis: Nadpisova;
-		obec: Pisatkova;
-		ulice: Pisatkova;
-		psc: Pisatkova;
+		nadpis: Nadpisova<Data>;
+		obec: Pisatkova<Data>;
+		ulice: Pisatkova<Data>;
+		psc: Pisatkova<Data>;
 	};
 	mistoRealizace: {
-		nadpis: Nadpisova;
-		obec: Pisatkova;
-		ulice: Pisatkova;
-		psc: Pisatkova;
+		nadpis: Nadpisova<Data>;
+		obec: Pisatkova<Data>;
+		ulice: Pisatkova<Data>;
+		psc: Pisatkova<Data>;
 	};
 	montazka: {
-		nadpis: Nadpisova;
-		ico: Pisatkova;
-		zastupce: Pisatkova;
-		email: Pisatkova;
+		nadpis: Nadpisova<Data>;
+		ico: Pisatkova<Data>;
+		zastupce: Pisatkova<Data>;
+		email: Pisatkova<Data>;
 	};
 	uvedeni: {
-		nadpis: Nadpisova;
-		jakoMontazka: Zaskrtavatkova;
-		ico: Pisatkova;
-		zastupce: Pisatkova;
-		email: Pisatkova;
+		nadpis: Nadpisova<Data>;
+		jakoMontazka: Zaskrtavatkova<Data>;
+		ico: Pisatkova<Data>;
+		zastupce: Pisatkova<Data>;
+		email: Pisatkova<Data>;
 	};
 	vzdalenyPristup: {
-		nadpis: Nadpisova;
-		chce: Zaskrtavatkova;
-		pristupMa: MultiZaskrtavatkova;
-		fakturuje: Radiova;
+		nadpis: Nadpisova<Data>;
+		chce: Prepinatkova<Data>;
+		pristupMa: MultiZaskrtavatkova<Data>;
+		fakturuje: Radiova<Data>;
 	};
 	ostatni: {
-		zodpovednaOsoba: Pisatkova;
-		poznamka: Pisatkova;
+		zodpovednaOsoba: Pisatkova<Data>;
+		poznamka: Pisatkova<Data>;
 	};
 }
 
 export const rawDataToData = (toData: Data, rawData: RawData) => {
-	const d = toData as Record<string, Record<string, Vec<any>>>
+	const d = toData as Record<string, Record<string, Vec<Data, any>>>
 
 	Object.entries(rawData).map(a =>
 		a as [keyof Data, RawData[keyof RawData]]
@@ -79,16 +80,12 @@ export const rawDataToData = (toData: Data, rawData: RawData) => {
 
 export const newData = () => defaultData()
 
-export type RawData = {
-	[K in keyof Data]: {
-		[K2 in keyof Data[K]]: Data[K][K2] extends Vec<infer T> ? T extends undefined ? never : T : never;
-	};
-};
+export type RawData = Raw<Data>
 
 export const dataToRawData = (data: Data): RawData => {
 	const dataEntries = Object.entries(data);
 	const rawDataEntries = dataEntries.map(([key, subData]) => {
-		const subDataEntries = Object.entries(subData) as [string, Vec<any>][];
+		const subDataEntries = Object.entries(subData) as [string, Vec<Data, any>][];
 		const rawSubDataEntries = subDataEntries.map(([subKey, vec]) => {
 			if (vec.value == undefined) return undefined;
 			else return [subKey, vec.value] as const;
@@ -98,3 +95,8 @@ export const dataToRawData = (data: Data): RawData => {
 	});
 	return Object.fromEntries(rawDataEntries) as RawData;
 };
+
+export const nazevIR = (t: Translations, { first, second }: Pair) =>
+	first?.includes('BOX')
+		? t.getT`${<TranslationReference>first!.split(' ').slice(0, 2).join(' ')} ${second!}`
+		: t.getT`${<TranslationReference>first!.replaceAll(' ', '')}${second!}`;

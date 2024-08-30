@@ -9,10 +9,15 @@ const config = {
 	preprocess: preprocess({
 		preserve: ['module']
 	}),
-
+	onwarn: (warning, handler) => {
+		if (warning.code === 'css-unused-selector') {
+			return;
+		}
+		handler(warning);
+	},
 	kit: {
 		adapter: adapter({
-			split: true,
+			split: true
 		})
 	}
 };

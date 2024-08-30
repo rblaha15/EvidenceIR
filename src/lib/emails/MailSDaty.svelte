@@ -1,40 +1,49 @@
 <script lang="ts">
-	import type { RawData } from '$lib/Data';
+	import type { Data, RawData } from '$lib/Data';
+	import type { Translations } from '$lib/translations';
+	import {
+		DvojVybiratkova,
+		MultiZaskrtavatkova,
+		Nadpisova,
+		p,
+		Pisatkova,
+		Prepinatkova,
+		Radiova,
+		Textova,
+		Vec,
+		Vybiratkova,
+		Zaskrtavatkova
+	} from '$lib/Vec';
+	import type { User } from 'firebase/auth';
 
-	export let data: RawData;
+	export let data: Data;
+	export let user: User;
+	export let t: Translations;
+
+	$: list = (Object.values(data) as Data[keyof Data][]).flatMap(
+		(obj) => Object.values(obj) as Vec<Data, any>[]
+	);
 </script>
 
-<h1>TADY CHYBÍ NĚJAKÁ POLE</h1>
-
-<h1>Regulátor</h1>
-<p><b>Typ:</b> {data.ir.typ.first} {data.ir.typ.second}</p>
-<p><b>Sériové číslo:</b> {data.ir.cislo}</p>
-
-<h1>Tepelné čerpadlo</h1>
-{#if data.ir.typ.second == 'CTC'}
-	<p><b>Druh:</b> {data.tc.druh}</p>
-{/if}
-<p><b>Typ:</b> {data.tc.typ}</p>
-<p><b>Výrobní číslo:</b> {data.tc.cislo}</p>
-
-<h1>Koncový uživatel</h1>
-<p><b>Jméno:</b> {data.koncovyUzivatel.jmeno}</p>
-<p><b>Příjmení:</b> {data.koncovyUzivatel.prijmeni}</p>
-<p><b>Datum narození:</b> {data.koncovyUzivatel.narozeni}</p>
-<p><b>Telefon:</b> {data.koncovyUzivatel.telefon}</p>
-<p><b>Email:</b> {data.koncovyUzivatel.email}</p>
-
-<h2>Adresa:</h2>
-<p><b>Obec:</b> {data.mistoRealizace.obec}</p>
-<p><b>Číslo popisné nebo ulice a číslo orientační:</b> {data.mistoRealizace.ulice}</p>
-<p><b>PSČ:</b> {data.mistoRealizace.psc}</p>
-
-<h1>Montážní firma</h1>
-<p><b>IČO:</b> {data.montazka.ico}</p>
-<p><b>Zástupce:</b> {data.montazka.zastupce}</p>
-<p><b>Email:</b> {data.montazka.email}</p>
-
-<h1>Uvedení do provozu</h1>
-<p><b>IČO:</b> {data.uvedeni.ico}</p>
-<p><b>Zástupce:</b> {data.uvedeni.zastupce}</p>
-<p><b>Email:</b> {data.uvedeni.email}</p>
+{#each list as vec}
+	{#if vec instanceof Nadpisova && vec.zobrazit(data)}
+		<h2>{t.get(vec.nazev(data))}</h2>
+	{:else if vec instanceof Textova && vec.zobrazit(data)}
+		<p>{t.get(vec.nazev(data))}</p>
+	{:else if vec instanceof Pisatkova && vec.zobrazit(data)}
+		<p><b>{t.get(vec.nazev(data))}</b>: {vec.value}</p>
+	{:else if vec instanceof DvojVybiratkova && vec.zobrazit(data)}
+		<p><b>{t.get(vec.nazev(data))}</b>: {t.getN(vec.value.first) ?? ''} {t.getN(vec.value.second) ?? ''}</p>
+	{:else if vec instanceof Vybiratkova && vec.zobrazit(data)}
+		<p><b>{t.get(vec.nazev(data))}</b>: {t.getN(vec.value) ?? ''}</p>
+	{:else if vec instanceof Radiova && vec.zobrazit(data)}
+		<p><b>{t.get(vec.nazev(data))}</b>: {t.getN(vec.value) ?? ''}</p>
+	{:else if vec instanceof Prepinatkova && vec.zobrazit(data)}
+		<p><b>{t.get(vec.nazev(data))}</b>: {vec.value ? vec.moznosti[0] : vec.moznosti[1]}</p>
+	{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit(data)}
+		<p><b>{t.get(vec.nazev(data))}</b>: {vec.value.map(s => t.get(s)).join(', ')}</p>
+	{:else if vec instanceof Zaskrtavatkova && vec.zobrazit(data)}
+		<p><b>{t.get(vec.nazev(data))}</b>: {vec.value ? 'ano' : 'ne'}</p>
+	{/if}
+{/each}
+<p><b>Zaevidoval</b>: {user.email}</p>

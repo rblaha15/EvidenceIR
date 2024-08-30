@@ -1,7 +1,7 @@
 import { dev } from "$app/environment";
 import { sendEmail, SENDER } from "$lib/client/email";
 import { existuje, novaEvidence, upravitEvidenci } from "$lib/client/firestore";
-import { dataToRawData, type Data, type RawData } from "$lib/Data";
+import { dataToRawData, nazevIR, type Data, type RawData } from "$lib/Data";
 import { nazevFirmy } from "$lib/helpers/ares";
 import type { Vec } from "$lib/Vec";
 import { default as MailRRoute } from "$lib/emails/MailRRoute.svelte";
@@ -9,6 +9,8 @@ import { default as MailSDaty } from "$lib/emails/MailSDaty.svelte";
 import { get } from "svelte/store";
 import { page as pageStore } from "$app/stores";
 import { relUrl as relUrlStore, storable } from "$lib/helpers/stores";
+import { currentUser } from "$lib/client/auth";
+import { Readable } from "stream";
 
 const storedData = storable<RawData | null>(null, 'storedData');
 
@@ -38,7 +40,7 @@ export default async (
     }
 
     const seznam = (Object.values(data) as Data[keyof Data][]).flatMap(
-        (obj) => Object.values(obj) as Vec<any>[]
+        (obj) => Object.values(obj) as Vec<Data, any>[]
     );
 
     if (seznam.some((it) => {
@@ -69,7 +71,7 @@ export default async (
     const div = document.createElement('div');
     new MailSDaty({
         target: div,
-        props: { data: rawData }
+        props: { data, t, user: get(currentUser)! }
     });
 
     const html = div.innerHTML;
@@ -80,19 +82,27 @@ export default async (
         await novaEvidence({ evidence: rawData, kontroly: {} });
     }
 
-    if (rawData.vzdalenyPristup.chce && doNotSend) {
+    if (rawData.vzdalenyPristup.chce && !doNotSend) {
         const montazka = (await nazevFirmy(rawData.montazka.ico)) ?? null;
         const uvadec = (await nazevFirmy(rawData.uvedeni.ico)) ?? null;
         const div = document.createElement('div');
         new MailRRoute({
             target: div,
-            props: { data: rawData, montazka, uvadec }
+            props: { e: rawData, montazka, uvadec, t }
         });
         const html = div.innerHTML;
+
+        const pdfResponse = await fetch(`/detail/${ir}/pdf/rroute`)
+
         await sendEmail({
             from: SENDER,
             to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
-            subject: `Nově zaevidovaný regulátor ${rawData.ir.typ.first} ${rawData.ir.typ.second} (${rawData.ir.cislo})`,
+            subject: `Založení RegulusRoute k ${nazevIR(t, rawData.ir.typ)} ${rawData.ir.cislo}`,
+            attachments: [
+                {
+                    // content: Readable.fromWeb(pdfResponse.body! as ReadableStream<any>)
+                }
+            ],
             html,
         });
     }
@@ -100,7 +110,7 @@ export default async (
     const response = doNotSend ? undefined : await sendEmail({
         from: SENDER,
         to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
-        subject: `Nově zaevidovaný regulátor ${rawData.ir.typ.first} ${rawData.ir.typ.second} (${rawData.ir.cislo})`,
+        subject: `Nově zaevidovaný regulátor ${nazevIR(t, rawData.ir.typ)} ${rawData.ir.cislo}`,
         html
     });
 
