@@ -52,7 +52,5 @@ export default async <T extends keyof AuthTypes>(action: T, params: AuthTypes[T]
 			'content-type': 'application/json'
 		}
 	})
-	console.log(response.status)
-	console.log(response.statusText)
 	return await response.json()
 };
