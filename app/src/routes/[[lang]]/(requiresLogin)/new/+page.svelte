@@ -18,7 +18,6 @@
 	import { onMount } from 'svelte';
 	import { readable, writable } from 'svelte/store';
 
-	console.log($page)
 	const t = $page.data.translations;
 
 	const storedData = storable<RawData | null>(null, `storedData`);

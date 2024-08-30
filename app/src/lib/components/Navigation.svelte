@@ -25,6 +25,7 @@
 				data-bs-toggle="collapse"
 				data-bs-target="#navbarSupportedContent"
 				aria-controls="navbarSupportedContent"
+				aria-label="Menu"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +51,7 @@
 					<LanguageSelector />
 				</div>
 				<div class="dropdown">
-					<button type="button" class="ms-2 btn" data-bs-toggle="dropdown">
+					<button type="button" class="ms-2 btn" data-bs-toggle="dropdown" aria-label="User">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="32"

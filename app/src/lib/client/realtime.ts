@@ -1,8 +1,8 @@
-import { getDatabase, onValue, ref } from '@firebase/database';
-import { app } from './firebase';
 import { derived, writable } from 'svelte/store';
 import { checkAdmin, currentUser } from './auth';
-import type { User } from '@firebase/auth';
+import type { User } from 'firebase/auth';
+import { getDatabase, ref } from 'firebase/database';
+import { app } from './firebase';
 
 type SelfObject<T extends PropertyKey> = { [key in T]: key }
 type CRN = string
@@ -38,7 +38,7 @@ const _friendlyCompanies = async (
 	if (!user) {
 		return FriendlyCompanies([]);
 	}
-	const { get, child } = await import('@firebase/database');
+	const { get, child } = await import('firebase/database');
 	if (user.email?.endsWith('@regulus.cz') || (await checkAdmin())) {
 		const vsechnyFirmy = (await get(firmyRef)).val() as { [crn: CRN]: Company };
 		return FriendlyCompanies(Object.values(vsechnyFirmy));
@@ -69,9 +69,9 @@ export const friendlyCompanies = derived(
 	FriendlyCompanies([])
 );
 
-const _responsiblePerson = async (user: import('@firebase/auth').User | null) => {
+const _responsiblePerson = async (user: import('firebase/auth').User | null) => {
 	if (!user) return null;
-	const { get, child } = await import('@firebase/database');
+	const { get, child } = await import('firebase/database');
 	const ja = (await get(child(lidiRef, user.uid))).val() as Person | null;
 	return ja?.responsiblePerson ?? null;
 };
@@ -86,7 +86,8 @@ export const responsiblePerson = derived(
 
 export const seznamLidi = writable([] as Person[]);
 
-export const startLidiListening = () => {
+export const startLidiListening = async () => {
+	const { onValue } = await import('firebase/database')
 	return onValue(lidiRef, (data) => {
 		seznamLidi.set(Object.values(data.val() as { [uid: string]: Person } ?? {}));
 	});

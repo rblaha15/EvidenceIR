@@ -1,4 +1,4 @@
-import { collection, deleteDoc, doc, getDoc, getFirestore, type QueryDocumentSnapshot, setDoc, updateDoc, type WithFieldValue } from '@firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getFirestore, type QueryDocumentSnapshot, setDoc, updateDoc, type WithFieldValue } from 'firebase/firestore';
 import { app } from './firebase';
 import type { RawData } from '$lib/Data';
 import type { Kontrola } from '$lib/Kontrola';
