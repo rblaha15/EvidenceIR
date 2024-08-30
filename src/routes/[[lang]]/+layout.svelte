@@ -10,10 +10,10 @@
 	let nacita = true;
 	onMount(() => {
 		nacita = false;
-		document.documentElement.setAttribute(
-			'data-bs-theme',
-			window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-		);
+		// document.documentElement.setAttribute(
+		// 	'data-bs-theme',
+		// 	window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+		// );
 
 		const currentLangLength = $page.params.lang?.length ?? -1;
 		if (!$page.data.areTranslationsFromRoute)
@@ -25,12 +25,12 @@
 				// $page.route.id!.replace('[[lang]]', preferedLanguage()) + $page.url?.search ?? ''
 			);
 
-		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-			document.documentElement.setAttribute(
-				'data-bs-theme',
-				window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-			);
-		});
+		// window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+		// 	document.documentElement.setAttribute(
+		// 		'data-bs-theme',
+		// 		window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+		// 	);
+		// });
 	});
 </script>
 
@@ -51,11 +51,12 @@
 
 <title>{dev ? '(dev) ' : ''}{t.longAppName}</title>
 
-{#if nacita}
+<!-- {#if nacita}
 	<div class="spinner-border text-danger m-2" />
-{:else}
-	<Navigation {t} />
-	<div class="container my-3">
-		<slot />
-	</div>
-{/if}
+{:else} -->
+<Navigation {t} />
+<div class="container my-3">
+	<slot />
+</div>
+
+<!-- {/if} -->

@@ -1,4 +1,4 @@
-import { getAuth, onAuthStateChanged, verifyPasswordResetCode, confirmPasswordReset, signInWithEmailAndPassword, type User, signOut } from '@firebase/auth';
+import { getAuth, onAuthStateChanged, verifyPasswordResetCode, confirmPasswordReset, signInWithEmailAndPassword, type User, signOut } from 'firebase/auth';
 import { app } from './firebase';
 import { derived, writable } from 'svelte/store';
 
@@ -14,7 +14,7 @@ onAuthStateChanged(auth, (usr) => currentUser.set(usr));
 // 		throw {
 // 			code: 'auth/user-not-found'
 // 		};
-// 	const { signInWithEmailAndPassword } = await import('@firebase/auth');
+// 	const { signInWithEmailAndPassword } = await import('firebase/auth');
 // 	try {
 // 		return await signInWithEmailAndPassword(auth, email, heslo);
 // 	} catch (err) {
@@ -28,7 +28,7 @@ onAuthStateChanged(auth, (usr) => currentUser.set(usr));
 // 				throw err;
 // 			}
 
-// 			const { signOut } = await import('@firebase/auth');
+// 			const { signOut } = await import('firebase/auth');
 // 			await signOut(auth);
 
 // 			lock = false;
@@ -43,7 +43,7 @@ onAuthStateChanged(auth, (usr) => currentUser.set(usr));
 // 			code: 'auth/weak-password'
 // 		};
 // 	const { signInWithEmailAndPassword, updatePassword, createUserWithEmailAndPassword } =
-// 		await import('@firebase/auth');
+// 		await import('firebase/auth');
 // 	try {
 // 		const user = await signInWithEmailAndPassword(auth, email, '123456');
 // 		return await updatePassword(user.user, heslo);

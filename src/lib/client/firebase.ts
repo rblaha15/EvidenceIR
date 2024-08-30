@@ -1,6 +1,6 @@
-import { getApps, initializeApp } from '@firebase/app';
+import { getApps, initializeApp } from 'firebase/app';
 
-const firebaseConfig: import('@firebase/app').FirebaseOptions = {
+const firebaseConfig: import('firebase/app').FirebaseOptions = {
 	apiKey: 'AIzaSyCKu8Z4wx55DfrZdYtKvrqvwZ2Y6nQvx24',
 	authDomain: 'evidence-ir.firebaseapp.com',
 	projectId: 'evidence-ir',

@@ -4,14 +4,12 @@ import { derived, type Readable } from "svelte/store"
 
 // type C = readonly [assembly: Company[], commissioning: Company[]]
 
-export const companies = derived(friendlyCompanies, c => forBoth(c, c => {
-    console.log('A', c)
-    return c.sort((a, b) => a.companyName.localeCompare(b.companyName)) ?? []
-}) as FriendlyCompanies)
+export const companies = derived(friendlyCompanies, c => forBoth(c, c =>
+    c.sort((a, b) => a.companyName.localeCompare(b.companyName)) ?? []
+) as FriendlyCompanies)
 
-export const filteredCompanies = (filter: Readable<string>) => derived([companies, filter], ([c, filter]) => forBoth(c, c => {
-    console.log('B', c)
-    return sortBy(c
+export const filteredCompanies = (filter: Readable<string>) => derived([companies, filter], ([c, filter]) => forBoth(c, c =>
+    sortBy(c
         .map(item => {
             var normalisedItem = wordsToFilter(item.companyName)
             return [item, wordsToFilter(filter).map(searchedWord => {
@@ -24,23 +22,23 @@ export const filteredCompanies = (filter: Readable<string>) => derived([companie
             })] as const
         })
         .filter(([_, searchedWordIndexes]) => searchedWordIndexes.every(it => it != -1)
-        ), ([c]) => c.companyName)
+        ),
+        ([c]) => c.companyName)
         .sort(([_, aList], [__, bList]) => {
             const list = zip(aList, bList)
                 .filter(([a, b]) => a != undefined && b != undefined && a != b)
             if (list.length == 0)
                 return 0
 
+
             else
                 return (list[0][0]! - list[0][1]!)
         })
-        .map(([item, _]) => item)
-}) as FriendlyCompanies)
+        .map(([item, _]) => item)) as FriendlyCompanies)
 
-export const chosenCompanies = derived([companies], ([c]) => (crnA: string, crnC: string) => forBoth(c, (c, t) => {
-    console.log('C', c)
-    return c.find((c) => c.crn == (t == 'a' ? crnA : crnC))?.companyName
-}))
+export const chosenCompanies = derived([companies], ([c]) => (crnA: string, crnC: string) => forBoth(c, (c, t) =>
+    c.find((c) => c.crn == (t == 'a' ? crnA : crnC))?.companyName
+))
 
 const wordsToFilter = (s: string) => s
     .normalize('NFD')

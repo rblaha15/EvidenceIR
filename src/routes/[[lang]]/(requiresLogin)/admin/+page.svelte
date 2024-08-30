@@ -5,9 +5,9 @@
 	import { onMount } from 'svelte';
 
 	let nacita = true;
-	onMount(() => {
+	onMount(async () => {
 		nacita = false;
-		startLidiListening();
+		await startLidiListening();
 	});
 
 	let loading = false;

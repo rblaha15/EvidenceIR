@@ -1,12 +1,9 @@
 import adapter from '@sveltejs/adapter-vercel';
-
-import preprocess from 'svelte-preprocess';
+import { sveltePreprocess } from 'svelte-preprocess';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	// Consult https://github.com/sveltejs/svelte-preprocess
-	// for more information about preprocessors
-	preprocess: preprocess({
+	preprocess: sveltePreprocess({
 		preserve: ['module']
 	}),
 	onwarn: (warning, handler) => {
@@ -18,8 +15,15 @@ const config = {
 	kit: {
 		adapter: adapter({
 			split: true
-		})
-	}
+		}),
+		files: {
+			serviceWorker: 'src/service-worker.ts'
+		},
+		
+	},
+	compilerOptions: {
+		
+	},
 };
 
 export default config;
