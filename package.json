@@ -45,6 +45,7 @@
 		"imask": "^7.6.1",
 		"lodash-es": "^4.17.21",
 		"nodemailer": "^6.9.14",
-		"pdf-lib": "^1.17.1"
+		"pdf-lib": "^1.17.1",
+		"readable-web-to-node-stream": "^3.0.2"
 	}
 }

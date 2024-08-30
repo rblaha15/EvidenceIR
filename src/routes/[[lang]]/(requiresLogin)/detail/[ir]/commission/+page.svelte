@@ -72,7 +72,7 @@
 		const raw = uvedeniToRawUvedeni(u);
 		if (
 			list.some((it) => {
-				/* if (it.zpravaJeChybna(data))  */ console.log(it);
+				if (it.zpravaJeChybna(d))  console.log(it);
 				return it.zpravaJeChybna(d);
 			})
 		) {

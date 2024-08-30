@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import type { Data, RawData } from '$lib/Data';
 	import type { Translations } from '$lib/translations';
 	import {
@@ -24,6 +25,8 @@
 		(obj) => Object.values(obj) as Vec<Data, any>[]
 	);
 </script>
+
+<p><a href={$page.url.host + `/detail/${data.ir.cislo.value.replace(' ', '')}`}>Odkaz na podrobnosti evidence</a></p>
 
 {#each list as vec}
 	{#if vec instanceof Nadpisova && vec.zobrazit(data)}

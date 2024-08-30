@@ -16,7 +16,9 @@
 	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { readable, writable } from 'svelte/store';
 
+	console.log($page)
 	const t = $page.data.translations;
 
 	const storedData = storable<RawData | null>(null, `storedData`);
@@ -93,11 +95,11 @@
 		storedData.set(dataToRawData(data));
 	}
 
-	let filter = '';
+	const filter = writable('');
 	$: filtered = filteredCompanies(filter);
 	$: chosen =
 		mode != 'loading'
-			? chosenCompanies(data.montazka.ico.value, data.uvedeni.ico.value)
+			? $chosenCompanies(data.montazka.ico.value, data.uvedeni.ico.value)
 			: undefined;
 
 	$: list =
@@ -150,28 +152,28 @@
 
 {#each list as vec}
 	{#if vec === data.montazka.ico && vec.zobrazit(data)}
-		<p>{t.chosenCompany}: {$chosen?.assemblyCompanies ?? t.unknown_Company}</p>
+		<p>{t.chosenCompany}: {chosen?.assemblyCompanies ?? t.unknown_Company}</p>
 		{#if $companies.assemblyCompanies.length > 1}
 			<VybiratkoFirmy
 				id="montazka"
 				bind:emailVec={data.montazka.email}
 				bind:zastupceVec={data.montazka.zastupce}
 				bind:icoVec={data.montazka.ico}
-				bind:filtr={filter}
+				bind:filtr={$filter}
 				vyfiltrovanyFirmy={$filtered.assemblyCompanies}
 				{t}
 			/>
 		{/if}
 	{/if}
 	{#if vec === data.uvedeni.ico && vec.zobrazit(data)}
-		<p>{t.chosenCompany}: {$chosen?.commissioningCompanies ?? t.unknown_Company}</p>
+		<p>{t.chosenCompany}: {chosen?.commissioningCompanies ?? t.unknown_Company}</p>
 		{#if $companies.commissioningCompanies.length > 1}
 			<VybiratkoFirmy
 				id="uvedeni"
 				bind:emailVec={data.uvedeni.email}
 				bind:zastupceVec={data.uvedeni.zastupce}
 				bind:icoVec={data.uvedeni.ico}
-				bind:filtr={filter}
+				bind:filtr={$filter}
 				vyfiltrovanyFirmy={$filtered.commissioningCompanies}
 				{t}
 			/>

@@ -23,7 +23,6 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
 
         const date = `${dd}. ${mm}. ${yyyy}`;
 
-        console.log({u, e, t})
         return ({
         /*    koncakJmeno */ Text1: `${e.koncovyUzivatel.jmeno} ${e.koncovyUzivatel.prijmeni}`,
         /*      koncakTel */ Text2: e.koncovyUzivatel.telefon,

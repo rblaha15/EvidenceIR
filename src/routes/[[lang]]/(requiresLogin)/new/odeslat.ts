@@ -9,8 +9,7 @@ import { default as MailSDaty } from "$lib/emails/MailSDaty.svelte";
 import { get } from "svelte/store";
 import { page as pageStore } from "$app/stores";
 import { relUrl as relUrlStore, storable } from "$lib/helpers/stores";
-import { currentUser } from "$lib/client/auth";
-import { Readable } from "stream";
+import { currentUser, getToken } from "$lib/client/auth";
 
 const storedData = storable<RawData | null>(null, 'storedData');
 
@@ -92,17 +91,10 @@ export default async (
         });
         const html = div.innerHTML;
 
-        const pdfResponse = await fetch(`/detail/${ir}/pdf/rroute`)
-
         await sendEmail({
             from: SENDER,
             to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
             subject: `Založení RegulusRoute k ${nazevIR(t, rawData.ir.typ)} ${rawData.ir.cislo}`,
-            attachments: [
-                {
-                    // content: Readable.fromWeb(pdfResponse.body! as ReadableStream<any>)
-                }
-            ],
             html,
         });
     }
@@ -115,13 +107,13 @@ export default async (
     });
 
     if (doNotSend || response!.ok) {
-        storedData.set(null)
+        // storedData.set(null)
         progress({
             text: t.redirecting,
             red: false,
             load: true
         });
-        window.location.href = relUrl(`/detail/${ir}`);
+        // window.location.href = relUrl(`/detail/${ir}`);
         setTimeout(() => {
             progress({
                 text: t.redirectFailedHtml.parseTemplate({ link: page.url.origin + relUrl(`/detail/${ir}`) }),

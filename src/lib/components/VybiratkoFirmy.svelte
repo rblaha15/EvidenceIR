@@ -1,13 +1,14 @@
 <script lang="ts">
+	type D = $$Generic
 	import type { Company } from '$lib/client/realtime';
 	import type { Translations } from '$lib/translations';
 	import type { Pisatkova } from '$lib/Vec';
 
 	export let t: Translations;
 	export let id: string;
-	export let emailVec: Pisatkova;
-	export let zastupceVec: Pisatkova;
-	export let icoVec: Pisatkova;
+	export let emailVec: Pisatkova<D>;
+	export let zastupceVec: Pisatkova<D>;
+	export let icoVec: Pisatkova<D>;
 	export let filtr: string;
 	export let vyfiltrovanyFirmy: Company[];
 </script>
