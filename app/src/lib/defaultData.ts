@@ -1,4 +1,4 @@
-import { Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, DvojVybiratkova, Textova, t, p } from './Vec';
+import { Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, DvojVybiratkova, Textova, t, p, Prepinatkova } from './Vec';
 import { type Data } from './Data';
 
 export default (): Data => ({
@@ -32,7 +32,7 @@ export default (): Data => ({
             }),
         }),
         cisloBOX: new Pisatkova({
-            nazev: `serialNumber`,
+            nazev: `serialNumberIndoor`,
             onError: `wrongNumberFormat`,
             regex: /([0-9]{7})-([0-9]{7})/,
             maskOptions: ({
@@ -52,18 +52,18 @@ export default (): Data => ({
     tc: {
         nadpis: new Nadpisova({ nazev: `heatPump`, zobrazit: data => data.ir.chceVyplnitK.value.includes(`heatPump`) }),
         poznamka: new Textova({ nazev: `pleaseFillInIrType`, zobrazit: data => data.ir.typ.value.second == null && data.ir.chceVyplnitK.value.includes(`heatPump`) }),
-        druh: new Radiova({
+        typ: new Radiova({
             nazev: `heatPumpType`,
             moznosti: [`airToWater`, `groundToWater`],
-            nutne: data => data.ir.typ.value.second == p`CTC` && data.ir.chceVyplnitK.value.includes(`heatPump`),
+            nutne: data => data.ir.chceVyplnitK.value.includes(`heatPump`),
             zobrazit: data => data.ir.typ.value.second == p`CTC` && data.ir.chceVyplnitK.value.includes(`heatPump`),
         }),
-        typ: new Vybiratkova({
+        model: new Vybiratkova({
             nazev: `heatPumpModel`,
             moznosti: data =>
                 data.ir.typ.value.second == p`RTC` ? [
                     p`RTC 6i`, p`RTC 13e`, p`RTC 20e`
-                ] : data.tc.druh.value == 'airToWater' ? [
+                ] : data.tc.typ.value == 'airToWater' ? [
                     p`EcoAir 614M`,
                     p`EcoAir 622M`,
                     p`EcoAir 406`,
@@ -84,7 +84,7 @@ export default (): Data => ({
                 ],
             nutne: data => data.ir.chceVyplnitK.value.includes(`heatPump`),
             zobrazit: data => data.ir.typ.value.second != null &&
-                (data.ir.typ.value.second == p`RTC` || data.tc.druh.value != null) &&
+                (data.ir.typ.value.second == p`RTC` || data.tc.typ.value != null) &&
                 data.ir.chceVyplnitK.value.includes(`heatPump`),
         }),
         cislo: new Pisatkova({
@@ -114,7 +114,7 @@ export default (): Data => ({
         telefon: new Pisatkova({
             nazev: `phone`,
             onError: `wrongPhoneFormat`,
-            regex: /^(\+\d{1,3}\s)?\(?\d{3}\)?[\s\.-]?\d{3}[\s\.-]?\d{3,4}$/,
+            regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s\.-]?\d{3}[\s\.-]?\d{3,4}$/,
             type: `tel`,
             autocomplete: `section-user billing mobile tel`,
         }),
@@ -215,7 +215,7 @@ export default (): Data => ({
     },
     vzdalenyPristup: {
         nadpis: new Nadpisova({ nazev: `remoteAccess` }),
-        chce: new Zaskrtavatkova({ nazev: `doYouWantRemoteAccess`, nutne: false }),
+        chce: new Prepinatkova({ nazev: `doYouWantRemoteAccess`, moznosti: [`no`, `yes`], nutne: false }),
         pristupMa: new MultiZaskrtavatkova({
             nazev: `whoHasAccess`,
             moznosti: [`endCustomer`, `assemblyCompany`, `commissioningCompany`],

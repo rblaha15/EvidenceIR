@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DvojVybiratko, Pisatko, Vybiratko } from '$lib/components/veci';
+	import { DvojVybiratko, Pisatko, Prepinatko, Vybiratko } from '$lib/components/veci';
 	import { MultiZaskrtavatko, Radio, Zaskrtavatko } from '$lib/components/veci';
 	import VybiratkoFirmy from '$lib/components/VybiratkoFirmy.svelte';
 	import Scanner from '$lib/components/Scanner.svelte';
@@ -19,7 +19,7 @@
 
 	const t = $page.data.translations;
 
-	const storedData = storable<RawData | null>(null, 'storedData');
+	const storedData = storable<RawData | null>(null, `storedData`);
 
 	let mode: 'loading' | 'create' | 'edit' | 'createdStored' = 'loading';
 	let data: Data = newData();
@@ -27,6 +27,7 @@
 		const ir = $page.url.searchParams.get('edit');
 		if (ir) {
 			const snapshot = await evidence(ir);
+			console.log(snapshot)
 			if (snapshot.exists() && snapshot.data() != undefined) {
 				data = rawDataToData(data, snapshot.data()!.evidence);
 				return (mode = 'edit');
@@ -79,8 +80,13 @@
 		}
 	}
 	$: if (mode != 'loading') {
-		if (!data.tc.typ.moznosti(data).includes(data.tc.typ.value ?? '')) {
-			data.tc.typ.value = null;
+		if (!data.tc.model.moznosti(data).includes(data.tc.model.value ?? '')) {
+			data.tc.model.value = null;
+		}
+	}
+	$: if (mode != 'loading') {
+		if (data.ir.typ.value.second == p`RTC`) {
+			data.tc.typ.value = 'airToWater';
 		}
 	}
 	$: if (mode != 'loading') {
@@ -97,7 +103,7 @@
 	$: list =
 		mode != 'loading'
 			? (Object.values(data) as Data[keyof Data][]).flatMap(
-					(obj) => Object.values(obj) as v.Vec<any>[]
+					(obj) => Object.values(obj) as v.Vec<Data, any>[]
 				)
 			: [];
 
@@ -109,35 +115,38 @@
 	let doNotSend = false;
 </script>
 
-<h1>{mode == 'edit' ? t.editation : t.controllerRegistration}</h1>
-{#if mode == 'create' || mode == 'createdStored' }
-	<div class="position-absolute end-0 d-flex me-2 justify-content-end align-items-center">
-		<button
-			class="btn"
-			on:click={() => {
-				$storedData = null;
-				window.location.reload();
-			}}
-		>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="16"
-				height="16"
-				fill="currentColor"
-				viewBox="0 0 16 16"
+<div class="d-flex flex-row flex-wrap">
+	<h1 class="flex-grow-1">{mode == 'edit' ? t.editation : t.controllerRegistration}</h1>
+	{#if mode == 'create' || mode == 'createdStored'}
+		<!-- <div class="d-sm-none w-100" /> -->
+		<div class="d-flex ms-auto me-2 justify-content-end align-items-center">
+			<button
+				class="btn"
+				on:click={() => {
+					$storedData = null;
+					window.location.reload();
+				}}
 			>
-				<path
-					fill-rule="evenodd"
-					d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"
-				/>
-				<path
-					d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"
-				/>
-			</svg>
-			<span class="ms-2">{t.emptyForm}</span>
-		</button>
-	</div>
-{/if}
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					fill="currentColor"
+					viewBox="0 0 16 16"
+				>
+					<path
+						fill-rule="evenodd"
+						d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"
+					/>
+					<path
+						d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"
+					/>
+				</svg>
+				<span class="ms-2">{t.emptyForm}</span>
+			</button>
+		</div>
+	{/if}
+</div>
 
 {#each list as vec}
 	{#if vec === data.montazka.ico && vec.zobrazit(data)}
@@ -188,6 +197,8 @@
 		<p><Vybiratko bind:vec {t} {data} /></p>
 	{:else if vec instanceof v.Radiova && vec.zobrazit(data)}
 		<p><Radio bind:vec {t} {data} /></p>
+	{:else if vec instanceof v.Prepinatkova && vec.zobrazit(data)}
+		<p><Prepinatko bind:vec {t} {data} /></p>
 	{:else if vec instanceof v.MultiZaskrtavatkova && vec.zobrazit(data)}
 		<p><MultiZaskrtavatko {t} bind:vec {data} /></p>
 	{:else if vec instanceof v.Zaskrtavatkova && vec.zobrazit(data)}

@@ -5,10 +5,14 @@
 	import { checkAuth } from '$lib/client/auth';
 	import { evidence, novaEvidence, odstranitEvidenci, type IR } from '$lib/client/firestore';
 	import IMask from 'imask';
-	import { relUrl } from '$lib/helpers/stores';
+	import { relUrl, storable } from '$lib/helpers/stores';
+	import { nazevIR } from '$lib/Data';
+	import type { RawUvedeni } from '$lib/Uvedeni';
 
 	export let data: PageData;
 	const t = data.translations;
+
+	const storedCommission = storable<RawUvedeni | null>(null, `storedCommission-${data.ir}`);
 
 	let existuje: boolean;
 	let values: IR;
@@ -30,10 +34,15 @@
 			existuje = false;
 			return;
 		}
+
+		if ($storedCommission != null && values.uvedeni != undefined) {
+			storedCommission.set(null)
+		}
 	});
 
 	const remove = async () => {
 		await odstranitEvidenci(data.ir);
+		window.location.reload();
 	};
 
 	let change: 'no' | 'input' | 'sending' | 'fail' = 'no';
@@ -69,12 +78,12 @@
 </script>
 
 <h1>
-	{t.evidenceDetailsHtml.parseTemplate({
-		irType: values
-			? `${t.getN(values.evidence.ir.typ.first)} ${t.getN(values.evidence.ir.typ.second)}`
-			: '…',
-		irNumber: values ? values.evidence.ir.cislo : ''
-	})}
+	{values
+		? t.evidenceDetailsHtml.parseTemplate({
+				irType: nazevIR(t, values.evidence.ir.typ),
+				irNumber: values ? values.evidence.ir.cislo : ''
+			})
+		: t.evidenceDetails}
 </h1>
 {#if existuje == undefined}
 	<div class="spinner-border text-danger" />
@@ -88,14 +97,29 @@
 	<PdfLink name={t.routeGuide} {t} linkName="guide" {data} />
 	{#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
 		<PdfLink name={t.warranty} {t} linkName="warranty" {data} />
-		<PdfLink name={t.instalationProtocol} {t} linkName="instalationProtocol" {data} />
-		<!-- <PdfLink name={t.installationApproval} {t} linkName="installationApproval" {data} /> -->
-		<PdfLink name={t.filledYearlyCheck} {t} linkName="checkResult" {data} />
-		<button
-			class="btn btn-outline-info d-block mt-2"
-			on:click={() => (window.location.href = $relUrl(`/detail/${data.ir}/check`))}
-			>{t.doYearlyCheck}</button
+		<PdfLink
+			enabled={values.uvedeni != undefined}
+			name={t.commissionProtocol}
+			{t}
+			linkName="commissionProtocol"
+			{data}
 		>
+			{#if !values.uvedeni}
+				<button
+					class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
+					on:click={() => (window.location.href = $relUrl(`/detail/${data.ir}/commission`))}
+					>{t.commission}</button
+				>
+			{/if}
+		</PdfLink>
+		<!-- <PdfLink name={t.installationApproval} {t} linkName="installationApproval" {data} /> -->
+		<PdfLink name={t.filledYearlyCheck} {t} linkName="check" {data}>
+			<button
+				class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
+				on:click={() => (window.location.href = $relUrl(`/detail/${data.ir}/check`))}
+				>{t.doYearlyCheck}</button
+			>
+		</PdfLink>
 	{/if}
 	<p class="mt-2">{t.wrongTime}</p>
 	{#if change == 'no'}
@@ -127,7 +151,7 @@
 	{/if}
 	<button
 		class="btn btn-outline-warning d-block mt-2"
-		on:click={() => (window.location.href = $relUrl(`/?edit=${data.ir}`))}
+		on:click={() => (window.location.href = $relUrl(`/new?edit=${data.ir}`))}
 		>{t.editRegistration}</button
 	>
 	<button class="btn btn-outline-danger d-block mt-2" on:click={remove}

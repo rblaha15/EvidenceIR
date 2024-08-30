@@ -8,7 +8,9 @@
 	const t = $page.data.translations;
 
 	let nacita = true;
+	console.log('layout', Date.now())
 	onMount(() => {
+		console.log('layoutonmount', Date.now())
 		nacita = false;
 		document.documentElement.setAttribute(
 			'data-bs-theme',

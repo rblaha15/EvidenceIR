@@ -23,7 +23,7 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
         const uvedeni = await nazevAdresaFirmy(e.uvedeni.ico, fetch)
         const montazka = await nazevAdresaFirmy(e.montazka.ico, fetch)
         return {
-    /*        tcModel */ Text1: t.get(e.tc.typ!),
+    /*        tcModel */ Text1: t.get(e.tc.model!),
     /*        tcCislo */ Text2: e.tc.cislo,
     /*       montazka */ Text3: `${e.montazka.ico} — ${montazka?.obchodniJmeno ?? ''}`,
     /* adresaMontazka */ Text4: montazka?.sidlo?.textovaAdresa ?? '',

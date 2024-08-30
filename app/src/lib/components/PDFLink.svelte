@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { languageCodes, type LanguageCode } from '$lib/languages';
 	import { languageNames, type Translations } from '$lib/translations';
-	import type { PageData } from '../../routes/[[lang]]/detail/[ir]/$types';
+	import type { PageData } from '../../routes/[[lang]]/(requiresLogin)/detail/[ir]/$types';
 	import { getToken } from '$lib/client/auth';
 
 	export let linkName: string;
 	export let name: string;
 	export let data: PageData;
 	export let t: Translations;
+	export let enabled: boolean = true
 
 	const open = async (lang: LanguageCode) => {
 		const token = await getToken();
@@ -22,9 +23,10 @@
 		<button
 			on:click={() => open(data.languageCode)}
 			type="button"
+			disabled={!enabled}
 			class="btn btn-outline-info text-nowrap">{t.openPdf}</button
 		>
-		<button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+		<button type="button" disabled={!enabled} class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
 			<span>{data.languageCode.toUpperCase()}</span>
 		</button>
 		<ul class="dropdown-menu">
@@ -42,4 +44,5 @@
 			{/each}
 		</ul>
 	</div>
+	<slot />
 </div>

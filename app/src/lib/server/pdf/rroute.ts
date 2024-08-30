@@ -31,7 +31,7 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
 /*        serCis2 */ Text16: e.ir.cislo.split(' ')[1],
 /*       cisloBOX */ Text17: e.ir.cisloBOX,
 /*        cisloTC */ Text18: e.tc.cislo,
-/*      cenaRoute */ Text19: '1000',
+/*       zaplatim */ Text22: e.vzdalenyPristup.fakturuje == 'endCustomer' ? 'Souhlasím s jednorázovou cenou 1000 Kč včetně DPH za tuto službu.' : '',
 /*          datum */ // Text20: '',
 /*         podpis */ // Text21: '',
     }),
