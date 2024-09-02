@@ -121,7 +121,7 @@
 			>
 		</PdfLink>
 	{/if}
-	<p class="mt-2">{t.wrongTime}</p>
+	<!-- <p class="mt-2">{t.wrongTime}</p> -->
 	{#if change == 'no'}
 		<button class="btn btn-outline-warning d-block mt-2" on:click={() => (change = 'input')}
 			>{t.changeController}</button
