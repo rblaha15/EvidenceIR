@@ -6,7 +6,7 @@ import en from './translations/en';
 import sk from './translations/sk';
 import { createTemplateG } from "./Vec";
 
-const translationsMap: PlainTranslationsMap = { cs, en/* , de, sk */ };
+const translationsMap: PlainTranslationsMap = { cs, en, de/*, sk */ };
 
 const withGet = (translations: PlainTranslations): Translations => {
     const get = (ref: TranslationReference) => ref == '' ? '' : ref.startsWith('PLAIN_') ? ref.slice(6) : ref.split('.').reduce<Record<string, any> | string>((acc, key) => (acc as Record<string, any>)[key], translations) as string ?? ref
@@ -40,9 +40,9 @@ type LanguageNames = {
 export const languageNames: LanguageNames = {
     cs: "čeština",
     en: "English",
-/*     sk: "slovenčina",
+//     sk: "slovenčina",
     de: "Deutsch",
- */}
+}
 
 type RecursiveKeyof<T extends object> = T extends string ? T : {
     //@ts-expect-error
