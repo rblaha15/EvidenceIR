@@ -1,4 +1,3 @@
-import { changePassword } from "$lib/client/auth"
 import { template as t } from "$lib/helpers/templates"
 
 export default {
