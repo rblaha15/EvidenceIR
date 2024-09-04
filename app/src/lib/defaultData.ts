@@ -164,19 +164,9 @@ export default (): Data => ({
     montazka: {
         nadpis: new Nadpisova({ nazev: `assemblyCompany` }),
         ico: new Pisatkova({
-            nazev: `crn`, onError: `wrongCRNFormat`, regex: /^\d{8}$/,
+            nazev: `crn`, onError: `wrongCRNFormat`, regex: /^\d{8}\d{2}?$/,
             maskOptions: ({
-                mask: `12345678`,
-                definitions: {
-                    '1': /[0-9]/,
-                    '2': /[0-9]/,
-                    '3': /[0-9]/,
-                    '4': /[0-9]/,
-                    '5': /[0-9]/,
-                    '6': /[0-9]/,
-                    '7': /[0-9]/,
-                    '8': /[0-9]/,
-                }
+                mask: `00000000[00]`,
             }),
         }),
         zastupce: new Pisatkova({ nazev: `representativeName`, autocomplete: `section-assemblyRepr billing name` }),
@@ -191,9 +181,9 @@ export default (): Data => ({
         nadpis: new Nadpisova({ nazev: `commissioning` }),
         jakoMontazka: new Zaskrtavatkova({ nazev: `commissionedByAssemblyCompany`, nutne: false }),
         ico: new Pisatkova({
-            nazev: `crn`, onError: `wrongCRNFormat`, regex: /^\d{8}$/,
+            nazev: `crn`, onError: `wrongCRNFormat`, regex: /^\d{8}\d{2}?$/,
             maskOptions: ({
-                mask: `00000000`,
+                mask: `00000000[00]`,
             }),
             zobrazit: data => !data.uvedeni.jakoMontazka.value,
             nutne: data => !data.uvedeni.jakoMontazka.value,
