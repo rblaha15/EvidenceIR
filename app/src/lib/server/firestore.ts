@@ -9,4 +9,4 @@ const irCollection = db.collection('ir').withConverter<IR>({
     fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR,
 })
 
-export const evidence = async (ir: string) => await irCollection.doc(ir).get();
+export const evidence = (ir: string) => irCollection.doc(ir).get();

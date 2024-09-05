@@ -27,15 +27,16 @@ export type Translations = AddParsing<PlainTranslations> & {
 }
 export type TranslationReference = RecursiveKeyof<PlainTranslations> | `PLAIN_${string}` | ''
 
-type PlainTranslationsMap = {
-    [Code in LanguageCode]: PlainTranslations
+export type Translate<T> = {
+    [Code in LanguageCode]: T
 }
+
+type PlainTranslationsMap = Translate<PlainTranslations>
+
 export const getTranslations = (code: LanguageCode): Translations =>
     withGet(translationsMap[code])
 
-type LanguageNames = {
-    [Code in LanguageCode]: string
-}
+type LanguageNames = Translate<string>
 
 export const languageNames: LanguageNames = {
     cs: "čeština",

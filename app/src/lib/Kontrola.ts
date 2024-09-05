@@ -1,4 +1,5 @@
 import type { LanguageCode } from "./languages";
+import type { Translate } from "./translations";
 
 type Order = typeof kontrolaOrder
 type KeyOfArray<Array> = Exclude<keyof Array, keyof any[]>
@@ -25,25 +26,6 @@ export type KontrolaTypes = {
     }
 }
 
-type KontrolaAsArray = ({
-    [K in keyof KontrolaBezMety]: (x: {
-        [K2 in keyof KontrolaBezMety[K]]-?: {
-            type: K2 extends `${string}B` ? "boolean" : K2 extends `${string}T` ? 'tlak' : "string",
-            value: KontrolaBezMety[K][K2]
-            key1: K,
-            key2: K2,
-        }
-    }) => void
-}) extends Record<keyof KontrolaBezMety, (y: infer U) => void>
-    ? (U[keyof U] | {
-        [K in keyof KontrolaBezMety as `${K}Name`]: {
-            type: 'nadpis',
-            value: Nazvy[`${K}Name`]
-            key: K,
-        }
-    }[`${keyof KontrolaBezMety}Name`])[]
-    : never
-
 type OrderAsArray = ({
     [K in KeyOfArray<Order> as Order[K][0]]: (x: {
         [K2 in KeyOfArray<Order[K][1]> as `${K}.${K2 extends number ? K2 : ''}`]: {
@@ -64,7 +46,7 @@ export type Kontrola = KontrolaBezMety & KontrolaMetadata
 
 export type KontrolaAsRecord = KontrolaMetadata & Record<keyof KontrolaBezMety, Record<string, string | boolean | undefined>>
 
-type NazvyBezMety = {
+export type Names = {
     [K in keyof KontrolaBezMety]: {
         [K2 in keyof KontrolaBezMety[K]]: string
     }
@@ -72,15 +54,15 @@ type NazvyBezMety = {
     [K in keyof KontrolaBezMety as `${K}Name`]: string
 }
 
-export type NazvyAsRecord = {
+export type NamesRecord = {
     [K in keyof KontrolaBezMety]: Record<string, string>
 } & {
     [K in keyof KontrolaBezMety as `${K}Name`]: string
 }
 
-type Nazvy = NazvyBezMety
+export type NameMap = Partial<Translate<Names>>
 
-export const nazvyKontrol: Nazvy = {
+const names_cs: Names = {
     kontrolniElektroinstalaceName: "Kontrolní elektroinstalace",
     kontrolniUkonyTepelnehoCerpadlaName: "Kontrolní úkony tepelného čerpadla",
     kontrolniUkonyRegulaceName: "Kontrolní úkony regulace",
@@ -138,6 +120,71 @@ export const nazvyKontrol: Nazvy = {
         pripadneProvedteKontroluTlakuVEnTepleVodyB: "Případně proveďte kontrolu tlaku v EN teplé vody",
         nastavenyTlakPriUvadeniDoProvozuT: "Nastavený tlak při uvádění do provozu:",
     },
+}
+
+const names_de: Names = {
+    kontrolniElektroinstalaceName: "Verkabelung der Steuerung",
+    kontrolniUkonyTepelnehoCerpadlaName: "Aufgaben zur Inspektion von Wärmepumpen",
+    kontrolniUkonyRegulaceName: "Regulierungskontrolle",
+    kontrolniUkonyOtopneSoustavyName: "Inspektionsaufgaben für Heizungsanlagen",
+    kontrolaZasobnikuTvName: "Prüfen des Warmwasserspeichers",
+
+    kontrolniElektroinstalace: {
+        kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulaceB: "Überprüfung der Funktion aller an die Steuerung angeschlossenen elektrischen Geräte",
+        kontrolaDotazeniSvorkovychSpojuB: "Anzugskontrolle der Klemmverbindungen",
+        vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeniB: "Sichtprüfung aller zugänglichen Drähte in der Anlage (Schmelzen, mechanische Beschädigung)",
+        kontrolaSepnutiDohrevuSepnutiStykacePripadneReleB: "Überprüfung des Einschaltens der Nachheizanlage (Einschalten des Schützes oder des Relais)",
+    },
+
+    kontrolniUkonyTepelnehoCerpadla: {
+        kontrolaChoduKompresoruB: "Betrieb des Kompressors prüfen",
+        optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhuB: "Optische Dichtheitsprüfung des Geräts und der Rohrverbindungen des Kältemittelkreislaufs",
+        kontrolaOdvoduKondenzatuB: "Kontrolle des Kondensatablaufs",
+        kontrolaUchyceniVentilatoruB: "Kontrolle der Ventilatorbefestigung",
+        vycisteniVzduchovychCestJednotkyB: "Kontrolle der Verdampferflügel, eventuelle Entfernung von Verunreinigungen durch Luft",
+        kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchemB: "Kontrolle der Temperaturdifferenz der Wärmepumpe gemäß den Anweisungen",
+        proveritZdaNicNebraniOptimalniCirkulaciVzduchuB: "Kontrolle, dass nichts die optimale Luftzirkulation behindert wird",
+        kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavoduB: "Reinigung der Luftwege des Geräts",
+        kontrolaElektrickeCastiJednotkyTepelnehoCerpadlaB: "Überprüfung des elektrischen Teils der Wärmepumpeneinheit",
+    },
+
+    kontrolniUkonyRegulace: {
+        kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricinB: "Überprüfung der Fehler- und Informationsmeldungen des Reglers und ihrer Ursachen",
+        kontrolaNastaveniParametruRegulatoruB: "Überprüfung der Parametereinstellungen des Reglers",
+        preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveniB: "Vorbeugende Bedienerschulung in Bezug auf die Benutzereinstellungen",
+        stavPocitadlaCelkovychProvoznichHodinKompresoru: "Zählerstand der Gesamtbetriebsstunden des Verdichters",
+        stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace: "Status des Betriebsstundenzählers zum WW (wenn die Regelung dies zulässt)",
+        stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace: "Status der Gesamtzahl der Wärmepumpenstarts (wenn von der Steuerung freigegeben)",
+        stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace: "Status der Anzahl der Wärmepumpenstarts zum WW (wenn von der Regelung freigegeben)",
+        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje: "Gesamtbetriebsstundenzählerstand der Zusatzstromversorgung",
+        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv: "Status des Gesamtbetriebsstundenzählers der Zusatzstromquelle WW",
+        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: "Durchschnittliche Gesamtlaufzeit des Kompressors [min] - seit der letzten Kontrolle",
+        prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly: "Durchschnittliche Kompressorlaufzeit zu WW [min] - seit der letzten Kontrolle",
+    },
+
+    kontrolniUkonyOtopneSoustavy: {
+        kontrolaFunkceObehovychCerpadelB: "Kontrolle der Funktion von Umwälzpumpen",
+        vycisteniFiltruObehovychCerpadelB: "Reinigung der Umwälzfilter",
+        odvzdusneniZdrojeTcB: "Entlüftung der Quelle (Wärmepumpe)",
+        kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovychB: "Funktionskontrolle aller motorisierten Ventile (Misch- und Zonenventile)",
+        kontrolaTesnostiOtopneSoustavyB: "Überprüfung der Heizungsanlage auf Dichtheit",
+        kontrolaTlakuVExpanzniNadobeOtopneSoustavyB: "Kontrolle des Drucks im Ausdehnungsgefäß der Heizungsanlage",
+        nastavenyTlakPriUvadeniDoProvozuT: "Druck bei der Inbetriebnahme einstellen:",
+        pripadneProvedteKontroluTlakuVOtopneSoustaveB: "Alternativ kann der Druck im Heizungssystem überprüft werden",
+        nastavenyTlakPriUvadeniDoProvozu2T: "Druck bei der Inbetriebnahme einstellen:",
+    },
+
+    kontrolaZasobnikuTv: {
+        kontrolaMgAnodyVZasobnikuPripVymenaB: "Kontrolle der Magnesiumanode im Behälter, ggf. Austausch",
+        kontrolaPojistovacihoVentiluB: "Kontrolle des Sicherheitsventils",
+        pripadneProvedteKontroluTlakuVEnTepleVodyB: "Warmwasserdruck prüfen, falls erforderlich",
+        nastavenyTlakPriUvadeniDoProvozuT: "Druck bei der Inbetriebnahme einstellen:",
+    },
+}
+
+export const checkNames: NameMap = {
+    cs: names_cs,
+    de: names_de,
 }
 
 export const kontrolaOrder = [
@@ -209,16 +256,7 @@ export const kontrolaTypes: Record<string, Record<string, 'boolean' | 'string' |
 
 type R = Record<string, string | boolean | undefined>
 
-export const arrayFrom = (kontrola: Kontrola | KontrolaAsRecord | KontrolaBezMety): KontrolaAsArray => kontrolaOrder.flatMap(([key1, sekce]) => [
-    { key: key1, type: 'nadpis', value: nazvyKontrol[`${key1}Name`] } as const,
-    ...sekce.map(key2 => ({ key1, key2, value: (kontrola[key1] as R)[key2], type: key2.endsWith("B") ? "boolean" : key2.endsWith("T") ? 'tlak' : "string" }))
-]) as KontrolaAsArray
-
 export const orderArray: OrderAsArray = kontrolaOrder.flatMap(([key1, sekce]) => [
     { key1, key2: 'nadpis' },
     ...sekce.map(key2 => ({ key1, key2 }))
 ]) as OrderAsArray
-
-export const bezMety = (kontrola: Kontrola | KontrolaAsRecord): KontrolaBezMety => Object.fromEntries(kontrolaOrder.map(([key, sekce]) => [key,
-    kontrola[key]
-])) as KontrolaBezMety
