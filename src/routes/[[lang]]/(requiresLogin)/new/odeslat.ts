@@ -26,8 +26,7 @@ export default async (
     const relUrl = get(relUrlStore)
     const t = page.data.translations
 
-    const rawData = dataToRawData(data);
-    const ir = rawData.ir.cislo.replace(' ', '');
+    const ir = data.ir.cislo.value.replace(' ', '');
 
     if (!editMode && await existuje(ir)) {
         progress({
@@ -66,6 +65,7 @@ export default async (
         data.uvedeni.zastupce.value = data.montazka.zastupce.value;
         data.uvedeni.email.value = data.montazka.email.value;
     }
+    const rawData = dataToRawData(data);
 
     const div = document.createElement('div');
     new MailSDaty({
@@ -107,13 +107,13 @@ export default async (
     });
 
     if (doNotSend || response!.ok) {
-        // storedData.set(null)
+        storedData.set(null)
         progress({
             text: t.redirecting,
             red: false,
             load: true
         });
-        // window.location.href = relUrl(`/detail/${ir}`);
+        window.location.href = relUrl(`/detail/${ir}`);
         setTimeout(() => {
             progress({
                 text: t.redirectFailedHtml.parseTemplate({ link: page.url.origin + relUrl(`/detail/${ir}`) }),

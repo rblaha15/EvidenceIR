@@ -3,24 +3,26 @@
 	import {
 		kontrola,
 		kontrolaTypes,
-		nazvyKontrol,
+		checkNames,
 		orderArray,
 		type Kontrola,
 		type KontrolaAsRecord,
 		type KontrolaBezMety,
-		type NazvyAsRecord
+		type NamesRecord
 	} from '$lib/Kontrola';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
+	import { today } from '$lib/helpers/date';
 
 	export let data: PageData;
 	const ir = data.ir;
 	const t = data.translations;
 
-	const k = kontrola('cs', 'Já', 'dnes') as KontrolaAsRecord;
-	const n = nazvyKontrol as NazvyAsRecord;
+	let uvadec: string = '';
+	const k = kontrola(data.languageCode, 'uvaděč', today()) as KontrolaAsRecord;
+	const n = checkNames[data.languageCode] as NamesRecord;
 
-	const f = (v: { key1: keyof KontrolaBezMety; key2: string }, ev: Event) => {
+	const onInput = (v: { key1: keyof KontrolaBezMety; key2: string }, ev: Event) => {
 		// @ts-expect-error
 		k[v.key1][v.key2] = (ev.target?.value as string | undefined) ?? '';
 	};
@@ -43,6 +45,7 @@
 
 	const save = async () => {
 		vysledek = { load: true, red: false, text: t.saving };
+		k.meta.osoba = uvadec;
 		await pridatKontrolu(ir, rok!, k as Kontrola);
 
 		vysledek = {
@@ -56,10 +59,13 @@
 
 <h1>{t.yearlyCheck}</h1>
 <h3>{t.year}: {rok ?? '…'}</h3>
+
+<input type="text" placeholder={t.get('performingPerson')} class="form-control d-block" bind:value={uvadec} />
+
 {#each orderArray as v}
 	{@const value = k[v.key1][v.key2]}
 	{@const type = kontrolaTypes[v.key1][v.key2]}
-	{@const name = type == 'nadpis' ? nazvyKontrol[`${v.key1}Name`] : n[v.key1][v.key2]}
+	{@const name = type == 'nadpis' ? n[`${v.key1}Name`] : n[v.key1][v.key2]}
 	{#if type == 'nadpis'}
 		<h2>{name}</h2>
 	{:else if type == 'boolean'}
@@ -83,7 +89,7 @@
 				class="form-control d-block"
 				placeholder={name}
 				value={value ?? ''}
-				on:input={(e) => f(v, e)}
+				on:input={(e) => onInput(v, e)}
 			/>
 		</p>
 	{:else if type == 'tlak' && rok != 1}

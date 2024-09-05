@@ -1,14 +1,21 @@
 <script lang="ts">
-	import { languageCodes, type LanguageCode } from '$lib/languages';
+	import { type LanguageCode } from '$lib/languages';
 	import { languageNames, type Translations } from '$lib/translations';
 	import type { PageData } from '../../routes/[[lang]]/(requiresLogin)/detail/[ir]/$types';
 	import { getToken } from '$lib/client/auth';
+	import { pdfData } from '$lib/client/pdf';
+	import { type Pdf } from '$lib/client/pdf';
 
-	export let linkName: string;
+	export let linkName: Pdf;
 	export let name: string;
 	export let data: PageData;
 	export let t: Translations;
-	export let enabled: boolean = true
+	export let enabled: boolean = true;
+
+	$: pdf = pdfData[linkName];
+	$: defaultLanguage = pdf.supportedLanguages.includes(data.languageCode)
+		? data.languageCode
+		: pdf.supportedLanguages[0];
 
 	const open = async (lang: LanguageCode) => {
 		const token = await getToken();
@@ -21,28 +28,32 @@
 
 	<div class="btn-group ms-sm-2 mt-2 mt-sm-0">
 		<button
-			on:click={() => open(data.languageCode)}
+			on:click={() => open(defaultLanguage)}
 			type="button"
 			disabled={!enabled}
 			class="btn btn-outline-info text-nowrap">{t.openPdf}</button
 		>
-		<button type="button" disabled={!enabled} class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-			<span>{data.languageCode.toUpperCase()}</span>
+		<button
+			type="button"
+			disabled={!enabled || pdf.supportedLanguages.length == 1}
+			class="btn btn-outline-secondary"
+			class:dropdown-toggle={pdf.supportedLanguages.length > 1}
+			data-bs-toggle="dropdown"
+		>
+			<span>{defaultLanguage.toUpperCase()}</span>
 		</button>
-		<ul class="dropdown-menu">
-			{#each languageCodes as code}
-				<li>
-					<button
-						on:click={() => open(code)}
-						type="button"
-						class="dropdown-item"
-					>
-						<span class="fs-5">{code.toUpperCase()}</span>
-						{languageNames[code]}
-					</button>	
-				</li>
-			{/each}
-		</ul>
+		{#if pdf.supportedLanguages.length > 1}
+			<ul class="dropdown-menu">
+				{#each pdf.supportedLanguages as code}
+					<li>
+						<button on:click={() => open(code)} type="button" class="dropdown-item">
+							<span class="fs-5">{code.toUpperCase()}</span>
+							{languageNames[code]}
+						</button>
+					</li>
+				{/each}
+			</ul>
+		{/if}
 	</div>
 	<slot />
 </div>

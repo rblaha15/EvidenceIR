@@ -3,7 +3,6 @@ import type { PlainTranslations } from "$lib/translations"
 import en from "./en"
 
 const de: PlainTranslations = {
-    ...en,
     name: 'Vorname',
     surname: 'Nachname',
     phone: 'Telefonnummer',
@@ -74,6 +73,8 @@ const de: PlainTranslations = {
     linkToThis: `Odkaz na tuto stránku`,
     copy: `Kopírovat`,
     regulusRouteForm: `Formulář o zpřístupnění regulátoru službě RegulusRoute`,
+    regulusRouteTitle: `Zustimmung zur Bereitstellung des IR-Controllers RegulusRoute`,
+    regulusRouteFileName: `RegulusRoute Zustimmung`,
     openPdf: `Otevřít pdf`,
     changeLang: `Změnit jazyk`,
     deleteThisEvidence: `Odstranit tento záznam evidence`,
@@ -103,7 +104,9 @@ const de: PlainTranslations = {
     warranty: `Záruční list k TČ`,
     commissionProtocol: `Protokol o instalaci TČ`,
     installationApproval: `Schválení instalace TČ`,
-    yearlyCheck: `Roční kontrola TČ`,
+    yearlyCheck: `Jährlichen Inspektion der Wärmepumpe`,
+    yearlyCheckFileName: `Jährlichen Inspektion.pdf`,
+    yearlyCheckTitle: `Aufgabenbeschreibung bei Durchführung der jährlichen vorbeugenden Inspektion der Luft-Wärmepumpe`,
     doYearlyCheck: `Udělat roční kontrolu TČ`,
     filledYearlyCheck: `Roční kontroly TČ`,
     wrongTime: `Pokud po otevření souborů dostáváte chybu 401: Unathorized, zkontrolujte prosím nastavení času svého zařízení.`,
@@ -126,14 +129,17 @@ const de: PlainTranslations = {
     emptyForm: `Vymazat data`,
     siteNotFound: `Stránka nenalezena.`,
     changePassword: `Změnit heslo`,
-    year: `Rok`,
+    year: `Jahr`,
     redirecting: `Přesměrování…`,
     editation: `Editace`,
     passwordEdited: `Heslo upraveno, přihlašte se prosím`,
     registered: `Registrace proběhla úspěšně, přihlašte se prosím`,
     passwordHasBeenReset: `Heslo resetováno, přihlašte se prosím`,
-    yes: 'Ano',
-    no: 'Ne',
+    yes: 'Ja',
+    no: 'Nein',
     commission: 'Zaznamenat uvedení do provozu',
+    hpWarranty: 'Garantieschreiben für Wärmepumpe',
+    warrantyFileName: 'Garantieschreiben.pdf',
+    performingPerson: 'Durchführende Person',
 }
 export default de

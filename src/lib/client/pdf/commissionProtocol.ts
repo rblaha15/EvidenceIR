@@ -1,27 +1,16 @@
 import { nazevFirmy } from "$lib/helpers/ares";
-import type { LanguageCode } from "$lib/languages";
 import { p } from "$lib/Vec";
-import { evidence } from "../firestore";
-import { generatePdf } from "../pdf";
+import { type PdfArgs } from "$lib/client/pdf";
 import { nazevIR } from "$lib/Data";
+import { today } from "$lib/helpers/date";
 
-const node_fetch = fetch
-
-export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: typeof node_fetch }) => generatePdf({
-    lang, ir, fetch,
-    getFirebaseData: async () => evidence(ir),
-    formLocation: '/commissionProtocol_cs.pdf',
+export default {
+    formName: 'commissionProtocol',
+    supportedLanguages: ['cs'],
     title: p`Protokol o uvedení tepelného čerpadla do trvalého provozu`,
     fileName: p`Protokol uvedení TČ.pdf`,
     getFormData: async ({ evidence: e, uvedeni, }, t) => {
         const u = uvedeni!
-
-        const today = new Date();
-        const dd = String(today.getDate()).padStart(2, '0');
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const yyyy = today.getFullYear();
-
-        const date = `${dd}. ${mm}. ${yyyy}`;
 
         return ({
         /*    koncakJmeno */ Text1: `${e.koncovyUzivatel.jmeno} ${e.koncovyUzivatel.prijmeni}`,
@@ -33,7 +22,7 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
         /*    uvadecOsoba */ Text7: e.uvedeni.zastupce,
         /*      uvadecTel */ Text8: '',
         /*    uvadecEmail */ Text9: e.uvedeni.email,
-        /*          datum */ Text10: date,
+        /*          datum */ Text10: today(),
         /*                */ Text11: t.get(e.tc.model!),
         /*                */ Text12: e.tc.cislo,
         /*                */ Text13: e.ir.typ.first!.includes('BOX') ? t.get(e.ir.typ.first!).slice(3) : '—',
@@ -72,4 +61,4 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
         /*                */ Text46: u.uvadeni.typZaruky?.includes('ano') ?? false ? u.uvadeni.zaruka ? 'ano' : 'ne' : '—',
         });
     },
-})
+} as PdfArgs

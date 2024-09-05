@@ -1,21 +1,15 @@
 import { kontrolaTypes, orderArray, type KontrolaAsRecord } from "$lib/Kontrola"
-import type { LanguageCode } from "$lib/languages"
-import { p } from "$lib/Vec"
-import { evidence } from "../firestore"
-import { generatePdf } from "../pdf"
+import { type PdfArgs } from "$lib/client/pdf";
 
-const node_fetch = fetch
-
-export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: typeof node_fetch }) => generatePdf({
-    lang, ir, fetch,
-    getFirebaseData: async () => evidence(ir),
-    formLocation: '/check_cs.pdf',
-    title: p`Popis úkonů při provádění preventivní roční prohlídky vzduchového tepelného čerpadla`,
-    fileName: p`Roční prohlídka.pdf`,
-    getFormData: async ({ kontroly }) => {
+export default {
+    formName: 'check',
+    supportedLanguages: ['cs', 'de'],
+    title: `yearlyCheckTitle`,
+    fileName: `yearlyCheckFileName`,
+    getFormData: async ({ kontroly }, t) => {
         const start = {
-/*          TEXT1 */ Text1: '',
-/*       poznamky */ Text141: '',
+/*          TEXT1 */ Text1: null,
+/*       poznamky */ Text141: null,
         }
         const veci = Object.fromEntries(Object.entries(kontroly).flatMap(([rok, k]: [string, KontrolaAsRecord]) => {
             const veci = orderArray.filter(v =>
@@ -31,7 +25,7 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
                 (rok == '1' ? 0 : orderArray.filter(v => kontrolaTypes[v.key1][v.key2] == 'tlak').length) // tlaky v roce 1
 
             return veci.map((v, i) => [
-                `Text${i + start}`, kontrolaTypes[v.key1][v.key2] == 'boolean' ? k[v.key1][v.key2] == undefined ? '' : k[v.key1][v.key2] ? 'ano' : 'ne' : k[v.key1][v.key2] ?? ''
+                `Text${i + start}`, kontrolaTypes[v.key1][v.key2] == 'boolean' ? k[v.key1][v.key2] ? t.get('yes') : t.get('no') : k[v.key1][v.key2] ?? ''
             ])
         }))
         const metadata = Object.fromEntries(Object.entries(kontroly).flatMap(([rok, k]) => {
@@ -52,4 +46,4 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
             ...veci
         };
     },
-})
+} as PdfArgs

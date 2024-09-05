@@ -1,25 +1,13 @@
 import { nazevAdresaFirmy } from "$lib/helpers/ares";
-import type { LanguageCode } from "$lib/languages";
-import { p } from "$lib/Vec";
-import { evidence } from "../firestore";
-import { generatePdf } from "../pdf";
+import { type PdfArgs } from "$lib/client/pdf";
+import { today } from '$lib/helpers/date'
 
-const node_fetch = fetch
-
-export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: typeof node_fetch }) => generatePdf({
-    lang, ir, fetch,
-    getFirebaseData: async () => evidence(ir),
-    formLocation: '/warranty_cs.pdf',
-    title: p`Záruční list tepelného čerpadla`,
-    fileName: p`Záruční list.pdf`,
+export default {
+    formName: 'warranty',
+    supportedLanguages: ['cs', 'de'],
+    title: `hpWarranty`,
+    fileName: `warrantyFileName`,
     getFormData: async ({ evidence: e }, t) => {
-        const today = new Date();
-        const dd = String(today.getDate()).padStart(2, '0');
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const yyyy = today.getFullYear();
-
-        const date = `${dd}. ${mm}. ${yyyy}`;
-
         const uvedeni = await nazevAdresaFirmy(e.uvedeni.ico, fetch)
         const montazka = await nazevAdresaFirmy(e.montazka.ico, fetch)
         return {
@@ -34,7 +22,7 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
     /*  clovekUvedeni */ Text11: e.uvedeni.zastupce,
     /*  razitkoProdej */ Text12: '',
     /* razitkoUvedeni */ Text13: '',
-    /*          datum */ Text14: date,
+    /*          datum */ Text14: today(),
         };
     },
-})
+} as PdfArgs

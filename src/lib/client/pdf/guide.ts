@@ -1,18 +1,10 @@
-import { nazevFirmy } from "$lib/helpers/ares";
-import type { LanguageCode } from "$lib/languages";
-import { p, type Pair } from "$lib/Vec";
-import type { first } from "lodash-es";
-import { evidence } from "../firestore";
-import { generatePdf } from "../pdf";
-import type { TranslationReference } from "$lib/translations";
+import { p } from "$lib/Vec";
+import { type PdfArgs } from "$lib/client/pdf";
 import { nazevIR } from "$lib/Data";
 
-const node_fetch = fetch
-
-export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: typeof node_fetch }) => generatePdf({
-    lang, ir, fetch,
-    getFirebaseData: async () => evidence(ir),
-    formLocation: '/guide_cs.pdf',
+export default {
+    formName: 'guide',
+    supportedLanguages: ['cs'],
     title: p`Návod na přístup do regulátoru IR`,
     fileName: p`Návod IR.pdf`,
     getFormData: async ({ evidence: e }, t) => ({
@@ -28,4 +20,4 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
     /*       PLCjmeno */ Text10: `${nazevIR(t, e.ir.typ)} ${e.ir.cislo} : ${e.koncovyUzivatel.prijmeni} ${e.koncovyUzivatel.jmeno} - ${e.mistoRealizace.obec}`,
     /*        hesloIR */ Text11: `uzivatel`,
     }),
-})
+} as PdfArgs
