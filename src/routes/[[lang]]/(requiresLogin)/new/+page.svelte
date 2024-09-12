@@ -16,19 +16,19 @@
 	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { readable, writable } from 'svelte/store';
+	import { writable } from 'svelte/store';
 
 	const t = $page.data.translations;
 
 	const storedData = storable<RawData | null>(null, `storedData`);
 
-	let mode: 'loading' | 'create' | 'edit' | 'createdStored' = 'loading';
+	let mode: 'loading' | 'create' | 'edit' | 'createStored' = 'loading';
 	let data: Data = newData();
 	onMount(async () => {
 		const ir = $page.url.searchParams.get('edit');
 		if (ir) {
 			const snapshot = await evidence(ir);
-			console.log(snapshot)
+			console.log(snapshot);
 			if (snapshot.exists() && snapshot.data() != undefined) {
 				data = rawDataToData(data, snapshot.data()!.evidence);
 				return (mode = 'edit');
@@ -39,21 +39,18 @@
 			return (mode = 'create');
 		} else {
 			data = rawDataToData(data, stored);
-			return (mode = 'createdStored');
+			return (mode = 'createStored');
 		}
 	});
 
 	friendlyCompanies.subscribe((c) => {
-		if (mode != 'create') return;
-		if (c.assemblyCompanies.length == 1) {
+		if (data.montazka.ico.value == '' && c.assemblyCompanies.length == 1) {
 			data.montazka.ico.updateText(c.assemblyCompanies[0].crn);
 			data.montazka.email.value = c.assemblyCompanies[0].email ?? '';
-			data.montazka.zastupce.value = c.assemblyCompanies[0].representative ?? '';
 		}
-		if (c.commissioningCompanies.length == 1) {
+		if (data.uvedeni.ico.value == '' && c.commissioningCompanies.length == 1) {
 			data.uvedeni.ico.updateText(c.commissioningCompanies[0].crn);
 			data.uvedeni.email.value = c.commissioningCompanies[0].email ?? '';
-			data.uvedeni.zastupce.value = c.commissioningCompanies[0].representative ?? '';
 		}
 	});
 
@@ -64,20 +61,35 @@
 	$: if (mode != 'loading') {
 		if (data.uvedeni.jakoMontazka.value) {
 			data.uvedeni.ico.updateText('');
-			data.uvedeni.zastupce.value = '';
 			data.uvedeni.email.value = '';
 		} else if (
 			data.uvedeni.ico.value == data.montazka.ico.value &&
 			data.uvedeni.ico.value != '' &&
-			data.uvedeni.zastupce.value == data.montazka.zastupce.value &&
-			data.uvedeni.zastupce.value != '' &&
 			data.uvedeni.email.value == data.montazka.email.value &&
 			data.uvedeni.email.value != ''
 		) {
 			data.uvedeni.jakoMontazka.value = true;
 			data.uvedeni.ico.updateText('');
-			data.uvedeni.zastupce.value = '';
 			data.uvedeni.email.value = '';
+		}
+	}
+	$: if (mode != 'loading') {
+		if (data.mistoRealizace.jakoBydliste.value) {
+			data.mistoRealizace.obec.updateText('');
+			data.mistoRealizace.psc.value = '';
+			data.mistoRealizace.ulice.value = '';
+		} else if (
+			data.mistoRealizace.obec.value == data.bydliste.obec.value &&
+			data.mistoRealizace.obec.value != '' &&
+			data.mistoRealizace.psc.value == data.bydliste.psc.value &&
+			data.mistoRealizace.psc.value != '' &&
+			data.mistoRealizace.ulice.value == data.bydliste.ulice.value &&
+			data.mistoRealizace.ulice.value != ''
+		) {
+			data.mistoRealizace.jakoBydliste.value = true;
+			data.mistoRealizace.obec.updateText('');
+			data.mistoRealizace.psc.value = '';
+			data.mistoRealizace.ulice.value = '';
 		}
 	}
 	$: if (mode != 'loading') {
@@ -118,7 +130,7 @@
 
 <div class="d-flex flex-row flex-wrap">
 	<h1 class="flex-grow-1">{mode == 'edit' ? t.editation : t.controllerRegistration}</h1>
-	{#if mode == 'create' || mode == 'createdStored'}
+	{#if mode == 'create' || mode == 'createStored'}
 		<!-- <div class="d-sm-none w-100" /> -->
 		<div class="d-flex ms-auto me-2 justify-content-end align-items-center">
 			<button
@@ -218,36 +230,40 @@
 	</div>
 {/if}
 
-<div class="d-inline-flex align-content-center">
-	{#if !vysledek.load}
-		<button
-			id="odeslat"
-			type="button"
-			class="btn btn-success"
-			on:click={() =>
-				odeslat(
-					data,
-					(v) => (vysledek = v),
-					doNotSend,
-					mode == 'edit',
-					() => {
-						for (const i in list) {
-							list[i].zobrazitErrorVeto = true;
+<div class="d-inline-flex flex-sm-row flex-column align-content-center">
+	<div class="d-inline-flex align-content-center text-break">
+		{#if !vysledek.load}
+			<button
+				id="odeslat"
+				type="button"
+				class="btn btn-success"
+				on:click={() =>
+					odeslat(
+						data,
+						(v) => (vysledek = v),
+						doNotSend,
+						mode == 'edit',
+						() => {
+							for (const i in list) {
+								list[i].zobrazitErrorVeto = true;
+							}
 						}
-					}
-				)}
-		>
-			{t.save}
-		</button>
-	{/if}
-	{#if mode == 'edit'}
-		<button type="button" class="btn btn-outline-secondary ms-2" on:click={() => history.back()}>
-			{t.back}
-		</button>
-	{/if}
+					)}
+			>
+				{t.save}
+			</button>
+		{/if}
+		{#if mode == 'edit'}
+			<button type="button" class="btn btn-outline-secondary ms-2" on:click={() => history.back()}>
+				{t.back}
+			</button>
+		{/if}
+	</div>
 
-	{#if vysledek.load}
-		<div class="spinner-border text-danger ms-2" />
-	{/if}
-	<p class:text-danger={vysledek.red} class="ms-2 my-auto">{@html vysledek.text}</p>
+	<div class="d-inline-flex align-content-center text-break mt-2 mt-sm-0">
+		{#if vysledek.load}
+			<div class="spinner-border text-danger ms-2" />
+		{/if}
+		<p class:text-danger={vysledek.red} class="ms-2 my-auto">{@html vysledek.text}</p>
+	</div>
 </div>

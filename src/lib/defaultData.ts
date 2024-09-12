@@ -110,6 +110,7 @@ export default (): Data => ({
             onError: `wrongDateFormat`,
             regex: /^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?[0-9]{4}$/,
             autocomplete: `section-user billing bday`,
+            nutne: false,
         }),
         telefon: new Pisatkova({
             nazev: `phone`,
@@ -145,12 +146,19 @@ export default (): Data => ({
     },
     mistoRealizace: {
         nadpis: new Nadpisova({ nazev: `roalizationLocation` }),
+        jakoBydliste: new Zaskrtavatkova({ nazev: `realisedAtResidence`, nutne: false }),
         ulice: new Pisatkova({
             nazev: `street`,
             nutne: false,
             autocomplete: `section-realization shipping street-address`,
+            zobrazit: data => !data.mistoRealizace.jakoBydliste.value,
         }),
-        obec: new Pisatkova({ nazev: `town`, autocomplete: `section-realization shipping city` }),
+        obec: new Pisatkova({ 
+            nazev: `town`,
+            autocomplete: `section-realization shipping city`,
+            zobrazit: data => !data.mistoRealizace.jakoBydliste.value,
+            nutne: data => !data.mistoRealizace.jakoBydliste.value,
+        }),
         psc: new Pisatkova({
             nazev: `zip`,
             onError: `wrongZIPFormat`,
@@ -159,12 +167,14 @@ export default (): Data => ({
                 mask: `000 00`,
             }),
             autocomplete: `section-realization shipping postal-code`,
+            zobrazit: data => !data.mistoRealizace.jakoBydliste.value,
+            nutne: data => !data.mistoRealizace.jakoBydliste.value,
         }),
     },
     montazka: {
         nadpis: new Nadpisova({ nazev: `assemblyCompany` }),
         ico: new Pisatkova({
-            nazev: `crn`, onError: `wrongCRNFormat`, regex: /^\d{8}\d{2}?$/,
+            nazev: `crn`, onError: `wrongCRNFormat`, regex: /^\d{8}(\d{2})?$/,
             maskOptions: ({
                 mask: `00000000[00]`,
             }),
@@ -181,7 +191,7 @@ export default (): Data => ({
         nadpis: new Nadpisova({ nazev: `commissioning` }),
         jakoMontazka: new Zaskrtavatkova({ nazev: `commissionedByAssemblyCompany`, nutne: false }),
         ico: new Pisatkova({
-            nazev: `crn`, onError: `wrongCRNFormat`, regex: /^\d{8}\d{2}?$/,
+            nazev: `crn`, onError: `wrongCRNFormat`, regex: /^\d{8}(\d{2})?$/,
             maskOptions: ({
                 mask: `00000000[00]`,
             }),
@@ -190,8 +200,6 @@ export default (): Data => ({
         }),
         zastupce: new Pisatkova({
             nazev: `representativeName`,
-            zobrazit: data => !data.uvedeni.jakoMontazka.value,
-            nutne: data => !data.uvedeni.jakoMontazka.value,
             autocomplete: `section-commissioningRepr billing name`,
         }),
         email: new Pisatkova({

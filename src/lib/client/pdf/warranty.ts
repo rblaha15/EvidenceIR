@@ -8,7 +8,6 @@ export default {
     title: `hpWarranty`,
     fileName: `warrantyFileName`,
     getFormData: async ({ evidence: e }, t) => {
-        console.log(e.montazka)
         const uvedeni = await nazevAdresaFirmy(e.uvedeni.ico, fetch)
         const montazka = await nazevAdresaFirmy(e.montazka.ico, fetch)
         return {

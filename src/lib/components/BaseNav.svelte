@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { isUserAdmin } from '$lib/client/auth';
 	import { relUrl } from '$lib/helpers/stores';
 	import type { Translations } from '$lib/translations';
 
@@ -24,17 +25,22 @@
 				href={$relUrl('/search')}>{t.controllerSearch}</a
 			>
 		</li>
-		{#if $page.route.id?.includes('/admin')}
-			<li class="link-item">
-				<a class="nav-link ms-md-3 active" aria-current={'page'} href={$relUrl('/admin')}>Admin</a>
-			</li>
-		{/if}
 		{#if $page.route.id?.includes('/detail')}
 			<li class="link-item">
 				<a
 					class="nav-link ms-md-3 active"
 					aria-current={'page'}
 					href={$relUrl(`/detail/${$page.data.ir ?? ''}`)}>{t.evidenceDetails}</a
+				>
+			</li>
+		{/if}
+		{#if $isUserAdmin}
+			<li class="link-item">
+				<a
+					class="nav-link ms-md-3"
+					class:active={$page.route.id?.endsWith('/admin')}
+					aria-current={$page.route.id?.endsWith('/admin') ? 'page' : null}
+					href={$relUrl('/admin')}>Admin</a
 				>
 			</li>
 		{/if}

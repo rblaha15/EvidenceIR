@@ -10,6 +10,7 @@ import { get } from "svelte/store";
 import { page as pageStore } from "$app/stores";
 import { relUrl as relUrlStore, storable } from "$lib/helpers/stores";
 import { currentUser, getToken } from "$lib/client/auth";
+import { getTranslations } from "$lib/translations";
 
 const storedData = storable<RawData | null>(null, 'storedData');
 
@@ -28,7 +29,7 @@ export default async (
 
     const ir = data.ir.cislo.value.replace(' ', '');
 
-    if (!editMode && await existuje(ir)) {
+    if (!editMode && ir != '' && await existuje(ir)) {
         progress({
             red: true,
             text: t.irExistsHtml.parseTemplate({ link: relUrl(`/detail/${ir}`) }),
@@ -62,8 +63,12 @@ export default async (
 
     if (data.uvedeni.jakoMontazka.value) {
         data.uvedeni.ico.updateText(data.montazka.ico.value);
-        data.uvedeni.zastupce.value = data.montazka.zastupce.value;
         data.uvedeni.email.value = data.montazka.email.value;
+    }
+    if (data.mistoRealizace.jakoBydliste.value) {
+        data.mistoRealizace.ulice.updateText(data.bydliste.ulice.value);
+        data.mistoRealizace.obec.value = data.bydliste.obec.value;
+        data.mistoRealizace.psc.value = data.bydliste.psc.value;
     }
     const rawData = dataToRawData(data);
 
@@ -82,6 +87,7 @@ export default async (
     }
 
     if (rawData.vzdalenyPristup.chce && !doNotSend) {
+        const t = getTranslations('cs')
         const montazka = (await nazevFirmy(rawData.montazka.ico)) ?? null;
         const uvadec = (await nazevFirmy(rawData.uvedeni.ico)) ?? null;
         const div = document.createElement('div');
