@@ -42,11 +42,11 @@
 	{:else if vec instanceof Radiova && vec.zobrazit(data)}
 		<p><b>{t.get(vec.nazev(data))}</b>: {t.getN(vec.value) ?? ''}</p>
 	{:else if vec instanceof Prepinatkova && vec.zobrazit(data)}
-		<p><b>{t.get(vec.nazev(data))}</b>: {vec.value ? vec.moznosti[0] : vec.moznosti[1]}</p>
+		<p><b>{t.get(vec.nazev(data))}</b>: {t.get(vec.value ? vec.moznosti[1] : vec.moznosti[0])}</p>
 	{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit(data)}
 		<p><b>{t.get(vec.nazev(data))}</b>: {vec.value.map(s => t.get(s)).join(', ')}</p>
 	{:else if vec instanceof Zaskrtavatkova && vec.zobrazit(data)}
-		<p><b>{t.get(vec.nazev(data))}</b>: {vec.value ? 'ano' : 'ne'}</p>
+		<p><b>{t.get(vec.nazev(data))}</b>: {vec.value ? t.yes : t.no}</p>
 	{/if}
 {/each}
 <p><b>Zaevidoval</b>: {user.email}</p>

@@ -107,7 +107,6 @@ export default {
     yearlyCheckTitle: `Popis úkonů při provádění preventivní roční prohlídky vzduchového tepelného čerpadla`,
     doYearlyCheck: `Udělat roční kontrolu TČ`,
     filledYearlyCheck: `Roční kontroly TČ`,
-    wrongTime: `Pokud po otevření souborů dostáváte chybu 401: Unathorized, zkontrolujte prosím nastavení času svého zařízení.`,
     chooseFromList: `Vyberte ze seznamu`,
     chooseCompanyFromList: `Vyberte firmu ze seznamu:`,
     newPassword: `Nové heslo`,
@@ -139,4 +138,5 @@ export default {
     hpWarranty: `Záruční list tepelného čerpadla`,
     warrantyFileName: `Záruční list.pdf`,
     performingPerson: `Provádějící osoba`,
+    realisedAtResidence: `Shodné s bydlištěm`,
 }

@@ -52,12 +52,14 @@
 	<p><b>Název:</b> {montazka}</p>
 {/if}
 <p><b>IČO:</b> {e.montazka.ico}</p>
+<p><b>Zástupce:</b> {e.montazka.zastupce}</p>
 
 <h1>Uvedení do provozu</h1>
 {#if uvadec != null}
 	<p><b>Název:</b> {uvadec}</p>
 {/if}
 <p><b>IČO:</b> {e.uvedeni.ico}</p>
+<p><b>Zástupce:</b> {e.uvedeni.zastupce}</p>
 
 <h1>Poznámka</h1>
 <p>{e.ostatni.poznamka}</p>

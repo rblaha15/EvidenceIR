@@ -7,9 +7,9 @@
 
 	const t = $page.data.translations;
 
-	let nacita = true;
+//	let nacita = true;
 	onMount(() => {
-		nacita = false;
+//		nacita = false;
 		// document.documentElement.setAttribute(
 		// 	'data-bs-theme',
 		// 	window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -21,7 +21,7 @@
 				'/' +
 					preferedLanguage() +
 					$page.url.pathname.slice(currentLangLength + 1) +
-					$page.url?.search ?? ''
+					$page.url.search
 				// $page.route.id!.replace('[[lang]]', preferedLanguage()) + $page.url?.search ?? ''
 			);
 

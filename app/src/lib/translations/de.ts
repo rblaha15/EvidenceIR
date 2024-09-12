@@ -141,5 +141,6 @@ const de: PlainTranslations = {
     hpWarranty: 'Garantieschreiben für Wärmepumpe',
     warrantyFileName: 'Garantieschreiben.pdf',
     performingPerson: 'Durchführende Person',
+    realisedAtResidence: 'Gleich wie Wohnsitz',
 }
 export default de

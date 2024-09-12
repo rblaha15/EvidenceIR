@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
-	import { isUserAdmin, logOut, currentUser } from '$lib/client/auth';
+	import { logOut, currentUser } from '$lib/client/auth';
 	import authentication from '$lib/client/authentication';
 	import { responsiblePerson } from '$lib/client/realtime';
 	import { relUrl } from '$lib/helpers/stores';
@@ -85,11 +85,6 @@
 						<li>
 							<button class="dropdown-item text-danger" on:click={logOut}>{t.toLogOut}</button>
 						</li>
-						{#if $isUserAdmin && !$page.route.id?.endsWith('admin')}
-							<li>
-								<a href={$relUrl('/admin')} class="dropdown-item text-info">Upravit seznam lidí</a>
-							</li>
-						{/if}
 					</ul>
 				</div>
 			</div>

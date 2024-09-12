@@ -32,6 +32,7 @@ export type Data = {
 	};
 	mistoRealizace: {
 		nadpis: Nadpisova<Data>;
+		jakoBydliste: Zaskrtavatkova<Data>;
 		obec: Pisatkova<Data>;
 		ulice: Pisatkova<Data>;
 		psc: Pisatkova<Data>;
