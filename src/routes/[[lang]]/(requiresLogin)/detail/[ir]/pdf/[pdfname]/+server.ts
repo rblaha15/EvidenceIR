@@ -14,5 +14,5 @@ export const GET: RequestHandler = async ({ url, fetch, params }) => {
     const token = await checkToken(t)
     if (!token) error(401, "Unauthorized")
 
-    return generatePdf(params.lang as LanguageCode, params.ir, fetch, pdfData[pdfname])
+    return generatePdf(params.lang as LanguageCode, params.ir as string, fetch, pdfData[pdfname])
 }

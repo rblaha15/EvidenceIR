@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { evidence, posledniKontrola, pridatKontrolu } from '$lib/client/firestore';
+	import { evidence, posledniKontrola, pridatKontrolu, type string } from '$lib/client/firestore';
 	import {
 		kontrola,
 		kontrolaTypes,
@@ -32,8 +32,8 @@
 	let nacita = true;
 	onMount(async () => {
 		nacita = false;
-		rok = (await posledniKontrola(ir)) + 1;
-		const snapshot = await evidence(ir);
+		rok = (await posledniKontrola(ir as string)) + 1;
+		const snapshot = await evidence(ir as string);
 		prvniKontrola = snapshot.data()?.kontroly?.[1];
 	});
 
