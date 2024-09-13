@@ -1,6 +1,6 @@
 import { dev } from "$app/environment";
 import { sendEmail, SENDER } from "$lib/client/email";
-import { existuje, novaEvidence, upravitEvidenci } from "$lib/client/firestore";
+import { existuje, novaEvidence, upravitEvidenci, type string, type string } from "$lib/client/firestore";
 import { dataToRawData, nazevIR, type Data, type RawData } from "$lib/Data";
 import { nazevFirmy } from "$lib/helpers/ares";
 import type { Vec } from "$lib/Vec";
@@ -29,7 +29,7 @@ export default async (
 
     const ir = data.ir.cislo.value.replace(' ', '');
 
-    if (!editMode && ir != '' && await existuje(ir)) {
+    if (!editMode && ir != '' && await existuje(ir as string)) {
         progress({
             red: true,
             text: t.irExistsHtml.parseTemplate({ link: relUrl(`/detail/${ir}`) }),

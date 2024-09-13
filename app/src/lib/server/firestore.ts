@@ -1,6 +1,6 @@
 import { getFirestore, type QueryDocumentSnapshot, type WithFieldValue } from 'firebase-admin/firestore';
 import { app } from './firebase';
-import type { IR } from '$lib/client/firestore';
+import type { IR, string } from '$lib/client/firestore';
 
 export const db = getFirestore(app!);
 

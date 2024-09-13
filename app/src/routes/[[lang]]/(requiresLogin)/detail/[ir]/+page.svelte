@@ -3,7 +3,7 @@
 	import type { PageData } from './$types';
 	import PdfLink from '$lib/components/PDFLink.svelte';
 	import { checkAuth } from '$lib/client/auth';
-	import { evidence, novaEvidence, odstranitEvidenci, type IR } from '$lib/client/firestore';
+	import { evidence, novaEvidence, odstranitEvidenci, type IR, type string } from '$lib/client/firestore';
 	import IMask from 'imask';
 	import { relUrl, storable } from '$lib/helpers/stores';
 	import { nazevIR } from '$lib/Data';
@@ -22,7 +22,7 @@
 
 		await checkAuth();
 		try {
-			let snapshot = await evidence(data.ir);
+			let snapshot = await evidence(data.ir as string);
 			if (!snapshot.exists()) {
 				existuje = false;
 				return;
@@ -41,7 +41,7 @@
 	});
 
 	const remove = async () => {
-		await odstranitEvidenci(data.ir);
+		await odstranitEvidenci(data.ir as string);
 		window.location.reload();
 	};
 
@@ -69,10 +69,10 @@
 		if (!mask || !mask.value) return (change = 'fail');
 		const newIr = mask.value;
 		change = 'sending';
-		const record = (await evidence(data.ir)).data()!;
+		const record = (await evidence(data.ir as string)).data()!;
 		record.evidence.ir.cislo = newIr;
 		await novaEvidence(record);
-		await odstranitEvidenci(data.ir);
+		await odstranitEvidenci(data.ir as string);
 		window.location.replace($relUrl(`/detail/${newIr.replace(' ', '')}`));
 	};
 </script>

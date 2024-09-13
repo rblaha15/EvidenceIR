@@ -4,8 +4,8 @@ import { derived, get, writable, type Writable } from 'svelte/store';
 
 export const relUrl = derived(page, (page) => (url: string) => "/" + page.params.lang + url);
 
-export function storable<T>(data: T | null, key: string): Writable<T | null> {
-    const store = writable<T | null>(data);
+export function storable<T>(defaultValue: T, key: string): Writable<T> {
+    const store = writable<T>(defaultValue);
     const isBrowser = () => browser;
 
     key = `storable-${key}`;

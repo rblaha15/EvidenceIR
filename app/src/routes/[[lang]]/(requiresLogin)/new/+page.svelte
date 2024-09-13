@@ -10,7 +10,7 @@
 	import { chosenCompanies, companies, filteredCompanies } from './companies';
 	import odeslat from './odeslat';
 	import { p } from '$lib/Vec';
-	import { evidence } from '$lib/client/firestore';
+	import { evidence, type IRName } from '$lib/client/firestore';
 	import { storable } from '$lib/helpers/stores';
 
 	import { dev } from '$app/environment';
@@ -25,7 +25,7 @@
 	let mode: 'loading' | 'create' | 'edit' | 'createStored' = 'loading';
 	let data: Data = newData();
 	onMount(async () => {
-		const ir = $page.url.searchParams.get('edit');
+		const ir = $page.url.searchParams.get('edit') as IRName;
 		if (ir) {
 			const snapshot = await evidence(ir);
 			console.log(snapshot);
@@ -47,6 +47,7 @@
 		if (data.montazka.ico.value == '' && c.assemblyCompanies.length == 1) {
 			data.montazka.ico.updateText(c.assemblyCompanies[0].crn);
 			data.montazka.email.value = c.assemblyCompanies[0].email ?? '';
+			data.montazka.zastupce.value = c.assemblyCompanies[0].representative ?? '';
 		}
 		if (data.uvedeni.ico.value == '' && c.commissioningCompanies.length == 1) {
 			data.uvedeni.ico.updateText(c.commissioningCompanies[0].crn);
