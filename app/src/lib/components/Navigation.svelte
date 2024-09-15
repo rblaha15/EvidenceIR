@@ -16,15 +16,15 @@
 	$: jePrihlasen = $currentUser != null;
 </script>
 
-<nav class="navbar navbar-expand-md sticky-top gray flex-wrap">
+<nav class="navbar navbar-expand-sm sticky-top gray flex-wrap">
 	<div class="container-fluid">
 		{#if jePrihlasen}
 			<button
 				type="button"
-				class="d-md-none me-2 btn navbar-toggler"
-				data-bs-toggle="collapse"
-				data-bs-target="#navbarSupportedContent"
-				aria-controls="navbarSupportedContent"
+				class="d-sm-none me-2 btn navbar-toggler"
+				data-bs-toggle="offcanvas"
+				data-bs-target="#NOC"
+				aria-controls="NOC"
 				aria-label="Menu"
 			>
 				<svg
@@ -41,13 +41,13 @@
 			</button>
 		{/if}
 		<img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
-		<span class="navbar-brand me-sm-3 me-auto">{t.appName}</span>
+		<span class="navbar-brand me-auto me-lg-3">{t.appName}</span>
 		{#if jePrihlasen}
-			<div class="d-none d-md-inline me-auto">
+			<div class="d-none d-lg-inline me-auto">
 				<BaseNav {t} />
 			</div>
-			<div class="d-flex flex-row ms-auto ms-md-0">
-				<div>
+			<div class="d-flex flex-row ms-auto ms-sm-0">
+				<div class="d-none d-sm-block">
 					<LanguageSelector />
 				</div>
 				<div class="dropdown">
@@ -83,14 +83,43 @@
 							>
 						</li>
 						<li>
-							<button class="dropdown-item text-danger" on:click={logOut}>{t.toLogOut}</button>
+							<button
+								class="dropdown-item text-danger"
+								on:click={() => {
+									logOut();
+									window.location.reload();
+								}}>{t.toLogOut}</button
+							>
 						</li>
 					</ul>
 				</div>
 			</div>
 			<div class="w-100" />
-			<div class="d-md-none ms-1">
+			<div class="d-none d-sm-inline d-lg-none me-auto">
 				<BaseNav {t} />
+			</div>
+			<div class="d-sm-none offcanvas offcanvas-start" tabindex="-1" id="NOC">
+				<div class="offcanvas-header">
+					<img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
+					<span class="navbar-brand">{t.appName}</span>
+					<LanguageSelector />
+					<button type="button" class="btn ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							viewBox="0 0 16 16"
+							fill="currentColor"
+						>
+							<path
+								d="M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z"
+							/>
+						</svg>
+					</button>
+				</div>
+				<div class="offcanvas-body">
+					<BaseNav {t} />
+				</div>
 			</div>
 		{:else}
 			<div class="ms-auto">

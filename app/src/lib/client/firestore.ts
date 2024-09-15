@@ -27,11 +27,11 @@ export const evidence = (ir: string) => {
 	return getDoc(irDoc(ir));
 };
 export const novaEvidence = (data: IR) => {
-	const ir = data.evidence.ir.cislo
+	const ir = data.evidence.ir.cislo.replace(' ', '')
 	return setDoc(irDoc(ir), data);
 };
 export const upravitEvidenci = (rawData: RawData) => {
-	const ir = rawData.ir.cislo
+	const ir = rawData.ir.cislo.replace(' ', '')
 	return updateDoc(irDoc(ir), `evidence`, rawData)
 };
 export const odstranitEvidenci = (ir: string) => {

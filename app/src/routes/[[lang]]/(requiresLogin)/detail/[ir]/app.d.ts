@@ -1,4 +1,3 @@
-import type { IRName } from "$lib/client/firestore";
 import type { LanguageCode } from "$lib/languages";
 import type { Translations } from "$lib/translations";
 
@@ -10,7 +9,7 @@ declare global {
 			languageCode: LanguageCode
 			translations: Translations
 			areTranslationsFromRoute: boolean
-			ir: IRName
+			ir: string
 		}
 		// interface PageState {}
 		// interface Platform {}

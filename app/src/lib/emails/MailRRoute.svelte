@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { nazevIR, type RawData } from '$lib/Data';
-	import type { TranslationReference, Translations } from '$lib/translations';
-	import type { Pair } from '$lib/Vec';
+	import type { Translations } from '$lib/translations';
 
 	export let e: RawData;
 	export let t: Translations;

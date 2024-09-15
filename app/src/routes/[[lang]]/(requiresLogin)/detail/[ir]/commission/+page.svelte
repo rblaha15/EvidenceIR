@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { evidence as getEvidence, uvestDoProvozu, type string } from '$lib/client/firestore';
+	import { evidence as getEvidence, uvestDoProvozu } from '$lib/client/firestore';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import {

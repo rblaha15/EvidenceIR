@@ -92,7 +92,7 @@ export const defaultUvedeni = (): Uvedeni => ({
     tc: {
         nadpis: new Nadpisova<UD>({ nazev: `heatPump` }),
         jisticTC: new Vyhovuje({ nazev: `characteristicsAndSizeOfHeatPumpBreaker` }),
-        jisticVJ: new Vyhovuje({ nazev: `characteristicsAndSizeOfIndoorUnit` }),
+        jisticVJ: new Vyhovuje({ nazev: `characteristicsAndSizeOfIndoorUnitBreaker` }),
         vzdalenostZdi: new Vyhovuje({ nazev: `distanceFromWall` }),
         kondenzator: new Ano({
             nazev: `isCompensatorInstalled`,

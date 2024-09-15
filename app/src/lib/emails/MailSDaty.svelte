@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import type { Data, RawData } from '$lib/Data';
+	import type { Data } from '$lib/Data';
 	import type { Translations } from '$lib/translations';
 	import {
 		DvojVybiratkova,

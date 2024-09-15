@@ -8,8 +8,8 @@
 
 	onMount(async () => {});
 
-	export let data: Data
-	export let t: Translations
+	export let data: Data;
+	export let t: Translations;
 	export let onScan: (text: string) => void;
 
 	let zrusitBtn: HTMLButtonElement;
@@ -20,7 +20,7 @@
 		html5QrCode = new Html5Qrcode('reader');
 	});
 
-	export let vec: Pisatkova;
+	export let vec: Pisatkova<Data>;
 	export let zobrazit: boolean;
 
 	const onClick = async () => {
@@ -71,7 +71,7 @@
 <div class="modal" id="cam">
 	<div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
 		<div class="modal-content">
-			<div class="modal-header ">
+			<div class="modal-header">
 				<h4 class="modal-title">{t.scanCode}:</h4>
 				<button
 					type="button"
