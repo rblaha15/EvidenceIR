@@ -25,7 +25,7 @@ export default {
 /*        serCis2 */ Text16: e.ir.cislo.split(' ')[1],
 /*       cisloBOX */ Text17: e.ir.cisloBOX,
 /*        cisloTC */ Text18: e.tc.cislo,
-/*       zaplatim */ Text22: e.vzdalenyPristup.fakturuje == 'endCustomer' ? 'Souhlasím s jednorázovou cenou 1000 Kč včetně DPH za tuto službu.' : '',
+/*       zaplatim */ Text22: e.vzdalenyPristup.fakturuje == 'endCustomer' ? t.agreeWIthRRPrice : '',
 /*          datum */ // Text20: '',
 /*         podpis */ // Text21: '',
     }),

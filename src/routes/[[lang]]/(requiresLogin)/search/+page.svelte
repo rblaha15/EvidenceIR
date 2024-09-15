@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { relUrl } from '$lib/helpers/stores';
 	import { addToHistory, history, removeFromHistory } from '$lib/History';
