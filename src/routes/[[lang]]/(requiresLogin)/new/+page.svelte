@@ -10,7 +10,7 @@
 	import { chosenCompanies, companies, filteredCompanies } from './companies';
 	import odeslat from './odeslat';
 	import { p } from '$lib/Vec';
-	import { evidence, type IRName } from '$lib/client/firestore';
+	import { evidence } from '$lib/client/firestore';
 	import { storable } from '$lib/helpers/stores';
 
 	import { dev } from '$app/environment';
@@ -25,7 +25,7 @@
 	let mode: 'loading' | 'create' | 'edit' | 'createStored' = 'loading';
 	let data: Data = newData();
 	onMount(async () => {
-		const ir = $page.url.searchParams.get('edit') as IRName;
+		const ir = $page.url.searchParams.get('edit');
 		if (ir) {
 			const snapshot = await evidence(ir);
 			console.log(snapshot);
@@ -40,18 +40,6 @@
 		} else {
 			data = rawDataToData(data, stored);
 			return (mode = 'createStored');
-		}
-	});
-
-	friendlyCompanies.subscribe((c) => {
-		if (data.montazka.ico.value == '' && c.assemblyCompanies.length == 1) {
-			data.montazka.ico.updateText(c.assemblyCompanies[0].crn);
-			data.montazka.email.value = c.assemblyCompanies[0].email ?? '';
-			data.montazka.zastupce.value = c.assemblyCompanies[0].representative ?? '';
-		}
-		if (data.uvedeni.ico.value == '' && c.commissioningCompanies.length == 1) {
-			data.uvedeni.ico.updateText(c.commissioningCompanies[0].crn);
-			data.uvedeni.email.value = c.commissioningCompanies[0].email ?? '';
 		}
 	});
 
@@ -103,7 +91,7 @@
 			data.tc.typ.value = 'airToWater';
 		}
 	}
-	$: if (mode != 'loading') {
+	$: if (mode != 'loading' && mode != 'edit') {
 		storedData.set(dataToRawData(data));
 	}
 
@@ -132,7 +120,6 @@
 <div class="d-flex flex-row flex-wrap">
 	<h1 class="flex-grow-1">{mode == 'edit' ? t.editation : t.controllerRegistration}</h1>
 	{#if mode == 'create' || mode == 'createStored'}
-		<!-- <div class="d-sm-none w-100" /> -->
 		<div class="d-flex ms-auto me-2 justify-content-end align-items-center">
 			<button
 				class="btn"
@@ -165,28 +152,30 @@
 {#each list as vec}
 	{#if vec === data.montazka.ico && vec.zobrazit(data)}
 		<p>{t.chosenCompany}: {chosen?.assemblyCompanies ?? t.unknown_Company}</p>
-		{#if $companies.assemblyCompanies.length > 1}
+		{#if $companies.assemblyCompanies.length > 0}
 			<VybiratkoFirmy
-				id="montazka"
+				id="Montazka"
 				bind:emailVec={data.montazka.email}
 				bind:zastupceVec={data.montazka.zastupce}
 				bind:icoVec={data.montazka.ico}
 				bind:filtr={$filter}
 				vyfiltrovanyFirmy={$filtered.assemblyCompanies}
+				neVyfiltrovanyFirmy={$companies.assemblyCompanies}
 				{t}
 			/>
 		{/if}
 	{/if}
 	{#if vec === data.uvedeni.ico && vec.zobrazit(data)}
 		<p>{t.chosenCompany}: {chosen?.commissioningCompanies ?? t.unknown_Company}</p>
-		{#if $companies.commissioningCompanies.length > 1}
+		{#if $companies.commissioningCompanies.length > 0}
 			<VybiratkoFirmy
-				id="uvedeni"
+				id="Uvedeni"
 				bind:emailVec={data.uvedeni.email}
 				bind:zastupceVec={data.uvedeni.zastupce}
 				bind:icoVec={data.uvedeni.ico}
 				bind:filtr={$filter}
 				vyfiltrovanyFirmy={$filtered.commissioningCompanies}
+				neVyfiltrovanyFirmy={$companies.commissioningCompanies}
 				{t}
 			/>
 		{/if}

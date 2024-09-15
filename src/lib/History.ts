@@ -10,5 +10,5 @@ export const addToHistory = (ir: string) => {
 }
 
 export const removeFromHistory = (ir: string) => {
-    _history.update(h => h.toSpliced(h.indexOf(ir)))
+    _history.update(h => h.toSpliced(h.indexOf(ir), 1))
 }

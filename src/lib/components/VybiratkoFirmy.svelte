@@ -1,8 +1,9 @@
 <script lang="ts">
-	type D = $$Generic
 	import type { Company } from '$lib/client/realtime';
 	import type { Translations } from '$lib/translations';
 	import type { Pisatkova } from '$lib/Vec';
+	import { onMount } from 'svelte';
+	type D = $$Generic;
 
 	export let t: Translations;
 	export let id: string;
@@ -11,14 +12,39 @@
 	export let icoVec: Pisatkova<D>;
 	export let filtr: string;
 	export let vyfiltrovanyFirmy: Company[];
+	export let neVyfiltrovanyFirmy: Company[];
+
+	onMount(async () => {
+		const { Modal } = await import('bootstrap');
+
+		window.onbeforeunload = () => {
+			const modal = new Modal(`#vyberFirem${id}`);
+			modal.hide();
+		};
+	});
 </script>
 
-<button
-	type="button"
-	class="btn btn-outline-secondary"
-	data-bs-toggle="modal"
-	data-bs-target="#vyberFirem{id}">{t.chooseFromList}</button
->
+{#if neVyfiltrovanyFirmy.length == 1}
+	<button
+		type="button"
+		on:click={() => {
+			emailVec.value = vyfiltrovanyFirmy[0].email ?? '';
+			if (id == 'Montazka') zastupceVec.value = vyfiltrovanyFirmy[0].representative ?? '';
+			icoVec.updateText(vyfiltrovanyFirmy[0].crn);
+		}}
+		class="btn btn-outline-secondary"
+	>
+		{vyfiltrovanyFirmy[0].companyName} - {vyfiltrovanyFirmy[0].crn}
+	</button>
+{:else}
+	<button
+		type="button"
+		class="btn btn-outline-secondary"
+		data-bs-toggle="modal"
+		data-bs-target="#vyberFirem{id}">{t.chooseFromList}</button
+	>
+{/if}
+
 <p class="my-2">-- {t.or} --</p>
 
 <div class="modal" id="vyberFirem{id}">
@@ -39,7 +65,7 @@
 							class="list-group-item list-group-item-action"
 							on:click={() => {
 								emailVec.value = company.email ?? '';
-								zastupceVec.value = company.representative ?? '';
+								if (id == 'Montazka') zastupceVec.value = company.representative ?? '';
 								icoVec.updateText(company.crn);
 								filtr = '';
 							}}>{company.companyName} - {company.crn}</button
@@ -49,9 +75,7 @@
 			</div>
 
 			<div class="modal-footer d-sm-none">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-					>{t.cancel}</button
-				>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{t.cancel}</button>
 			</div>
 		</div>
 	</div>

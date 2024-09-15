@@ -8,7 +8,6 @@
 	export let t: Translations;
 	export let vec: Pisatkova<D>;
 	export let type: string = 'text';
-	export let w: string = '100';
 	export let data: D;
 
 	type MyOpts = {
@@ -61,25 +60,28 @@
 </script>
 
 {#if vec.zobrazit(data)}
-	{#if options != undefined}
-		<input
-			{type}
-			placeholder={nazevSHvezdou(vec, data, t)}
-			class="form-control w-{w}"
-			bind:this={input}
-			{...$$restProps}
-		/>
-	{:else}
-		<input
-			{type}
-			placeholder={nazevSHvezdou(vec, data, t)}
-			class="form-control w-{w}"
-			bind:this={input}
-			value={vec.value}
-			on:input={() => (vec.value = input.value)}
-			{...$$restProps}
-		/>
-	{/if}
+	<label class="form-floating d-block">
+		{#if options != undefined}
+			<input
+				{type}
+				placeholder={nazevSHvezdou(vec, data, t)}
+				class="form-control"
+				bind:this={input}
+				{...$$restProps}
+			/>
+		{:else}
+			<input
+				{type}
+				placeholder={nazevSHvezdou(vec, data, t)}
+				class="form-control"
+				bind:this={input}
+				value={vec.value}
+				on:input={() => (vec.value = input.value)}
+				{...$$restProps}
+			/>
+		{/if}
+		<label for="">{nazevSHvezdou(vec, data, t)}</label>
+	</label>
 
 	{#if vec.zobrazitError(data)}
 		<span class="text-danger help-block">{t.get(vec.onError(data))}</span>

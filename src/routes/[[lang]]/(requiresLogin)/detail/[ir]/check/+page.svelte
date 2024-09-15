@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { evidence, posledniKontrola, pridatKontrolu, type string } from '$lib/client/firestore';
+	import { evidence, posledniKontrola, pridatKontrolu } from '$lib/client/firestore';
 	import {
 		kontrola,
 		kontrolaTypes,
@@ -21,11 +21,6 @@
 	let uvadec: string = '';
 	const k = kontrola(data.languageCode, 'uvaděč', today()) as KontrolaAsRecord;
 	const n = checkNames[data.languageCode] as NamesRecord;
-
-	const onInput = (v: { key1: keyof KontrolaBezMety; key2: string }, ev: Event) => {
-		// @ts-expect-error
-		k[v.key1][v.key2] = (ev.target?.value as string | undefined) ?? '';
-	};
 
 	let rok: number | undefined;
 	let prvniKontrola: KontrolaAsRecord | undefined;
@@ -60,7 +55,12 @@
 <h1>{t.yearlyCheck}</h1>
 <h3>{t.year}: {rok ?? '…'}</h3>
 
-<input type="text" placeholder={t.get('performingPerson')} class="form-control d-block" bind:value={uvadec} />
+<input
+	type="text"
+	placeholder={t.get('performingPerson')}
+	class="form-control d-block"
+	bind:value={uvadec}
+/>
 
 {#each orderArray as v}
 	{@const value = k[v.key1][v.key2]}
@@ -89,7 +89,9 @@
 				class="form-control d-block"
 				placeholder={name}
 				value={value ?? ''}
-				on:input={(e) => onInput(v, e)}
+				on:input={(e) => {
+					k[v.key1][v.key2] = e.currentTarget.value;
+				}}
 			/>
 		</p>
 	{:else if type == 'tlak' && rok != 1}

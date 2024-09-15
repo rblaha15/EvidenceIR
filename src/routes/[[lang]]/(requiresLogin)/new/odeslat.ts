@@ -1,6 +1,6 @@
 import { dev } from "$app/environment";
 import { sendEmail, SENDER } from "$lib/client/email";
-import { existuje, novaEvidence, upravitEvidenci, type string, type string } from "$lib/client/firestore";
+import { existuje, novaEvidence, upravitEvidenci } from "$lib/client/firestore";
 import { dataToRawData, nazevIR, type Data, type RawData } from "$lib/Data";
 import { nazevFirmy } from "$lib/helpers/ares";
 import type { Vec } from "$lib/Vec";
@@ -72,10 +72,12 @@ export default async (
     }
     const rawData = dataToRawData(data);
 
+    const user = get(currentUser)!
+
     const div = document.createElement('div');
     new MailSDaty({
         target: div,
-        props: { data, t, user: get(currentUser)! }
+        props: { data, t, user }
     });
 
     const html = div.innerHTML;
@@ -99,7 +101,8 @@ export default async (
 
         await sendEmail({
             from: SENDER,
-            to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
+            to: dev ? 'radek.blaha.15@gmail.com' : 'david.cervenka@regulus.cz',
+            cc: dev ? undefined : user.email!,
             subject: `Založení RegulusRoute k ${nazevIR(t, rawData.ir.typ)} ${rawData.ir.cislo}`,
             html,
         });

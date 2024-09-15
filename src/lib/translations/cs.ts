@@ -145,7 +145,7 @@ export default {
     suits: `vyhovuje`,
     suitsNot: `nevyhovuje`,
     characteristicsAndSizeOfHeatPumpBreaker: `Charakteristika a velikost jističe TČ`,
-    characteristicsAndSizeOfIndoorUnit: `Charakteristika a velikost vnitřní jednotky`,
+    characteristicsAndSizeOfIndoorUnitBreaker: `Charakteristika a velikost jističe vnitřní jednotky`,
     distanceFromWall: `Vzdálenost TČ od zdi`,
     isCompensatorInstalled: `Je instalován kompenzátor pro zvýšení ochrany výměníku TČ?`,
     isCirculationPumpFilterInstalled: `Je instalován filtr oběhového čerpadla na zpátečce k TČ?`,
