@@ -95,7 +95,7 @@ export const defaultUvedeni = (): Uvedeni => ({
     tc: {
         nadpis: new Nadpisova<UD>({ nazev: `heatPump` }),
         jisticTC: new Vyhovuje({ nazev: `characteristicsAndSizeOfHeatPumpBreaker` }),
-        jisticVJ: new Vyhovuje({ nazev: `characteristicsAndSizeOfIndoorUnitBreaker` }),
+        jisticVJ: new Vyhovuje({ zobrazit: d => d.evidence.ir.typ.first!.includes('BOX'), nazev: `characteristicsAndSizeOfIndoorUnitBreaker` }),
         vzdalenostZdi: new Vyhovuje({ nazev: `distanceFromWall` }),
         kondenzator: new Zaskrtavatkova<UD>({
             nutne: false,
