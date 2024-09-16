@@ -15,6 +15,7 @@ export type IR = {
 		3?: Kontrola,
 		4?: Kontrola,
 	},
+	users: string[],
 }
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({

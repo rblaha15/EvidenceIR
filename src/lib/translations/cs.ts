@@ -67,7 +67,7 @@ export default {
     evidenceDetails: `Podrobnosti o instalaci`,
     loadingData: `Načítání dat...`,
     sorrySomethingWentWrong: `Omlouváme se, něco se nepovedlo.`,
-    linkInvalid: `Buď je odkaz na tuto stránku nesprávný, nebo je již záznam o evidenci odstraněný.`,
+    linkInvalid: `Buď je záznam o evidenci neexistuje nebo k němu nemáte přístup.`,
     linkToThis: `Odkaz na tuto stránku`,
     copy: `Kopírovat`,
     regulusRouteForm: `Formulář o zpřístupnění regulátoru službě RegulusRoute`,

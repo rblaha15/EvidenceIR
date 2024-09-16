@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { relUrl } from '$lib/helpers/stores';
 	import { addToHistory, history, removeFromHistory } from '$lib/History';
@@ -31,16 +32,42 @@
 	});
 
 	let search = '';
+	let error = '';
+	$: search, (error = '');
 
 	$: mask?.on('accept', (_) => (search = mask.value));
 </script>
 
 <h1>{t.controllerSearch}</h1>
-<form class="d-flex" role="search" action={$relUrl(`/detail/${search.replace(' ', '')}`)}>
-	<input type="search" class="form-control me-2" placeholder={t.serialNumber} bind:this={input} />
-	<button class="btn btn-success" type="submit" on:click={() => addToHistory(search)}
-		>{t.search}</button
-	>
+<form>
+	<div class="d-flex align-items-center">
+		<label class="form-floating me-2 flex-grow-1">
+			<input
+				type="search"
+				class:is-invalid={error != ''}
+				class="form-control"
+				placeholder={t.serialNumber}
+				bind:this={input}
+				required
+			/>
+			<label for="">{t.serialNumber}</label>
+			<div class="invalid-feedback" class:d-block={true}>
+				{error}
+			</div>
+		</label>
+		<a
+			class="btn btn-success"
+			type="submit"
+			href={$relUrl(`/detail/${search.replace(' ', '')}`)}
+			on:click|preventDefault={() => {
+				if (!/([A-Z][1-9OND]) ([0-9]{4})/.test(search)) {
+					error = t.wrongNumberFormat;
+					return;
+				}
+				addToHistory(search);
+			}}>{t.search}</a
+		>
+	</div>
 </form>
 
 {#if $history.length != 0}
@@ -50,8 +77,9 @@
 			<a
 				class="list-group-item-action list-group-item d-flex align-items-center justify-content-between"
 				href={$relUrl(`/detail/${ir.replace(' ', '')}`)}
-				on:click={() => {
+				on:click|preventDefault={() => {
 					addToHistory(ir);
+					goto($relUrl(`/detail/${ir.replace(' ', '')}`));
 				}}
 			>
 				{ir}
