@@ -19,6 +19,7 @@ export class Vyhovuje extends Prepinatkova<UD> {
             nutne: args.nutne ?? false,
             ...args,
             moznosti: [`suitsNot`, `suits`] as const,
+            hasPositivity: true,
         })
     }
 }

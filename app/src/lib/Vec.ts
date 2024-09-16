@@ -176,6 +176,7 @@ export class Prepinatkova<D> extends Vec<D, boolean> {
     moznosti: readonly [TranslationReference, TranslationReference];
     value: boolean;
     nutne: Get<D, boolean>;
+    hasPositivity: Get<D, boolean>;
 
     zpravaJeChybna: Get<D, boolean> = a => !this.value && this.nutne(a);
     constructor(args: {
@@ -184,6 +185,7 @@ export class Prepinatkova<D> extends Vec<D, boolean> {
         onError?: GetOrVal<D>,
         nutne?: GetOrVal<D, boolean>,
         zobrazit?: GetOrVal<D, boolean>,
+        hasPositivity?: GetOrVal<D, boolean>,
         vybrano?: boolean,
     }) {
         super();
@@ -193,6 +195,7 @@ export class Prepinatkova<D> extends Vec<D, boolean> {
         this.onError = toGet(args.onError ?? t('requiredField'));
         this.nutne = toGet(args.nutne ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
+        this.hasPositivity = toGet(args.hasPositivity ?? false);
         this.value = (args.vybrano ?? false);
     }
 }
