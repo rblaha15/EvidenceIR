@@ -10,6 +10,7 @@ import { get } from "svelte/store";
 import { page as pageStore } from "$app/stores";
 import { relUrl as relUrlStore, storable } from "$lib/helpers/stores";
 import { currentUser, getToken } from "$lib/client/auth";
+import { getTranslations } from "$lib/translations";
 
 const storedData = storable<RawData | null>(null, 'storedData');
 
@@ -26,10 +27,9 @@ export default async (
     const relUrl = get(relUrlStore)
     const t = page.data.translations
 
-    const rawData = dataToRawData(data);
-    const ir = rawData.ir.cislo.replace(' ', '');
+    const ir = data.ir.cislo.value.replace(' ', '');
 
-    if (!editMode && await existuje(ir)) {
+    if (!editMode && ir != '' && await existuje(ir as string)) {
         progress({
             red: true,
             text: t.irExistsHtml.parseTemplate({ link: relUrl(`/detail/${ir}`) }),
@@ -63,14 +63,21 @@ export default async (
 
     if (data.uvedeni.jakoMontazka.value) {
         data.uvedeni.ico.updateText(data.montazka.ico.value);
-        data.uvedeni.zastupce.value = data.montazka.zastupce.value;
         data.uvedeni.email.value = data.montazka.email.value;
     }
+    if (data.mistoRealizace.jakoBydliste.value) {
+        data.mistoRealizace.ulice.updateText(data.bydliste.ulice.value);
+        data.mistoRealizace.obec.value = data.bydliste.obec.value;
+        data.mistoRealizace.psc.value = data.bydliste.psc.value;
+    }
+    const rawData = dataToRawData(data);
+
+    const user = get(currentUser)!
 
     const div = document.createElement('div');
     new MailSDaty({
         target: div,
-        props: { data, t, user: get(currentUser)! }
+        props: { data, t, user }
     });
 
     const html = div.innerHTML;
@@ -82,6 +89,7 @@ export default async (
     }
 
     if (rawData.vzdalenyPristup.chce && !doNotSend) {
+        const t = getTranslations('cs')
         const montazka = (await nazevFirmy(rawData.montazka.ico)) ?? null;
         const uvadec = (await nazevFirmy(rawData.uvedeni.ico)) ?? null;
         const div = document.createElement('div');
@@ -93,7 +101,8 @@ export default async (
 
         await sendEmail({
             from: SENDER,
-            to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
+            to: dev ? 'radek.blaha.15@gmail.com' : 'david.cervenka@regulus.cz',
+            cc: dev ? undefined : user.email!,
             subject: `Založení RegulusRoute k ${nazevIR(t, rawData.ir.typ)} ${rawData.ir.cislo}`,
             html,
         });
@@ -107,13 +116,13 @@ export default async (
     });
 
     if (doNotSend || response!.ok) {
-        // storedData.set(null)
+        storedData.set(null)
         progress({
             text: t.redirecting,
             red: false,
             load: true
         });
-        // window.location.href = relUrl(`/detail/${ir}`);
+        window.location.href = relUrl(`/detail/${ir}`);
         setTimeout(() => {
             progress({
                 text: t.redirectFailedHtml.parseTemplate({ link: page.url.origin + relUrl(`/detail/${ir}`) }),

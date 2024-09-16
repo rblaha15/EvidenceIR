@@ -32,7 +32,6 @@
 		Zaskrtavatko
 	} from '$lib/components/veci';
 	import type { RawData } from '$lib/Data';
-	import { page } from '$app/stores';
 	import { getToken } from '$lib/client/auth';
 	import { storable } from '$lib/helpers/stores';
 
@@ -45,7 +44,7 @@
 	let u: Uvedeni = defaultUvedeni();
 	let evidence: RawData;
 	onMount(async () => {
-		const snapshot = await getEvidence(ir);
+		const snapshot = await getEvidence(ir as string);
 		console.log(snapshot);
 		if (snapshot.exists()) {
 			evidence = snapshot.data().evidence;
@@ -88,7 +87,7 @@
 		}
 
 		vysledek = { load: true, red: false, text: t.saving };
-		await uvestDoProvozu(ir, raw);
+		await uvestDoProvozu(ir as string, raw);
 
 		storedCommission.set(null);
 		vysledek = {

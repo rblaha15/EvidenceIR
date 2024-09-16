@@ -21,36 +21,37 @@ const irCollection = collection(firestore, 'ir').withConverter<IR>({
 	toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
 	fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR,
 })
+const irDoc = (ir: string) => doc(irCollection, ir)
 
 export const evidence = (ir: string) => {
-	return getDoc(doc(irCollection, ir.replace(" ", "")));
+	return getDoc(irDoc(ir));
 };
 export const novaEvidence = (data: IR) => {
-	const ir = data.evidence.ir.cislo.replace(" ", "")
-	return setDoc(doc(irCollection, ir), data);
+	const ir = data.evidence.ir.cislo.replace(' ', '')
+	return setDoc(irDoc(ir), data);
 };
 export const upravitEvidenci = (rawData: RawData) => {
-	const ir = rawData.ir.cislo.replace(" ", "")
-	return updateDoc(doc(irCollection, ir), `evidence`, rawData)
+	const ir = rawData.ir.cislo.replace(' ', '')
+	return updateDoc(irDoc(ir), `evidence`, rawData)
 };
 export const odstranitEvidenci = (ir: string) => {
-	return deleteDoc(doc(firestore, 'ir', `/${ir.replace(" ", "")}`));
+	return deleteDoc(doc(firestore, 'ir', `/${ir}`));
 };
 export const existuje = async (ir: string) => {
-	return (await getDoc(doc(irCollection, ir.replace(" ", "")))).exists();
+	return (await getDoc(irDoc(ir))).exists();
 };
 
 export const posledniKontrola = async (ir: string) => {
-	const snapshot = await getDoc(doc(irCollection, ir.replace(" ", "")));
+	const snapshot = await getDoc(irDoc(ir));
 	const kontroly = snapshot.data()!.kontroly
 	if (kontroly?.[1] == undefined) return 0
 	return Math.max(...Object.keys(kontroly).map(it => Number(it)))
 }
 
 export const pridatKontrolu = (ir: string, rok: number, kontrola: Kontrola) => {
-	return updateDoc(doc(irCollection, ir.replace(" ", "")), `kontroly.${rok}`, kontrola)
+	return updateDoc(irDoc(ir), `kontroly.${rok}`, kontrola)
 }
 
 export const uvestDoProvozu = (ir: string, uvedeni: RawUvedeni) => {
-	return updateDoc(doc(irCollection, ir.replace(" ", "")), `uvedeni`, uvedeni)
+	return updateDoc(irDoc(ir), `uvedeni`, uvedeni)
 }

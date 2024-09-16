@@ -1,6 +1,16 @@
 const node_fetch = fetch;
 
+const companyOverrides = {
+    4466601609: {
+        obchodniJmeno: "Regulus Wärmetechnik GmbH",
+        sidlo: { textovaAdresa: "Ruhrstraße 22, 67574 Osthofen, Deutschland" },
+    }
+}
+
 export const nazevAdresaFirmy = async (ico: string, fetch: typeof node_fetch = node_fetch) => {
+
+    if (Object.keys(companyOverrides).includes(ico))
+        return (<Record<string, { obchodniJmeno: string; sidlo: { textovaAdresa: string; }; }>>companyOverrides)[ico]
 
     let response;
     try {
@@ -17,6 +27,9 @@ export const nazevAdresaFirmy = async (ico: string, fetch: typeof node_fetch = n
 };
 
 export const nazevFirmy = async (ico: string, fetch: typeof node_fetch = node_fetch) => {
+
+    if (Object.keys(companyOverrides).includes(ico))
+        return (<Record<string, { obchodniJmeno: string; sidlo: { textovaAdresa: string; }; }>>companyOverrides)[ico].obchodniJmeno
 
     let response;
     try {

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { nazevIR, type RawData } from '$lib/Data';
-	import type { TranslationReference, Translations } from '$lib/translations';
-	import type { Pair } from '$lib/Vec';
+	import type { Translations } from '$lib/translations';
 
 	export let e: RawData;
 	export let t: Translations;
@@ -52,12 +51,14 @@
 	<p><b>Název:</b> {montazka}</p>
 {/if}
 <p><b>IČO:</b> {e.montazka.ico}</p>
+<p><b>Zástupce:</b> {e.montazka.zastupce}</p>
 
 <h1>Uvedení do provozu</h1>
 {#if uvadec != null}
 	<p><b>Název:</b> {uvadec}</p>
 {/if}
 <p><b>IČO:</b> {e.uvedeni.ico}</p>
+<p><b>Zástupce:</b> {e.uvedeni.zastupce}</p>
 
 <h1>Poznámka</h1>
 <p>{e.ostatni.poznamka}</p>

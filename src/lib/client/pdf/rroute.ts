@@ -1,23 +1,17 @@
 import { nazevFirmy } from "$lib/helpers/ares";
-import type { LanguageCode } from "$lib/languages";
-import { p } from "$lib/Vec";
-import { evidence } from "../firestore";
-import { generatePdf } from "../pdf";
+import { type PdfArgs } from "$lib/client/pdf";
 
-const node_fetch = fetch
-
-export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: typeof node_fetch }) => generatePdf({
-    lang, ir, fetch,
-    getFirebaseData: async () => evidence(ir),
-    formLocation: '/rroute_cs.pdf',
-    title: p`Souhlas se zpřístupněním regulátoru IR službě RegulusRoute`,
-    fileName: p`Formulář RegulusRoute.pdf`,
+export default {
+    formName: 'rroute',
+    supportedLanguages: ['cs', 'de'],
+    title: `regulusRouteTitle`,
+    fileName: `regulusRouteFileName`,
     getFormData: async ({ evidence: e }, t) => ({
 /*   icoMontaznik */ Text1: e.montazka.ico,
-/* firmaMontaznik */ Text2: (await nazevFirmy(e.montazka.ico, fetch)) ?? '',
+/* firmaMontaznik */ Text2: (await nazevFirmy(e.montazka.ico, fetch)) ?? null,
 /* jmenoMontaznik */ Text3: e.montazka.zastupce,
 /*      icoUvadec */ Text4: e.uvedeni.ico,
-/*    firmaUvadec */ Text5: (await nazevFirmy(e.uvedeni.ico, fetch)) ?? '',
+/*    firmaUvadec */ Text5: (await nazevFirmy(e.uvedeni.ico, fetch)) ?? null,
 /*    jmenoUvadec */ Text6: e.uvedeni.zastupce,
 /*   jmenoPrimeni */ Text7: `${e.koncovyUzivatel.jmeno} ${e.koncovyUzivatel.prijmeni}`,
 /*       narozeni */ Text8: e.koncovyUzivatel.narozeni,
@@ -31,8 +25,8 @@ export default ({ lang, ir, fetch }: { lang: LanguageCode, ir: string, fetch: ty
 /*        serCis2 */ Text16: e.ir.cislo.split(' ')[1],
 /*       cisloBOX */ Text17: e.ir.cisloBOX,
 /*        cisloTC */ Text18: e.tc.cislo,
-/*       zaplatim */ Text22: e.vzdalenyPristup.fakturuje == 'endCustomer' ? 'Souhlasím s jednorázovou cenou 1000 Kč včetně DPH za tuto službu.' : '',
+/*       zaplatim */ Text22: e.vzdalenyPristup.fakturuje == 'endCustomer' ? t.agreeWIthRRPrice : '',
 /*          datum */ // Text20: '',
 /*         podpis */ // Text21: '',
     }),
-})
+} as PdfArgs

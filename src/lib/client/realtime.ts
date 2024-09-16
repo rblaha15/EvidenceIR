@@ -51,6 +51,14 @@ const _friendlyCompanies = async (
 		assembly: Object.keys(ja.assemblyCompanies) as CRN[],
 		commissioning: Object.keys(ja.commissioningCompanies) as CRN[],
 	}
+	console.log({
+		assemblyCompanies: await Promise.all(
+			dovolenaIca.assembly.map(async (crn) => (await get(child(firmyRef, crn))).val() as Company)
+		),
+		commissioningCompanies: await Promise.all(
+			dovolenaIca.commissioning.map(async (crn) => (await get(child(firmyRef, crn))).val() as Company)
+		),
+	} as FriendlyCompanies)
 	return {
 		assemblyCompanies: await Promise.all(
 			dovolenaIca.assembly.map(async (crn) => (await get(child(firmyRef, crn))).val() as Company)
