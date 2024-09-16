@@ -231,7 +231,13 @@ export class Pisatkova<D> extends Vec<D, string> {
     autocomplete: Get<D, string>;
     onError: Get<D, TranslationReference>;
     zobrazit: Get<D, boolean>;
-    value: string;
+    value: string
+        get() {
+            return this.value
+        };
+        set(value: string) {
+            this.updateText(value)
+        };
     updateText: (text: string) => void = it => { this.value = it };
     maskOptions: Get<D, Opts>;
     regex: Get<D, RegExp>;

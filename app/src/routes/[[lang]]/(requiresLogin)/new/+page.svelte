@@ -184,7 +184,7 @@
 		<Scanner
 			bind:vec={data.tc.cislo}
 			zobrazit={data.ir.typ.value.second == p`CTC`}
-			onScan={(text) => (data.tc.cislo.value = text.slice(8))}
+			onScan={(text) => (data.tc.cislo.updateText(text.slice(8)))}
 			{t}
 			{data}
 		/>
