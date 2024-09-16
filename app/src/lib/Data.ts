@@ -52,7 +52,7 @@ export type Data = {
 	};
 	vzdalenyPristup: {
 		nadpis: Nadpisova<Data>;
-		chce: Prepinatkova<Data>;
+		chce: Zaskrtavatkova<Data>;
 		pristupMa: MultiZaskrtavatkova<Data>;
 		fakturuje: Radiova<Data>;
 	};
