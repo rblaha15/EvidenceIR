@@ -14,6 +14,7 @@
 		nacita = false;
 	});
 	onMount(() => {
+		import('bootstrap');
 		const currentLangLength = $page.params.lang?.length ?? -1;
 		if (!$page.data.areTranslationsFromRoute)
 			window.location.replace(
@@ -27,7 +28,7 @@
 
 <svelte:head>
 	<style lang="scss">
-		@import "bootstrap/scss/bootstrap";
+		@import 'bootstrap/scss/bootstrap';
 	</style>
 </svelte:head>
 

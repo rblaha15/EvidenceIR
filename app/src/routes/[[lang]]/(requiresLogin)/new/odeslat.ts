@@ -85,7 +85,7 @@ export default async (
     if (editMode) {
         await upravitEvidenci(rawData);
     } else {
-        await novaEvidence({ evidence: rawData, kontroly: {} });
+        await novaEvidence({ evidence: rawData, kontroly: {}, users: [user.uid] });
     }
 
     if (rawData.vzdalenyPristup.chce && !doNotSend) {

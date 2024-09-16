@@ -2,43 +2,22 @@
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import PdfLink from '$lib/components/PDFLink.svelte';
-	import { checkAuth, currentUser } from '$lib/client/auth';
+	import { checkAdmin, checkAuth, currentUser } from '$lib/client/auth';
 	import { evidence, novaEvidence, odstranitEvidenci, type IR } from '$lib/client/firestore';
 	import IMask from 'imask';
 	import { relUrl, storable } from '$lib/helpers/stores';
 	import { nazevIR } from '$lib/Data';
-	import type { RawUvedeni } from '$lib/Uvedeni';
-	import type { FirebaseError } from 'firebase/app';
+	import { error } from '@sveltejs/kit';
 
 	export let data: PageData;
 	const t = data.translations;
 
-	const storedCommission = storable<RawUvedeni | null>(null, `storedCommission-${data.ir}`);
-
-	let existuje: boolean;
-	let values: IR;
+	let ir: IR;
 	let nacita = true;
 	onMount(async () => {
 		nacita = false;
-
-		await checkAuth();
-		try {
-			let snapshot = await evidence(data.ir as string);
-			if (!snapshot.exists()) {
-				existuje = false;
-				return;
-			}
-			values = snapshot.data();
-			existuje = true;
-		} catch (e) {
-			console.log((e as FirebaseError).code);
-			existuje = false;
-			return;
-		}
-
-		if ($storedCommission != null && values.uvedeni != undefined) {
-			storedCommission.set(null);
-		}
+		const snapshot = await evidence(data.ir as string);
+		ir = snapshot.data()!!;
 	});
 
 	const remove = async () => {
@@ -78,23 +57,12 @@
 	};
 </script>
 
-<h1>
-	{t.evidenceDetails}
-</h1>
-{#if existuje == undefined}
+<!-- {#if existuje == undefined}
 	<div class="spinner-border text-danger" />
 {:else if !existuje}
-	<h3>
-		{data.ir.slice(0, 2)} {data.ir.slice(2, 6)}
-	</h3>
 	<p class="mt-2">{t.sorrySomethingWentWrong}</p>
 	<p class="mt-2">{t.linkInvalid}</p>
 {:else}
-	<h3>
-		{nazevIR(t, values.evidence.ir.typ)}
-		{values.evidence.ir.cislo} : {values.evidence.koncovyUzivatel.prijmeni}
-		{values.evidence.koncovyUzivatel.jmeno} - {values.evidence.mistoRealizace.obec}
-	</h3>
 	{#if values.evidence.vzdalenyPristup.chce}
 		<PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
 	{/if}
@@ -116,7 +84,7 @@
 				>
 			{/if}
 		</PdfLink>
-		<!-- <PdfLink name={t.installationApproval} {t} linkName="installationApproval" {data} /> -->
+		<PdfLink name={t.installationApproval} {t} linkName="installationApproval" {data} />
 		<PdfLink name={t.filledYearlyCheck} {t} linkName="check" {data}>
 			<button
 				class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
@@ -164,3 +132,4 @@
 		>{t.deleteThisEvidence}</button
 	>
 {/if}
+ -->

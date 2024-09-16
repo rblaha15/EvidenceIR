@@ -45,7 +45,6 @@
 	let evidence: RawData;
 	onMount(async () => {
 		const snapshot = await getEvidence(ir as string);
-		console.log(snapshot);
 		if (snapshot.exists()) {
 			evidence = snapshot.data().evidence;
 		}

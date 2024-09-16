@@ -21,7 +21,7 @@
 					id={vec.nazev(data) + Boolean(i)}
 					autocomplete="off"
 				/>
-				<label class="btn btn-sm {vec.hasPositivity(data) ? i == 1 ? 'btn-outline-success' : 'btn-outline-danger' : 'btn-outline-secondary'}" for={vec.nazev(data) + Boolean(i)}
+				<label class="btn btn-sm {vec.hasPositivity(data) && vec.value == Boolean(i) ? i == 1 ? 'btn-outline-success' : 'btn-outline-danger' : 'btn-outline-secondary'}" for={vec.nazev(data) + Boolean(i)}
 					>{t.get(moznost)}</label
 				>
 			{/each}
