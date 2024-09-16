@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import PdfLink from '$lib/components/PDFLink.svelte';
-	import { checkAuth, currentUser } from '$lib/client/auth';
+	import { checkAuth, currentUser, isUserAdmin } from '$lib/client/auth';
 	import { evidence, novaEvidence, odstranitEvidenci, type IR } from '$lib/client/firestore';
 	import IMask from 'imask';
 	import { relUrl, storable } from '$lib/helpers/stores';
@@ -85,7 +85,8 @@
 	<div class="spinner-border text-danger" />
 {:else if !existuje}
 	<h3>
-		{data.ir.slice(0, 2)} {data.ir.slice(2, 6)}
+		{data.ir.slice(0, 2)}
+		{data.ir.slice(2, 6)}
 	</h3>
 	<p class="mt-2">{t.sorrySomethingWentWrong}</p>
 	<p class="mt-2">{t.linkInvalid}</p>
@@ -125,6 +126,11 @@
 			>
 		</PdfLink>
 	{/if}
+	{#if $currentUser?.email?.endsWith("@regulus.cz") || $isUserAdmin}
+	<a class="btn btn-outline-info mt-2" href={$relUrl(`/detail/${data.ir}/users`)}
+		>Uživatelé s přístupem k této evidenci</a
+	>
+	{/if}
 	{#if change == 'no'}
 		<button class="btn btn-outline-warning d-block mt-2" on:click={() => (change = 'input')}
 			>{t.changeController}</button
@@ -155,10 +161,11 @@
 	{:else if change == 'fail'}
 		<p class="mt-2 text-danger">{t.changeWentWrong}</p>
 	{/if}
-	<button
-		class="btn btn-outline-warning d-block mt-2"
-		on:click={() => (window.location.href = $relUrl(`/new?edit=${data.ir}`))}
-		>{t.editRegistration}</button
+	<a
+		class="btn btn-outline-warning mt-2"
+		href={$relUrl(`/new?edit=${data.ir}`)}
+		on:click|preventDefault={() => (window.location.href = $relUrl(`/new?edit=${data.ir}`))}
+		>{t.editRegistration}</a
 	>
 	<button class="btn btn-outline-danger d-block mt-2" on:click={remove}
 		>{t.deleteThisEvidence}</button

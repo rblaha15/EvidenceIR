@@ -1,11 +1,12 @@
-import { getAuth, onAuthStateChanged, verifyPasswordResetCode, confirmPasswordReset, signInWithEmailAndPassword, type User, signOut } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, getAdditionalUserInfo, verifyPasswordResetCode, confirmPasswordReset, signInWithEmailAndPassword, type User, signOut } from 'firebase/auth';
 import { app } from './firebase';
-import { derived, writable } from 'svelte/store';
+import { derived, readonly, writable } from 'svelte/store';
 
 const auth = getAuth(app);
 
-export const currentUser = writable(null as User | null);
-onAuthStateChanged(auth, (usr) => currentUser.set(usr));
+const _currentUser = writable(null as User | null);
+onAuthStateChanged(auth, (usr) => _currentUser.set(usr));
+export const currentUser = readonly(_currentUser)
 
 export const logOut = () => signOut(auth)
 
