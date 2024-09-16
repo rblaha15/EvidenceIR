@@ -3,7 +3,7 @@
 	import type { PageData } from './$types';
 	import PdfLink from '$lib/components/PDFLink.svelte';
 	import { checkAuth } from '$lib/client/auth';
-	import { evidence, novaEvidence, odstranitEvidenci, type IR, type string } from '$lib/client/firestore';
+	import { evidence, novaEvidence, odstranitEvidenci, type IR } from '$lib/client/firestore';
 	import IMask from 'imask';
 	import { relUrl, storable } from '$lib/helpers/stores';
 	import { nazevIR } from '$lib/Data';
