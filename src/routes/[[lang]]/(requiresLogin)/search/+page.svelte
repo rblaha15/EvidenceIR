@@ -1,14 +1,43 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { getAll } from '$lib/client/firestore';
+	import { nazevIR } from '$lib/Data';
 	import { relUrl } from '$lib/helpers/stores';
-	import { addToHistory, history, removeFromHistory } from '$lib/History';
+	import { addToHistory, history, removeFromHistory, type HistoryEntry } from '$lib/History';
 	import type { Translations } from '$lib/translations';
 	import IMask from 'imask';
-	import { inRange } from 'lodash-es';
 	import { onMount } from 'svelte';
+	import { wordsToFilter } from '../new/companies';
 
 	let nacita = true;
 	onMount(() => (nacita = false));
+
+	let all: HistoryEntry[];
+	onMount(async () => {
+		const res = await getAll();
+		all = res.docs
+			.map((sn) => sn.data())
+			.map(
+				(data) =>
+					<HistoryEntry>{
+						ir: data.evidence.ir.cislo,
+						irType: nazevIR(t, data.evidence.ir.typ),
+						label: `${data.evidence.koncovyUzivatel.prijmeni} ${data.evidence.koncovyUzivatel.jmeno} ${data.evidence.mistoRealizace.obec}`
+					}
+			)
+			.toSorted((a, b) => a.ir.localeCompare(b.ir));
+	});
+
+	$: filtered = !all
+		? []
+		: all.filter((entry) =>
+				wordsToFilter(search).every(
+					(filter) =>
+						wordsToFilter(entry.ir).join(' ').includes(filter) ||
+						wordsToFilter(entry.label).some((word) => word.startsWith(filter))
+				)
+			);
 
 	const t: Translations = $page.data.translations;
 
@@ -36,44 +65,124 @@
 </script>
 
 <h1>{t.controllerSearch}</h1>
-<form class="d-flex" role="search" action={$relUrl(`/detail/${search.replace(' ', '')}`)}>
-	<input type="search" class="form-control me-2" placeholder={t.serialNumber} bind:this={input} />
-	<button class="btn btn-success" type="submit" on:click={() => addToHistory(search)}
-		>{t.search}</button
-	>
+<form
+	on:submit|preventDefault={() => {
+		if (search == '' || filtered.length == 0) return;
+		const ir = filtered[0];
+		addToHistory(ir);
+		goto($relUrl(`/detail/${ir.ir.replace(' ', '')}`));
+	}}
+>
+	<label class="form-floating d-block">
+		<input
+			type="search"
+			class="form-control border"
+			class:border-bottom-0={filtered.length > 0 && search != ''}
+			class:rb-0={filtered.length > 0 && search != ''}
+			placeholder={t.serialNumber}
+			bind:value={search}
+		/>
+		<label for="">{t.search}</label>
+	</label>
+
+	{#if search != '' && filtered.length > 0}
+		<div class="list-group">
+			{#each filtered as ir, i}
+				<a
+					class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
+					class:rt-0={i == 0}
+					href={$relUrl(`/detail/${ir.ir.replace(' ', '')}`)}
+					on:click|preventDefault={() => {
+						addToHistory(ir);
+						goto($relUrl(`/detail/${ir.ir.replace(' ', '')}`));
+					}}
+				>
+					<div class="col-md-5">{ir.irType} {ir.ir}</div>
+					<div class="col-md-7">{ir.label}</div>
+				</a>
+			{/each}
+		</div>
+	{/if}
 </form>
 
 {#if $history.length != 0}
 	<h2 class="mt-2">Historie vyhledávání</h2>
-	<div class="list-group list-group-flush">
+	<div class="list-group">
 		{#each $history.toReversed() as ir}
-			<a
-				class="list-group-item-action list-group-item d-flex align-items-center justify-content-between"
-				href={$relUrl(`/detail/${ir.replace(' ', '')}`)}
-				on:click={() => {
-					addToHistory(ir);
-				}}
-			>
-				{ir}
-				<div class="">
-					<button
-						class="btn btn-outline-danger"
-						on:click|stopImmediatePropagation|preventDefault={() => removeFromHistory(ir)}
+			<div class="d-flex list-group-item-group flex-nowrap">
+				<a
+					class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
+					href={$relUrl(`/detail/${ir.ir.replace(' ', '')}`)}
+					on:click|preventDefault={() => {
+						addToHistory(ir);
+						goto($relUrl(`/detail/${ir.ir.replace(' ', '')}`));
+					}}
+				>
+					<div class="col-md-5">{ir.irType} {ir.ir}</div>
+					<div class="col-md-7">{ir.label}</div>
+				</a>
+				<button
+					class="btn btn-outline-danger rl-0"
+					on:click|stopImmediatePropagation|preventDefault={() => removeFromHistory(ir)}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="16"
+						fill="currentColor"
+						viewBox="0 0 16 16"
 					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="16"
-							height="16"
-							fill="currentColor"
-							viewBox="0 0 16 16"
-						>
-							<path
-								d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"
-							/>
-						</svg>
-					</button>
-				</div>
-			</a>
+						<path
+							d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"
+						/>
+					</svg>
+				</button>
+			</div>
 		{/each}
 	</div>
 {/if}
+
+<style>
+	.w-40 {
+		width: 40%;
+	}
+	.w-10 {
+		width: 10%;
+	}
+	.rb-0 {
+		border-bottom-left-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+	.rt-0 {
+		border-top-left-radius: 0;
+		border-top-right-radius: 0;
+	}
+	.rl-0 {
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+	.form-control:focus {
+		box-shadow: none;
+	}
+	.list-group-item-group:first-child .list-group-item {
+		border-top-left-radius: var(--bs-border-radius);
+	}
+	.list-group-item-group .list-group-item {
+		border-right: none;
+	}
+	.list-group-item-group:not(:last-child) .list-group-item {
+		border-bottom: none;
+	}
+	.list-group-item-group:last-child .list-group-item {
+		border-bottom-left-radius: var(--bs-border-radius);
+	}
+	.list-group-item-group:not(:last-child) .btn {
+		border-bottom: none;
+	}
+	.list-group-item-group:not(:last-child) .btn {
+		border-bottom-right-radius: 0;
+	}
+	.list-group-item-group:not(:first-child) .btn {
+		border-top-right-radius: 0;
+	}
+</style>

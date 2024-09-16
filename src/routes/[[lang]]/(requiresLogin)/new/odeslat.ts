@@ -85,7 +85,7 @@ export default async (
     if (editMode) {
         await upravitEvidenci(rawData);
     } else {
-        await novaEvidence({ evidence: rawData, kontroly: {} });
+        await novaEvidence({ evidence: rawData, kontroly: {}, users: [user.uid] });
     }
 
     if (rawData.vzdalenyPristup.chce && !doNotSend) {
@@ -129,7 +129,7 @@ export default async (
                 red: true,
                 load: false
             });
-        }, 1000);
+        }, 5000);
     } else {
         progress({
             text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),

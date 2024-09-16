@@ -1,5 +1,6 @@
+import { Zaskrtavatko } from "./components/veci";
 import type { RawData } from "./Data";
-import { Nadpisova, p, Pisatkova, Prepinatkova, Vec, Vybiratkova, type GetOrVal, type Raw } from "./Vec";
+import { Nadpisova, p, Pisatkova, Prepinatkova, Vec, Vybiratkova, Zaskrtavatkova, type GetOrVal, type Raw } from "./Vec";
 
 export type UD = {
     uvedeni: Uvedeni,
@@ -19,6 +20,7 @@ export class Vyhovuje extends Prepinatkova<UD> {
             nutne: args.nutne ?? false,
             ...args,
             moznosti: [`suitsNot`, `suits`] as const,
+            hasPositivity: true,
         })
     }
 }
@@ -45,8 +47,8 @@ export type Uvedeni = {
         jisticTC: Vyhovuje,
         jisticVJ: Vyhovuje,
         vzdalenostZdi: Vyhovuje,
-        kondenzator: Ano,
-        filtr: Ano,
+        kondenzator: Zaskrtavatkova<UD>,
+        filtr: Zaskrtavatkova<UD>,
     },
     nadrze: {
         nadpis: Nadpisova<UD>,
@@ -56,19 +58,20 @@ export type Uvedeni = {
     os: {
         nadpis: Nadpisova<UD>,
         tvori: Vybiratkova<UD>,
-        dzTop: Ano,
+        popis: Pisatkova<UD>,
+        dzTop: Zaskrtavatkova<UD>,
         typDzTop: Pisatkova<UD>,
-        tcTv: Ano,
+        tcTv: Zaskrtavatkova<UD>,
         zTv: Pisatkova<UD>,
         objemEnOs: Vyhovuje,
-        bazenTc: Ano,
+        bazenTc: Zaskrtavatkova<UD>,
     },
     reg: {
         nadpis: Nadpisova<UD>,
         pripojeniKInternetu: Vybiratkova<UD>,
-        pospojeni: Ano,
-        spotrebice: Ano,
-        zalZdroj: Ano,
+        pospojeni: Zaskrtavatkova<UD>,
+        spotrebice: Zaskrtavatkova<UD>,
+        zalZdroj: Zaskrtavatkova<UD>,
     },
     primar: {
         nadpis: Nadpisova<UD>,
@@ -76,15 +79,15 @@ export type Uvedeni = {
         popis: Pisatkova<UD>,
         nemrz: Pisatkova<UD>
         nadoba: Vybiratkova<UD>,
-        kontrola: Ano,
+        kontrola: Zaskrtavatkova<UD>,
     },
     uvadeni: {
         nadpis: Nadpisova<UD>,
-        tc: Ano,
-        reg: Ano,
-        vlastnik: Ano,
+        tc: Zaskrtavatkova<UD>,
+        reg: Zaskrtavatkova<UD>,
+        vlastnik: Zaskrtavatkova<UD>,
         typZaruky: Vybiratkova<UD>,
-        zaruka: Ano,
+        zaruka: Zaskrtavatkova<UD>,
     },
 }
 
@@ -92,13 +95,14 @@ export const defaultUvedeni = (): Uvedeni => ({
     tc: {
         nadpis: new Nadpisova<UD>({ nazev: `heatPump` }),
         jisticTC: new Vyhovuje({ nazev: `characteristicsAndSizeOfHeatPumpBreaker` }),
-        jisticVJ: new Vyhovuje({ nazev: `characteristicsAndSizeOfIndoorUnitBreaker` }),
+        jisticVJ: new Vyhovuje({ zobrazit: d => d.evidence.ir.typ.first!.includes('BOX'), nazev: `characteristicsAndSizeOfIndoorUnitBreaker` }),
         vzdalenostZdi: new Vyhovuje({ nazev: `distanceFromWall` }),
-        kondenzator: new Ano({
+        kondenzator: new Zaskrtavatkova<UD>({
+            nutne: false,
             nazev: `isCompensatorInstalled`,
             zobrazit: d => d.evidence.tc.typ == `airToWater`,
         }),
-        filtr: new Ano({ nazev: `isCirculationPumpFilterInstalled` }),
+        filtr: new Zaskrtavatkova<UD>({ nutne: false, nazev: `isCirculationPumpFilterInstalled` }),
     },
     nadrze: {
         nadpis: new Nadpisova<UD>({ nazev: `tanks` }),
@@ -115,16 +119,21 @@ export const defaultUvedeni = (): Uvedeni => ({
                 `otherHeatingSystem`,
             ],
         }),
-        dzTop: new Ano({ nazev: `isAdditionalHeatingSourceConnected` }),
+        popis: new Pisatkova<UD>({
+            nazev: `heatingSystemDescription`,
+            zobrazit: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
+            nutne: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
+        }),
+        dzTop: new Zaskrtavatkova<UD>({ nutne: false, nazev: `isAdditionalHeatingSourceConnected` }),
         typDzTop: new Pisatkova<UD>({
             nazev: `typeAndPowerOfAdditionalHeatingSource`,
             zobrazit: d => d.uvedeni.os.dzTop.value,
             nutne: d => d.uvedeni.os.dzTop.value
         }),
-        tcTv: new Ano({ nazev: `doesHeatPumpPrepareHotWater`, nutne: false }),
-        zTv: new Pisatkova<UD>({ nazev: d => d.uvedeni.os.tcTv.value ? `additionalHotWaterSource` : `mainHotWaterSource` }),
+        tcTv: new Zaskrtavatkova<UD>({ nutne: false, nazev: `doesHeatPumpPrepareHotWater` }),
+        zTv: new Pisatkova<UD>({ nazev: d => d.uvedeni.os.tcTv.value ? `additionalHotWaterSource` : `mainHotWaterSource`, nutne: d => !d.uvedeni.os.tcTv.value }),
         objemEnOs: new Vyhovuje({ nazev: `volumeOfExpansionTank` }),
-        bazenTc: new Ano({ nazev: `isPoolHeatingManagedByHeatPump` }),
+        bazenTc: new Zaskrtavatkova<UD>({ nutne: false, nazev: `isPoolHeatingManagedByHeatPump` }),
     },
     reg: {
         nadpis: new Nadpisova<UD>({ nazev: `controlAndElectricalInstallation` }),
@@ -135,9 +144,10 @@ export const defaultUvedeni = (): Uvedeni => ({
                 `notConnected`,
             ],
         }),
-        pospojeni: new Ano({ nazev: `isElectricalBondingComplete` }),
-        spotrebice: new Ano({ nazev: `areElectricalDevicesTested` }),
-        zalZdroj: new Ano({
+        pospojeni: new Zaskrtavatkova<UD>({ nutne: false, nazev: `isElectricalBondingComplete` }),
+        spotrebice: new Zaskrtavatkova<UD>({ nutne: false, nazev: `areElectricalDevicesTested` }),
+        zalZdroj: new Zaskrtavatkova<UD>({
+            nutne: false,
             nazev: `isBackupPowerSourceInstalled`,
             zobrazit: d => d.evidence.tc.typ == `airToWater`,
         }),
@@ -179,16 +189,17 @@ export const defaultUvedeni = (): Uvedeni => ({
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
             nutne: d => d.evidence.tc.typ == 'groundToWater',
         }),
-        kontrola: new Ano({
+        kontrola: new Zaskrtavatkova<UD>({
+            nutne: false,
             nazev: `wasPrimaryCircuitTested`,
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
         }),
     },
     uvadeni: {
         nadpis: new Nadpisova<UD>({ nazev: `commissioningSteps` }),
-        tc: new Ano({ nazev: `wasInstallationAccordingToManual` }),
-        reg: new Ano({ nazev: `wasControllerSetToParameters` }),
-        vlastnik: new Ano({ nazev: `wasOwnerFamiliarizedWithFunction` }),
+        tc: new Zaskrtavatkova<UD>({ nutne: false, nazev: `wasInstallationAccordingToManual` }),
+        reg: new Zaskrtavatkova<UD>({ nutne: false, nazev: `wasControllerSetToParameters` }),
+        vlastnik: new Zaskrtavatkova<UD>({ nutne: false, nazev: `wasOwnerFamiliarizedWithFunction` }),
         typZaruky: new Vybiratkova<UD>({
             nazev: `isExtendedWarrantyDesired`, moznosti: [
                 `no`,
@@ -196,7 +207,7 @@ export const defaultUvedeni = (): Uvedeni => ({
                 `extendedWarranty10Years`,
             ]
         }),
-        zaruka: new Ano({ nazev: `isInstallationInWarrantyConditions`, zobrazit: d => d.uvedeni.uvadeni.typZaruky.value?.includes('extendedWarranty') ?? false }),
+        zaruka: new Zaskrtavatkova<UD>({ nutne: false, nazev: `isInstallationInWarrantyConditions`, zobrazit: d => d.uvedeni.uvadeni.typZaruky.value?.includes('extendedWarranty') ?? false }),
     },
 })
 

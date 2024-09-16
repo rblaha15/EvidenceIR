@@ -2,8 +2,6 @@ import { friendlyCompanies, type Company, type FriendlyCompanies } from "$lib/cl
 import { sortBy, zip } from "lodash-es"
 import { derived, type Readable } from "svelte/store"
 
-// type C = readonly [assembly: Company[], commissioning: Company[]]
-
 export const companies = derived(friendlyCompanies, c => forBoth(c, c =>
     c.sort((a, b) => a.companyName.localeCompare(b.companyName)) ?? []
 ) as FriendlyCompanies)
@@ -29,8 +27,6 @@ export const filteredCompanies = (filter: Readable<string>) => derived([companie
                 .filter(([a, b]) => a != undefined && b != undefined && a != b)
             if (list.length == 0)
                 return 0
-
-
             else
                 return (list[0][0]! - list[0][1]!)
         })
@@ -40,7 +36,7 @@ export const chosenCompanies = derived([companies], ([c]) => (crnA: string, crnC
     c.find((c) => c.crn == (t == 'a' ? crnA : crnC))?.companyName
 ))
 
-const wordsToFilter = (s: string) => s
+export const wordsToFilter = (s: string) => s
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')
     .toLowerCase()
