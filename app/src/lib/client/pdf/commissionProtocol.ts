@@ -28,7 +28,7 @@ export default {
         /*                */ Text13: e.ir.typ.first!.includes('BOX') ? t.get(e.ir.typ.first!).slice(3) : '—',
         /*                */ Text14: e.ir.typ.first!.includes('BOX') ? e.ir.cisloBOX : '—',
         /*                */ Text15: u.tc.jisticTC ? t.suits : t.suitsNot,
-        /*                */ Text16: u.tc.jisticVJ ? t.suits : t.suitsNot,
+        /*                */ Text16: e.ir.typ.first!.includes('BOX') ? u.tc.jisticVJ ? t.suits : t.suitsNot : '—',
         /*                */ Text17: u.tc.vzdalenostZdi ? t.suits : t.suitsNot,
         /*                */ Text18: u.os.tcTv ? t.additionalHotWaterSource : t.mainHotWaterSource,
         /*                */ Text19: e.tc.typ == 'airToWater' ? u.tc.kondenzator ? t.yes : t.no : '—',
