@@ -21,7 +21,7 @@ const irCollection = collection(firestore, 'ir').withConverter<IR>({
 	toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
 	fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR,
 })
-const irDoc = (ir: string) => doc(irCollection, ir)
+const irDoc = (ir: string) => doc(irCollection, ir.replace(' ', ''))
 
 export const evidence = (ir: string) => {
 	return getDoc(irDoc(ir));
@@ -35,7 +35,7 @@ export const upravitEvidenci = (rawData: RawData) => {
 	return updateDoc(irDoc(ir), `evidence`, rawData)
 };
 export const odstranitEvidenci = (ir: string) => {
-	return deleteDoc(doc(firestore, 'ir', `/${ir}`));
+	return deleteDoc(doc(firestore, 'ir', `/${ir.replace(' ', '')}`));
 };
 export const existuje = async (ir: string) => {
 	return (await getDoc(irDoc(ir))).exists();
