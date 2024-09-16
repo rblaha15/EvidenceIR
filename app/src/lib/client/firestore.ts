@@ -1,8 +1,10 @@
-import { collection, deleteDoc, doc, getDoc, getFirestore, type QueryDocumentSnapshot, setDoc, updateDoc, type WithFieldValue } from 'firebase/firestore';
+import { collection, deleteDoc, where, query, getDocs, doc, getDoc, onSnapshot, getFirestore, type QueryDocumentSnapshot, setDoc, updateDoc, type WithFieldValue } from 'firebase/firestore';
 import { app } from './firebase';
 import type { RawData } from '$lib/Data';
 import type { Kontrola } from '$lib/Kontrola';
 import type { RawUvedeni } from '$lib/Uvedeni';
+import { get, readonly, writable } from 'svelte/store';
+import { checkAdmin, currentUser } from './auth';
 
 export const firestore = getFirestore(app);
 
@@ -28,15 +30,15 @@ export const evidence = (ir: string) => {
 	return getDoc(irDoc(ir));
 };
 export const novaEvidence = (data: IR) => {
-	const ir = data.evidence.ir.cislo.replace(' ', '')
+	const ir = data.evidence.ir.cislo
 	return setDoc(irDoc(ir), data);
 };
 export const upravitEvidenci = (rawData: RawData) => {
-	const ir = rawData.ir.cislo.replace(' ', '')
+	const ir = rawData.ir.cislo
 	return updateDoc(irDoc(ir), `evidence`, rawData)
 };
 export const odstranitEvidenci = (ir: string) => {
-	return deleteDoc(doc(firestore, 'ir', `/${ir.replace(' ', '')}`));
+	return deleteDoc(irDoc(ir));
 };
 export const existuje = async (ir: string) => {
 	return (await getDoc(irDoc(ir))).exists();
@@ -55,4 +57,20 @@ export const pridatKontrolu = (ir: string, rok: number, kontrola: Kontrola) => {
 
 export const uvestDoProvozu = (ir: string, uvedeni: RawUvedeni) => {
 	return updateDoc(irDoc(ir), `uvedeni`, uvedeni)
+}
+
+export const upravitUzivatele = (ir: string, users: string[]) => {
+	return updateDoc(irDoc(ir), `users`, users)
+}
+
+export const evidenceStore = (ir: string) => {
+	const currentState = writable<IR>(undefined as IR | undefined);
+	onSnapshot(irDoc(ir), (data) => currentState.set(data.data()!));
+	return readonly(currentState)
+}
+export const getAll = async () => {
+	const user = get(currentUser)
+	if (user?.email?.endsWith('@regulus.cz') || await checkAdmin())
+		return await getDocs(irCollection)
+	return await getDocs(query(irCollection, where('users', 'array-contains', user?.email)))
 }
