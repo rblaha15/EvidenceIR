@@ -213,7 +213,7 @@ export default (): Data => ({
     },
     vzdalenyPristup: {
         nadpis: new Nadpisova({ nazev: `remoteAccess` }),
-        chce: new Prepinatkova({ nazev: `doYouWantRemoteAccess`, moznosti: [`no`, `yes`], nutne: false }),
+        chce: new Zaskrtavatkova({ nazev: `doYouWantRemoteAccess`, nutne: false }),
         pristupMa: new MultiZaskrtavatkova({
             nazev: `whoHasAccess`,
             moznosti: [`endCustomer`, `assemblyCompany`, `commissioningCompany`],

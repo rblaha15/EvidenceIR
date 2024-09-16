@@ -35,7 +35,7 @@ export default {
         /*                */ Text20: u.tc.filtr ? t.yes : t.no,
         /*                */ Text21: u.nadrze.akumulacka,
         /*                */ Text22: u.nadrze.zasobnik,
-        /*                */ Text23: t.get(u.os.tvori!),
+        /*                */ Text23: u.os.tvori == 'otherHeatingSystem' ? u.os.popis : t.get(u.os.tvori!),
         /*                */ Text24: u.os.dzTop ? t.yes : t.no,
         /*                */ Text25: u.os.dzTop ? u.os.typDzTop : '—',
         /*                */ Text26: u.os.tcTv ? t.yes : t.no,

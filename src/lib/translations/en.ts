@@ -37,7 +37,7 @@ const en: PlainTranslations = {
     commissioning: 'Commissioning',
     commissionedByAssemblyCompany: 'Commissioned by the assembly company',
     remoteAccess: 'Remote Access',
-    doYouWantRemoteAccess: 'Do you want to create a remote access to the controller?',
+    doYouWantRemoteAccess: 'Create a remote access to the controller',
     whoHasAccess: 'Who is going to have access to it?',
     endCustomer: 'End customer',
     commissioningCompany: 'Commissioning company',
