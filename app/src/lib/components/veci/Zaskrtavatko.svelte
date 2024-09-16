@@ -11,8 +11,8 @@
 {#if vec.zobrazit(data)}
 	<div class="form-check">
 		<label class="form-check-label">
-			{nazevSHvezdou(vec, data, t)}
 			<input class="form-check-input" type="checkbox" bind:checked={vec.value} />
+			{nazevSHvezdou(vec, data, t)}
 		</label>
 	</div>
 

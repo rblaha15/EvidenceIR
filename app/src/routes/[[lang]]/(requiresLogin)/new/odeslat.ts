@@ -129,7 +129,7 @@ export default async (
                 red: true,
                 load: false
             });
-        }, 1000);
+        }, 5000);
     } else {
         progress({
             text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),

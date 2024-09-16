@@ -50,7 +50,7 @@
 				bind:this={input}
 				required
 			/>
-			<label for="">{t.serialNumber}</label>
+			<label for="">{t.search}</label>
 			<div class="invalid-feedback" class:d-block={true}>
 				{error}
 			</div>
