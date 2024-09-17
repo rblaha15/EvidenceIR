@@ -5,7 +5,7 @@
 	import Scanner from '$lib/components/Scanner.svelte';
 
 	import * as v from '$lib/Vec';
-	import { dataToRawData, newData, rawDataToData, type RawData, type Data } from '$lib/Data';
+	import { dataToRawData, newData, rawDataToData, type RawData, type Data, typBOX } from '$lib/Data';
 	import { friendlyCompanies, responsiblePerson } from '$lib/client/realtime';
 	import { chosenCompanies, companies, filteredCompanies } from './companies';
 	import odeslat from './odeslat';
@@ -63,6 +63,11 @@
 		}
 	}
 	$: if (mode != 'loading') {
+		if (data.ir.typ.value.first == p`IR 12`) {
+			data.ir.typ.value.second = p`CTC`;
+		}
+	}
+	$: if (mode != 'loading') {
 		if (data.mistoRealizace.jakoBydliste.value) {
 			data.mistoRealizace.obec.updateText('');
 			data.mistoRealizace.psc.value = '';
@@ -94,6 +99,7 @@
 	$: if (mode != 'loading' && mode != 'edit') {
 		storedData.set(dataToRawData(data));
 	}
+	$: typBOXu = typBOX(data.ir.cisloBOX.value)
 
 	const filter = writable('');
 	$: filtered = filteredCompanies(filter);
@@ -206,6 +212,9 @@
 		<p><MultiZaskrtavatko {t} bind:vec {data} /></p>
 	{:else if vec instanceof v.Zaskrtavatkova && vec.zobrazit(data)}
 		<p><Zaskrtavatko {t} bind:vec {data} /></p>
+	{/if}
+	{#if vec == data.ir.cisloBOX && vec.zobrazit(data) && typBOXu}
+		<p>Rozpoznáno: {typBOXu}</p>
 	{/if}
 {/each}
 

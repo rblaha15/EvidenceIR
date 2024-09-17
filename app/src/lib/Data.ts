@@ -101,3 +101,24 @@ export const nazevIR = (t: Translations, { first, second }: Pair) =>
 	first?.includes('BOX')
 		? t.getT`${<TranslationReference>first!.split(' ').slice(0, 2).join(' ')} ${second!}`
 		: t.getT`${<TranslationReference>first!.replaceAll(' ', '')}${second!}`;
+
+export const typBOX = (cisloBOX: string) => ({
+	"18054": "BOX 12 CTC 3/3",
+	"18928": "BOX 12 CTC 3/3 EN",
+	"18574": "BOX 12 RTC 3/1S",
+	"18930": "BOX 12 RTC 3/1S EN",
+	"20025": "BOX 12 RTC 3/3S EN",
+	"19816": "BOX 12 RTC 3/3S",
+	"20048": "HBOX 112 CTC 3/3",
+	"20050": "HBOX 112 CTC 3/3 EN",
+	"20049": "HBOX 112 RTC 3/1S",
+	"20051": "HBOX 112 RTC 3/1S EN",
+	"19896": "HBOX 212 CTC 3/3",
+	"20026": "HBOX 212 CTC 3/3 EN",
+	"19935": "HBOX 212 RTC 3/1S",
+	"20029": "HBOX 212 RTC 3/1S EN",
+	"20527": "HBOX K 106 CTC 3/3",
+	"20630": "HBOX K 106 CTC 3/3 EN",
+	"20528": "HBOX K 106 RTC 3/1S",
+	"20631": "HBOX K 106 RTC 3/1S EN",
+})[cisloBOX.slice(0, 5)]

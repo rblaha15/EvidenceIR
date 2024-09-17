@@ -8,6 +8,7 @@ export type KontrolaMetadata = {
     meta: {
         osoba: string,
         datum: string,
+        poznamky: string,
         language: LanguageCode,
     }
 }
@@ -241,9 +242,9 @@ export const kontrolaOrder = [
     ]],
 ] as const
 
-export const kontrola = (language: LanguageCode, osoba: string, datum: string): Kontrola => ({
+export const kontrola = (language: LanguageCode, datum: string, osoba: string = '', poznamky: string = ''): Kontrola => ({
     ...Object.fromEntries(kontrolaOrder.map(([key]) => [key, {}])) as KontrolaBezMety, meta: {
-        osoba, language, datum
+        osoba, language, datum, poznamky,
     }
 })
 

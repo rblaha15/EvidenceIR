@@ -32,7 +32,7 @@
 
 {#if vec.zobrazit(data)}
 	<div class="input-group">
-		<label class="form-floating d-block mw-70">
+		<label class="form-floating d-block left">
 			<select class="form-select" value={vec.value.first ?? 'notChosen'} on:change={onChange1}>
 				<option class="d-none" value="notChosen">{t.notChosen}</option>
 				{#each vec.moznosti1(data) as moznost}
@@ -43,9 +43,10 @@
 		</label>
 		{#if vec.value.first != null}
 			<select
-				class="form-select"
+				class="form-select right"
 				id={nazevSHvezdou(vec, data, t)}
 				value={vec.value.second ?? 'notChosen'}
+				disabled={vec.moznosti2(data).length < 2}
 				on:change={onChange2}
 				use:Select
 			>
@@ -62,7 +63,11 @@
 {/if}
 
 <style>
-	.mw-70 {
+	.left {
+		width: 70%;
 		max-width: 70%;
+	}
+	.right {
+		width: 30%;
 	}
 </style>

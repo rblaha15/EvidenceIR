@@ -8,13 +8,14 @@ export default {
     fileName: `yearlyCheckFileName`,
     getFormData: async ({ kontroly }, t) => {
         const start = {
-/*          TEXT1 */ Text1: null,
+/*           info */ Text1: null,
 /*       poznamky */ Text141: null,
         }
         const veci = Object.fromEntries(Object.entries(kontroly).flatMap(([rok, k]: [string, KontrolaAsRecord]) => {
             const veci = orderArray.filter(v =>
                 kontrolaTypes[v.key1][v.key2] != 'nadpis' &&
-                (rok == '1' || kontrolaTypes[v.key1][v.key2] != 'tlak')
+                (rok == '1' ? ['string', 'boolean', 'tlak'].includes(kontrolaTypes[v.key1][v.key2])
+                    : ['string', 'boolean'].includes(kontrolaTypes[v.key1][v.key2]))
             )
             const start =
                 1 + // Indexujeme od 1

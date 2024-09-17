@@ -1,7 +1,7 @@
 import { nazevFirmy } from "$lib/helpers/ares";
 import { p } from "$lib/Vec";
 import { type PdfArgs } from "$lib/client/pdf";
-import { nazevIR } from "$lib/Data";
+import { nazevIR, typBOX } from "$lib/Data";
 import { today } from "$lib/helpers/date";
 
 export default {
@@ -25,7 +25,7 @@ export default {
         /*          datum */ Text10: today(),
         /*                */ Text11: t.get(e.tc.model!),
         /*                */ Text12: e.tc.cislo,
-        /*                */ Text13: e.ir.typ.first!.includes('BOX') ? t.get(e.ir.typ.first!).slice(3) : '—',
+        /*                */ Text13: e.ir.typ.first!.includes('BOX') ? typBOX(e.ir.cisloBOX) ?? t.get(e.ir.typ.first!).slice(10) + " " + t.get(e.ir.typ.second!) : '—',
         /*                */ Text14: e.ir.typ.first!.includes('BOX') ? e.ir.cisloBOX : '—',
         /*                */ Text15: u.tc.jisticTC ? t.suits : t.suitsNot,
         /*                */ Text16: e.ir.typ.first!.includes('BOX') ? u.tc.jisticVJ ? t.suits : t.suitsNot : '—',
