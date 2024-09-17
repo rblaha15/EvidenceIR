@@ -8,16 +8,11 @@ export default (): Data => ({
             moznosti1: [
                 p`IR RegulusBOX`,
                 p`IR RegulusHBOX`,
-                p`IR RegulusHBOX 112`,
-                p`IR RegulusHBOX 212`,
                 p`IR RegulusHBOXK`,
                 p`IR 14`,
                 p`IR 12`,
             ],
-            moznosti2: [
-                p`CTC`,
-                p`RTC`,
-            ],
+            moznosti2: d => d.ir.typ.value.first == p`IR 12` ? [p`CTC`] : [p`CTC`, p`RTC`],
         }),
         cislo: new Pisatkova({
             nazev: `serialNumber`,
@@ -153,7 +148,7 @@ export default (): Data => ({
             autocomplete: `section-realization shipping street-address`,
             zobrazit: data => !data.mistoRealizace.jakoBydliste.value,
         }),
-        obec: new Pisatkova({ 
+        obec: new Pisatkova({
             nazev: `town`,
             autocomplete: `section-realization shipping city`,
             zobrazit: data => !data.mistoRealizace.jakoBydliste.value,
