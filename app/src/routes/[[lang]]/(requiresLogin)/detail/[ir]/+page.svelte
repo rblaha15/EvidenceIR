@@ -9,30 +9,31 @@
 	import { nazevIR } from '$lib/Data';
 	import type { RawUvedeni } from '$lib/Uvedeni';
 	import type { FirebaseError } from 'firebase/app';
+	import { getIsOnline } from '$lib/client/realtime';
 
 	export let data: PageData;
 	const t = data.translations;
 
 	const storedCommission = storable<RawUvedeni | null>(null, `storedCommission-${data.ir}`);
 
-	let existuje: boolean;
+	let state: 'loading' | 'loaded' | 'noAccess' | 'offline' = 'loading';
 	let values: IR;
-	let nacita = true;
 	onMount(async () => {
-		nacita = false;
+		state = 'loading';
 
 		await checkAuth();
 		try {
 			let snapshot = await evidence(data.ir as string);
 			if (!snapshot.exists()) {
-				existuje = false;
+				state = 'noAccess';
 				return;
 			}
 			values = snapshot.data();
-			existuje = true;
+			state = 'loaded';
 		} catch (e) {
 			console.log((e as FirebaseError).code);
-			existuje = false;
+			if ((e as FirebaseError).code == 'unavailable' && !getIsOnline()) state = 'offline';
+			else state = 'noAccess';
 			return;
 		}
 
@@ -81,15 +82,21 @@
 <h1>
 	{t.evidenceDetails}
 </h1>
-{#if existuje == undefined}
+{#if state == 'loading'}
 	<div class="spinner-border text-danger" />
-{:else if !existuje}
+{:else if state != 'loaded'}
 	<h3>
 		{data.ir.slice(0, 2)}
 		{data.ir.slice(2, 6)}
 	</h3>
-	<p class="mt-2">{t.sorrySomethingWentWrong}</p>
-	<p class="mt-2">{t.linkInvalid}</p>
+	<p class="mt-3">{t.sorrySomethingWentWrong}</p>
+	<p>
+		{#if state == 'noAccess'}
+			{t.linkInvalid}
+		{:else if state == 'offline'}
+			{t.offline}
+		{/if}
+	</p>
 {:else}
 	<h3>
 		{nazevIR(t, values.evidence.ir.typ)}
@@ -126,10 +133,10 @@
 			>
 		</PdfLink>
 	{/if}
-	{#if $currentUser?.email?.endsWith("@regulus.cz") || $isUserAdmin}
-	<a class="btn btn-outline-info mt-2" href={$relUrl(`/detail/${data.ir}/users`)}
-		>Uživatelé s přístupem k této evidenci</a
-	>
+	{#if $currentUser?.email?.endsWith('@regulus.cz') || $isUserAdmin}
+		<a class="btn btn-outline-info mt-2" href={$relUrl(`/detail/${data.ir}/users`)}
+			>Uživatelé s přístupem k této evidenci</a
+		>
 	{/if}
 	{#if change == 'no'}
 		<button class="btn btn-outline-warning d-block mt-2" on:click={() => (change = 'input')}

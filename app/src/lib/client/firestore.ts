@@ -1,12 +1,10 @@
-import { collection, deleteDoc, where, query, getDocs, doc, getDoc, onSnapshot, getFirestore, type QueryDocumentSnapshot, setDoc, updateDoc, type WithFieldValue } from 'firebase/firestore';
-import { app } from './firebase';
+import { collection, deleteDoc, where, query, getDocs, doc, getDoc, onSnapshot, type QueryDocumentSnapshot, setDoc, updateDoc, type WithFieldValue } from 'firebase/firestore';
 import type { RawData } from '$lib/Data';
 import type { Kontrola } from '$lib/Kontrola';
 import type { RawUvedeni } from '$lib/Uvedeni';
 import { get, readonly, writable } from 'svelte/store';
 import { checkAdmin, currentUser } from './auth';
-
-export const firestore = getFirestore(app);
+import { firestore } from '../../hooks.client';
 
 export type IR = {
 	evidence: RawData,

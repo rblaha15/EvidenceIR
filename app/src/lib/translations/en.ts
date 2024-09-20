@@ -1,7 +1,9 @@
 import type { PlainTranslations } from "$lib/translations"
 import { template as t } from "$lib/helpers/templates"
+import cs from "./cs"
 
 const en: PlainTranslations = {
+    ...cs,
     controllerRegistration: `New controller registration`,
     longAppName: "IR Controller Registration",
     appName: "IR Registration",
@@ -140,5 +142,6 @@ const en: PlainTranslations = {
     warrantyFileName: `Warranty.pdf`,
     performingPerson: `Performing person`,
     realisedAtResidence: 'Same as the place of residence',
+    offline: `You are offline!`,
 }
 export default en

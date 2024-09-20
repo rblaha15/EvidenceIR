@@ -10,8 +10,11 @@ export function storable<T>(defaultValue: T, key: string): Writable<T> {
 
     key = `storable-${key}`;
 
-    if (isBrowser() && localStorage.getItem(key))
-        store.set(JSON.parse(localStorage[key]));
+    if (isBrowser())
+        if (localStorage.getItem(key))
+            store.set(JSON.parse(localStorage[key]));
+        else
+            localStorage.setItem(key, JSON.stringify(defaultValue))
 
     return {
         subscribe: store.subscribe,

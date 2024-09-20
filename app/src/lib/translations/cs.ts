@@ -67,6 +67,7 @@ export default {
     evidenceDetails: `Podrobnosti o instalaci`,
     loadingData: `Načítání dat...`,
     sorrySomethingWentWrong: `Omlouváme se, něco se nepovedlo.`,
+    offline: `Jste offline!`,
     linkInvalid: `Buď je záznam o evidenci neexistuje nebo k němu nemáte přístup.`,
     linkToThis: `Odkaz na tuto stránku`,
     copy: `Kopírovat`,
