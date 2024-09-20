@@ -2,8 +2,8 @@ import { template as t } from "$lib/helpers/templates"
 
 export default {
     controllerRegistration: `Registrace nového regulátoru`,
-    longAppName: `Evidence regulátorů IR`,
-    appName: `Evidence IR`,
+    longAppName: `SEIR – Evidence regulátorů IR`,
+    appName: `SEIR`,
     requiredField: `Toto pole je povinné`,
     controllerType: `Typ regulátoru`,
     serialNumber: `Sériové číslo regulátoru`,
