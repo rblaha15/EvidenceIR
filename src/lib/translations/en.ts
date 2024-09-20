@@ -5,8 +5,8 @@ import cs from "./cs"
 const en: PlainTranslations = {
     ...cs,
     controllerRegistration: `New controller registration`,
-    longAppName: "IR Controller Registration",
-    appName: "IR Registration",
+    longAppName: "SEIR – IR Controller Registration",
+    appName: "SEIR",
     requiredField: 'This field is required',
     controllerType: 'Controller type',
     serialNumber: 'Controller serial number',
