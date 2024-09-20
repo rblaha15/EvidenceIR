@@ -77,11 +77,13 @@ export const generatePdf = async (lang: LanguageCode, ir: string, fetch: typeof 
     const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer();
 
     const encodedName = encodeURIComponent(t.get(args.fileName))
+    const encodedTitle = encodeURIComponent(t.get(args.title))
 
     return new Response(pdfBytes, {
         headers: {
             'Content-Type': 'application/pdf',
             'Content-Disposition': 'inline; filename=' + encodedName,
+            'Title': encodedTitle,
         },
         status: 200,
     });

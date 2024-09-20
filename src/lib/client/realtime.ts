@@ -1,8 +1,9 @@
-import { derived, writable } from 'svelte/store';
+import { derived, writable, get as getFromStore, readonly } from 'svelte/store';
 import { checkAdmin, currentUser } from './auth';
 import type { User } from 'firebase/auth';
-import { getDatabase, ref } from 'firebase/database';
-import { app } from './firebase';
+import { onValue, ref, type Query } from 'firebase/database';
+import { storable } from '$lib/helpers/stores';
+import { realtime } from '../../hooks.client';
 
 type SelfObject<T extends PropertyKey> = { [key in T]: key }
 type CRN = string
@@ -27,10 +28,26 @@ const FriendlyCompanies = (assemblyCompanies: Company[], commissioningCompanies?
 	assemblyCompanies, commissioningCompanies: commissioningCompanies ?? assemblyCompanies,
 })
 
-export const realtime = getDatabase(app);
-
 const firmyRef = ref(realtime, '/companies');
 const lidiRef = ref(realtime, '/people');
+const connectedRef = ref(realtime, ".info/connected");
+
+const _isOnline = writable(false)
+export const isOnline = readonly(_isOnline)
+export const getIsOnline = () => getFromStore(isOnline)
+onValue(connectedRef, sn => _isOnline.set(sn.val() === true));
+
+const getWithCache = async <T>(query: Query) => {
+	const { get } = await import('firebase/database');
+	const store = storable(null as T | null, "realtime-" + query.ref.toString().substring(query.ref.root.toString().length - 1))
+	if (getIsOnline()) {
+		const value = (await get(query)).val() as T
+		store.set(value)
+		return value
+	} else {
+		return getFromStore(store)
+	}
+}
 
 const _friendlyCompanies = async (
 	user: User | null
@@ -38,12 +55,12 @@ const _friendlyCompanies = async (
 	if (!user) {
 		return FriendlyCompanies([]);
 	}
-	const { get, child } = await import('firebase/database');
+	const { child } = await import('firebase/database');
 	if (user.email?.endsWith('@regulus.cz') || (await checkAdmin())) {
-		const vsechnyFirmy = (await get(firmyRef)).val() as { [crn: CRN]: Company };
-		return FriendlyCompanies(Object.values(vsechnyFirmy));
+		const vsechnyFirmy = await getWithCache<{ [crn: CRN]: Company }>(firmyRef);
+		return FriendlyCompanies(Object.values(vsechnyFirmy!));
 	}
-	const ja = (await get(child(lidiRef, user.uid))).val() as Person | undefined;
+	const ja = await getWithCache<Person>(child(lidiRef, user.uid));
 	if (!ja || ja.email !== user.email) {
 		return FriendlyCompanies([]);
 	}
@@ -51,20 +68,12 @@ const _friendlyCompanies = async (
 		assembly: Object.keys(ja.assemblyCompanies) as CRN[],
 		commissioning: Object.keys(ja.commissioningCompanies) as CRN[],
 	}
-	console.log({
-		assemblyCompanies: await Promise.all(
-			dovolenaIca.assembly.map(async (crn) => (await get(child(firmyRef, crn))).val() as Company)
-		),
-		commissioningCompanies: await Promise.all(
-			dovolenaIca.commissioning.map(async (crn) => (await get(child(firmyRef, crn))).val() as Company)
-		),
-	} as FriendlyCompanies)
 	return {
 		assemblyCompanies: await Promise.all(
-			dovolenaIca.assembly.map(async (crn) => (await get(child(firmyRef, crn))).val() as Company)
+			dovolenaIca.assembly.map(async (crn) => await getWithCache<Company>(child(firmyRef, crn)))
 		),
 		commissioningCompanies: await Promise.all(
-			dovolenaIca.commissioning.map(async (crn) => (await get(child(firmyRef, crn))).val() as Company)
+			dovolenaIca.commissioning.map(async (crn) => await getWithCache<Company>(child(firmyRef, crn)))
 		),
 	} as FriendlyCompanies
 };
@@ -77,10 +86,10 @@ export const friendlyCompanies = derived(
 	FriendlyCompanies([])
 );
 
-const _responsiblePerson = async (user: import('firebase/auth').User | null) => {
+const _responsiblePerson = async (user: User | null) => {
 	if (!user) return null;
-	const { get, child } = await import('firebase/database');
-	const ja = (await get(child(lidiRef, user.uid))).val() as Person | null;
+	const { child } = await import('firebase/database');
+	const ja = await getWithCache<Person>(child(lidiRef, user.uid));
 	return ja?.responsiblePerson ?? null;
 };
 

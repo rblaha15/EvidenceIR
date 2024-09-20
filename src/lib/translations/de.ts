@@ -195,6 +195,7 @@ const de: PlainTranslations = {
     isExtendedWarrantyDesired: `Hat der Eigentümer der Wärmepumpe Interesse an einer verlängerten Garantie?`,
     extendedWarranty7Years: `ja – 7 Jahre auf Kompressor`,
     extendedWarranty10Years: `ja – 10 Jahre auf Kompressor (gegen Aufpreis)`,
-    isInstallationInWarrantyConditions: `Entsprechen die Installation und Inbetriebnahme den Bedingungen der verlängerten Garantie?`,    
+    isInstallationInWarrantyConditions: `Entsprechen die Installation und Inbetriebnahme den Bedingungen der verlängerten Garantie?`,
+    offline: `Sie sind offline!`,
 }
 export default de

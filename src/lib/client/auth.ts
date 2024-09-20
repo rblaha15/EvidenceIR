@@ -1,8 +1,6 @@
-import { getAuth, onAuthStateChanged, getAdditionalUserInfo, verifyPasswordResetCode, confirmPasswordReset, signInWithEmailAndPassword, type User, signOut } from 'firebase/auth';
-import { app } from './firebase';
+import { onAuthStateChanged, verifyPasswordResetCode, confirmPasswordReset, signInWithEmailAndPassword, type User, signOut } from 'firebase/auth';
 import { derived, readonly, writable } from 'svelte/store';
-
-const auth = getAuth(app);
+import { auth } from '../../hooks.client';
 
 const _currentUser = writable(null as User | null);
 onAuthStateChanged(auth, (usr) => _currentUser.set(usr));

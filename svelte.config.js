@@ -16,10 +16,6 @@ const config = {
 		adapter: adapter({
 			split: true
 		}),
-		files: {
-			serviceWorker: 'src/service-worker.ts'
-		},
-		
 	},
 	compilerOptions: {
 		
