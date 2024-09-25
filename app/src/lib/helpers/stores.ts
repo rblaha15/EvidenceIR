@@ -13,19 +13,19 @@ export function storable<T>(defaultValue: T, key: string): Writable<T> {
     if (isBrowser())
         if (localStorage.getItem(key))
             store.set(JSON.parse(localStorage[key]));
-        else
+        else if (defaultValue != null && defaultValue != undefined)
             localStorage.setItem(key, JSON.stringify(defaultValue))
 
     return {
         subscribe: store.subscribe,
         set: value => {
-            if (isBrowser()) value != null ? localStorage.setItem(key, JSON.stringify(value)) : localStorage.removeItem(key)
+            if (isBrowser()) value != null && value != undefined ? localStorage.setItem(key, JSON.stringify(value)) : localStorage.removeItem(key)
             store.set(value);
         },
         update: (updater) => {
             const updated = updater(get(store));
 
-            if (isBrowser()) updated != null ? localStorage.setItem(key, JSON.stringify(updated)) : localStorage.removeItem(key)
+            if (isBrowser()) updated != null && updated != undefined ? localStorage.setItem(key, JSON.stringify(updated)) : localStorage.removeItem(key)
             store.set(updated);
         }
     };
