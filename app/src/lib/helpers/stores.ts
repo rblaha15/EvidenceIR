@@ -10,12 +10,13 @@ export function storable<T>(key: string, defaultValue: T): Writable<T> {
 
     key = `storable_${key}`;
 
-    const currentValue = localStorage.getItem(key)
-    if (isBrowser())
+    if (isBrowser()) {
+        const currentValue = localStorage.getItem(key)
         if (currentValue != null && currentValue != 'undefined')
             store.set(JSON.parse(currentValue));
         else if (defaultValue != undefined)
             localStorage.setItem(key, JSON.stringify(defaultValue))
+    }
 
     return {
         subscribe: store.subscribe,
