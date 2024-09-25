@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { type LanguageCode } from '$lib/languages';
 	import { languageNames, type Translations } from '$lib/translations';
-	import type { PageData } from '../../routes/[[lang]]/(hasLayout)/(requiresLogin)/detail/[ir]/$types';
+	import type { PageData } from './$types';
 	import { getToken } from '$lib/client/auth';
 	import { pdfData } from '$lib/client/pdf';
 	import { type Pdf } from '$lib/client/pdf';
-	import { storable } from '$lib/helpers/stores';
+	import { storableOrUndefined } from '$lib/helpers/stores';
 	import { getIsOnline } from '$lib/client/realtime';
 	import { get } from 'svelte/store';
 
@@ -20,7 +20,7 @@
 		? data.languageCode
 		: pdf.supportedLanguages[0];
 
-	const lastToken = storable(null as string | null, 'firebase-token');
+	const lastToken = storableOrUndefined<string>('firebase-token');
 
 	let offlineError = false;
 
