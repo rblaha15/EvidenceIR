@@ -1,7 +1,7 @@
 import { get, readonly } from "svelte/store"
 import { storable } from "./helpers/stores"
 
-const _history = storable<HistoryEntry[]>([], "history2")
+const _history = storable<HistoryEntry[]>("history2", [])
 
 export const history = readonly(_history)
 

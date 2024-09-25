@@ -39,7 +39,7 @@ onValue(connectedRef, sn => _isOnline.set(sn.val() === true));
 
 const getWithCache = async <T>(query: Query) => {
 	const { get } = await import('firebase/database');
-	const store = storable(null as T | null, "realtime-" + query.ref.toString().substring(query.ref.root.toString().length - 1))
+	const store = storable("realtime_" + query.ref.toString().substring(query.ref.root.toString().length - 1), null as T | null)
 	if (getIsOnline()) {
 		const value = (await get(query)).val() as T
 		store.set(value)

@@ -8,11 +8,11 @@ import { default as MailRRoute } from "$lib/emails/MailRRoute.svelte";
 import { default as MailSDaty } from "$lib/emails/MailSDaty.svelte";
 import { get } from "svelte/store";
 import { page as pageStore } from "$app/stores";
-import { relUrl as relUrlStore, storable } from "$lib/helpers/stores";
+import { relUrl as relUrlStore, storableOrUndefined } from "$lib/helpers/stores";
 import { currentUser, getToken } from "$lib/client/auth";
 import { getTranslations } from "$lib/translations";
 
-const storedData = storable<RawData | null>(null, 'storedData');
+const storedData = storableOrUndefined<RawData>('stored_data');
 
 export default async (
     data: Data,
@@ -116,7 +116,7 @@ export default async (
     });
 
     if (doNotSend || response!.ok) {
-        storedData.set(null)
+        storedData.set(undefined)
         progress({
             text: t.redirecting,
             red: false,

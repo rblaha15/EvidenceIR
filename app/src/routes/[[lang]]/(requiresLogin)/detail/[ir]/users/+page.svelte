@@ -1,19 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
-	import PdfLink from '$lib/components/PDFLink.svelte';
-	import { checkAdmin, checkAuth, currentUser } from '$lib/client/auth';
-	import {
-		evidence,
-		evidenceStore,
-		novaEvidence,
-		odstranitEvidenci,
-		upravitEvidenci,
-		upravitUzivatele,
-		type IR
-	} from '$lib/client/firestore';
-	import IMask from 'imask';
-	import { relUrl, storable } from '$lib/helpers/stores';
+	import { evidenceStore, upravitUzivatele } from '$lib/client/firestore';
 	import { nazevIR } from '$lib/Data';
 
 	export let data: PageData;

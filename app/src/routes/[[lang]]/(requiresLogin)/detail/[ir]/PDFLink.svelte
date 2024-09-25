@@ -20,7 +20,7 @@
 		? data.languageCode
 		: pdf.supportedLanguages[0];
 
-	const lastToken = storableOrUndefined<string>('firebase-token');
+	const lastToken = storableOrUndefined<string>('firebase_token');
 
 	let offlineError = false;
 

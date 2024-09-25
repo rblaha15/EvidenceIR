@@ -11,7 +11,7 @@
 	import odeslat from './odeslat';
 	import { p } from '$lib/Vec';
 	import { evidence } from '$lib/client/firestore';
-	import { storable } from '$lib/helpers/stores';
+	import { storableOrUndefined } from '$lib/helpers/stores';
 
 	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
@@ -20,7 +20,7 @@
 
 	const t = $page.data.translations;
 
-	const storedData = storable<RawData | null>(null, `storedData`);
+	const storedData = storableOrUndefined<RawData>(`stored_data`);
 
 	let mode: 'loading' | 'create' | 'edit' | 'createStored' = 'loading';
 	let data: Data = newData();
@@ -130,7 +130,7 @@
 			<button
 				class="btn"
 				on:click={() => {
-					$storedData = null;
+					$storedData = undefined;
 					window.location.reload();
 				}}
 			>
