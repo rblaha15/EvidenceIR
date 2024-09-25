@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
-	import PdfLink from '$lib/components/PDFLink.svelte';
+	import PdfLink from './PDFLink.svelte';
 	import { checkAuth, currentUser, isUserAdmin } from '$lib/client/auth';
 	import { evidence, novaEvidence, odstranitEvidenci, type IR } from '$lib/client/firestore';
 	import IMask from 'imask';
-	import { relUrl, storable } from '$lib/helpers/stores';
+	import { relUrl, storableOrUndefined } from '$lib/helpers/stores';
 	import { nazevIR } from '$lib/Data';
 	import type { RawUvedeni } from '$lib/Uvedeni';
 	import type { FirebaseError } from 'firebase/app';
@@ -14,7 +14,7 @@
 	export let data: PageData;
 	const t = data.translations;
 
-	const storedCommission = storable<RawUvedeni | null>(null, `storedCommission-${data.ir}`);
+	const storedCommission = storableOrUndefined<RawUvedeni>(`stored_commission_${data.ir}`);
 
 	let state: 'loading' | 'loaded' | 'noAccess' | 'offline' = 'loading';
 	let values: IR;
@@ -37,8 +37,8 @@
 			return;
 		}
 
-		if ($storedCommission != null && values.uvedeni != undefined) {
-			storedCommission.set(null);
+		if ($storedCommission != undefined && values.uvedeni != undefined) {
+			storedCommission.set(undefined);
 		}
 	});
 

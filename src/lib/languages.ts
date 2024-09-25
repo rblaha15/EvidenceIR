@@ -1,5 +1,5 @@
 import { get } from "svelte/store"
-import { storable } from './helpers/stores'
+import { storableOrUndefined } from './helpers/stores'
 
 export const languageCodes = ["cs", "en", "de"/* , "sk" */] as const
 
@@ -14,7 +14,7 @@ export const defaultLanguage: LanguageCode = "en"
 
 const localLanguage: () => LanguageCode | undefined = () => navigator.languages.find(it => isLanguageCode(it))
 
-const userPreferedLanguage = storable<LanguageCode | undefined>(undefined, "userPreferedLanguage")
+const userPreferedLanguage = storableOrUndefined<LanguageCode>("user_prefered_language")
 
 export const setUserPreferedLanguage = (code: LanguageCode) => userPreferedLanguage.set(code)
 export const preferedLanguage: () => LanguageCode = () => get(userPreferedLanguage) ?? localLanguage() ?? defaultLanguage

@@ -33,13 +33,13 @@
 	} from '$lib/components/veci';
 	import type { RawData } from '$lib/Data';
 	import { getToken } from '$lib/client/auth';
-	import { storable } from '$lib/helpers/stores';
+	import { storableOrUndefined } from '$lib/helpers/stores';
 
 	export let data: PageData;
 	const ir = data.ir;
 	const t = data.translations;
 
-	const storedCommission = storable<RawUvedeni | null>(null, `storedCommission-${ir}`);
+	const storedCommission = storableOrUndefined<RawUvedeni>(`stored_commission_${ir}`);
 
 	let u: Uvedeni = defaultUvedeni();
 	let evidence: RawData;
@@ -88,7 +88,7 @@
 		vysledek = { load: true, red: false, text: t.saving };
 		await uvestDoProvozu(ir as string, raw);
 
-		storedCommission.set(null);
+		storedCommission.set(undefined);
 		vysledek = {
 			text: 'Přesměrování...',
 			red: false,
