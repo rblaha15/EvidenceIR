@@ -110,7 +110,7 @@ export default (): Data => ({
         telefon: new Pisatkova({
             nazev: `phone`,
             onError: `wrongPhoneFormat`,
-            regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s\.-]?\d{3}[\s\.-]?\d{3,4}$/,
+            regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s\.-]?\d{3}[\s\.-]?\d{3,6}$/,
             type: `tel`,
             autocomplete: `section-user billing mobile tel`,
         }),
