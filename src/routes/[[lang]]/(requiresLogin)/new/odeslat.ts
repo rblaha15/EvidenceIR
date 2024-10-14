@@ -11,6 +11,7 @@ import { page as pageStore } from "$app/stores";
 import { relUrl as relUrlStore, storableOrUndefined } from "$lib/helpers/stores";
 import { currentUser, getToken } from "$lib/client/auth";
 import { getTranslations } from "$lib/translations";
+import { getIsOnline } from "$lib/client/realtime";
 
 const storedData = storableOrUndefined<RawData>('stored_data');
 
@@ -53,6 +54,15 @@ export default async (
             load: false
         });
         return;
+    }
+
+    if (!getIsOnline()) {
+        progress({
+            red: true,
+            text: t.offline,
+            load: false
+        });
+        return
     }
 
     progress({
