@@ -68,6 +68,7 @@ const de: PlainTranslations = {
     evidenceDetails: `Details zur Installation`,
     loadingData: `Daten werden geladen...`,
     sorrySomethingWentWrong: `Entschuldigung, etwas ist schiefgelaufen.`,
+    somethingWentWrongContactUsHtml: `Entschuldigung, etwas ist schiefgelaufen, bitte kontaktieren Sie uns unter <a href="mailto:aplikace.regulus@gmail.com">aplikace.regulus@gmail.com</a>`,
     linkInvalid: `Entweder ist der Link zu dieser Seite falsch oder der Eintrag wurde bereits gelöscht.`,
     linkToThis: `Link zu dieser Seite`,
     copy: `Kopieren`,

@@ -55,6 +55,7 @@ export default {
     wrongPasswordHtml: t`Špatné heslo! <a href="${'link'}">Zapomenuté heslo?</a>`,
     tooManyRequests: `Moc žádostí! Počkejte prosím chvíli`,
     somethingWentWrong: `Něco se nepovedlo :\\`,
+    somethingWentWrongContactUsHtml: `Omlouváme se, něco se nepovedlo, kontaktujte nás prosím na <a href="mailto:aplikace.regulus@gmail.com">aplikace.regulus@gmail.com</a>`,
     passwordTooWeak: `Heslo je příliš slabé!`,
     pleaseUseBuisnessEmail: `Prosím zadejte Váš firemní email`,
     emailInUse: `Tento účet již existuje`,
