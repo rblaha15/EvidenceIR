@@ -20,13 +20,14 @@
 	export let data: Data;
 	export let user: User;
 	export let t: Translations;
+	export let host: string;
 
 	$: list = (Object.values(data) as Data[keyof Data][]).flatMap(
 		(obj) => Object.values(obj) as Vec<Data, any>[]
 	);
 </script>
 
-<p><a href={$page.url.host + `/detail/${data.ir.cislo.value.replace(' ', '')}`}>Odkaz na podrobnosti evidence</a></p>
+<p>Odkaz na podrobnosti evidence: <a href={host + `/detail/${data.ir.cislo.value.replace(' ', '')}`}>{host + `/detail/${data.ir.cislo.value.replace(' ', '')}`}</a></p>
 
 {#each list as vec}
 	{#if vec instanceof Nadpisova && vec.zobrazit(data)}
