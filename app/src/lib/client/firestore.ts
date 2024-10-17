@@ -22,7 +22,9 @@ const irCollection = collection(firestore, 'ir').withConverter<IR>({
 	toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
 	fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR,
 })
+const checkCollection = collection(firestore, 'check')
 const irDoc = (ir: string) => doc(irCollection, ir.replace(' ', ''))
+const checkDoc = (ir: string) => doc(checkCollection, ir.replace(' ', ''))
 
 export const evidence = (ir: string) => {
 	return getDoc(irDoc(ir));
@@ -39,7 +41,15 @@ export const odstranitEvidenci = (ir: string) => {
 	return deleteDoc(irDoc(ir));
 };
 export const existuje = async (ir: string) => {
-	return (await getDoc(irDoc(ir))).exists();
+	try {
+		await getDoc(checkDoc(ir));
+		return true
+	} catch (e) {
+		if ((e as Record<string, string>)?.code == "invalid-argument")
+			return false
+		else
+			throw e
+	}
 };
 
 export const posledniKontrola = async (ir: string) => {
