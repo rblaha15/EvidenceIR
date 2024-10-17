@@ -81,7 +81,9 @@ const _friendlyCompanies = async (
 export const friendlyCompanies = derived(
 	currentUser,
 	(user, set) => {
-		(async () => set(user ? await _friendlyCompanies(user) : FriendlyCompanies([])))();
+		setTimeout(async () => {
+			set(user ? await _friendlyCompanies(user) : FriendlyCompanies([]))
+		}, 500);
 	},
 	FriendlyCompanies([])
 );
