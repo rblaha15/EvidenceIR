@@ -5,11 +5,12 @@
 	import { onMount } from 'svelte';
 	import authentication from '$lib/client/authentication';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
-	
+
+	let odesila = false;
 	let nacita = true;
 	onMount(() => (nacita = false));
 
-	let email = browser ? $page.url.searchParams.get('email') ?? '' : '';
+	let email = browser ? ($page.url.searchParams.get('email') ?? '') : '';
 
 	const t: Translations = $page.data.translations;
 
@@ -19,15 +20,18 @@
 	let error: string | null = null;
 
 	const signUp = async () => {
+		odesila = true;
 		error = '';
 		const { enabled } = await authentication('checkEnabled', { email });
 		if (enabled) {
+			odesila = false;
 			error = t.emailInUse;
 			return;
 		}
 		if (enabled == null && email.endsWith('@regulus.cz')) {
 			await authentication('createUser', { email });
 		} else if (enabled == null) {
+			odesila = false;
 			error = t.pleaseUseBuisnessEmail;
 			return;
 		}
@@ -35,7 +39,7 @@
 			email,
 			lang: $page.data.languageCode,
 			redirect,
-			mode: 'register',
+			mode: 'register'
 		});
 		window.location.href = link;
 	};
@@ -58,9 +62,13 @@
 		<p class="text-danger mt-3 mb-0">{@html error}</p>
 	{/if}
 	<div class="d-flex align-content-center mt-3">
-		<button type="submit" class="btn btn-primary me-2" on:click={signUp}>
-			{t.toSignUp}
-		</button>
+		{#if odesila}
+			<div class="spinner-border text-danger m-2" />
+		{:else}
+			<button type="submit" class="btn btn-primary me-2" on:click={signUp}>
+				{t.toSignUp}
+			</button>
+		{/if}
 		<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
 			{t.back}
 		</button>
