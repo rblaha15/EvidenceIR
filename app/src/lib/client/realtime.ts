@@ -98,7 +98,9 @@ const _responsiblePerson = async (user: User | null) => {
 export const responsiblePerson = derived(
 	currentUser,
 	(user, set) => {
-		(async () => set(user ? await _responsiblePerson(user) : null))();
+		setTimeout(async () => {
+			set(user ? await _responsiblePerson(user) : null)
+		}, 500);
 	},
 	null as string | null
 );
