@@ -5,9 +5,16 @@
 	import Scanner from '$lib/components/Scanner.svelte';
 
 	import * as v from '$lib/Vec';
-	import { dataToRawData, newData, rawDataToData, type RawData, type Data, typBOX } from '$lib/Data';
-	import { friendlyCompanies, responsiblePerson } from '$lib/client/realtime';
-	import { chosenCompanies, companies, filteredCompanies } from './companies';
+	import {
+		dataToRawData,
+		newData,
+		rawDataToData,
+		type RawData,
+		type Data,
+		typBOX
+	} from '$lib/Data';
+	import { responsiblePerson } from '$lib/client/realtime';
+	import { companies, filteredCompanies } from './companies';
 	import odeslat from './odeslat';
 	import { p } from '$lib/Vec';
 	import { evidence } from '$lib/client/firestore';
@@ -17,6 +24,7 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
+	import { nazevFirmy } from '$lib/helpers/ares';
 
 	const t = $page.data.translations;
 
@@ -99,13 +107,17 @@
 	$: if (mode != 'loading' && mode != 'edit') {
 		storedData.set(dataToRawData(data));
 	}
-	$: typBOXu = typBOX(data.ir.cisloBOX.value)
+	$: typBOXu = typBOX(data.ir.cisloBOX.value);
 
 	const filter = writable('');
 	$: filtered = filteredCompanies(filter);
+
 	$: chosen =
 		mode != 'loading'
-			? $chosenCompanies(data.montazka.ico.value, data.uvedeni.ico.value)
+			? {
+					assemblyCompany: nazevFirmy(data.montazka.ico.value),
+					commissioningCompany: nazevFirmy(data.uvedeni.ico.value)
+				}
 			: undefined;
 
 	$: list =
@@ -125,8 +137,9 @@
 
 <div class="d-flex flex-row flex-wrap">
 	<h1 class="flex-grow-1">{mode == 'edit' ? t.editation : t.controllerRegistration}</h1>
-	{#if mode == 'create' || mode == 'createStored'}
-		<div class="d-flex ms-auto me-2 justify-content-end align-items-center">
+	<div class="d-flex mx-2 justify-content-between w-100 align-items-center">
+		<span>* povinná pole</span>
+		{#if mode == 'create' || mode == 'createStored'}
 			<button
 				class="btn"
 				on:click={() => {
@@ -151,13 +164,12 @@
 				</svg>
 				<span class="ms-2">{t.emptyForm}</span>
 			</button>
-		</div>
-	{/if}
+		{/if}
+	</div>
 </div>
 
 {#each list as vec}
-	{#if vec === data.montazka.ico && vec.zobrazit(data)}
-		<p>{t.chosenCompany}: {chosen?.assemblyCompanies ?? t.unknown_Company}</p>
+	{#if vec === data.montazka.ico && vec.zobrazit(data) && vec instanceof v.Pisatkova}
 		{#if $companies.assemblyCompanies.length > 0}
 			<VybiratkoFirmy
 				id="Montazka"
@@ -170,9 +182,8 @@
 				{t}
 			/>
 		{/if}
-	{/if}
-	{#if vec === data.uvedeni.ico && vec.zobrazit(data)}
-		<p>{t.chosenCompany}: {chosen?.commissioningCompanies ?? t.unknown_Company}</p>
+		<Pisatko bind:vec {t} {data} disabled={vec == data.ir.cislo && mode == 'edit'} />
+	{:else if vec === data.uvedeni.ico && vec.zobrazit(data) && vec instanceof v.Pisatkova}
 		{#if $companies.commissioningCompanies.length > 0}
 			<VybiratkoFirmy
 				id="Uvedeni"
@@ -185,12 +196,12 @@
 				{t}
 			/>
 		{/if}
-	{/if}
-	{#if vec === data.tc.cislo && vec.zobrazit(data)}
+		<Pisatko bind:vec {t} {data} disabled={vec == data.ir.cislo && mode == 'edit'} />
+	{:else if vec === data.tc.cislo && vec.zobrazit(data)}
 		<Scanner
 			bind:vec={data.tc.cislo}
 			zobrazit={data.ir.typ.value.second == p`CTC`}
-			onScan={(text) => (data.tc.cislo.updateText(text.slice(-12)))}
+			onScan={(text) => data.tc.cislo.updateText(text.slice(-12))}
 			{t}
 			{data}
 		/>
@@ -215,6 +226,24 @@
 	{/if}
 	{#if vec == data.ir.cisloBOX && vec.zobrazit(data) && typBOXu}
 		<p>Rozpoznáno: {typBOXu}</p>
+	{/if}
+	{#if vec === data.montazka.ico && vec.zobrazit(data)}
+		<p>
+			{#await chosen?.assemblyCompany then a}
+				{#if a}
+					{t.chosenCompany}: {a}
+				{/if}
+			{/await}
+		</p>
+	{/if}
+	{#if vec === data.uvedeni.ico && vec.zobrazit(data)}
+		<p>
+			{#await chosen?.commissioningCompany then c}
+				{#if c}
+					{t.chosenCompany}: {c}
+				{/if}
+			{/await}
+		</p>
 	{/if}
 {/each}
 

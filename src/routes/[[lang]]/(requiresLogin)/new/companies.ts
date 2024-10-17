@@ -6,8 +6,8 @@ export const companies = derived(friendlyCompanies, c => forBoth(c, c =>
     c.sort((a, b) => a.companyName.localeCompare(b.companyName)) ?? []
 ) as FriendlyCompanies)
 
-export const filteredCompanies = (filter: Readable<string>) => derived([companies, filter], ([c, filter]) => forBoth(c, c =>
-    sortBy(c
+export const filteredCompanies = (filter: Readable<string>) => derived([companies, filter], ([c, filter]) => forBoth(c, c => {
+    return sortBy(c
         .map(item => {
             var normalisedItem = wordsToFilter(item.companyName)
             return [item, wordsToFilter(filter).map(searchedWord => {
@@ -30,11 +30,8 @@ export const filteredCompanies = (filter: Readable<string>) => derived([companie
             else
                 return (list[0][0]! - list[0][1]!)
         })
-        .map(([item, _]) => item)) as FriendlyCompanies)
-
-export const chosenCompanies = derived([companies], ([c]) => (crnA: string, crnC: string) => forBoth(c, (c, t) =>
-    c.find((c) => c.crn == (t == 'a' ? crnA : crnC))?.companyName
-))
+        .map(([item, _]) => item)
+}) as FriendlyCompanies)
 
 export const wordsToFilter = (s: string) => s
     .normalize('NFD')
