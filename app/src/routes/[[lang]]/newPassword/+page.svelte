@@ -12,7 +12,7 @@
 
 	export let data: PageData;
 
-	let email = browser ? $page.url.searchParams.get('email') ?? data.email ?? '' : '';
+	let email = browser ? ($page.url.searchParams.get('email') ?? data.email ?? '') : '';
 
 	const t: Translations = data.translations;
 
@@ -24,6 +24,7 @@
 		| 'reset'
 		| 'edit'
 		| 'register'
+		| 'saving'
 		| 'loading' = 'loading';
 
 	let heslo: string;
@@ -48,17 +49,20 @@
 	};
 
 	const resetPassword = async () => {
+		const originalMode = mode;
+		mode = 'saving';
 		error = '';
 		if (heslo != hesloZnovu) {
 			error = t.passwordsDoNotMatch;
+			mode = originalMode
 			return;
 		}
-		if (mode == 'register') {
+		if (originalMode == 'register') {
 			await authentication('enableUser', { email });
 		}
 		changePassword(oobCode!, heslo)
 			.then(() => {
-				window.location.href = $relUrl(`/login?email=${email}&done=${mode}&redirect=${redirect}`)
+				window.location.href = $relUrl(`/login?email=${email}&done=${mode}&redirect=${redirect}`);
 			})
 			.catch((e) => {
 				console.log(e.code);
@@ -73,6 +77,7 @@
 				} else {
 					error = t.somethingWentWrong;
 				}
+				mode = originalMode
 			});
 	};
 </script>
@@ -135,9 +140,13 @@
 			<p class="text-danger mt-3 mb-0">{@html error}</p>
 		{/if}
 		<div class="d-flex align-content-center mt-3">
-			<button type="submit" class="btn btn-primary me-2" on:click={resetPassword}>
-				{t.save}
-			</button>
+			{#if mode == "saving"}
+				<div class="spinner-border text-danger m-2" />
+			{:else}
+				<button type="submit" class="btn btn-primary me-2" on:click={resetPassword}>
+					{t.save}
+				</button>
+			{/if}
 			<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
 				{t.back}
 			</button>
