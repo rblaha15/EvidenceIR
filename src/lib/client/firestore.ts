@@ -31,6 +31,7 @@ export const evidence = (ir: string) => {
 };
 export const novaEvidence = (data: IR) => {
 	const ir = data.evidence.ir.cislo
+	console.log(data)
 	return setDoc(irDoc(ir), data);
 };
 export const upravitEvidenci = (rawData: RawData) => {
@@ -45,7 +46,7 @@ export const existuje = async (ir: string) => {
 		await getDoc(checkDoc(ir));
 		return true
 	} catch (e) {
-		if ((e as Record<string, string>)?.code == "invalid-argument")
+		if ((e as Record<string, string>)?.code == "permission-denied")
 			return false
 		else
 			throw e
