@@ -42,6 +42,7 @@ export type Data = {
 		ico: Pisatkova<Data>;
 		zastupce: Pisatkova<Data>;
 		email: Pisatkova<Data>;
+		phone: Pisatkova<Data>;
 	};
 	uvedeni: {
 		nadpis: Nadpisova<Data>;
@@ -49,6 +50,7 @@ export type Data = {
 		ico: Pisatkova<Data>;
 		zastupce: Pisatkova<Data>;
 		email: Pisatkova<Data>;
+		phone: Pisatkova<Data>;
 	};
 	vzdalenyPristup: {
 		nadpis: Nadpisova<Data>;

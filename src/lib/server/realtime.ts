@@ -1,10 +1,13 @@
 import { getDatabase } from "firebase-admin/database"
 import { app } from "./firebase"
-import type { Person } from "$lib/client/realtime"
+import type { Company, Person } from "$lib/client/realtime"
 
 const realtime = getDatabase(app)
 
 const lidiRef = realtime.ref("/people")
+const firmyRef = realtime.ref("/companies")
+
+export const setCompanies = (companies: Company[]) => firmyRef.set(Object.fromEntries(companies.map(defined).map(c => [c.crn, c] as const)))
 
 export const setPersonDetails = (userId: string, person: Person) => lidiRef.child(userId).set(defined(person))
 export const removePerson = (userId: string) => lidiRef.child(userId).remove()

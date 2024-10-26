@@ -59,15 +59,19 @@
 		if (data.uvedeni.jakoMontazka.value) {
 			data.uvedeni.ico.updateText('');
 			data.uvedeni.email.value = '';
+			data.uvedeni.phone.value = '';
 		} else if (
 			data.uvedeni.ico.value == data.montazka.ico.value &&
 			data.uvedeni.ico.value != '' &&
 			data.uvedeni.email.value == data.montazka.email.value &&
-			data.uvedeni.email.value != ''
+			data.uvedeni.email.value != '' &&
+			data.uvedeni.phone.value == data.montazka.phone.value &&
+			data.uvedeni.phone.value != ''
 		) {
 			data.uvedeni.jakoMontazka.value = true;
 			data.uvedeni.ico.updateText('');
 			data.uvedeni.email.value = '';
+			data.uvedeni.phone.value = '';
 		}
 	}
 	$: if (mode != 'loading') {
@@ -174,6 +178,7 @@
 			<VybiratkoFirmy
 				id="Montazka"
 				bind:emailVec={data.montazka.email}
+				bind:phoneVec={data.montazka.phone}
 				bind:zastupceVec={data.montazka.zastupce}
 				bind:icoVec={data.montazka.ico}
 				bind:filtr={$filter}
@@ -188,6 +193,7 @@
 			<VybiratkoFirmy
 				id="Uvedeni"
 				bind:emailVec={data.uvedeni.email}
+				bind:phoneVec={data.uvedeni.phone}
 				bind:zastupceVec={data.uvedeni.zastupce}
 				bind:icoVec={data.uvedeni.ico}
 				bind:filtr={$filter}

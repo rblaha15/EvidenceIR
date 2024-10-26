@@ -180,7 +180,14 @@ export default (): Data => ({
             onError: `wrongEmailFormat`,
             regex: /^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             autocomplete: `section-assembly billing work email`,
-        })
+        }),
+        phone: new Pisatkova({
+            nazev: `phone`,
+            onError: `wrongPhoneFormat`,
+            regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s\.-]?\d{3}[\s\.-]?\d{3,6}$/,
+            type: 'tel',
+            autocomplete: `section-assembly billing work tel`,
+        }),
     },
     uvedeni: {
         nadpis: new Nadpisova({ nazev: `commissioning` }),
@@ -204,7 +211,16 @@ export default (): Data => ({
             zobrazit: data => !data.uvedeni.jakoMontazka.value,
             nutne: data => !data.uvedeni.jakoMontazka.value,
             autocomplete: `section-commissioning billing work email`,
-        })
+        }),
+        phone: new Pisatkova({
+            nazev: `phone`,
+            onError: `wrongPhoneFormat`,
+            regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s\.-]?\d{3}[\s\.-]?\d{3,6}$/,
+            type: 'tel',
+            zobrazit: data => !data.uvedeni.jakoMontazka.value,
+            nutne: data => !data.uvedeni.jakoMontazka.value,
+            autocomplete: `section-assembly billing work tel`,
+        }),
     },
     vzdalenyPristup: {
         nadpis: new Nadpisova({ nazev: `remoteAccess` }),
