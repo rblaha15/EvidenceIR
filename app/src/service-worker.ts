@@ -46,7 +46,7 @@ sw.addEventListener('fetch', (event) => {
 		const cache = await caches.open(CACHE);
 
 		// `build`/`files` can always be served from the cache
-		if (ASSETS.includes(url.pathname)) {
+		if (files.includes(url.pathname) || build.includes(url.pathname)) {
 			const response = await cache.match(url.pathname);
 
 			if (response) {
