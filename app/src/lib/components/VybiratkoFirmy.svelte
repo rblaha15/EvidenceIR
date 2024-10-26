@@ -6,8 +6,9 @@
 	type D = $$Generic;
 
 	export let t: Translations;
-	export let id: string;
+	export let id: 'Montazka' | 'Uvedeni';
 	export let emailVec: Pisatkova<D>;
+	export let phoneVec: Pisatkova<D>;
 	export let zastupceVec: Pisatkova<D>;
 	export let icoVec: Pisatkova<D>;
 	export let filtr: string;
@@ -29,6 +30,7 @@
 		type="button"
 		on:click={() => {
 			emailVec.value = vyfiltrovanyFirmy[0].email ?? '';
+			phoneVec.value = vyfiltrovanyFirmy[0].phone ?? '';
 			if (id == 'Montazka') zastupceVec.value = vyfiltrovanyFirmy[0].representative ?? '';
 			icoVec.updateText(vyfiltrovanyFirmy[0].crn);
 		}}
@@ -65,6 +67,7 @@
 							class="list-group-item list-group-item-action"
 							on:click={() => {
 								emailVec.value = company.email ?? '';
+								phoneVec.value = company.phone ?? '';
 								if (id == 'Montazka') zastupceVec.value = company.representative ?? '';
 								icoVec.updateText(company.crn);
 								filtr = '';

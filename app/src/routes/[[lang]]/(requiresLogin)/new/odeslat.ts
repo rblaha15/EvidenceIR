@@ -75,6 +75,7 @@ export default async (
         if (data.uvedeni.jakoMontazka.value) {
             data.uvedeni.ico.updateText(data.montazka.ico.value);
             data.uvedeni.email.value = data.montazka.email.value;
+            data.uvedeni.phone.value = data.montazka.phone.value;
         }
         if (data.mistoRealizace.jakoBydliste.value) {
             data.mistoRealizace.ulice.updateText(data.bydliste.ulice.value);

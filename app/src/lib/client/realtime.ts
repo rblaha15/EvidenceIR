@@ -9,9 +9,10 @@ type SelfObject<T extends PropertyKey> = { [key in T]: key }
 type CRN = string
 
 export type Company = {
-	companyName: string,
 	crn: CRN,
+	companyName: string,
 	email?: string,
+	phone?: string,
 	representative?: string
 };
 export type Person = {
@@ -111,5 +112,14 @@ export const startLidiListening = async () => {
 	const { onValue } = await import('firebase/database')
 	return onValue(lidiRef, (data) => {
 		seznamLidi.set(Object.values(data.val() as { [uid: string]: Person } ?? {}));
+	});
+}
+
+export const seznamFirmy = writable([] as Company[]);
+
+export const startFirmyListening = async () => {
+	const { onValue } = await import('firebase/database')
+	return onValue(firmyRef, (data) => {
+		seznamFirmy.set(Object.values(data.val() as { [crn: CRN]: Company } ?? {}));
 	});
 }
