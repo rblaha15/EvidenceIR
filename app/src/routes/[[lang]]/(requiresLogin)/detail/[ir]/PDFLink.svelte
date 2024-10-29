@@ -9,20 +9,32 @@
 	import { getIsOnline } from '$lib/client/realtime';
 	import { get } from 'svelte/store';
 
-	export let linkName: Pdf;
-	export let name: string;
-	export let data: PageData;
-	export let t: Translations;
-	export let enabled: boolean = true;
+	interface Props {
+		linkName: Pdf;
+		name: string;
+		data: PageData;
+		t: Translations;
+		enabled?: boolean;
+		children?: import('svelte').Snippet;
+	}
 
-	$: pdf = pdfData[linkName];
-	$: defaultLanguage = pdf.supportedLanguages.includes(data.languageCode)
+	let {
+		linkName,
+		name,
+		data,
+		t,
+		enabled = true,
+		children
+	}: Props = $props();
+
+	let pdf = $derived(pdfData[linkName]);
+	let defaultLanguage = $derived(pdf.supportedLanguages.includes(data.languageCode)
 		? data.languageCode
-		: pdf.supportedLanguages[0];
+		: pdf.supportedLanguages[0]);
 
 	const lastToken = storableOrUndefined<string>('firebase_token');
 
-	let offlineError = false;
+	let offlineError = $state(false);
 
 	const open = async (lang: LanguageCode) => {
 		offlineError = false;
@@ -49,7 +61,7 @@
 	{#if !offlineError}
 		<div class="btn-group ms-sm-2 mt-2 mt-sm-0">
 			<button
-				on:click={() => open(defaultLanguage)}
+				onclick={() => open(defaultLanguage)}
 				type="button"
 				disabled={!enabled}
 				class="btn btn-outline-info text-nowrap">{t.openPdf}</button
@@ -67,7 +79,7 @@
 				<ul class="dropdown-menu">
 					{#each pdf.supportedLanguages as code}
 						<li>
-							<button on:click={() => open(code)} type="button" class="dropdown-item">
+							<button onclick={() => open(code)} type="button" class="dropdown-item">
 								<span class="fs-5">{code.toUpperCase()}</span>
 								{languageNames[code]}
 							</button>
@@ -81,5 +93,5 @@
 			{t.offline}
 		</div>
 	{/if}
-	<slot />
+	{@render children?.()}
 </div>

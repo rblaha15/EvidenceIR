@@ -12,6 +12,8 @@ export const nazevAdresaFirmy = async (ico: string, fetch: typeof node_fetch = n
     if (Object.keys(companyOverrides).includes(ico))
         return (<Record<string, { obchodniJmeno: string; sidlo: { textovaAdresa: string; }; }>>companyOverrides)[ico]
 
+    if (ico.length != 8) return undefined
+
     let response;
     try {
         response = await fetch(`https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/${ico}`, {
@@ -30,6 +32,8 @@ export const nazevFirmy = async (ico: string, fetch: typeof node_fetch = node_fe
 
     if (Object.keys(companyOverrides).includes(ico))
         return (<Record<string, { obchodniJmeno: string; sidlo: { textovaAdresa: string; }; }>>companyOverrides)[ico].obchodniJmeno
+
+    if (ico.length != 8) return undefined
 
     let response;
     try {

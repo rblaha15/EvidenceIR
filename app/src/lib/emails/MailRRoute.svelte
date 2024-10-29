@@ -2,8 +2,6 @@
 	import { nazevIR, type RawData } from '$lib/Data';
 	import type { Translations } from '$lib/translations';
 
-	export let e: RawData;
-	export let t: Translations;
 
 	const typZarizeni = (e: RawData): string => {
 		if (e.ir.typ.first!.includes('BOX')) return 'CP-2972';
@@ -12,8 +10,19 @@
 		return '???';
 	};
 
-	export let montazka: string | null;
-	export let uvadec: string | null;
+	interface Props {
+		e: RawData;
+		t: Translations;
+		montazka: string | null;
+		uvadec: string | null;
+	}
+
+	let {
+		e,
+		t,
+		montazka,
+		uvadec
+	}: Props = $props();
 </script>
 
 <p>Prosím o založení RegulusRoutu k tomuto regulátoru:</p>

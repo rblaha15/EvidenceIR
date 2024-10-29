@@ -18,7 +18,7 @@
 		await startFirmyListening();
 	});
 
-	let loading = false;
+	let loading = $state(false);
 
 	const poVybraniPeople = (
 		ev: Event & {
@@ -114,32 +114,32 @@
 		newDataCompanies = '';
 	};
 
-	$: oldListPeople = $seznamLidi.map(
+	let oldListPeople = $derived($seznamLidi.map(
 		({ email, assemblyCompanies, commissioningCompanies, responsiblePerson }) =>
 			`${email};${Object.values(assemblyCompanies).join('#')};${Object.values(commissioningCompanies).join('#')};${responsiblePerson ?? ''}`.trim()
-	);
+	));
 
-	$: oldDataPeople = oldListPeople.join('\n');
-	let newDataPeople = '';
-	$: newListPeople = newDataPeople.split(/\n|\r\n/);
-	$: removalsPeople = oldListPeople.filter((p) => p != '' && !newListPeople.some((p2) => p == p2));
-	$: additionsPeople = newListPeople.filter((p) => p != '' && !oldListPeople.some((p2) => p == p2));
+	let oldDataPeople = $derived(oldListPeople.join('\n'));
+	let newDataPeople = $state('');
+	let newListPeople = $derived(newDataPeople.split(/\n|\r\n/));
+	let removalsPeople = $derived(oldListPeople.filter((p) => p != '' && !newListPeople.some((p2) => p == p2)));
+	let additionsPeople = $derived(newListPeople.filter((p) => p != '' && !oldListPeople.some((p2) => p == p2)));
 
-	$: oldListCompanies = $seznamFirmy
+	let oldListCompanies = $derived($seznamFirmy
 		.toSorted((a, b) => a.crn.localeCompare(b.crn))
 		.map(({ crn, companyName, email, phone, representative }) =>
 			`${crn};${companyName};${email ?? ''};${phone ?? ''};${representative ?? ''}`.trim()
-		);
+		));
 
-	$: oldDataCompanies = oldListCompanies.join('\n');
-	let newDataCompanies = '';
-	$: newListCompanies = newDataCompanies.split(/\n|\r\n/);
-	$: removalsCompanies = oldListCompanies.filter(
+	let oldDataCompanies = $derived(oldListCompanies.join('\n'));
+	let newDataCompanies = $state('');
+	let newListCompanies = $derived(newDataCompanies.split(/\n|\r\n/));
+	let removalsCompanies = $derived(oldListCompanies.filter(
 		(p) => p != '' && !newListCompanies.some((p2) => p == p2)
-	);
-	$: additionsCompanies = newListCompanies.filter(
+	));
+	let additionsCompanies = $derived(newListCompanies.filter(
 		(p) => p != '' && !oldListCompanies.some((p2) => p == p2)
-	);
+	));
 </script>
 
 <h1>Admin</h1>
@@ -190,31 +190,31 @@
 			{#if loading}
 				<div class="d-flex align-items-center">
 					<span>Odesílání dat</span>
-					<div class="spinner-border text-danger ms-2" />
+					<div class="spinner-border text-danger ms-2"></div>
 				</div>
 			{:else if newDataPeople == ''}
 				<button
 					type="button"
 					class="btn btn-primary"
-					on:click={() => document.getElementById('file-people')?.click()}
+					onclick={() => document.getElementById('file-people')?.click()}
 				>
 					Vybrat soubor
 				</button>
 			{:else}
-				<button type="button" class="btn btn-danger" on:click={potvrditPeople}>
+				<button type="button" class="btn btn-danger" onclick={potvrditPeople}>
 					Potvrdit změny
 				</button>
 				<button
 					type="button"
 					class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
-					on:click={() => (newDataPeople = '')}
+					onclick={() => (newDataPeople = '')}
 				>
 					Zrušit změny
 				</button>
 				<button
 					type="button"
 					class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
-					on:click={() => document.getElementById('file-people')?.click()}
+					onclick={() => document.getElementById('file-people')?.click()}
 				>
 					Vybrat jiný soubor
 				</button>
@@ -222,7 +222,7 @@
 			<button
 				type="button"
 				class="btn btn-outline-primary mt-2 ms-md-2 mt-md-0"
-				on:click={stahnoutPeople}
+				onclick={stahnoutPeople}
 			>
 				Stáhnout aktuální data
 			</button>
@@ -255,7 +255,7 @@
 			id="file-people"
 			type="file"
 			accept="text/csv"
-			on:change={poVybraniPeople}
+			onchange={poVybraniPeople}
 		/>
 	</div>
 	<div
@@ -285,31 +285,31 @@
 			{#if loading}
 				<div class="d-flex align-items-center">
 					<span>Odesílání dat</span>
-					<div class="spinner-border text-danger ms-2" />
+					<div class="spinner-border text-danger ms-2"></div>
 				</div>
 			{:else if newDataCompanies == ''}
 				<button
 					type="button"
 					class="btn btn-primary"
-					on:click={() => document.getElementById('file-companies')?.click()}
+					onclick={() => document.getElementById('file-companies')?.click()}
 				>
 					Vybrat soubor
 				</button>
 			{:else}
-				<button type="button" class="btn btn-danger" on:click={potvrditCompanies}>
+				<button type="button" class="btn btn-danger" onclick={potvrditCompanies}>
 					Potvrdit změny
 				</button>
 				<button
 					type="button"
 					class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
-					on:click={() => (newDataCompanies = '')}
+					onclick={() => (newDataCompanies = '')}
 				>
 					Zrušit změny
 				</button>
 				<button
 					type="button"
 					class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
-					on:click={() => document.getElementById('file-companies')?.click()}
+					onclick={() => document.getElementById('file-companies')?.click()}
 				>
 					Vybrat jiný soubor
 				</button>
@@ -317,7 +317,7 @@
 			<button
 				type="button"
 				class="btn btn-outline-primary mt-2 ms-md-2 mt-md-0"
-				on:click={stahnoutCompanies}
+				onclick={stahnoutCompanies}
 			>
 				Stáhnout aktuální data
 			</button>
@@ -350,7 +350,7 @@
 			id="file-companies"
 			type="file"
 			accept="text/csv"
-			on:change={poVybraniCompanies}
+			onchange={poVybraniCompanies}
 		/>
 	</div>
 </div>

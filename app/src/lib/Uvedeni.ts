@@ -1,6 +1,6 @@
 import { Zaskrtavatko } from "./components/veci";
 import type { RawData } from "./Data";
-import { Nadpisova, p, Pisatkova, Prepinatkova, Vec, Vybiratkova, Zaskrtavatkova, type GetOrVal, type Raw } from "./Vec";
+import { Nadpisova, p, Pisatkova, Prepinatkova, Vec, Vybiratkova, Zaskrtavatkova, type GetOrVal, type Raw } from "./Vec.svelte";
 
 export type UD = {
     uvedeni: Uvedeni,

@@ -7,26 +7,26 @@
 	import { type Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
 
-	let nacita = true;
+	let nacita = $state(true);
 	onMount(() => (nacita = false));
 
 	const t: Translations = $page.data.translations;
 
 	const done = browser ? <'reset' | 'edit' | 'register'>$page.url.searchParams.get('done') : null;
 
-	let email = browser ? $page.url.searchParams.get('email') ?? '' : '';
-	let password: string;
-	let redirect: string = '/new';
+	let email = $state(browser ? $page.url.searchParams.get('email') ?? '' : '');
+	let password = $state('');
+	let redirect = $state('/new');
 	onMount(() => (redirect = $page.url.searchParams.get('redirect') ?? '/new'));
 
-	$: signUpLink = $relUrl(
+	let signUpLink = $derived($relUrl(
 		`/signup?email=${email}&redirect=${redirect}`
-	);
-	$: resetLink = $relUrl(
+	));
+	let resetLink = $derived($relUrl(
 		`/newPassword?email=${email}&mode=resetEmail&redirect=${redirect}`
-	);
+	));
 
-	let error: string | null = null;
+	let error: string | null = $state(null);
 
 	function prihlasitSe() {
 		error = '';
@@ -87,10 +87,10 @@
 		<p class="text-danger mt-3 mb-0">{@html error}</p>
 	{/if}
 	<div class="d-flex align-content-center mt-3">
-		<button type="submit" class="btn btn-primary me-2" on:click={prihlasitSe}>
+		<button type="submit" class="btn btn-primary me-2" onclick={prihlasitSe}>
 			{t.toLogIn}
 		</button>
-		<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
+		<button type="button" class="btn btn-outline-secondary" onclick={() => history.back()}>
 			{t.back}
 		</button>
 	</div>

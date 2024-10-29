@@ -30,7 +30,7 @@
 			<li>
 				<button
 					class="dropdown-item"
-					on:click={() => {
+					onclick={() => {
 						setUserPreferedLanguage(code);
 						redirect(code);
 					}}

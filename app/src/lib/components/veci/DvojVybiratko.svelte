@@ -2,13 +2,17 @@
 	import { onMount } from 'svelte';
 	import type { Action } from 'svelte/action';
 	import type { TranslationReference, Translations } from '$lib/translations';
-	import { nazevSHvezdou, type DvojVybiratkova } from '$lib/Vec';
+	import { nazevSHvezdou, type DvojVybiratkova } from '$lib/Vec.svelte';
 
 	type D = $$Generic;
 
-	export let t: Translations;
-	export let vec: DvojVybiratkova<D>;
-	export let data: D;
+	interface Props {
+		t: Translations;
+		vec: DvojVybiratkova<D>;
+		data: D;
+	}
+
+	let { t, vec = $bindable(), data }: Props = $props();
 
 	const onChange1 = (
 		e: Event & {
@@ -33,7 +37,7 @@
 {#if vec.zobrazit(data)}
 	<div class="input-group">
 		<label class="form-floating d-block left">
-			<select class="form-select" value={vec.value.first ?? 'notChosen'} on:change={onChange1}>
+			<select class="form-select" value={vec.value.first ?? 'notChosen'} onchange={onChange1}>
 				<option class="d-none" value="notChosen">{t.notChosen}</option>
 				{#each vec.moznosti1(data) as moznost}
 					<option value={moznost}>{t.get(moznost)}</option>
@@ -47,7 +51,7 @@
 				id={nazevSHvezdou(vec, data, t)}
 				value={vec.value.second ?? 'notChosen'}
 				disabled={vec.moznosti2(data).length < 2}
-				on:change={onChange2}
+				onchange={onChange2}
 				use:Select
 			>
 				<option class="d-none" value="notChosen">{t.notChosen}</option>

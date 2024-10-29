@@ -4,7 +4,11 @@
 	import { relUrl } from '$lib/helpers/stores';
 	import type { Translations } from '$lib/translations';
 
-	export let t: Translations;
+	interface Props {
+		t: Translations;
+	}
+
+	let { t }: Props = $props();
 </script>
 
 <ul class="navbar-nav">

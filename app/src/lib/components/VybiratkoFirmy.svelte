@@ -1,19 +1,32 @@
-<script lang="ts">
+<script lang="ts" generics="D">
 	import type { Company } from '$lib/client/realtime';
 	import type { Translations } from '$lib/translations';
-	import type { Pisatkova } from '$lib/Vec';
+	import type { Pisatkova } from '$lib/Vec.svelte';
 	import { onMount } from 'svelte';
-	type D = $$Generic;
 
-	export let t: Translations;
-	export let id: 'Montazka' | 'Uvedeni';
-	export let emailVec: Pisatkova<D>;
-	export let phoneVec: Pisatkova<D>;
-	export let zastupceVec: Pisatkova<D>;
-	export let icoVec: Pisatkova<D>;
-	export let filtr: string;
-	export let vyfiltrovanyFirmy: Company[];
-	export let neVyfiltrovanyFirmy: Company[];
+	interface Props {
+		t: Translations;
+		id: 'Montazka' | 'Uvedeni';
+		emailVec: Pisatkova<D>;
+		phoneVec: Pisatkova<D>;
+		zastupceVec: Pisatkova<D>;
+		icoVec: Pisatkova<D>;
+		filtr: string;
+		vyfiltrovanyFirmy: Company[];
+		neVyfiltrovanyFirmy: Company[];
+	}
+
+	let {
+		t,
+		id,
+		emailVec = $bindable(),
+		phoneVec = $bindable(),
+		zastupceVec = $bindable(),
+		icoVec = $bindable(),
+		filtr = $bindable(),
+		vyfiltrovanyFirmy,
+		neVyfiltrovanyFirmy
+	}: Props = $props();
 
 	onMount(async () => {
 		const { Modal } = await import('bootstrap');
@@ -28,7 +41,7 @@
 {#if neVyfiltrovanyFirmy.length == 1}
 	<button
 		type="button"
-		on:click={() => {
+		onclick={() => {
 			emailVec.value = vyfiltrovanyFirmy[0].email ?? '';
 			phoneVec.value = vyfiltrovanyFirmy[0].phone ?? '';
 			if (id == 'Montazka') zastupceVec.value = vyfiltrovanyFirmy[0].representative ?? '';
@@ -54,7 +67,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 class="modal-title">{t.chooseCompanyFromList}</h4>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" title={t.cancel} />
+				<button type="button" class="btn-close" data-bs-dismiss="modal" title={t.cancel} aria-label={t.cancel}></button>
 			</div>
 			<div class="modal-body">
 				<div class="m-2">
@@ -65,7 +78,7 @@
 						<button
 							data-bs-dismiss="modal"
 							class="list-group-item list-group-item-action"
-							on:click={() => {
+							onclick={() => {
 								emailVec.value = company.email ?? '';
 								phoneVec.value = company.phone ?? '';
 								if (id == 'Montazka') zastupceVec.value = company.representative ?? '';

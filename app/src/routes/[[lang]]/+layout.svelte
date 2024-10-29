@@ -4,11 +4,16 @@
 	import { checkAuth } from '$lib/client/auth';
 	import Navigation from '$lib/components/Navigation.svelte';
 	import { preferedLanguage } from '$lib/languages';
-	import { onMount } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
+	interface Props {
+		children?: Snippet;
+	}
+
+	let { children }: Props = $props();
 
 	const t = $page.data.translations;
 
-	let nacita = true;
+	let nacita = $state(true);
 	onMount(async () => {
 		await checkAuth();
 		nacita = false;
@@ -35,10 +40,10 @@
 <title>{dev ? '(dev) ' : ''}{t.longAppName}</title>
 
 {#if nacita}
-	<div class="spinner-border text-danger m-2" />
+	<div class="spinner-border text-danger m-2"></div>
 {:else}
 	<Navigation {t} />
 	<div class="container my-3">
-		<slot />
+		{@render children?.()}
 	</div>
 {/if}
