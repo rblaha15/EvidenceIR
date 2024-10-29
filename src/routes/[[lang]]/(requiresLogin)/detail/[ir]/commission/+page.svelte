@@ -21,7 +21,7 @@
 		Vybiratkova,
 		Zaskrtavatkova,
 		type Vec
-	} from '$lib/Vec';
+	} from '$lib/Vec.svelte';
 	import {
 		Pisatko,
 		DvojVybiratko,
@@ -35,14 +35,18 @@
 	import { getToken } from '$lib/client/auth';
 	import { storableOrUndefined } from '$lib/helpers/stores';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 	const ir = data.ir;
 	const t = data.translations;
 
 	const storedCommission = storableOrUndefined<RawUvedeni>(`stored_commission_${ir}`);
 
-	let u: Uvedeni = defaultUvedeni();
-	let evidence: RawData;
+	let u: Uvedeni = $state(defaultUvedeni());
+	let evidence = $state() as RawData;
 	onMount(async () => {
 		const snapshot = await getEvidence(ir as string);
 		if (snapshot.exists()) {
@@ -55,16 +59,16 @@
 		}
 	});
 
-	let vysledek = {
+	let vysledek = $state({
 		text: '',
 		red: false,
 		load: false
-	};
+	});
 
-	$: list = (Object.values(u) as Uvedeni[keyof Uvedeni][]).flatMap(
+	let list = $derived((Object.values(u) as Uvedeni[keyof Uvedeni][]).flatMap(
 		(obj) => Object.values(obj) as Vec<UD, any>[]
-	);
-	$: d = { uvedeni: u, evidence } as UD;
+	));
+	let d = $derived({ uvedeni: u, evidence } as UD);
 
 	const save = async () => {
 		const raw = uvedeniToRawUvedeni(u);
@@ -111,46 +115,48 @@
 		}
 	};
 
-	$: if (evidence) {
-		storedCommission.set(uvedeniToRawUvedeni(u));
-	}
+	$effect(() => {
+		if (evidence) {
+			storedCommission.set(uvedeniToRawUvedeni(u));
+		}
+	});
 </script>
 
 {#if evidence}
 	<h1>{t.commissioning}</h1>
-	{#each list as vec}
+	{#each list as vec, i}
 		{#if vec instanceof Nadpisova && vec.zobrazit(d)}
 			<h2>{t.get(vec.nazev(d))}</h2>
 		{:else if vec instanceof Textova && vec.zobrazit(d)}
 			<p>{t.get(vec.nazev(d))}</p>
 		{:else if vec instanceof Pisatkova && vec.zobrazit(d)}
-			<p><Pisatko bind:vec {t} data={d} /></p>
+			<p><Pisatko bind:vec={list[i] as Pisatkova<UD>} {t} data={d} /></p>
 		{:else if vec instanceof DvojVybiratkova && vec.zobrazit(d)}
-			<p><DvojVybiratko bind:vec {t} data={d} /></p>
+			<p><DvojVybiratko bind:vec={list[i] as DvojVybiratkova<UD>} {t} data={d} /></p>
 		{:else if vec instanceof Vybiratkova && vec.zobrazit(d)}
-			<p><Vybiratko bind:vec {t} data={d} /></p>
+			<p><Vybiratko bind:vec={list[i] as Vybiratkova<UD>} {t} data={d} /></p>
 		{:else if vec instanceof Radiova && vec.zobrazit(d)}
-			<p><Radio bind:vec {t} data={d} /></p>
+			<p><Radio bind:vec={list[i] as Radiova<UD>} {t} data={d} /></p>
 		{:else if vec instanceof Prepinatkova && vec.zobrazit(d)}
-			<p><Prepinatko bind:vec {t} data={d} /></p>
+			<p><Prepinatko bind:vec={list[i] as Prepinatkova<UD>} {t} data={d} /></p>
 		{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit(d)}
-			<p><MultiZaskrtavatko {t} bind:vec data={d} /></p>
+			<p><MultiZaskrtavatko {t} bind:vec={list[i] as MultiZaskrtavatkova<UD>} data={d} /></p>
 		{:else if vec instanceof Zaskrtavatkova && vec.zobrazit(d)}
-			<p><Zaskrtavatko {t} bind:vec data={d} /></p>
+			<p><Zaskrtavatko {t} bind:vec={list[i] as Zaskrtavatkova<UD>} data={d} /></p>
 		{/if}
 	{/each}
 	<div class="d-inline-flex align-content-center">
 		{#if !vysledek.load}
-			<button on:click={save} class="btn btn-success">{t.save}</button>
+			<button onclick={save} class="btn btn-success">{t.save}</button>
 		{/if}
 		{#if vysledek.load}
-			<div class="spinner-border text-danger ms-2" />
+			<div class="spinner-border text-danger ms-2"></div>
 		{/if}
-		<button type="button" class="btn btn-outline-secondary ms-2" on:click={() => history.back()}>
+		<button type="button" class="btn btn-outline-secondary ms-2" onclick={() => history.back()}>
 			{t.back}
 		</button>
 		<p class:text-danger={vysledek.red} class="ms-2 my-auto">{@html vysledek.text}</p>
 	</div>
 {:else}
-	<div class="spinner-border text-danger m-2" />
+	<div class="spinner-border text-danger m-2"></div>
 {/if}

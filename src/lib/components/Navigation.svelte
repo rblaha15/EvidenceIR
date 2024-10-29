@@ -9,11 +9,15 @@
 	import BaseNav from './BaseNav.svelte';
 	import LanguageSelector from './LanguageSelector.svelte';
 
-	export let t: Translations;
+	interface Props {
+		t: Translations;
+	}
 
-	$: prihlasenyEmail = $currentUser?.email ?? '';
-	$: osoba = $responsiblePerson ?? t.no_Person;
-	$: jePrihlasen = $currentUser != null;
+	let { t }: Props = $props();
+
+	let prihlasenyEmail = $derived($currentUser?.email ?? '');
+	let osoba = $derived($responsiblePerson ?? t.no_Person);
+	let jePrihlasen = $derived($currentUser != null);
 </script>
 
 <nav class="navbar navbar-expand-sm sticky-top gray flex-wrap">
@@ -68,7 +72,7 @@
 						<li><hr class="dropdown-divider" /></li>
 						<li>
 							<button
-								on:click={async () => {
+								onclick={async () => {
 									const { link } = await authentication('getPasswordResetLink', {
 										email: prihlasenyEmail,
 										lang: $page.data.languageCode,
@@ -85,7 +89,7 @@
 						<li>
 							<button
 								class="dropdown-item text-danger"
-								on:click={() => {
+								onclick={() => {
 									logOut();
 									window.location.reload();
 								}}>{t.toLogOut}</button
@@ -94,7 +98,7 @@
 					</ul>
 				</div>
 			</div>
-			<div class="w-100" />
+			<div class="w-100"></div>
 			<div class="d-none d-sm-inline d-lg-none me-auto">
 				<BaseNav {t} />
 			</div>

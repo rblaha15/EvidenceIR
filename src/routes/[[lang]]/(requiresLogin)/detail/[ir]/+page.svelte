@@ -11,29 +11,33 @@
 	import type { FirebaseError } from 'firebase/app';
 	import { getIsOnline } from '$lib/client/realtime';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 	const t = data.translations;
 
 	const storedCommission = storableOrUndefined<RawUvedeni>(`stored_commission_${data.ir}`);
 
-	let state: 'loading' | 'loaded' | 'noAccess' | 'offline' = 'loading';
-	let values: IR;
+	let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
+	let values = $state() as IR;
 	onMount(async () => {
-		state = 'loading';
+		type = 'loading';
 
 		await checkAuth();
 		try {
 			let snapshot = await evidence(data.ir as string);
 			if (!snapshot.exists()) {
-				state = 'noAccess';
+				type = 'noAccess';
 				return;
 			}
 			values = snapshot.data();
-			state = 'loaded';
+			type = 'loaded';
 		} catch (e) {
 			console.log((e as FirebaseError).code);
-			if ((e as FirebaseError).code == 'unavailable' && !getIsOnline()) state = 'offline';
-			else state = 'noAccess';
+			if ((e as FirebaseError).code == 'unavailable' && !getIsOnline()) type = 'offline';
+			else type = 'noAccess';
 			return;
 		}
 
@@ -47,10 +51,10 @@
 		window.location.reload();
 	};
 
-	let change: 'no' | 'input' | 'sending' | 'fail' = 'no';
+	let change: 'no' | 'input' | 'sending' | 'fail' = $state('no');
 
-	let input: HTMLInputElement | undefined;
-	$: mask =
+	let input: HTMLInputElement | undefined = $state();
+	let mask = $derived(
 		input == undefined
 			? undefined
 			: IMask(input, {
@@ -59,7 +63,8 @@
 						A: /[A-Z]/,
 						'1': /[1-9OND]/
 					}
-				});
+				})
+	);
 
 	onMount(() => {
 		return () => {
@@ -82,18 +87,18 @@
 <h1>
 	{t.evidenceDetails}
 </h1>
-{#if state == 'loading'}
-	<div class="spinner-border text-danger" />
-{:else if state != 'loaded'}
+{#if type == 'loading'}
+	<div class="spinner-border text-danger"></div>
+{:else if type != 'loaded'}
 	<h3>
 		{data.ir.slice(0, 2)}
 		{data.ir.slice(2, 6)}
 	</h3>
 	<p class="mt-3">{t.sorrySomethingWentWrong}</p>
 	<p>
-		{#if state == 'noAccess'}
+		{#if type == 'noAccess'}
 			{t.linkInvalid}
-		{:else if state == 'offline'}
+		{:else if type == 'offline'}
 			{t.offline}
 		{/if}
 	</p>
@@ -119,7 +124,7 @@
 			{#if !values.uvedeni}
 				<button
 					class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
-					on:click={() => (window.location.href = $relUrl(`/detail/${data.ir}/commission`))}
+					onclick={() => (window.location.href = $relUrl(`/detail/${data.ir}/commission`))}
 					>{t.commission}</button
 				>
 			{/if}
@@ -128,7 +133,7 @@
 		<PdfLink name={t.filledYearlyCheck} {t} linkName="check" {data}>
 			<button
 				class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
-				on:click={() => (window.location.href = $relUrl(`/detail/${data.ir}/check`))}
+				onclick={() => (window.location.href = $relUrl(`/detail/${data.ir}/check`))}
 				>{t.doYearlyCheck}</button
 			>
 		</PdfLink>
@@ -139,7 +144,7 @@
 		>
 	{/if}
 	{#if change == 'no'}
-		<button class="btn btn-outline-warning d-block mt-2" on:click={() => (change = 'input')}
+		<button class="btn btn-outline-warning d-block mt-2" onclick={() => (change = 'input')}
 			>{t.changeController}</button
 		>
 	{:else if change == 'input'}
@@ -154,16 +159,15 @@
 				<label for="">{t.newSerialNumber}</label>
 			</label>
 			<div class="btn-group ms-sm-2 mt-2 mt-sm-0">
-				<button class="btn btn-danger" on:click={changeController}>{t.confirm}</button>
-				<button class="btn btn-outline-secondary" on:click={() => (change = 'no')}
-					>{t.cancel}</button
+				<button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
+				<button class="btn btn-outline-secondary" onclick={() => (change = 'no')}>{t.cancel}</button
 				>
 			</div>
 		</div>
 	{:else if change == 'sending'}
 		<div class="d-flex align-items-center mt-2">
 			<span>{t.saving}...</span>
-			<div class="spinner-border text-danger ms-2" />
+			<div class="spinner-border text-danger ms-2"></div>
 		</div>
 	{:else if change == 'fail'}
 		<p class="mt-2 text-danger">{t.changeWentWrong}</p>
@@ -171,10 +175,12 @@
 	<a
 		class="btn btn-outline-warning mt-2"
 		href={$relUrl(`/new?edit=${data.ir}`)}
-		on:click|preventDefault={() => (window.location.href = $relUrl(`/new?edit=${data.ir}`))}
-		>{t.editRegistration}</a
+		onclick={(e) => {
+			e.preventDefault();
+			window.location.href = $relUrl(`/new?edit=${data.ir}`);
+		}}>{t.editRegistration}</a
 	>
-	<button class="btn btn-outline-danger d-block mt-2" on:click={remove}
+	<button class="btn btn-outline-danger d-block mt-2" onclick={remove}
 		>{t.deleteThisEvidence}</button
 	>
 {/if}

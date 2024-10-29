@@ -6,18 +6,15 @@
 	import authentication from '$lib/client/authentication';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 
-	let odesila = false;
-	let nacita = true;
-	onMount(() => (nacita = false));
-
-	let email = browser ? ($page.url.searchParams.get('email') ?? '') : '';
+	let odesila = $state(false);
+	let email = $state(browser ? ($page.url.searchParams.get('email') ?? '') : '');
 
 	const t: Translations = $page.data.translations;
 
 	let redirect: string = '/new';
 	onMount(() => (redirect = $page.url.searchParams.get('redirect') ?? '/new'));
 
-	let error: string | null = null;
+	let error: string | null = $state(null);
 
 	const signUp = async () => {
 		odesila = true;
@@ -63,13 +60,13 @@
 	{/if}
 	<div class="d-flex align-content-center mt-3">
 		{#if odesila}
-			<div class="spinner-border text-danger m-2" />
+			<div class="spinner-border text-danger m-2"></div>
 		{:else}
-			<button type="submit" class="btn btn-primary me-2" on:click={signUp}>
+			<button type="submit" class="btn btn-primary me-2" onclick={signUp}>
 				{t.toSignUp}
 			</button>
 		{/if}
-		<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
+		<button type="button" class="btn btn-outline-secondary" onclick={() => history.back()}>
 			{t.back}
 		</button>
 	</div>

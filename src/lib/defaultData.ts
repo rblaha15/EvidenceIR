@@ -1,4 +1,4 @@
-import { Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, DvojVybiratkova, Textova, t, p, Prepinatkova } from './Vec';
+import { Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, DvojVybiratkova, Textova, t, p, Prepinatkova } from './Vec.svelte';
 import { type Data } from './Data';
 
 export default (): Data => ({

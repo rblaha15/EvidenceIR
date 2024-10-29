@@ -3,16 +3,20 @@
 	import { evidenceStore, upravitUzivatele } from '$lib/client/firestore';
 	import { nazevIR } from '$lib/Data';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 	const t = data.translations;
 
 	const ir = evidenceStore(data.ir);
 
-	let email = '';
+	let email = $state('');
 </script>
 
 {#if !$ir}
-	<div class="spinner-border text-danger" />
+	<div class="spinner-border text-danger"></div>
 {:else}
 	<h1>Uživatelé s přístupem k evidenci</h1>
 	<h3>
@@ -29,7 +33,7 @@
 		<button
 			class="btn btn-success"
 			type="submit"
-			on:click={() => {
+			onclick={() => {
 				upravitUzivatele(data.ir, [...new Set([...$ir.users, email])]);
 				email = '';
 			}}>Přidat uživatele</button
@@ -41,9 +45,10 @@
 				{user}
 				<button
 					class="btn ms-2 text-danger"
-					on:click={() => {
+					onclick={() => {
 						upravitUzivatele(data.ir, $ir.users.toSpliced($ir.users.indexOf(user), 1));
 					}}
+					aria-label="Odstranit"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"

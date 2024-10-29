@@ -1,5 +1,5 @@
 import { nazevFirmy } from "$lib/helpers/ares";
-import { p } from "$lib/Vec";
+import { p } from "$lib/Vec.svelte";
 import { type PdfArgs } from "$lib/client/pdf";
 import { nazevIR, typBOX } from "$lib/Data";
 import { today } from "$lib/helpers/date";

@@ -1,11 +1,15 @@
 <script lang="ts">
 	type D = $$Generic;
 	import type { TranslationReference, Translations } from '$lib/translations';
-	import { nazevSHvezdou, type Vybiratkova } from '$lib/Vec';
+	import { nazevSHvezdou, type Vybiratkova } from '$lib/Vec.svelte';
 
-	export let t: Translations;
-	export let vec: Vybiratkova<D>;
-	export let data: D;
+	interface Props {
+		t: Translations;
+		vec: Vybiratkova<D>;
+		data: D;
+	}
+
+	let { t, vec = $bindable(), data }: Props = $props();
 
 	const onChange = (
 		e: Event & {
@@ -16,7 +20,7 @@
 
 {#if vec.zobrazit(data)}
 	<label class="form-floating d-block">
-		<select class="form-select" value={vec.value ?? 'notChosen'} on:change={onChange}>
+		<select class="form-select" value={vec.value ?? 'notChosen'} onchange={onChange}>
 			<option class="d-none" value='notChosen'>{t.notChosen}</option>
 			{#each vec.moznosti(data) as moznost}
 				<option value={moznost}>{t.get(moznost)}</option>

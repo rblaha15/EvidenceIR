@@ -1,14 +1,21 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	type D = $$Generic;
 	import type { Translations } from '$lib/translations';
-	import { nazevSHvezdou, type Pisatkova } from '$lib/Vec';
+	import { nazevSHvezdou, type Pisatkova } from '$lib/Vec.svelte';
 	import IMask, { InputMask } from 'imask';
 	import { onDestroy, onMount } from 'svelte';
 
-	export let t: Translations;
-	export let vec: Pisatkova<D>;
-	export let type: string = 'text';
-	export let data: D;
+	interface Props {
+		t: Translations;
+		vec: Pisatkova<D>;
+		type?: string;
+		data: D;
+		[key: string]: any;
+	}
+
+	let { t, vec = $bindable(), type = 'text', data, ...rest }: Props = $props();
 
 	type MyOpts = {
 		lazy: boolean;
@@ -20,21 +27,23 @@
 		value?: string;
 	};
 
-	let input: HTMLInputElement;
-	let mask: InputMask<MyOpts> | undefined = undefined;
+	let input = $state<HTMLInputElement>();
+	let mask = $state<InputMask<MyOpts>>();
 
-	$: opts = vec.maskOptions(data);
+	let opts = $derived(vec.maskOptions(data));
 
-	$: options = !opts
-		? undefined
-		: ({
-				lazy: true,
-				overwrite: true,
-				...opts
-			} as MyOpts);
+	let options = $derived(
+		!opts
+			? undefined
+			: ({
+					lazy: true,
+					overwrite: true,
+					...opts
+				} as MyOpts)
+	);
 
 	onMount(() => {
-		if (options != undefined) {
+		if (options != undefined && input != undefined) {
 			mask = IMask(input, options);
 			mask.value = vec.value;
 			mask.on('accept', (_) => (vec.value = mask!.value));
@@ -45,13 +54,13 @@
 		mask = undefined;
 	});
 
-	$: {
+	$effect.pre(() => {
 		mask?.updateValue();
-	}
+	});
 
-	$: {
+	$effect(() => {
 		if (opts != undefined) mask?.updateOptions(opts);
-	}
+	});
 
 	vec.updateText = (text) => {
 		vec.value = text;
@@ -67,7 +76,7 @@
 				placeholder={nazevSHvezdou(vec, data, t)}
 				class="form-control"
 				bind:this={input}
-				{...$$restProps}
+				{...rest}
 			/>
 		{:else}
 			<input
@@ -76,8 +85,10 @@
 				class="form-control"
 				bind:this={input}
 				value={vec.value}
-				on:input={() => (vec.value = input.value)}
-				{...$$restProps}
+				oninput={() => {
+					if (input) vec.value = input.value;
+				}}
+				{...rest}
 			/>
 		{/if}
 		<label for="">{nazevSHvezdou(vec, data, t)}</label>

@@ -13,17 +13,21 @@
 	import type { PageData } from './$types';
 	import { today } from '$lib/helpers/date';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 	const ir = data.ir;
 	const t = data.translations;
 
-	let uvadec: string = '';
-	let poznamka: string = '';
-	const k = kontrola(data.languageCode, '', today()) as KontrolaAsRecord;
+	let uvadec: string = $state('');
+	let poznamka: string = $state('');
+	const k = $state(kontrola(data.languageCode, '', today()) as KontrolaAsRecord);
 	const n = checkNames[data.languageCode] as NamesRecord;
 
-	let rok: number | undefined;
-	let prvniKontrola: KontrolaAsRecord | undefined;
+	let rok: number | undefined = $state();
+	let prvniKontrola: KontrolaAsRecord | undefined = $state();
 	let nacita = true;
 	onMount(async () => {
 		nacita = false;
@@ -35,11 +39,11 @@
 		poznamka = predchoziKontrola?.meta.poznamky ?? '';
 	});
 
-	let vysledek = {
+	let vysledek = $state({
 		text: '',
 		red: false,
 		load: false
-	};
+	});
 
 	const save = async () => {
 		vysledek = { load: true, red: false, text: t.saving };
@@ -82,7 +86,7 @@
 					class="form-check-input"
 					type="checkbox"
 					{value}
-					on:change={() => {
+					onchange={() => {
 						k[v.key1][v.key2] = !value;
 					}}
 				/>
@@ -96,7 +100,7 @@
 				placeholder={name}
 				class="form-control"
 				value={value ?? ''}
-				on:input={(e) => {
+				oninput={(e) => {
 					k[v.key1][v.key2] = e.currentTarget.value;
 				}}
 			/>
@@ -120,10 +124,10 @@
 </label>
 <div class="d-inline-flex align-content-center">
 	{#if !vysledek.load}
-		<button on:click={save} class="btn btn-success">{t.save}</button>
+		<button onclick={save} class="btn btn-success">{t.save}</button>
 	{/if}
 	{#if vysledek.load}
-		<div class="spinner-border text-danger ms-2" />
+		<div class="spinner-border text-danger ms-2"></div>
 	{/if}
 	<p class:text-danger={vysledek.red} class="ms-2 my-auto">{@html vysledek.text}</p>
 </div>

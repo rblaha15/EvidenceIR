@@ -1,11 +1,15 @@
 <script lang="ts">
 	type D = $$Generic;
 	import type { Translations } from '$lib/translations';
-	import { nazevSHvezdou, type MultiZaskrtavatkova } from '$lib/Vec';
+	import { nazevSHvezdou, type MultiZaskrtavatkova } from '$lib/Vec.svelte';
 
-	export let t: Translations
-	export let vec: MultiZaskrtavatkova<D>;
-	export let data: D;
+	interface Props {
+		t: Translations;
+		vec: MultiZaskrtavatkova<D>;
+		data: D;
+	}
+
+	let { t, vec = $bindable(), data }: Props = $props();
 </script>
 
 {#if vec.zobrazit(data)}

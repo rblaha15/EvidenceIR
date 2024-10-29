@@ -6,7 +6,6 @@
 		DvojVybiratkova,
 		MultiZaskrtavatkova,
 		Nadpisova,
-		p,
 		Pisatkova,
 		Prepinatkova,
 		Radiova,
@@ -14,17 +13,26 @@
 		Vec,
 		Vybiratkova,
 		Zaskrtavatkova
-	} from '$lib/Vec';
+	} from '$lib/Vec.svelte';
 	import type { User } from 'firebase/auth';
 
-	export let data: Data;
-	export let user: User;
-	export let t: Translations;
-	export let host: string;
+	interface Props {
+		data: Data;
+		user: User;
+		t: Translations;
+		host: string;
+	}
 
-	$: list = (Object.values(data) as Data[keyof Data][]).flatMap(
+	let {
+		data,
+		user,
+		t,
+		host
+	}: Props = $props();
+
+	let list = $derived((Object.values(data) as Data[keyof Data][]).flatMap(
 		(obj) => Object.values(obj) as Vec<Data, any>[]
-	);
+	));
 </script>
 
 <p>Odkaz na podrobnosti evidence: <a href={host + `/detail/${data.ir.cislo.value.replace(' ', '')}`}>{host + `/detail/${data.ir.cislo.value.replace(' ', '')}`}</a></p>

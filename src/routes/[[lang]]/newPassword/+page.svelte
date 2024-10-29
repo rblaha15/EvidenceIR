@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
-	import Navigation from '$lib/components/Navigation.svelte';
 	import { relUrl } from '$lib/helpers/stores';
 	import type { Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
@@ -10,9 +9,13 @@
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import type { PageData } from './$types';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
 
-	let email = browser ? ($page.url.searchParams.get('email') ?? data.email ?? '') : '';
+	let { data }: Props = $props();
+
+	let email = $state(browser ? ($page.url.searchParams.get('email') ?? data.email ?? '') : '');
 
 	const t: Translations = data.translations;
 
@@ -25,10 +28,10 @@
 		| 'edit'
 		| 'register'
 		| 'saving'
-		| 'loading' = 'loading';
+		| 'loading' = $state('loading');
 
-	let heslo: string;
-	let hesloZnovu: string;
+	let heslo = $state('');
+	let hesloZnovu = $state('');
 
 	let redirect: string = '/new';
 	onMount(() => {
@@ -36,7 +39,7 @@
 		mode = $page.url.searchParams.get('mode') as typeof mode;
 	});
 
-	let error: string | null = null;
+	let error: string | null = $state(null);
 
 	const sendCode = async () => {
 		mode = 'resetSending';
@@ -89,7 +92,7 @@
 {:else if mode == 'resetSending'}
 	<div class="d-flex align-items-center">
 		<span>Odesílání</span>
-		<div class="spinner-border text-danger ms-2" />
+		<div class="spinner-border text-danger ms-2"></div>
 	</div>
 {:else if mode == 'resetEmail' || !oobCode}
 	<form>
@@ -107,10 +110,10 @@
 			<p class="text-danger mt-3 mb-0">{@html error}</p>
 		{/if}
 		<div class="d-flex align-content-center mt-3">
-			<button type="submit" class="btn btn-primary me-2" on:click={sendCode}>
+			<button type="submit" class="btn btn-primary me-2" onclick={sendCode}>
 				{t.sendConfirmEmail}
 			</button>
-			<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
+			<button type="button" class="btn btn-outline-secondary" onclick={() => history.back()}>
 				{t.back}
 			</button>
 		</div>
@@ -141,13 +144,13 @@
 		{/if}
 		<div class="d-flex align-content-center mt-3">
 			{#if mode == "saving"}
-				<div class="spinner-border text-danger m-2" />
+				<div class="spinner-border text-danger m-2"></div>
 			{:else}
-				<button type="submit" class="btn btn-primary me-2" on:click={resetPassword}>
+				<button type="submit" class="btn btn-primary me-2" onclick={resetPassword}>
 					{t.save}
 				</button>
 			{/if}
-			<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
+			<button type="button" class="btn btn-outline-secondary" onclick={() => history.back()}>
 				{t.back}
 			</button>
 		</div>

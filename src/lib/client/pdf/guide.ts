@@ -1,4 +1,4 @@
-import { p } from "$lib/Vec";
+import { p } from "$lib/Vec.svelte";
 import { type PdfArgs } from "$lib/client/pdf";
 import { nazevIR } from "$lib/Data";
 

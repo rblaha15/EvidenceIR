@@ -1,18 +1,12 @@
 <script lang="ts">
-	import type { Pisatkova } from '$lib/Vec';
+	import type { Pisatkova } from '$lib/Vec.svelte';
 	import { Html5Qrcode } from 'html5-qrcode';
 	import { onMount } from 'svelte';
 	import Pisatko from './veci/Pisatko.svelte';
 	import type { Translations } from '$lib/translations';
 	import type { Data } from '$lib/Data';
 
-	onMount(async () => {});
-
-	export let data: Data;
-	export let t: Translations;
-	export let onScan: (text: string) => void;
-
-	let zrusitBtn: HTMLButtonElement;
+	let zrusitBtn = $state<HTMLButtonElement>();
 
 	let html5QrCode: Html5Qrcode;
 
@@ -20,8 +14,21 @@
 		html5QrCode = new Html5Qrcode('reader');
 	});
 
-	export let vec: Pisatkova<Data>;
-	export let zobrazit: boolean;
+	interface Props {
+		data: Data;
+		t: Translations;
+		onScan: (text: string) => void;
+		vec: Pisatkova<Data>;
+		zobrazit: boolean;
+	}
+
+	let {
+		data,
+		t,
+		onScan,
+		vec = $bindable(),
+		zobrazit
+	}: Props = $props();
 
 	const onClick = async () => {
 		const devices = await Html5Qrcode.getCameras();
@@ -34,14 +41,14 @@
 					(decodedText, _) => {
 						onScan(decodedText);
 
-						zrusitBtn.click();
+						zrusitBtn?.click();
 					},
 					undefined
 				)
 				.catch((e) => {
 					console.error(e);
 
-					zrusitBtn.click();
+					zrusitBtn?.click();
 				});
 		}
 	};
@@ -61,7 +68,7 @@
 				class="btn btn-outline-secondary h-auto"
 				data-bs-toggle="modal"
 				data-bs-target="#cam"
-				on:click={onClick}
+				onclick={onClick}
 			>
 				{t.scanBarcode}
 			</button>
@@ -77,13 +84,14 @@
 					type="button"
 					class="btn-close"
 					data-bs-dismiss="modal"
-					on:click={zrusit}
+					onclick={zrusit}
 					title={t.cancel}
-				/>
+					aria-label={t.cancel}
+				></button>
 			</div>
 
 			<div class="modal-body d-flex justify-content-center">
-				<div class="w-100" id="reader" />
+				<div class="w-100" id="reader"></div>
 			</div>
 
 			<div class="modal-footer">
@@ -91,7 +99,7 @@
 					type="button"
 					class="btn btn-outline-danger"
 					bind:this={zrusitBtn}
-					on:click={zrusit}
+					onclick={zrusit}
 					data-bs-dismiss="modal">{t.cancel}</button
 				>
 			</div>

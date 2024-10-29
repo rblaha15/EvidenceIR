@@ -1,6 +1,6 @@
 import defaultData from "./defaultData";
 import type { TranslationReference, Translations } from "./translations";
-import { DvojVybiratkova, Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, Vec, Textova, type Pair, Prepinatkova, type Raw } from "./Vec";
+import { DvojVybiratkova, Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, Vec, Textova, type Pair, Prepinatkova, type Raw } from "./Vec.svelte";
 
 export type Data = {
 	ir: {

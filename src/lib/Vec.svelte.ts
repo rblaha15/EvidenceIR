@@ -40,20 +40,20 @@ export const nazevSHvezdou = <D>(vec: Vec<any, any> & { nutne: Get<D, boolean> }
 export abstract class Vec<D, U> {
     abstract nazev: Get<D, TranslationReference>;
     abstract onError: Get<D, TranslationReference>;
-    zobrazitErrorVeto = false;
+    zobrazitErrorVeto = $state(false);
     abstract zobrazit: Get<D, boolean>;
     abstract value: U;
 
     abstract zpravaJeChybna: Get<D, boolean>;
-    zobrazitError: Get<D, boolean> = ((data) => this.zobrazitErrorVeto && this.zpravaJeChybna(data));
+    zobrazitError: Get<D, boolean> = $state((data) => this.zobrazitErrorVeto && this.zpravaJeChybna(data));
 }
 
 export class Nadpisova<D> extends Vec<D, undefined> {
-    nazev: Get<D, TranslationReference>;
+    nazev = $state() as Get<D, TranslationReference>;
+    zobrazit = $state() as Get<D, boolean>;
     onError = () => '' as const;
-    zobrazit: Get<D, boolean>;
     value = undefined
-    zpravaJeChybna: Get<D, boolean> = () => false;
+    zpravaJeChybna = () => false;
     constructor(args: {
         nazev: GetOrVal<D>,
         zobrazit?: GetOrVal<D, boolean>
@@ -65,11 +65,11 @@ export class Nadpisova<D> extends Vec<D, undefined> {
 }
 
 export class Textova<D> extends Vec<D, undefined> {
-    nazev: Get<D, TranslationReference>;
+    nazev = $state() as Get<D, TranslationReference>;
+    zobrazit = $state() as Get<D, boolean>;
     onError = () => '' as const;
-    zobrazit: Get<D, boolean>;
     value = undefined
-    zpravaJeChybna: Get<D, boolean> = () => false;
+    zpravaJeChybna = () => false;
     constructor(args: {
         nazev: GetOrVal<D>,
         zobrazit?: GetOrVal<D, boolean>
@@ -81,13 +81,13 @@ export class Textova<D> extends Vec<D, undefined> {
 }
 
 export class Vybiratkova<D> extends Vec<D, TranslationReference | null> {
-    nazev: Get<D, TranslationReference>;
-    onError: Get<D, TranslationReference>;
-    zobrazit: Get<D, boolean>;
-    moznosti: Get<D, TranslationReference[]>;
-    value: TranslationReference | null;
-    nutne: Get<D, boolean>;
-    zpravaJeChybna: Get<D, boolean> = a => this.value == null && this.nutne(a);
+    nazev = $state() as Get<D, TranslationReference>;
+    onError = $state() as Get<D, TranslationReference>;
+    zobrazit = $state() as Get<D, boolean>;
+    moznosti = $state() as Get<D, TranslationReference[]>;
+    value = $state() as TranslationReference | null;
+    nutne = $state() as Get<D, boolean>;
+    zpravaJeChybna = $state(a => this.value == null && this.nutne(a)) as Get<D, boolean>;
 
     constructor(args: {
         nazev: GetOrVal<D>,
@@ -113,15 +113,15 @@ export type Pair = {
     second: TranslationReference | null,
 }
 export class DvojVybiratkova<D> extends Vec<D, Pair> {
-    nazev: Get<D, TranslationReference>;
-    onError: Get<D, TranslationReference>;
-    zobrazit: Get<D, boolean>;
-    moznosti1: Get<D, TranslationReference[]>;
-    moznosti2: Get<D, TranslationReference[]>;
-    value: Pair;
-    nutne: Get<D, boolean>;
+    nazev = $state() as Get<D, TranslationReference>;
+    onError = $state() as Get<D, TranslationReference>;
+    zobrazit = $state() as Get<D, boolean>;
+    moznosti1 = $state() as Get<D, TranslationReference[]>;
+    moznosti2 = $state() as Get<D, TranslationReference[]>;
+    value = $state() as Pair;
+    nutne = $state() as Get<D, boolean>;
 
-    zpravaJeChybna: Get<D, boolean> = a => (this.value.first == null || this.value.second == null) && this.nutne(a);
+    zpravaJeChybna = $state(a => (this.value.first == null || this.value.second == null) && this.nutne(a)) as Get<D, boolean>;
     constructor(args: {
         nazev: GetOrVal<D>,
         moznosti1: GetOrVal<D, TranslationReference[]>,
@@ -143,14 +143,14 @@ export class DvojVybiratkova<D> extends Vec<D, Pair> {
     }
 }
 export class Radiova<D> extends Vec<D, TranslationReference | null> {
-    nazev: Get<D, TranslationReference>;
-    onError: Get<D, TranslationReference>;
-    zobrazit: Get<D, boolean>;
-    moznosti: Get<D, TranslationReference[]>;
-    value: TranslationReference | null;
-    nutne: Get<D, boolean>;
+    nazev = $state() as Get<D, TranslationReference>;
+    onError = $state() as Get<D, TranslationReference>;
+    zobrazit = $state() as Get<D, boolean>;
+    moznosti = $state() as Get<D, TranslationReference[]>;
+    value = $state() as TranslationReference | null;
+    nutne = $state() as Get<D, boolean>;
 
-    zpravaJeChybna: Get<D, boolean> = a => this.value == null && this.nutne(a);
+    zpravaJeChybna = $state(a => this.value == null && this.nutne(a)) as Get<D, boolean>;
     constructor(args: {
         nazev: GetOrVal<D>,
         moznosti: GetOrVal<D, TranslationReference[]>,
@@ -170,15 +170,15 @@ export class Radiova<D> extends Vec<D, TranslationReference | null> {
     }
 }
 export class Prepinatkova<D> extends Vec<D, boolean> {
-    nazev: Get<D, TranslationReference>;
-    onError: Get<D, TranslationReference>;
-    zobrazit: Get<D, boolean>;
-    moznosti: readonly [TranslationReference, TranslationReference];
-    value: boolean;
-    nutne: Get<D, boolean>;
-    hasPositivity: Get<D, boolean>;
+    nazev = $state() as Get<D, TranslationReference>;
+    onError = $state() as Get<D, TranslationReference>;
+    zobrazit = $state() as Get<D, boolean>;
+    moznosti = $state() as readonly [TranslationReference, TranslationReference];
+    value = $state() as boolean;
+    nutne = $state() as Get<D, boolean>;
+    hasPositivity = $state() as Get<D, boolean>;
 
-    zpravaJeChybna: Get<D, boolean> = a => !this.value && this.nutne(a);
+    zpravaJeChybna = $state(a => !this.value && this.nutne(a)) as Get<D, boolean>;
     constructor(args: {
         nazev: GetOrVal<D>,
         moznosti: readonly [TranslationReference, TranslationReference],
@@ -202,14 +202,14 @@ export class Prepinatkova<D> extends Vec<D, boolean> {
 
 export type Arr = TranslationReference[]
 export class MultiZaskrtavatkova<D> extends Vec<D, Arr> {
-    nazev: Get<D, TranslationReference>;
-    onError: Get<D, TranslationReference>;
-    zobrazit: Get<D, boolean>;
-    moznosti: Get<D, TranslationReference[]>;
-    value: TranslationReference[];
-    nutne: Get<D, boolean>;
+    nazev = $state() as Get<D, TranslationReference>;
+    onError = $state() as Get<D, TranslationReference>;
+    zobrazit = $state() as Get<D, boolean>;
+    moznosti = $state() as Get<D, TranslationReference[]>;
+    value = $state() as TranslationReference[];
+    nutne = $state() as Get<D, boolean>;
 
-    zpravaJeChybna: Get<D, boolean> = a => this.value.length == 0 && this.nutne(a);
+    zpravaJeChybna = $state(a => this.value.length == 0 && this.nutne(a)) as Get<D, boolean>;
     constructor(args: {
         nazev: GetOrVal<D>,
         moznosti: GetOrVal<D, TranslationReference[]>,
@@ -229,24 +229,24 @@ export class MultiZaskrtavatkova<D> extends Vec<D, Arr> {
     }
 }
 export class Pisatkova<D> extends Vec<D, string> {
-    nazev: Get<D, TranslationReference>;
-    type: Get<D, HTMLInputTypeAttribute>;
-    autocomplete: Get<D, string>;
-    onError: Get<D, TranslationReference>;
-    zobrazit: Get<D, boolean>;
-    value: string
-        get() {
-            return this.value
-        };
-        set(value: string) {
-            this.updateText(value)
-        };
-    updateText: (text: string) => void = it => { this.value = it };
-    maskOptions: Get<D, Opts>;
-    regex: Get<D, RegExp>;
-    nutne: Get<D, boolean>;
-    zpravaJeChybna: Get<D, boolean> = a => (this.value == '' && this.nutne(a)) ||
-        (this.value != '' && !this.regex(a).test(this.value));
+    nazev = $state() as Get<D, TranslationReference>;
+    type = $state() as Get<D, HTMLInputTypeAttribute>;
+    autocomplete = $state() as Get<D, string>;
+    onError = $state() as Get<D, TranslationReference>;
+    zobrazit = $state() as Get<D, boolean>;
+    value = $state() as string
+    get() {
+        return this.value
+    };
+    set(value: string) {
+        this.updateText(value)
+    };
+    updateText = $state(it => { this.value = it }) as (text: string) => void;
+    maskOptions = $state() as Get<D, Opts>;
+    regex = $state() as Get<D, RegExp>;
+    nutne = $state() as Get<D, boolean>;
+    zpravaJeChybna = $state(a => (this.value == '' && this.nutne(a)) ||
+        (this.value != '' && !this.regex(a).test(this.value))) as Get<D, boolean>;
 
     constructor(args: {
         nazev: GetOrVal<D>,
@@ -274,13 +274,13 @@ export class Pisatkova<D> extends Vec<D, string> {
 }
 
 export class Zaskrtavatkova<D> extends Vec<D, boolean> {
-    nazev: Get<D, TranslationReference>;
-    onError: Get<D, TranslationReference>;
-    zobrazit: Get<D, boolean>;
-    value: boolean;
-    nutne: Get<D, boolean>;
+    nazev = $state() as Get<D, TranslationReference>;
+    onError = $state() as Get<D, TranslationReference>;
+    zobrazit = $state() as Get<D, boolean>;
+    value = $state() as boolean;
+    nutne = $state() as Get<D, boolean>;
 
-    zpravaJeChybna: Get<D, boolean> = a => !this.value && this.nutne(a);
+    zpravaJeChybna = $state(a => !this.value && this.nutne(a)) as Get<D, boolean>;
     constructor(args: {
         nazev: GetOrVal<D>,
         onError?: GetOrVal<D>,

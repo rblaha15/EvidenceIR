@@ -4,7 +4,7 @@ import cs from './translations/cs';
 import de from './translations/de';
 import en from './translations/en';
 import sk from './translations/sk';
-import { createTemplateG } from "./Vec";
+import { createTemplateG } from "./Vec.svelte";
 
 const translationsMap: PlainTranslationsMap = { cs, en, de/*, sk */ };
 

@@ -10,10 +10,10 @@
 	import { onMount } from 'svelte';
 	import { wordsToFilter } from '../new/companies';
 
-	let nacita = true;
+	let nacita = $state(true);
 	onMount(() => (nacita = false));
 
-	let all: HistoryEntry[];
+	let all = $state() as HistoryEntry[];
 	onMount(async () => {
 		const res = await getAll();
 		all = res.docs
@@ -29,20 +29,22 @@
 			.toSorted((a, b) => a.ir.localeCompare(b.ir));
 	});
 
-	$: filtered = !all
-		? []
-		: all.filter((entry) =>
-				wordsToFilter(search).every(
-					(filter) =>
-						wordsToFilter(entry.ir).join(' ').includes(filter) ||
-						wordsToFilter(entry.label).some((word) => word.startsWith(filter))
+	let filtered = $derived(
+		!all
+			? []
+			: all.filter((entry) =>
+					wordsToFilter(search).every(
+						(filter) =>
+							wordsToFilter(entry.ir).join(' ').includes(filter) ||
+							wordsToFilter(entry.label).some((word) => word.startsWith(filter))
+					)
 				)
-			);
+	);
 
 	const t: Translations = $page.data.translations;
 
-	let input: HTMLInputElement | undefined;
-	$: mask =
+	let input = $state<HTMLInputElement>();
+	let mask = $derived(
 		input == undefined
 			? undefined
 			: IMask(input, {
@@ -51,7 +53,8 @@
 						A: /[A-Z]/,
 						'1': /[1-9OND]/
 					}
-				});
+				})
+	);
 
 	onMount(() => {
 		return () => {
@@ -59,14 +62,17 @@
 		};
 	});
 
-	let search = '';
+	let search = $state('');
 
-	$: mask?.on('accept', (_) => (search = mask.value));
+	$effect(() => {
+		mask?.on('accept', (_) => (search = mask.value));
+	})
 </script>
 
 <h1>{t.controllerSearch}</h1>
 <form
-	on:submit|preventDefault={() => {
+	onsubmit={(e) => {
+		e.preventDefault();
 		if (search == '' || filtered.length == 0) return;
 		const ir = filtered[0];
 		addToHistory(ir);
@@ -92,7 +98,8 @@
 					class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
 					class:rt-0={i == 0}
 					href={$relUrl(`/detail/${ir.ir.replace(' ', '')}`)}
-					on:click|preventDefault={() => {
+					onclick={(e) => {
+						e.preventDefault();
 						addToHistory(ir);
 						goto($relUrl(`/detail/${ir.ir.replace(' ', '')}`));
 					}}
@@ -113,7 +120,8 @@
 				<a
 					class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
 					href={$relUrl(`/detail/${ir.ir.replace(' ', '')}`)}
-					on:click|preventDefault={() => {
+					onclick={(e) => {
+						e.preventDefault();
 						addToHistory(ir);
 						goto($relUrl(`/detail/${ir.ir.replace(' ', '')}`));
 					}}
@@ -123,7 +131,12 @@
 				</a>
 				<button
 					class="btn btn-outline-danger rl-0"
-					on:click|stopImmediatePropagation|preventDefault={() => removeFromHistory(ir)}
+					aria-label="Odstarnit"
+					onclick={(e) => {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+						removeFromHistory(ir);
+					}}
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -143,12 +156,6 @@
 {/if}
 
 <style>
-	.w-40 {
-		width: 40%;
-	}
-	.w-10 {
-		width: 10%;
-	}
 	.rb-0 {
 		border-bottom-left-radius: 0;
 		border-bottom-right-radius: 0;
