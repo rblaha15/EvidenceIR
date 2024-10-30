@@ -6,10 +6,10 @@ import check from '$lib/client/pdf/check';
 import warranty from '$lib/client/pdf/warranty';
 import rroute from '$lib/client/pdf/rroute';
 import guide from '$lib/client/pdf/guide';
-import commissionProtocol from '$lib/client/pdf/commissionProtocol';
+import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtocol';
 import { type IR } from "$lib/client/firestore";
 
-export type Pdf = 'check' | 'warranty' | 'rroute' | 'guide' | 'commissionProtocol';export type PdfData = {
+export type Pdf = 'check' | 'warranty' | 'rroute' | 'guide' | 'heatPumpCommissionProtocol';export type PdfData = {
     [P in Pdf]: PdfArgs;
 };
 export const pdfData: PdfData = {
@@ -17,7 +17,7 @@ export const pdfData: PdfData = {
     warranty,
     rroute,
     guide,
-    commissionProtocol,
+    heatPumpCommissionProtocol,
 };
 export type PdfArgs = {
     formName: string;

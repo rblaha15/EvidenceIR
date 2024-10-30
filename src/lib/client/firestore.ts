@@ -1,14 +1,14 @@
 import { collection, deleteDoc, where, query, getDocs, doc, getDoc, onSnapshot, type QueryDocumentSnapshot, setDoc, updateDoc, type WithFieldValue } from 'firebase/firestore';
 import type { RawData } from '$lib/Data';
 import type { Kontrola } from '$lib/Kontrola';
-import type { RawUvedeni } from '$lib/Uvedeni';
+import type { RawUvedeniTC } from '$lib/UvedeniTC';
 import { get, readonly, writable } from 'svelte/store';
 import { checkAdmin, currentUser } from './auth';
 import { firestore } from '../../hooks.client';
 
 export type IR = {
 	evidence: RawData,
-	uvedeni?: RawUvedeni,
+	uvedeniTC?: RawUvedeniTC,
 	kontroly: {
 		1?: Kontrola,
 		2?: Kontrola,
@@ -64,8 +64,8 @@ export const pridatKontrolu = (ir: string, rok: number, kontrola: Kontrola) => {
 	return updateDoc(irDoc(ir), `kontroly.${rok}`, kontrola)
 }
 
-export const uvestDoProvozu = (ir: string, uvedeni: RawUvedeni) => {
-	return updateDoc(irDoc(ir), `uvedeni`, uvedeni)
+export const uvestTCDoProvozu = (ir: string, uvedeni: RawUvedeniTC) => {
+	return updateDoc(irDoc(ir), `uvedeniTC`, uvedeni)
 }
 
 export const upravitUzivatele = (ir: string, users: string[]) => {
