@@ -9,8 +9,8 @@ export default {
     supportedLanguages: ['cs', 'de'],
     title: p`Protokol o uvedení tepelného čerpadla do trvalého provozu`,
     fileName: p`Protokol uvedení TČ.pdf`,
-    getFormData: async ({ evidence: e, uvedeni, }, t) => {
-        const u = uvedeni!
+    getFormData: async ({ evidence: e, uvedeniTC, }, t) => {
+        const u = uvedeniTC!
 
         return ({
         /*    koncakJmeno */ Text1: `${e.koncovyUzivatel.jmeno} ${e.koncovyUzivatel.prijmeni}`,

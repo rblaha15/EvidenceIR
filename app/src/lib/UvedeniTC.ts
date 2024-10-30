@@ -1,18 +1,17 @@
-import { Zaskrtavatko } from "./components/veci";
 import type { RawData } from "./Data";
-import { Nadpisova, p, Pisatkova, Prepinatkova, Vec, Vybiratkova, Zaskrtavatkova, type GetOrVal, type Raw } from "./Vec.svelte";
+import { Nadpisova, Pisatkova, Prepinatkova, Vec, Vybiratkova, Zaskrtavatkova, type GetOrVal, type Raw } from "./Vec.svelte";
 
-export type UD = {
-    uvedeni: Uvedeni,
+export type UDTC = {
+    uvedeni: UvedeniTC,
     evidence: RawData,
 }
 
-export class Vyhovuje extends Prepinatkova<UD> {
+export class Vyhovuje <D> extends Prepinatkova<D> {
     constructor(args: {
-        nazev: GetOrVal<UD>,
-        onError?: GetOrVal<UD>,
-        nutne?: GetOrVal<UD, boolean>,
-        zobrazit?: GetOrVal<UD, boolean>,
+        nazev: GetOrVal<D>,
+        onError?: GetOrVal<D>,
+        nutne?: GetOrVal<D, boolean>,
+        zobrazit?: GetOrVal<D, boolean>,
         vybrano?: boolean,
     }) {
         super({
@@ -24,12 +23,12 @@ export class Vyhovuje extends Prepinatkova<UD> {
         })
     }
 }
-export class Ano extends Prepinatkova<UD> {
+export class Ano <D> extends Prepinatkova<D> {
     constructor(args: {
-        nazev: GetOrVal<UD>,
-        onError?: GetOrVal<UD>,
-        nutne?: GetOrVal<UD, boolean>,
-        zobrazit?: GetOrVal<UD, boolean>,
+        nazev: GetOrVal<D>,
+        onError?: GetOrVal<D>,
+        nutne?: GetOrVal<D, boolean>,
+        zobrazit?: GetOrVal<D, boolean>,
         vybrano?: boolean,
     }) {
         super({
@@ -41,77 +40,77 @@ export class Ano extends Prepinatkova<UD> {
     }
 }
 
-export type Uvedeni = {
+export type UvedeniTC = {
     tc: {
-        nadpis: Nadpisova<UD>,
-        jisticTC: Vyhovuje,
-        jisticVJ: Vyhovuje,
-        vzdalenostZdi: Vyhovuje,
-        kondenzator: Zaskrtavatkova<UD>,
-        filtr: Zaskrtavatkova<UD>,
+        nadpis: Nadpisova<UDTC>,
+        jisticTC: Vyhovuje<UDTC>,
+        jisticVJ: Vyhovuje<UDTC>,
+        vzdalenostZdi: Vyhovuje<UDTC>,
+        kondenzator: Zaskrtavatkova<UDTC>,
+        filtr: Zaskrtavatkova<UDTC>,
     },
     nadrze: {
-        nadpis: Nadpisova<UD>,
-        akumulacka: Pisatkova<UD>,
-        zasobnik: Pisatkova<UD>,
+        nadpis: Nadpisova<UDTC>,
+        akumulacka: Pisatkova<UDTC>,
+        zasobnik: Pisatkova<UDTC>,
     },
     os: {
-        nadpis: Nadpisova<UD>,
-        tvori: Vybiratkova<UD>,
-        popis: Pisatkova<UD>,
-        dzTop: Zaskrtavatkova<UD>,
-        typDzTop: Pisatkova<UD>,
-        tcTv: Zaskrtavatkova<UD>,
-        zTv: Pisatkova<UD>,
-        objemEnOs: Vyhovuje,
-        bazenTc: Zaskrtavatkova<UD>,
+        nadpis: Nadpisova<UDTC>,
+        tvori: Vybiratkova<UDTC>,
+        popis: Pisatkova<UDTC>,
+        dzTop: Zaskrtavatkova<UDTC>,
+        typDzTop: Pisatkova<UDTC>,
+        tcTv: Zaskrtavatkova<UDTC>,
+        zTv: Pisatkova<UDTC>,
+        objemEnOs: Vyhovuje<UDTC>,
+        bazenTc: Zaskrtavatkova<UDTC>,
     },
     reg: {
-        nadpis: Nadpisova<UD>,
-        pripojeniKInternetu: Vybiratkova<UD>,
-        pospojeni: Zaskrtavatkova<UD>,
-        spotrebice: Zaskrtavatkova<UD>,
-        zalZdroj: Zaskrtavatkova<UD>,
+        nadpis: Nadpisova<UDTC>,
+        pripojeniKInternetu: Vybiratkova<UDTC>,
+        pospojeni: Zaskrtavatkova<UDTC>,
+        spotrebice: Zaskrtavatkova<UDTC>,
+        zalZdroj: Zaskrtavatkova<UDTC>,
     },
     primar: {
-        nadpis: Nadpisova<UD>,
-        typ: Vybiratkova<UD>,
-        popis: Pisatkova<UD>,
-        nemrz: Pisatkova<UD>
-        nadoba: Vybiratkova<UD>,
-        kontrola: Zaskrtavatkova<UD>,
+        nadpis: Nadpisova<UDTC>,
+        typ: Vybiratkova<UDTC>,
+        popis: Pisatkova<UDTC>,
+        nemrz: Pisatkova<UDTC>
+        nadoba: Vybiratkova<UDTC>,
+        kontrola: Zaskrtavatkova<UDTC>,
     },
     uvadeni: {
-        nadpis: Nadpisova<UD>,
-        tc: Zaskrtavatkova<UD>,
-        reg: Zaskrtavatkova<UD>,
-        vlastnik: Zaskrtavatkova<UD>,
-        typZaruky: Vybiratkova<UD>,
-        zaruka: Zaskrtavatkova<UD>,
+        nadpis: Nadpisova<UDTC>,
+        tc: Zaskrtavatkova<UDTC>,
+        reg: Zaskrtavatkova<UDTC>,
+        vlastnik: Zaskrtavatkova<UDTC>,
+        typZaruky: Vybiratkova<UDTC>,
+        zaruka: Zaskrtavatkova<UDTC>,
     },
 }
 
-export const defaultUvedeni = (): Uvedeni => ({
+export const defaultUvedeniTC = (): UvedeniTC => ({
     tc: {
-        nadpis: new Nadpisova<UD>({ nazev: `heatPump` }),
+        nadpis: new Nadpisova({ nazev: `heatPump` }),
         jisticTC: new Vyhovuje({ nazev: `characteristicsAndSizeOfHeatPumpBreaker` }),
         jisticVJ: new Vyhovuje({ zobrazit: d => d.evidence.ir.typ.first!.includes('BOX'), nazev: `characteristicsAndSizeOfIndoorUnitBreaker` }),
         vzdalenostZdi: new Vyhovuje({ nazev: `distanceFromWall` }),
-        kondenzator: new Zaskrtavatkova<UD>({
+        kondenzator: new Zaskrtavatkova({
             nutne: false,
             nazev: `isCompensatorInstalled`,
             zobrazit: d => d.evidence.tc.typ == `airToWater`,
         }),
-        filtr: new Zaskrtavatkova<UD>({ nutne: false, nazev: `isCirculationPumpFilterInstalled` }),
+        filtr: new Zaskrtavatkova({ nutne: false, nazev: `isCirculationPumpFilterInstalled` }),
     },
     nadrze: {
-        nadpis: new Nadpisova<UD>({ nazev: `tanks` }),
-        akumulacka: new Pisatkova<UD>({ nazev: `typeOfAccumulationTank`, nutne: false }),
-        zasobnik: new Pisatkova<UD>({ nazev: `typeOfStorageTank`, nutne: false }),
+        nadpis: new Nadpisova({ nazev: `tanks` }),
+        akumulacka: new Pisatkova({ nazev: `typeOfAccumulationTank`, nutne: false }),
+        zasobnik: new Pisatkova({ nazev: `typeOfStorageTank`, nutne: false }),
     },
     os: {
-        nadpis: new Nadpisova<UD>({ nazev: `heatingSystem` }),
-        tvori: new Vybiratkova<UD>({
+        nadpis: new Nadpisova({ nazev: `heatingSystem` }),
+        tvori: new Vybiratkova({
             nazev: `heatingSystemConsistsOf`, moznosti: [
                 `radiators`,
                 `underfloorHeating`,
@@ -119,45 +118,45 @@ export const defaultUvedeni = (): Uvedeni => ({
                 `otherHeatingSystem`,
             ],
         }),
-        popis: new Pisatkova<UD>({
+        popis: new Pisatkova({
             nazev: `heatingSystemDescription`,
             zobrazit: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
             nutne: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
         }),
-        dzTop: new Zaskrtavatkova<UD>({ nutne: false, nazev: `isAdditionalHeatingSourceConnected` }),
-        typDzTop: new Pisatkova<UD>({
+        dzTop: new Zaskrtavatkova({ nutne: false, nazev: `isAdditionalHeatingSourceConnected` }),
+        typDzTop: new Pisatkova({
             nazev: `typeAndPowerOfAdditionalHeatingSource`,
             zobrazit: d => d.uvedeni.os.dzTop.value,
             nutne: d => d.uvedeni.os.dzTop.value
         }),
-        tcTv: new Zaskrtavatkova<UD>({ nutne: false, nazev: `doesHeatPumpPrepareHotWater` }),
-        zTv: new Pisatkova<UD>({ nazev: d => d.uvedeni.os.tcTv.value ? `additionalHotWaterSource` : `mainHotWaterSource`, nutne: d => !d.uvedeni.os.tcTv.value }),
+        tcTv: new Zaskrtavatkova({ nutne: false, nazev: `doesHeatPumpPrepareHotWater` }),
+        zTv: new Pisatkova({ nazev: d => d.uvedeni.os.tcTv.value ? `additionalHotWaterSource` : `mainHotWaterSource`, nutne: d => !d.uvedeni.os.tcTv.value }),
         objemEnOs: new Vyhovuje({ nazev: `volumeOfExpansionTank` }),
-        bazenTc: new Zaskrtavatkova<UD>({ nutne: false, nazev: `isPoolHeatingManagedByHeatPump` }),
+        bazenTc: new Zaskrtavatkova({ nutne: false, nazev: `isPoolHeatingManagedByHeatPump` }),
     },
     reg: {
-        nadpis: new Nadpisova<UD>({ nazev: `controlAndElectricalInstallation` }),
-        pripojeniKInternetu: new Vybiratkova<UD>({
+        nadpis: new Nadpisova({ nazev: `controlAndElectricalInstallation` }),
+        pripojeniKInternetu: new Vybiratkova({
             nazev: `internetConnection`, moznosti: [
                 `connectedViaRegulusRoute`,
                 `connectedWithPublicIpAddress`,
                 `notConnected`,
             ],
         }),
-        pospojeni: new Zaskrtavatkova<UD>({ nutne: false, nazev: `isElectricalBondingComplete` }),
-        spotrebice: new Zaskrtavatkova<UD>({ nutne: false, nazev: `areElectricalDevicesTested` }),
-        zalZdroj: new Zaskrtavatkova<UD>({
+        pospojeni: new Zaskrtavatkova({ nutne: false, nazev: `isElectricalBondingComplete` }),
+        spotrebice: new Zaskrtavatkova({ nutne: false, nazev: `areElectricalDevicesTested` }),
+        zalZdroj: new Zaskrtavatkova({
             nutne: false,
             nazev: `isBackupPowerSourceInstalled`,
             zobrazit: d => d.evidence.tc.typ == `airToWater`,
         }),
     },
     primar: {
-        nadpis: new Nadpisova<UD>({
+        nadpis: new Nadpisova({
             nazev: `primaryCircuit`,
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
         }),
-        typ: new Vybiratkova<UD>({
+        typ: new Vybiratkova({
             nazev: `typeOfPrimaryCircuit`,
             moznosti: [
                 `groundBoreholes`,
@@ -167,7 +166,7 @@ export const defaultUvedeni = (): Uvedeni => ({
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
             nutne: d => d.evidence.tc.typ == 'groundToWater',
         }),
-        popis: new Pisatkova<UD>({
+        popis: new Pisatkova({
             nazev: d => {
                 switch (d.uvedeni.primar.typ.value) {
                     case (`groundBoreholes`): return `numberAndDepthOfBoreholes`;
@@ -178,44 +177,44 @@ export const defaultUvedeni = (): Uvedeni => ({
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
             nutne: d => d.evidence.tc.typ == 'groundToWater' && d.uvedeni.primar.typ.value != null,
         }),
-        nemrz: new Pisatkova<UD>({
+        nemrz: new Pisatkova({
             nazev: `typeOfAntifreezeMixture`,
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
             nutne: d => d.evidence.tc.typ == 'groundToWater',
         }),
-        nadoba: new Vybiratkova<UD>({
+        nadoba: new Vybiratkova({
             nazev: `onPrimaryCircuitInstalled`,
             moznosti: [`expansionTankInstalled`, `bufferTankInstalled`],
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
             nutne: d => d.evidence.tc.typ == 'groundToWater',
         }),
-        kontrola: new Zaskrtavatkova<UD>({
+        kontrola: new Zaskrtavatkova({
             nutne: false,
             nazev: `wasPrimaryCircuitTested`,
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
         }),
     },
     uvadeni: {
-        nadpis: new Nadpisova<UD>({ nazev: `commissioningSteps` }),
-        tc: new Zaskrtavatkova<UD>({ nutne: false, nazev: `wasInstallationAccordingToManual` }),
-        reg: new Zaskrtavatkova<UD>({ nutne: false, nazev: `wasControllerSetToParameters` }),
-        vlastnik: new Zaskrtavatkova<UD>({ nutne: false, nazev: `wasOwnerFamiliarizedWithFunction` }),
-        typZaruky: new Vybiratkova<UD>({
+        nadpis: new Nadpisova({ nazev: `commissioningSteps` }),
+        tc: new Zaskrtavatkova({ nutne: false, nazev: `wasInstallationAccordingToManual` }),
+        reg: new Zaskrtavatkova({ nutne: false, nazev: `wasControllerSetToParameters` }),
+        vlastnik: new Zaskrtavatkova({ nutne: false, nazev: `wasOwnerFamiliarizedWithFunction` }),
+        typZaruky: new Vybiratkova({
             nazev: `isExtendedWarrantyDesired`, moznosti: [
                 `no`,
                 `extendedWarranty7Years`,
                 `extendedWarranty10Years`,
             ]
         }),
-        zaruka: new Zaskrtavatkova<UD>({ nutne: false, nazev: `isInstallationInWarrantyConditions`, zobrazit: d => d.uvedeni.uvadeni.typZaruky.value?.includes('extendedWarranty') ?? false }),
+        zaruka: new Zaskrtavatkova({ nutne: false, nazev: `isInstallationInWarrantyConditions`, zobrazit: d => d.uvedeni.uvadeni.typZaruky.value?.includes('extendedWarranty') ?? false }),
     },
 })
 
-export const rawUvedeniToUvedeni = (toUvedeni: Uvedeni, rawUvedeni: RawUvedeni) => {
-    const d = toUvedeni as Record<string, Record<string, Vec<UD, any>>>
+export const rawUvedeniTCToUvedeniTC = (toUvedeni: UvedeniTC, rawUvedeni: RawUvedeniTC) => {
+    const d = toUvedeni as Record<string, Record<string, Vec<UDTC, any>>>
 
     Object.entries(rawUvedeni).map(a =>
-        a as [keyof Uvedeni, RawUvedeni[keyof RawUvedeni]]
+        a as [keyof UvedeniTC, RawUvedeniTC[keyof RawUvedeniTC]]
     ).forEach(([key1, section]) =>
         Object.entries(section).map(a =>
             a as [string, any]
@@ -225,15 +224,15 @@ export const rawUvedeniToUvedeni = (toUvedeni: Uvedeni, rawUvedeni: RawUvedeni) 
         })
     )
 
-    return d as Uvedeni
+    return d as UvedeniTC
 }
 
-export type RawUvedeni = Raw<Uvedeni, UD>
+export type RawUvedeniTC = Raw<UvedeniTC, UDTC>
 
-export const uvedeniToRawUvedeni = (uvedeni: Uvedeni): RawUvedeni => {
+export const uvedeniTCToRawUvedeniTC = (uvedeni: UvedeniTC): RawUvedeniTC => {
     const UvedeniEntries = Object.entries(uvedeni);
     const rawUvedeniEntries = UvedeniEntries.map(([key, subUvedeni]) => {
-        const subUvedeniEntries = Object.entries(subUvedeni) as [string, Vec<UD, any>][];
+        const subUvedeniEntries = Object.entries(subUvedeni) as [string, Vec<UDTC, any>][];
         const rawSubUvedeniEntries = subUvedeniEntries.map(([subKey, vec]) => {
             if (vec.value == undefined) return undefined;
             else return [subKey, vec.value] as const;
@@ -241,5 +240,5 @@ export const uvedeniToRawUvedeni = (uvedeni: Uvedeni): RawUvedeni => {
         const rawSubUvedeni = Object.fromEntries(rawSubUvedeniEntries);
         return [key, rawSubUvedeni] as const;
     });
-    return Object.fromEntries(rawUvedeniEntries) as RawUvedeni;
+    return Object.fromEntries(rawUvedeniEntries) as RawUvedeniTC;
 };

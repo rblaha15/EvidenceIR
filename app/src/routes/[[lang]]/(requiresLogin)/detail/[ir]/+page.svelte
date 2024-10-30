@@ -7,7 +7,7 @@
 	import IMask from 'imask';
 	import { relUrl, storableOrUndefined } from '$lib/helpers/stores';
 	import { nazevIR } from '$lib/Data';
-	import type { RawUvedeni } from '$lib/Uvedeni';
+	import type { RawUvedeniTC } from '$lib/UvedeniTC';
 	import type { FirebaseError } from 'firebase/app';
 	import { getIsOnline } from '$lib/client/realtime';
 
@@ -18,7 +18,7 @@
 	let { data }: Props = $props();
 	const t = data.translations;
 
-	const storedCommission = storableOrUndefined<RawUvedeni>(`stored_commission_${data.ir}`);
+	const storedHeatPumpCommission = storableOrUndefined<RawUvedeniTC>(`stored_heat_pump_commission_${data.ir}`);
 
 	let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
 	let values = $state() as IR;
@@ -41,8 +41,8 @@
 			return;
 		}
 
-		if ($storedCommission != undefined && values.uvedeni != undefined) {
-			storedCommission.set(undefined);
+		if ($storedHeatPumpCommission != undefined && values.uvedeniTC != undefined) {
+			storedHeatPumpCommission.set(undefined);
 		}
 	});
 
@@ -115,16 +115,16 @@
 	{#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
 		<PdfLink name={t.warranty} {t} linkName="warranty" {data} />
 		<PdfLink
-			enabled={values.uvedeni != undefined}
+			enabled={values.uvedeniTC != undefined}
 			name={t.commissionProtocol}
 			{t}
-			linkName="commissionProtocol"
+			linkName="heatPumpCommissionProtocol"
 			{data}
 		>
-			{#if !values.uvedeni}
+			{#if !values.uvedeniTC}
 				<button
 					class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
-					onclick={() => (window.location.href = $relUrl(`/detail/${data.ir}/commission`))}
+					onclick={() => (window.location.href = $relUrl(`/detail/${data.ir}/heatPumpCommission`))}
 					>{t.commission}</button
 				>
 			{/if}

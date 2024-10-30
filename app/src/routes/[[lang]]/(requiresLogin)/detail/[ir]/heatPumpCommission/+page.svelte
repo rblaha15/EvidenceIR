@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { evidence as getEvidence, uvestDoProvozu } from '$lib/client/firestore';
+	import { evidence as getEvidence, uvestTCDoProvozu } from '$lib/client/firestore';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import {
-		defaultUvedeni,
-		rawUvedeniToUvedeni,
-		uvedeniToRawUvedeni,
-		type RawUvedeni,
-		type UD,
-		type Uvedeni
-	} from '$lib/Uvedeni';
+		defaultUvedeniTC,
+		rawUvedeniTCToUvedeniTC,
+		uvedeniTCToRawUvedeniTC,
+		type RawUvedeniTC,
+		type UDTC,
+		type UvedeniTC
+	} from '$lib/UvedeniTC';
 	import {
 		DvojVybiratkova,
 		MultiZaskrtavatkova,
@@ -43,9 +43,9 @@
 	const ir = data.ir;
 	const t = data.translations;
 
-	const storedCommission = storableOrUndefined<RawUvedeni>(`stored_commission_${ir}`);
+	const storedCommission = storableOrUndefined<RawUvedeniTC>(`stored_commission_${ir}`);
 
-	let u: Uvedeni = $state(defaultUvedeni());
+	let u: UvedeniTC = $state(defaultUvedeniTC());
 	let evidence = $state() as RawData;
 	onMount(async () => {
 		const snapshot = await getEvidence(ir as string);
@@ -55,7 +55,7 @@
 		const stored = $storedCommission;
 		if (stored == null) {
 		} else {
-			u = rawUvedeniToUvedeni(u, stored);
+			u = rawUvedeniTCToUvedeniTC(u, stored);
 		}
 	});
 
@@ -65,13 +65,13 @@
 		load: false
 	});
 
-	let list = $derived((Object.values(u) as Uvedeni[keyof Uvedeni][]).flatMap(
-		(obj) => Object.values(obj) as Vec<UD, any>[]
+	let list = $derived((Object.values(u) as UvedeniTC[keyof UvedeniTC][]).flatMap(
+		(obj) => Object.values(obj) as Vec<UDTC, any>[]
 	));
-	let d = $derived({ uvedeni: u, evidence } as UD);
+	let d = $derived({ uvedeni: u, evidence } as UDTC);
 
 	const save = async () => {
-		const raw = uvedeniToRawUvedeni(u);
+		const raw = uvedeniTCToRawUvedeniTC(u);
 		if (
 			list.some((it) => {
 				if (it.zpravaJeChybna(d))  console.log(it);
@@ -90,7 +90,7 @@
 		}
 
 		vysledek = { load: true, red: false, text: t.saving };
-		await uvestDoProvozu(ir as string, raw);
+		await uvestTCDoProvozu(ir as string, raw);
 
 		storedCommission.set(undefined);
 		vysledek = {
@@ -117,7 +117,7 @@
 
 	$effect(() => {
 		if (evidence) {
-			storedCommission.set(uvedeniToRawUvedeni(u));
+			storedCommission.set(uvedeniTCToRawUvedeniTC(u));
 		}
 	});
 </script>
@@ -130,19 +130,19 @@
 		{:else if vec instanceof Textova && vec.zobrazit(d)}
 			<p>{t.get(vec.nazev(d))}</p>
 		{:else if vec instanceof Pisatkova && vec.zobrazit(d)}
-			<p><Pisatko bind:vec={list[i] as Pisatkova<UD>} {t} data={d} /></p>
+			<p><Pisatko bind:vec={list[i] as Pisatkova<UDTC>} {t} data={d} /></p>
 		{:else if vec instanceof DvojVybiratkova && vec.zobrazit(d)}
-			<p><DvojVybiratko bind:vec={list[i] as DvojVybiratkova<UD>} {t} data={d} /></p>
+			<p><DvojVybiratko bind:vec={list[i] as DvojVybiratkova<UDTC>} {t} data={d} /></p>
 		{:else if vec instanceof Vybiratkova && vec.zobrazit(d)}
-			<p><Vybiratko bind:vec={list[i] as Vybiratkova<UD>} {t} data={d} /></p>
+			<p><Vybiratko bind:vec={list[i] as Vybiratkova<UDTC>} {t} data={d} /></p>
 		{:else if vec instanceof Radiova && vec.zobrazit(d)}
-			<p><Radio bind:vec={list[i] as Radiova<UD>} {t} data={d} /></p>
+			<p><Radio bind:vec={list[i] as Radiova<UDTC>} {t} data={d} /></p>
 		{:else if vec instanceof Prepinatkova && vec.zobrazit(d)}
-			<p><Prepinatko bind:vec={list[i] as Prepinatkova<UD>} {t} data={d} /></p>
+			<p><Prepinatko bind:vec={list[i] as Prepinatkova<UDTC>} {t} data={d} /></p>
 		{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit(d)}
-			<p><MultiZaskrtavatko {t} bind:vec={list[i] as MultiZaskrtavatkova<UD>} data={d} /></p>
+			<p><MultiZaskrtavatko {t} bind:vec={list[i] as MultiZaskrtavatkova<UDTC>} data={d} /></p>
 		{:else if vec instanceof Zaskrtavatkova && vec.zobrazit(d)}
-			<p><Zaskrtavatko {t} bind:vec={list[i] as Zaskrtavatkova<UD>} data={d} /></p>
+			<p><Zaskrtavatko {t} bind:vec={list[i] as Zaskrtavatkova<UDTC>} data={d} /></p>
 		{/if}
 	{/each}
 	<div class="d-inline-flex align-content-center">
