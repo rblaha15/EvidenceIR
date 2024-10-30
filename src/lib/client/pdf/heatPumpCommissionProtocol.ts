@@ -5,7 +5,7 @@ import { nazevIR, typBOX } from "$lib/Data";
 import { today } from "$lib/helpers/date";
 
 export default {
-    formName: 'commissionProtocol',
+    formName: 'heatPumpCommissionProtocol',
     supportedLanguages: ['cs', 'de'],
     title: p`Protokol o uvedení tepelného čerpadla do trvalého provozu`,
     fileName: p`Protokol uvedení TČ.pdf`,
