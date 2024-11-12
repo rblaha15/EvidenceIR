@@ -144,5 +144,6 @@ const en: PlainTranslations = {
     performingPerson: `Performing person`,
     realisedAtResidence: 'Same as the place of residence',
     offline: `You are offline!`,
+    successfullyDeleted: `Record successfully deleted.`,
 }
 export default en

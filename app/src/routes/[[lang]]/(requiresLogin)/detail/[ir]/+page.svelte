@@ -10,6 +10,9 @@
 	import type { RawUvedeniTC } from '$lib/UvedeniTC';
 	import type { FirebaseError } from 'firebase/app';
 	import { getIsOnline } from '$lib/client/realtime';
+	import { addToHistory, removeFromHistory } from '$lib/History';
+	import { HistoryEntry } from '$lib/History.js';
+	import { page } from '$app/stores';
 
 	interface Props {
 		data: PageData;
@@ -18,14 +21,17 @@
 	let { data }: Props = $props();
 	const t = data.translations;
 
+	const deleted = $page.url.searchParams.has('deleted');
 	const storedHeatPumpCommission = storable<RawUvedeniTC>(`stored_heat_pump_commission_${data.ir}`);
 
 	let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
 	let values = $state() as IR;
+	const historyEntry = $derived(HistoryEntry(t, values.evidence));
 	onMount(async () => {
-		type = 'loading';
 
+		type = 'loading';
 		await checkAuth();
+
 		try {
 			let snapshot = await evidence(data.ir as string);
 			if (!snapshot.exists()) {
@@ -40,15 +46,16 @@
 			else type = 'noAccess';
 			return;
 		}
-
 		if ($storedHeatPumpCommission != undefined && values.uvedeniTC != undefined) {
 			storedHeatPumpCommission.set(undefined);
 		}
+		addToHistory(historyEntry)
 	});
 
 	const remove = async () => {
+		removeFromHistory(historyEntry)
 		await odstranitEvidenci(data.ir as string);
-		window.location.reload();
+		window.location.replace($relUrl(`/detail/${data.ir}?deleted`));
 	};
 
 	let change: 'no' | 'input' | 'sending' | 'fail' = $state('no');
@@ -87,6 +94,11 @@
 <h1>
 	{t.evidenceDetails}
 </h1>
+{#if deleted}
+	<div class="alert alert-success" role="alert">
+		{t.successfullyDeleted}
+	</div>
+{/if}
 {#if type === 'loading'}
 	<div class="spinner-border text-danger"></div>
 {:else if type !== 'loaded'}
