@@ -1,7 +1,11 @@
 import { template as t } from "$lib/helpers/templates"
 import type { PlainTranslations } from "$lib/translations"
+import cs from "./cs"
+import en from "./en"
 
 const de: PlainTranslations = {
+    ...cs,
+    ...en,
     name: `Vorname`,
     surname: `Nachname`,
     phone: `Telefonnummer`,
@@ -102,9 +106,9 @@ const de: PlainTranslations = {
     note: `Hinweis`,
     routeGuide: `Anleitung zur Anmeldung zum Regler`,
     warranty: `Garantie für die Wärmepumpe`,
-    commissionProtocol: `Inbetriebnahmeprotokoll für die Wärmepumpe`,
-    commissionProtocolTitle: `Protokoll zur Inbetriebnahme der Wärmepumpe `,
-    commissionProtocolFileName: `Wärmepumpe Inbetriebnahmeprotokoll`,
+    heatPumpCommissionProtocol: `Inbetriebnahmeprotokoll für die Wärmepumpe`,
+    heatPumpCommissionProtocolTitle: `Protokoll zur Inbetriebnahme der Wärmepumpe `,
+    heatPumpCommissionProtocolFileName: `Wärmepumpe Inbetriebnahmeprotokoll`,
     installationApproval: `Installationsgenehmigung für die Wärmepumpe`,
     yearlyCheck: `Jährliche Überprüfung der Wärmepumpe`,
     yearlyCheckFileName: `Jährlichen Inspektion.pdf`,

@@ -2,57 +2,44 @@ import { browser } from '$app/environment';
 import { page } from '$app/stores';
 import { derived, get, writable, type Writable } from 'svelte/store';
 
-export const relUrl = derived(page, (page) => (url: string) => "/" + page.params.lang + url);
+export const relUrl = derived(page, (page) => (url: string) => '/' + page.params.lang + url);
 
-export function storable<T>(key: string, defaultValue: T): Writable<T> {
-    const store = writable<T>(defaultValue);
-    const isBrowser = () => browser;
+type GetStorable = {
+	<T>(key: string): Writable<T | undefined>;
+	<T>(key: string, defaultValue: T): Writable<T>;
+};
 
-    key = `storable_${key}`;
+export const storable: GetStorable = <T>(key: string, defaultValue?: T) => {
+	const store = writable<T | undefined>(defaultValue);
+	const isBrowser = () => browser;
 
-    if (isBrowser()) {
-        const currentValue = localStorage.getItem(key)
-        if (currentValue != null && currentValue != 'undefined' && currentValue != 'null')
-            store.set(JSON.parse(currentValue));
-        else if (defaultValue != undefined)
-            localStorage.setItem(key, JSON.stringify(defaultValue))
-    }
+	key = `storable_${key}`;
 
-    return {
-        subscribe: store.subscribe,
-        set: value => {
-            if (isBrowser()) value != undefined ? localStorage.setItem(key, JSON.stringify(value)) : localStorage.removeItem(key)
-            store.set(value);
-        },
-        update: (updater) => {
-            const updated = updater(get(store));
+	if (isBrowser()) {
+		const currentValue = localStorage.getItem(key);
+		if (currentValue != null && currentValue != 'undefined' && currentValue != 'null')
+			store.set(JSON.parse(currentValue));
+		else if (defaultValue != undefined) localStorage.setItem(key, JSON.stringify(defaultValue));
+	}
 
-            if (isBrowser()) updated != undefined ? localStorage.setItem(key, JSON.stringify(updated)) : localStorage.removeItem(key)
-            store.set(updated);
-        }
-    };
-}
+	const _storeable: Writable<T | undefined> = {
+		subscribe: store.subscribe,
+		set: (value) => {
+			if (isBrowser())
+				value != undefined
+					? localStorage.setItem(key, JSON.stringify(value))
+					: localStorage.removeItem(key);
+			store.set(value);
+		},
+		update: (updater) => {
+			const updated = updater(get(store));
 
-export const storableOrUndefined = <T>(key: string): Writable<T | undefined> => storable(key, undefined)
-
-
-// export function storable<T>(defaultValue: T, key: string): Writable<T> {
-//     const store = storableOrUndefined<T>(key);
-//     const isBrowser = () => browser;
-
-//     key = `storable-${key}`;
-
-//     if (isBrowser() && !localStorage.getItem(key) && defaultValue != undefined)
-//         localStorage.setItem(key, JSON.stringify(defaultValue))
-
-//     return {
-//         subscribe: (run, invalidate) => store.subscribe(
-//             value => run(value!),
-//             value => invalidate?.(value!),
-//         ),
-//         set: value => store.set(value!),
-//         update: (updater) => store.update(
-//             (value) => updater(value!),
-//         ),
-//     };
-// }
+			if (isBrowser())
+				updated != undefined
+					? localStorage.setItem(key, JSON.stringify(updated))
+					: localStorage.removeItem(key);
+			store.set(updated);
+		}
+	};
+	return _storeable;
+};

@@ -1,5 +1,5 @@
 import { error } from "@sveltejs/kit";
-import { PDFDocument, PDFStreamWriter, PDFWriter, PDFTextField } from "pdf-lib";
+import { PDFDocument, PDFStreamWriter, PDFWriter } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit"
 import type { DocumentSnapshot } from "firebase-admin/firestore";
 import { getTranslations } from "$lib/translations";

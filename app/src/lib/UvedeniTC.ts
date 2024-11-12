@@ -23,22 +23,6 @@ export class Vyhovuje <D> extends Prepinatkova<D> {
         })
     }
 }
-export class Ano <D> extends Prepinatkova<D> {
-    constructor(args: {
-        nazev: GetOrVal<D>,
-        onError?: GetOrVal<D>,
-        nutne?: GetOrVal<D, boolean>,
-        zobrazit?: GetOrVal<D, boolean>,
-        vybrano?: boolean,
-    }) {
-        super({
-            vybrano: args.vybrano ?? false,
-            nutne: args.nutne ?? false,
-            ...args,
-            moznosti: [`no`, `yes`] as const,
-        })
-    }
-}
 
 export type UvedeniTC = {
     tc: {

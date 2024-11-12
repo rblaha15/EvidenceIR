@@ -5,7 +5,7 @@
 	import { checkAuth, currentUser, isUserAdmin } from '$lib/client/auth';
 	import { evidence, novaEvidence, odstranitEvidenci, type IR } from '$lib/client/firestore';
 	import IMask from 'imask';
-	import { relUrl, storableOrUndefined } from '$lib/helpers/stores';
+	import { relUrl, storable } from '$lib/helpers/stores';
 	import { nazevIR } from '$lib/Data';
 	import type { RawUvedeniTC } from '$lib/UvedeniTC';
 	import type { FirebaseError } from 'firebase/app';
@@ -18,7 +18,7 @@
 	let { data }: Props = $props();
 	const t = data.translations;
 
-	const storedHeatPumpCommission = storableOrUndefined<RawUvedeniTC>(`stored_heat_pump_commission_${data.ir}`);
+	const storedHeatPumpCommission = storable<RawUvedeniTC>(`stored_heat_pump_commission_${data.ir}`);
 
 	let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
 	let values = $state() as IR;
@@ -87,18 +87,18 @@
 <h1>
 	{t.evidenceDetails}
 </h1>
-{#if type == 'loading'}
+{#if type === 'loading'}
 	<div class="spinner-border text-danger"></div>
-{:else if type != 'loaded'}
+{:else if type !== 'loaded'}
 	<h3>
 		{data.ir.slice(0, 2)}
 		{data.ir.slice(2, 6)}
 	</h3>
 	<p class="mt-3">{t.sorrySomethingWentWrong}</p>
 	<p>
-		{#if type == 'noAccess'}
+		{#if type === 'noAccess'}
 			{t.linkInvalid}
-		{:else if type == 'offline'}
+		{:else if type === 'offline'}
 			{t.offline}
 		{/if}
 	</p>
@@ -115,8 +115,8 @@
 	{#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
 		<PdfLink name={t.warranty} {t} linkName="warranty" {data} />
 		<PdfLink
-			enabled={values.uvedeniTC != undefined}
-			name={t.commissionProtocol}
+			enabled={values.uvedeniTC !== undefined}
+			name={t.heatPumpCommissionProtocol}
 			{t}
 			linkName="heatPumpCommissionProtocol"
 			{data}
@@ -138,16 +138,33 @@
 			>
 		</PdfLink>
 	{/if}
+	{#if values.evidence.ir.chceVyplnitK.includes('solarCollector')}
+		<PdfLink
+			enabled={values.uvedeniSOL !== undefined}
+			name={t.solarCollectorCommissionProtocol}
+			{t}
+			linkName="solarCollectorCommissionProtocol"
+			{data}
+		>
+			{#if !values.uvedeniSOL}
+				<button
+					class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
+					onclick={() => (window.location.href = $relUrl(`/detail/${data.ir}/solarCollectorCommission`))}
+					>{t.commission}</button
+				>
+			{/if}
+		</PdfLink>
+	{/if}
 	{#if $currentUser?.email?.endsWith('@regulus.cz') || $isUserAdmin}
 		<a class="btn btn-outline-info mt-2" href={$relUrl(`/detail/${data.ir}/users`)}
 			>Uživatelé s přístupem k této evidenci</a
 		>
 	{/if}
-	{#if change == 'no'}
+	{#if change === 'no'}
 		<button class="btn btn-outline-warning d-block mt-2" onclick={() => (change = 'input')}
 			>{t.changeController}</button
 		>
-	{:else if change == 'input'}
+	{:else if change === 'input'}
 		<div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center mt-2">
 			<label class="form-floating d-block me-2">
 				<input
@@ -164,12 +181,12 @@
 				>
 			</div>
 		</div>
-	{:else if change == 'sending'}
+	{:else if change === 'sending'}
 		<div class="d-flex align-items-center mt-2">
 			<span>{t.saving}...</span>
 			<div class="spinner-border text-danger ms-2"></div>
 		</div>
-	{:else if change == 'fail'}
+	{:else if change === 'fail'}
 		<p class="mt-2 text-danger">{t.changeWentWrong}</p>
 	{/if}
 	<a

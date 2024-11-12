@@ -8,7 +8,7 @@ import { error, redirect } from '@sveltejs/kit';
 import type { LanguageCode } from '$lib/languages';
 
 export const GET: RequestHandler = async ({ url, fetch, params }) => {
-    const pdfname = params.pdfname as Pdf
+    const pdfName = params.pdfname as Pdf
     const t = url.searchParams.get("token")
 
     const token = await checkToken(t)
@@ -18,5 +18,7 @@ export const GET: RequestHandler = async ({ url, fetch, params }) => {
         return redirect(303, url)
     }
 
-    return generatePdf(params.lang as LanguageCode, params.ir as string, fetch, pdfData[pdfname])
+    if (pdfName !in Object.keys(pdfData)) return error(404)
+
+    return generatePdf(params.lang as LanguageCode, params.ir as string, fetch, pdfData[pdfName])
 }

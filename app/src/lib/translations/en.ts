@@ -104,7 +104,7 @@ const en: PlainTranslations = {
     note: 'Note',
     routeGuide: 'Instructions for logging into the controller',
     warranty: 'Heat pump warranty',
-    commissionProtocol: 'Heat pump instalation protocol',
+    heatPumpCommissionProtocol: 'Heat pump instalation protocol',
     installationApproval: 'Heat pump instalation approval',
     yearlyCheck: 'Yearly heat pump check',
     doYearlyCheck: 'Do a yearly heat pump check',

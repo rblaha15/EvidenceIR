@@ -8,12 +8,13 @@ import { default as MailRRoute } from "$lib/emails/MailRRoute.svelte";
 import { default as MailSDaty } from "$lib/emails/MailSDaty.svelte";
 import { get } from "svelte/store";
 import { page as pageStore } from "$app/stores";
-import { relUrl as relUrlStore, storableOrUndefined } from "$lib/helpers/stores";
-import { currentUser, getToken } from "$lib/client/auth";
+import { relUrl as relUrlStore, storable } from "$lib/helpers/stores";
+import { currentUser } from "$lib/client/auth";
 import { getTranslations } from "$lib/translations";
 import { getIsOnline } from "$lib/client/realtime";
+import { mount } from "svelte";
 
-const storedData = storableOrUndefined<RawData>('stored_data');
+const storedData = storable<RawData>('stored_data');
 
 export default async (
     data: Data,
@@ -87,10 +88,10 @@ export default async (
         const user = get(currentUser)!
 
         const div = document.createElement('div');
-        new MailSDaty({
+        mount(MailSDaty, {
             target: div,
-            props: { data, t, user, host: page.url.host }
-        });
+            props: { data, t, user, host: page.url.host },
+        })
 
         const html = div.innerHTML;
 
@@ -104,8 +105,7 @@ export default async (
             const t = getTranslations('cs')
             const montazka = (await nazevFirmy(rawData.montazka.ico)) ?? null;
             const uvadec = (await nazevFirmy(rawData.uvedeni.ico)) ?? null;
-            const dirExistsHtmliv = document.createElement('div');
-            new MailRRoute({
+            mount(MailRRoute, {
                 target: div,
                 props: { e: rawData, montazka, uvadec, t }
             });

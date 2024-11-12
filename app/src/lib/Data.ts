@@ -1,6 +1,6 @@
 import defaultData from "./defaultData";
 import type { TranslationReference, Translations } from "./translations";
-import { DvojVybiratkova, Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, Vec, Textova, type Pair, Prepinatkova, type Raw } from "./Vec.svelte";
+import { DvojVybiratkova, Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, Vec, Textova, type Pair, type Raw } from "./Vec.svelte";
 
 export type Data = {
 	ir: {
@@ -15,6 +15,11 @@ export type Data = {
 		typ: Radiova<Data>;
 		model: Vybiratkova<Data>;
 		cislo: Pisatkova<Data>;
+	};
+	sol: {
+		title: Nadpisova<Data>;
+		type: Pisatkova<Data>;
+		count: Pisatkova<Data>;
 	};
 	koncovyUzivatel: {
 		nadpis: Nadpisova<Data>;
@@ -73,6 +78,7 @@ export const rawDataToData = (toData: Data, rawData: RawData) => {
 		Object.entries(section).map(a =>
 			a as [string, any]
 		).forEach(([key2, value]) => {
+			if (d[key1][key2] == undefined) d[key1][key2] = (defaultData()[key1] as Record<string, Vec<Data, any>>)[key2]
 			d[key1][key2].value = value
 			if (d[key1][key2] instanceof Pisatkova) d[key1][key2].updateText(value as string)
 		})

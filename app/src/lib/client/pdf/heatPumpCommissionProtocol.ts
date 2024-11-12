@@ -20,7 +20,7 @@ export default {
         /*       montazka */ Text5: await nazevFirmy(e.montazka.ico) ?? '',
         /*    montazkaICO */ Text6: e.montazka.ico,
         /*    uvadecOsoba */ Text7: e.uvedeni.zastupce,
-        /*      uvadecTel */ Text8: '',
+        /*      uvadecTel */ Text8: e.uvedeni.phone,
         /*    uvadecEmail */ Text9: e.uvedeni.email,
         /*          datum */ Text10: today(),
         /*                */ Text11: t.get(e.tc.model!),

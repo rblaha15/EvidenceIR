@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import { checkAuth } from '$lib/client/auth';
 	import Navigation from '$lib/components/Navigation.svelte';
-	import { preferedLanguage } from '$lib/languages';
+	import { preferredLanguage } from '$lib/languages';
 	import { onMount, type Snippet } from 'svelte';
 	interface Props {
 		children?: Snippet;
@@ -24,7 +24,7 @@
 		if (!$page.data.areTranslationsFromRoute)
 			window.location.replace(
 				'/' +
-					preferedLanguage() +
+					preferredLanguage() +
 					$page.url.pathname.slice(currentLangLength + 1) +
 					$page.url.search
 			);

@@ -5,10 +5,12 @@ import type { RawUvedeniTC } from '$lib/UvedeniTC';
 import { get, readonly, writable } from 'svelte/store';
 import { checkAdmin, currentUser } from './auth';
 import { firestore } from '../../hooks.client';
+import type { RawUvedeniSOL } from '$lib/UvedeniSOL';
 
 export type IR = {
 	evidence: RawData,
 	uvedeniTC?: RawUvedeniTC,
+	uvedeniSOL?: RawUvedeniSOL,
 	kontroly: {
 		1?: Kontrola,
 		2?: Kontrola,
@@ -66,6 +68,10 @@ export const pridatKontrolu = (ir: string, rok: number, kontrola: Kontrola) => {
 
 export const uvestTCDoProvozu = (ir: string, uvedeni: RawUvedeniTC) => {
 	return updateDoc(irDoc(ir), `uvedeniTC`, uvedeni)
+}
+
+export const uvestSOLDoProvozu = (ir: string, uvedeni: RawUvedeniSOL) => {
+	return updateDoc(irDoc(ir), `uvedeniSOL`, uvedeni)
 }
 
 export const upravitUzivatele = (ir: string, users: string[]) => {

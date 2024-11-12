@@ -33,7 +33,7 @@
 	} from '$lib/components/veci';
 	import type { RawData } from '$lib/Data';
 	import { getToken } from '$lib/client/auth';
-	import { storableOrUndefined } from '$lib/helpers/stores';
+	import { storable } from '$lib/helpers/stores';
 
 	interface Props {
 		data: PageData;
@@ -43,7 +43,7 @@
 	const ir = data.ir;
 	const t = data.translations;
 
-	const storedCommission = storableOrUndefined<RawUvedeniTC>(`stored_commission_${ir}`);
+	const storedCommission = storable<RawUvedeniTC>(`stored_commission_${ir}`);
 
 	let u: UvedeniTC = $state(defaultUvedeniTC());
 	let evidence = $state() as RawData;
@@ -101,7 +101,7 @@
 
 		const token = await getToken();
 		const newWin = window.open(
-			`/${data.languageCode}/detail/${data.ir}/pdf/commissionProtocol?token=${token}`
+			`/${data.languageCode}/detail/${data.ir}/pdf/heatPumpCommissionProtocol?token=${token}`
 		);
 		if (!newWin || newWin.closed) {
 			vysledek = {
@@ -124,25 +124,25 @@
 
 {#if evidence}
 	<h1>{t.commissioning}</h1>
-	{#each list as vec, i}
-		{#if vec instanceof Nadpisova && vec.zobrazit(d)}
-			<h2>{t.get(vec.nazev(d))}</h2>
-		{:else if vec instanceof Textova && vec.zobrazit(d)}
-			<p>{t.get(vec.nazev(d))}</p>
-		{:else if vec instanceof Pisatkova && vec.zobrazit(d)}
-			<p><Pisatko bind:vec={list[i] as Pisatkova<UDTC>} {t} data={d} /></p>
-		{:else if vec instanceof DvojVybiratkova && vec.zobrazit(d)}
-			<p><DvojVybiratko bind:vec={list[i] as DvojVybiratkova<UDTC>} {t} data={d} /></p>
-		{:else if vec instanceof Vybiratkova && vec.zobrazit(d)}
-			<p><Vybiratko bind:vec={list[i] as Vybiratkova<UDTC>} {t} data={d} /></p>
-		{:else if vec instanceof Radiova && vec.zobrazit(d)}
-			<p><Radio bind:vec={list[i] as Radiova<UDTC>} {t} data={d} /></p>
-		{:else if vec instanceof Prepinatkova && vec.zobrazit(d)}
-			<p><Prepinatko bind:vec={list[i] as Prepinatkova<UDTC>} {t} data={d} /></p>
-		{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit(d)}
-			<p><MultiZaskrtavatko {t} bind:vec={list[i] as MultiZaskrtavatkova<UDTC>} data={d} /></p>
-		{:else if vec instanceof Zaskrtavatkova && vec.zobrazit(d)}
-			<p><Zaskrtavatko {t} bind:vec={list[i] as Zaskrtavatkova<UDTC>} data={d} /></p>
+	{#each list as _, i}
+		{#if list[i] instanceof Nadpisova && list[i].zobrazit(d)}
+			<h2>{t.get(list[i].nazev(d))}</h2>
+		{:else if list[i] instanceof Textova && list[i].zobrazit(d)}
+			<p>{t.get(list[i].nazev(d))}</p>
+		{:else if list[i] instanceof Pisatkova && list[i].zobrazit(d)}
+			<Pisatko bind:vec={list[i]} {t} data={d} />
+		{:else if list[i] instanceof DvojVybiratkova && list[i].zobrazit(d)}
+			<DvojVybiratko bind:vec={list[i]} {t} data={d} />
+		{:else if list[i] instanceof Vybiratkova && list[i].zobrazit(d)}
+			<Vybiratko bind:vec={list[i]} {t} data={d} />
+		{:else if list[i] instanceof Radiova && list[i].zobrazit(d)}
+			<Radio bind:vec={list[i]} {t} data={d} />
+		{:else if list[i] instanceof Prepinatkova && list[i].zobrazit(d)}
+			<Prepinatko bind:vec={list[i]} {t} data={d} />
+		{:else if list[i] instanceof MultiZaskrtavatkova && list[i].zobrazit(d)}
+			<MultiZaskrtavatko {t} bind:vec={list[i]} data={d} />
+		{:else if list[i] instanceof Zaskrtavatkova && list[i].zobrazit(d)}
+			<Zaskrtavatko {t} bind:vec={list[i]} data={d} />
 		{/if}
 	{/each}
 	<div class="d-inline-flex align-content-center">
