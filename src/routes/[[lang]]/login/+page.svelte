@@ -7,9 +7,6 @@
 	import { type Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
 
-	let nacita = $state(true);
-	onMount(() => (nacita = false));
-
 	const t: Translations = $page.data.translations;
 
 	const done = browser ? <'reset' | 'edit' | 'register'>$page.url.searchParams.get('done') : null;
@@ -54,11 +51,11 @@
 <h1>{t.logIn}</h1>
 {#if done}
 	<div class="alert alert-success" role="alert">
-		{#if done == 'edit'}
+		{#if done === 'edit'}
 			{t.passwordEdited}
-		{:else if done == 'register'}
+		{:else if done === 'register'}
 			{t.registered}
-		{:else if done == 'reset'}
+		{:else if done === 'reset'}
 			{t.passwordHasBeenReset}
 		{/if}
 	</div>

@@ -1,5 +1,7 @@
-import { get, readonly } from "svelte/store"
+import { readonly } from "svelte/store"
 import { storable } from "./helpers/stores"
+import { nazevIR, type RawData } from '$lib/Data';
+import type { Translations } from '$lib/translations';
 
 const _history = storable<HistoryEntry[]>("history2", [])
 
@@ -10,6 +12,11 @@ export type HistoryEntry = {
     label: string,
     irType: string,
 }
+export const HistoryEntry = (t: Translations, evidence: RawData): HistoryEntry => ({
+    ir: evidence.ir.cislo,
+    irType: nazevIR(t, evidence.ir.typ),
+    label: `${evidence.koncovyUzivatel.prijmeni} ${evidence.koncovyUzivatel.jmeno} ${evidence.mistoRealizace.obec}`
+})
 
 export const addToHistory = (entry: HistoryEntry) => {
     _history.update(h => [...new Set([entry, ...h.toReversed()].map(a => JSON.stringify(a)))].toReversed().map(a => JSON.parse(a)))
