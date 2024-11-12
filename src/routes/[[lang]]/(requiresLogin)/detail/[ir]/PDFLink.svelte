@@ -5,7 +5,7 @@
 	import { getToken } from '$lib/client/auth';
 	import { pdfData } from '$lib/client/pdf';
 	import { type Pdf } from '$lib/client/pdf';
-	import { storableOrUndefined } from '$lib/helpers/stores';
+	import { storable } from '$lib/helpers/stores';
 	import { getIsOnline } from '$lib/client/realtime';
 	import { get } from 'svelte/store';
 
@@ -32,7 +32,7 @@
 		? data.languageCode
 		: pdf.supportedLanguages[0]);
 
-	const lastToken = storableOrUndefined<string>('firebase_token');
+	const lastToken = storable<string>('firebase_token');
 
 	let offlineError = $state(false);
 
@@ -68,7 +68,7 @@
 			>
 			<button
 				type="button"
-				disabled={!enabled || pdf.supportedLanguages.length == 1}
+				disabled={!enabled || pdf.supportedLanguages.length === 1}
 				class="btn btn-outline-secondary"
 				class:dropdown-toggle={pdf.supportedLanguages.length > 1}
 				data-bs-toggle="dropdown"

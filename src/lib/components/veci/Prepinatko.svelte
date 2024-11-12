@@ -13,7 +13,7 @@
 </script>
 
 {#if vec.zobrazit(data)}
-	<div class="d-flex align-items-center">
+	<div class="d-flex align-items-center mb-3">
 		<label class="me-2" for="">{nazevSHvezdou(vec, data, t)}</label>
 		<div class="btn-group" role="group">
 			{#each vec.moznosti as moznost, i}
@@ -25,7 +25,7 @@
 					id={vec.nazev(data) + Boolean(i)}
 					autocomplete="off"
 				/>
-				<label class="btn btn-sm {vec.hasPositivity(data) && vec.value == Boolean(i) ? i == 1 ? 'btn-outline-success' : 'btn-outline-danger' : 'btn-outline-secondary'}" for={vec.nazev(data) + Boolean(i)}
+				<label class="btn btn-sm {vec.hasPositivity(data) && vec.value === Boolean(i) ? i === 1 ? 'btn-outline-success' : 'btn-outline-danger' : 'btn-outline-secondary'}" for={vec.nazev(data) + Boolean(i)}
 					>{t.get(moznost)}</label
 				>
 			{/each}

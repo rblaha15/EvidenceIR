@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { languageCodes, setUserPreferedLanguage, type LanguageCode } from '$lib/languages';
+	import { languageCodes, setUserPreferredLanguage, type LanguageCode } from '$lib/languages';
 	import { languageNames } from '$lib/translations';
 
 	const redirect = (code: LanguageCode) => {
@@ -31,7 +31,7 @@
 				<button
 					class="dropdown-item"
 					onclick={() => {
-						setUserPreferedLanguage(code);
+						setUserPreferredLanguage(code);
 						redirect(code);
 					}}
 				>

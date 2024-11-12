@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	type D = $$Generic;
 	import type { Translations } from '$lib/translations';
 	import { nazevSHvezdou, type Pisatkova } from '$lib/Vec.svelte';
@@ -69,8 +67,8 @@
 </script>
 
 {#if vec.zobrazit(data)}
-	<label class="form-floating d-block">
-		{#if options != undefined}
+	<label class="form-floating d-block mb-3">
+		{#if options !== undefined}
 			<input
 				{type}
 				placeholder={nazevSHvezdou(vec, data, t)}

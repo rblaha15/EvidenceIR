@@ -19,7 +19,7 @@
 </script>
 
 {#if vec.zobrazit(data)}
-	<label class="form-floating d-block">
+	<label class="form-floating d-block mb-3">
 		<select class="form-select" value={vec.value ?? 'notChosen'} onchange={onChange}>
 			<option class="d-none" value='notChosen'>{t.notChosen}</option>
 			{#each vec.moznosti(data) as moznost}

@@ -2,7 +2,7 @@ import { derived, writable, get as getFromStore, readonly } from 'svelte/store';
 import { checkAdmin, currentUser } from './auth';
 import type { User } from 'firebase/auth';
 import { onValue, ref, type Query } from 'firebase/database';
-import { storable, storableOrUndefined } from '$lib/helpers/stores';
+import { storable } from '$lib/helpers/stores';
 import { realtime } from '../../hooks.client';
 
 type SelfObject<T extends PropertyKey> = { [key in T]: key }
@@ -40,7 +40,7 @@ onValue(connectedRef, sn => _isOnline.set(sn.val() === true));
 
 const getWithCache = async <T>(query: Query) => {
 	const { get } = await import('firebase/database');
-	const store = storableOrUndefined<T>("realtime_" + query.ref.toString().substring(query.ref.root.toString().length - 1))
+	const store = storable<T>("realtime_" + query.ref.toString().substring(query.ref.root.toString().length - 1))
 	if (getIsOnline()) {
 		const value = (await get(query)).val() as T | undefined
 		if (value != undefined) store.set(value)
