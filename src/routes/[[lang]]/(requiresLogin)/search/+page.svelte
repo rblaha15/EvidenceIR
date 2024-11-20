@@ -9,6 +9,8 @@
     import { onMount } from 'svelte';
     import { wordsToFilter } from '../new/companies';
 
+    let search = $state('');
+
     let all = $state() as HistoryEntry[];
     onMount(async () => {
         const res = await getAll();
@@ -19,15 +21,15 @@
     });
 
     let filtered = $derived(
-        !all
-            ? []
-            : all.filter((entry) =>
+        search == " "
+            ? all
+            : all?.filter((entry) =>
                 wordsToFilter(search).every(
                     (filter) =>
                         wordsToFilter(entry.ir).join(' ').includes(filter) ||
                         wordsToFilter(entry.label).some((word) => word.startsWith(filter))
                 )
-            )
+            ) ?? []
     );
 
     const t: Translations = $page.data.translations;
@@ -51,8 +53,6 @@
         };
     });
 
-    let search = $state('');
-
     $effect(() => {
         mask?.on('accept', (_) => (search = mask.value));
     });
@@ -67,6 +67,7 @@
 		addToHistory(ir);
 		goto($relUrl(`/detail/${ir.ir.replace(' ', '')}`));
 	}}
+    class="position-relative"
 >
     <label class="form-floating d-block">
         <input
@@ -81,7 +82,7 @@
     </label>
 
     {#if search !== '' && filtered.length > 0}
-        <div class="list-group">
+        <div class="list-group position-absolute z-3 w-100 shadow-lg">
             {#each filtered as ir, i}
                 <a
                     class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
