@@ -25,6 +25,7 @@
     import { onMount } from 'svelte';
     import { writable } from 'svelte/store';
     import { nazevFirmy } from '$lib/helpers/ares';
+    import FormHeader from '../detail/[ir]/FormHeader.svelte';
 
     const t = $page.data.translations;
 
@@ -161,38 +162,8 @@
     let doNotSend = $state(false);
 </script>
 
-<div class="d-flex flex-row flex-wrap">
-    <h1 class="flex-grow-1">{mode === 'edit' ? t.editation : t.controllerRegistration}</h1>
-    <div class="d-flex mx-2 justify-content-between w-100 align-items-center">
-        <span>* povinná pole</span>
-        {#if mode === 'create' || mode === 'createStored'}
-            <button
-                class="btn"
-                onclick={() => {
-					$storedData = undefined;
-					window.location.reload();
-				}}
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    viewBox="0 0 16 16"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"
-                    />
-                    <path
-                        d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"
-                    />
-                </svg>
-                <span class="ms-2">{t.emptyForm}</span>
-            </button>
-        {/if}
-    </div>
-</div>
+<FormHeader store={storedData} {t} title={mode === 'edit' ? t.editation : t.controllerRegistration}
+            showResetButton={mode === 'create' || mode === 'createStored'} />
 
 {#each list as _, i}
     {#if list[i] === data.montazka.ico && list[i].zobrazit(data) && list[i] instanceof v.Pisatkova}

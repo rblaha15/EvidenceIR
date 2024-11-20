@@ -2,7 +2,7 @@ import { nazevFirmy } from "$lib/helpers/ares";
 import { p } from "$lib/Vec.svelte";
 import { type PdfArgs } from "$lib/client/pdf";
 import { nazevIR, typBOX } from "$lib/Data";
-import { today } from "$lib/helpers/date";
+import { dateFromISO } from '$lib/helpers/date';
 
 export default {
     formName: 'heatPumpCommissionProtocol',
@@ -22,7 +22,7 @@ export default {
         /*    uvadecOsoba */ Text7: e.uvedeni.zastupce,
         /*      uvadecTel */ Text8: e.uvedeni.phone,
         /*    uvadecEmail */ Text9: e.uvedeni.email,
-        /*          datum */ Text10: today(),
+        /*          datum */ Text10: dateFromISO(u.uvadeni.date),
         /*                */ Text11: t.get(e.tc.model!),
         /*                */ Text12: e.tc.cislo,
         /*                */ Text13: e.ir.typ.first!.includes('BOX') ? typBOX(e.ir.cisloBOX) ?? t.get(e.ir.typ.first!).slice(10) + " " + t.get(e.ir.typ.second!) : '—',

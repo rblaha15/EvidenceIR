@@ -8,12 +8,11 @@
 	interface Props {
 		t: Translations;
 		vec: Pisatkova<D>;
-		type?: string;
 		data: D;
 		[key: string]: any;
 	}
 
-	let { t, vec = $bindable(), type = 'text', data, ...rest }: Props = $props();
+	let { t, vec = $bindable(), data, ...rest }: Props = $props();
 
 	type MyOpts = {
 		lazy: boolean;
@@ -70,7 +69,8 @@
 	<label class="form-floating d-block mb-3">
 		{#if options !== undefined}
 			<input
-				{type}
+				type={vec.type(data)}
+				autocomplete={vec.autocomplete(data)}
 				placeholder={nazevSHvezdou(vec, data, t)}
 				class="form-control"
 				bind:this={input}
@@ -78,7 +78,8 @@
 			/>
 		{:else}
 			<input
-				{type}
+				type={vec.type(data)}
+				autocomplete={vec.autocomplete(data)}
 				placeholder={nazevSHvezdou(vec, data, t)}
 				class="form-control"
 				bind:this={input}

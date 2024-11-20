@@ -34,6 +34,7 @@
     import type { RawData } from '$lib/Data';
     import { getToken } from '$lib/client/auth';
     import { storable } from '$lib/helpers/stores';
+    import FormHeader from '../FormHeader.svelte';
 
     interface Props {
         data: PageData;
@@ -124,7 +125,7 @@
 </script>
 
 {#if evidence}
-    <h1>{t.commissioning}</h1>
+    <FormHeader store={storedCommission} {t} title={t.commissioning} />
     {#each list as _, i}
         {#if list[i] instanceof Nadpisova && list[i].zobrazit(d)}
             <h2>{t.get(list[i].nazev(d))}</h2>
