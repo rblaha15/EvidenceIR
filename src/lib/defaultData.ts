@@ -138,14 +138,14 @@ export default (): Data => ({
 		nadpis: new Nadpisova({ nazev: `endUser` }),
 		jmeno: new Pisatkova({
 			nazev: `name`,
-			autocomplete: `section-user billing given-name additional-name`
+			autocomplete: `section-user billing given-name`
 		}),
 		prijmeni: new Pisatkova({ nazev: `surname`, autocomplete: `section-user billing family-name` }),
 		narozeni: new Pisatkova({
 			nazev: `birthday`,
 			onError: `wrongDateFormat`,
 			regex: /^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?[0-9]{4}$/,
-			autocomplete: `section-user billing bday`,
+			autocomplete: `bday`,
 			nutne: false
 		}),
 		telefon: new Pisatkova({
@@ -167,9 +167,9 @@ export default (): Data => ({
 		nadpis: new Nadpisova({ nazev: `residence` }),
 		ulice: new Pisatkova({
 			nazev: `street`,
-			autocomplete: `section-user billing home street-address`
+			autocomplete: `section-user billing street-address`
 		}),
-		obec: new Pisatkova({ nazev: `town`, autocomplete: `section-user billing home city` }),
+		obec: new Pisatkova({ nazev: `town`, autocomplete: `section-user billing address-level2` }),
 		psc: new Pisatkova({
 			nazev: `zip`,
 			onError: `wrongZIPFormat`,
@@ -186,12 +186,12 @@ export default (): Data => ({
 		ulice: new Pisatkova({
 			nazev: `street`,
 			nutne: false,
-			autocomplete: `section-realization shipping street-address`,
+			autocomplete: `section-realization shipping address-level2`,
 			zobrazit: (data) => !data.mistoRealizace.jakoBydliste.value
 		}),
 		obec: new Pisatkova({
 			nazev: `town`,
-			autocomplete: `section-realization shipping city`,
+			autocomplete: `section-realization shipping address-level1`,
 			zobrazit: (data) => !data.mistoRealizace.jakoBydliste.value,
 			nutne: (data) => !data.mistoRealizace.jakoBydliste.value
 		}),

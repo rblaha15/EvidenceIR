@@ -1,7 +1,7 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import { p } from '$lib/Vec.svelte';
 import { type PdfArgs } from '$lib/client/pdf';
-import { today } from '$lib/helpers/date';
+import { dateFromISO } from '$lib/helpers/date';
 
 export default {
     formName: 'solarCollectorCommissionProtocol',
@@ -21,7 +21,7 @@ export default {
             /*    uvadecOsoba */ Text7: e.uvedeni.zastupce,
             /*      uvadecTel */ Text8: e.uvedeni.phone,
             /*    uvadecEmail */ Text9: e.uvedeni.email,
-            /*          datum */ Text10: today(),
+            /*          datum */ Text10: dateFromISO(u.uvadeni.date),
             /*                */ Text11: e.sol.type,
             /*                */ Text12: e.sol.count,
             /*                */ Text13: u.sol.orientace,

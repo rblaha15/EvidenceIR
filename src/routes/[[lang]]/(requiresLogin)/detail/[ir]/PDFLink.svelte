@@ -8,6 +8,7 @@
 	import { storable } from '$lib/helpers/stores';
 	import { getIsOnline } from '$lib/client/realtime';
 	import { get } from 'svelte/store';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		linkName: Pdf;
@@ -15,7 +16,7 @@
 		data: PageData;
 		t: Translations;
 		enabled?: boolean;
-		children?: import('svelte').Snippet;
+		children?: Snippet;
 	}
 
 	let {

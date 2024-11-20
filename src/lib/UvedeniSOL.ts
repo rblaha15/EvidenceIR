@@ -1,5 +1,6 @@
 import type { RawData } from "./Data";
 import { Nadpisova, p, Pisatkova, Prepinatkova, Vec, Vybiratkova, Zaskrtavatkova, type GetOrVal, type Raw } from "./Vec.svelte";
+import { todayISO } from '$lib/helpers/date';
 
 export type UDSOL = {
     uvedeni: UvedeniSOL,
@@ -53,6 +54,7 @@ export type UvedeniSOL = {
         podminky: Zaskrtavatkova<UDSOL>,
         regulator: Zaskrtavatkova<UDSOL>,
         vlastnik: Zaskrtavatkova<UDSOL>,
+        date: Pisatkova<UDSOL>,
     },
 }
 
@@ -85,6 +87,7 @@ export const defaultUvedeniSOL = (): UvedeniSOL => ({
         podminky: new Zaskrtavatkova({ nazev: p`Instalace a uvedení do provozu solárního systému byla provedena dle podmínek uvedených v návodu na montáž, připojení a obsluhu, instalačních podmínek a obecně platných norem` }),
         regulator: new Zaskrtavatkova({ nazev: p`Solární regulátor byl nastaven na předepsané parametry` }),
         vlastnik: new Zaskrtavatkova({ nazev: p`Vlastník nebo provozovatel byl seznámen se základní funkcí sol. systému a jeho obsluhou` }),
+        date: new Pisatkova({ nazev: 'dateOfCommission', type: 'date', text: todayISO() }),
     },
 })
 

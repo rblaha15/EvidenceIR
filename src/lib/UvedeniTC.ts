@@ -71,6 +71,7 @@ export type UvedeniTC = {
         vlastnik: Zaskrtavatkova<UDTC>,
         typZaruky: Vybiratkova<UDTC>,
         zaruka: Zaskrtavatkova<UDTC>,
+        date: Pisatkova<UDTC>,
     },
 }
 
@@ -191,6 +192,7 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
             ]
         }),
         zaruka: new Zaskrtavatkova({ nutne: false, nazev: `isInstallationInWarrantyConditions`, zobrazit: d => d.uvedeni.uvadeni.typZaruky.value?.includes('extendedWarranty') ?? false }),
+        date: new Pisatkova({ nazev: 'dateOfCommission', type: 'date', text: (new Date()).toISOString().split('T')[0] }),
     },
 })
 

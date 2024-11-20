@@ -11,7 +11,7 @@
 	} from '$lib/Kontrola';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
-	import { today } from '$lib/helpers/date';
+	import { dateFromISO, todayISO } from '$lib/helpers/date';
 
 	interface Props {
 		data: PageData;
@@ -23,14 +23,13 @@
 
 	let uvadec: string = $state('');
 	let poznamka: string = $state('');
-	const k = $state(kontrola(data.languageCode, '', today()) as KontrolaAsRecord);
+	let date: string = $state(todayISO());
+	const k = $state(kontrola(data.languageCode, '', '') as KontrolaAsRecord);
 	const n = checkNames[data.languageCode] as NamesRecord;
 
 	let rok: number | undefined = $state();
 	let prvniKontrola: KontrolaAsRecord | undefined = $state();
-	let nacita = true;
 	onMount(async () => {
-		nacita = false;
 		rok = (await posledniKontrola(ir as string)) + 1;
 		const snapshot = await evidence(ir as string);
 		const kontroly = snapshot.data()?.kontroly as Record<number, Kontrola | undefined> | undefined;
@@ -49,6 +48,7 @@
 		vysledek = { load: true, red: false, text: t.saving };
 		k.meta.osoba = uvadec;
 		k.meta.poznamky = poznamka;
+		k.meta.datum = dateFromISO(date);
 		await pridatKontrolu(ir, rok!, k as Kontrola);
 
 		vysledek = {
@@ -73,13 +73,23 @@
 	<label for="">{t.get('performingPerson')}</label>
 </label>
 
-{#each orderArray as v}
+<label class="form-floating d-block mb-3">
+	<input
+		type="date"
+		placeholder={t.get('checkDate')}
+		class="form-control"
+		bind:value={date}
+	/>
+	<label for="">{t.checkDate}</label>
+</label>
+
+	{#each orderArray as v}
 	{@const value = k[v.key1][v.key2]}
 	{@const type = kontrolaTypes[v.key1][v.key2]}
-	{@const name = type == 'nadpis' ? n[`${v.key1}Name`] : n[v.key1][v.key2]}
-	{#if type == 'nadpis' && name}
+	{@const name = type === 'nadpis' ? n[`${v.key1}Name`] : n[v.key1][v.key2]}
+	{#if type === 'nadpis' && name}
 		<h2>{name}</h2>
-	{:else if type == 'boolean'}
+	{:else if type === 'boolean'}
 		<p>
 			<label>
 				<input
@@ -93,7 +103,7 @@
 				{name}
 			</label>
 		</p>
-	{:else if type == 'string' || (type == 'tlak' && rok == 1)}
+	{:else if type === 'string' || (type === 'tlak' && rok === 1)}
 		<label class="form-floating d-block mb-2">
 			<input
 				type="text"
@@ -106,7 +116,7 @@
 			/>
 			<label for="">{name}</label>
 		</label>
-	{:else if type == 'tlak' && rok != 1}
+	{:else if type === 'tlak' && rok !== 1}
 		<label class="form-floating d-block mb-2">
 			<input
 				type="text"

@@ -1,5 +1,5 @@
 import type { Translations, TranslationReference } from './translations';
-import type { HTMLInputTypeAttribute } from 'svelte/elements';
+import type { FullAutoFill, HTMLInputTypeAttribute } from 'svelte/elements';
 import { zip } from 'lodash-es';
 
 export type Get<D, U = TranslationReference> = (data: D) => U;
@@ -264,7 +264,7 @@ export class MultiZaskrtavatkova<D> extends Vec<D, Arr> {
 export class Pisatkova<D> extends Vec<D, string> {
 	nazev = $state() as Get<D, TranslationReference>;
 	type = $state() as Get<D, HTMLInputTypeAttribute>;
-	autocomplete = $state() as Get<D, string>;
+	autocomplete = $state() as Get<D, FullAutoFill>;
 	onError = $state() as Get<D, TranslationReference>;
 	zobrazit = $state() as Get<D, boolean>;
 	value = $state() as string;
@@ -295,7 +295,7 @@ export class Pisatkova<D> extends Vec<D, string> {
 		nutne?: GetOrVal<D, boolean>;
 		maskOptions?: GetOrVal<D, Opts>;
 		type?: GetOrVal<D, HTMLInputTypeAttribute>;
-		autocomplete?: GetOrVal<D, string>;
+		autocomplete?: GetOrVal<D, FullAutoFill>;
 		zobrazit?: GetOrVal<D, boolean>;
 		text?: string;
 	}) {
