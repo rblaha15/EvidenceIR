@@ -45,7 +45,7 @@
 			emailVec.value = vyfiltrovanyFirmy[0].email ?? '';
 			phoneVec.value = vyfiltrovanyFirmy[0].phone ?? '';
 			if (id === 'Montazka') zastupceVec.value = vyfiltrovanyFirmy[0].representative ?? '';
-			icoVec.updateText(vyfiltrovanyFirmy[0].crn);
+			icoVec.value = vyfiltrovanyFirmy[0].crn;
 		}}
         class="btn btn-outline-secondary"
     >
@@ -82,7 +82,7 @@
 								emailVec.value = company.email ?? '';
 								phoneVec.value = company.phone ?? '';
 								if (id === 'Montazka') zastupceVec.value = company.representative ?? '';
-								icoVec.updateText(company.crn);
+								icoVec.value = company.crn;
 								filtr = '';
 							}}>{company.companyName} - {company.crn}</button
                         >
