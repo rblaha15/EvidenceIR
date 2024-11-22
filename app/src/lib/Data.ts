@@ -78,6 +78,7 @@ export const rawDataToData = (toData: Data, rawData: RawData) => {
 		Object.entries(section).map(a =>
 			a as [string, any]
 		).forEach(([key2, value]) => {
+			if (d[key1] == undefined) return
 			if (d[key1][key2] == undefined) d[key1][key2] = (defaultData()[key1] as Record<string, Vec<Data, any>>)[key2]
 			d[key1][key2].value = value
 		})
