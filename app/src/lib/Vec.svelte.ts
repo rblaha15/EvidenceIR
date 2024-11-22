@@ -267,19 +267,17 @@ export class Pisatkova<D> extends Vec<D, string> {
 	autocomplete = $state() as Get<D, FullAutoFill>;
 	onError = $state() as Get<D, TranslationReference>;
 	zobrazit = $state() as Get<D, boolean>;
-	value = $state() as string;
+	private valueField = $state() as string;
 
-	get() {
-		return this.value;
+	get value() {
+		return this.valueField;
+	}
+	set value(value: string) {
+		this.valueField = value;
+		this.updateMaskValue(value);
 	}
 
-	set(value: string) {
-		this.updateText(value);
-	}
-
-	updateText = $state((it) => {
-		this.value = it;
-	}) as (text: string) => void;
+	updateMaskValue = $state(() => {}) as (text: string) => void;
 	maskOptions = $state() as Get<D, Opts>;
 	regex = $state() as Get<D, RegExp>;
 	nutne = $state() as Get<D, boolean>;

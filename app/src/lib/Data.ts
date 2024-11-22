@@ -80,7 +80,6 @@ export const rawDataToData = (toData: Data, rawData: RawData) => {
 		).forEach(([key2, value]) => {
 			if (d[key1][key2] == undefined) d[key1][key2] = (defaultData()[key1] as Record<string, Vec<Data, any>>)[key2]
 			d[key1][key2].value = value
-			if (d[key1][key2] instanceof Pisatkova) d[key1][key2].updateText(value as string)
 		})
 	)
 

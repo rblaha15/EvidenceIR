@@ -63,7 +63,7 @@
         data;
         if (mode != 'loading') {
             if (data.uvedeni.jakoMontazka.value) {
-                data.uvedeni.ico.updateText('');
+                data.uvedeni.ico.value = '';
                 data.uvedeni.email.value = '';
                 data.uvedeni.phone.value = '';
             } else if (
@@ -75,7 +75,7 @@
                 data.uvedeni.phone.value != ''
             ) {
                 data.uvedeni.jakoMontazka.value = true;
-                data.uvedeni.ico.updateText('');
+                data.uvedeni.ico.value = '';
                 data.uvedeni.email.value = '';
                 data.uvedeni.phone.value = '';
             }
@@ -93,7 +93,7 @@
         data;
         if (mode != 'loading') {
             if (data.mistoRealizace.jakoBydliste.value) {
-                data.mistoRealizace.obec.updateText('');
+                data.mistoRealizace.obec.value = '';
                 data.mistoRealizace.psc.value = '';
                 data.mistoRealizace.ulice.value = '';
             } else if (
@@ -105,7 +105,7 @@
                 data.mistoRealizace.ulice.value != ''
             ) {
                 data.mistoRealizace.jakoBydliste.value = true;
-                data.mistoRealizace.obec.updateText('');
+                data.mistoRealizace.obec.value = '';
                 data.mistoRealizace.psc.value = '';
                 data.mistoRealizace.ulice.value = '';
             }
@@ -210,7 +210,7 @@
         <Scanner
             bind:vec={data.tc.cislo}
             zobrazit={data.ir.typ.value.second === p`CTC`}
-            onScan={(text) => data.tc.cislo.updateText(text.slice(-12))}
+            onScan={(text) => data.tc.cislo.value = text.slice(-12)}
             {t}
             {data}
         />

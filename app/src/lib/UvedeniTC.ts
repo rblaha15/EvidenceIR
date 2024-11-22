@@ -206,7 +206,6 @@ export const rawUvedeniTCToUvedeniTC = (toUvedeni: UvedeniTC, rawUvedeni: RawUve
             a as [string, any]
         ).forEach(([key2, value]) => {
             d[key1][key2].value = value
-            if (d[key1][key2] instanceof Pisatkova) d[key1][key2].updateText(value as string)
         })
     )
 
