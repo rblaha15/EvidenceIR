@@ -8,7 +8,7 @@ export const load: Load = ({ params, url }): App.PageData => {
         translations: getTranslations(lang ?? defaultLanguage),
         areTranslationsFromRoute: lang != null,
         languageCode: lang ?? defaultLanguage,
-    }
+    } as const
 }
 
 export const prerender = true
