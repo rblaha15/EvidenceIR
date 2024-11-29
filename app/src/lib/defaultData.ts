@@ -23,11 +23,12 @@ export default (): Data => ({
 			nazev: `serialNumber`,
 			onError: `wrongNumberFormat`,
 			regex: /([A-Z][1-9OND]) ([0-9]{4})/,
+			capitalize: true,
 			maskOptions: {
 				mask: `A1 0000`,
 				definitions: {
-					A: /[A-Z]/,
-					'1': /[1-9OND]/
+					A: /[A-Za-z]/,
+					'1': /[1-9ONDond]/
 				}
 			}
 		}),
@@ -106,11 +107,12 @@ export default (): Data => ({
 				data.ir.typ.value.second == p`CTC`
 					? /^\d{4}-\d{4}-\d{4}$/
 					: /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
+			capitalize: true,
 			nutne: (data) => data.ir.chceVyplnitK.value.includes(`heatPump`),
 			maskOptions: (data) => ({
 				mask: data.ir.typ.value.second == p`CTC` ? `0000-0000-0000` : `AA0000-AA-0000`,
 				definitions: {
-					A: /[A-Z]/
+					A: /[A-Za-z]/
 				}
 			}),
 			zobrazit: (data) =>
