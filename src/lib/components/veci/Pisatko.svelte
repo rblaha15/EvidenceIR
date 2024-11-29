@@ -25,6 +25,8 @@
         value?: string;
     };
 
+    const maybeCapitalized = (value: string, vec: Pisatkova<D>): string => vec.capitalize(data) ? value.toUpperCase() : value;
+
     let input = $state<HTMLInputElement>();
     let mask = $state<InputMask<MyOpts>>();
 
@@ -36,15 +38,15 @@
             : ({
                 lazy: true,
                 overwrite: true,
-                ...opts
-            } as MyOpts)
+                ...opts,
+            } as MyOpts),
     );
 
     onMount(() => {
         if (options != undefined && input != undefined) {
             mask = IMask(input, options);
             mask.value = vec.value;
-            mask.on('accept', (_) => vec.value = mask!.value);
+            mask.on('accept', (_) => vec.value = maybeCapitalized(mask!.value, vec));
         }
     });
 
@@ -85,7 +87,7 @@
                 bind:this={input}
                 value={vec.value}
                 oninput={() => {
-					if (input) vec.value = input.value;
+					if (input) vec.value = maybeCapitalized(input.value, vec);
 				}}
                 {...rest}
             />

@@ -281,6 +281,7 @@ export class Pisatkova<D> extends Vec<D, string> {
 	maskOptions = $state() as Get<D, Opts>;
 	regex = $state() as Get<D, RegExp>;
 	nutne = $state() as Get<D, boolean>;
+	capitalize = $state() as Get<D, boolean>;
 	zpravaJeChybna = $state(
 		(a) =>
 			(this.value == '' && this.nutne(a)) || (this.value != '' && !this.regex(a).test(this.value))
@@ -291,6 +292,7 @@ export class Pisatkova<D> extends Vec<D, string> {
 		onError?: GetOrVal<D>;
 		regex?: GetOrVal<D, RegExp>;
 		nutne?: GetOrVal<D, boolean>;
+		capitalize?: GetOrVal<D, boolean>;
 		maskOptions?: GetOrVal<D, Opts>;
 		type?: GetOrVal<D, HTMLInputTypeAttribute>;
 		autocomplete?: GetOrVal<D, FullAutoFill>;
@@ -303,6 +305,7 @@ export class Pisatkova<D> extends Vec<D, string> {
 		this.onError = toGet(args.onError ?? t('requiredField'));
 		this.regex = toGet(args.regex ?? /.*/);
 		this.nutne = toGet(args.nutne ?? true);
+		this.capitalize = toGet(args.capitalize ?? false);
 		this.maskOptions = toGet(args.maskOptions ?? undefined);
 		this.type = toGet(args.type ?? 'text');
 		this.autocomplete = toGet(args.autocomplete ?? 'off');
