@@ -97,7 +97,7 @@
 		await fetch(`/api/aktualizovat?type=firmy&token=${token}`, {
 			method: 'POST',
 			body: JSON.stringify({
-				people: newDataCompanies
+				companies: newDataCompanies
 					.split('\n')
 					.filter((radek) => radek != '')
 					.map((radek) => radek.split(';').map((vec) => (vec != '' ? vec : undefined)))
