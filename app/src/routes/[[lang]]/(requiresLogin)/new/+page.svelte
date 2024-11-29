@@ -209,7 +209,6 @@
     {:else if list[i] === data.tc.cislo && list[i].zobrazit(data)}
         <Scanner
             bind:vec={data.tc.cislo}
-            zobrazit={data.ir.typ.value.second === p`CTC`}
             onScan={(text) => data.tc.cislo.value = text.slice(-12)}
             {t}
             {data}

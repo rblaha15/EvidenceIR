@@ -19,7 +19,6 @@
 		t: Translations;
 		onScan: (text: string) => void;
 		vec: Pisatkova<Data>;
-		zobrazit: boolean;
 	}
 
 	let {
@@ -27,7 +26,6 @@
 		t,
 		onScan,
 		vec = $bindable(),
-		zobrazit
 	}: Props = $props();
 
 	const onClick = async () => {
@@ -60,20 +58,18 @@
 
 <div class="d-sm-flex flex-sm-row align-items-end mb-2">
 	<div class="flex-grow-1"><Pisatko bind:vec {t} {data} /></div>
-	{#if zobrazit}
-		<span class="m-2"> {t.or} </span>
-		<div>
-			<button
-				type="button"
-				class="btn btn-outline-secondary h-auto"
-				data-bs-toggle="modal"
-				data-bs-target="#cam"
-				onclick={onClick}
-			>
-				{t.scanBarcode}
-			</button>
-		</div>
-	{/if}
+	<span class="m-2"> {t.or} </span>
+	<div>
+		<button
+			type="button"
+			class="btn btn-outline-secondary h-auto"
+			data-bs-toggle="modal"
+			data-bs-target="#cam"
+			onclick={onClick}
+		>
+			{t.scanBarcode}
+		</button>
+	</div>
 </div>
 <div class="modal" id="cam">
 	<div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
