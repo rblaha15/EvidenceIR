@@ -1,4 +1,4 @@
-import { redirect, type Load } from "@sveltejs/kit";
+import { type Load } from "@sveltejs/kit";
 import { asLanguageCodeOrNull, defaultLanguage } from "$lib/languages";
 import { getTranslations } from "$lib/translations";
 
