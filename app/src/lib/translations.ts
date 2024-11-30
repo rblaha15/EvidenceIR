@@ -4,10 +4,16 @@ import cs from './translations/cs';
 import de from './translations/de';
 import en from './translations/en';
 import { createTemplateG } from './Vec.svelte';
+import derived, { type Derived } from '$lib/derived';
 
 const translationsMap: PlainTranslationsMap = { cs, en, de /*, sk */ };
 
 const withGet = (translations: PlainTranslations): Translations => {
+	const withParsing = addParsing(translations) as AddParsing<PlainTranslations>;
+	const withDerived = {
+		...withParsing,
+		...derived(withParsing)
+	} as AddParsing<PlainTranslations> & Derived;
 	const get = (ref: TranslationReference) =>
 		ref == ''
 			? ''
@@ -17,9 +23,9 @@ const withGet = (translations: PlainTranslations): Translations => {
 						.split('.')
 						.reduce<
 							Record<string, any> | string
-						>((acc, key) => (acc as Record<string, any>)[key], translations) as string) ?? ref);
+						>((acc, key) => (acc as Record<string, any>)[key], withDerived) as string) ?? ref);
 	return <Translations>{
-		...addParsing(translations),
+		...withDerived,
 		getN: (ref) => (ref == null ? null : get(ref)),
 		get: (ref) => (ref == null ? null : get(ref)),
 		getT: createTemplateG(
@@ -35,8 +41,12 @@ export type Translations = AddParsing<PlainTranslations> & {
 	get: <T extends TranslationReference | null>(ref: T) => T extends null ? null : string;
 	getN: (ref: TranslationReference | null) => string | null;
 	getT: (strings: TemplateStringsArray, ...args: TranslationReference[]) => string;
-};
-export type TranslationReference = RecursiveKeyof<PlainTranslations> | `PLAIN_${string}` | '';
+} & Derived;
+
+export type TranslationReference =
+	| RecursiveKeyof<PlainTranslations & Derived>
+	| `PLAIN_${string}`
+	| '';
 
 export type Translate<T> = {
 	[Code in LanguageCode]: T;

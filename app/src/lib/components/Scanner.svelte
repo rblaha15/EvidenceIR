@@ -56,13 +56,13 @@
 	};
 </script>
 
-<div class="d-sm-flex flex-sm-row align-items-end mb-2">
+<div class="d-sm-flex flex-sm-row align-items-end">
 	<div class="flex-grow-1"><Pisatko bind:vec {t} {data} /></div>
-	<span class="m-2"> {t.or} </span>
+	<span class="p-2 mb-3"> {t.or} </span>
 	<div>
 		<button
 			type="button"
-			class="btn btn-outline-secondary h-auto"
+			class="btn btn-outline-secondary h-auto mb-3"
 			data-bs-toggle="modal"
 			data-bs-target="#cam"
 			onclick={onClick}

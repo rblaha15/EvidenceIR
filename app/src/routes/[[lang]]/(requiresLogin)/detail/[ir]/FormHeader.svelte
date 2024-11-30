@@ -22,7 +22,7 @@
 
 <h1>{title}</h1>
 <div class="d-flex mx-2 justify-content-between w-100 align-items-center">
-    <span>* povinná pole</span>
+    <span>* {t.mandatoryFields}</span>
     {#if showResetButton}
         <button
             class="btn"
