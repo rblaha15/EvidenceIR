@@ -15,6 +15,12 @@ export type Data = {
 		typ: Radiova<Data>;
 		model: Vybiratkova<Data>;
 		cislo: Pisatkova<Data>;
+		model2: Vybiratkova<Data>;
+		cislo2: Pisatkova<Data>;
+		model3: Vybiratkova<Data>;
+		cislo3: Pisatkova<Data>;
+		model4: Vybiratkova<Data>;
+		cislo4: Pisatkova<Data>;
 	};
 	sol: {
 		title: Nadpisova<Data>;

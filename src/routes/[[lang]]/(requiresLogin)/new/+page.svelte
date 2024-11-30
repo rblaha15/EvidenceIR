@@ -160,6 +160,8 @@
         load: false
     });
     let doNotSend = $state(false);
+
+    const cisla = $derived([data.tc.cislo, data.tc.cislo2, data.tc.cislo3, data.tc.cislo4])
 </script>
 
 <FormHeader store={storedData} {t} title={mode === 'edit' ? t.editation : t.controllerRegistration}
@@ -206,10 +208,10 @@
             {data}
             disabled={list[i] === data.ir.cislo && mode === 'edit'}
         />
-    {:else if list[i] === data.tc.cislo && list[i].zobrazit(data)}
+    {:else if list[i] instanceof v.Pisatkova && cisla.includes(list[i]) && list[i].zobrazit(data)}
         <Scanner
-            bind:vec={data.tc.cislo}
-            onScan={(text) => data.tc.cislo.value = text.slice(-12)}
+            bind:vec={list[i]}
+            onScan={(text) => list[i].value = text.slice(-12)}
             {t}
             {data}
         />
