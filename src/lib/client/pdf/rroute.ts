@@ -24,7 +24,7 @@ export default {
 /*         serCis */ Text15: e.ir.cislo.split(' ')[0],
 /*        serCis2 */ Text16: e.ir.cislo.split(' ')[1],
 /*       cisloBOX */ Text17: e.ir.cisloBOX,
-/*        cisloTC */ Text18: e.tc.cislo,
+/*        cisloTC */ Text18: [e.tc.cislo, e.tc.cislo2, e.tc.cislo3, e.tc.cislo4].filter(c => c.length != 0).join(", "),
 /*       zaplatim */ Text22: e.vzdalenyPristup.fakturuje == 'endCustomer' ? t.agreeWIthRRPrice : '',
 /*          datum */ // Text20: '',
 /*         podpis */ // Text21: '',

@@ -9,13 +9,16 @@ import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtoc
 import solarCollectorCommissionProtocol from '$lib/client/pdf/solarCollectorCommissionProtocol';
 import { type IR } from "$lib/client/firestore";
 
-export type Pdf = 'check' | 'warranty' | 'rroute' | 'guide' | 'heatPumpCommissionProtocol' | 'solarCollectorCommissionProtocol';
+export type Pdf = 'check' | 'warranty' | 'warranty2' | 'warranty3' | 'warranty4' | 'rroute' | 'guide' | 'heatPumpCommissionProtocol' | 'solarCollectorCommissionProtocol';
 export type PdfData = {
     [P in Pdf]: PdfArgs;
 };
 export const pdfData: PdfData = {
     check,
-    warranty,
+    warranty: warranty(0),
+    warranty2: warranty(1),
+    warranty3: warranty(2),
+    warranty4: warranty(3),
     rroute,
     guide,
     heatPumpCommissionProtocol,

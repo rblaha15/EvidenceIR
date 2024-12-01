@@ -113,7 +113,7 @@ export default {
     changeWentWrong: `Něco ne nepovedlo. Obnovte stránku a zkuste to znovu.`,
     note: `Poznámka`,
     routeGuide: `Návod na přihlášení k regulátoru`,
-    warranty: `Záruční list k TČ`,
+    warrantyNr: t`Záruční list k ${0}TČ`,
     heatPumpCommissionProtocol: `Protokol o instalaci TČ`,
     heatPumpCommissionProtocolTitle: `Protokol o uvedení tepelného čerpadla do trvalého provozu`,
     heatPumpCommissionProtocolFileName: `Protokol uvedení TČ`,
@@ -214,4 +214,7 @@ export default {
     isInstallationInWarrantyConditions: `Instalace a uvedení do provozu jsou v souladu s podmínkami prodloužené záruky`,
     successfullyDeleted: `Záznam úspěšně odstraněn`,
     mandatoryFields: `povinná pole`,
+    cascadeSee: `kaskáda – viz níže`,
+    cascade: `Kaskáda:`,
+    pumpDetails: t`TČ${'n'}: ${'model'} – ${'cislo'}`,
 }

@@ -1,14 +1,14 @@
 import {
-    Vybiratkova,
+    DvojVybiratkova,
+    MultiZaskrtavatkova,
+    Nadpisova,
+    p,
     Pisatkova,
     Radiova,
-    Nadpisova,
-    Zaskrtavatkova,
-    MultiZaskrtavatkova,
-    DvojVybiratkova,
-    Textova,
     t,
-    p
+    Textova,
+    Vybiratkova,
+    Zaskrtavatkova
 } from './Vec.svelte';
 import { type Data } from './Data';
 
@@ -53,7 +53,7 @@ export default (): Data => ({
     },
     tc: {
         nadpis: new Nadpisova({
-            nazev: data => data.tc.model2.value != `noPump` ? `heatPumps` : `heatPump`,
+            nazev: (data) => (data.tc.model2.value != `noPump` ? `heatPumps` : `heatPump`),
             zobrazit: (data) => data.ir.chceVyplnitK.value.includes(`heatPump`)
         }),
         poznamka: new Textova({
@@ -62,14 +62,14 @@ export default (): Data => ({
                 data.ir.typ.value.second == null && data.ir.chceVyplnitK.value.includes(`heatPump`)
         }),
         typ: new Radiova({
-            nazev: data => data.tc.model2.value != `noPump` ? `heatPumpsType` : `heatPumpType`,
+            nazev: (data) => (data.tc.model2.value != `noPump` ? `heatPumpsType` : `heatPumpType`),
             moznosti: [`airToWater`, `groundToWater`],
             nutne: (data) => data.ir.chceVyplnitK.value.includes(`heatPump`),
             zobrazit: (data) =>
                 data.ir.typ.value.second == p`CTC` && data.ir.chceVyplnitK.value.includes(`heatPump`)
         }),
         model: new Vybiratkova({
-            nazev: data => data.tc.model2.value != `noPump` ? `heatPumpModel1` : `heatPumpModel`,
+            nazev: (data) => (data.tc.model2.value != `noPump` ? `heatPumpModel1` : `heatPumpModel`),
             moznosti: (data) =>
                 data.ir.typ.value.second == p`RTC`
                     ? [p`RTC 6i`, p`RTC 13e`, p`RTC 20e`]
@@ -101,7 +101,10 @@ export default (): Data => ({
                 data.ir.chceVyplnitK.value.includes(`heatPump`)
         }),
         cislo: new Pisatkova({
-            nazev: data => data.tc.model2.value != `noPump` ? `heatPumpManufactureNumber1` : `heatPumpManufactureNumber`,
+            nazev: (data) =>
+                data.tc.model2.value != `noPump`
+                    ? `heatPumpManufactureNumber1`
+                    : `heatPumpManufactureNumber`,
             onError: `wrongNumberFormat`,
             regex: (data) =>
                 data.ir.typ.value.second == p`CTC`
@@ -130,9 +133,9 @@ export default (): Data => ({
             onError: `wrongNumberFormat`,
             regex: (data) => data.tc.cislo.regex(data),
             capitalize: true,
-            nutne: false,
+            nutne: (data) => data.tc.cislo.zobrazit(data) && data.tc.model2.value != `noPump`,
             maskOptions: (data) => data.tc.cislo.maskOptions(data),
-            zobrazit: (data) => data.tc.cislo.zobrazit(data) && data.tc.model.value != null && data.tc.model2.value != `noPump`
+            zobrazit: (data) => data.tc.cislo.zobrazit(data) && data.tc.model2.value != `noPump`
         }),
         model3: new Vybiratkova({
             nazev: `heatPumpModel3`,
@@ -146,9 +149,9 @@ export default (): Data => ({
             onError: `wrongNumberFormat`,
             regex: (data) => data.tc.cislo.regex(data),
             capitalize: true,
-            nutne: false,
+            nutne: (data) => data.tc.cislo.zobrazit(data) && data.tc.model3.value != `noPump`,
             maskOptions: (data) => data.tc.cislo.maskOptions(data),
-            zobrazit: (data) => data.tc.cislo.zobrazit(data) && data.tc.model2.value != `noPump` && data.tc.model3.value != `noPump`
+            zobrazit: (data) => data.tc.cislo.zobrazit(data) && data.tc.model3.value != `noPump`
         }),
         model4: new Vybiratkova({
             nazev: `heatPumpModel4`,
@@ -162,9 +165,9 @@ export default (): Data => ({
             onError: `wrongNumberFormat`,
             regex: (data) => data.tc.cislo.regex(data),
             capitalize: true,
-            nutne: false,
+            nutne: (data) => data.tc.cislo.zobrazit(data) && data.tc.model4.value != `noPump`,
             maskOptions: (data) => data.tc.cislo.maskOptions(data),
-            zobrazit: (data) => data.tc.cislo.zobrazit(data) && data.tc.model3.value != `noPump` && data.tc.model4.value != `noPump`
+            zobrazit: (data) => data.tc.cislo.zobrazit(data) && data.tc.model4.value != `noPump`,
         })
     },
     sol: {
