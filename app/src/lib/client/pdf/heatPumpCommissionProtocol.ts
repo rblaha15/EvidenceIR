@@ -3,6 +3,7 @@ import { p } from "$lib/Vec.svelte";
 import { type PdfArgs } from "$lib/client/pdf";
 import { nazevIR, typBOX } from "$lib/Data";
 import { dateFromISO, todayISO } from '$lib/helpers/date';
+import { cascadeDetails } from '$lib/client/pdf/check';
 
 export default {
     formName: 'heatPumpCommissionProtocol',
@@ -11,6 +12,7 @@ export default {
     fileName: p`Protokol uvedení TČ.pdf`,
     getFormData: async ({ evidence: e, uvedeniTC, }, t) => {
         const u = uvedeniTC!
+        const { isCascade, pumps } = cascadeDetails(e, t);
 
         return ({
         /*    koncakJmeno */ Text1: `${e.koncovyUzivatel.jmeno} ${e.koncovyUzivatel.prijmeni}`,
@@ -23,8 +25,8 @@ export default {
         /*      uvadecTel */ Text8: e.uvedeni.phone,
         /*    uvadecEmail */ Text9: e.uvedeni.email,
         /*          datum */ Text10: dateFromISO(u.uvadeni.date ?? todayISO()),
-        /*                */ Text11: t.get(e.tc.model!),
-        /*                */ Text12: e.tc.cislo,
+        /*                */ Text11: isCascade ? t.cascadeSee : t.get(e.tc.model!),
+        /*                */ Text12: isCascade ? '—' : e.tc.cislo,
         /*                */ Text13: e.ir.typ.first!.includes('BOX') ? typBOX(e.ir.cisloBOX) ?? t.get(e.ir.typ.first!).slice(10) + " " + t.get(e.ir.typ.second!) : '—',
         /*                */ Text14: e.ir.typ.first!.includes('BOX') ? e.ir.cisloBOX : '—',
         /*                */ Text15: u.tc.jisticTC ? t.suits : t.suitsNot,
@@ -59,6 +61,9 @@ export default {
         /*                */ Text44: u.uvadeni.vlastnik ? t.yes : t.no,
         /*                */ Text45: t.get(u.uvadeni.typZaruky!),
         /*                */ Text46: u.uvadeni.typZaruky?.includes('extendedWarranty') ?? false ? u.uvadeni.zaruka ? t.yes : t.no : '—',
+        /*                */ Text47: !isCascade ? '' : t.cascade + '\n' + pumps.map(([model, cislo], i) =>
+			t.pumpDetails.parseTemplate({ n: `${i + 1}`, model, cislo })
+		).join('\n'),
         });
     },
 } as PdfArgs

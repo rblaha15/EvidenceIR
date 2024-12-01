@@ -2,7 +2,7 @@ import { nazevAdresaFirmy } from "$lib/helpers/ares";
 import { type PdfArgs } from "$lib/client/pdf";
 import { today } from '$lib/helpers/date'
 
-export default {
+export default (i: number) => <PdfArgs>{
     formName: 'warranty',
     supportedLanguages: ['cs', 'de'],
     title: `hpWarranty`,
@@ -10,9 +10,11 @@ export default {
     getFormData: async ({ evidence: e }, t) => {
         const uvedeni = await nazevAdresaFirmy(e.uvedeni.ico, fetch)
         const montazka = await nazevAdresaFirmy(e.montazka.ico, fetch)
+        const cislo = [e.tc.cislo, e.tc.cislo2, e.tc.cislo3, e.tc.cislo4][i]
+        const model = [e.tc.model, e.tc.model2, e.tc.model3, e.tc.model4][i]
         return {
-    /*        tcModel */ Text1: t.get(e.tc.model!),
-    /*        tcCislo */ Text2: e.tc.cislo,
+    /*        tcModel */ Text1: t.get(model),
+    /*        tcCislo */ Text2: cislo,
     /*       montazka */ Text3: `${e.montazka.ico} — ${montazka?.obchodniJmeno ?? ''}`,
     /* adresaMontazka */ Text4: montazka?.sidlo?.textovaAdresa ?? null,
     /* detailMontazka */ Text5: `${e.montazka.email ?? ''} — ${e.montazka.phone ?? ''}	        ${e.montazka.zastupce ?? ''}`,
@@ -25,4 +27,4 @@ export default {
     /*          datum */ Text14: today(),
         };
     },
-} as PdfArgs
+}

@@ -125,7 +125,18 @@
 	{/if}
 	<PdfLink name={t.routeGuide} {t} linkName="guide" {data} />
 	{#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
-		<PdfLink name={t.warranty} {t} linkName="warranty" {data} />
+		{#if values.evidence.tc.model2 === 'noPump'}
+			<PdfLink name={t.warranty} {t} linkName="warranty" {data} />
+		{:else}
+			<PdfLink name={t.warranty1} {t} linkName="warranty" {data} />
+			<PdfLink name={t.warranty2} {t} linkName="warranty2" {data} />
+		{/if}
+		{#if values.evidence.tc.model3 !== 'noPump'}
+			<PdfLink name={t.warranty3} {t} linkName="warranty3" {data} />
+		{/if}
+		{#if values.evidence.tc.model4 !== 'noPump'}
+			<PdfLink name={t.warranty4} {t} linkName="warranty4" {data} />
+		{/if}
 		<PdfLink
 			enabled={values.uvedeniTC !== undefined}
 			name={t.heatPumpCommissionProtocol}
