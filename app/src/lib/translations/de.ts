@@ -112,7 +112,7 @@ const de: PlainTranslations = {
     changeWentWrong: `Etwas ist schiefgelaufen. Aktualisieren Sie die Seite und versuchen Sie es erneut.`,
     note: `Hinweis`,
     routeGuide: `Anleitung zur Anmeldung zum Regler`,
-    warranty: `Garantie für die Wärmepumpe`,
+    warrantyNr: t`Garantie für die Wärmepumpe ${0}`,
     heatPumpCommissionProtocol: `Inbetriebnahmeprotokoll für die Wärmepumpe`,
     heatPumpCommissionProtocolTitle: `Protokoll zur Inbetriebnahme der Wärmepumpe `,
     heatPumpCommissionProtocolFileName: `Wärmepumpe Inbetriebnahmeprotokoll`,
@@ -210,5 +210,8 @@ const de: PlainTranslations = {
     isInstallationInWarrantyConditions: `Entsprechen die Installation und Inbetriebnahme den Bedingungen der verlängerten Garantie?`,
     offline: `Sie sind offline!`,
     mandatoryFields: `Pflichtfelder`,
+    cascadeSee: `Kaskade – siehe unten`,
+    cascade: `Kaskade:`,
+    pumpDetails: t`WP${'n'}: ${'model'} – ${'cislo'}`,
 }
 export default de

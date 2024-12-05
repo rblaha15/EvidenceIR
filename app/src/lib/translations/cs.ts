@@ -113,7 +113,7 @@ export default {
     changeWentWrong: `Něco ne nepovedlo. Obnovte stránku a zkuste to znovu.`,
     note: `Poznámka`,
     routeGuide: `Návod na přihlášení k regulátoru`,
-    warrantyNr: t`Záruční list k ${0}TČ`,
+    warrantyNr: t`Záruční list TČ${0}`,
     heatPumpCommissionProtocol: `Protokol o instalaci TČ`,
     heatPumpCommissionProtocolTitle: `Protokol o uvedení tepelného čerpadla do trvalého provozu`,
     heatPumpCommissionProtocolFileName: `Protokol uvedení TČ`,
