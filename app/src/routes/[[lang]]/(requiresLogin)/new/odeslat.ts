@@ -76,7 +76,7 @@ export default async (
         if (data.uvedeni.jakoMontazka.value) {
             data.uvedeni.ico.value = data.montazka.ico.value;
             data.uvedeni.email.value = data.montazka.email.value;
-            data.uvedeni.phone.value = data.montazka.phone.value;
+            data.uvedeni.telefon.value = data.montazka.telefon.value;
         }
         if (data.mistoRealizace.jakoBydliste.value) {
             data.mistoRealizace.ulice.value = data.bydliste.ulice.value;
@@ -105,6 +105,7 @@ export default async (
             const t = getTranslations('cs')
             const montazka = (await nazevFirmy(rawData.montazka.ico)) ?? null;
             const uvadec = (await nazevFirmy(rawData.uvedeni.ico)) ?? null;
+            const div = document.createElement('div');
             mount(MailRRoute, {
                 target: div,
                 props: { e: rawData, montazka, uvadec, t }
