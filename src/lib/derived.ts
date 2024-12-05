@@ -15,10 +15,10 @@ export default (tr: AddParsing<PlainTranslations>) =>
 		heatPumpManufactureNumber3: cap(tr.heatPumpManufactureNumberNr.parseTemplate([tr.third + ' '])),
 		heatPumpManufactureNumber4: cap(tr.heatPumpManufactureNumberNr.parseTemplate([tr.fourth + ' '])),
 		warranty: cap(tr.warrantyNr.parseTemplate([''])),
-		warranty1: cap(tr.warrantyNr.parseTemplate([tr.first + ' '])),
-		warranty2: cap(tr.warrantyNr.parseTemplate([tr.second + ' '])),
-		warranty3: cap(tr.warrantyNr.parseTemplate([tr.third + ' '])),
-		warranty4: cap(tr.warrantyNr.parseTemplate([tr.fourth + ' '])),
+		warranty1: cap(tr.warrantyNr.parseTemplate(['1'])),
+		warranty2: cap(tr.warrantyNr.parseTemplate(['2'])),
+		warranty3: cap(tr.warrantyNr.parseTemplate(['3'])),
+		warranty4: cap(tr.warrantyNr.parseTemplate(['4'])),
 	};
 
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
