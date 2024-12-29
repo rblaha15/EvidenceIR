@@ -5,11 +5,7 @@ import de from './translations/de';
 import en from './translations/en';
 import { createTemplateG } from './Vec.svelte';
 import derived, { type Derived } from '$lib/derived';
-
-Object.recursiveKeys = (o: {}): string[] =>
-    Object.entries(o).map(([key, value]) =>
-        typeof value === 'object' && !Array.isArray(value) && value !== null ? `${key}.${Object.recursiveKeys(value)}` : key
-    );
+import './extensions'
 
 const translationsMap: PlainTranslationsMap = { cs, en, de /*, sk */ };
 

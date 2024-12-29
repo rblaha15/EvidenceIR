@@ -24,5 +24,5 @@ export const sendEmail = async (message: Options) => {
 	});
 };
 
-export const SENDER = '"Regulus Evidence IR" aplikace.regulus@centrum.cz';
+export const SENDER = '"Regulus SEIR" aplikace.regulus@centrum.cz';
 
