@@ -1,22 +1,14 @@
 <script lang="ts">
-    import { DvojVybiratko, Pisatko, Prepinatko, Vybiratko } from '$lib/components/veci';
-    import { MultiZaskrtavatko, Radio, Zaskrtavatko } from '$lib/components/veci';
+    import { DvojVybiratko, MultiZaskrtavatko, Pisatko, Prepinatko, Radio, Vybiratko, Zaskrtavatko } from '$lib/components/veci';
     import VybiratkoFirmy from '$lib/components/VybiratkoFirmy.svelte';
     import Scanner from '$lib/components/Scanner.svelte';
 
     import * as v from '$lib/Vec.svelte';
-    import {
-        dataToRawData,
-        newData,
-        rawDataToData,
-        type RawData,
-        type Data,
-        typBOX
-    } from '$lib/Data';
+    import { p } from '$lib/Vec.svelte';
+    import { type Data, dataToRawData, newData, type RawData, rawDataToData, typBOX } from '$lib/Data';
     import { responsiblePerson } from '$lib/client/realtime';
     import { companies, filteredCompanies } from './companies';
-    import odeslat from './odeslat';
-    import { p } from '$lib/Vec.svelte';
+    import odeslat from './odeslat.svelte';
     import { evidence } from '$lib/client/firestore';
     import { storable } from '$lib/helpers/stores';
 
@@ -51,6 +43,11 @@
             return (mode = 'createStored');
         }
     });
+    $effect(() => {
+        if (!$page.url.searchParams.has('edit') && mode == 'edit') {
+            location.reload();
+        }
+    });
 
     $effect(() => {
         data;
@@ -65,19 +62,19 @@
             if (data.uvedeni.jakoMontazka.value) {
                 data.uvedeni.ico.value = '';
                 data.uvedeni.email.value = '';
-                data.uvedeni.phone.value = '';
+                data.uvedeni.telefon.value = '';
             } else if (
                 data.uvedeni.ico.value == data.montazka.ico.value &&
                 data.uvedeni.ico.value != '' &&
                 data.uvedeni.email.value == data.montazka.email.value &&
                 data.uvedeni.email.value != '' &&
-                data.uvedeni.phone.value == data.montazka.phone.value &&
-                data.uvedeni.phone.value != ''
+                data.uvedeni.telefon.value == data.montazka.telefon.value &&
+                data.uvedeni.telefon.value != ''
             ) {
                 data.uvedeni.jakoMontazka.value = true;
                 data.uvedeni.ico.value = '';
                 data.uvedeni.email.value = '';
-                data.uvedeni.phone.value = '';
+                data.uvedeni.telefon.value = '';
             }
         }
     });
@@ -132,7 +129,7 @@
             storedData.set(dataToRawData(data));
         }
     });
-    let typBOXu = $derived(typBOX(data.ir.cisloBOX.value));
+    let typBOXu = $derived(typBOX(data.ir.cisloBox.value));
 
     const filter = writable('');
     let filtered = $derived(filteredCompanies(filter));
@@ -161,11 +158,11 @@
     });
     let doNotSend = $state(false);
 
-    const cisla = $derived([data.tc.cislo, data.tc.cislo2, data.tc.cislo3, data.tc.cislo4])
+    const cisla = $derived([data.tc.cislo, data.tc.cislo2, data.tc.cislo3, data.tc.cislo4]);
 </script>
 
-<FormHeader store={storedData} {t} title={mode === 'edit' ? t.editation : t.controllerRegistration}
-            showResetButton={mode === 'create' || mode === 'createStored'} />
+<FormHeader showResetButton={mode === 'create' || mode === 'createStored'} store={storedData} {t}
+            title={mode === 'edit' ? t.editation : t.controllerRegistration} />
 
 {#each list as _, i}
     {#if list[i] === data.montazka.ico && list[i].zobrazit(data) && list[i] instanceof v.Pisatkova}
@@ -173,7 +170,7 @@
             <VybiratkoFirmy
                 id="Montazka"
                 bind:emailVec={data.montazka.email}
-                bind:phoneVec={data.montazka.phone}
+                bind:phoneVec={data.montazka.telefon}
                 bind:zastupceVec={data.montazka.zastupce}
                 bind:icoVec={data.montazka.ico}
                 bind:filtr={$filter}
@@ -193,7 +190,7 @@
             <VybiratkoFirmy
                 id="Uvedeni"
                 bind:emailVec={data.uvedeni.email}
-                bind:phoneVec={data.uvedeni.phone}
+                bind:phoneVec={data.uvedeni.telefon}
                 bind:zastupceVec={data.uvedeni.zastupce}
                 bind:icoVec={data.uvedeni.ico}
                 bind:filtr={$filter}
@@ -239,7 +236,7 @@
     {:else if list[i] instanceof v.Zaskrtavatkova && list[i].zobrazit(data)}
         <Zaskrtavatko {t} bind:vec={list[i]} {data} />
     {/if}
-    {#if list[i] === data.ir.cisloBOX && list[i].zobrazit(data) && typBOXu}
+    {#if list[i] === data.ir.cisloBox && list[i].zobrazit(data) && typBOXu}
         <p>Rozpoznáno: {typBOXu}</p>
     {/if}
     {#if list[i] === data.montazka.ico && list[i].zobrazit(data)}
@@ -307,6 +304,6 @@
         {#if vysledek.load}
             <div class="spinner-border text-danger ms-2"></div>
         {/if}
-        <p class:text-danger={vysledek.red} class="ms-2 my-auto">{@html vysledek.text}</p>
+        <p class="ms-2 my-auto" class:text-danger={vysledek.red}>{@html vysledek.text}</p>
     </div>
 </div>

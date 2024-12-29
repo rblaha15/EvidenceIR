@@ -6,7 +6,7 @@ export type Data = {
 	ir: {
 		typ: DvojVybiratkova<Data>;
 		cislo: Pisatkova<Data>;
-		cisloBOX: Pisatkova<Data>;
+		cisloBox: Pisatkova<Data>;
 		chceVyplnitK: MultiZaskrtavatkova<Data>;
 	};
 	tc: {
@@ -24,8 +24,8 @@ export type Data = {
 	};
 	sol: {
 		title: Nadpisova<Data>;
-		type: Pisatkova<Data>;
-		count: Pisatkova<Data>;
+		typ: Pisatkova<Data>;
+		pocet: Pisatkova<Data>;
 	};
 	koncovyUzivatel: {
 		nadpis: Nadpisova<Data>;
@@ -53,7 +53,7 @@ export type Data = {
 		ico: Pisatkova<Data>;
 		zastupce: Pisatkova<Data>;
 		email: Pisatkova<Data>;
-		phone: Pisatkova<Data>;
+		telefon: Pisatkova<Data>;
 	};
 	uvedeni: {
 		nadpis: Nadpisova<Data>;
@@ -61,7 +61,7 @@ export type Data = {
 		ico: Pisatkova<Data>;
 		zastupce: Pisatkova<Data>;
 		email: Pisatkova<Data>;
-		phone: Pisatkova<Data>;
+		telefon: Pisatkova<Data>;
 	};
 	vzdalenyPristup: {
 		nadpis: Nadpisova<Data>;
@@ -76,7 +76,7 @@ export type Data = {
 }
 
 export const rawDataToData = (toData: Data, rawData: RawData) => {
-	const d = toData as Record<string, Record<string, Vec<Data, any>>>
+	const d = toData as GeneralData
 
 	Object.entries(rawData).map(a =>
 		a as [keyof Data, RawData[keyof RawData]]
@@ -85,8 +85,8 @@ export const rawDataToData = (toData: Data, rawData: RawData) => {
 			a as [string, any]
 		).forEach(([key2, value]) => {
 			if (d[key1] == undefined) return
-			if (d[key1][key2] == undefined) d[key1][key2] = (defaultData()[key1] as Record<string, Vec<Data, any>>)[key2]
-			d[key1][key2].value = value
+			if (d[key1][key2] == undefined) d[key1][key2] = (defaultData()[key1] as GeneralData[string])[key2]
+			else d[key1][key2].value = value
 		})
 	)
 
@@ -96,12 +96,14 @@ export const rawDataToData = (toData: Data, rawData: RawData) => {
 export const newData = () => defaultData()
 
 export type RawData = Raw<Data>
+export type GeneralData = Record<string, Record<string, Vec<Data, any>>>
 
 export const dataToRawData = (data: Data): RawData => {
 	const dataEntries = Object.entries(data);
 	const rawDataEntries = dataEntries.map(([key, subData]) => {
 		const subDataEntries = Object.entries(subData) as [string, Vec<Data, any>][];
 		const rawSubDataEntries = subDataEntries.map(([subKey, vec]) => {
+			if (vec == undefined) return undefined;
 			if (vec.value == undefined) return undefined;
 			else return [subKey, vec.value] as const;
 		}).filter(it => it != undefined);

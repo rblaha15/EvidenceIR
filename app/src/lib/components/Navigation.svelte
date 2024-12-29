@@ -44,6 +44,7 @@
 				</svg>
 			</button>
 		{/if}
+		<!--suppress CheckImageSize -->
 		<img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
 		<span class="navbar-brand me-auto me-lg-3">{t.appName}</span>
 		{#if jePrihlasen}
@@ -104,6 +105,7 @@
 			</div>
 			<div class="d-sm-none offcanvas offcanvas-start" tabindex="-1" id="NOC">
 				<div class="offcanvas-header">
+					<!--suppress CheckImageSize -->
 					<img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
 					<span class="navbar-brand">{t.appName}</span>
 					<LanguageSelector />

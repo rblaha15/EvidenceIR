@@ -1,7 +1,7 @@
 import { dev } from "$app/environment";
 import { sendEmail, SENDER } from "$lib/client/email";
 import { existuje, novaEvidence, upravitEvidenci } from "$lib/client/firestore";
-import { dataToRawData, nazevIR, type Data, type RawData } from "$lib/Data";
+import { dataToRawData, nazevIR, type Data, type RawData, rawDataToData, newData } from '$lib/Data';
 import { nazevFirmy } from "$lib/helpers/ares";
 import type { Vec } from "$lib/Vec.svelte";
 import { default as MailRRoute } from "$lib/emails/MailRRoute.svelte";
@@ -10,9 +10,10 @@ import { get } from "svelte/store";
 import { page as pageStore } from "$app/stores";
 import { relUrl as relUrlStore, storable } from "$lib/helpers/stores";
 import { currentUser } from "$lib/client/auth";
-import { getTranslations } from "$lib/translations";
+import { getTranslations } from '$lib/translations';
 import { getIsOnline } from "$lib/client/realtime";
 import { mount } from "svelte";
+import { generateXML } from '$lib/createXML';
 
 const storedData = storable<RawData>('stored_data');
 
@@ -73,24 +74,28 @@ export default async (
             load: true
         });
 
-        if (data.uvedeni.jakoMontazka.value) {
-            data.uvedeni.ico.value = data.montazka.ico.value;
-            data.uvedeni.email.value = data.montazka.email.value;
-            data.uvedeni.telefon.value = data.montazka.telefon.value;
+        const dataToSend = rawDataToData(newData(), dataToRawData(data))
+
+        if (dataToSend.uvedeni.jakoMontazka.value) {
+            dataToSend.uvedeni.jakoMontazka.value = false;
+            dataToSend.uvedeni.ico.value = dataToSend.montazka.ico.value;
+            dataToSend.uvedeni.email.value = dataToSend.montazka.email.value;
+            dataToSend.uvedeni.telefon.value = dataToSend.montazka.telefon.value;
         }
-        if (data.mistoRealizace.jakoBydliste.value) {
-            data.mistoRealizace.ulice.value = data.bydliste.ulice.value;
-            data.mistoRealizace.obec.value = data.bydliste.obec.value;
-            data.mistoRealizace.psc.value = data.bydliste.psc.value;
+        if (dataToSend.mistoRealizace.jakoBydliste.value) {
+            dataToSend.mistoRealizace.jakoBydliste.value = false;
+            dataToSend.mistoRealizace.ulice.value = dataToSend.bydliste.ulice.value;
+            dataToSend.mistoRealizace.obec.value = dataToSend.bydliste.obec.value;
+            dataToSend.mistoRealizace.psc.value = dataToSend.bydliste.psc.value;
         }
-        const rawData = dataToRawData(data);
+        const rawData = dataToRawData(dataToSend);
 
         const user = get(currentUser)!
 
         const div = document.createElement('div');
         mount(MailSDaty, {
             target: div,
-            props: { data, t, user, host: page.url.host },
+            props: { data: dataToSend, t, user, host: page.url.host },
         })
 
         const html = div.innerHTML;
@@ -100,6 +105,7 @@ export default async (
         } else {
             await novaEvidence({ evidence: rawData, kontroly: {}, users: [user.email!] });
         }
+
 
         if (rawData.vzdalenyPristup.chce && !doNotSend) {
             const t = getTranslations('cs')
@@ -117,11 +123,19 @@ export default async (
                 to: dev ? 'radek.blaha.15@gmail.com' : 'david.cervenka@regulus.cz',
                 subject: `Založení RegulusRoute k ${nazevIR(t, rawData.ir.typ)} ${rawData.ir.cislo}`,
                 html,
+                attachments: [
+                    {
+                        content: generateXML(dataToSend, t),
+                        contentType: 'application/xml',
+                        filename: `Evidence ${rawData.ir.cislo}.xml`
+                    }
+                ],
             });
         }
 
         const response = doNotSend ? undefined : await sendEmail({
             from: SENDER,
+            replyTo: user.email!,
             to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
             cc: dev ? undefined : user.email!,
             subject: `Nově zaevidovaný regulátor ${nazevIR(t, rawData.ir.typ)} ${rawData.ir.cislo}`,
@@ -129,7 +143,7 @@ export default async (
         });
 
         if (doNotSend || response!.ok) {
-            storedData.set(undefined)
+            if (!dev) storedData.set(undefined)
             progress({
                 text: t.redirecting,
                 red: false,

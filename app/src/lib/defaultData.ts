@@ -32,7 +32,7 @@ export default (): Data => ({
                 }
             }
         }),
-        cisloBOX: new Pisatkova({
+        cisloBox: new Pisatkova({
             nazev: `serialNumberIndoor`,
             onError: `wrongNumberFormat`,
             regex: /([0-9]{7})-([0-9]{7})/,
@@ -48,7 +48,7 @@ export default (): Data => ({
                 `heatPump`,
                 `solarCollector` //fve
             ],
-            nutne: false
+            nutne: false, showInXML: false
         })
     },
     tc: {
@@ -175,12 +175,12 @@ export default (): Data => ({
             nazev: `solarCollector`,
             zobrazit: (data) => data.ir.chceVyplnitK.value.includes(`solarCollector`)
         }),
-        type: new Pisatkova({
+        typ: new Pisatkova({
             nazev: `solarCollectorType`,
             nutne: (data) => data.ir.chceVyplnitK.value.includes(`solarCollector`),
             zobrazit: (data) => data.ir.chceVyplnitK.value.includes(`solarCollector`)
         }),
-        count: new Pisatkova({
+        pocet: new Pisatkova({
             nazev: `solarCollectorCount`,
             type: `number`,
             nutne: (data) => data.ir.chceVyplnitK.value.includes(`solarCollector`),
@@ -235,7 +235,7 @@ export default (): Data => ({
     },
     mistoRealizace: {
         nadpis: new Nadpisova({ nazev: `roalizationLocation` }),
-        jakoBydliste: new Zaskrtavatkova({ nazev: `realisedAtResidence`, nutne: false }),
+        jakoBydliste: new Zaskrtavatkova({ nazev: `realisedAtResidence`, nutne: false, showInXML: false }),
         ulice: new Pisatkova({
             nazev: `street`,
             nutne: false,
@@ -280,7 +280,7 @@ export default (): Data => ({
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             autocomplete: `section-assembly billing work email`
         }),
-        phone: new Pisatkova({
+        telefon: new Pisatkova({
             nazev: `phone`,
             onError: `wrongPhoneFormat`,
             regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
@@ -290,7 +290,7 @@ export default (): Data => ({
     },
     uvedeni: {
         nadpis: new Nadpisova({ nazev: `commissioning` }),
-        jakoMontazka: new Zaskrtavatkova({ nazev: `commissionedByAssemblyCompany`, nutne: false }),
+        jakoMontazka: new Zaskrtavatkova({ nazev: `commissionedByAssemblyCompany`, nutne: false, showInXML: false }),
         ico: new Pisatkova({
             nazev: `crn`,
             onError: `wrongCRNFormat`,
@@ -313,7 +313,7 @@ export default (): Data => ({
             nutne: (data) => !data.uvedeni.jakoMontazka.value,
             autocomplete: `section-commissioning billing work email`
         }),
-        phone: new Pisatkova({
+        telefon: new Pisatkova({
             nazev: `phone`,
             onError: `wrongPhoneFormat`,
             regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
