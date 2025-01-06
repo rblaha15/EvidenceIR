@@ -25,7 +25,7 @@ const heatPumpCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniTC, 
 /*                */ Text14: e.ir.typ.first!.includes('BOX') ? e.ir.cisloBox : '—',
 /*                */ Text15: u.tc.jisticTC ? t.suits : t.suitsNot,
 /*                */ Text16: e.ir.typ.first!.includes('BOX') ? u.tc.jisticVJ ? t.suits : t.suitsNot : '—',
-/*                */ Text17: u.tc.vzdalenostZdi ? t.suits : t.suitsNot,
+/*                */ Text17: e.tc.typ == 'airToWater' ? u.tc.vzdalenostZdi ? t.suits : t.suitsNot : '—',
 /*                */ Text18: u.os.tcTv ? t.additionalHotWaterSource : t.mainHotWaterSource,
 /*                */ Text19: e.tc.typ == 'airToWater' ? u.tc.kondenzator ? t.yes : t.no : '—',
 /*                */ Text20: u.tc.filtr ? t.yes : t.no,
@@ -56,8 +56,8 @@ const heatPumpCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniTC, 
 /*                */ Text45: t.get(u.uvadeni.typZaruky!),
 /*                */ Text46: u.uvadeni.typZaruky?.includes('extendedWarranty') ?? false ? u.uvadeni.zaruka ? t.yes : t.no : '—',
 /*                */ Text47: !isCascade ? '' : t.cascade + '\n' + pumps.map(([model, cislo], i) =>
-            t.pumpDetails.parseTemplate({ n: `${i + 1}`, model, cislo })
-        ).join('\n'),
+    t.pumpDetails.parseTemplate({ n: `${i + 1}`, model, cislo })
+).join('\n'),
     });
 };
 export default heatPumpCommissionProtocol
