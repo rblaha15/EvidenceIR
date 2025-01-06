@@ -80,7 +80,7 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
         nadpis: new Nadpisova({ nazev: `heatPump` }),
         jisticTC: new Vyhovuje({ nazev: `characteristicsAndSizeOfHeatPumpBreaker` }),
         jisticVJ: new Vyhovuje({ zobrazit: d => d.evidence.ir.typ.first!.includes('BOX'), nazev: `characteristicsAndSizeOfIndoorUnitBreaker` }),
-        vzdalenostZdi: new Vyhovuje({ nazev: `distanceFromWall` }),
+        vzdalenostZdi: new Vyhovuje({ nazev: `distanceFromWall`, zobrazit: d => d.evidence.tc.typ == `airToWater` }),
         kondenzator: new Zaskrtavatkova({
             nutne: false,
             nazev: `isCompensatorInstalled`,
