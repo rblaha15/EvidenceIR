@@ -16,9 +16,10 @@ import type { RawData } from '$lib/Data';
 import type { Kontrola } from '$lib/Kontrola';
 import type { RawUvedeniTC } from '$lib/UvedeniTC';
 import { get, readonly, writable } from 'svelte/store';
-import { checkAdmin, currentUser } from './auth';
+import { checkRegulusOrAdmin, currentUser } from './auth';
 import { firestore } from '../../hooks.client';
 import type { RawUvedeniSOL } from '$lib/UvedeniSOL';
+import type { RawDataSP } from '$lib/SP';
 
 export type IR = {
 	evidence: RawData;
@@ -31,6 +32,7 @@ export type IR = {
 		4?: Kontrola;
 	};
 	users: string[];
+	installationProtocol?: RawDataSP;
 };
 
 type LegacyIR = {
@@ -84,6 +86,10 @@ export const pridatKontrolu = (ir: string, rok: number, kontrola: Kontrola) => {
 	return updateDoc(irDoc(ir), `kontroly.${rok}`, kontrola);
 };
 
+export const vyplnitServisniProtokol = (ir: string, protokol: RawDataSP) => {
+	return updateDoc(irDoc(ir), `installationProtocol`, protokol);
+};
+
 export const uvestTCDoProvozu = (ir: string, uvedeni: RawUvedeniTC) => {
 	return updateDoc(irDoc(ir), `uvedeniTC`, uvedeni);
 };
@@ -103,7 +109,7 @@ export const evidenceStore = (ir: string) => {
 };
 export const getAll = async () => {
 	const user = get(currentUser);
-	if (user?.email?.endsWith('@regulus.cz') || (await checkAdmin()))
+	if (await checkRegulusOrAdmin())
 		return await getDocs(irCollection);
 	return await getDocs(query(irCollection, where('users', 'array-contains', user?.email)));
 };

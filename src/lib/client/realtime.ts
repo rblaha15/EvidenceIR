@@ -1,5 +1,5 @@
 import { derived, get as getFromStore, readonly, writable } from 'svelte/store';
-import { checkAdmin, currentUser } from './auth';
+import { checkRegulusOrAdmin, currentUser } from './auth';
 import type { User } from 'firebase/auth';
 import { onValue, type Query, ref } from 'firebase/database';
 import { storable } from '$lib/helpers/stores';
@@ -21,6 +21,11 @@ export type Person = {
 	commissioningCompanies: SelfObject<CRN>;
 	responsiblePerson?: string;
 };
+export type Technician = {
+	email: string;
+	name: string;
+	initials: string;
+};
 export type FriendlyCompanies = {
 	assemblyCompanies: Company[];
 	commissioningCompanies: Company[];
@@ -35,6 +40,7 @@ const FriendlyCompanies = (
 
 const firmyRef = ref(realtime, '/companies');
 const lidiRef = ref(realtime, '/people');
+const techniciRef = ref(realtime, '/technicians');
 const connectedRef = ref(realtime, '.info/connected');
 
 const _isOnline = writable(false);
@@ -61,7 +67,7 @@ const _friendlyCompanies = async (user: User | null): Promise<FriendlyCompanies>
 		return FriendlyCompanies([]);
 	}
 	const { child } = await import('firebase/database');
-	if (user.email?.endsWith('@regulus.cz') || (await checkAdmin())) {
+	if (await checkRegulusOrAdmin()) {
 		const vsechnyFirmy = await getWithCache<{ [crn: CRN]: Company }>(firmyRef);
 		return FriendlyCompanies(Object.values(vsechnyFirmy!));
 	}
@@ -127,5 +133,14 @@ export const startFirmyListening = async () => {
 	const { onValue } = await import('firebase/database');
 	return onValue(firmyRef, (data) => {
 		seznamFirmy.set(Object.values((data.val() as { [crn: CRN]: Company }) ?? {}));
+	});
+};
+
+export const techniciansList = writable([] as Technician[]);
+
+export const startTechniciansListening = async () => {
+	const { onValue } = await import('firebase/database');
+	onValue(techniciRef, (data) => {
+		techniciansList.set((data.val() as Technician[]) ?? []);
 	});
 };

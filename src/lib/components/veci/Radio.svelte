@@ -13,7 +13,7 @@
 </script>
 
 {#if vec.zobrazit(data)}
-	<label for="">{nazevSHvezdou(vec, data, t)}</label>
+	<label class="d-block" for="">{nazevSHvezdou(vec, data, t)}</label>
 	{#each vec.moznosti(data) as moznost}
 		<div class="form-check">
 			<label class="form-check-label">
@@ -22,6 +22,8 @@
 			</label>
 		</div>
 	{/each}
+
+	<div class="mb-2"></div>
 
 	{#if vec.zobrazitError(data)}
 		<p class="text-danger">{t.get(vec.onError(data))}</p>

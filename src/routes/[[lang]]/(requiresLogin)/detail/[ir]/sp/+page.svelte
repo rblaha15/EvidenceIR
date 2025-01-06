@@ -1,21 +1,16 @@
 <script lang="ts">
-    import { evidence as getEvidence, uvestSOLDoProvozu } from '$lib/client/firestore';
+    import { evidence as getEvidence, vyplnitServisniProtokol } from '$lib/client/firestore';
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
-    import {
-        defaultUvedeniSOL,
-        rawUvedeniSOLToUvedeniSOL,
-        uvedeniSOLToRawUvedeniSOL,
-        type RawUvedeniSOL,
-        type UDSOL,
-        type UvedeniSOL
-    } from '$lib/UvedeniSOL';
+    import { type DataSP, dataSPToRawDataSP, defaultDataSP, type RawDataSP, rawDataSPToDataSP, type UDSP } from '$lib/SP';
     import { type Vec } from '$lib/Vec.svelte';
     import VecComponent from '$lib/components/Vec.svelte';
     import type { RawData } from '$lib/Data';
-    import { getToken } from '$lib/client/auth';
+    import { currentUser, getToken } from '$lib/client/auth';
     import { storable } from '$lib/helpers/stores';
     import FormHeader from '../FormHeader.svelte';
+    import { nowISO } from '$lib/helpers/date';
+    import { startTechniciansListening, techniciansList } from '$lib/client/realtime';
 
     interface Props {
         data: PageData;
@@ -25,19 +20,21 @@
     const ir = data.ir;
     const t = data.translations;
 
-    const storedCommission = storable<RawUvedeniSOL>(`stored_commission_${ir}`);
+    const storedData = storable<RawDataSP>(`stored_sp_${ir}`);
 
-    let u: UvedeniSOL = $state(defaultUvedeniSOL());
+    let p: DataSP = $state(defaultDataSP());
     let evidence = $state() as RawData;
     onMount(async () => {
+        await startTechniciansListening();
+
         const snapshot = await getEvidence(ir as string);
         if (snapshot.exists()) {
             evidence = snapshot.data().evidence;
         }
-        const stored = $storedCommission;
+        const stored = $storedData;
         if (stored == null) {
         } else {
-            u = rawUvedeniSOLToUvedeniSOL(u, stored);
+            p = rawDataSPToDataSP(p, stored);
         }
     });
 
@@ -47,15 +44,14 @@
         load: false
     });
 
-    let list = $derived(
-        (Object.values(u) as UvedeniSOL[keyof UvedeniSOL][]).flatMap(
-            (obj) => Object.values(obj) as Vec<UDSOL, any>[]
-        )
-    );
-    let d = $derived({ uvedeni: u, evidence } as UDSOL);
+    let list = $derived((Object.values(p) as DataSP[keyof DataSP][]).flatMap(
+        (obj) => Object.values(obj) as Vec<UDSP, any>[]
+    ));
+    let d = $derived({ protokol: p, evidence } as UDSP);
 
     const save = async () => {
-        const raw = uvedeniSOLToRawUvedeniSOL(u);
+        p.zasah.datum.value = nowISO();
+        const raw = dataSPToRawDataSP(p);
         if (
             list.some((it) => {
                 if (it.zpravaJeChybna(d)) console.log(it);
@@ -74,9 +70,9 @@
         }
 
         vysledek = { load: true, red: false, text: t.saving };
-        await uvestSOLDoProvozu(ir as string, raw);
+        await vyplnitServisniProtokol(ir as string, raw);
 
-        storedCommission.set(undefined);
+        storedData.set(undefined);
         vysledek = {
             text: 'Přesměrování...',
             red: false,
@@ -85,7 +81,7 @@
 
         const token = await getToken();
         const newWin = window.open(
-            `/${data.languageCode}/detail/${data.ir}/pdf/solarCollectorCommissionProtocol?token=${token}`
+            `/${data.languageCode}/detail/${data.ir}/pdf/installationProtocol?token=${token}`
         );
         if (!newWin || newWin.closed) {
             vysledek = {
@@ -100,13 +96,20 @@
 
     $effect(() => {
         if (evidence) {
-            storedCommission.set(uvedeniSOLToRawUvedeniSOL(u));
+            storedData.set(dataSPToRawDataSP(p));
         }
+    });
+
+    $effect(() => {
+        const ja = $techniciansList.find(t => $currentUser?.email == t.email);
+        p.zasah.clovek.value = ja?.name ?? p.zasah.clovek.value;
+        p.zasah.clovek.zobrazit = () => !ja;
+        p.zasah.clovek.nutne = () => !ja;
     });
 </script>
 
 {#if evidence}
-    <FormHeader store={storedCommission} {t} title={t.commissioning} />
+    <FormHeader store={storedData} {t} title="Instalační a servisní protokol" />
     {#each list as _, i}
         <VecComponent bind:vec={list[i]} {t} data={d} />
     {/each}

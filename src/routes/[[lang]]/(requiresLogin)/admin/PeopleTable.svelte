@@ -1,6 +1,7 @@
 <script lang="ts">
 
     import type { Person } from '$lib/client/realtime';
+    import { page } from '$app/stores';
 
     interface Props {
         people?: Person[],
@@ -37,7 +38,10 @@
     </thead>
     <tbody>
     {#each people as person, i}
-        <tr class="table-{colors[i]}">
+        <tr class="table-{colors[i]}" id={person.email}
+            style:scroll-margin-top={6 + (document.querySelector('nav')?.getBoundingClientRect()?.height ?? 0) + 'px'}
+            class:table-info={$page.url.hash.split("-")[1] === person.email}
+        >
             <th>{person.email}</th>
             <td>{@html showCompanies(person.assemblyCompanies)}</td>
             <td>{@html showCompanies(person.commissioningCompanies)}</td>

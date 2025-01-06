@@ -1,4 +1,4 @@
-import { getAuth, type ActionCodeSettings, type CreateRequest, type DecodedIdToken, type UpdateRequest } from "firebase-admin/auth";
+import { getAuth, type CreateRequest, type DecodedIdToken, type UpdateRequest } from "firebase-admin/auth";
 import { app } from "./firebase";
 import { chunk } from "$lib/helpers/arrays";
 import type { LanguageCode } from "$lib/languages";
@@ -16,7 +16,9 @@ export const checkToken = (token: string | undefined | null) =>
             })
     })
 
-export const checkAdmin = (token: DecodedIdToken) => token?.admin
+export const checkAdmin = (token: DecodedIdToken) => token.admin
+export const checkRegulus = (token: DecodedIdToken) => token.email.endsWith('@regulus.cz')
+export const checkRegulusOrAdmin = (token: DecodedIdToken) => checkAdmin(token) || checkRegulus(token)
 
 export const getUsersByEmail = (emails: string[]) => promiseBy100(emails.map(email => ({ email })), ids => auth.getUsers(ids))
 export const getUserByEmail = (email: string) => auth.getUserByEmail(email)

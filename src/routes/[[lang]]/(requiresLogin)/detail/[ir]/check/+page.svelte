@@ -60,7 +60,7 @@
 	};
 </script>
 
-<h1>{t.yearlyCheck}</h1>
+<h1>{t.yearlyHPCheck}</h1>
 <h3>{t.year}: {rok ?? '…'}</h3>
 
 <label class="form-floating d-block mb-2">

@@ -25,7 +25,8 @@
         value?: string;
     };
 
-    const maybeCapitalized = (value: string, vec: Pisatkova<D>): string => vec.capitalize(data) ? value.toUpperCase() : value;
+    const maybeCapitalized = (value: string, vec: Pisatkova<D>): string =>
+        vec.capitalize(data) ? value.toUpperCase() : value;
 
     let input = $state<HTMLInputElement>();
     let mask = $state<InputMask<MyOpts>>();
@@ -68,7 +69,7 @@
 </script>
 
 {#if vec.zobrazit(data)}
-    <label class="form-floating d-block mb-3">
+    <label class="form-floating d-block mb-1">
         {#if options !== undefined}
             <input
                 type={vec.type(data)}
@@ -98,4 +99,6 @@
     {#if vec.zobrazitError(data)}
         <span class="text-danger help-block">{t.get(vec.onError(data))}</span>
     {/if}
+
+    <div class="mb-2"></div>
 {/if}

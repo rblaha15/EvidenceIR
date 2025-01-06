@@ -1,6 +1,15 @@
 <script lang="ts">
     import { getToken } from '$lib/client/auth';
-    import { type Company, type Person, seznamFirmy, seznamLidi, startFirmyListening, startLidiListening } from '$lib/client/realtime';
+    import {
+        type Company,
+        type Person,
+        seznamFirmy,
+        seznamLidi,
+        startFirmyListening,
+        startLidiListening,
+        startTechniciansListening,
+        type Technician, techniciansList
+    } from '$lib/client/realtime';
     import download from 'downloadjs';
     import { onMount } from 'svelte';
     import { allKeys, getTranslations } from '$lib/translations';
@@ -8,13 +17,14 @@
     import type { Template } from '$lib/helpers/templates';
     import { page } from '$app/stores';
     import { relUrl } from '$lib/helpers/stores';
-    import { companies } from '../new/companies';
     import PeopleTable from './PeopleTable.svelte';
     import CompaniesTable from './CompaniesTable.svelte';
+    import TechniciansTable from './TechniciansTable.svelte';
 
     onMount(async () => {
         await startLidiListening();
         await startFirmyListening();
+        await startTechniciansListening();
     });
 
     let loading = $state(false);
@@ -74,6 +84,29 @@
             };
         }
     };
+    const poVybraniTechnicians = (
+        ev: Event & {
+            currentTarget: EventTarget & HTMLInputElement;
+        }
+    ) => {
+        const file = ev.currentTarget.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsText(file, 'UTF-8');
+            reader.onload = async (evt) => {
+                const text = evt.target?.result as string | null;
+                newDataTechnicians = (text ?? '')
+                    .split('\n')
+                    .filter((radek) => radek != '')
+                    .map((radek) => radek.split(';').map((vec) => (vec != '' ? vec : undefined)))
+                    .map(([name, email, initials]) => ({
+                        name,
+                        email,
+                        initials,
+                    })) as Technician[];
+            };
+        }
+    };
 
     const stahnoutPeople = () => {
         download(new File([oldDataPeople.map(
@@ -118,12 +151,33 @@
         newDataCompanies = [];
     };
 
+    const stahnoutTechnicians = () => {
+        download(new File([oldDataTechnicians.map(({ name, email, initials }) =>
+            `${name};${email ?? ''};${initials}`.trim()
+        ).join('\n')], 'technici.csv'), 'technici.csv', 'text/csv');
+    };
+
+    const potvrditTechnicians = async () => {
+        loading = true;
+
+        const token = await getToken();
+
+        await fetch(`/api/aktualizovat?type=technici&token=${token}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                technicians: newDataTechnicians
+            })
+        });
+        loading = false;
+        newDataTechnicians = [];
+    };
+
     const sort = (o: Record<string, any> | undefined): Record<string, any> | undefined => o ? Object.fromEntries(Object.entries(o).sort(([a], [b]) => a.localeCompare(b))) : undefined;
 
     const compareByEmail = (p1: Person, p2: Person) => p1.email.localeCompare(p2.email);
     const oldDataPeople = $derived($seznamLidi.toSorted(compareByEmail));
-
     let newDataPeople = $state(<Person[]> []);
+
     const pEmail = (p: Person) => p.email;
     const pByEmail = (people: Person[], email: string) => people.find(p => p.email === email);
     const oldEmailsPeople = $derived(oldDataPeople.map(pEmail));
@@ -144,12 +198,24 @@
     const removalsCompanies = $derived(oldDataCompanies.filter(c => !newEmailsCompanies.includes(c.crn)));
     const additionsCompanies = $derived(newDataCompanies.filter(c => !oldEmailsCompanies.includes(c.crn)));
 
+    const compareByTEmail = (t1: Technician, t2: Technician) => t1.email.localeCompare(t2.email);
+    const oldDataTechnicians = $derived($techniciansList.toSorted(compareByTEmail));
+    let newDataTechnicians = $state(<Technician[]> []);
+
+    const tEmail = (p: Technician) => p.email;
+    const tByEmail = (people: Technician[], email: string) => people.find(p => p.email === email);
+    const oldEmailsTechnicians = $derived(oldDataTechnicians.map(tEmail));
+    const newEmailsTechnicians = $derived(newDataTechnicians.map(tEmail));
+    const changesTechnicians = $derived(newDataTechnicians.filter(t => oldEmailsTechnicians.includes(t.email) && JSON.stringify(sort(tByEmail(oldDataTechnicians, t.email) ?? t)) != JSON.stringify(sort(t))));
+    const removalsTechnicians = $derived(oldDataTechnicians.filter(t => !newEmailsTechnicians.includes(t.email)));
+    const additionsTechnicians = $derived(newDataTechnicians.filter(t => !oldEmailsTechnicians.includes(t.email)));
+
     const parseSelf = (template: Template<(string | number)[]>) => template.parseTemplate(
         Object.fromEntries(template[1].map(it => [it, `{${it}}`] as const))
     );
 
     onMount(async () => {
-        ['people', 'companies', 'translations'].forEach(tab => {
+        ['people', 'companies', 'technicians', 'translations'].forEach(tab => {
             const tabEl = document.querySelector(`#${tab}-tab`)!;
             tabEl.addEventListener('show.bs.tab', _ => {
                 if (!location.hash.startsWith('#' + tab))
@@ -166,6 +232,16 @@
                 if ($page.url.hash.includes('companies-')) {
                     const crn = $page.url.hash.split('-')[1];
                     document.getElementById(crn)?.scrollIntoView();
+                }
+            })();
+        }
+        if (oldDataPeople) {
+            (async () => {
+                const { Tab } = await import('bootstrap');
+                if ($page.url.hash) new Tab(`${$page.url.hash.split('-')[0]}-tab`).show();
+                if ($page.url.hash.includes('people-')) {
+                    const email = $page.url.hash.split('-')[1];
+                    document.getElementById(email)?.scrollIntoView();
                 }
             })();
         }
@@ -190,9 +266,8 @@
             data-bs-toggle="tab"
             id="people-tab"
             role="tab"
-            type="button">Uživatelé
-        </button
-        >
+            type="button"
+        >Uživatelé</button>
     </li>
     <li class="nav-item" role="presentation">
         <button
@@ -203,9 +278,20 @@
             data-bs-toggle="tab"
             id="companies-tab"
             role="tab"
-            type="button">Firmy
-        </button
-        >
+            type="button"
+        >Firmy</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button
+            aria-controls="technicians-tab-pane"
+            aria-selected="false"
+            class="nav-link"
+            data-bs-target="#technicians-tab-pane"
+            data-bs-toggle="tab"
+            id="technicians-tab"
+            role="tab"
+            type="button"
+        >Technici</button>
     </li>
     <li class="nav-item" role="presentation">
         <button
@@ -216,9 +302,8 @@
             data-bs-toggle="tab"
             id="translations-tab"
             role="tab"
-            type="button">Překlady
-        </button
-        >
+            type="button"
+        >Překlady</button>
     </li>
 </ul>
 <div class="tab-content">
@@ -382,6 +467,84 @@
             accept="text/csv"
             id="file-companies"
             onchange={poVybraniCompanies}
+            style="display: none;"
+            type="file"
+        />
+    </div>
+    <div
+        aria-labelledby="technicians-tab"
+        class="tab-pane fade"
+        id="technicians-tab-pane"
+        role="tabpanel"
+        tabindex="0"
+    >
+        <h2>Seznam techniků</h2>
+        <p class="mt-3 mb-0">
+            Vložte .csv soubor oddělený středníky (;), kde v prvním sloupci je email, v druhém sloupci jméno a ve
+            třetím spoupci iniciály (do SP) technika: <br />
+            Př.: Jan Novák;jan.novak@regulus.cz;JN <br />
+            Všechna pole jsou povinná
+        </p>
+
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mt-2">
+            {#if loading}
+                <div class="d-flex align-items-center">
+                    <span>Odesílání dat</span>
+                    <div class="spinner-border text-danger ms-2"></div>
+                </div>
+            {:else if newDataTechnicians.length === 0}
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick={() => document.getElementById('file-technicians')?.click()}
+                >
+                    Vybrat soubor
+                </button>
+            {:else}
+                <button type="button" class="btn btn-danger" onclick={potvrditTechnicians}>
+                    Potvrdit změny
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                    onclick={() => (newDataTechnicians = [])}
+                >
+                    Zrušit změny
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                    onclick={() => document.getElementById('file-technicians')?.click()}
+                >
+                    Vybrat jiný soubor
+                </button>
+            {/if}
+            <button
+                class="btn btn-outline-primary mt-2 ms-md-2 mt-md-0"
+                onclick={stahnoutTechnicians}
+                type="button"
+            >
+                Stáhnout aktuální data
+            </button>
+        </div>
+
+        {#if newDataTechnicians.length !== 0 && !loading}
+            <h4 class="mt-3">Změny, které se chystáte provést:</h4>
+            {#if additionsTechnicians.length === 0 && removalsTechnicians.length === 0 && changesTechnicians.length === 0}
+                <p>Žádné změny</p>
+            {/if}
+            <TechniciansTable techniciansWithColors={addColors(additionsTechnicians,changesTechnicians,removalsTechnicians)} />
+        {/if}
+
+        <div class="mt-3">
+            <h4>Aktuálně uložená data:</h4>
+            <TechniciansTable technicians={oldDataTechnicians} />
+        </div>
+
+        <input
+            accept="text/csv"
+            id="file-technicians"
+            onchange={poVybraniTechnicians}
             style="display: none;"
             type="file"
         />
