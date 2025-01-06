@@ -1,12 +1,7 @@
-import { nazevFirmy } from "$lib/helpers/ares";
-import { type PdfArgs } from "$lib/client/pdf";
+import { nazevFirmy } from '$lib/helpers/ares';
+import type { GetPdfData } from '$lib/server/pdf';
 
-export default {
-    formName: 'rroute',
-    supportedLanguages: ['cs', 'de'],
-    title: `regulusRouteTitle`,
-    fileName: `regulusRouteFileName`,
-    getFormData: async ({ evidence: e }, t) => ({
+const rroute: GetPdfData = async ({ evidence: e }, t) => ({
 /*   icoMontaznik */ Text1: e.montazka.ico,
 /* firmaMontaznik */ Text2: (await nazevFirmy(e.montazka.ico, fetch)) ?? null,
 /* jmenoMontaznik */ Text3: e.montazka.zastupce,
@@ -24,9 +19,9 @@ export default {
 /*         serCis */ Text15: e.ir.cislo.split(' ')[0],
 /*        serCis2 */ Text16: e.ir.cislo.split(' ')[1],
 /*       cisloBOX */ Text17: e.ir.cisloBox,
-/*        cisloTC */ Text18: [e.tc.cislo, e.tc.cislo2, e.tc.cislo3, e.tc.cislo4].filter(c => (c?.length ?? 0) != 0).join(", "),
+/*        cisloTC */ Text18: [e.tc.cislo, e.tc.cislo2, e.tc.cislo3, e.tc.cislo4].filter(c => (c?.length ?? 0) != 0).join(', '),
 /*       zaplatim */ Text22: e.vzdalenyPristup.fakturuje == 'endCustomer' ? t.agreeWIthRRPrice : '',
 /*          datum */ // Text20: '',
 /*         podpis */ // Text21: '',
-    }),
-} as PdfArgs
+});
+export default rroute;

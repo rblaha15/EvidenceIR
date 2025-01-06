@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { DvojVybiratko, MultiZaskrtavatko, Pisatko, Prepinatko, Radio, Vybiratko, Zaskrtavatko } from '$lib/components/veci';
+    import VecComponent from '$lib/components/Vec.svelte';
     import VybiratkoFirmy from '$lib/components/VybiratkoFirmy.svelte';
     import Scanner from '$lib/components/Scanner.svelte';
 
@@ -18,6 +18,7 @@
     import { writable } from 'svelte/store';
     import { nazevFirmy } from '$lib/helpers/ares';
     import FormHeader from '../detail/[ir]/FormHeader.svelte';
+    import Pisatko from '$lib/components/veci/Pisatko.svelte';
 
     const t = $page.data.translations;
 
@@ -223,18 +224,8 @@
             {data}
             disabled={list[i] === data.ir.cislo && mode === 'edit'}
         />
-    {:else if list[i] instanceof v.DvojVybiratkova && list[i].zobrazit(data)}
-        <DvojVybiratko bind:vec={list[i]} {t} {data} />
-    {:else if list[i] instanceof v.Vybiratkova && list[i].zobrazit(data)}
-        <Vybiratko bind:vec={list[i]} {t} {data} />
-    {:else if list[i] instanceof v.Radiova && list[i].zobrazit(data)}
-        <Radio bind:vec={list[i]} {t} {data} />
-    {:else if list[i] instanceof v.Prepinatkova && list[i].zobrazit(data)}
-        <Prepinatko bind:vec={list[i]} {t} {data} />
-    {:else if list[i] instanceof v.MultiZaskrtavatkova && list[i].zobrazit(data)}
-        <MultiZaskrtavatko {t} bind:vec={list[i]} {data} />
-    {:else if list[i] instanceof v.Zaskrtavatkova && list[i].zobrazit(data)}
-        <Zaskrtavatko {t} bind:vec={list[i]} {data} />
+    {:else}
+        <VecComponent bind:vec={list[i]} {t} {data} />
     {/if}
     {#if list[i] === data.ir.cisloBox && list[i].zobrazit(data) && typBOXu}
         <p>Rozpoznáno: {typBOXu}</p>

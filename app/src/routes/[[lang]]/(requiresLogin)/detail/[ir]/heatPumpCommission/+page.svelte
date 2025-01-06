@@ -10,27 +10,8 @@
 		type UDTC,
 		type UvedeniTC
 	} from '$lib/UvedeniTC';
-	import {
-		DvojVybiratkova,
-		MultiZaskrtavatkova,
-		Nadpisova,
-		Pisatkova,
-		Prepinatkova,
-		Radiova,
-		Textova,
-		Vybiratkova,
-		Zaskrtavatkova,
-		type Vec
-	} from '$lib/Vec.svelte';
-	import {
-		Pisatko,
-		DvojVybiratko,
-		Vybiratko,
-		Radio,
-		Prepinatko,
-		MultiZaskrtavatko,
-		Zaskrtavatko
-	} from '$lib/components/veci';
+	import { type Vec } from '$lib/Vec.svelte';
+	import VecComponent from '$lib/components/Vec.svelte';
 	import type { RawData } from '$lib/Data';
 	import { getToken } from '$lib/client/auth';
 	import { storable } from '$lib/helpers/stores';
@@ -126,25 +107,7 @@
 {#if evidence}
 	<FormHeader store={storedCommission} {t} title={t.commissioning} />
 	{#each list as _, i}
-		{#if list[i] instanceof Nadpisova && list[i].zobrazit(d)}
-			<h2>{t.get(list[i].nazev(d))}</h2>
-		{:else if list[i] instanceof Textova && list[i].zobrazit(d)}
-			<p>{t.get(list[i].nazev(d))}</p>
-		{:else if list[i] instanceof Pisatkova && list[i].zobrazit(d)}
-			<Pisatko bind:vec={list[i]} {t} data={d} />
-		{:else if list[i] instanceof DvojVybiratkova && list[i].zobrazit(d)}
-			<DvojVybiratko bind:vec={list[i]} {t} data={d} />
-		{:else if list[i] instanceof Vybiratkova && list[i].zobrazit(d)}
-			<Vybiratko bind:vec={list[i]} {t} data={d} />
-		{:else if list[i] instanceof Radiova && list[i].zobrazit(d)}
-			<Radio bind:vec={list[i]} {t} data={d} />
-		{:else if list[i] instanceof Prepinatkova && list[i].zobrazit(d)}
-			<Prepinatko bind:vec={list[i]} {t} data={d} />
-		{:else if list[i] instanceof MultiZaskrtavatkova && list[i].zobrazit(d)}
-			<MultiZaskrtavatko {t} bind:vec={list[i]} data={d} />
-		{:else if list[i] instanceof Zaskrtavatkova && list[i].zobrazit(d)}
-			<Zaskrtavatko {t} bind:vec={list[i]} data={d} />
-		{/if}
+		<VecComponent bind:vec={list[i]} {t} data={d} />
 	{/each}
 	<div class="d-inline-flex align-content-center">
 		{#if !vysledek.load}

@@ -26,7 +26,13 @@
 			return;
 		}
 		if (enabled == null && email.endsWith('@regulus.cz')) {
-			await authentication('createUser', { email });
+			if (email.split('@')[0].includes('.'))
+				await authentication('createUser', { email });
+			else {
+				odesila = false;
+				error = 'Prosím, použijte email se jménem i příjmením';
+				return;
+			}
 		} else if (enabled == null) {
 			odesila = false;
 			error = t.pleaseUseBuisnessEmail;

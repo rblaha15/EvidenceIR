@@ -26,10 +26,26 @@ export const checkAdmin = async () => {
 	return await checkAuth() && _checkAdmin(auth.currentUser!)
 }
 
+const _checkRegulus = (user: User) =>
+	user.email?.endsWith('@regulus.cz');
+
+export const checkRegulusOrAdmin = async () => {
+	await auth.authStateReady()
+	return await checkAuth() && (_checkRegulus(auth.currentUser!) || _checkAdmin(auth.currentUser!))
+}
+
 export const isUserAdmin = derived(
 	currentUser,
 	(user, set) => {
 		(async () => set(user != null ? await _checkAdmin(user) : false))();
+	},
+	false
+);
+
+export const isUserRegulusOrAdmin = derived(
+	currentUser,
+	(user, set) => {
+		(async () => set(user != null ? (await _checkRegulus(user) || await checkAdmin()) : false))();
 	},
 	false
 );

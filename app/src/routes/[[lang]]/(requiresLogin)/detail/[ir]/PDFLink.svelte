@@ -3,7 +3,7 @@
 	import { languageNames, type Translations } from '$lib/translations';
 	import type { PageData } from './$types';
 	import { getToken } from '$lib/client/auth';
-	import { pdfData } from '$lib/client/pdf';
+	import { pdfInfo } from '$lib/client/pdf';
 	import { type Pdf } from '$lib/client/pdf';
 	import { storable } from '$lib/helpers/stores';
 	import { getIsOnline } from '$lib/client/realtime';
@@ -28,7 +28,7 @@
 		children
 	}: Props = $props();
 
-	let pdf = $derived(pdfData[linkName]);
+	let pdf = $derived(pdfInfo[linkName]);
 	let defaultLanguage = $derived(pdf.supportedLanguages.includes(data.languageCode)
 		? data.languageCode
 		: pdf.supportedLanguages[0]);
