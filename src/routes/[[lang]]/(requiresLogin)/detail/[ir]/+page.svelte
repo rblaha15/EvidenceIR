@@ -130,7 +130,7 @@
             {#if !values.installationProtocol}
                 <button
                     class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2" onclick={
-                    () => (window.location.href = $relUrl(`/detail/${data.ir}/heatPumpCommission`))
+                    () => (window.location.href = $relUrl(`/detail/${data.ir}/sp`))
                 }>Vyplnit protokol</button>
             {/if}
         </PdfLink>
