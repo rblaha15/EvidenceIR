@@ -125,13 +125,13 @@
     {/if}
     <PdfLink name={t.routeGuide} {t} linkName="guide" {data} />
     {#if $isUserRegulusOrAdmin}
-        <PdfLink name="Instalační a servisní protokol" {data}
+        <PdfLink name="Protokol servisního zásahu" {data}
                  enabled={!!values.installationProtocol} {t} linkName="installationProtocol">
             {#if !values.installationProtocol}
                 <button
                     class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2" onclick={
                     () => (window.location.href = $relUrl(`/detail/${data.ir}/heatPumpCommission`))
-                }>{t.commission}</button>
+                }>Vyplnit protokol</button>
             {/if}
         </PdfLink>
     {/if}
