@@ -56,7 +56,7 @@ export const normalize = (s: string) => s
 
 export const defaultDataSP = (): DataSP => ({
     zasah: {
-        datum: new Pisatkova({ nazev: '', type: 'datetime-local', zobrazit: true }),
+        datum: new Pisatkova({ nazev: '', type: 'datetime-local', zobrazit: false }),
         clovek: new Pisatkova({ nazev: p`Jméno technika`, zobrazit: false, nutne: false }),
         doba: new Pisatkova({ nazev: p`Celková doba zásahu`, type: 'number', onError: `wrongNumberFormat` }),
         druh: new MultiZaskrtavatkova({
