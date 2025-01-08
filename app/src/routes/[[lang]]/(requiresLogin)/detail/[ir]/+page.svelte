@@ -185,22 +185,20 @@
         </PdfLink>
     {/if}
     {#if $isUserRegulusOrAdmin}
-        {#if values.installationProtocols}
-            <h4>Protokoly servisního zásahu</h4>
-        {/if}
+        <hr />
+        <h4 class="mt-2">Protokoly servisního zásahu</h4>
         {#each values.installationProtocols as p, i}
             {@const datum = p.zasah.datum.split('T')[0].split('-').join('/')}
             {@const hodina = p.zasah.datum.split('T')[1].split(':')[0]}
             {@const technik = $techniciansList.find(t => t.name === p.zasah.clovek)?.initials}
             <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true} />
-        {:else}
-            <PdfLink name="Protokol servisního zásahu" enabled={false} {data} {t} linkName="check" />
         {/each}
         <button class="btn btn-outline-info d-block mt-2"
                 onclick={() => window.location.href = $relUrl(`/detail/${data.ir}/sp`)}
         >Vyplnit protokol
         </button>
     {/if}
+    <hr />
     {#if $isUserRegulusOrAdmin}
         <a class="btn btn-outline-info mt-2" href={$relUrl(`/detail/${data.ir}/users`)}>
             Uživatelé s přístupem k této evidenci

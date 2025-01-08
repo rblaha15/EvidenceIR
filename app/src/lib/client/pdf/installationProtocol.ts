@@ -53,7 +53,7 @@ const installationProtocol = (i: number): GetPdfData => async (g, t) => {
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : { hasHP: false, isCascade: false, pumps: [] };
     const nahradniDily = [p.nahradniDil1, p.nahradniDil2, p.nahradniDil3].slice(0, p.nahradniDily.pocet)
     const cenaDopravy = cenik.transportation * Number(p.ukony.doprava);
-    const cenaPrace = cenik.work * Number(p.ukony.mnozstviPrace);
+    const cenaPrace = p.ukony.typPrace ? cenik.work * Number(p.ukony.mnozstviPrace) : 0;
     const cenaUkony = p.ukony.ukony.reduce((sum, typ) => sum + cena(typ), 0);
     const cenaDily = nahradniDily.reduce((sum, dil) => sum + Number(dil.jednotkovaCena) * Number(dil.mnozstvi), 0);
     const cenaOstatni = cenaUkony + cenaDily
@@ -87,7 +87,7 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
 /*          datum */ Text15: dateFromISO(p.zasah.datum),
 /*   datumUvedeni */ Text16: h ? dateFromISO(h?.uvadeni.date) : null,
 /*        technik */ Text17: p.zasah.clovek,
-/*     dobaZasahu */ Text18: p.zasah.doba,
+/*     dobaZasahu */ Text18: p.zasah.doba + ' h',
 /*           druh */ 'Zaškrtávací pole26': p.zasah.druh.includes(`commissioning`),
 /*           druh */ 'Zaškrtávací pole27': p.zasah.druh.includes(`sp.yearlyCheck`),
 /*           druh */ 'Zaškrtávací pole28': p.zasah.druh.includes(`sp.warrantyRepair`),
@@ -97,18 +97,18 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
 /*         zavada */ Text19: p.zasah.nahlasenaZavada,
 /*     dobaZasahu */ Text20: p.zasah.popis,
 /*     doprava-km */ Text21: p.ukony.doprava,
-/*  doprava-kc/km */ Text22: cenik.transportation.toFixed(2),
-/*       praceTyp */ 'Kombinované pole32': t.get(p.ukony.typPrace),
-/*       praceKod */ Text25: kod(p.ukony.typPrace).toString(),
-/*  praceMnozstvi */ Text23: p.ukony.mnozstviPrace,
-/*     prace-kc/h */ Text24: cenik.work.toFixed(2),
+/*  doprava-kc/km */ Text22: cenik.transportation.roundTo(2).toLocaleString('cs') + ' Kč',
+/*       praceTyp */ 'Kombinované pole32': t.get(p.ukony.typPrace) ?? ' ',
+/*       praceKod */ Text25: p.ukony.typPrace ? kod(p.ukony.typPrace).toString() : '',
+/*  praceMnozstvi */ Text23: p.ukony.typPrace ? p.ukony.mnozstviPrace : '',
+/*     prace-kc/h */ Text24: p.ukony.typPrace ? cenik.work.roundTo(2).toLocaleString('cs') + ' Kč' : '',
 /*       zamykani */ ...Object.fromEntries([...[26, 27, 28], ...Array.from({length: 18}, (_, i) => i + 36)].map(i => [`Text${i}`, ''])),
 /*       zamykani */ 'Kombinované pole33': ' ',
 /*       zamykani */ 'Kombinované pole34': ' ',
 /*       zamykani */ 'Kombinované pole35': ' ',
 /*          ukony */ ...Object.fromEntries([...p.ukony.ukony.map((typ, i) => [
     [poleProUkony[i].typ, t.get(typ)],
-    [poleProUkony[i].cena, cena(typ).toFixed(2) + ' Kč'],
+    [poleProUkony[i].cena, cena(typ).roundTo(2).toLocaleString('cs') + ' Kč'],
     [poleProUkony[i].kod, kod(typ).toString()],
 ])].flat()),
 /*   nahradniDily */ ...Object.fromEntries([...nahradniDily.map((dil, i) => [
@@ -117,11 +117,11 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
     [`Text${poleProDily[i] + 2}`, dil.mnozstvi],
     [`Text${poleProDily[i] + 4}`, dil.jednotkovaCena + ' Kč'],
 ])].flat()),
-/*    dopravaCena */ Text54: cenaDopravy.toFixed(2) + ' Kč',
-/*      praceCena */ Text55: cenaPrace.toFixed(2) + ' Kč',
-/*    ostatniCena */ Text56: cenaOstatni.toFixed(2) + ' Kč',
-/*     celkemCena */ Text57: celkem.toFixed(2) + ' Kč',
-/*  celkemCenaDPH */ Text58: (celkem * 1.21).toFixed(2) + ' Kč',
+/*    dopravaCena */ Text54: cenaDopravy.roundTo(2).toLocaleString('cs') + ' Kč',
+/*      praceCena */ Text55: cenaPrace.roundTo(2).toLocaleString('cs') + ' Kč',
+/*    ostatniCena */ Text56: cenaOstatni.roundTo(2).toLocaleString('cs') + ' Kč',
+/*     celkemCena */ Text57: celkem.roundTo(2).toLocaleString('cs') + ' Kč',
+/*  celkemCenaDPH */ Text58: (celkem * 1.21).roundTo(2).toLocaleString('cs') + ' Kč',
 /*                */ Text59: t.get(p.fakturace.hotove),
 /*                */ Text60: p.fakturace.hotove == 'no' ? 'Fakturovat:' : '',
 /*                */ Text61: p.fakturace.hotove == 'no' ? t.get(p.fakturace.komu) : '',

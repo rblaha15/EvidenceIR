@@ -58,3 +58,12 @@ Object.prototype.mapKeys = <typeof Object.mapKeys>function (callback) {
 		])
 	);
 };
+
+interface Number {
+	roundTo: (decimalPlaces?: number) => number
+}
+
+Number.prototype.roundTo = function (decimalPlaces = 0) {
+	const power = 10 ** decimalPlaces;
+	return Math.round(this as number * power) / power;
+}

@@ -7,11 +7,13 @@ import type { GetPdfData } from '$lib/server/pdf';
 export const cascadeDetails = (e: RawData, t: Translations) => ({
     isCascade: (e.tc.model2 ?? 'noPump') != 'noPump',
     pumps: [
-        [t.get(e.tc.model!), e.tc.cislo] as const,
-        [t.get(e.tc.model2!), e.tc.cislo2] as const,
-        [t.get(e.tc.model3!), e.tc.cislo3] as const,
-        [t.get(e.tc.model4!), e.tc.cislo4] as const
-    ].filter(([m]) => (m ?? 'noPump') != 'noPump')
+        [e.tc.model!, e.tc.cislo] as const,
+        [e.tc.model2!, e.tc.cislo2] as const,
+        [e.tc.model3!, e.tc.cislo3] as const,
+        [e.tc.model4!, e.tc.cislo4] as const
+    ]
+        .filter(([m]) => (m ?? 'noPump') != 'noPump')
+        .map(([m, c]) => [t.get(m), c] as const)
 });
 
 const check: GetPdfData = async ({ kontroly, evidence: e }, t) => {
