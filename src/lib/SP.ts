@@ -23,6 +23,7 @@ export type DataSP = {
         popis: Pisatkova<UDSP>,
     },
     ukony: {
+        nadpis: Nadpisova<UDSP>,
         doprava: Pisatkova<UDSP>,
         typPrace: Radiova<UDSP>,
         mnozstviPrace: Pisatkova<UDSP>,
@@ -42,38 +43,37 @@ export type DataSP = {
     },
 }
 
-const nahradniDl = (zobrazit: (d: UDSP) => boolean): NahradniDil => ({
-    nazev: new Pisatkova({ nazev: p`Název položky`, zobrazit, nutne: zobrazit }),
-    kod: new Pisatkova({ nazev: p`Kód položky`, type: `number`, onError: `wrongNumberFormat`, zobrazit, nutne: zobrazit }),
-    mnozstvi: new Pisatkova({ nazev: p`Množství`, type: `number`, onError: `wrongNumberFormat`, zobrazit, nutne: zobrazit }),
-    jednotkovaCena: new Pisatkova({ nazev: p`Jednotková cena`, type: `number`, onError: `wrongNumberFormat`, zobrazit, nutne: zobrazit }),
+const nahradniDil = (zobrazit: (d: UDSP) => boolean): NahradniDil => ({
+    nazev: new Pisatkova({ nazev: p`Název položky`, zobrazit, nutne: false }),
+    kod: new Pisatkova({ nazev: p`Kód položky`, type: `number`, onError: `wrongNumberFormat`, zobrazit, nutne: false }),
+    mnozstvi: new Pisatkova({ nazev: p`Množství`, type: `number`, onError: `wrongNumberFormat`, zobrazit, nutne: false }),
+    jednotkovaCena: new Pisatkova({ nazev: p`Jednotková cena`, type: `number`, onError: `wrongNumberFormat`, zobrazit, nutne: false }),
 });
-
-export const normalize = (s: string) => s
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase();
 
 export const defaultDataSP = (): DataSP => ({
     zasah: {
         datum: new Pisatkova({ nazev: '', type: 'datetime-local', zobrazit: false }),
         clovek: new Pisatkova({ nazev: p`Jméno technika`, zobrazit: false, nutne: false }),
-        doba: new Pisatkova({ nazev: p`Celková doba zásahu`, type: 'number', onError: `wrongNumberFormat` }),
+        doba: new Pisatkova({ nazev: p`Celková doba zásahu (hodin)`, type: 'number', onError: `wrongNumberFormat` }),
         druh: new MultiZaskrtavatkova({
             nazev: p`Druh zásahu`,
             moznosti: [`commissioning`, `sp.yearlyCheck`, `sp.warrantyRepair`, `sp.postWarrantyRepair`, `sp.installationApproval`, `sp.otherType`]
         }),
         nahlasenaZavada: new Pisatkova({ nazev: p`Nahlášená závada`, nutne: false }),
-        popis: new Pisatkova({ nazev: p`Popis zásahu` })
+        popis: new Pisatkova({ nazev: p`Popis zásahu`, nutne: false })
     },
     ukony: {
+        nadpis: new Nadpisova({ nazev: p`Vyúčtování` }),
         doprava: new Pisatkova({ nazev: p`Doprava (km)`, type: 'number', onError: `wrongNumberFormat` }),
-        typPrace: new Radiova({ nazev: p`Typ práce`, moznosti: [`sp.technicalAssistance`, `sp.assemblyWork`] }),
-        mnozstviPrace: new Pisatkova({ nazev: p`Počet hodin práce`, type: 'number', onError: `wrongNumberFormat` }),
+        typPrace: new Radiova({ nazev: p`Typ práce`, moznosti: [`sp.technicalAssistance`, `sp.assemblyWork`], nutne: false }),
+        mnozstviPrace: new Pisatkova({
+            nazev: p`Počet hodin práce`, type: 'number', onError: `wrongNumberFormat`,
+            zobrazit: d => d.protokol.ukony.typPrace.value != null, nutne: d => d.protokol.ukony.typPrace.value != null
+        }),
         ukony: new MultiZaskrtavatkova({
             nazev: p`Pracovní úkony (max. 3)`, max: 3, nutne: false, moznosti: [
-                `sp.regulusRoute`, `sp.extendedWarranty`, `sp.commissioningTC`, `sp.installationApproval`,
-                `sp.commissioningSOL`, `yearlyHPCheck`, `sp.yearlySOLCheck`,
+                `sp.regulusRoute`, `sp.commissioningTC`, `sp.commissioningSOL`, `yearlyHPCheck`,
+                `sp.yearlySOLCheck`, `sp.extendedWarranty`, `sp.installationApproval`,
             ]
         }),
     },
@@ -81,17 +81,17 @@ export const defaultDataSP = (): DataSP => ({
         nadpis: new Nadpisova({ nazev: p`Použité náhradní díly` }),
         pocet: new Pocitatkova({ nazev: p`Počet náhradních dílů`, min: 0, max: 3, vybrano: 0 }),
     },
-    nahradniDil1: nahradniDl(d => d.protokol.nahradniDily.pocet.value >= 1),
-    nahradniDil2: nahradniDl(d => d.protokol.nahradniDily.pocet.value >= 2),
-    nahradniDil3: nahradniDl(d => d.protokol.nahradniDily.pocet.value >= 3),
+    nahradniDil1: nahradniDil(d => d.protokol.nahradniDily.pocet.value >= 1),
+    nahradniDil2: nahradniDil(d => d.protokol.nahradniDily.pocet.value >= 2),
+    nahradniDil3: nahradniDil(d => d.protokol.nahradniDily.pocet.value >= 3),
     fakturace: {
         hotove: new Vybiratkova({ nazev: p`Placeno hotově`, moznosti: ['yes', 'no', 'doNotInvoice'] }),
         komu: new Radiova({
-            nazev: p`Komu`, moznosti: [p`Investor`, `assemblyCompany`],
+            nazev: p`Komu fakturovat`, moznosti: [p`Investor`, `assemblyCompany`],
             nutne: d => d.protokol.fakturace.hotove.value == 'no', zobrazit: d => d.protokol.fakturace.hotove.value == 'no',
         }),
         jak: new Radiova({
-            nazev: p`Fa`, moznosti: [p`Hotově`, p`Elektronicky`],
+            nazev: p`Fakturovat`, moznosti: [p`Papírově`, p`Elektronicky`],
             nutne: d => d.protokol.fakturace.hotove.value == 'no', zobrazit: d => d.protokol.fakturace.hotove.value == 'no',
         }),
     },
