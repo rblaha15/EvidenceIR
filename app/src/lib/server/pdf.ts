@@ -4,7 +4,7 @@ import fontkit from '@pdf-lib/fontkit';
 import type { DocumentSnapshot } from 'firebase-admin/firestore';
 import { getTranslations, type Translations } from '$lib/translations';
 import type { LanguageCode } from '$lib/languages';
-import type { Pdf, PdfArgs } from '$lib/client/pdf';
+import { type Pdf, type PdfArgs, toPdfTypeName } from '$lib/client/pdf';
 import { evidence } from '$lib/server/firestore';
 import { type IR } from '$lib/client/firestore';
 import check from '$lib/client/pdf/check';
@@ -20,20 +20,21 @@ const node_fetch = fetch;
 export type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole'
 export type GetPdfData = (data: IR, t: Translations) => Promise<{
     [fieldName in `${PdfFieldType}${number}`]: (fieldName extends `Zaškrtávací pole${number}` ? boolean : string) | null;
+} & {
+    fileName?: string;
 }>;
-export const getPdfData: {
-    [P in Pdf]: GetPdfData;
-} = {
-    check,
-    warranty: warranty(0),
-    warranty2: warranty(1),
-    warranty3: warranty(2),
-    warranty4: warranty(3),
-    rroute,
-    guide,
-    heatPumpCommissionProtocol,
-    solarCollectorCommissionProtocol,
-    installationProtocol,
+export const getPdfData = (
+    link: Pdf,
+) => {
+    const t = toPdfTypeName(link)
+    if (t == 'check') return check;
+    if (t == 'warranty') return warranty(Number(link.split('-')[1] || '1') - 1);
+    if (t == 'rroute') return rroute;
+    if (t == 'guide') return guide;
+    if (t == 'heatPumpCommissionProtocol') return heatPumpCommissionProtocol;
+    if (t == 'solarCollectorCommissionProtocol') return solarCollectorCommissionProtocol;
+    if (t == 'installationProtocol') return installationProtocol(Number(link.split('-')[1]));
+    throw 'Invalid link name'
 };
 
 export const generatePdf = async (lang: LanguageCode, ir: string, fetch: typeof node_fetch, args: PdfArgs, getData: GetPdfData) => {
@@ -62,6 +63,9 @@ export const generatePdf = async (lang: LanguageCode, ir: string, fetch: typeof 
     const form = pdfDoc.getForm()
 
     const formData = await getData(data, t);
+
+    const fileName = formData.fileName ?? t.get(args.fileName);
+    formData.fileName = undefined;
 
     for (const fieldName in formData) {
         const name = fieldName as `${PdfFieldType}${number}`
@@ -130,7 +134,7 @@ export const generatePdf = async (lang: LanguageCode, ir: string, fetch: typeof 
     const Writer = useObjectStreams ? PDFStreamWriter : PDFWriter;
     const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer();
 
-    const encodedName = encodeURIComponent(t.get(args.fileName));
+    const encodedName = encodeURIComponent(fileName);
     const encodedTitle = encodeURIComponent(t.get(args.title));
 
     return new Response(pdfBytes, {

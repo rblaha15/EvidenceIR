@@ -25,7 +25,7 @@
 	const ir = data.ir;
 	const t = data.translations;
 
-	const storedCommission = storable<RawUvedeniTC>(`stored_commission_${ir}`);
+	const storedCommission = storable<RawUvedeniTC>(`stored_heat_pump_commission_${ir}`);
 
 	let u: UvedeniTC = $state(defaultUvedeniTC());
 	let evidence = $state() as RawData;
