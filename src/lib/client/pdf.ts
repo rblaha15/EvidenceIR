@@ -3,18 +3,17 @@ import type { TranslationReference } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
 import { p } from '$lib/Vec.svelte';
 
-const warranty = {
-    formName: 'warranty',
-    supportedLanguages: ['cs', 'de'],
-    title: `hpWarranty`,
-    fileName: `warrantyFileName`,
-} as PdfArgs
+export const toPdfTypeName = (linkName: Pdf) =>
+    linkName.split('-')[0] as PdfTypeName;
 
 export type Pdf =
-    | 'check' | 'warranty' | 'warranty2' | 'warranty3' | 'warranty4' | 'rroute' | 'guide'
-    | 'heatPumpCommissionProtocol' | 'solarCollectorCommissionProtocol' | 'installationProtocol';
+    | 'check' | `warranty-${'' | 2 | 3 | 4}` | 'rroute' | 'guide'
+    | 'heatPumpCommissionProtocol' | 'solarCollectorCommissionProtocol' | `installationProtocol-${number}`;
+type PdfTypeName = {
+    [P in Pdf]: P extends `${infer S}-${string}` ? S : P;
+}[Pdf]
 export type PdfInfo = {
-    [P in Pdf]: PdfArgs;
+    [P in PdfTypeName]: PdfArgs;
 };
 export const pdfInfo: PdfInfo = {
     check: {
@@ -23,10 +22,12 @@ export const pdfInfo: PdfInfo = {
         title: `yearlyCheckTitle`,
         fileName: `yearlyCheckFileName`,
     },
-    warranty: warranty,
-    warranty2: warranty,
-    warranty3: warranty,
-    warranty4: warranty,
+    warranty: {
+        formName: 'warranty',
+        supportedLanguages: ['cs', 'de'],
+        title: `hpWarranty`,
+        fileName: `warrantyFileName`,
+    },
     rroute: {
         formName: 'rroute',
         supportedLanguages: ['cs', 'de'],

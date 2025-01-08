@@ -44,8 +44,11 @@ const poleProUkony = [
 
 const poleProDily = [39, 44, 49]
 
-const installationProtocol: GetPdfData = async ({ evidence: e, uvedeniTC: h, installationProtocol }, t) => {
-    const p = installationProtocol!
+const installationProtocol = (i: number): GetPdfData => async (g, t) => {
+    console.log(g)
+    const { evidence: e, uvedeniTC: h, installationProtocols } = g
+    console.log(installationProtocols)
+    const p = installationProtocols[i]
     const montazka = await nazevAdresaFirmy(e.montazka.ico, fetch);
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : { hasHP: false, isCascade: false, pumps: [] };
     const nahradniDily = [p.nahradniDil1, p.nahradniDil2, p.nahradniDil3].slice(0, p.nahradniDily.pocet)
@@ -54,13 +57,15 @@ const installationProtocol: GetPdfData = async ({ evidence: e, uvedeniTC: h, ins
     const cenaUkony = p.ukony.ukony.reduce((sum, typ) => sum + cena(typ), 0);
     const cenaDily = nahradniDily.reduce((sum, dil) => sum + Number(dil.jednotkovaCena) * Number(dil.mnozstvi), 0);
     const cenaOstatni = cenaUkony + cenaDily
-    const celkem = cenaDopravy + cenaPrace + cenaPrace
+    const celkem = cenaDopravy + cenaPrace + cenaOstatni;
     const datum = p.zasah.datum.split('T')[0].split('-').join('/')
     const hodina = p.zasah.datum.split('T')[1].split(':')[0]
     const technici = await technicians();
+    const technik = technici.find(t => t.name == p.zasah.clovek)!.initials;
 
     return {
-/*             id */ Text1: `${technici.find(t => t.name == p.zasah.clovek)!.initials} ${datum}-${hodina}`,
+        fileName: `SP-${technik}-${datum.replace('/', '_')}-${hodina}`,
+/*             id */ Text1: `${technik} ${datum}-${hodina}`,
 /*    koncakJmeno */ Text2: `${e.koncovyUzivatel.prijmeni} ${e.koncovyUzivatel.jmeno}`,
 /* koncakNarozeni */ Text3: e.koncovyUzivatel.narozeni.length == 0 ? null : e.koncovyUzivatel.narozeni,
 /*       bydliste */ Text4: `${e.bydliste.ulice}, ${e.bydliste.psc} ${e.bydliste.obec}`,

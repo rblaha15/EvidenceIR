@@ -9,10 +9,12 @@
     import { nazevIR } from '$lib/Data';
     import type { RawUvedeniTC } from '$lib/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
-    import { getIsOnline } from '$lib/client/realtime';
+    import { getIsOnline, startTechniciansListening, techniciansList } from '$lib/client/realtime';
     import { addToHistory, removeFromHistory } from '$lib/History';
     import { HistoryEntry } from '$lib/History.js';
     import { page } from '$app/stores';
+    import type { RawUvedeniSOL } from '$lib/UvedeniSOL';
+    import type { RawDataSP } from '$lib/SP';
 
     interface Props {
         data: PageData;
@@ -23,6 +25,8 @@
 
     const deleted = $page.url.searchParams.has('deleted');
     const storedHeatPumpCommission = storable<RawUvedeniTC>(`stored_heat_pump_commission_${data.ir}`);
+    const storedSolarCollectorCommission = storable<RawUvedeniSOL>(`stored_solar_collector_commission_${data.ir}`);
+    const storedSpCommission = storable<RawDataSP>(`stored_sp_${data.ir}`);
 
     let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
     let values = $state() as IR;
@@ -31,6 +35,7 @@
 
         type = 'loading';
         await checkAuth();
+        await startTechniciansListening();
 
         try {
             let snapshot = await evidence(data.ir as string);
@@ -40,15 +45,17 @@
             }
             values = snapshot.data();
             type = 'loaded';
+
         } catch (e) {
             console.log((e as FirebaseError).code);
             if ((e as FirebaseError).code == 'unavailable' && !getIsOnline()) type = 'offline';
             else type = 'noAccess';
             return;
         }
-        if ($storedHeatPumpCommission != undefined && values.uvedeniTC != undefined) {
+        if ($storedHeatPumpCommission != undefined && values.uvedeniTC != undefined)
             storedHeatPumpCommission.set(undefined);
-        }
+        if ($storedSolarCollectorCommission != undefined && values.uvedeniSOL != undefined)
+            storedSolarCollectorCommission.set(undefined);
         addToHistory(historyEntry);
     });
 
@@ -124,29 +131,18 @@
         <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
     {/if}
     <PdfLink name={t.routeGuide} {t} linkName="guide" {data} />
-    {#if $isUserRegulusOrAdmin}
-        <PdfLink name="Protokol servisního zásahu" {data}
-                 enabled={!!values.installationProtocol} {t} linkName="installationProtocol">
-            {#if !values.installationProtocol}
-                <button
-                    class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2" onclick={
-                    () => (window.location.href = $relUrl(`/detail/${data.ir}/sp`))
-                }>Vyplnit protokol</button>
-            {/if}
-        </PdfLink>
-    {/if}
     {#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
         {#if (values.evidence.tc.model2 ?? 'noPump') === 'noPump'}
-            <PdfLink name={t.warranty} {t} linkName="warranty" {data} />
+            <PdfLink name={t.warranty} {t} linkName="warranty-" {data} />
         {:else}
-            <PdfLink name={t.warranty1} {t} linkName="warranty" {data} />
-            <PdfLink name={t.warranty2} {t} linkName="warranty2" {data} />
+            <PdfLink name={t.warranty1} {t} linkName="warranty-" {data} />
+            <PdfLink name={t.warranty2} {t} linkName="warranty-2" {data} />
         {/if}
         {#if (values.evidence.tc.model3 ?? 'noPump') !== 'noPump'}
-            <PdfLink name={t.warranty3} {t} linkName="warranty3" {data} />
+            <PdfLink name={t.warranty3} {t} linkName="warranty-3" {data} />
         {/if}
         {#if (values.evidence.tc.model4 ?? 'noPump') !== 'noPump'}
-            <PdfLink name={t.warranty4} {t} linkName="warranty4" {data} />
+            <PdfLink name={t.warranty4} {t} linkName="warranty-4" {data} />
         {/if}
         <PdfLink
             enabled={values.uvedeniTC !== undefined}
@@ -189,9 +185,26 @@
         </PdfLink>
     {/if}
     {#if $isUserRegulusOrAdmin}
-        <a class="btn btn-outline-info mt-2" href={$relUrl(`/detail/${data.ir}/users`)}
-        >Uživatelé s přístupem k této evidenci</a
-        >
+        {#if values.installationProtocols}
+            <h4>Protokoly servisního zásahu</h4>
+        {/if}
+        {#each values.installationProtocols as p, i}
+            {@const datum = p.zasah.datum.split('T')[0].split('-').join('/')}
+            {@const hodina = p.zasah.datum.split('T')[1].split(':')[0]}
+            {@const technik = $techniciansList.find(t => t.name === p.zasah.clovek)?.initials}
+            <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true} />
+        {:else}
+            <PdfLink name="Protokol servisního zásahu" enabled={false} {data} {t} linkName="check" />
+        {/each}
+        <button class="btn btn-outline-info d-block mt-2"
+                onclick={() => window.location.href = $relUrl(`/detail/${data.ir}/sp`)}
+        >Vyplnit protokol
+        </button>
+    {/if}
+    {#if $isUserRegulusOrAdmin}
+        <a class="btn btn-outline-info mt-2" href={$relUrl(`/detail/${data.ir}/users`)}>
+            Uživatelé s přístupem k této evidenci
+        </a>
     {/if}
     {#if change === 'no'}
         <button class="btn btn-outline-warning d-block mt-2" onclick={() => (change = 'input')}
@@ -210,8 +223,7 @@
             </label>
             <div class="btn-group ms-sm-2 mt-2 mt-sm-0">
                 <button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
-                <button class="btn btn-outline-secondary" onclick={() => (change = 'no')}>{t.cancel}</button
-                >
+                <button class="btn btn-outline-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>
             </div>
         </div>
     {:else if change === 'sending'}

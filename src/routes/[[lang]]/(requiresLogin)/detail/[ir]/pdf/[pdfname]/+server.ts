@@ -1,5 +1,5 @@
 import { generatePdf, getPdfData } from '$lib/server/pdf';
-import { pdfInfo } from "$lib/client/pdf";
+import { pdfInfo, toPdfTypeName } from '$lib/client/pdf';
 import { type Pdf } from "$lib/client/pdf";
 import { checkToken } from '$lib/server/auth';
 import type { RequestHandler } from './$types';
@@ -20,8 +20,8 @@ export const GET: RequestHandler = async ({ url, fetch, params }) => {
 
     if (pdfName !in Object.keys(pdfInfo)) return error(404)
 
-    const pdfArgs = pdfInfo[pdfName];
-    const getData = getPdfData[pdfName];
+    const pdfArgs = pdfInfo[toPdfTypeName(pdfName)];
+    const getData = getPdfData(pdfName);
 
     if (pdfArgs.requiredAdmin && !checkAdmin(token) || pdfArgs.requiredRegulus && !checkRegulusOrAdmin(token))
         return error(402);

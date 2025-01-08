@@ -25,7 +25,7 @@
     const ir = data.ir;
     const t = data.translations;
 
-    const storedCommission = storable<RawUvedeniSOL>(`stored_commission_${ir}`);
+    const storedCommission = storable<RawUvedeniSOL>(`stored_solar_collector_commission_${ir}`);
 
     let u: UvedeniSOL = $state(defaultUvedeniSOL());
     let evidence = $state() as RawData;
