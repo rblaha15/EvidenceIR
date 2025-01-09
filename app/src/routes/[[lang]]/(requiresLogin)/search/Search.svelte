@@ -2,6 +2,7 @@
     import type { Translations } from '$lib/translations';
     import { wordsToFilter } from '../new/companies';
     import { nazevSHvezdou, type SearchWidget } from '$lib/Vec.svelte';
+    import { browser } from '$app/environment';
 
     interface Props {
         t: Translations;
@@ -24,6 +25,8 @@
         ) ?? []
     );
     let hidden = $state(true);
+
+    const wide = browser ? window.matchMedia('(min-width: 768px)').matches : false;
 </script>
 
 <div class="position-relative mb-2">
@@ -69,7 +72,8 @@
                     }}
                 >
                     {#each searchItem.pieces as piece}
-                        <p class="mb-0" style="flex: none; width: {(piece.width ?? 1 / searchItem.pieces.length) * 100}%"
+                        <p class="mb-0 w-md-100"
+                           style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                         >{t.get(piece.text)}</p>
                     {/each}
                 </a>
@@ -81,11 +85,12 @@
         {@const searchItem = widget.getSearchItem(widget.value)}
         <div class="list-group w-100 position-absolute z-2 selected">
             <div
-                class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
+                class="list-group-item-action list-group-item d-flex flex-column flex-md-row align-items-md-center"
                 class:rt-0={true}
             >
-                {#each searchItem.pieces as piece}
-                    <p class="mb-0 me-1" style="flex: none; width: {(piece.width ?? 1 / searchItem.pieces.length) * 100}%"
+                {#each searchItem.pieces as piece, j}
+                    <p class="mb-0 me-1 d-md-block" class:d-none={j !== 0}
+                       style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                     >{t.get(piece.text)}</p>
                 {/each}
             </div>
@@ -118,8 +123,11 @@
 
             p {
                 white-space: nowrap;
-                text-overflow: ellipsis;
                 overflow: hidden;
+            }
+
+            p:first-child {
+                text-overflow: ellipsis;
             }
         }
     }
