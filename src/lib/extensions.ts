@@ -34,9 +34,9 @@ Object.defineProperties(Object.prototype, {
 Object.recursiveKeys = (o: {}): string[] =>
 	Object.entries(o).map(([key, value]) =>
 		typeof value === 'object' && !Array.isArray(value) && value !== null
-			? `${key}.${Object.recursiveKeys(value)}`
-			: key
-	);
+			? Object.recursiveKeys(value).map(it => `${key}.${it}`)
+			: [key]
+	).flat();
 Object.prototype.mapEntries = <typeof Object.mapEntries>function (callback) {
 	return Object.fromEntries(
 		Object.entries(this).map(([key, value], index, array) => callback(key, value, index, array))

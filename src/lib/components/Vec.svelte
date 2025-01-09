@@ -6,7 +6,7 @@
         Nadpisova,
         Pisatkova, Pocitatkova,
         Prepinatkova,
-        Radiova,
+        Radiova, SearchWidget,
         Textova,
         type Vec,
         Vybiratkova, Zaskrtavatkova,
@@ -19,6 +19,7 @@
     import MultiZaskrtavatko from '$lib/components/veci/MultiZaskrtavatko.svelte';
     import Zaskrtavatko from '$lib/components/veci/Zaskrtavatko.svelte';
     import Pocitatko from '$lib/components/veci/Pocitatko.svelte';
+    import Search from '../../routes/[[lang]]/(requiresLogin)/search/Search.svelte';
 
     type D = $$Generic
 
@@ -36,19 +37,21 @@
 {:else if vec instanceof Textova && vec.zobrazit(data)}
     <p>{t.get(vec.nazev(data))}</p>
 {:else if vec instanceof Pisatkova && vec.zobrazit(data)}
-    <Pisatko bind:vec={vec} {t} data={data} />
+    <Pisatko bind:vec {t} {data} />
 {:else if vec instanceof DvojVybiratkova && vec.zobrazit(data)}
-    <DvojVybiratko bind:vec={vec} {t} data={data} />
+    <DvojVybiratko bind:vec {t} {data} />
 {:else if vec instanceof Vybiratkova && vec.zobrazit(data)}
-    <Vybiratko bind:vec={vec} {t} data={data} />
+    <Vybiratko bind:vec {t} {data} />
 {:else if vec instanceof Radiova && vec.zobrazit(data)}
-    <Radio bind:vec={vec} {t} data={data} />
+    <Radio bind:vec {t} {data} />
 {:else if vec instanceof Prepinatkova && vec.zobrazit(data)}
-    <Prepinatko bind:vec={vec} {t} data={data} />
+    <Prepinatko bind:vec {t} {data} />
 {:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit(data)}
-    <MultiZaskrtavatko {t} bind:vec={vec} data={data} />
+    <MultiZaskrtavatko {t} bind:vec {data} />
 {:else if vec instanceof Zaskrtavatkova && vec.zobrazit(data)}
-    <Zaskrtavatko {t} bind:vec={vec} data={data} />
+    <Zaskrtavatko {t} bind:vec {data} />
 {:else if vec instanceof Pocitatkova && vec.zobrazit(data)}
-    <Pocitatko {t} bind:vec={vec} data={data} />
+    <Pocitatko {t} bind:vec {data} />
+{:else if vec instanceof SearchWidget && vec.zobrazit(data)}
+    <Search {t} bind:widget={vec} {data} />
 {/if}

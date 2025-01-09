@@ -40,7 +40,7 @@ export default (): Data => ({
                 mask: `0000000-0000000`
             },
             zobrazit: (data) => data.ir.typ.value.first?.includes(`BOX`) ?? false,
-            nutne: (data) => data.ir.typ.value.first?.includes(`BOX`) ?? false
+            required: (data) => data.ir.typ.value.first?.includes(`BOX`) ?? false
         }),
         chceVyplnitK: new MultiZaskrtavatkova({
             nazev: `whatToAddInfoTo`,
@@ -48,7 +48,7 @@ export default (): Data => ({
                 `heatPump`,
                 `solarCollector` //fve
             ],
-            nutne: false, showInXML: false
+            required: false, showInXML: false
         })
     },
     tc: {
@@ -64,7 +64,7 @@ export default (): Data => ({
         typ: new Radiova({
             nazev: (data) => (data.tc.model2.value != `noPump` ? `heatPumpsType` : `heatPumpType`),
             moznosti: [`airToWater`, `groundToWater`],
-            nutne: (data) => data.ir.chceVyplnitK.value.includes(`heatPump`),
+            required: (data) => data.ir.chceVyplnitK.value.includes(`heatPump`),
             zobrazit: (data) =>
                 data.ir.typ.value.second == p`CTC` && data.ir.chceVyplnitK.value.includes(`heatPump`)
         }),
@@ -94,7 +94,7 @@ export default (): Data => ({
                             p`EcoPart 417`,
                             p`EcoPart 435`
                         ],
-            nutne: (data) => data.ir.chceVyplnitK.value.includes(`heatPump`),
+            required: (data) => data.ir.chceVyplnitK.value.includes(`heatPump`),
             zobrazit: (data) =>
                 data.ir.typ.value.second != null &&
                 (data.ir.typ.value.second == p`RTC` || data.tc.typ.value != null) &&
@@ -111,7 +111,7 @@ export default (): Data => ({
                     ? /^\d{4}-\d{4}-\d{4}$/
                     : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
             capitalize: true,
-            nutne: (data) => data.ir.chceVyplnitK.value.includes(`heatPump`),
+            required: (data) => data.ir.chceVyplnitK.value.includes(`heatPump`),
             maskOptions: (data) => ({
                 mask: data.ir.typ.value.second == p`CTC` ? `0000-0000-0000` : `AA0000-AA-0000`,
                 definitions: {
@@ -124,7 +124,7 @@ export default (): Data => ({
         model2: new Vybiratkova({
             nazev: `heatPumpModel2`,
             moznosti: (data) => [`noPump`, ...data.tc.model.moznosti(data)],
-            nutne: false,
+            required: false,
             vybrano: `noPump`,
             zobrazit: (data) => data.tc.model.zobrazit(data) && data.tc.model.value != null
         }),
@@ -133,14 +133,14 @@ export default (): Data => ({
             onError: `wrongNumberFormat`,
             regex: (data) => data.tc.cislo.regex(data),
             capitalize: true,
-            nutne: (data) => data.tc.cislo.zobrazit(data) && data.tc.model2.value != `noPump`,
+            required: (data) => data.tc.cislo.zobrazit(data) && data.tc.model2.value != `noPump`,
             maskOptions: (data) => data.tc.cislo.maskOptions(data),
             zobrazit: (data) => data.tc.cislo.zobrazit(data) && data.tc.model2.value != `noPump`
         }),
         model3: new Vybiratkova({
             nazev: `heatPumpModel3`,
             moznosti: (data) => [`noPump`, ...data.tc.model.moznosti(data)],
-            nutne: false,
+            required: false,
             vybrano: `noPump`,
             zobrazit: (data) => data.tc.model.zobrazit(data) && data.tc.model2.value != `noPump`
         }),
@@ -149,14 +149,14 @@ export default (): Data => ({
             onError: `wrongNumberFormat`,
             regex: (data) => data.tc.cislo.regex(data),
             capitalize: true,
-            nutne: (data) => data.tc.cislo.zobrazit(data) && data.tc.model3.value != `noPump`,
+            required: (data) => data.tc.cislo.zobrazit(data) && data.tc.model3.value != `noPump`,
             maskOptions: (data) => data.tc.cislo.maskOptions(data),
             zobrazit: (data) => data.tc.cislo.zobrazit(data) && data.tc.model3.value != `noPump`
         }),
         model4: new Vybiratkova({
             nazev: `heatPumpModel4`,
             moznosti: (data) => [`noPump`, ...data.tc.model.moznosti(data)],
-            nutne: false,
+            required: false,
             vybrano: `noPump`,
             zobrazit: (data) => data.tc.model.zobrazit(data) && data.tc.model3.value != `noPump`
         }),
@@ -165,7 +165,7 @@ export default (): Data => ({
             onError: `wrongNumberFormat`,
             regex: (data) => data.tc.cislo.regex(data),
             capitalize: true,
-            nutne: (data) => data.tc.cislo.zobrazit(data) && data.tc.model4.value != `noPump`,
+            required: (data) => data.tc.cislo.zobrazit(data) && data.tc.model4.value != `noPump`,
             maskOptions: (data) => data.tc.cislo.maskOptions(data),
             zobrazit: (data) => data.tc.cislo.zobrazit(data) && data.tc.model4.value != `noPump`,
         })
@@ -177,13 +177,13 @@ export default (): Data => ({
         }),
         typ: new Pisatkova({
             nazev: `solarCollectorType`,
-            nutne: (data) => data.ir.chceVyplnitK.value.includes(`solarCollector`),
+            required: (data) => data.ir.chceVyplnitK.value.includes(`solarCollector`),
             zobrazit: (data) => data.ir.chceVyplnitK.value.includes(`solarCollector`)
         }),
         pocet: new Pisatkova({
             nazev: `solarCollectorCount`,
             type: `number`,
-            nutne: (data) => data.ir.chceVyplnitK.value.includes(`solarCollector`),
+            required: (data) => data.ir.chceVyplnitK.value.includes(`solarCollector`),
             zobrazit: (data) => data.ir.chceVyplnitK.value.includes(`solarCollector`)
         })
     },
@@ -199,7 +199,7 @@ export default (): Data => ({
             onError: `wrongDateFormat`,
             regex: /^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?[0-9]{4}$/,
             autocomplete: `bday`,
-            nutne: false
+            required: false
         }),
         telefon: new Pisatkova({
             nazev: `phone`,
@@ -235,10 +235,10 @@ export default (): Data => ({
     },
     mistoRealizace: {
         nadpis: new Nadpisova({ nazev: `roalizationLocation` }),
-        jakoBydliste: new Zaskrtavatkova({ nazev: `realisedAtResidence`, nutne: false, showInXML: false }),
+        jakoBydliste: new Zaskrtavatkova({ nazev: `realisedAtResidence`, required: false, showInXML: false }),
         ulice: new Pisatkova({
             nazev: `street`,
-            nutne: false,
+            required: false,
             autocomplete: `section-realization shipping address-level2`,
             zobrazit: (data) => !data.mistoRealizace.jakoBydliste.value
         }),
@@ -246,7 +246,7 @@ export default (): Data => ({
             nazev: `town`,
             autocomplete: `section-realization shipping address-level1`,
             zobrazit: (data) => !data.mistoRealizace.jakoBydliste.value,
-            nutne: (data) => !data.mistoRealizace.jakoBydliste.value
+            required: (data) => !data.mistoRealizace.jakoBydliste.value
         }),
         psc: new Pisatkova({
             nazev: `zip`,
@@ -257,7 +257,7 @@ export default (): Data => ({
             },
             autocomplete: `section-realization shipping postal-code`,
             zobrazit: (data) => !data.mistoRealizace.jakoBydliste.value,
-            nutne: (data) => !data.mistoRealizace.jakoBydliste.value
+            required: (data) => !data.mistoRealizace.jakoBydliste.value
         })
     },
     montazka: {
@@ -290,7 +290,7 @@ export default (): Data => ({
     },
     uvedeni: {
         nadpis: new Nadpisova({ nazev: `commissioning` }),
-        jakoMontazka: new Zaskrtavatkova({ nazev: `commissionedByAssemblyCompany`, nutne: false, showInXML: false }),
+        jakoMontazka: new Zaskrtavatkova({ nazev: `commissionedByAssemblyCompany`, required: false, showInXML: false }),
         ico: new Pisatkova({
             nazev: `crn`,
             onError: `wrongCRNFormat`,
@@ -299,7 +299,7 @@ export default (): Data => ({
                 mask: `00000000[00]`
             },
             zobrazit: (data) => !data.uvedeni.jakoMontazka.value,
-            nutne: (data) => !data.uvedeni.jakoMontazka.value
+            required: (data) => !data.uvedeni.jakoMontazka.value
         }),
         zastupce: new Pisatkova({
             nazev: `representativeName`,
@@ -310,7 +310,7 @@ export default (): Data => ({
             onError: `wrongEmailFormat`,
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             zobrazit: (data) => !data.uvedeni.jakoMontazka.value,
-            nutne: (data) => !data.uvedeni.jakoMontazka.value,
+            required: (data) => !data.uvedeni.jakoMontazka.value,
             autocomplete: `section-commissioning billing work email`
         }),
         telefon: new Pisatkova({
@@ -319,24 +319,24 @@ export default (): Data => ({
             regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
             type: 'tel',
             zobrazit: (data) => !data.uvedeni.jakoMontazka.value,
-            nutne: (data) => !data.uvedeni.jakoMontazka.value,
+            required: (data) => !data.uvedeni.jakoMontazka.value,
             autocomplete: `section-assembly billing work tel`
         })
     },
     vzdalenyPristup: {
         nadpis: new Nadpisova({ nazev: `remoteAccess` }),
-        chce: new Zaskrtavatkova({ nazev: `doYouWantRemoteAccess`, nutne: false }),
+        chce: new Zaskrtavatkova({ nazev: `doYouWantRemoteAccess`, required: false }),
         pristupMa: new MultiZaskrtavatkova({
             nazev: `whoHasAccess`,
             moznosti: [`endCustomer`, `assemblyCompany`, `commissioningCompany`],
             zobrazit: (data) => data.vzdalenyPristup.chce.value,
-            nutne: (data) => data.vzdalenyPristup.chce.value
+            required: (data) => data.vzdalenyPristup.chce.value
         }),
         fakturuje: new Radiova({
             nazev: `whoWillBeInvoiced`,
             moznosti: [t('assemblyCompany'), t('endCustomer'), t('doNotInvoice')],
             zobrazit: (data) => data.vzdalenyPristup.chce.value,
-            nutne: (data) => data.vzdalenyPristup.chce.value
+            required: (data) => data.vzdalenyPristup.chce.value
         })
     },
     ostatni: {
@@ -344,6 +344,6 @@ export default (): Data => ({
             nazev: `responsiblePerson`,
             autocomplete: `section-resp billing name`
         }),
-        poznamka: new Pisatkova({ nazev: `note`, nutne: false })
+        poznamka: new Pisatkova({ nazev: `note`, required: false })
     }
 });

@@ -17,7 +17,7 @@ export class Ano <D> extends Prepinatkova<D> {
     }) {
         super({
             vybrano: args.vybrano ?? false,
-            nutne: args.nutne ?? false,
+            required: args.nutne ?? false,
             ...args,
             moznosti: [`no`, `yes`] as const,
             hasPositivity: true,
@@ -64,11 +64,11 @@ export const defaultUvedeniSOL = (): UvedeniSOL => ({
         orientace: new Pisatkova({ nazev: p`Orientace kolektorového pole` }),
         sklon: new Pisatkova({ nazev: p`Sklon kolektorů` }),
         zasobnik: new Pisatkova({ nazev: p`Typ zásobníkového ohřívače` }),
-        akumulacka: new Pisatkova({ nazev: p`Typ akumulační nádrže`, nutne: false }),
-        vymenik: new Pisatkova({ nazev: p`Typ výměníku (deskový/trubkový)`, nutne: false }),
+        akumulacka: new Pisatkova({ nazev: p`Typ akumulační nádrže`, required: false }),
+        vymenik: new Pisatkova({ nazev: p`Typ výměníku (deskový/trubkový)`, required: false }),
         solRegulator: new Pisatkova({ nazev: p`Typ solárního regulátoru` }),
         cerpadloaSkupina: new Pisatkova({ nazev: p`Typ čerpadlové skupiny` }),
-        expanznkaSolarni: new Ano({ nazev: p`Expanzní nádoba (solární)`, nutne: true }),
+        expanznkaSolarni: new Ano({ nazev: p`Expanzní nádoba (solární)`, required: true }),
         objem: new Pisatkova({ nazev: p`Objem` }),
         ovzdusneni: new Vybiratkova({ nazev: p`Pro odvzdušnění nainstalován`, moznosti: [p`odvzdušňovací ventil`, p`separátor vzduchu`, p`nic`] }),
         teplonosnaKapalina: new Vybiratkova({ nazev: p`Typ teplonosné kapaliny`, moznosti: [p`Solarten Super`, p`Solarten HT`, p`jiná`] }),

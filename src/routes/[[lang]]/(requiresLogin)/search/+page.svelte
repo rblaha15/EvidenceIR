@@ -4,103 +4,53 @@
     import { getAll } from '$lib/client/firestore';
     import { relUrl } from '$lib/helpers/stores';
     import { addToHistory, history, removeFromHistory, HistoryEntry } from '$lib/History';
-    import type { Translations } from '$lib/translations';
+    import type { TranslationReference, Translations } from '$lib/translations';
     import IMask from 'imask';
     import { onMount } from 'svelte';
     import { wordsToFilter } from '../new/companies';
+    import { p, type SearchItem, type SearchItemPiece, SearchWidget } from '$lib/Vec.svelte';
+    import Search from './Search.svelte';
 
-    let search = $state('');
-
-    let all = $state() as HistoryEntry[];
     onMount(async () => {
         const res = await getAll();
-        all = res.docs
+        const all = res.docs
             .map((sn) => sn.data())
             .map((data) => HistoryEntry(t, data.evidence))
             .toSorted((a, b) => a.ir.localeCompare(b.ir));
+        w.items = () => all
     });
 
-    let filtered = $derived(
-        search == " "
-            ? all
-            : all?.filter((entry) =>
-                wordsToFilter(search).every(
-                    (filter) =>
-                        wordsToFilter(entry.ir).join(' ').includes(filter) ||
-                        wordsToFilter(entry.label).some((word) => word.startsWith(filter))
-                )
-            ) ?? []
-    );
 
     const t: Translations = $page.data.translations;
 
-    let input = $state<HTMLInputElement>();
-    let mask = $derived(
-        input == undefined
-            ? undefined
-            : IMask(input, {
-                mask: 'A1 0000',
-                definitions: {
-                    A: /[A-Z]/,
-                    '1': /[1-9OND]/
-                }
-            })
-    );
-
-    onMount(() => {
-        return () => {
-            input = undefined;
-        };
-    });
+    let w = $state(new SearchWidget({
+        type: 'search',
+        label: 'search',
+        items: [] as HistoryEntry[],
+        getSearchItem: he => ({
+            href: $relUrl(`/detail/${he.ir.replace(' ', '')}`),
+            pieces: [
+                { text: p`${he.irType} ${he.ir}`, width: .4 },
+                { text: p`${he.label}`, width: .6 },
+            ] as const,
+        })
+    }));
 
     $effect(() => {
-        mask?.on('accept', (_) => (search = mask.value));
-    });
+        const he = w.value;
+        if (he) {
+            addToHistory(he);
+            goto($relUrl(`/detail/${he.ir.replace(' ', '')}`));
+        }
+    })
 </script>
 
 <h1>{t.controllerSearch}</h1>
-<form
-    onsubmit={(e) => {
-		e.preventDefault();
-		if (search === '' || filtered.length === 0) return;
-		const ir = filtered[0];
-		addToHistory(ir);
-		goto($relUrl(`/detail/${ir.ir.replace(' ', '')}`));
-	}}
-    class="position-relative"
->
-    <label class="form-floating d-block">
-        <input
-            type="search"
-            class="form-control border"
-            class:border-bottom-0={filtered.length > 0 && search !== ''}
-            class:rb-0={filtered.length > 0 && search !== ''}
-            placeholder={t.serialNumber}
-            bind:value={search}
-        />
-        <label for="">{t.search}</label>
-    </label>
-
-    {#if search !== '' && filtered.length > 0}
-        <div class="list-group position-absolute z-3 w-100 shadow-lg">
-            {#each filtered as ir, i}
-                <a
-                    class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
-                    class:rt-0={i === 0}
-                    href={$relUrl(`/detail/${ir.ir.replace(' ', '')}`)}
-                    onclick={(e) => {
-						e.preventDefault();
-						addToHistory(ir);
-						goto($relUrl(`/detail/${ir.ir.replace(' ', '')}`));
-					}}
-                >
-                    <div class="col-md-5">{ir.irType} {ir.ir}</div>
-                    <div class="col-md-7">{ir.label}</div>
-                </a>
-            {/each}
-        </div>
-    {/if}
-</form>
+<Search
+    data={{}}
+    {t}
+    bind:widget={w}
+/>
 
 {#if $history.length !== 0}
     <h2 class="mt-2">Historie vyhledávání</h2>
@@ -146,23 +96,9 @@
 {/if}
 
 <style>
-    .rb-0 {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-
-    .rt-0 {
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-    }
-
     .rl-0 {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
-    }
-
-    .form-control:focus {
-        box-shadow: none;
     }
 
     .list-group-item-group:first-child .list-group-item {

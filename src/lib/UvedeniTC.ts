@@ -16,7 +16,7 @@ export class Vyhovuje <D> extends Prepinatkova<D> {
     }) {
         super({
             vybrano: args.vybrano ?? false,
-            nutne: args.nutne ?? false,
+            required: args.nutne ?? false,
             ...args,
             moznosti: [`suitsNot`, `suits`] as const,
             hasPositivity: true,
@@ -82,16 +82,16 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
         jisticVJ: new Vyhovuje({ zobrazit: d => d.evidence.ir.typ.first!.includes('BOX'), nazev: `characteristicsAndSizeOfIndoorUnitBreaker` }),
         vzdalenostZdi: new Vyhovuje({ nazev: `distanceFromWall`, zobrazit: d => d.evidence.tc.typ == `airToWater` }),
         kondenzator: new Zaskrtavatkova({
-            nutne: false,
+            required: false,
             nazev: `isCompensatorInstalled`,
             zobrazit: d => d.evidence.tc.typ == `airToWater`,
         }),
-        filtr: new Zaskrtavatkova({ nutne: false, nazev: `isCirculationPumpFilterInstalled` }),
+        filtr: new Zaskrtavatkova({ required: false, nazev: `isCirculationPumpFilterInstalled` }),
     },
     nadrze: {
         nadpis: new Nadpisova({ nazev: `tanks` }),
-        akumulacka: new Pisatkova({ nazev: `typeOfAccumulationTank`, nutne: false }),
-        zasobnik: new Pisatkova({ nazev: `typeOfStorageTank`, nutne: false }),
+        akumulacka: new Pisatkova({ nazev: `typeOfAccumulationTank`, required: false }),
+        zasobnik: new Pisatkova({ nazev: `typeOfStorageTank`, required: false }),
     },
     os: {
         nadpis: new Nadpisova({ nazev: `heatingSystem` }),
@@ -106,18 +106,18 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
         popis: new Pisatkova({
             nazev: `heatingSystemDescription`,
             zobrazit: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
-            nutne: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
+            required: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
         }),
-        dzTop: new Zaskrtavatkova({ nutne: false, nazev: `isAdditionalHeatingSourceConnected` }),
+        dzTop: new Zaskrtavatkova({ required: false, nazev: `isAdditionalHeatingSourceConnected` }),
         typDzTop: new Pisatkova({
             nazev: `typeAndPowerOfAdditionalHeatingSource`,
             zobrazit: d => d.uvedeni.os.dzTop.value,
-            nutne: d => d.uvedeni.os.dzTop.value
+            required: d => d.uvedeni.os.dzTop.value
         }),
-        tcTv: new Zaskrtavatkova({ nutne: false, nazev: `doesHeatPumpPrepareHotWater` }),
-        zTv: new Pisatkova({ nazev: d => d.uvedeni.os.tcTv.value ? `additionalHotWaterSource` : `mainHotWaterSource`, nutne: d => !d.uvedeni.os.tcTv.value }),
+        tcTv: new Zaskrtavatkova({ required: false, nazev: `doesHeatPumpPrepareHotWater` }),
+        zTv: new Pisatkova({ nazev: d => d.uvedeni.os.tcTv.value ? `additionalHotWaterSource` : `mainHotWaterSource`, required: d => !d.uvedeni.os.tcTv.value }),
         objemEnOs: new Vyhovuje({ nazev: `volumeOfExpansionTank` }),
-        bazenTc: new Zaskrtavatkova({ nutne: false, nazev: `isPoolHeatingManagedByHeatPump` }),
+        bazenTc: new Zaskrtavatkova({ required: false, nazev: `isPoolHeatingManagedByHeatPump` }),
     },
     reg: {
         nadpis: new Nadpisova({ nazev: `controlAndElectricalInstallation` }),
@@ -128,10 +128,10 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
                 `notConnected`,
             ],
         }),
-        pospojeni: new Zaskrtavatkova({ nutne: false, nazev: `isElectricalBondingComplete` }),
-        spotrebice: new Zaskrtavatkova({ nutne: false, nazev: `areElectricalDevicesTested` }),
+        pospojeni: new Zaskrtavatkova({ required: false, nazev: `isElectricalBondingComplete` }),
+        spotrebice: new Zaskrtavatkova({ required: false, nazev: `areElectricalDevicesTested` }),
         zalZdroj: new Zaskrtavatkova({
-            nutne: false,
+            required: false,
             nazev: `isBackupPowerSourceInstalled`,
             zobrazit: d => d.evidence.tc.typ == `airToWater`,
         }),
@@ -149,7 +149,7 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
                 `otherCollector`,
             ],
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
-            nutne: d => d.evidence.tc.typ == 'groundToWater',
+            required: d => d.evidence.tc.typ == 'groundToWater',
         }),
         popis: new Pisatkova({
             nazev: d => {
@@ -160,30 +160,30 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
                 }
             },
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
-            nutne: d => d.evidence.tc.typ == 'groundToWater' && d.uvedeni.primar.typ.value != null,
+            required: d => d.evidence.tc.typ == 'groundToWater' && d.uvedeni.primar.typ.value != null,
         }),
         nemrz: new Pisatkova({
             nazev: `typeOfAntifreezeMixture`,
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
-            nutne: d => d.evidence.tc.typ == 'groundToWater',
+            required: d => d.evidence.tc.typ == 'groundToWater',
         }),
         nadoba: new Vybiratkova({
             nazev: `onPrimaryCircuitInstalled`,
             moznosti: [`expansionTankInstalled`, `bufferTankInstalled`],
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
-            nutne: d => d.evidence.tc.typ == 'groundToWater',
+            required: d => d.evidence.tc.typ == 'groundToWater',
         }),
         kontrola: new Zaskrtavatkova({
-            nutne: false,
+            required: false,
             nazev: `wasPrimaryCircuitTested`,
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
         }),
     },
     uvadeni: {
         nadpis: new Nadpisova({ nazev: `commissioningSteps` }),
-        tc: new Zaskrtavatkova({ nutne: false, nazev: `wasInstallationAccordingToManual` }),
-        reg: new Zaskrtavatkova({ nutne: false, nazev: `wasControllerSetToParameters` }),
-        vlastnik: new Zaskrtavatkova({ nutne: false, nazev: `wasOwnerFamiliarizedWithFunction` }),
+        tc: new Zaskrtavatkova({ required: false, nazev: `wasInstallationAccordingToManual` }),
+        reg: new Zaskrtavatkova({ required: false, nazev: `wasControllerSetToParameters` }),
+        vlastnik: new Zaskrtavatkova({ required: false, nazev: `wasOwnerFamiliarizedWithFunction` }),
         typZaruky: new Vybiratkova({
             nazev: `isExtendedWarrantyDesired`, moznosti: [
                 `no`,
@@ -191,7 +191,7 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
                 `extendedWarranty10Years`,
             ]
         }),
-        zaruka: new Zaskrtavatkova({ nutne: false, nazev: `isInstallationInWarrantyConditions`, zobrazit: d => d.uvedeni.uvadeni.typZaruky.value?.includes('extendedWarranty') ?? false }),
+        zaruka: new Zaskrtavatkova({ required: false, nazev: `isInstallationInWarrantyConditions`, zobrazit: d => d.uvedeni.uvadeni.typZaruky.value?.includes('extendedWarranty') ?? false }),
         date: new Pisatkova({ nazev: 'dateOfCommission', type: 'date', text: (new Date()).toISOString().split('T')[0] }),
     },
 })
