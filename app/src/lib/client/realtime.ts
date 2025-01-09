@@ -26,6 +26,11 @@ export type Technician = {
 	name: string;
 	initials: string;
 };
+export type SparePart = {
+	name: string;
+	code: number;
+	unitPrice: number;
+};
 export type FriendlyCompanies = {
 	assemblyCompanies: Company[];
 	commissioningCompanies: Company[];
@@ -41,6 +46,7 @@ const FriendlyCompanies = (
 const firmyRef = ref(realtime, '/companies');
 const lidiRef = ref(realtime, '/people');
 const techniciRef = ref(realtime, '/technicians');
+const dilyRef = ref(realtime, '/spareParts');
 const connectedRef = ref(realtime, '.info/connected');
 
 const _isOnline = writable(false);
@@ -142,5 +148,14 @@ export const startTechniciansListening = async () => {
 	const { onValue } = await import('firebase/database');
 	onValue(techniciRef, (data) => {
 		techniciansList.set((data.val() as Technician[]) ?? []);
+	});
+};
+
+export const sparePartsList = writable([] as SparePart[]);
+
+export const startSparePartsListening = async () => {
+	const { onValue } = await import('firebase/database');
+	onValue(dilyRef, (data) => {
+		sparePartsList.set((data.val() as SparePart[]) ?? []);
 	});
 };

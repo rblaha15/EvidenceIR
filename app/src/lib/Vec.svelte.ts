@@ -56,10 +56,10 @@ export function t(ref: TranslationReference) {
 }
 
 export const nazevSHvezdou = <D>(
-    vec: Vec<any, any> & { nutne: Get<D, boolean> },
+    vec: Vec<any, any> & { required: Get<D, boolean> },
     data: D,
     t: Translations
-) => t.get(vec.nazev(data)) + (!vec.nutne(data) ? '' : ' *');
+) => t.get(vec.nazev(data)) + (!vec.required(data) ? '' : ' *');
 
 export abstract class Vec<D, U> {
     abstract nazev: Get<D, TranslationReference>;
@@ -114,14 +114,14 @@ export class Vybiratkova<D> extends Vec<D, TranslationReference | null> {
     showText = $state() as Get<D, boolean>;
     moznosti = $state() as Get<D, TranslationReference[]>;
     value = $state() as TranslationReference | null;
-    nutne = $state() as Get<D, boolean>;
-    zpravaJeChybna = $state((a) => this.value == null && this.nutne(a)) as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
+    zpravaJeChybna = $state((a) => this.value == null && this.required(a)) as Get<D, boolean>;
 
     constructor(args: {
         nazev: GetOrVal<D>;
         moznosti: GetOrVal<D, TranslationReference[]>;
         onError?: GetOrVal<D>;
-        nutne?: GetOrVal<D, boolean>;
+        required?: GetOrVal<D, boolean>;
         zobrazit?: GetOrVal<D, boolean>;
         showInXML?: GetOrVal<D, boolean>;
         vybrano?: null | TranslationReference;
@@ -131,10 +131,49 @@ export class Vybiratkova<D> extends Vec<D, TranslationReference | null> {
         this.nazev = toGet(args.nazev);
         this.moznosti = toGet(args.moznosti);
         this.onError = toGet(args.onError ?? t('requiredField'));
-        this.nutne = toGet(args.nutne ?? true);
+        this.required = toGet(args.required ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
         this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
         this.value = args.vybrano ?? null;
+    }
+}
+
+export type SearchItemPiece = { text: TranslationReference, width?: number };
+export type SearchItem = { pieces: SearchItemPiece[], href?: string };
+export class SearchWidget<D, T> extends Vec<D, T | null> {
+    nazev = $state() as Get<D>;
+    onError = $state() as Get<D>;
+    zobrazit = $state() as Get<D, boolean>;
+    type = $state() as Get<D, HTMLInputTypeAttribute>;
+    getSearchItem = $state() as (item: T) => SearchItem;
+    showText = $state() as Get<D, boolean>;
+    items = $state() as Get<D, T[]>;
+    value = $state() as T | null;
+    required = $state() as Get<D, boolean>;
+    zpravaJeChybna = $state((a) => this.value == null && this.required(a)) as Get<D, boolean>;
+
+    constructor(args: {
+        label: GetOrVal<D>;
+        items: GetOrVal<D, T[]>;
+        getSearchItem: (item: T) => SearchItem;
+        onError?: GetOrVal<D>;
+        type?: GetOrVal<D, HTMLInputTypeAttribute>;
+        required?: GetOrVal<D, boolean>;
+        show?: GetOrVal<D, boolean>;
+        showInXML?: GetOrVal<D, boolean>;
+        chosen?: null | T;
+    }) {
+        super();
+
+        this.nazev = toGet(args.label);
+        this.items = toGet(args.items);
+        this.getSearchItem = toGet(args.getSearchItem);
+        this.onError = toGet(args.onError ?? t('requiredField'));
+        this.required = toGet(args.required ?? false);
+        this.type = toGet(args.type ?? 'search');
+        this.zobrazit = toGet(args.show ?? true);
+        this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
+        this.value = args.chosen ?? null;
     }
 }
 
@@ -151,10 +190,10 @@ export class DvojVybiratkova<D> extends Vec<D, Pair> {
     moznosti1 = $state() as Get<D, TranslationReference[]>;
     moznosti2 = $state() as Get<D, TranslationReference[]>;
     value = $state() as Pair;
-    nutne = $state() as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
 
     zpravaJeChybna = $state(
-        (a) => (this.value.first == null || this.value.second == null) && this.nutne(a)
+        (a) => (this.value.first == null || this.value.second == null) && this.required(a)
     ) as Get<D, boolean>;
 
     constructor(args: {
@@ -162,7 +201,7 @@ export class DvojVybiratkova<D> extends Vec<D, Pair> {
         moznosti1: GetOrVal<D, TranslationReference[]>;
         moznosti2: GetOrVal<D, TranslationReference[]>;
         onError?: GetOrVal<D>;
-        nutne?: GetOrVal<D, boolean>;
+        required?: GetOrVal<D, boolean>;
         zobrazit?: GetOrVal<D, boolean>;
         showInXML?: GetOrVal<D, boolean>;
         vybrano?: Pair;
@@ -173,7 +212,7 @@ export class DvojVybiratkova<D> extends Vec<D, Pair> {
         this.moznosti1 = toGet(args.moznosti1);
         this.moznosti2 = toGet(args.moznosti2);
         this.onError = toGet(args.onError ?? t('requiredField'));
-        this.nutne = toGet(args.nutne ?? true);
+        this.required = toGet(args.required ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
         this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
         this.value = args.vybrano ?? { first: null, second: null };
@@ -219,15 +258,15 @@ export class Radiova<D> extends Vec<D, TranslationReference | null> {
     showText = $state() as Get<D, boolean>;
     moznosti = $state() as Get<D, TranslationReference[]>;
     value = $state() as TranslationReference | null;
-    nutne = $state() as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
 
-    zpravaJeChybna = $state((a) => this.value == null && this.nutne(a)) as Get<D, boolean>;
+    zpravaJeChybna = $state((a) => this.value == null && this.required(a)) as Get<D, boolean>;
 
     constructor(args: {
         nazev: GetOrVal<D>;
         moznosti: GetOrVal<D, TranslationReference[]>;
         onError?: GetOrVal<D>;
-        nutne?: GetOrVal<D, boolean>;
+        required?: GetOrVal<D, boolean>;
         zobrazit?: GetOrVal<D, boolean>;
         showInXML?: GetOrVal<D, boolean>;
         vybrano?: null | TranslationReference;
@@ -237,7 +276,7 @@ export class Radiova<D> extends Vec<D, TranslationReference | null> {
         this.nazev = toGet(args.nazev);
         this.moznosti = toGet(args.moznosti);
         this.onError = toGet(args.onError ?? t('requiredField'));
-        this.nutne = toGet(args.nutne ?? true);
+        this.required = toGet(args.required ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
         this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
         this.value = args.vybrano ?? null;
@@ -251,16 +290,16 @@ export class Prepinatkova<D> extends Vec<D, boolean> {
     showText = $state() as Get<D, boolean>;
     moznosti = $state() as readonly [TranslationReference, TranslationReference];
     value = $state() as boolean;
-    nutne = $state() as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
     hasPositivity = $state() as Get<D, boolean>;
 
-    zpravaJeChybna = $state((a) => !this.value && this.nutne(a)) as Get<D, boolean>;
+    zpravaJeChybna = $state((a) => !this.value && this.required(a)) as Get<D, boolean>;
 
     constructor(args: {
         nazev: GetOrVal<D>;
         moznosti: readonly [TranslationReference, TranslationReference];
         onError?: GetOrVal<D>;
-        nutne?: GetOrVal<D, boolean>;
+        required?: GetOrVal<D, boolean>;
         zobrazit?: GetOrVal<D, boolean>;
         showInXML?: GetOrVal<D, boolean>;
         hasPositivity?: GetOrVal<D, boolean>;
@@ -271,7 +310,7 @@ export class Prepinatkova<D> extends Vec<D, boolean> {
         this.nazev = toGet(args.nazev);
         this.moznosti = args.moznosti;
         this.onError = toGet(args.onError ?? t('requiredField'));
-        this.nutne = toGet(args.nutne ?? true);
+        this.required = toGet(args.required ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
         this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
         this.hasPositivity = toGet(args.hasPositivity ?? false);
@@ -289,15 +328,15 @@ export class MultiZaskrtavatkova<D> extends Vec<D, Arr> {
     showText = $state() as Get<D, boolean>;
     moznosti = $state() as Get<D, TranslationReference[]>;
     value = $state() as TranslationReference[];
-    nutne = $state() as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
 
-    zpravaJeChybna = $state((a) => this.value.length == 0 && this.nutne(a)) as Get<D, boolean>;
+    zpravaJeChybna = $state((a) => this.value.length == 0 && this.required(a)) as Get<D, boolean>;
 
     constructor(args: {
         nazev: GetOrVal<D>;
         moznosti: GetOrVal<D, TranslationReference[]>;
         onError?: GetOrVal<D>;
-        nutne?: GetOrVal<D, boolean>;
+        required?: GetOrVal<D, boolean>;
         max?: GetOrVal<D, number>;
         zobrazit?: GetOrVal<D, boolean>;
         showInXML?: GetOrVal<D, boolean>;
@@ -309,7 +348,7 @@ export class MultiZaskrtavatkova<D> extends Vec<D, Arr> {
         this.moznosti = toGet(args.moznosti);
         this.onError = toGet(args.onError ?? t('requiredField'));
         this.max = toGet(args.max ?? Number.MAX_VALUE);
-        this.nutne = toGet(args.nutne ?? true);
+        this.required = toGet(args.required ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
         this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
         this.value = args.vybrano ?? [];
@@ -337,18 +376,18 @@ export class Pisatkova<D> extends Vec<D, string> {
     updateMaskValue = $state(() => {}) as (text: string) => void;
     maskOptions = $state() as Get<D, Opts>;
     regex = $state() as Get<D, RegExp>;
-    nutne = $state() as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
     capitalize = $state() as Get<D, boolean>;
     zpravaJeChybna = $state(
         (a) =>
-            (this.value == '' && this.nutne(a)) || (this.value != '' && !this.regex(a).test(this.value))
+            (this.value == '' && this.required(a)) || (this.value != '' && !this.regex(a).test(this.value))
     ) as Get<D, boolean>;
 
     constructor(args: {
         nazev: GetOrVal<D>;
         onError?: GetOrVal<D>;
         regex?: GetOrVal<D, RegExp>;
-        nutne?: GetOrVal<D, boolean>;
+        required?: GetOrVal<D, boolean>;
         capitalize?: GetOrVal<D, boolean>;
         maskOptions?: GetOrVal<D, Opts>;
         type?: GetOrVal<D, HTMLInputTypeAttribute>;
@@ -362,7 +401,7 @@ export class Pisatkova<D> extends Vec<D, string> {
         this.nazev = toGet(args.nazev);
         this.onError = toGet(args.onError ?? t('requiredField'));
         this.regex = toGet(args.regex ?? /.*/);
-        this.nutne = toGet(args.nutne ?? true);
+        this.required = toGet(args.required ?? true);
         this.capitalize = toGet(args.capitalize ?? false);
         this.maskOptions = toGet(args.maskOptions ?? undefined);
         this.type = toGet(args.type ?? 'text');
@@ -380,14 +419,14 @@ export class Zaskrtavatkova<D> extends Vec<D, boolean> {
     showText = $state() as Get<D, boolean>;
     enabled = $state() as Get<D, boolean>;
     value = $state() as boolean;
-    nutne = $state() as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
 
-    zpravaJeChybna = $state((a) => !this.value && this.nutne(a)) as Get<D, boolean>;
+    zpravaJeChybna = $state((a) => !this.value && this.required(a)) as Get<D, boolean>;
 
     constructor(args: {
         nazev: GetOrVal<D>;
         onError?: GetOrVal<D>;
-        nutne?: GetOrVal<D, boolean>;
+        required?: GetOrVal<D, boolean>;
         zobrazit?: GetOrVal<D, boolean>;
         showInXML?: GetOrVal<D, boolean>;
         enabled?: GetOrVal<D, boolean>;
@@ -397,7 +436,7 @@ export class Zaskrtavatkova<D> extends Vec<D, boolean> {
 
         this.nazev = toGet(args.nazev);
         this.onError = toGet(args.onError ?? t('requiredField'));
-        this.nutne = toGet(args.nutne ?? true);
+        this.required = toGet(args.required ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
         this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
         this.enabled = toGet(args.enabled ?? true);

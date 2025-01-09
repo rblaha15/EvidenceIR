@@ -4,9 +4,9 @@
         type Company,
         type Person,
         seznamFirmy,
-        seznamLidi,
+        seznamLidi, type SparePart, sparePartsList,
         startFirmyListening,
-        startLidiListening,
+        startLidiListening, startSparePartsListening,
         startTechniciansListening,
         type Technician, techniciansList
     } from '$lib/client/realtime';
@@ -20,11 +20,13 @@
     import PeopleTable from './PeopleTable.svelte';
     import CompaniesTable from './CompaniesTable.svelte';
     import TechniciansTable from './TechniciansTable.svelte';
+    import SparePartsTable from './SparePartsTable.svelte';
 
     onMount(async () => {
         await startLidiListening();
         await startFirmyListening();
         await startTechniciansListening();
+        await startSparePartsListening();
     });
 
     let loading = $state(false);
@@ -107,6 +109,29 @@
             };
         }
     };
+    const poVybraniSpareParts = (
+        ev: Event & {
+            currentTarget: EventTarget & HTMLInputElement;
+        }
+    ) => {
+        const file = ev.currentTarget.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsText(file, 'UTF-8');
+            reader.onload = async (evt) => {
+                const text = evt.target?.result as string | null;
+                newDataSpareParts = (text ?? '')
+                    .split('\n')
+                    .filter((radek) => radek != '')
+                    .map((radek) => radek.split(';'))
+                    .map(([code, name, unitPrice]) => ({
+                        name,
+                        code: Number(code),
+                        unitPrice: Number(unitPrice),
+                    })) as SparePart[];
+            };
+        }
+    };
 
     const stahnoutPeople = () => {
         download(new File([oldDataPeople.map(
@@ -172,6 +197,27 @@
         newDataTechnicians = [];
     };
 
+    const stahnoutSpareParts = () => {
+        download(new File([oldDataSpareParts.map(({ name, code, unitPrice }) =>
+            `${code};${name};${unitPrice}`.trim()
+        ).join('\n')], 'nahradni_dily.csv'), 'nahradni_dily.csv', 'text/csv');
+    };
+
+    const potvrditSpareParts = async () => {
+        loading = true;
+
+        const token = await getToken();
+
+        await fetch(`/api/aktualizovat?type=nahradniDily&token=${token}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                spareParts: newDataSpareParts
+            })
+        });
+        loading = false;
+        newDataSpareParts = [];
+    };
+
     const sort = (o: Record<string, any> | undefined): Record<string, any> | undefined => o ? Object.fromEntries(Object.entries(o).sort(([a], [b]) => a.localeCompare(b))) : undefined;
 
     const compareByEmail = (p1: Person, p2: Person) => p1.email.localeCompare(p2.email);
@@ -210,12 +256,24 @@
     const removalsTechnicians = $derived(oldDataTechnicians.filter(t => !newEmailsTechnicians.includes(t.email)));
     const additionsTechnicians = $derived(newDataTechnicians.filter(t => !oldEmailsTechnicians.includes(t.email)));
 
+    const compareByCode = (t1: SparePart, t2: SparePart) => t1.code - t2.code;
+    const oldDataSpareParts = $derived($sparePartsList.toSorted(compareByCode));
+    let newDataSpareParts = $state(<SparePart[]> []);
+
+    const code = (p: SparePart) => p.code;
+    const byCode = (parts: SparePart[], code: number) => parts.find(p => p.code === code);
+    const oldEmailsSpareParts = $derived(oldDataSpareParts.map(code));
+    const newEmailsSpareParts = $derived(newDataSpareParts.map(code));
+    const changesSpareParts = $derived(newDataSpareParts.filter(p => oldEmailsSpareParts.includes(p.code) && JSON.stringify(sort(byCode(oldDataSpareParts, p.code) ?? p)) != JSON.stringify(sort(p))));
+    const removalsSpareParts = $derived(oldDataSpareParts.filter(p => !newEmailsSpareParts.includes(p.code)));
+    const additionsSpareParts = $derived(newDataSpareParts.filter(p => !oldEmailsSpareParts.includes(p.code)));
+
     const parseSelf = (template: Template<(string | number)[]>) => template.parseTemplate(
         Object.fromEntries(template[1].map(it => [it, `{${it}}`] as const))
     );
 
     onMount(async () => {
-        ['people', 'companies', 'technicians', 'translations'].forEach(tab => {
+        ['people', 'companies', 'technicians', 'translations', 'spareParts'].forEach(tab => {
             const tabEl = document.querySelector(`#${tab}-tab`)!;
             tabEl.addEventListener('show.bs.tab', _ => {
                 if (!location.hash.startsWith('#' + tab))
@@ -292,6 +350,18 @@
             role="tab"
             type="button"
         >Technici</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button
+            aria-controls="spareParts-tab-pane"
+            aria-selected="false"
+            class="nav-link"
+            data-bs-target="#spareParts-tab-pane"
+            data-bs-toggle="tab"
+            id="spareParts-tab"
+            role="tab"
+            type="button"
+        >Náhradní díly</button>
     </li>
     <li class="nav-item" role="presentation">
         <button
@@ -545,6 +615,84 @@
             accept="text/csv"
             id="file-technicians"
             onchange={poVybraniTechnicians}
+            style="display: none;"
+            type="file"
+        />
+    </div>
+    <div
+        aria-labelledby="spareParts-tab"
+        class="tab-pane fade"
+        id="spareParts-tab-pane"
+        role="tabpanel"
+        tabindex="0"
+    >
+        <h2>Seznam náhradních dílů</h2>
+        <p class="mt-3 mb-0">
+            Vložte .csv soubor oddělený středníky (;), kde v prvním sloupci je číslo, v druhém sloupci název a ve
+            třetím spoupci jednotková cena náhradního dílu: <br />
+            Př.: Jan Novák;jan.novak@regulus.cz;JN <br />
+            Všechna pole jsou povinná
+        </p>
+
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mt-2">
+            {#if loading}
+                <div class="d-flex align-items-center">
+                    <span>Odesílání dat</span>
+                    <div class="spinner-border text-danger ms-2"></div>
+                </div>
+            {:else if newDataSpareParts.length === 0}
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick={() => document.getElementById('file-spareParts')?.click()}
+                >
+                    Vybrat soubor
+                </button>
+            {:else}
+                <button type="button" class="btn btn-danger" onclick={potvrditSpareParts}>
+                    Potvrdit změny
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                    onclick={() => (newDataSpareParts = [])}
+                >
+                    Zrušit změny
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                    onclick={() => document.getElementById('file-spareParts')?.click()}
+                >
+                    Vybrat jiný soubor
+                </button>
+            {/if}
+            <button
+                class="btn btn-outline-primary mt-2 ms-md-2 mt-md-0"
+                onclick={stahnoutSpareParts}
+                type="button"
+            >
+                Stáhnout aktuální data
+            </button>
+        </div>
+
+        {#if newDataSpareParts.length !== 0 && !loading}
+            <h4 class="mt-3">Změny, které se chystáte provést:</h4>
+            {#if additionsSpareParts.length === 0 && removalsSpareParts.length === 0 && changesSpareParts.length === 0}
+                <p>Žádné změny</p>
+            {/if}
+            <SparePartsTable sparePartsWithColors={addColors(additionsSpareParts,changesSpareParts,removalsSpareParts)} />
+        {/if}
+
+        <div class="mt-3">
+            <h4>Aktuálně uložená data:</h4>
+            <SparePartsTable spareParts={oldDataSpareParts} />
+        </div>
+
+        <input
+            accept="text/csv"
+            id="file-spareParts"
+            onchange={poVybraniSpareParts}
             style="display: none;"
             type="file"
         />

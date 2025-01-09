@@ -10,7 +10,7 @@
     import { storable } from '$lib/helpers/stores';
     import FormHeader from '../FormHeader.svelte';
     import { nowISO } from '$lib/helpers/date';
-    import { startTechniciansListening, techniciansList } from '$lib/client/realtime';
+    import { type SparePart, sparePartsList, startSparePartsListening, startTechniciansListening, techniciansList } from '$lib/client/realtime';
 
     interface Props {
         data: PageData;
@@ -26,6 +26,7 @@
     let evidence = $state() as RawData;
     onMount(async () => {
         await startTechniciansListening();
+        await startSparePartsListening();
 
         const snapshot = await getEvidence(ir as string);
         if (snapshot.exists()) {
@@ -104,7 +105,17 @@
         const ja = $techniciansList.find(t => $currentUser?.email == t.email);
         p.zasah.clovek.value = ja?.name ?? p.zasah.clovek.value;
         p.zasah.clovek.zobrazit = () => !ja;
-        p.zasah.clovek.nutne = () => !ja;
+        p.zasah.clovek.required = () => !ja;
+    });
+
+    $effect(() => {
+        const spareParts = $sparePartsList.map(it => ({
+            ...it,
+            name: it.name.replace('  ', ' '),
+        }) as SparePart);
+        p.nahradniDil1.dil.items = () => spareParts
+        p.nahradniDil2.dil.items = () => spareParts
+        p.nahradniDil3.dil.items = () => spareParts
     });
 </script>
 

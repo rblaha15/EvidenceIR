@@ -1,12 +1,12 @@
-import type { Company, Person, Technician } from '$lib/client/realtime';
+import type { Company, Person, SparePart, Technician } from '$lib/client/realtime';
 import { checkAdmin, checkToken, createUser, getUsersByEmail, removeUsers } from '$lib/server/auth';
-import { people, removePerson, setCompanies, setPersonDetails, setTechnicians } from '$lib/server/realtime';
+import { people, removePerson, setCompanies, setPersonDetails, setSpareParts, setTechnicians } from '$lib/server/realtime';
 import type { RequestHandler } from './$types';
 import { error } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request, url }) => {
     const t = url.searchParams.get('token');
-    const typ = url.searchParams.get('type') as 'lidi' | 'firmy' | 'technici' | null;
+    const typ = url.searchParams.get('type') as 'lidi' | 'firmy' | 'technici' | 'nahradniDily' | null;
 
     if (!typ) error(400, 'Bad Request');
 
@@ -49,6 +49,9 @@ export const POST: RequestHandler = async ({ request, url }) => {
     } else if (typ == 'technici') {
         const { technicians }: { technicians: Technician[] } = await request.json();
         await setTechnicians(technicians);
+    } else if (typ == 'nahradniDily') {
+        const { spareParts }: { spareParts: SparePart[] } = await request.json();
+        await setSpareParts(spareParts);
     }
 
     return new Response(null, {
