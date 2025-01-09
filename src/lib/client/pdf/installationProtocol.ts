@@ -64,7 +64,7 @@ const installationProtocol = (i: number): GetPdfData => async (g, t) => {
     const technik = technici.find(t => t.name == p.zasah.clovek)!.initials;
 
     return {
-        fileName: `SP-${technik}-${datum.replace('/', '_')}-${hodina}`,
+        fileName: `SP-${technik}-${datum.replace('/', '_')}-${hodina}.pdf`,
 /*             id */ Text1: `${technik} ${datum}-${hodina}`,
 /*    koncakJmeno */ Text2: `${e.koncovyUzivatel.prijmeni} ${e.koncovyUzivatel.jmeno}`,
 /* koncakNarozeni */ Text3: e.koncovyUzivatel.narozeni.length == 0 ? null : e.koncovyUzivatel.narozeni,
