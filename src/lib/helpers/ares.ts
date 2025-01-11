@@ -1,5 +1,7 @@
 const node_fetch = fetch;
 
+export const regulusCRN = 45317020
+
 const companyOverrides = {
     4466601609: {
         obchodniJmeno: "Regulus Wärmetechnik GmbH",

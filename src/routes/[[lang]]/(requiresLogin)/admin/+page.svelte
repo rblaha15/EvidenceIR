@@ -21,6 +21,7 @@
     import CompaniesTable from './CompaniesTable.svelte';
     import TechniciansTable from './TechniciansTable.svelte';
     import SparePartsTable from './SparePartsTable.svelte';
+    import { regulusCRN } from '$lib/helpers/ares';
 
     onMount(async () => {
         await startLidiListening();
@@ -553,7 +554,7 @@
         <h2>Seznam techniků</h2>
         <p class="mt-3 mb-0">
             Vložte .csv soubor oddělený středníky (;), kde v prvním sloupci je email, v druhém sloupci jméno, ve
-            třetím telefonní číslo a ve čtvrtém spoupci iniciály (do SP) technika <a href="#companies-45317020">Regulusu</a>: <br />
+            třetím telefonní číslo a ve čtvrtém spoupci iniciály (do SP) technika <a href="#companies-{regulusCRN}">Regulusu</a>: <br />
             Př.: Jan Novák;jan.novak@regulus.cz;+420789456123;JN <br />
             Všechna pole jsou povinná
         </p>

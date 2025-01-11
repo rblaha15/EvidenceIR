@@ -4,13 +4,15 @@ import {
     Nadpisova,
     p,
     Pisatkova,
-    Radiova,
+    Radiova, SearchWidget,
     t,
     Textova,
     Vybiratkova,
     Zaskrtavatkova
 } from './Vec.svelte';
 import { type Data } from './Data';
+import type { Company, Technician } from '$lib/client/realtime';
+import { regulusCRN } from '$lib/helpers/ares';
 
 export default (): Data => ({
     ir: {
@@ -262,6 +264,15 @@ export default (): Data => ({
     },
     montazka: {
         nadpis: new Nadpisova({ nazev: `assemblyCompany` }),
+        company: new SearchWidget<Data, Company>({
+            label: `searchCompanyInList`, items: [], getSearchItem: i => ({
+                pieces: [
+                    { text: p`${i.crn}`, width: .2 },
+                    { text: p`${i.companyName}`, width: .8 },
+                ],
+            }), showInXML: false,
+        }),
+        nebo: new Textova({ nazev: `or`, showInXML: false }),
         ico: new Pisatkova({
             nazev: `crn`,
             onError: `wrongCRNFormat`,
@@ -291,6 +302,15 @@ export default (): Data => ({
     uvedeni: {
         nadpis: new Nadpisova({ nazev: `commissioning` }),
         jakoMontazka: new Zaskrtavatkova({ nazev: `commissionedByAssemblyCompany`, required: false, showInXML: false }),
+        company: new SearchWidget<Data, Company>({
+            label: `searchCompanyInList`, items: [], getSearchItem: i => ({
+                pieces: [
+                    { text: p`${i.crn}`, width: .2 },
+                    { text: p`${i.companyName}`, width: .8 },
+                ],
+            }), show: d => !d.uvedeni.jakoMontazka.value, showInXML: false,
+        }),
+        nebo: new Textova({ nazev: `or`, showInXML: false, zobrazit: d => !d.uvedeni.jakoMontazka.value }),
         ico: new Pisatkova({
             nazev: `crn`,
             onError: `wrongCRNFormat`,
@@ -301,16 +321,29 @@ export default (): Data => ({
             zobrazit: (data) => !data.uvedeni.jakoMontazka.value,
             required: (data) => !data.uvedeni.jakoMontazka.value
         }),
+        regulus: new SearchWidget<Data, Technician>({
+            label: `searchRepresentative`, items: [], showInXML: false, getSearchItem: i => ({
+                pieces: [
+                    { text: p`${i.name}` },
+                    { text: p`${i.email}` },
+                    { text: p`${i.phone}` },
+                ],
+            }), show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value == regulusCRN.toString(),
+        }),
         zastupce: new Pisatkova({
             nazev: `representativeName`,
-            autocomplete: `section-commissioningRepr billing name`
+            autocomplete: `section-commissioningRepr billing name`,
+            showInXML: true,
+            zobrazit: d => d.uvedeni.ico.value != regulusCRN.toString(),
+            required: d => d.uvedeni.ico.value != regulusCRN.toString(),
         }),
         email: new Pisatkova({
             nazev: `email`,
             onError: `wrongEmailFormat`,
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
-            zobrazit: (data) => !data.uvedeni.jakoMontazka.value,
-            required: (data) => !data.uvedeni.jakoMontazka.value,
+            showInXML: true,
+            zobrazit: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
+            required: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
             autocomplete: `section-commissioning billing work email`
         }),
         telefon: new Pisatkova({
@@ -318,8 +351,9 @@ export default (): Data => ({
             onError: `wrongPhoneFormat`,
             regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
             type: 'tel',
-            zobrazit: (data) => !data.uvedeni.jakoMontazka.value,
-            required: (data) => !data.uvedeni.jakoMontazka.value,
+            showInXML: true,
+            zobrazit: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
+            required: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
             autocomplete: `section-assembly billing work tel`
         })
     },

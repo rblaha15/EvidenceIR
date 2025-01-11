@@ -103,9 +103,8 @@ export default async (
         if (editMode) {
             await upravitEvidenci(rawData);
         } else {
-            await novaEvidence({ evidence: rawData, kontroly: {}, users: [user.email!] });
+            await novaEvidence({ evidence: rawData, kontroly: {}, users: [user.email!], installationProtocols: [] });
         }
-
 
         if (rawData.vzdalenyPristup.chce && !doNotSend) {
             const t = getTranslations('cs')

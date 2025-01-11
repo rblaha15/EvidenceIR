@@ -4,11 +4,9 @@
     import { getAll } from '$lib/client/firestore';
     import { relUrl } from '$lib/helpers/stores';
     import { addToHistory, history, removeFromHistory, HistoryEntry } from '$lib/History';
-    import type { TranslationReference, Translations } from '$lib/translations';
-    import IMask from 'imask';
+    import type { Translations } from '$lib/translations';
     import { onMount } from 'svelte';
-    import { wordsToFilter } from '../new/companies';
-    import { p, type SearchItem, type SearchItemPiece, SearchWidget } from '$lib/Vec.svelte';
+    import { p, SearchWidget } from '$lib/Vec.svelte';
     import Search from './Search.svelte';
 
     onMount(async () => {

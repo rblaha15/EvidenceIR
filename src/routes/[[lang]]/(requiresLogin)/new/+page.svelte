@@ -1,13 +1,12 @@
 <script lang="ts">
     import VecComponent from '$lib/components/Vec.svelte';
-    import VybiratkoFirmy from '$lib/components/VybiratkoFirmy.svelte';
     import Scanner from '$lib/components/Scanner.svelte';
 
     import * as v from '$lib/Vec.svelte';
     import { p } from '$lib/Vec.svelte';
     import { type Data, dataToRawData, newData, type RawData, rawDataToData, typBOX } from '$lib/Data';
-    import { responsiblePerson } from '$lib/client/realtime';
-    import { companies, filteredCompanies } from './companies';
+    import { responsiblePerson, startTechniciansListening, techniciansList } from '$lib/client/realtime';
+    import { companies } from './companies';
     import odeslat from './odeslat.svelte';
     import { evidence } from '$lib/client/firestore';
     import { storable } from '$lib/helpers/stores';
@@ -15,7 +14,6 @@
     import { dev } from '$app/environment';
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
-    import { writable } from 'svelte/store';
     import { nazevFirmy } from '$lib/helpers/ares';
     import FormHeader from '../detail/[ir]/FormHeader.svelte';
     import Pisatko from '$lib/components/veci/Pisatko.svelte';
@@ -27,6 +25,8 @@
     let mode: 'loading' | 'create' | 'edit' | 'createStored' = $state('loading');
     let data: Data = $state(newData());
     onMount(async () => {
+        await startTechniciansListening()
+
         const ir = $page.url.searchParams.get('edit');
         if (ir) {
             const snapshot = await evidence(ir);
@@ -132,9 +132,6 @@
     });
     let typBOXu = $derived(typBOX(data.ir.cisloBox.value));
 
-    const filter = writable('');
-    let filtered = $derived(filteredCompanies(filter));
-
     let chosen = $derived(
         data && mode != 'loading'
             ? {
@@ -160,63 +157,45 @@
     let doNotSend = $state(false);
 
     const cisla = $derived([data.tc.cislo, data.tc.cislo2, data.tc.cislo3, data.tc.cislo4]);
+
+    $effect(() => {
+        data.uvedeni.company.items = () => $companies.commissioningCompanies;
+        data.montazka.company.items = () => $companies.assemblyCompanies;
+    });
+    $effect(() => {
+        const company = data.uvedeni.company.value;
+        if (company) {
+            data.uvedeni.ico.value = company.crn
+            data.uvedeni.email.value = company.email ?? '';
+            data.uvedeni.telefon.value = company.phone ?? '';
+            data.uvedeni.zastupce.value = company.representative ?? '';
+        }
+    });
+    $effect(() => {
+        const company = data.montazka.company.value;
+        if (company) {
+            data.montazka.ico.value = company.crn
+            data.montazka.email.value = company.email ?? '';
+            data.montazka.telefon.value = company.phone ?? '';
+            data.montazka.zastupce.value = company.representative ?? '';
+        }
+    });
+    $effect(() => {
+        data.uvedeni.regulus.items = () => $techniciansList
+    });
 </script>
 
 <FormHeader showResetButton={mode === 'create' || mode === 'createStored'} store={storedData} {t}
             title={mode === 'edit' ? t.editation : t.controllerRegistration} />
 
 {#each list as _, i}
-    {#if list[i] === data.montazka.ico && list[i].zobrazit(data) && list[i] instanceof v.Pisatkova}
-        {#if $companies.assemblyCompanies.length > 0}
-            <VybiratkoFirmy
-                id="Montazka"
-                bind:emailVec={data.montazka.email}
-                bind:phoneVec={data.montazka.telefon}
-                bind:zastupceVec={data.montazka.zastupce}
-                bind:icoVec={data.montazka.ico}
-                bind:filtr={$filter}
-                vyfiltrovanyFirmy={$filtered.assemblyCompanies}
-                neVyfiltrovanyFirmy={$companies.assemblyCompanies}
-                {t}
-            />
-        {/if}
-        <Pisatko
-            bind:vec={list[i]}
-            {t}
-            {data}
-            disabled={list[i] === data.ir.cislo && mode === 'edit'}
-        />
-    {:else if list[i] === data.uvedeni.ico && list[i].zobrazit(data) && list[i] instanceof v.Pisatkova}
-        {#if $companies.commissioningCompanies.length > 0}
-            <VybiratkoFirmy
-                id="Uvedeni"
-                bind:emailVec={data.uvedeni.email}
-                bind:phoneVec={data.uvedeni.telefon}
-                bind:zastupceVec={data.uvedeni.zastupce}
-                bind:icoVec={data.uvedeni.ico}
-                bind:filtr={$filter}
-                vyfiltrovanyFirmy={$filtered.commissioningCompanies}
-                neVyfiltrovanyFirmy={$companies.commissioningCompanies}
-                {t}
-            />
-        {/if}
-        <Pisatko
-            bind:vec={list[i]}
-            {t}
-            {data}
-            disabled={list[i] === data.ir.cislo && mode === 'edit'}
-        />
-    {:else if list[i] instanceof v.Pisatkova && cisla.includes(list[i]) && list[i].zobrazit(data)}
+    {#if list[i] instanceof v.Pisatkova && cisla.includes(list[i]) && list[i].zobrazit(data)}
         <Scanner
             bind:vec={list[i]}
             onScan={(text) => list[i].value = text.slice(-12)}
             {t}
             {data}
         />
-    {:else if list[i] instanceof v.Nadpisova && list[i].zobrazit(data)}
-        <h2>{t.get(list[i].nazev(data))}</h2>
-    {:else if list[i] instanceof v.Textova && list[i].zobrazit(data)}
-        <p>{t.get(list[i].nazev(data))}</p>
     {:else if list[i] instanceof v.Pisatkova && list[i].zobrazit(data)}
         <Pisatko
             bind:vec={list[i]}
