@@ -57,7 +57,7 @@
     </label>
 
     {#if search !== '' && filtered.length > 0 && !hidden}
-        <div class="list-group position-absolute z-3 w-100 shadow-lg pb-2" onfocusout={()=>console.log('hi')}>
+        <div class="list-group position-absolute z-3 w-100 shadow-lg pb-2">
             {#each filtered as item, i}
                 {@const searchItem = widget.getSearchItem(item)}
                 <a
@@ -96,8 +96,11 @@
             </div>
         </div>
     {/if}
-</div>
 
+    {#if widget.zobrazitError(data)}
+        <p class="text-danger">{t.get(widget.onError(data))}</p>
+    {/if}
+</div>
 <style>
     .rb-0 {
         border-bottom-left-radius: 0;

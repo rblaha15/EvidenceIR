@@ -24,13 +24,16 @@
 
     let p: DataSP = $state(defaultDataSP());
     let evidence = $state() as RawData;
+    let i = $state() as Number;
     onMount(async () => {
         await startTechniciansListening();
         await startSparePartsListening();
 
         const snapshot = await getEvidence(ir as string);
         if (snapshot.exists()) {
-            evidence = snapshot.data().evidence;
+            const data = snapshot.data();
+            evidence = data.evidence;
+            i = data.installationProtocols.length;
         }
         const stored = $storedData;
         if (stored == null) {
@@ -82,7 +85,7 @@
 
         const token = await getToken();
         const newWin = window.open(
-            `/${data.languageCode}/detail/${data.ir}/pdf/installationProtocol?token=${token}`
+            `/${data.languageCode}/detail/${data.ir}/pdf/installationProtocol-${i}?token=${token}`
         );
         if (!newWin || newWin.closed) {
             vysledek = {
@@ -106,6 +109,9 @@
         p.zasah.clovek.value = ja?.name ?? p.zasah.clovek.value;
         p.zasah.clovek.zobrazit = () => !ja;
         p.zasah.clovek.required = () => !ja;
+        p.zasah.inicialy.value = ja?.initials ?? p.zasah.inicialy.value;
+        p.zasah.inicialy.zobrazit = () => !ja;
+        p.zasah.inicialy.required = () => !ja;
     });
 
     $effect(() => {

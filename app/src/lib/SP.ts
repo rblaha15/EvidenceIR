@@ -16,6 +16,7 @@ export type DataSP = {
     zasah: {
         datum: Pisatkova<UDSP>,
         clovek: Pisatkova<UDSP>,
+        inicialy: Pisatkova<UDSP>,
         doba: Pisatkova<UDSP>,
         druh: MultiZaskrtavatkova<UDSP>,
         nahlasenaZavada: Pisatkova<UDSP>,
@@ -44,10 +45,10 @@ export type DataSP = {
 
 const nahradniDil = (show: (d: UDSP) => boolean): NahradniDil => ({
     dil: new SearchWidget({
-        label: p`Položka`, show, required: true, items: [], getSearchItem: (i: SparePart) => ({
+        label: p`Položka`, show, required: show, items: [], getSearchItem: (i: SparePart) => ({
             pieces: [
-                { text: p`${i.name}`, width: .8 },
                 { text: p`${i.code.toString()}`, width: .08 },
+                { text: p`${i.name}`, width: .8 },
                 { text: p`${i.unitPrice.roundTo(2).toLocaleString('cs')} Kč`, width: .12 },
             ] as const,
         })
@@ -59,6 +60,7 @@ export const defaultDataSP = (): DataSP => ({
     zasah: {
         datum: new Pisatkova({ nazev: '', type: 'datetime-local', zobrazit: false }),
         clovek: new Pisatkova({ nazev: p`Jméno technika`, zobrazit: false, required: false }),
+        inicialy: new Pisatkova({ nazev: p`Iniciály technika (do ID SP)`, zobrazit: false, required: false }),
         doba: new Pisatkova({ nazev: p`Celková doba zásahu (hodin)`, type: 'number', onError: `wrongNumberFormat` }),
         druh: new MultiZaskrtavatkova({
             nazev: p`Druh zásahu`,

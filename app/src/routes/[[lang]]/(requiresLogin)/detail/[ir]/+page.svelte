@@ -9,12 +9,11 @@
     import { nazevIR } from '$lib/Data';
     import type { RawUvedeniTC } from '$lib/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
-    import { getIsOnline, startTechniciansListening, techniciansList } from '$lib/client/realtime';
+    import { getIsOnline, startTechniciansListening } from '$lib/client/realtime';
     import { addToHistory, removeFromHistory } from '$lib/History';
     import { HistoryEntry } from '$lib/History.js';
     import { page } from '$app/stores';
     import type { RawUvedeniSOL } from '$lib/UvedeniSOL';
-    import type { RawDataSP } from '$lib/SP';
 
     interface Props {
         data: PageData;
@@ -26,7 +25,6 @@
     const deleted = $page.url.searchParams.has('deleted');
     const storedHeatPumpCommission = storable<RawUvedeniTC>(`stored_heat_pump_commission_${data.ir}`);
     const storedSolarCollectorCommission = storable<RawUvedeniSOL>(`stored_solar_collector_commission_${data.ir}`);
-    const storedSpCommission = storable<RawDataSP>(`stored_sp_${data.ir}`);
 
     let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
     let values = $state() as IR;
@@ -190,7 +188,7 @@
         {#each values.installationProtocols as p, i}
             {@const datum = p.zasah.datum.split('T')[0].split('-').join('/')}
             {@const hodina = p.zasah.datum.split('T')[1].split(':')[0]}
-            {@const technik = $techniciansList.find(t => t.name === p.zasah.clovek)?.initials}
+            {@const technik = p.zasah.inicialy}
             <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true} />
         {/each}
         <button class="btn btn-outline-info d-block mt-2"
