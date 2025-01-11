@@ -84,10 +84,13 @@ export const posledniKontrola = async (ir: string) => {
 export const pridatKontrolu = (ir: string, rok: number, kontrola: Kontrola) =>
     updateDoc(irDoc(ir), `kontroly.${rok}`, kontrola);
 
-export const vyplnitServisniProtokol = async (ir: string, protokol: RawDataSP) => await updateDoc(
-    irDoc(ir), `installationProtocols`,
-    [...(await evidence(ir)).data()!.installationProtocols, protokol]
-);
+export const vyplnitServisniProtokol = async (ir: string, protokol: RawDataSP) => {
+    const p = (await evidence(ir)).data()!.installationProtocols;
+    await updateDoc(
+        irDoc(ir), `installationProtocols`,
+        [...p, protokol]
+    );
+};
 
 export const uvestTCDoProvozu = (ir: string, uvedeni: RawUvedeniTC) =>
     updateDoc(irDoc(ir), `uvedeniTC`, uvedeni);

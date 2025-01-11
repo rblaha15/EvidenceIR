@@ -44,10 +44,7 @@ const poleProUkony = [
 
 const poleProDily = [39, 44, 49]
 
-const installationProtocol = (i: number): GetPdfData => async (g, t) => {
-    console.log(g)
-    const { evidence: e, uvedeniTC: h, installationProtocols } = g
-    console.log(installationProtocols)
+const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC: h, installationProtocols }, t) => {
     const p = installationProtocols[i]
     const montazka = await nazevAdresaFirmy(e.montazka.ico, fetch);
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : { hasHP: false, isCascade: false, pumps: [] };
@@ -55,13 +52,12 @@ const installationProtocol = (i: number): GetPdfData => async (g, t) => {
     const cenaDopravy = cenik.transportation * Number(p.ukony.doprava);
     const cenaPrace = p.ukony.typPrace ? cenik.work * Number(p.ukony.mnozstviPrace) : 0;
     const cenaUkony = p.ukony.ukony.reduce((sum, typ) => sum + cena(typ), 0);
-    const cenaDily = nahradniDily.reduce((sum, dil) => sum + Number(dil.jednotkovaCena) * Number(dil.mnozstvi), 0);
+    const cenaDily = nahradniDily.reduce((sum, dil) => sum + Number(dil.dil!.unitPrice) * Number(dil.mnozstvi), 0);
     const cenaOstatni = cenaUkony + cenaDily
     const celkem = cenaDopravy + cenaPrace + cenaOstatni;
     const datum = p.zasah.datum.split('T')[0].split('-').join('/')
     const hodina = p.zasah.datum.split('T')[1].split(':')[0]
-    const technici = await technicians();
-    const technik = technici.find(t => t.name == p.zasah.clovek)!.initials;
+    const technik = p.zasah.inicialy;
 
     return {
         fileName: `SP-${technik}-${datum.replace('/', '_')}-${hodina}.pdf`,
@@ -112,10 +108,10 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
     [poleProUkony[i].kod, kod(typ).toString()],
 ])].flat()),
 /*   nahradniDily */ ...Object.fromEntries([...nahradniDily.map((dil, i) => [
-    [`Text${poleProDily[i]}`, dil.nazev],
-    [`Text${poleProDily[i] + 1}`, dil.kod],
+    [`Text${poleProDily[i]}`, dil.dil!.name],
+    [`Text${poleProDily[i] + 1}`, dil.dil!.code.toString()],
     [`Text${poleProDily[i] + 2}`, dil.mnozstvi],
-    [`Text${poleProDily[i] + 4}`, dil.jednotkovaCena + ' Kč'],
+    [`Text${poleProDily[i] + 4}`, dil.dil!.unitPrice.roundTo(2).toLocaleString('cs') + ' Kč'],
 ])].flat()),
 /*    dopravaCena */ Text54: cenaDopravy.roundTo(2).toLocaleString('cs') + ' Kč',
 /*      praceCena */ Text55: cenaPrace.roundTo(2).toLocaleString('cs') + ' Kč',
