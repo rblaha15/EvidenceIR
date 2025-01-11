@@ -27,6 +27,7 @@
     <tr>
         <th>Jméno</th>
         <th>Email</th>
+        <th>Telefonní číslo</th>
         <th>Iniciály do SP</th>
     </tr>
     </thead>
@@ -35,6 +36,7 @@
         <tr class="table-{colors[i]}">
             <th>{technician.name}</th>
             <td>{technician.email}</td>
+            <td>{technician.phone}</td>
             <td>{technician.initials}</td>
         </tr>
     {/each}
