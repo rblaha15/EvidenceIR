@@ -24,6 +24,7 @@ export type Person = {
 export type Technician = {
 	email: string;
 	name: string;
+	phone: string;
 	initials: string;
 };
 export type SparePart = {

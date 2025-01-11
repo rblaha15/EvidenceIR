@@ -101,9 +101,10 @@
                     .split('\n')
                     .filter((radek) => radek != '')
                     .map((radek) => radek.split(';').map((vec) => (vec != '' ? vec : undefined)))
-                    .map(([name, email, initials]) => ({
+                    .map(([name, email, phone, initials]) => ({
                         name,
                         email,
+                        phone,
                         initials,
                     })) as Technician[];
             };
@@ -177,8 +178,8 @@
     };
 
     const stahnoutTechnicians = () => {
-        download(new File([oldDataTechnicians.map(({ name, email, initials }) =>
-            `${name};${email ?? ''};${initials}`.trim()
+        download(new File([oldDataTechnicians.map(({ name, email, phone, initials }) =>
+            `${name};${email};${phone};${initials}`.trim()
         ).join('\n')], 'technici.csv'), 'technici.csv', 'text/csv');
     };
 
@@ -476,6 +477,7 @@
         />
             Př.: 87654321;Topení Novák s.r.o.;info@novak.cz;+420765765765;Jan Novák
         </p>
+        <p>Uvaděči Regulusu jsou vedeni na kartě <a href="#technicians">Technici</a></p>
         <p class="mb-0">Všechna pole kromě iča a názvu/jména osoby mohou být vynechána</p>
 
         <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mt-2">
@@ -550,9 +552,9 @@
     >
         <h2>Seznam techniků</h2>
         <p class="mt-3 mb-0">
-            Vložte .csv soubor oddělený středníky (;), kde v prvním sloupci je email, v druhém sloupci jméno a ve
-            třetím spoupci iniciály (do SP) technika: <br />
-            Př.: Jan Novák;jan.novak@regulus.cz;JN <br />
+            Vložte .csv soubor oddělený středníky (;), kde v prvním sloupci je email, v druhém sloupci jméno, ve
+            třetím telefonní číslo a ve čtvrtém spoupci iniciály (do SP) technika <a href="#companies-45317020">Regulusu</a>: <br />
+            Př.: Jan Novák;jan.novak@regulus.cz;+420789456123;JN <br />
             Všechna pole jsou povinná
         </p>
 
