@@ -1,6 +1,20 @@
 import defaultData from "./defaultData";
 import type { TranslationReference, Translations } from "./translations";
-import { DvojVybiratkova, Vybiratkova, Pisatkova, Radiova, Nadpisova, Zaskrtavatkova, MultiZaskrtavatkova, Vec, Textova, type Pair, type Raw } from "./Vec.svelte";
+import {
+	DvojVybiratkova,
+	Vybiratkova,
+	Pisatkova,
+	Radiova,
+	Nadpisova,
+	Zaskrtavatkova,
+	MultiZaskrtavatkova,
+	Vec,
+	Textova,
+	type Pair,
+	type Raw,
+	SearchWidget
+} from './Vec.svelte';
+import type { Company, Technician } from '$lib/client/realtime';
 
 export type Data = {
 	ir: {
@@ -50,6 +64,8 @@ export type Data = {
 	};
 	montazka: {
 		nadpis: Nadpisova<Data>;
+		company: SearchWidget<Data, Company>;
+		nebo: Textova<Data>;
 		ico: Pisatkova<Data>;
 		zastupce: Pisatkova<Data>;
 		email: Pisatkova<Data>;
@@ -58,7 +74,10 @@ export type Data = {
 	uvedeni: {
 		nadpis: Nadpisova<Data>;
 		jakoMontazka: Zaskrtavatkova<Data>;
+		company: SearchWidget<Data, Company>;
+		nebo: Textova<Data>;
 		ico: Pisatkova<Data>;
+		regulus: SearchWidget<Data, Technician>;
 		zastupce: Pisatkova<Data>;
 		email: Pisatkova<Data>;
 		telefon: Pisatkova<Data>;

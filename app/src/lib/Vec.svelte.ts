@@ -146,6 +146,7 @@ export class SearchWidget<D, T> extends Vec<D, T | null> {
     zobrazit = $state() as Get<D, boolean>;
     type = $state() as Get<D, HTMLInputTypeAttribute>;
     getSearchItem = $state() as (item: T) => SearchItem;
+    getXmlEntry = $state() as () => string;
     showText = $state() as Get<D, boolean>;
     items = $state() as Get<D, T[]>;
     value = $state() as T | null;
@@ -156,6 +157,7 @@ export class SearchWidget<D, T> extends Vec<D, T | null> {
         label: GetOrVal<D>;
         items: GetOrVal<D, T[]>;
         getSearchItem: (item: T) => SearchItem;
+        getXmlEntry?: () => string;
         onError?: GetOrVal<D>;
         type?: GetOrVal<D, HTMLInputTypeAttribute>;
         required?: GetOrVal<D, boolean>;
@@ -168,6 +170,7 @@ export class SearchWidget<D, T> extends Vec<D, T | null> {
         this.nazev = toGet(args.label);
         this.items = toGet(args.items);
         this.getSearchItem = toGet(args.getSearchItem);
+        this.getXmlEntry = args.getXmlEntry ?? (() => JSON.stringify(this.value));
         this.onError = toGet(args.onError ?? t('requiredField'));
         this.required = toGet(args.required ?? false);
         this.type = toGet(args.type ?? 'search');

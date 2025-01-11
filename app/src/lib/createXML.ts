@@ -1,5 +1,5 @@
 import type { Data, GeneralData } from '$lib/Data';
-import { DvojVybiratkova, MultiZaskrtavatkova, Pisatkova, Prepinatkova, Radiova, type Vec, Vybiratkova, Zaskrtavatkova } from '$lib/Vec.svelte';
+import { DvojVybiratkova, MultiZaskrtavatkova, Pisatkova, Prepinatkova, Radiova, type Vec, Vybiratkova, Zaskrtavatkova, Pocitatkova, SearchWidget } from '$lib/Vec.svelte';
 import type { Translations } from '$lib/translations';
 
 const camelToSnakeCase = (str: string) =>
@@ -20,6 +20,10 @@ const widgetToXML = (v: Vec<Data, any>, t: Translations) => {
         return v.value.map(s => t.get(s)).join(', ')
     if (v instanceof Zaskrtavatkova)
         return v.value ? t.yes : t.no
+    if (v instanceof Pocitatkova)
+        return v.value.toLocaleString('cs')
+    if (v instanceof SearchWidget)
+        return v.getXmlEntry()
     return ''
 };
 export const generateXML = (data: Data, t: Translations) => `

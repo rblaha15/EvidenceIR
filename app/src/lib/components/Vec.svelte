@@ -35,7 +35,7 @@
 {#if vec instanceof Nadpisova && vec.zobrazit(data)}
     <h2>{t.get(vec.nazev(data))}</h2>
 {:else if vec instanceof Textova && vec.zobrazit(data)}
-    <p>{t.get(vec.nazev(data))}</p>
+    <p class="mb-2">{t.get(vec.nazev(data))}</p>
 {:else if vec instanceof Pisatkova && vec.zobrazit(data)}
     <Pisatko bind:vec {t} {data} />
 {:else if vec instanceof DvojVybiratkova && vec.zobrazit(data)}
