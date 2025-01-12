@@ -19,6 +19,9 @@ const config = {
 		}),
 		version: {
 			name: execSync('git rev-parse HEAD').toString().trim()
+		},
+		csrf: {
+			checkOrigin: false,
 		}
 	},
 	compilerOptions: {}
