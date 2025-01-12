@@ -28,8 +28,8 @@ export const POST: RequestHandler = async ({ url, request, fetch }) => {
 
     return new Response(null, {
         status: Number(response.slice(0, 3)),
-        headers: token == 'NAROZENINY' ? [
-            ['Access-Control-Allow-Origin', '*']
-        ] : [],
+        headers: {
+            'Access-Control-Allow-Origin': 'janda-ma-narozeniny.web.app'
+        },
     });
 };
