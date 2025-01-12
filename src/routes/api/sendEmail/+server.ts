@@ -28,8 +28,13 @@ export const POST: RequestHandler = async ({ url, request, fetch }) => {
 
     return new Response(null, {
         status: Number(response.slice(0, 3)),
-        headers: {
-            'Access-Control-Allow-Origin': 'janda-ma-narozeniny.web.app'
-        },
     });
 };
+
+export const OPTIONS = async () => new Response(null, {
+    headers: {
+        'Access-Control-Allow-Origin': 'https://janda-ma-narozeniny.web.app',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+    },
+});
