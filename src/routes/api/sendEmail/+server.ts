@@ -27,6 +27,9 @@ export const POST: RequestHandler = async ({ url, request, fetch }) => {
     const { response } = await sendEmail(message);
 
     return new Response(null, {
-        status: Number(response.slice(0, 3))
+        status: Number(response.slice(0, 3)),
+        headers: token == 'NAROZENINY' ? [
+            ['Access-Control-Allow-Origin', '*']
+        ] : [],
     });
 };
