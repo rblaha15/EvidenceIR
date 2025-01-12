@@ -28,6 +28,9 @@ export const POST: RequestHandler = async ({ url, request, fetch }) => {
 
     return new Response(null, {
         status: Number(response.slice(0, 3)),
+        headers: {
+            'Access-Control-Allow-Origin': 'https://janda-ma-narozeniny.web.app',
+        },
     });
 };
 
