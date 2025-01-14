@@ -1,6 +1,6 @@
 {
-	"short_name": "Evidence IR",
-	"name": "Evidence regulátorů IR",
+	"short_name": "SEIR",
+	"name": "SEIR - Evidence regulátorů IR",
 	"start_url": "/new",
 	"icons": [
 		{
