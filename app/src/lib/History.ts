@@ -23,5 +23,9 @@ export const addToHistory = (entry: HistoryEntry) => {
 }
 
 export const removeFromHistory = (entry: HistoryEntry) => {
-    _history.update(h => h.toSpliced(h.map(a => JSON.stringify(a)).indexOf(JSON.stringify(entry)), 1))
+    _history.update(h => h.toSpliced(h.findIndex(a => a.ir == entry.ir), 1))
+}
+
+export const removeFromHistoryByIR = (ir: string) => {
+    _history.update(h => h.toSpliced(h.findIndex(a => a.ir == ir), 1))
 }
