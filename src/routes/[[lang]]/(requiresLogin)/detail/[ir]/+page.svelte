@@ -10,7 +10,7 @@
     import type { RawUvedeniTC } from '$lib/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
     import { getIsOnline, startTechniciansListening } from '$lib/client/realtime';
-    import { addToHistory, removeFromHistory } from '$lib/History';
+    import { addToHistory, removeFromHistory, removeFromHistoryByIR } from '$lib/History';
     import { HistoryEntry } from '$lib/History.js';
     import { page } from '$app/stores';
     import type { RawUvedeniSOL } from '$lib/UvedeniSOL';
@@ -39,6 +39,7 @@
             let snapshot = await evidence(data.ir as string);
             if (!snapshot.exists()) {
                 type = 'noAccess';
+                removeFromHistoryByIR(data.ir.slice(0, 2) + ' ' + data.ir.slice(2, 6));
                 return;
             }
             values = snapshot.data();
@@ -47,7 +48,10 @@
         } catch (e) {
             console.log((e as FirebaseError).code);
             if ((e as FirebaseError).code == 'unavailable' && !getIsOnline()) type = 'offline';
-            else type = 'noAccess';
+            else {
+                removeFromHistoryByIR(data.ir.slice(0, 2) + ' ' + data.ir.slice(2, 6));
+                type = 'noAccess';
+            }
             return;
         }
         if ($storedHeatPumpCommission != undefined && values.uvedeniTC != undefined)
@@ -238,7 +242,25 @@
 			window.location.href = $relUrl(`/new?edit=${data.ir}`);
 		}}>{t.editRegistration}</a
     >
-    <button class="btn btn-outline-danger d-block mt-2" onclick={remove}
-    >{t.deleteThisEvidence}</button
-    >
+    <button class="btn btn-outline-danger d-block mt-2"
+            data-bs-toggle="modal" data-bs-target="#deleteModal"
+    >{t.deleteThisEvidence}</button>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteModalLabel">Odstranit</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Opravdu chcete odstranit evidenci instalace?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Zrušit</button>
+                    <button type="button" class="btn btn-danger" onclick={remove}>Odstranit</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {/if}
