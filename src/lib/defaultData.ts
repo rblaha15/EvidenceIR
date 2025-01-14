@@ -369,7 +369,7 @@ export default (): Data => ({
         }),
         fakturuje: new Radiova({
             nazev: `whoWillBeInvoiced`,
-            moznosti: [t('assemblyCompany'), t('endCustomer'), t('doNotInvoice')],
+            moznosti: ['assemblyCompany', 'endCustomer'],
             zobrazit: (data) => data.vzdalenyPristup.chce.value,
             required: (data) => data.vzdalenyPristup.chce.value
         })
