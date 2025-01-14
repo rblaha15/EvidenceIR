@@ -58,7 +58,7 @@ const nahradniDil = (show: (d: UDSP) => boolean): NahradniDil => ({
 
 export const defaultDataSP = (): DataSP => ({
     zasah: {
-        datum: new Pisatkova({ nazev: '', type: 'datetime-local', zobrazit: false }),
+        datum: new Pisatkova({ nazev: p`Datum a čas zásahu`, type: 'datetime-local' }),
         clovek: new Pisatkova({ nazev: p`Jméno technika`, zobrazit: false, required: false }),
         inicialy: new Pisatkova({ nazev: p`Iniciály technika (do ID SP)`, zobrazit: false, required: false }),
         doba: new Pisatkova({ nazev: p`Celková doba zásahu (hodin)`, type: 'number', onError: `wrongNumberFormat` }),
