@@ -122,7 +122,7 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
 /*                */ Text60: p.fakturace.hotove == 'no' ? 'Fakturovat:' : '',
 /*                */ Text61: p.fakturace.hotove == 'no' ? t.get(p.fakturace.komu) : '',
 /*                */ Text62: p.fakturace.hotove == 'no' ? t.get(p.fakturace.jak) : '',
-/*                */ Text63: `${e.koncovyUzivatel.prijmeni} ${e.koncovyUzivatel.jmeno}`,
+/*                */ Text63: p.fakturace.komu == 'assemblyCompany' ? e.montazka.zastupce : `${e.koncovyUzivatel.prijmeni} ${e.koncovyUzivatel.jmeno}`,
     };
 };
 export default installationProtocol
