@@ -2,7 +2,7 @@ import { dev } from "$app/environment";
 import { sendEmail, SENDER } from "$lib/client/email";
 import { existuje, novaEvidence, upravitEvidenci } from "$lib/client/firestore";
 import { dataToRawData, nazevIR, type Data, type RawData, rawDataToData, newData } from '$lib/Data';
-import { nazevFirmy } from "$lib/helpers/ares";
+import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import type { Vec } from "$lib/Vec.svelte";
 import { default as MailRRoute } from "$lib/emails/MailRRoute.svelte";
 import { default as MailSDaty } from "$lib/emails/MailSDaty.svelte";
@@ -25,7 +25,7 @@ export default async (
     zobrazitError: () => void
 ) => {
     try {
-        if (editMode) doNotSend = true
+        if (editMode && !dev) doNotSend = true
 
         const page = get(pageStore)
         const relUrl = get(relUrlStore)
@@ -81,6 +81,10 @@ export default async (
             dataToSend.uvedeni.ico.value = dataToSend.montazka.ico.value;
             dataToSend.uvedeni.email.value = dataToSend.montazka.email.value;
             dataToSend.uvedeni.telefon.value = dataToSend.montazka.telefon.value;
+        } else if (dataToSend.uvedeni.ico.value == regulusCRN.toString()) {
+            dataToSend.uvedeni.email.value = dataToSend.uvedeni.regulus.value!.email;
+            dataToSend.uvedeni.telefon.value = dataToSend.uvedeni.regulus.value!.phone;
+            dataToSend.uvedeni.zastupce.value = dataToSend.uvedeni.regulus.value!.name;
         }
         if (dataToSend.mistoRealizace.jakoBydliste.value) {
             dataToSend.mistoRealizace.jakoBydliste.value = false;
@@ -117,8 +121,9 @@ export default async (
             });
             const html = div.innerHTML;
 
-            await sendEmail({
+            const response = await sendEmail({
                 from: SENDER,
+                replyTo: user.email!,
                 to: dev ? 'radek.blaha.15@gmail.com' : 'david.cervenka@regulus.cz',
                 subject: `Založení RegulusRoute k ${nazevIR(t, rawData.ir.typ)} ${rawData.ir.cislo}`,
                 html,
@@ -130,6 +135,7 @@ export default async (
                     }
                 ],
             });
+            console.log(response);
         }
 
         const response = doNotSend ? undefined : await sendEmail({
@@ -138,7 +144,7 @@ export default async (
             to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
             cc: dev ? undefined : user.email!,
             subject: `Nově zaevidovaný regulátor ${nazevIR(t, rawData.ir.typ)} ${rawData.ir.cislo}`,
-            html
+            html,
         });
 
         if (doNotSend || response!.ok) {
@@ -148,7 +154,7 @@ export default async (
                 red: false,
                 load: true
             });
-            window.location.href = relUrl(`/detail/${ir}`);
+            if (!dev) window.location.href = relUrl(`/detail/${ir}`);
             setTimeout(() => {
                 progress({
                     text: t.redirectFailedHtml.parseTemplate({ link: page.url.origin + relUrl(`/detail/${ir}`) }),
