@@ -329,6 +329,7 @@ export default (): Data => ({
                     { text: p`${i.phone}` },
                 ],
             }), show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value == regulusCRN.toString(),
+            required: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value == regulusCRN.toString(),
         }),
         zastupce: new Pisatkova({
             nazev: `representativeName`,
