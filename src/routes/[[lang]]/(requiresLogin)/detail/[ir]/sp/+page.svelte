@@ -40,6 +40,9 @@
         } else {
             p = rawDataSPToDataSP(p, stored);
         }
+
+        if (!p.zasah.datum.value)
+            p.zasah.datum.value = nowISO();
     });
 
     let vysledek = $state({
@@ -54,7 +57,6 @@
     let d = $derived({ protokol: p, evidence } as UDSP);
 
     const save = async () => {
-        p.zasah.datum.value = nowISO();
         const raw = dataSPToRawDataSP(p);
         if (
             list.some((it) => {
