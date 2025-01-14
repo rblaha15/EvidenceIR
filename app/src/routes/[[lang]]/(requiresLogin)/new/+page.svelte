@@ -17,6 +17,7 @@
     import { nazevFirmy } from '$lib/helpers/ares';
     import FormHeader from '../detail/[ir]/FormHeader.svelte';
     import Pisatko from '$lib/components/veci/Pisatko.svelte';
+    import { isUserRegulusOrAdmin } from '$lib/client/auth';
 
     const t = $page.data.translations;
 
@@ -182,6 +183,11 @@
     });
     $effect(() => {
         data.uvedeni.regulus.items = () => $techniciansList
+    });
+    $effect(() => {
+        data.vzdalenyPristup.fakturuje.moznosti = () => $isUserRegulusOrAdmin
+            ? ['assemblyCompany', 'endCustomer', 'doNotInvoice', p`Později, dle protokolu`]
+            : ['assemblyCompany', 'endCustomer']
     });
 </script>
 
