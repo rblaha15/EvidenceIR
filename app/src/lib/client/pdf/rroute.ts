@@ -20,7 +20,7 @@ const rroute: GetPdfData = async ({ evidence: e }, t) => ({
 /*        serCis2 */ Text16: e.ir.cislo.split(' ')[1],
 /*       cisloBOX */ Text17: e.ir.cisloBox,
 /*        cisloTC */ Text18: [e.tc.cislo, e.tc.cislo2, e.tc.cislo3, e.tc.cislo4].filter(c => (c?.length ?? 0) != 0).join(', '),
-/*       zaplatim */ Text22: e.vzdalenyPristup.fakturuje == 'endCustomer' ? t.agreeWIthRRPrice : '',
+/*       zaplatim */ Text22: e.vzdalenyPristup.plati == 'endCustomer' ? t.agreeWIthRRPrice : '',
 /*          datum */ // Text20: '',
 /*         podpis */ // Text21: '',
 });

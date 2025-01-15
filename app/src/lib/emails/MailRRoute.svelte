@@ -44,7 +44,7 @@
 
 <h3>Vzdálený přístup</h3>
 <p>K regulátoru chce mít přístup {e.vzdalenyPristup.pristupMa.map((a) => t.get(a).toLowerCase()).join(', ')}</p>
-<p>Vzdálený přístup zaplatí {t.getN(e.vzdalenyPristup.fakturuje)?.toLowerCase() ?? ''}</p>
+<p>Vzdálený přístup zaplatí {t.getN(e.vzdalenyPristup.plati)?.toLowerCase() ?? ''}</p>
 
 <h2>Uživatel</h2>
 <p><b>Jméno:</b> {e.koncovyUzivatel.jmeno}</p>
