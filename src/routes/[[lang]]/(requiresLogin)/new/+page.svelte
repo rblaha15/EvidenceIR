@@ -185,7 +185,7 @@
         data.uvedeni.regulus.items = () => $techniciansList
     });
     $effect(() => {
-        data.vzdalenyPristup.fakturuje.moznosti = () => $isUserRegulusOrAdmin
+        data.vzdalenyPristup.plati.moznosti = () => $isUserRegulusOrAdmin
             ? ['assemblyCompany', 'endCustomer', 'doNotInvoice', p`Později, dle protokolu`]
             : ['assemblyCompany', 'endCustomer']
     });

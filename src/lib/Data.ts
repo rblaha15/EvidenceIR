@@ -86,7 +86,7 @@ export type Data = {
 		nadpis: Nadpisova<Data>;
 		chce: Zaskrtavatkova<Data>;
 		pristupMa: MultiZaskrtavatkova<Data>;
-		fakturuje: Radiova<Data>;
+		plati: Radiova<Data>;
 	};
 	ostatni: {
 		zodpovednaOsoba: Pisatkova<Data>;
