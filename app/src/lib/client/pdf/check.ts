@@ -22,7 +22,7 @@ const check: GetPdfData = async ({ kontroly, evidence: e }, t) => {
     const start = {
         /*           info */ Text1:
             `${t.endCustomer}: ${e.koncovyUzivatel.jmeno} ${e.koncovyUzivatel.prijmeni} – ${e.koncovyUzivatel.telefon} – ${e.koncovyUzivatel.email}
-${t.roalizationLocation}: ${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}
+${t.realizationLocation}: ${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}
 ${t.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}
 ` + pumps.map(([model, cislo], i) =>
                 t.pumpDetails.parseTemplate({ n: isCascade ? `${i + 1}` : '', model, cislo })
