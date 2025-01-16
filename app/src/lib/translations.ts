@@ -5,9 +5,12 @@ import de from './translations/de';
 import en from './translations/en';
 import { createTemplateG } from './Vec.svelte';
 import derived, { type Derived } from '$lib/derived';
-import './extensions'
+import './extensions';
 
 const translationsMap: PlainTranslationsMap = { cs, en, de /*, sk */ };
+
+export const removePlain = (ref: string) => ref.slice(6);
+export const isPlain = (ref: TranslationReference) => ref.startsWith('PLAIN_');
 
 const withGet = (translations: PlainTranslations): Translations => {
     const withParsing = addParsing(translations) as AddParsing<PlainTranslations>;
@@ -16,24 +19,24 @@ const withGet = (translations: PlainTranslations): Translations => {
         ...derived(withParsing)
     } as AddParsing<PlainTranslations> & Derived;
     const get = (ref: TranslationReference) =>
-			ref == ''
-				? ''
-				: ref.startsWith('PLAIN_')
-					? ref.slice(6)
-					: ((ref
-							.split('.')
-							.reduce<
-								Record<string, any> | string
-							>((acc, key) => (acc as Record<string, any>)[key], withDerived) as string) ?? ref);
+        ref == ''
+            ? ''
+            : isPlain(ref)
+                ? removePlain(ref)
+                : ((ref
+                    .split('.')
+                    .reduce<Record<string, any> | string>((acc, key) =>
+                        (acc as Record<string, any>)[key], withDerived
+                    ) as string) ?? ref);
     return <Translations> {
         ...withDerived,
-        getN: ref => (ref == null ? null : get(ref)),
-        get: ref => (ref == null ? null : get(ref)),
+        getN: ref => ref == null ? null : get(ref),
+        get: ref => ref == null ? null : get(ref),
         getMaybeTemplate: get,
         getT: createTemplateG(
             ({ strings, args }) => ({ strings, args: args.map(get) }),
-            (a) => a
-        ), 
+            a => a
+        ),
     };
 };
 

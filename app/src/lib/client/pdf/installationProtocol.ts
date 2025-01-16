@@ -3,7 +3,7 @@
 import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
-import { nazevIR } from '$lib/Data';
+import { typIR } from '$lib/Data';
 import type { TranslationReference } from '$lib/translations';
 import '$lib/extensions';
 import { technicians } from '$lib/server/realtime';
@@ -74,7 +74,7 @@ const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uv
 /*    montazkaTel */ Text11: e.montazka.telefon,
 /*  montazkaEmail */ Text12: e.montazka.email,
 /*      instalace */ Text13: `${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,
-/*   popisSystemu */ Text14: `${nazevIR(t, e.ir.typ)} ${e.ir.cislo}
+/*   popisSystemu */ Text14: `${typIR(e.ir.typ)} ${e.ir.cislo}
 ${e.ir.cisloBox ? `BOX: ${e.ir.cisloBox}` : ''}
 ${e.sol.typ ? `SOL: ${e.sol.typ} – ${e.sol.pocet}x` : ''}
 ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>

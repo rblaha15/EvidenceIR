@@ -1,7 +1,7 @@
 import { dev } from "$app/environment";
 import { sendEmail, SENDER } from "$lib/client/email";
 import { existuje, novaEvidence, upravitEvidenci } from "$lib/client/firestore";
-import { dataToRawData, nazevIR, type Data, type RawData, rawDataToData, newData } from '$lib/Data';
+import { dataToRawData, typIR, type Data, type RawData, rawDataToData, newData } from '$lib/Data';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import type { Vec } from "$lib/Vec.svelte";
 import { default as MailRRoute } from "$lib/emails/MailRRoute.svelte";
@@ -125,7 +125,7 @@ export default async (
                 from: SENDER,
                 replyTo: user.email!,
                 to: dev ? 'radek.blaha.15@gmail.com' : 'david.cervenka@regulus.cz',
-                subject: `Založení RegulusRoute k ${nazevIR(t, rawData.ir.typ)} ${rawData.ir.cislo}`,
+                subject: `Založení RegulusRoute k ${typIR(rawData.ir.typ)} ${rawData.ir.cislo}`,
                 html,
                 attachments: [
                     {
@@ -143,7 +143,7 @@ export default async (
             replyTo: user.email!,
             to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
             cc: dev ? undefined : user.email!,
-            subject: `Nově zaevidovaný regulátor ${nazevIR(t, rawData.ir.typ)} ${rawData.ir.cislo}`,
+            subject: `Nově zaevidovaný regulátor ${typIR(rawData.ir.typ)} ${rawData.ir.cislo}`,
             html,
         });
 

@@ -1,5 +1,5 @@
 import { nazevFirmy } from "$lib/helpers/ares";
-import { nazevIR, typBOX } from "$lib/Data";
+import { typIR, typBOX } from "$lib/Data";
 import { dateFromISO, todayISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
 import type { GetPdfData } from '$lib/server/pdf';
@@ -38,7 +38,7 @@ const heatPumpCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniTC, 
 /*                */ Text27: u.os.zTv,
 /*                */ Text28: u.os.objemEnOs ? t.suits : t.suitsNot,
 /*                */ Text29: u.os.bazenTc ? t.yes : t.no,
-/*                */ Text30: nazevIR(t, e.ir.typ),
+/*                */ Text30: typIR(e.ir.typ),
 /*                */ Text31: e.ir.cislo,
 /*                */ Text32: t.get(u.reg.pripojeniKInternetu!),
 /*                */ Text33: u.reg.pospojeni ? t.yes : t.no,

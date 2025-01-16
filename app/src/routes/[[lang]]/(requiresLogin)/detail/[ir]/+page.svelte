@@ -6,7 +6,7 @@
     import { evidence, type IR, novaEvidence, odstranitEvidenci } from '$lib/client/firestore';
     import IMask from 'imask';
     import { relUrl, storable } from '$lib/helpers/stores';
-    import { nazevIR } from '$lib/Data';
+    import { celyNazevIR, typIR } from '$lib/Data';
     import type { RawUvedeniTC } from '$lib/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
     import { getIsOnline, startTechniciansListening } from '$lib/client/realtime';
@@ -28,7 +28,7 @@
 
     let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
     let values = $state() as IR;
-    const historyEntry = $derived(HistoryEntry(t, values.evidence));
+    const historyEntry = $derived(HistoryEntry(values.evidence));
     onMount(async () => {
 
         type = 'loading';
@@ -124,11 +124,7 @@
         {/if}
     </p>
 {:else}
-    <h3>
-        {nazevIR(t, values.evidence.ir.typ)}
-        {values.evidence.ir.cislo} : {values.evidence.koncovyUzivatel.prijmeni}
-        {values.evidence.koncovyUzivatel.jmeno} - {values.evidence.mistoRealizace.obec}
-    </h3>
+    <h3>{celyNazevIR(values.evidence)}</h3>
     {#if values.evidence.vzdalenyPristup.chce}
         <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
     {/if}
