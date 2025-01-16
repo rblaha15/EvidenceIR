@@ -41,8 +41,8 @@
             value={hidden ? widget.value ? ' ' : '' : search}
             oninput={e => search = e.currentTarget.value}
             class="form-control border ps-3"
-            class:border-bottom-0={filtered.length > 0 && !hidden || hidden && widget.value}
-            class:rb-0={filtered.length > 0 && !hidden}
+            class:border-bottom-0={!hidden || widget.value}
+            class:rb-0={!hidden}
             onblur={() => {
                 if (!selecting) hidden = true;
                 widget.value = filtered.length === 1 ? filtered[0]: null;
@@ -54,7 +54,7 @@
         <label for="">{nazevSHvezdou(widget, data, t)}</label>
     </label>
 
-    {#if filtered.length > 0 && !hidden}
+    {#if !hidden}
         <div class="list-group position-absolute z-3 w-100 shadow-lg pb-2">
             {#each filtered as item, i}
                 {@const searchItem = widget.getSearchItem(item)}
@@ -82,6 +82,8 @@
                         >{t.get(piece.text)}</p>
                     {/each}
                 </a>
+            {:else}
+                <p class="rt-0 list-group-item mb-0">Nenalezeno</p>
             {/each}
         </div>
     {/if}
@@ -113,8 +115,8 @@
     }
 
     .rt-0 {
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
     }
 
     .form-control:focus {
