@@ -20,6 +20,7 @@ import { checkRegulusOrAdmin, currentUser } from './auth';
 import { firestore } from '../../hooks.client';
 import type { RawUvedeniSOL } from '$lib/UvedeniSOL';
 import type { RawDataSP } from '$lib/SP';
+import type { TranslationReference } from '$lib/translations';
 
 export type IR = {
     evidence: RawData;
@@ -38,15 +39,41 @@ export type IR = {
 export type LegacyIR = {
     uvedeni?: RawUvedeniTC;
     installationProtocol?: RawDataSP;
+    evidence: RawData & {
+        vzdalenyPristup: {
+            fakturuje: TranslationReference;
+        };
+        ir: {
+            cisloBOX: string;
+        };
+    };
 };
 
-const removeUvedeni = (legacyIR: LegacyIR & IR) =>
+const changeBOX: Migration = (legacyIR: LegacyIR & IR) => {
+    if (!legacyIR.evidence.vzdalenyPristup.fakturuje) return legacyIR
+    legacyIR.evidence.vzdalenyPristup.plati = legacyIR.evidence.vzdalenyPristup.fakturuje
+    return legacyIR
+};
+const changeFaktutruje: Migration = (legacyIR: LegacyIR & IR) => {
+    if (!legacyIR.evidence.ir.cisloBOX) return legacyIR
+    legacyIR.evidence.ir.cisloBox = legacyIR.evidence.ir.cisloBOX
+    return legacyIR
+};
+const addUserType: Migration = (legacyIR: LegacyIR & IR) => {
+    if (legacyIR.evidence.koncovyUzivatel.typ) return legacyIR
+    legacyIR.evidence.koncovyUzivatel.typ = `individual`
+    return legacyIR
+};
+const removeUvedeni: Migration = (legacyIR: LegacyIR & IR) =>
     legacyIR.uvedeni ? { uvedeniTC: legacyIR.uvedeni, ...legacyIR } : legacyIR;
-const removeInstallationProtocol = (legacyIR: LegacyIR & IR) =>
+const removeInstallationProtocol: Migration = (legacyIR: LegacyIR & IR) =>
     legacyIR.installationProtocol ? { ...legacyIR, installationProtocols: [legacyIR.installationProtocol] } : legacyIR;
 
+type Migration = (legacyIR: LegacyIR & IR) => LegacyIR & IR;
+
 export const modernizeIR = (legacyIR: LegacyIR & IR): IR =>
-    removeInstallationProtocol(removeUvedeni(legacyIR));
+    [ removeInstallationProtocol, removeUvedeni, addUserType, changeBOX, changeFaktutruje ]
+        .reduce((data, migration) => migration(data), legacyIR);
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
