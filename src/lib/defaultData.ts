@@ -1,15 +1,4 @@
-import {
-    DvojVybiratkova,
-    MultiZaskrtavatkova,
-    Nadpisova,
-    p,
-    Pisatkova,
-    Radiova, SearchWidget,
-    t,
-    Textova,
-    Vybiratkova,
-    Zaskrtavatkova
-} from './Vec.svelte';
+import { DvojVybiratkova, MultiZaskrtavatkova, Nadpisova, p, Pisatkova, Radiova, SearchWidget, Textova, Vybiratkova, Zaskrtavatkova } from './Vec.svelte';
 import { type Data } from './Data';
 import type { Company, Technician } from '$lib/client/realtime';
 import { regulusCRN } from '$lib/helpers/ares';
@@ -41,10 +30,17 @@ export default (): Data => ({
         cisloBox: new Pisatkova({
             nazev: `serialNumberIndoor`,
             onError: `wrongNumberFormat`,
-            regex: /([0-9]{7})-([0-9]{7})/,
-            maskOptions: {
-                mask: `0000000-0000000`
-            },
+            regex: d => d.ir.cisloBox.value.length < 6 ? /[0-9]{5}[0-9\-]/ : d.ir.cisloBox.value[5] == '-'
+                ? /[0-9]{5}-[0-9]-[0-9]{4}-[0-9]{3}/
+                : /[0-9]{7}-[0-9]{7}/,
+            maskOptions: d => ({
+                mask: d.ir.cisloBox.value.length < 6 ? `00000S` : d.ir.cisloBox.value[5] == '-'
+                    ? `00000-0-0000-000`
+                    : `0000000-0000000`,
+                definitions: {
+                    'S': /[0-9\-]/
+                },
+            }),
             zobrazit: (data) => data.ir.typ.value.first?.includes(`BOX`) ?? false,
             required: (data) => data.ir.typ.value.first?.includes(`BOX`) ?? false
         }),
