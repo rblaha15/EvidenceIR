@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { nazevIR, type RawData } from '$lib/Data';
+	import { type RawData, nazevIR, popisIR } from '$lib/Data';
 	import type { Translations } from '$lib/translations';
 
 	const typZarizeni = (e: RawData): string => {
@@ -29,12 +29,8 @@
 <h2>Regulátor</h2>
 <p><b>Typ zařízení:</b> {typZarizeni(e)}</p>
 <p><b>Výrobní číslo:</b> {e.ir.cislo}</p>
-<p><b>Přihlášení:</b> {nazevIR(t, e.ir.typ)} {e.ir.cislo}</p>
-<p>
-	<b>Poznámka:</b>
-	{e.koncovyUzivatel.prijmeni}
-	{e.koncovyUzivatel.jmeno} - {e.mistoRealizace.obec}
-</p>
+<p><b>Přihlášení:</b> {nazevIR(e.ir)}</p>
+<p><b>Poznámka:</b> {popisIR(e)}</p>
 <h3>Zodpovědná osoba:</h3>
 <p>{e.ostatni.zodpovednaOsoba}</p>
 <h3>Adresa:</h3>
@@ -47,8 +43,10 @@
 <p>Vzdálený přístup zaplatí {t.getN(e.vzdalenyPristup.plati)?.toLowerCase() ?? ''}</p>
 
 <h2>Uživatel</h2>
-<p><b>Jméno:</b> {e.koncovyUzivatel.jmeno}</p>
-<p><b>Příjmení:</b> {e.koncovyUzivatel.prijmeni}</p>
+{#if e.koncovyUzivatel.typ === `individual`}
+	<p><b>Jméno:</b> {e.koncovyUzivatel.jmeno}</p>
+	<p><b>Příjmení:</b> {e.koncovyUzivatel.prijmeni}</p>
+{/if}
 <p><b>Přihlášení:</b> {e.koncovyUzivatel.email}</p>
 <p><b>Heslo:</b> Regulusroute1</p>
 <p><b>Telefon:</b> {e.koncovyUzivatel.telefon}</p>

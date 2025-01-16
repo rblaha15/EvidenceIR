@@ -13,7 +13,7 @@
         const res = await getAll();
         const all = res.docs
             .map((sn) => sn.data())
-            .map((data) => HistoryEntry(t, data.evidence))
+            .map((data) => HistoryEntry(data.evidence))
             .toSorted((a, b) => a.ir.localeCompare(b.ir));
         w.items = () => all
     });

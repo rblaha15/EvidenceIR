@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { evidenceStore, upravitUzivatele } from '$lib/client/firestore';
-	import { nazevIR } from '$lib/Data';
+	import { celyNazevIR, typIR } from '$lib/Data';
 
 	interface Props {
 		data: PageData;
@@ -19,11 +19,7 @@
 	<div class="spinner-border text-danger"></div>
 {:else}
 	<h1>Uživatelé s přístupem k evidenci</h1>
-	<h3>
-		{nazevIR(t, $ir.evidence.ir.typ)}
-		{$ir.evidence.ir.cislo} : {$ir.evidence.koncovyUzivatel.prijmeni}
-		{$ir.evidence.koncovyUzivatel.jmeno} - {$ir.evidence.mistoRealizace.obec}
-	</h3>
+	<h3>{celyNazevIR($ir.evidence)}</h3>
 
 	<div class="d-flex align-items-center">
 		<label class="form-floating flex-grow-1 me-2">

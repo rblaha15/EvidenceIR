@@ -1,5 +1,5 @@
 import defaultData from "./defaultData";
-import type { TranslationReference, Translations } from "./translations";
+import { getTranslations, removePlain, type TranslationReference, type Translations } from './translations';
 import {
 	DvojVybiratkova,
 	Vybiratkova,
@@ -136,10 +136,22 @@ export const dataToRawData = (data: Data): RawData => {
 	return Object.fromEntries(rawDataEntries) as RawData;
 };
 
-export const nazevIR = (t: Translations, { first, second }: Pair) =>
-	first?.includes('BOX')
-		? t.getT`${<TranslationReference>first!.split(' ').slice(0, 2).join(' ')} ${second!}`
-		: t.getT`${<TranslationReference>first!.replaceAll(' ', '')}${second!}`;
+export const celyNazevIR = (evidence: RawData) => `${nazevIR(evidence.ir)} : ${popisIR(evidence)}`
+export const nazevIR = (ir: RawData['ir']) => `${typIR(ir.typ)} ${ir.cislo}`
+
+export const typIR = (typ: Pair) =>
+	typ.first?.includes('BOX')
+		? `${removePlain(typ.first!.split(' ').slice(0, 2).join(' '))} ${removePlain(typ.second!)}`
+		: `${removePlain(typ.first!.replaceAll(' ', ''))}${removePlain(typ.second!)}`;
+
+const odebratTypSpolecnosti = (nazev: string) => [
+	's.r.o.', 'spol. s r.o.', 'a.s.', 'k.s.', 'v.o.s.'
+].reduce((nazev, typ) => nazev.replace(typ, ''), nazev).trim()
+
+export const popisIR = (evidence: RawData) =>
+	evidence.koncovyUzivatel.typ == `company`
+		? `${odebratTypSpolecnosti(evidence.koncovyUzivatel.nazev)} - ${evidence.bydliste.obec}`
+		: `${evidence.koncovyUzivatel.prijmeni} ${evidence.koncovyUzivatel.jmeno} - ${evidence.bydliste.obec}`
 
 export const typBOX = (cisloBOX: string) => ({
 	"18054": "BOX 12 CTC 3/3",
