@@ -59,7 +59,9 @@ export const nazevSHvezdou = <D>(
     vec: Vec<any, any> & { required: Get<D, boolean> },
     data: D,
     t: Translations
-) => t.get(vec.nazev(data)) + (!vec.required(data) ? '' : ' *');
+) => {
+    const nazev = t.get(vec.nazev(data));
+    return nazev == '' ? '' : nazev + (!vec.required(data) ? '' : ' *');};
 
 export abstract class Vec<D, U> {
     abstract nazev: Get<D, TranslationReference>;

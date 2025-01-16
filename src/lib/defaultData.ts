@@ -14,6 +14,10 @@ import { type Data } from './Data';
 import type { Company, Technician } from '$lib/client/realtime';
 import { regulusCRN } from '$lib/helpers/ares';
 
+const jeFO = (d: Data) => d.koncovyUzivatel.typ.value == `individual`;
+const fo = (d: Data) => jeFO(d);
+const po = (d: Data) => !jeFO(d);
+
 export default (): Data => ({
     ir: {
         typ: new DvojVybiratkova({
@@ -191,35 +195,42 @@ export default (): Data => ({
     },
     koncovyUzivatel: {
         nadpis: new Nadpisova({ nazev: `endUser` }),
+        typ: new Radiova({
+            nazev: ``, vybrano: `individual`,
+            moznosti: [`individual`, `company`]
+        }),
+        prijmeni: new Pisatkova({
+            nazev: `surname`, autocomplete: `section-user billing family-name`, zobrazit: fo, required: fo,
+        }),
         jmeno: new Pisatkova({
-            nazev: `name`,
+            nazev: `name`, zobrazit: fo, required: fo,
             autocomplete: `section-user billing given-name`
         }),
-        prijmeni: new Pisatkova({ nazev: `surname`, autocomplete: `section-user billing family-name` }),
         narozeni: new Pisatkova({
-            nazev: `birthday`,
-            onError: `wrongDateFormat`,
+            nazev: `birthday`, onError: `wrongDateFormat`,
             regex: /^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?[0-9]{4}$/,
-            autocomplete: `bday`,
-            required: false
+            autocomplete: `bday`, required: false, zobrazit: fo,
+        }),
+        nazev: new Pisatkova({ nazev: `companyName`, zobrazit: po, required: po }),
+        pobocka: new Pisatkova({ nazev: `establishment`, required: false, zobrazit: po }),
+        ico: new Pisatkova({
+            nazev: `crn`, onError: `wrongCRNFormat`,
+            regex: /^\d{8}(\d{2})?$/, required: po, zobrazit: po,
+            maskOptions: { mask: `00000000[00]` }
         }),
         telefon: new Pisatkova({
-            nazev: `phone`,
-            onError: `wrongPhoneFormat`,
+            nazev: `phone`, onError: `wrongPhoneFormat`,
             regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
-            type: `tel`,
-            autocomplete: `section-user billing mobile tel`
+            type: `tel`, autocomplete: `section-user billing mobile tel`,
         }),
         email: new Pisatkova({
-            nazev: `email`,
-            onError: `wrongEmailFormat`,
+            nazev: `email`, onError: `wrongEmailFormat`,
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
-            type: `email`,
-            autocomplete: `section-user billing mobile email`
+            type: `email`, autocomplete: `section-user billing mobile email`
         })
     },
     bydliste: {
-        nadpis: new Nadpisova({ nazev: `residence` }),
+        nadpis: new Nadpisova({ nazev: d => jeFO(d) ? `residence` : `headquarters` }),
         ulice: new Pisatkova({
             nazev: `street`,
             autocomplete: `section-user billing street-address`
@@ -236,8 +247,11 @@ export default (): Data => ({
         })
     },
     mistoRealizace: {
-        nadpis: new Nadpisova({ nazev: `roalizationLocation` }),
-        jakoBydliste: new Zaskrtavatkova({ nazev: `realisedAtResidence`, required: false, showInXML: false }),
+        nadpis: new Nadpisova({ nazev: `realizationLocation` }),
+        jakoBydliste: new Zaskrtavatkova({
+            nazev: d => jeFO(d) ? `samePlaceAsResidence` : `samePlaceAsHeadquarters`,
+            required: false, showInXML: false,
+        }),
         ulice: new Pisatkova({
             nazev: `street`,
             required: false,

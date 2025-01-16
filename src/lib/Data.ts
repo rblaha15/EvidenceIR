@@ -43,9 +43,13 @@ export type Data = {
 	};
 	koncovyUzivatel: {
 		nadpis: Nadpisova<Data>;
-		jmeno: Pisatkova<Data>;
+		typ: Radiova<Data>;
 		prijmeni: Pisatkova<Data>;
+		jmeno: Pisatkova<Data>;
 		narozeni: Pisatkova<Data>;
+		nazev: Pisatkova<Data>;
+		pobocka: Pisatkova<Data>;
+		ico: Pisatkova<Data>;
 		telefon: Pisatkova<Data>;
 		email: Pisatkova<Data>;
 	};
