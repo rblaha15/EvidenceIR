@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import authentication from '$lib/client/authentication';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
+	import { setTitle } from '$lib/helpers/title.svelte';
 
 	let odesila = $state(false);
 	let email = $state(browser ? ($page.url.searchParams.get('email') ?? '') : '');
@@ -46,9 +47,9 @@
 		});
 		window.location.href = link;
 	};
-</script>
 
-<h1>{t.signUp}</h1>
+	setTitle(t.signUp)
+</script>
 
 <form>
 	<FormDefaults />

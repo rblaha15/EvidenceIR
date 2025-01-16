@@ -5,6 +5,8 @@
 	import Navigation from '$lib/components/Navigation.svelte';
 	import { preferredLanguage } from '$lib/languages';
 	import { onMount, type Snippet } from 'svelte';
+	import { writable } from 'svelte/store';
+	import { titleSvelte } from '$lib/helpers/title.svelte';
 	interface Props {
 		children?: Snippet;
 	}
@@ -35,15 +37,16 @@
 	<style lang="scss">
 		@import 'bootstrap/scss/bootstrap';
 	</style>
-</svelte:head>
 
-<title>{dev ? '(dev) ' : ''}{t.longAppName}</title>
+	<title>{dev ? '(dev) ' : ''}SEIR :: {$titleSvelte}</title>
+</svelte:head>
 
 {#if nacita}
 	<div class="spinner-border text-danger m-2"></div>
 {:else}
 	<Navigation {t} />
 	<div class="container my-3">
+		<h1>{$titleSvelte}</h1>
 		{@render children?.()}
 	</div>
 {/if}

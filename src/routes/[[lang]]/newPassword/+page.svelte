@@ -8,6 +8,7 @@
 	import { changePassword } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import type { PageData } from './$types';
+	import { setTitle } from '$lib/helpers/title.svelte';
 
 	interface Props {
 		data: PageData;
@@ -83,18 +84,18 @@
 				mode = originalMode
 			});
 	};
+
+	setTitle(t.newPassword)
 </script>
 
-<h1>{t.newPassword}</h1>
-
-{#if mode == 'resetSent'}
+{#if mode === 'resetSent'}
 	<p>Email odeslán. Nyní můžete toto okno zavřít.</p>
-{:else if mode == 'resetSending'}
+{:else if mode === 'resetSending'}
 	<div class="d-flex align-items-center">
 		<span>Odesílání</span>
 		<div class="spinner-border text-danger ms-2"></div>
 	</div>
-{:else if mode == 'resetEmail' || !oobCode}
+{:else if mode === 'resetEmail' || !oobCode}
 	<form>
 		<FormDefaults />
 		<div class="mt-3">
@@ -143,7 +144,7 @@
 			<p class="text-danger mt-3 mb-0">{@html error}</p>
 		{/if}
 		<div class="d-flex align-content-center mt-3">
-			{#if mode == "saving"}
+			{#if mode === "saving"}
 				<div class="spinner-border text-danger m-2"></div>
 			{:else}
 				<button type="submit" class="btn btn-primary me-2" onclick={resetPassword}>

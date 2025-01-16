@@ -22,6 +22,7 @@
     import TechniciansTable from './TechniciansTable.svelte';
     import SparePartsTable from './SparePartsTable.svelte';
     import { regulusCRN } from '$lib/helpers/ares';
+    import { setTitle } from '$lib/helpers/title.svelte';
 
     onMount(async () => {
         await startLidiListening();
@@ -312,9 +313,9 @@
         ...addColor(changes, 'warning'),
         ...addColor(removals, 'danger'),
     ];
-</script>
 
-<h1>Admin</h1>
+    setTitle('Admin')
+</script>
 
 <ul class="nav nav-tabs" role="tablist">
     <li class="nav-item" role="presentation">

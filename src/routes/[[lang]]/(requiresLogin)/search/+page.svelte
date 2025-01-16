@@ -8,6 +8,7 @@
     import { onMount } from 'svelte';
     import { p, SearchWidget } from '$lib/Vec.svelte';
     import Search from './Search.svelte';
+    import { setTitle } from '$lib/helpers/title.svelte';
 
     onMount(async () => {
         const res = await getAll();
@@ -41,9 +42,10 @@
             goto($relUrl(`/detail/${he.ir.replace(' ', '')}`));
         }
     })
+
+    setTitle(t.controllerSearch)
 </script>
 
-<h1>{t.controllerSearch}</h1>
 <Search
     data={{}}
     {t}

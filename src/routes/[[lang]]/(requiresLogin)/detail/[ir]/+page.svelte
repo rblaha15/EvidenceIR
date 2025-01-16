@@ -14,6 +14,7 @@
     import { HistoryEntry } from '$lib/History.js';
     import { page } from '$app/stores';
     import type { RawUvedeniSOL } from '$lib/UvedeniSOL';
+    import { setTitle } from '$lib/helpers/title.svelte';
 
     interface Props {
         data: PageData;
@@ -98,11 +99,10 @@
         await odstranitEvidenci(data.ir as string);
         window.location.replace($relUrl(`/detail/${newIr.replace(' ', '')}`));
     };
+
+    setTitle(t.evidenceDetails)
 </script>
 
-<h1>
-    {t.evidenceDetails}
-</h1>
 {#if deleted}
     <div class="alert alert-success" role="alert">
         {t.successfullyDeleted}

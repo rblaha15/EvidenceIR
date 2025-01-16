@@ -12,6 +12,7 @@
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import { dateFromISO, todayISO } from '$lib/helpers/date';
+	import { setTitle } from '$lib/helpers/title.svelte';
 
 	interface Props {
 		data: PageData;
@@ -58,9 +59,10 @@
 		};
 		window.history.back();
 	};
+
+	setTitle(t.yearlyHPCheck)
 </script>
 
-<h1>{t.yearlyHPCheck}</h1>
 <h3>{t.year}: {rok ?? '…'}</h3>
 
 <label class="form-floating d-block mb-2">
@@ -83,7 +85,7 @@
 	<label for="">{t.checkDate}</label>
 </label>
 
-	{#each orderArray as v}
+{#each orderArray as v}
 	{@const value = k[v.key1][v.key2]}
 	{@const type = kontrolaTypes[v.key1][v.key2]}
 	{@const name = type === 'nadpis' ? n[`${v.key1}Name`] : n[v.key1][v.key2]}

@@ -2,6 +2,7 @@
 	import type { PageData } from './$types';
 	import { evidenceStore, upravitUzivatele } from '$lib/client/firestore';
 	import { celyNazevIR, typIR } from '$lib/Data';
+	import { setTitle } from '$lib/helpers/title.svelte';
 
 	interface Props {
 		data: PageData;
@@ -13,12 +14,13 @@
 	const ir = evidenceStore(data.ir);
 
 	let email = $state('');
+
+	setTitle('Uživatelé s přístupem k evidenci')
 </script>
 
 {#if !$ir}
 	<div class="spinner-border text-danger"></div>
 {:else}
-	<h1>Uživatelé s přístupem k evidenci</h1>
 	<h3>{celyNazevIR($ir.evidence)}</h3>
 
 	<div class="d-flex align-items-center">
