@@ -2,6 +2,7 @@
 
     import type { Writable } from 'svelte/store';
     import type { Translations } from '$lib/translations';
+    import { setTitle } from '$lib/helpers/title.svelte';
 
     interface Props {
         title: string;
@@ -17,10 +18,11 @@
         t,
     }: Props = $props();
 
-
+    $effect(() => {
+        setTitle(title)
+    })
 </script>
 
-<h1>{title}</h1>
 <div class="d-flex mx-2 justify-content-between w-100 align-items-center">
     <span>* {t.mandatoryFields}</span>
     {#if showResetButton}

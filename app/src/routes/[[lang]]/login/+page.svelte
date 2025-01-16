@@ -6,6 +6,7 @@
 	import { relUrl } from '$lib/helpers/stores';
 	import { type Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
+	import { setTitle } from '$lib/helpers/title.svelte';
 
 	const t: Translations = $page.data.translations;
 
@@ -46,9 +47,9 @@
 				}
 			});
 	}
+	setTitle(t.logIn)
 </script>
 
-<h1>{t.logIn}</h1>
 {#if done}
 	<div class="alert alert-success" role="alert">
 		{#if done === 'edit'}
