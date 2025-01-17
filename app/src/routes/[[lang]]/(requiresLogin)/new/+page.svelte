@@ -4,7 +4,7 @@
 
     import * as v from '$lib/Vec.svelte';
     import { p } from '$lib/Vec.svelte';
-    import { type Data, dataToRawData, newData, type RawData, rawDataToData, typBOX } from '$lib/Data';
+    import { type Data, dataToRawData, newData, type RawData, rawDataToData } from '$lib/Data';
     import { responsiblePerson, startTechniciansListening, techniciansList } from '$lib/client/realtime';
     import { companies } from './companies';
     import odeslat from './odeslat.svelte';
@@ -18,6 +18,7 @@
     import FormHeader from '../detail/[ir]/FormHeader.svelte';
     import Pisatko from '$lib/components/veci/Pisatko.svelte';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
 
     const t = $page.data.translations;
 
@@ -189,6 +190,7 @@
             ? ['assemblyCompany', 'endCustomer', 'doNotInvoice', p`Později, dle protokolu`]
             : ['assemblyCompany', 'endCustomer']
     });
+    const chyba = $derived(formaSpolecnostiJeSpatne(data.koncovyUzivatel.nazev.value))
 </script>
 
 <FormHeader showResetButton={mode === 'create' || mode === 'createStored'} store={storedData} {t}
@@ -214,6 +216,9 @@
     {/if}
     {#if list[i] === data.ir.cisloBox && list[i].zobrazit(data) && typBOXu}
         <p>Rozpoznáno: {typBOXu}</p>
+    {/if}
+    {#if list[i] === data.koncovyUzivatel.nazev && list[i].zobrazit(data) && chyba}
+        <p>Pozor, zadaná forma společnosti není správně formátovaná!</p>
     {/if}
     {#if list[i] === data.montazka.ico && list[i].zobrazit(data)}
         <p>

@@ -3,11 +3,11 @@
 import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
-import { typIR } from '$lib/Data';
 import type { TranslationReference } from '$lib/translations';
 import '$lib/extensions';
 import { technicians } from '$lib/server/realtime';
 import type { GetPdfData } from '$lib/server/pdf';
+import { jmenoUzivatele, typIR } from '$lib/helpers/ir';
 
 const cenik = {
     transportation: 9.92,
@@ -62,8 +62,9 @@ const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uv
     return {
         fileName: `SP-${technik}-${datum.replace('/', '_')}-${hodina}.pdf`,
 /*             id */ Text1: `${technik} ${datum}-${hodina}`,
-/*    koncakJmeno */ Text2: `${e.koncovyUzivatel.prijmeni} ${e.koncovyUzivatel.jmeno}`,
-/* koncakNarozeni */ Text3: e.koncovyUzivatel.narozeni.length == 0 ? null : e.koncovyUzivatel.narozeni,
+/*    koncakJmeno */ Text2: jmenoUzivatele(e.koncovyUzivatel),
+/* koncakNarozeni */ Text3: e.koncovyUzivatel.typ == 'company'
+    ? e.koncovyUzivatel.ico : e.koncovyUzivatel.narozeni.length == 0 ? null : e.koncovyUzivatel.narozeni,
 /*       bydliste */ Text4: `${e.bydliste.ulice}, ${e.bydliste.psc} ${e.bydliste.obec}`,
 /*       kocakTel */ Text5: e.koncovyUzivatel.telefon,
 /*     kocakEmail */ Text6: e.koncovyUzivatel.email,

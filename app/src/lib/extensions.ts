@@ -67,3 +67,30 @@ Number.prototype.roundTo = function (decimalPlaces = 0) {
 	const power = 10 ** decimalPlaces;
 	return Math.round(this as number * power) / power;
 }
+
+interface Array<T> {
+	distinctBy: <T, K>(
+		this: T[],
+		key: (item: T, index: number, array: T[]) => K,
+		options?: { reversed?: Boolean },
+	) => T[]
+}
+
+Array.prototype.distinctBy = function <T, K>(
+	this: T[],
+	key: (value: T, index: number, array: T[]) => K,
+	{ reversed = false }: { reversed?: Boolean } = {},
+) {
+	const maybeReverse = <T>(array: T[]) => reversed ? array.toReversed() : array;
+
+	return maybeReverse([
+		...new Map(
+			maybeReverse(this.map((value, index, array) =>
+				[
+					key(value, index, array),
+					value
+				] as [K | string, T]
+			))
+		).values()
+	]);
+}

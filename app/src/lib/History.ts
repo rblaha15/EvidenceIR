@@ -1,7 +1,8 @@
 import { readonly } from "svelte/store"
 import { storable } from "./helpers/stores"
-import { typIR, type RawData, popisIR } from '$lib/Data';
+import { type RawData } from '$lib/Data';
 import type { Translations } from '$lib/translations';
+import { popisIR, typIR } from '$lib/helpers/ir';
 
 const _history = storable<HistoryEntry[]>("history2", [])
 
@@ -19,7 +20,7 @@ export const HistoryEntry = (evidence: RawData): HistoryEntry => ({
 })
 
 export const addToHistory = (entry: HistoryEntry) => {
-    _history.update(h => [...new Set([entry, ...h.toReversed()].map(a => JSON.stringify(a)))].toReversed().map(a => JSON.parse(a)))
+    _history.update(h => [...h, entry].distinctBy(it => it.ir, { reversed: true }))
 }
 
 export const removeFromHistory = (entry: HistoryEntry) => {
@@ -27,5 +28,5 @@ export const removeFromHistory = (entry: HistoryEntry) => {
 }
 
 export const removeFromHistoryByIR = (ir: string) => {
-    _history.update(h => h.toSpliced(h.findIndex(a => a.ir == ir), 1))
+    _history.update(h => h.filter(a => a.ir == ir))
 }

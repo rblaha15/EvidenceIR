@@ -1,7 +1,7 @@
 import { dev } from "$app/environment";
 import { sendEmail, SENDER } from "$lib/client/email";
 import { existuje, novaEvidence, upravitEvidenci } from "$lib/client/firestore";
-import { dataToRawData, typIR, type Data, type RawData, rawDataToData, newData } from '$lib/Data';
+import { dataToRawData, type Data, type RawData, rawDataToData, newData } from '$lib/Data';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import type { Vec } from "$lib/Vec.svelte";
 import { default as MailRRoute } from "$lib/emails/MailRRoute.svelte";
@@ -14,6 +14,7 @@ import { getTranslations } from '$lib/translations';
 import { getIsOnline } from "$lib/client/realtime";
 import { mount } from "svelte";
 import { generateXML } from '$lib/createXML';
+import { typIR } from '$lib/helpers/ir';
 
 const storedData = storable<RawData>('stored_data');
 

@@ -1,5 +1,6 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import type { GetPdfData } from '$lib/server/pdf';
+import { jmenoUzivatele } from '$lib/helpers/ir';
 
 const rroute: GetPdfData = async ({ evidence: e }, t) => ({
 /*   icoMontaznik */ Text1: e.montazka.ico,
@@ -8,8 +9,9 @@ const rroute: GetPdfData = async ({ evidence: e }, t) => ({
 /*      icoUvadec */ Text4: e.uvedeni.ico,
 /*    firmaUvadec */ Text5: (await nazevFirmy(e.uvedeni.ico, fetch)) ?? null,
 /*    jmenoUvadec */ Text6: e.uvedeni.zastupce,
-/*   jmenoPrimeni */ Text7: `${e.koncovyUzivatel.jmeno} ${e.koncovyUzivatel.prijmeni}`,
-/*       narozeni */ Text8: e.koncovyUzivatel.narozeni,
+/*   jmenoPrimeni */ Text7: jmenoUzivatele(e.koncovyUzivatel),
+/*       narozeni */ Text8: e.koncovyUzivatel.typ == 'company'
+    ? e.koncovyUzivatel.ico : e.koncovyUzivatel.narozeni.length == 0 ? null : e.koncovyUzivatel.narozeni,
 /*       bydliste */ Text9: `${e.bydliste.ulice}, ${e.bydliste.psc} ${e.bydliste.obec}`,
 /*         adresa */ Text10: e.mistoRealizace.ulice,
 /*        adresa2 */ Text11: `${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,

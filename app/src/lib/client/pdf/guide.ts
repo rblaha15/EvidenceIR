@@ -1,5 +1,6 @@
-import { celyNazevIR, nazevIR, typIR } from '$lib/Data';
+
 import type { GetPdfData } from '$lib/server/pdf';
+import { celyNazevIR, nazevIR, typIR } from '$lib/helpers/ir';
 
 const guide: GetPdfData = async ({ evidence: e }, t) => ({
 /*          email */ Text1: e.koncovyUzivatel.email,

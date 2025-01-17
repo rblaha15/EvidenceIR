@@ -47,22 +47,34 @@ export type LegacyIR = {
             cisloBOX: string;
         };
     };
+    uvedeniTC?: RawUvedeniTC & {
+        uvadeni: {
+            typZaruky: null | TranslationReference | 'extendedWarranty10Years' | 'extendedWarranty7Years'
+        };
+    };
 };
 
+const changeHPWarranty: Migration = (legacyIR: LegacyIR & IR) => {
+    if (!legacyIR.uvedeniTC) return legacyIR;
+    if (!legacyIR.uvedeniTC.uvadeni.typZaruky!.includes('extended')) return legacyIR;
+    legacyIR.uvedeniTC.uvadeni.typZaruky =
+        legacyIR.uvedeniTC.uvadeni.typZaruky as string == 'extendedWarranty10Years' ? 'yes' : 'no';
+    return legacyIR;
+};
 const changeBOX: Migration = (legacyIR: LegacyIR & IR) => {
-    if (!legacyIR.evidence.vzdalenyPristup.fakturuje) return legacyIR
-    legacyIR.evidence.vzdalenyPristup.plati = legacyIR.evidence.vzdalenyPristup.fakturuje
-    return legacyIR
+    if (!legacyIR.evidence.vzdalenyPristup.fakturuje) return legacyIR;
+    legacyIR.evidence.vzdalenyPristup.plati = legacyIR.evidence.vzdalenyPristup.fakturuje;
+    return legacyIR;
 };
 const changeFaktutruje: Migration = (legacyIR: LegacyIR & IR) => {
-    if (!legacyIR.evidence.ir.cisloBOX) return legacyIR
-    legacyIR.evidence.ir.cisloBox = legacyIR.evidence.ir.cisloBOX
-    return legacyIR
+    if (!legacyIR.evidence.ir.cisloBOX) return legacyIR;
+    legacyIR.evidence.ir.cisloBox = legacyIR.evidence.ir.cisloBOX;
+    return legacyIR;
 };
 const addUserType: Migration = (legacyIR: LegacyIR & IR) => {
-    if (legacyIR.evidence.koncovyUzivatel.typ) return legacyIR
-    legacyIR.evidence.koncovyUzivatel.typ = `individual`
-    return legacyIR
+    if (legacyIR.evidence.koncovyUzivatel.typ) return legacyIR;
+    legacyIR.evidence.koncovyUzivatel.typ = `individual`;
+    return legacyIR;
 };
 const removeUvedeni: Migration = (legacyIR: LegacyIR & IR) =>
     legacyIR.uvedeni ? { uvedeniTC: legacyIR.uvedeni, ...legacyIR } : legacyIR;
@@ -72,7 +84,7 @@ const removeInstallationProtocol: Migration = (legacyIR: LegacyIR & IR) =>
 type Migration = (legacyIR: LegacyIR & IR) => LegacyIR & IR;
 
 export const modernizeIR = (legacyIR: LegacyIR & IR): IR =>
-    [ removeInstallationProtocol, removeUvedeni, addUserType, changeBOX, changeFaktutruje ]
+    [removeInstallationProtocol, removeUvedeni, addUserType, changeBOX, changeFaktutruje, changeHPWarranty]
         .reduce((data, migration) => migration(data), legacyIR);
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({

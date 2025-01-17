@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { evidenceStore, upravitUzivatele } from '$lib/client/firestore';
-	import { celyNazevIR, typIR } from '$lib/Data';
 	import { setTitle } from '$lib/helpers/title.svelte';
+    import { celyNazevIR, typIR } from '$lib/helpers/ir';
 
 	interface Props {
 		data: PageData;

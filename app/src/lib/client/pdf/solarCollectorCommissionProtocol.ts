@@ -1,12 +1,13 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/server/pdf';
+import { jmenoUzivatele } from '$lib/helpers/ir';
 
 const solarCollectorCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniSOL }, t) => {
     const u = uvedeniSOL!;
 
     return {
-/*    koncakJmeno */ Text1: `${e.koncovyUzivatel.jmeno} ${e.koncovyUzivatel.prijmeni}`,
+/*    koncakJmeno */ Text1: jmenoUzivatele(e.koncovyUzivatel),
 /*      koncakTel */ Text2: e.koncovyUzivatel.telefon,
 /*    koncakEmail */ Text3: e.koncovyUzivatel.email,
 /*      instalace */ Text4: `${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,
