@@ -8,6 +8,7 @@ export default (i: number): GetPdfData => async ({ evidence: e }, t) => {
     const cislo = [e.tc.cislo, e.tc.cislo2, e.tc.cislo3, e.tc.cislo4][i];
     const model = [e.tc.model, e.tc.model2, e.tc.model3, e.tc.model4][i];
     return {
+        fileName: `${e.ir.cislo} ${t.warrantyFileName}`,
 /*        tcModel */ Text1: t.get(model),
 /*        tcCislo */ Text2: cislo,
 /*       montazka */ Text3: `${e.montazka.ico} — ${montazka?.obchodniJmeno ?? ''}`,

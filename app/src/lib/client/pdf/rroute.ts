@@ -3,6 +3,7 @@ import type { GetPdfData } from '$lib/server/pdf';
 import { jmenoUzivatele } from '$lib/helpers/ir';
 
 const rroute: GetPdfData = async ({ evidence: e }, t) => ({
+    fileName: `${e.ir.cislo} ${t.regulusRouteFileName}`,
 /*   icoMontaznik */ Text1: e.montazka.ico,
 /* firmaMontaznik */ Text2: (await nazevFirmy(e.montazka.ico, fetch)) ?? null,
 /* jmenoMontaznik */ Text3: e.montazka.zastupce,
