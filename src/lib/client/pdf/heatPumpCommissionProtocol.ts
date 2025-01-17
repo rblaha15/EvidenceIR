@@ -1,15 +1,15 @@
 import { nazevFirmy } from "$lib/helpers/ares";
-import { typIR, typBOX } from "$lib/Data";
 import { dateFromISO, todayISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
 import type { GetPdfData } from '$lib/server/pdf';
+import { jmenoUzivatele, typBOX, typIR } from '$lib/helpers/ir';
 
 const heatPumpCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniTC, }, t) => {
     const u = uvedeniTC!
     const { isCascade, pumps } = cascadeDetails(e, t);
 
     return ({
-/*    koncakJmeno */ Text1: `${e.koncovyUzivatel.jmeno} ${e.koncovyUzivatel.prijmeni}`,
+/*    koncakJmeno */ Text1: jmenoUzivatele(e.koncovyUzivatel),
 /*      koncakTel */ Text2: e.koncovyUzivatel.telefon,
 /*    koncakEmail */ Text3: e.koncovyUzivatel.email,
 /*      instalace */ Text4: `${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,

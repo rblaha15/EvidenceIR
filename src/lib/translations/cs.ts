@@ -214,8 +214,6 @@ export default {
     wasControllerSetToParameters: `Regulátor tepelného čerpadla byl nastaven na předepsané parametry`,
     wasOwnerFamiliarizedWithFunction: `Vlastník nebo provozovatel byl seznámen se základní funkcí tep. čerpadla a jeho obsluhou`,
     isExtendedWarrantyDesired: `Má vlastník TČ zájem o prodlouženou záruku?`,
-    extendedWarranty7Years: `ano – 7 let na kompresor`,
-    extendedWarranty10Years: `ano – 10 let na kompresor (příplatek)`,
     isInstallationInWarrantyConditions: `Instalace a uvedení do provozu jsou v souladu s podmínkami prodloužené záruky`,
     successfullyDeleted: `Záznam úspěšně odstraněn`,
     mandatoryFields: `povinná pole`,

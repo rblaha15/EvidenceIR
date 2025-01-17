@@ -6,7 +6,6 @@
     import { evidence, type IR, novaEvidence, odstranitEvidenci } from '$lib/client/firestore';
     import IMask from 'imask';
     import { relUrl, storable } from '$lib/helpers/stores';
-    import { celyNazevIR, typIR } from '$lib/Data';
     import type { RawUvedeniTC } from '$lib/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
     import { getIsOnline, startTechniciansListening } from '$lib/client/realtime';
@@ -15,6 +14,7 @@
     import { page } from '$app/stores';
     import type { RawUvedeniSOL } from '$lib/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
+    import { celyNazevIR, typIR } from '$lib/helpers/ir';
 
     interface Props {
         data: PageData;

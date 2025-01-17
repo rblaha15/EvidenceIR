@@ -12,7 +12,7 @@ export default (i: number): GetPdfData => async ({ evidence: e }, t) => {
 /*        tcCislo */ Text2: cislo,
 /*       montazka */ Text3: `${e.montazka.ico} — ${montazka?.obchodniJmeno ?? ''}`,
 /* adresaMontazka */ Text4: montazka?.sidlo?.textovaAdresa ?? null,
-/* detailMontazka */ Text5: `${e.montazka.email ?? ''} — ${e.montazka.telefon ?? ''}	        ${e.montazka.zastupce ?? ''}`,
+/* detailMontazka */ Text5: `${e.montazka.email ?? ''} — ${e.montazka.telefon ?? ''}		${e.montazka.zastupce ?? ''}`,
 /*        uvedeni */ Text6: `${e.uvedeni.ico} — ${uvedeni?.obchodniJmeno ?? ''} — ${uvedeni?.sidlo?.textovaAdresa ?? ''}`,
 /*  detailUvedeni */ Text7: `${e.uvedeni.email ?? ''}  — ${e.uvedeni.telefon ?? ''} 		${e.uvedeni.zastupce ?? ''}`,
 /*       montazka */ Text9: montazka?.obchodniJmeno ?? null,

@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { type RawData, nazevIR, popisIR } from '$lib/Data';
+	import { type RawData } from '$lib/Data';
 	import type { Translations } from '$lib/translations';
+    import { nazevIR, popisIR } from '$lib/helpers/ir';
 
 	const typZarizeni = (e: RawData): string => {
 		if (e.ir.typ.first!.includes('BOX')) return 'CP-2972';

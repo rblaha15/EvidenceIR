@@ -1,12 +1,12 @@
-import type { RawData } from "./Data";
-import { Nadpisova, Pisatkova, Prepinatkova, Vec, Vybiratkova, Zaskrtavatkova, type GetOrVal, type Raw } from "./Vec.svelte";
+import type { RawData } from './Data';
+import { type GetOrVal, Nadpisova, Pisatkova, Prepinatkova, type Raw, Vec, Vybiratkova, Zaskrtavatkova } from './Vec.svelte';
 
 export type UDTC = {
     uvedeni: UvedeniTC,
     evidence: RawData,
 }
 
-export class Vyhovuje <D> extends Prepinatkova<D> {
+export class Vyhovuje<D> extends Prepinatkova<D> {
     constructor(args: {
         nazev: GetOrVal<D>,
         onError?: GetOrVal<D>,
@@ -20,7 +20,7 @@ export class Vyhovuje <D> extends Prepinatkova<D> {
             ...args,
             moznosti: [`suitsNot`, `suits`] as const,
             hasPositivity: true,
-        })
+        });
     }
 }
 
@@ -115,7 +115,8 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
             required: d => d.uvedeni.os.dzTop.value
         }),
         tcTv: new Zaskrtavatkova({ required: false, nazev: `doesHeatPumpPrepareHotWater` }),
-        zTv: new Pisatkova({ nazev: d => d.uvedeni.os.tcTv.value ? `additionalHotWaterSource` : `mainHotWaterSource`, required: d => !d.uvedeni.os.tcTv.value }),
+        zTv: new Pisatkova(
+            { nazev: d => d.uvedeni.os.tcTv.value ? `additionalHotWaterSource` : `mainHotWaterSource`, required: d => !d.uvedeni.os.tcTv.value }),
         objemEnOs: new Vyhovuje({ nazev: `volumeOfExpansionTank` }),
         bazenTc: new Zaskrtavatkova({ required: false, nazev: `isPoolHeatingManagedByHeatPump` }),
     },
@@ -185,19 +186,18 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
         reg: new Zaskrtavatkova({ required: false, nazev: `wasControllerSetToParameters` }),
         vlastnik: new Zaskrtavatkova({ required: false, nazev: `wasOwnerFamiliarizedWithFunction` }),
         typZaruky: new Vybiratkova({
-            nazev: `isExtendedWarrantyDesired`, moznosti: [
-                `no`,
-                `extendedWarranty7Years`,
-                `extendedWarranty10Years`,
-            ]
+            nazev: `isExtendedWarrantyDesired`, moznosti: [`no`, `yes`]
         }),
-        zaruka: new Zaskrtavatkova({ required: false, nazev: `isInstallationInWarrantyConditions`, zobrazit: d => d.uvedeni.uvadeni.typZaruky.value?.includes('extendedWarranty') ?? false }),
+        zaruka: new Zaskrtavatkova({
+            required: false, nazev: `isInstallationInWarrantyConditions`,
+            zobrazit: d => d.uvedeni.uvadeni.typZaruky.value == 'yes'
+        }),
         date: new Pisatkova({ nazev: 'dateOfCommission', type: 'date', text: (new Date()).toISOString().split('T')[0] }),
     },
-})
+});
 
 export const rawUvedeniTCToUvedeniTC = (toUvedeni: UvedeniTC, rawUvedeni: RawUvedeniTC) => {
-    const d = toUvedeni as Record<string, Record<string, Vec<UDTC, any>>>
+    const d = toUvedeni as Record<string, Record<string, Vec<UDTC, any>>>;
 
     Object.entries(rawUvedeni).map(a =>
         a as [keyof UvedeniTC, RawUvedeniTC[keyof RawUvedeniTC]]
@@ -205,12 +205,12 @@ export const rawUvedeniTCToUvedeniTC = (toUvedeni: UvedeniTC, rawUvedeni: RawUve
         Object.entries(section).map(a =>
             a as [string, any]
         ).forEach(([key2, value]) => {
-            d[key1][key2].value = value
+            d[key1][key2].value = value;
         })
-    )
+    );
 
-    return d as UvedeniTC
-}
+    return d as UvedeniTC;
+};
 
 export type RawUvedeniTC = Raw<UvedeniTC, UDTC>
 
