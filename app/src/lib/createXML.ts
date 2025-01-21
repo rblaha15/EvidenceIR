@@ -28,10 +28,11 @@ const widgetToXML = (v: Vec<Data, any>, t: Translations) => {
 };
 export const generateXML = (data: Data, t: Translations) => `
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="SEIR.xsl"?>
 
 <!-- 
 Tento soubor byl vygenerován automaticky aplikací Regulus SEIR
-Verze dokumentu: 1.0
+Verze dokumentu: 1.1
 -->
 
 <evidence>
