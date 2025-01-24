@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import type { Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
 	import authentication from '$lib/client/authentication';
@@ -8,12 +8,12 @@
 	import { setTitle } from '$lib/helpers/title.svelte';
 
 	let odesila = $state(false);
-	let email = $state(browser ? ($page.url.searchParams.get('email') ?? '') : '');
+	let email = $state(browser ? (page.url.searchParams.get('email') ?? '') : '');
 
-	const t: Translations = $page.data.translations;
+	const t: Translations = page.data.translations;
 
 	let redirect: string = '/new';
-	onMount(() => (redirect = $page.url.searchParams.get('redirect') ?? '/new'));
+	onMount(() => (redirect = page.url.searchParams.get('redirect') ?? '/new'));
 
 	let error: string | null = $state(null);
 
@@ -41,7 +41,7 @@
 		}
 		const { link } = await authentication('getPasswordResetLink', {
 			email,
-			lang: $page.data.languageCode,
+			lang: page.data.languageCode,
 			redirect,
 			mode: 'register'
 		});

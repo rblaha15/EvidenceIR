@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import type { Data } from '$lib/Data';
 	import type { Translations } from '$lib/translations';
 	import {
@@ -31,7 +30,7 @@
 	}: Props = $props();
 
 	let list = $derived((Object.values(data) as Data[keyof Data][]).flatMap(
-		(obj) => Object.values(obj) as Vec<Data, any>[]
+		(obj) => Object.values(obj) as Vec<Data, unknown>[]
 	));
 </script>
 

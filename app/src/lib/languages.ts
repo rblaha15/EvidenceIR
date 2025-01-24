@@ -3,9 +3,9 @@ import { storable } from './helpers/stores'
 
 export const languageCodes = ["cs", "en", "de"/* , "sk" */] as const
 
-export const isLanguageCode = (code: any): code is LanguageCode => languageCodes.includes(code)
+export const isLanguageCode = (code: unknown): code is LanguageCode => languageCodes.includes(code)
 
-export const asLanguageCodeOrNull = (code: any): LanguageCode | null =>
+export const asLanguageCodeOrNull = (code: unknown): LanguageCode | null =>
     isLanguageCode(code) ? code : null
 
 export type LanguageCode = typeof languageCodes[number]

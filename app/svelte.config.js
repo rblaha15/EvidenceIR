@@ -24,7 +24,7 @@ const config = {
 			checkOrigin: false,
 		}
 	},
-	compilerOptions: {}
+	compilerOptions: {},
 };
 
 export default config;

@@ -1,5 +1,3 @@
-import { split } from 'lodash-es';
-
 export function today() {
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');

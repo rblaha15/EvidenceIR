@@ -1,8 +1,8 @@
 
 import type { GetPdfData } from '$lib/server/pdf';
-import { celyNazevIR, nazevIR, typIR } from '$lib/helpers/ir';
+import { celyNazevIR, nazevIR } from '$lib/helpers/ir';
 
-const guide: GetPdfData = async ({ evidence: e }, t) => ({
+const guide: GetPdfData = async ({ evidence: e }) => ({
     fileName: `${e.ir.cislo} Návod IR.pdf`,
 /*          email */ Text1: e.koncovyUzivatel.email,
 /*        hesloRR */ Text2: `Regulusroute1`,

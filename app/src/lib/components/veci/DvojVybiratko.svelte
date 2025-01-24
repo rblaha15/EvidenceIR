@@ -1,10 +1,8 @@
-<script lang="ts">
+<script generics="D" lang="ts">
     import { onMount } from 'svelte';
     import type { Action } from 'svelte/action';
     import type { TranslationReference, Translations } from '$lib/translations';
-    import { nazevSHvezdou, type DvojVybiratkova } from '$lib/Vec.svelte';
-
-    type D = $$Generic;
+    import { type DvojVybiratkova, nazevSHvezdou } from '$lib/Vec.svelte';
 
     interface Props {
         t: Translations;
@@ -37,7 +35,8 @@
 {#if vec.zobrazit(data)}
     <div class="input-group mb-3">
         <label class="form-floating d-block left">
-            <select class="form-select" value={vec.value.first ?? 'notChosen'} onchange={onChange1}>
+            <select class="form-select" value={vec.value.first ?? 'notChosen'}
+                    disabled={vec.lock1(data)} onchange={onChange1}>
                 <option class="d-none" value="notChosen">{t.notChosen}</option>
                 {#each vec.moznosti1(data) as moznost}
                     <option value={moznost}>{t.get(moznost)}</option>
@@ -50,7 +49,7 @@
                 class="form-select right"
                 id={nazevSHvezdou(vec, data, t)}
                 value={vec.value.second ?? 'notChosen'}
-                disabled={vec.moznosti2(data).length < 2}
+                disabled={vec.moznosti2(data).length < 2 || vec.lock2(data)}
                 onchange={onChange2}
                 use:Select
             >

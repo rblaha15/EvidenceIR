@@ -18,7 +18,7 @@ export const checkToken = (token: string | undefined | null) =>
     })
 
 export const checkAdmin = (token: DecodedIdToken) => token.admin
-export const checkRegulus = (token: DecodedIdToken) => token.email.endsWith('@regulus.cz')
+export const checkRegulus = (token: DecodedIdToken) => token.email!.endsWith('@regulus.cz')
 export const checkRegulusOrAdmin = (token: DecodedIdToken) => checkAdmin(token) || checkRegulus(token)
 
 export const getUsersByEmail = (emails: string[]) => promiseBy100(emails.map(email => ({ email })), ids => auth.getUsers(ids))

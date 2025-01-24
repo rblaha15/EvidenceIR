@@ -1,3 +1,4 @@
+/* eslint-disable no-irregular-whitespace */
 import { template as t } from "$lib/helpers/templates"
 
 export default {

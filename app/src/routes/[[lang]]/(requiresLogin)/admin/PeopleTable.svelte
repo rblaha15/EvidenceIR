@@ -1,7 +1,7 @@
 <script lang="ts">
 
     import type { Person } from '$lib/client/realtime';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
 
     interface Props {
         people?: Person[],
@@ -15,14 +15,14 @@
     let colors = $state() as string[];
     if (peopleWithColors) {
         people = peopleWithColors.map(([p]) => p);
-        colors = peopleWithColors.map(([_, c]) => c);
+        colors = peopleWithColors.map(([, c]) => c);
     } else if (people) {
-        colors = people.map(_ => '');
+        colors = people.map(() => '');
     } else {
         throw 'No people';
     }
 
-    const showCompanies = (companies: Record<string, string>) => Object.keys(companies)
+    const showCompanies = (companies: Record<string, string>) => companies.keys()
         .map(c => `<a href="#companies-${c}">${c}</a>`)
         .join(', ');
 </script>
@@ -40,7 +40,7 @@
     {#each people as person, i}
         <tr class="table-{colors[i]}" id={person.email}
             style:scroll-margin-top={6 + (document.querySelector('nav')?.getBoundingClientRect()?.height ?? 0) + 'px'}
-            class:table-info={$page.url.hash.split("-")[1] === person.email}
+            class:table-info={page.url.hash.split("-")[1] === person.email}
         >
             <th>{person.email}</th>
             <td>{@html showCompanies(person.assemblyCompanies)}</td>

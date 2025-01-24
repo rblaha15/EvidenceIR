@@ -6,6 +6,7 @@ import type { RequestHandler } from './$types';
 import { error, redirect } from '@sveltejs/kit';
 import type { LanguageCode } from '$lib/languages';
 import { checkAdmin, checkRegulusOrAdmin } from '$lib/server/auth';
+import type { IRID } from '$lib/client/firestore';
 
 export const GET: RequestHandler = async ({ url, fetch, params }) => {
     const pdfName = params.pdfname as Pdf
@@ -26,5 +27,5 @@ export const GET: RequestHandler = async ({ url, fetch, params }) => {
     if (pdfArgs.requiredAdmin && !checkAdmin(token) || pdfArgs.requiredRegulus && !checkRegulusOrAdmin(token))
         return error(402);
 
-    return generatePdf(params.lang as LanguageCode, params.ir as string, fetch, pdfArgs, getData)
+    return generatePdf(params.lang as LanguageCode, params.irid as IRID, fetch, pdfArgs, getData)
 }

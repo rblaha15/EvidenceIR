@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts" generics="D">
     import type { Translations } from '$lib/translations';
     import {
         DvojVybiratkova,
@@ -21,11 +21,9 @@
     import Pocitatko from '$lib/components/veci/Pocitatko.svelte';
     import Search from '../../routes/[[lang]]/(requiresLogin)/search/Search.svelte';
 
-    type D = $$Generic
-
     interface Props {
         t: Translations;
-        vec: Vec<D, any>;
+        vec: Vec<D, unknown>;
         data: D;
     }
 

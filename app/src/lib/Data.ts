@@ -103,7 +103,7 @@ export const rawDataToData = (toData: Data, rawData: RawData) => {
         a as [keyof Data, RawData[keyof RawData]]
     ).forEach(([key1, section]) =>
         Object.entries(section).map(a =>
-            a as [string, any]
+            a as [string, unknown]
         ).forEach(([key2, value]) => {
             if (d[key1] == undefined) return;
             if (d[key1][key2] == undefined) d[key1][key2] = (defaultData()[key1] as GeneralData[string])[key2];
@@ -117,12 +117,12 @@ export const rawDataToData = (toData: Data, rawData: RawData) => {
 export const newData = () => defaultData();
 
 export type RawData = Raw<Data>
-export type GeneralData = Record<string, Record<string, Vec<Data, any>>>
+export type GeneralData = Record<string, Record<string, Vec<Data, unknown>>>
 
 export const dataToRawData = (data: Data): RawData => {
     const dataEntries = Object.entries(data);
     const rawDataEntries = dataEntries.map(([key, subData]) => {
-        const subDataEntries = Object.entries(subData) as [string, Vec<Data, any>][];
+        const subDataEntries = Object.entries(subData) as [string, Vec<Data, unknown>][];
         const rawSubDataEntries = subDataEntries.map(([subKey, vec]) => {
             if (vec == undefined) return undefined;
             if (vec.value == undefined) return undefined;

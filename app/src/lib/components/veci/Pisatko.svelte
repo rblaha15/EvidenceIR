@@ -1,5 +1,4 @@
-<script lang="ts">
-    type D = $$Generic;
+<script lang="ts" generics="D">
     import type { Translations } from '$lib/translations';
     import { nazevSHvezdou, type Pisatkova } from '$lib/Vec.svelte';
     import IMask, { InputMask } from 'imask';
@@ -9,11 +8,9 @@
         t: Translations;
         vec: Pisatkova<D>;
         data: D;
-
-        [key: string]: any;
     }
 
-    let { t, vec = $bindable(), data, ...rest }: Props = $props();
+    let { t, vec = $bindable(), data }: Props = $props();
 
     type MyOpts = {
         lazy: boolean;
@@ -47,7 +44,7 @@
         if (options != undefined && input != undefined) {
             mask = IMask(input, options);
             mask.value = vec.value;
-            mask.on('accept', (_) => vec.value = maybeCapitalized(mask!.value, vec));
+            mask.on('accept', () => vec.value = maybeCapitalized(mask!.value, vec));
         }
     });
 
@@ -77,7 +74,7 @@
                 placeholder={nazevSHvezdou(vec, data, t)}
                 class="form-control"
                 bind:this={input}
-                {...rest}
+                disabled={vec.lock(data)}
             />
         {:else}
             <input
@@ -90,7 +87,7 @@
                 oninput={() => {
 					if (input) vec.value = maybeCapitalized(input.value, vec);
 				}}
-                {...rest}
+                disabled={vec.lock(data)}
             />
         {/if}
         <label for="">{nazevSHvezdou(vec, data, t)}</label>

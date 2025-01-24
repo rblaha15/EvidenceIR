@@ -53,7 +53,7 @@
                 return;
             }
         }
-        window.open(`/${lang}/detail/${data.ir}/pdf/${linkName}?token=${token}`);
+        window.open(`/${lang}/detail/${data.irid}/pdf/${linkName}?token=${token}`);
     };
 </script>
 

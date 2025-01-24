@@ -1,8 +1,6 @@
-<script lang="ts">
+<script lang="ts" generics="D">
     import type { Translations } from '$lib/translations';
     import { Pocitatkova } from '$lib/Vec.svelte';
-
-    type D = $$Generic;
 
     interface Props {
         t: Translations;

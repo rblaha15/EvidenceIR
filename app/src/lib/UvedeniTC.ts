@@ -197,13 +197,13 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
 });
 
 export const rawUvedeniTCToUvedeniTC = (toUvedeni: UvedeniTC, rawUvedeni: RawUvedeniTC) => {
-    const d = toUvedeni as Record<string, Record<string, Vec<UDTC, any>>>;
+    const d = toUvedeni as Record<string, Record<string, Vec<UDTC, unknown>>>;
 
     Object.entries(rawUvedeni).map(a =>
         a as [keyof UvedeniTC, RawUvedeniTC[keyof RawUvedeniTC]]
     ).forEach(([key1, section]) =>
         Object.entries(section).map(a =>
-            a as [string, any]
+            a as [string, unknown]
         ).forEach(([key2, value]) => {
             d[key1][key2].value = value;
         })
@@ -217,7 +217,7 @@ export type RawUvedeniTC = Raw<UvedeniTC, UDTC>
 export const uvedeniTCToRawUvedeniTC = (uvedeni: UvedeniTC): RawUvedeniTC => {
     const UvedeniEntries = Object.entries(uvedeni);
     const rawUvedeniEntries = UvedeniEntries.map(([key, subUvedeni]) => {
-        const subUvedeniEntries = Object.entries(subUvedeni) as [string, Vec<UDTC, any>][];
+        const subUvedeniEntries = Object.entries(subUvedeni) as [string, Vec<UDTC, unknown>][];
         const rawSubUvedeniEntries = subUvedeniEntries.map(([subKey, vec]) => {
             if (vec.value == undefined) return undefined;
             else return [subKey, vec.value] as const;

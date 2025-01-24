@@ -14,7 +14,7 @@
     import VecComponent from '$lib/components/Vec.svelte';
     import type { RawData } from '$lib/Data';
     import { getToken } from '$lib/client/auth';
-    import { storable } from '$lib/helpers/stores';
+    import { detailUrl, storable } from '$lib/helpers/stores';
     import FormHeader from '../FormHeader.svelte';
 
     interface Props {
@@ -22,21 +22,19 @@
     }
 
     let { data }: Props = $props();
-    const ir = data.ir;
     const t = data.translations;
 
-    const storedCommission = storable<RawUvedeniSOL>(`stored_solar_collector_commission_${ir}`);
+    const storedCommission = storable<RawUvedeniSOL>(`stored_solar_collector_commission_${data.irid}`);
 
     let u: UvedeniSOL = $state(defaultUvedeniSOL());
     let evidence = $state() as RawData;
     onMount(async () => {
-        const snapshot = await getEvidence(ir as string);
+        const snapshot = await getEvidence(data.irid);
         if (snapshot.exists()) {
             evidence = snapshot.data().evidence;
         }
         const stored = $storedCommission;
-        if (stored == null) {
-        } else {
+        if (stored != null) {
             u = rawUvedeniSOLToUvedeniSOL(u, stored);
         }
     });
@@ -49,7 +47,7 @@
 
     let list = $derived(
         (Object.values(u) as UvedeniSOL[keyof UvedeniSOL][]).flatMap(
-            (obj) => Object.values(obj) as Vec<UDSOL, any>[]
+            (obj) => Object.values(obj) as Vec<UDSOL, unknown>[]
         )
     );
     let d = $derived({ uvedeni: u, evidence } as UDSOL);
@@ -74,7 +72,7 @@
         }
 
         vysledek = { load: true, red: false, text: t.saving };
-        await uvestSOLDoProvozu(ir as string, raw);
+        await uvestSOLDoProvozu(data.irid, raw);
 
         storedCommission.set(undefined);
         vysledek = {
@@ -85,7 +83,7 @@
 
         const token = await getToken();
         const newWin = window.open(
-            `/${data.languageCode}/detail/${data.ir}/pdf/solarCollectorCommissionProtocol?token=${token}`
+            detailUrl(`/pdf/solarCollectorCommissionProtocol?token=${token}`)
         );
         if (!newWin || newWin.closed) {
             vysledek = {
@@ -94,7 +92,7 @@
                 load: false
             };
         } else {
-            window.location.replace(`/${data.languageCode}/detail/${data.ir}`);
+            window.location.replace(detailUrl());
         }
     };
 

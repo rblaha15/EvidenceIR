@@ -5,7 +5,6 @@ import { dateFromISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
 import type { TranslationReference } from '$lib/translations';
 import '$lib/extensions';
-import { technicians } from '$lib/server/realtime';
 import type { GetPdfData } from '$lib/server/pdf';
 import { jmenoUzivatele, typIR } from '$lib/helpers/ir';
 

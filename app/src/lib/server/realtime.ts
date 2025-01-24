@@ -1,7 +1,6 @@
 import { getDatabase } from "firebase-admin/database"
 import { app } from "./firebase"
 import type { Company, Person, SparePart, Technician } from '$lib/client/realtime';
-import { ref } from 'firebase/database';
 
 const realtime = getDatabase(app)
 
@@ -17,8 +16,8 @@ export const setSpareParts = (spareParts: SparePart[]) => dilyRef.set(spareParts
 export const setPersonDetails = (userId: string, person: Person) => lidiRef.child(userId).set(defined(person))
 export const removePerson = (userId: string) => lidiRef.child(userId).remove()
 
-export const people = async () => Object.values((await lidiRef.get()).val() as { [uid: string]: Person } ?? {})
+export const people = async () => ((await lidiRef.get()).val() as Record<string, Person>).getValues() ?? []
 export const technicians = async () => (await techniciRef.get()).val() as Technician[] ?? []
 
-const defined = <T extends Record<any, any>>(obj: T): T =>
-    Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != undefined && v != null)) as T
+const defined = <T extends Record<PropertyKey, unknown>>(obj: T): T =>
+    obj.filterValues((_, v) => v != undefined && v != null) as T

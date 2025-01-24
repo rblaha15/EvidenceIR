@@ -4,18 +4,22 @@
         type Company,
         type Person,
         seznamFirmy,
-        seznamLidi, type SparePart, sparePartsList,
+        seznamLidi,
+        type SparePart,
+        sparePartsList,
         startFirmyListening,
-        startLidiListening, startSparePartsListening,
+        startLidiListening,
+        startSparePartsListening,
         startTechniciansListening,
-        type Technician, techniciansList
+        type Technician,
+        techniciansList
     } from '$lib/client/realtime';
     import download from 'downloadjs';
     import { onMount } from 'svelte';
     import { allKeys, getTranslations } from '$lib/translations';
     import { languageCodes } from '$lib/languages';
     import type { Template } from '$lib/helpers/templates';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import { relUrl } from '$lib/helpers/stores';
     import PeopleTable from './PeopleTable.svelte';
     import CompaniesTable from './CompaniesTable.svelte';
@@ -221,7 +225,8 @@
         newDataSpareParts = [];
     };
 
-    const sort = (o: Record<string, any> | undefined): Record<string, any> | undefined => o ? Object.fromEntries(Object.entries(o).sort(([a], [b]) => a.localeCompare(b))) : undefined;
+    const sort = (o: Record<string, unknown> | undefined): Record<string, unknown> | undefined => o ? Object.fromEntries(
+        Object.entries(o).sort(([a], [b]) => a.localeCompare(b))) : undefined;
 
     const compareByEmail = (p1: Person, p2: Person) => p1.email.localeCompare(p2.email);
     const oldDataPeople = $derived($seznamLidi.toSorted(compareByEmail));
@@ -231,7 +236,8 @@
     const pByEmail = (people: Person[], email: string) => people.find(p => p.email === email);
     const oldEmailsPeople = $derived(oldDataPeople.map(pEmail));
     const newEmailsPeople = $derived(newDataPeople.map(pEmail));
-    const changesPeople = $derived(newDataPeople.filter(p => oldEmailsPeople.includes(p.email) && JSON.stringify(sort(pByEmail(oldDataPeople, p.email) ?? p)) != JSON.stringify(sort(p))));
+    const changesPeople = $derived(
+        newDataPeople.filter(p => oldEmailsPeople.includes(p.email) && JSON.stringify(sort(pByEmail(oldDataPeople, p.email) ?? p)) != JSON.stringify(sort(p))));
     const removalsPeople = $derived(oldDataPeople.filter(p => !newEmailsPeople.includes(p.email)));
     const additionsPeople = $derived(newDataPeople.filter(p => !oldEmailsPeople.includes(p.email)));
 
@@ -243,7 +249,8 @@
     const cByCRN = (companies: Company[], crn: string) => companies.find(c => c.crn === crn);
     const oldEmailsCompanies = $derived(oldDataCompanies.map(cCRN));
     const newEmailsCompanies = $derived(newDataCompanies.map(cCRN));
-    const changesCompanies = $derived(newDataCompanies.filter(c => oldEmailsCompanies.includes(c.crn) && JSON.stringify(sort(cByCRN(oldDataCompanies, c.crn) ?? c)) != JSON.stringify(sort(c))));
+    const changesCompanies = $derived(newDataCompanies.filter(
+        c => oldEmailsCompanies.includes(c.crn) && JSON.stringify(sort(cByCRN(oldDataCompanies, c.crn) ?? c)) != JSON.stringify(sort(c))));
     const removalsCompanies = $derived(oldDataCompanies.filter(c => !newEmailsCompanies.includes(c.crn)));
     const additionsCompanies = $derived(newDataCompanies.filter(c => !oldEmailsCompanies.includes(c.crn)));
 
@@ -255,7 +262,8 @@
     const tByEmail = (people: Technician[], email: string) => people.find(p => p.email === email);
     const oldEmailsTechnicians = $derived(oldDataTechnicians.map(tEmail));
     const newEmailsTechnicians = $derived(newDataTechnicians.map(tEmail));
-    const changesTechnicians = $derived(newDataTechnicians.filter(t => oldEmailsTechnicians.includes(t.email) && JSON.stringify(sort(tByEmail(oldDataTechnicians, t.email) ?? t)) != JSON.stringify(sort(t))));
+    const changesTechnicians = $derived(newDataTechnicians.filter(
+        t => oldEmailsTechnicians.includes(t.email) && JSON.stringify(sort(tByEmail(oldDataTechnicians, t.email) ?? t)) != JSON.stringify(sort(t))));
     const removalsTechnicians = $derived(oldDataTechnicians.filter(t => !newEmailsTechnicians.includes(t.email)));
     const additionsTechnicians = $derived(newDataTechnicians.filter(t => !oldEmailsTechnicians.includes(t.email)));
 
@@ -267,7 +275,8 @@
     const byCode = (parts: SparePart[], code: number) => parts.find(p => p.code === code);
     const oldEmailsSpareParts = $derived(oldDataSpareParts.map(code));
     const newEmailsSpareParts = $derived(newDataSpareParts.map(code));
-    const changesSpareParts = $derived(newDataSpareParts.filter(p => oldEmailsSpareParts.includes(p.code) && JSON.stringify(sort(byCode(oldDataSpareParts, p.code) ?? p)) != JSON.stringify(sort(p))));
+    const changesSpareParts = $derived(newDataSpareParts.filter(
+        p => oldEmailsSpareParts.includes(p.code) && JSON.stringify(sort(byCode(oldDataSpareParts, p.code) ?? p)) != JSON.stringify(sort(p))));
     const removalsSpareParts = $derived(oldDataSpareParts.filter(p => !newEmailsSpareParts.includes(p.code)));
     const additionsSpareParts = $derived(newDataSpareParts.filter(p => !oldEmailsSpareParts.includes(p.code)));
 
@@ -278,20 +287,20 @@
     onMount(async () => {
         ['people', 'companies', 'technicians', 'translations', 'spareParts'].forEach(tab => {
             const tabEl = document.querySelector(`#${tab}-tab`)!;
-            tabEl.addEventListener('show.bs.tab', _ => {
+            tabEl.addEventListener('show.bs.tab', () => {
                 if (!location.hash.startsWith('#' + tab))
-                    location.replace($relUrl(`/admin#${tab}`));
+                    location.replace(relUrl(`/admin#${tab}`));
             });
         });
     });
     $effect(() => {
-        $page.url;
+        page.url;
         if (oldDataCompanies) {
             (async () => {
                 const { Tab } = await import('bootstrap');
-                if ($page.url.hash) new Tab(`${$page.url.hash.split('-')[0]}-tab`).show();
-                if ($page.url.hash.includes('companies-')) {
-                    const crn = $page.url.hash.split('-')[1];
+                if (page.url.hash) new Tab(`${page.url.hash.split('-')[0]}-tab`).show();
+                if (page.url.hash.includes('companies-')) {
+                    const crn = page.url.hash.split('-')[1];
                     document.getElementById(crn)?.scrollIntoView();
                 }
             })();
@@ -299,9 +308,9 @@
         if (oldDataPeople) {
             (async () => {
                 const { Tab } = await import('bootstrap');
-                if ($page.url.hash) new Tab(`${$page.url.hash.split('-')[0]}-tab`).show();
-                if ($page.url.hash.includes('people-')) {
-                    const email = $page.url.hash.split('-')[1];
+                if (page.url.hash) new Tab(`${page.url.hash.split('-')[0]}-tab`).show();
+                if (page.url.hash.includes('people-')) {
+                    const email = page.url.hash.split('-')[1];
                     document.getElementById(email)?.scrollIntoView();
                 }
             })();
@@ -314,7 +323,7 @@
         ...addColor(removals, 'danger'),
     ];
 
-    setTitle('Admin')
+    setTitle('Admin');
 </script>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -328,7 +337,8 @@
             id="people-tab"
             role="tab"
             type="button"
-        >Uživatelé</button>
+        >Uživatelé
+        </button>
     </li>
     <li class="nav-item" role="presentation">
         <button
@@ -340,7 +350,8 @@
             id="companies-tab"
             role="tab"
             type="button"
-        >Firmy</button>
+        >Firmy
+        </button>
     </li>
     <li class="nav-item" role="presentation">
         <button
@@ -352,7 +363,8 @@
             id="technicians-tab"
             role="tab"
             type="button"
-        >Technici</button>
+        >Technici
+        </button>
     </li>
     <li class="nav-item" role="presentation">
         <button
@@ -364,7 +376,8 @@
             id="spareParts-tab"
             role="tab"
             type="button"
-        >Náhradní díly</button>
+        >Náhradní díly
+        </button>
     </li>
     <li class="nav-item" role="presentation">
         <button
@@ -376,7 +389,8 @@
             id="translations-tab"
             role="tab"
             type="button"
-        >Překlady</button>
+        >Překlady
+        </button>
     </li>
 </ul>
 <div class="tab-content">

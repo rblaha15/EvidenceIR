@@ -105,13 +105,13 @@ export const defaultDataSP = (): DataSP => ({
 });
 
 export const rawDataSPToDataSP = (toData: DataSP, rawData: RawDataSP) => {
-    const d = toData as Record<string, Record<string, Vec<UDSP, any>>>;
+    const d = toData as Record<string, Record<string, Vec<UDSP, unknown>>>;
 
     Object.entries(rawData).map(a =>
         a as [keyof DataSP, RawDataSP[keyof RawDataSP]]
     ).forEach(([key1, section]) =>
         Object.entries(section).map(a =>
-            a as [string, any]
+            a as [string, unknown]
         ).forEach(([key2, value]) => {
             d[key1][key2].value = value;
         })
@@ -125,7 +125,7 @@ export type RawDataSP = Raw<DataSP, UDSP>
 export const dataSPToRawDataSP = (data: DataSP): RawDataSP => {
     const DataEntries = Object.entries(data);
     const rawDataEntries = DataEntries.map(([key, subData]) => {
-        const subDataEntries = Object.entries(subData) as [string, Vec<UDSP, any>][];
+        const subDataEntries = Object.entries(subData) as [string, Vec<UDSP, unknown>][];
         const rawSubDataEntries = subDataEntries.map(([subKey, vec]) => {
             if (vec.value == undefined) return undefined;
             else return [subKey, vec.value] as const;

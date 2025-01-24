@@ -1,6 +1,5 @@
 import type { TranslationReference, Translations } from './translations';
 import type { FullAutoFill, HTMLInputTypeAttribute } from 'svelte/elements';
-import { zip } from 'lodash-es';
 
 export type Get<D, U = TranslationReference> = (data: D) => U;
 export type GetOrVal<D, U = TranslationReference> = Get<D, U> | U;
@@ -17,17 +16,15 @@ export type Raw<U, D = U> = {
     };
 };
 
-type Opts =
-    | {
+type Opts = {
     mask: string;
     definitions?: {
         [key: string]: RegExp;
     };
-}
-    | undefined;
+} | undefined;
 
 const template = (strings: TemplateStringsArray, ...args: string[]) => {
-    return zip(strings, args).flat().slice(0, -1).join('');
+    return strings.zip(args).flat().slice(0, -1).join('');
 };
 
 export const createTemplate =
@@ -56,12 +53,13 @@ export function t(ref: TranslationReference) {
 }
 
 export const nazevSHvezdou = <D>(
-    vec: Vec<any, any> & { required: Get<D, boolean> },
+    vec: Vec<D, unknown> & { required: Get<D, boolean> },
     data: D,
     t: Translations
 ) => {
     const nazev = t.get(vec.nazev(data));
-    return nazev == '' ? '' : nazev + (!vec.required(data) ? '' : ' *');};
+    return nazev == '' ? '' : nazev + (!vec.required(data) ? '' : ' *');
+};
 
 export abstract class Vec<D, U> {
     abstract nazev: Get<D, TranslationReference>;
@@ -142,6 +140,7 @@ export class Vybiratkova<D> extends Vec<D, TranslationReference | null> {
 
 export type SearchItemPiece = { text: TranslationReference, width?: number };
 export type SearchItem = { pieces: SearchItemPiece[], href?: string };
+
 export class SearchWidget<D, T> extends Vec<D, T | null> {
     nazev = $state() as Get<D>;
     onError = $state() as Get<D>;
@@ -191,6 +190,8 @@ export class DvojVybiratkova<D> extends Vec<D, Pair> {
     nazev = $state() as Get<D, TranslationReference>;
     onError = $state() as Get<D, TranslationReference>;
     zobrazit = $state() as Get<D, boolean>;
+    lock1 = $state() as Get<D, boolean>;
+    lock2 = $state() as Get<D, boolean>;
     showText = $state() as Get<D, boolean>;
     moznosti1 = $state() as Get<D, TranslationReference[]>;
     moznosti2 = $state() as Get<D, TranslationReference[]>;
@@ -208,6 +209,8 @@ export class DvojVybiratkova<D> extends Vec<D, Pair> {
         onError?: GetOrVal<D>;
         required?: GetOrVal<D, boolean>;
         zobrazit?: GetOrVal<D, boolean>;
+        lock1?: GetOrVal<D, boolean>;
+        lock2?: GetOrVal<D, boolean>;
         showInXML?: GetOrVal<D, boolean>;
         vybrano?: Pair;
     }) {
@@ -219,6 +222,8 @@ export class DvojVybiratkova<D> extends Vec<D, Pair> {
         this.onError = toGet(args.onError ?? t('requiredField'));
         this.required = toGet(args.required ?? true);
         this.zobrazit = toGet(args.zobrazit ?? true);
+        this.lock1 = toGet(args.lock1 ?? false);
+        this.lock2 = toGet(args.lock2 ?? false);
         this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
         this.value = args.vybrano ?? { first: null, second: null };
     }
@@ -366,6 +371,7 @@ export class Pisatkova<D> extends Vec<D, string> {
     autocomplete = $state() as Get<D, FullAutoFill>;
     onError = $state() as Get<D, TranslationReference>;
     zobrazit = $state() as Get<D, boolean>;
+    lock = $state() as Get<D, boolean>;
     showText = $state() as Get<D, boolean>;
     private valueField = $state() as string;
 
@@ -398,6 +404,7 @@ export class Pisatkova<D> extends Vec<D, string> {
         type?: GetOrVal<D, HTMLInputTypeAttribute>;
         autocomplete?: GetOrVal<D, FullAutoFill>;
         zobrazit?: GetOrVal<D, boolean>;
+        lock?: GetOrVal<D, boolean>;
         showInXML?: GetOrVal<D, boolean>;
         text?: string;
     }) {
@@ -412,6 +419,7 @@ export class Pisatkova<D> extends Vec<D, string> {
         this.type = toGet(args.type ?? 'text');
         this.autocomplete = toGet(args.autocomplete ?? 'off');
         this.zobrazit = toGet(args.zobrazit ?? true);
+        this.lock = toGet(args.lock ?? false);
         this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
         this.value = args.text ?? '';
     }

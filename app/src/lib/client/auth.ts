@@ -55,7 +55,7 @@ export const logIn = (email: string, password: string) => signInWithEmailAndPass
 export const verifyCode = (oobCode: string) => new Promise<string | null>(resolve => {
 	verifyPasswordResetCode(auth, oobCode)
 		.then(e => resolve(e))
-		.catch(_ => resolve(null))
+		.catch(() => resolve(null))
 })
 
 export const changePassword = (oobCode: string, newPassword: string) => confirmPasswordReset(auth, oobCode, newPassword)
