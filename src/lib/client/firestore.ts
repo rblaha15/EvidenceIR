@@ -1,16 +1,16 @@
 import {
     collection,
     deleteDoc,
-    doc,
+    doc, enablePersistentCacheIndexAutoCreation,
     getDoc,
-    getDocs,
+    getDocs, getPersistentCacheIndexManager,
     onSnapshot,
     query,
     type QueryDocumentSnapshot,
     setDoc,
     updateDoc,
     where,
-    type WithFieldValue
+    type WithFieldValue,
 } from 'firebase/firestore';
 import type { RawData } from '$lib/Data';
 import type { Kontrola } from '$lib/Kontrola';
@@ -21,6 +21,26 @@ import { firestore } from '../../hooks.client';
 import type { RawUvedeniSOL } from '$lib/UvedeniSOL';
 import type { RawDataSP } from '$lib/SP';
 import type { TranslationReference } from '$lib/translations';
+
+const persistentCacheIndexManager = getPersistentCacheIndexManager(firestore);
+if (persistentCacheIndexManager)
+    enablePersistentCacheIndexAutoCreation(persistentCacheIndexManager);
+
+export type IRType = '2' | '4' | 'B';
+export type IRID = `${IRType}${string}`;
+
+const extractIRTypeFromFullIRType = (fullIRType: string): IRType =>
+    (fullIRType.includes('12') ? '2'
+        : fullIRType.includes('14') ? '4'
+            : fullIRType.includes('BOX') ? 'B'
+                : undefined)!;
+export const extractIRIDFromParts = (fullIRType: string, irNumber: string): IRID =>
+    `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replace(' ', '')}`;
+export const extractIRIDFromRawData = (evidence: RawData): IRID =>
+    extractIRIDFromParts(evidence.ir.typ.first!, evidence.ir.cislo);
+
+export const IRNumberFromIRID = (irid: IRID): string =>
+    irid.slice(1, 3) + ' ' + irid.slice(3, 7);
 
 export type IR = {
     evidence: RawData;
@@ -92,20 +112,20 @@ const irCollection = collection(firestore, 'ir').withConverter<IR>({
     fromFirestore: (snapshot: QueryDocumentSnapshot) => modernizeIR(snapshot.data() as IR & LegacyIR),
 });
 const checkCollection = collection(firestore, 'check');
-const irDoc = (ir: string) => doc(irCollection, ir.replace(' ', ''));
-const checkDoc = (ir: string) => doc(checkCollection, ir.replace(' ', ''));
+const irDoc = (irid: IRID) => doc(irCollection, irid.replace(' ', ''));
+const checkDoc = (irid: IRID) => doc(checkCollection, irid.replace(' ', ''));
 
-export const evidence = (ir: string) =>
-    getDoc(irDoc(ir));
+export const evidence = (irid: IRID) =>
+    getDoc(irDoc(irid));
 export const novaEvidence = (data: IR) =>
-    setDoc(irDoc(data.evidence.ir.cislo), data);
+    setDoc(irDoc(extractIRIDFromRawData(data.evidence)), data);
 export const upravitEvidenci = (rawData: RawData) =>
-    updateDoc(irDoc(rawData.ir.cislo), `evidence`, rawData);
-export const odstranitEvidenci = (ir: string) =>
-    deleteDoc(irDoc(ir));
-export const existuje = async (ir: string) => {
+    updateDoc(irDoc(extractIRIDFromRawData(rawData)), `evidence`, rawData);
+export const odstranitEvidenci = (irid: IRID) =>
+    deleteDoc(irDoc(irid));
+export const existuje = async (irid: IRID) => {
     try {
-        await getDoc(checkDoc(ir));
+        await getDoc(checkDoc(irid));
         return true;
     } catch (e) {
         if ((e as Record<string, string>)?.code == 'permission-denied') return false;
@@ -113,36 +133,36 @@ export const existuje = async (ir: string) => {
     }
 };
 
-export const posledniKontrola = async (ir: string) => {
-    const snapshot = await getDoc(irDoc(ir));
+export const posledniKontrola = async (irid: IRID) => {
+    const snapshot = await getDoc(irDoc(irid));
     const kontroly = snapshot.data()!.kontroly;
     if (kontroly?.[1] == undefined) return 0;
     return Math.max(...Object.keys(kontroly).map((it) => Number(it)));
 };
 
-export const pridatKontrolu = (ir: string, rok: number, kontrola: Kontrola) =>
-    updateDoc(irDoc(ir), `kontroly.${rok}`, kontrola);
+export const pridatKontrolu = (irid: IRID, rok: number, kontrola: Kontrola) =>
+    updateDoc(irDoc(irid), `kontroly.${rok}`, kontrola);
 
-export const vyplnitServisniProtokol = async (ir: string, protokol: RawDataSP) => {
-    const p = (await evidence(ir)).data()!.installationProtocols;
+export const vyplnitServisniProtokol = async (irid: IRID, protokol: RawDataSP) => {
+    const p = (await evidence(irid)).data()!.installationProtocols;
     await updateDoc(
-        irDoc(ir), `installationProtocols`,
+        irDoc(irid), `installationProtocols`,
         [...p, protokol]
     );
 };
 
-export const uvestTCDoProvozu = (ir: string, uvedeni: RawUvedeniTC) =>
-    updateDoc(irDoc(ir), `uvedeniTC`, uvedeni);
+export const uvestTCDoProvozu = (irid: IRID, uvedeni: RawUvedeniTC) =>
+    updateDoc(irDoc(irid), `uvedeniTC`, uvedeni);
 
-export const uvestSOLDoProvozu = (ir: string, uvedeni: RawUvedeniSOL) =>
-    updateDoc(irDoc(ir), `uvedeniSOL`, uvedeni);
+export const uvestSOLDoProvozu = (irid: IRID, uvedeni: RawUvedeniSOL) =>
+    updateDoc(irDoc(irid), `uvedeniSOL`, uvedeni);
 
-export const upravitUzivatele = (ir: string, users: string[]) =>
-    updateDoc(irDoc(ir), `users`, users);
+export const upravitUzivatele = (irid: IRID, users: string[]) =>
+    updateDoc(irDoc(irid), `users`, users);
 
-export const evidenceStore = (ir: string) => {
+export const evidenceStore = (irid: IRID) => {
     const currentState = writable<IR>(undefined as IR | undefined);
-    onSnapshot(irDoc(ir), (data) => currentState.set(data.data()!));
+    onSnapshot(irDoc(irid), (data) => currentState.set(data.data()!));
     return readonly(currentState);
 };
 export const getAll = async () => {

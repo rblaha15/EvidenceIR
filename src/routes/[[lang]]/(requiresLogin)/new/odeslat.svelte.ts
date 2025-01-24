@@ -1,14 +1,14 @@
 import { dev } from "$app/environment";
 import { sendEmail, SENDER } from "$lib/client/email";
-import { existuje, novaEvidence, upravitEvidenci } from "$lib/client/firestore";
+import { existuje, extractIRIDFromRawData, novaEvidence, upravitEvidenci } from '$lib/client/firestore';
 import { dataToRawData, type Data, type RawData, rawDataToData, newData } from '$lib/Data';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import type { Vec } from "$lib/Vec.svelte";
 import { default as MailRRoute } from "$lib/emails/MailRRoute.svelte";
 import { default as MailSDaty } from "$lib/emails/MailSDaty.svelte";
 import { get } from "svelte/store";
-import { page as pageStore } from "$app/stores";
-import { relUrl as relUrlStore, storable } from "$lib/helpers/stores";
+import { page } from "$app/state";
+import { relUrl, storable } from "$lib/helpers/stores";
 import { currentUser } from "$lib/client/auth";
 import { getTranslations } from '$lib/translations';
 import { getIsOnline } from "$lib/client/realtime";
@@ -28,23 +28,21 @@ export default async (
     try {
         if (editMode && !dev) doNotSend = true
 
-        const page = get(pageStore)
-        const relUrl = get(relUrlStore)
         const t = page.data.translations
 
-        const ir = data.ir.cislo.value.replace(' ', '');
+        const irid = extractIRIDFromRawData(dataToRawData(data));
 
-        if (!editMode && ir != '' && getIsOnline() && await existuje(ir as string)) {
+        if (!editMode && irid && getIsOnline() && await existuje(irid)) {
             progress({
                 red: true,
-                text: t.irExistsHtml.parseTemplate({ link: relUrl(`/detail/${ir}`) }),
+                text: t.irExistsHtml.parseTemplate({ link: relUrl(`/detail/${irid}`) }),
                 load: false
             });
             return;
         }
 
         const seznam = (Object.values(data) as Data[keyof Data][]).flatMap(
-            (obj) => Object.values(obj) as Vec<Data, any>[]
+            (obj) => Object.values(obj) as Vec<Data, unknown>[]
         );
 
         if (seznam.some((it) => {
@@ -155,10 +153,10 @@ export default async (
                 red: false,
                 load: true
             });
-            if (!dev) window.location.href = relUrl(`/detail/${ir}`);
+            if (!dev) window.location.href = relUrl(`/detail/${irid}`);
             setTimeout(() => {
                 progress({
-                    text: t.redirectFailedHtml.parseTemplate({ link: page.url.origin + relUrl(`/detail/${ir}`) }),
+                    text: t.redirectFailedHtml.parseTemplate({ link: page.url.origin + relUrl(`/detail/${irid}`) }),
                     red: true,
                     load: false
                 });
@@ -171,7 +169,6 @@ export default async (
             });
         }
     } catch (e) {
-        const page = get(pageStore)
         const t = page.data.translations
         console.log(e)
         progress({

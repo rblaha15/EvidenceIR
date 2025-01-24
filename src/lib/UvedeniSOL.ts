@@ -11,13 +11,13 @@ export class Ano <D> extends Prepinatkova<D> {
     constructor(args: {
         nazev: GetOrVal<D>,
         onError?: GetOrVal<D>,
-        nutne?: GetOrVal<D, boolean>,
+        required?: GetOrVal<D, boolean>,
         zobrazit?: GetOrVal<D, boolean>,
         vybrano?: boolean,
     }) {
         super({
             vybrano: args.vybrano ?? false,
-            required: args.nutne ?? false,
+            required: args.required ?? false,
             ...args,
             moznosti: [`no`, `yes`] as const,
             hasPositivity: true,
@@ -92,13 +92,13 @@ export const defaultUvedeniSOL = (): UvedeniSOL => ({
 })
 
 export const rawUvedeniSOLToUvedeniSOL = (toUvedeni: UvedeniSOL, rawUvedeni: RawUvedeniSOL) => {
-    const d = toUvedeni as Record<string, Record<string, Vec<UDSOL, any>>>
+    const d = toUvedeni as Record<string, Record<string, Vec<UDSOL, unknown>>>
 
     Object.entries(rawUvedeni).map(a =>
         a as [keyof UvedeniSOL, RawUvedeniSOL[keyof RawUvedeniSOL]]
     ).forEach(([key1, section]) =>
         Object.entries(section).map(a =>
-            a as [string, any]
+            a as [string, unknown]
         ).forEach(([key2, value]) => {
             d[key1][key2].value = value
         })
@@ -112,7 +112,7 @@ export type RawUvedeniSOL = Raw<UvedeniSOL, UDSOL>
 export const uvedeniSOLToRawUvedeniSOL = (uvedeni: UvedeniSOL): RawUvedeniSOL => {
     const UvedeniEntries = Object.entries(uvedeni);
     const rawUvedeniEntries = UvedeniEntries.map(([key, subUvedeni]) => {
-        const subUvedeniEntries = Object.entries(subUvedeni) as [string, Vec<UDSOL, any>][];
+        const subUvedeniEntries = Object.entries(subUvedeni) as [string, Vec<UDSOL, unknown>][];
         const rawSubUvedeniEntries = subUvedeniEntries.map(([subKey, vec]) => {
             if (vec.value == undefined) return undefined;
             else return [subKey, vec.value] as const;

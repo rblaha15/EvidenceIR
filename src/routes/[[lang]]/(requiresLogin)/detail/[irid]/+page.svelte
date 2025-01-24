@@ -3,18 +3,20 @@
     import type { PageData } from './$types';
     import PdfLink from './PDFLink.svelte';
     import { checkAuth, isUserRegulusOrAdmin } from '$lib/client/auth';
-    import { evidence, type IR, novaEvidence, odstranitEvidenci } from '$lib/client/firestore';
-    import IMask from 'imask';
-    import { relUrl, storable } from '$lib/helpers/stores';
+    import { evidence, extractIRIDFromParts, extractIRIDFromRawData, type IR, novaEvidence, odstranitEvidenci } from '$lib/client/firestore';
+    import { detailUrl, relUrl, storable } from '$lib/helpers/stores';
     import type { RawUvedeniTC } from '$lib/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
     import { getIsOnline, startTechniciansListening } from '$lib/client/realtime';
-    import { addToHistory, removeFromHistory, removeFromHistoryByIR } from '$lib/History';
+    import { addToHistory, removeFromHistory, removeFromHistoryByIRID } from '$lib/History';
     import { HistoryEntry } from '$lib/History.js';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import type { RawUvedeniSOL } from '$lib/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
-    import { celyNazevIR, typIR } from '$lib/helpers/ir';
+    import { celyNazevIR } from '$lib/helpers/ir';
+    import Pisatko from '$lib/components/veci/Pisatko.svelte';
+    import Vybiratko from '$lib/components/veci/Vybiratko.svelte';
+    import { p, Pisatkova, Vybiratkova } from '$lib/Vec.svelte';
 
     interface Props {
         data: PageData;
@@ -23,9 +25,9 @@
     let { data }: Props = $props();
     const t = data.translations;
 
-    const deleted = $page.url.searchParams.has('deleted');
-    const storedHeatPumpCommission = storable<RawUvedeniTC>(`stored_heat_pump_commission_${data.ir}`);
-    const storedSolarCollectorCommission = storable<RawUvedeniSOL>(`stored_solar_collector_commission_${data.ir}`);
+    const deleted = page.url.searchParams.has('deleted');
+    const storedHeatPumpCommission = storable<RawUvedeniTC>(`stored_heat_pump_commission_${data.irid}`);
+    const storedSolarCollectorCommission = storable<RawUvedeniSOL>(`stored_solar_collector_commission_${data.irid}`);
 
     let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
     let values = $state() as IR;
@@ -37,20 +39,25 @@
         await startTechniciansListening();
 
         try {
-            let snapshot = await evidence(data.ir as string);
-            if (!snapshot.exists()) {
+            const snapshot = (
+                data.irid.length == 6 ? [
+                    await evidence(`2${data.irid}`), await evidence(`4${data.irid}`),
+                    await evidence(`B${data.irid}`)
+                ] : [await evidence(data.irid)]
+            ).find(snapshot => snapshot.exists());
+
+            if (!snapshot) {
                 type = 'noAccess';
-                removeFromHistoryByIR(data.ir.slice(0, 2) + ' ' + data.ir.slice(2, 6));
+                removeFromHistoryByIRID(data.irid);
                 return;
             }
             values = snapshot.data();
             type = 'loaded';
-
         } catch (e) {
             console.log((e as FirebaseError).code);
             if ((e as FirebaseError).code == 'unavailable' && !getIsOnline()) type = 'offline';
             else {
-                removeFromHistoryByIR(data.ir.slice(0, 2) + ' ' + data.ir.slice(2, 6));
+                removeFromHistoryByIRID(data.irid);
                 type = 'noAccess';
             }
             return;
@@ -64,57 +71,82 @@
 
     const remove = async () => {
         removeFromHistory(historyEntry);
-        await odstranitEvidenci(data.ir as string);
-        window.location.replace($relUrl(`/detail/${data.ir}?deleted`));
+        await odstranitEvidenci(data.irid);
+        window.location.replace(detailUrl(`?deleted`));
     };
 
     let change: 'no' | 'input' | 'sending' | 'fail' = $state('no');
 
-    let input: HTMLInputElement | undefined = $state();
-    let mask = $derived(
-        input == undefined
-            ? undefined
-            : IMask(input, {
-                mask: 'A1 0000',
-                definitions: {
-                    A: /[A-Z]/,
-                    '1': /[1-9OND]/
-                }
-            })
-    );
+    let irNumber = $state(new Pisatkova({
+        nazev: `newSerialNumber`, onError: `wrongNumberFormat`,
+        regex: /([A-Z][1-9OND]) ([0-9]{4})/, capitalize: true,
+        maskOptions: {
+            mask: `A1 0000`,
+            definitions: {
+                A: /[A-Za-z]/,
+                '1': /[1-9ONDond]/
+            }
+        },
+    }));
+    let irType = $state(new Vybiratkova({
+        nazev: `controllerType`,
+        moznosti: [p`IR RegulusBOX`, p`IR RegulusHBOX`, p`IR RegulusHBOXK`, p`IR 14`, p`IR 12`],
+    }));
 
-    onMount(() => {
-        return () => {
-            input = undefined;
-        };
+    $effect(() => {
+        if (!values) return;
+        irNumber.value = values.evidence.ir.cislo;
+        irType.value = values.evidence.ir.typ.first;
     });
 
     const changeController = async () => {
-        if (!mask || !mask.value) return (change = 'fail');
-        const newIr = mask.value;
+        irNumber.zobrazitErrorVeto = true;
+        irType.zobrazitErrorVeto = true;
+        if (irNumber.zobrazitError(undefined) || irType.zobrazitError(undefined)) return;
+        const newNumber = irNumber.value;
+        const newType = irType.value;
         change = 'sending';
-        const record = (await evidence(data.ir as string)).data()!;
-        record.evidence.ir.cislo = newIr;
+        const record = (await evidence(data.irid)).data()!;
+        record.evidence.ir.cislo = newNumber;
+        record.evidence.ir.typ.first = newType;
         await novaEvidence(record);
-        await odstranitEvidenci(data.ir as string);
-        window.location.replace($relUrl(`/detail/${newIr.replace(' ', '')}`));
+        await odstranitEvidenci(data.irid);
+        window.location.replace(relUrl(`/detail/${extractIRIDFromParts(newType!, newNumber)}`));
     };
 
-    setTitle(t.evidenceDetails)
+    setTitle(t.evidenceDetails);
 </script>
 
+{#if type === 'loading'}
+    <div class="spinner-border text-danger"></div>
+{:else if type !== 'loaded'}
+    <h3>
+        {#if data.irid.length === 6}
+            {data.irid.slice(0, 2)}
+            {data.irid.slice(2, 6)}
+        {:else}
+            {data.irid.slice(1, 3)}
+            {data.irid.slice(3, 7)}
+        {/if}
+    </h3>
+{:else}
+    <h3>{celyNazevIR(values.evidence)}</h3>
+{/if}
 {#if deleted}
     <div class="alert alert-success" role="alert">
         {t.successfullyDeleted}
     </div>
 {/if}
-{#if type === 'loading'}
-    <div class="spinner-border text-danger"></div>
-{:else if type !== 'loaded'}
-    <h3>
-        {data.ir.slice(0, 2)}
-        {data.ir.slice(2, 6)}
-    </h3>
+{#if data.irid.length === 6}
+    <div class="alert alert-warning" role="alert">
+        Pozor! Toto je zastaralý odkaz.
+        {#if values}
+            {@const url = `/detail/${extractIRIDFromRawData(values.evidence)}`}
+            Prosím, používejte <a target="_blank" href={url}>{page.url.origin + url}</a>
+        {/if}
+    </div>
+{/if}
+{#if type !== 'loaded'}
     <p class="mt-3">{t.sorrySomethingWentWrong}</p>
     <p>
         {#if type === 'noAccess'}
@@ -123,8 +155,8 @@
             {t.offline}
         {/if}
     </p>
-{:else}
-    <h3>{celyNazevIR(values.evidence)}</h3>
+{/if}
+{#if type === 'loaded' && data.irid.length !== 6}
     {#if values.evidence.vzdalenyPristup.chce}
         <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
     {/if}
@@ -152,7 +184,7 @@
             {#if !values.uvedeniTC}
                 <button
                     class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
-                    onclick={() => (window.location.href = $relUrl(`/detail/${data.ir}/heatPumpCommission`))}
+                    onclick={() => (window.location.href = detailUrl('/heatPumpCommission'))}
                 >{t.commission}</button
                 >
             {/if}
@@ -160,7 +192,7 @@
         <PdfLink name={t.filledYearlyCheck} {t} linkName="check" {data}>
             <button
                 class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
-                onclick={() => (window.location.href = $relUrl(`/detail/${data.ir}/check`))}
+                onclick={() => (window.location.href = detailUrl('/check'))}
             >{t.doYearlyCheck}</button
             >
         </PdfLink>
@@ -176,7 +208,7 @@
             {#if !values.uvedeniSOL}
                 <button
                     class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
-                    onclick={() => (window.location.href = $relUrl(`/detail/${data.ir}/solarCollectorCommission`))}
+                    onclick={() => (window.location.href = detailUrl('/solarCollectorCommission'))}
                 >{t.commission}</button
                 >
             {/if}
@@ -192,13 +224,13 @@
             <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true} />
         {/each}
         <button class="btn btn-outline-info d-block mt-2"
-                onclick={() => window.location.href = $relUrl(`/detail/${data.ir}/sp`)}
+                onclick={() => window.location.href = detailUrl('/sp')}
         >Vyplnit protokol
         </button>
     {/if}
     <hr />
     {#if $isUserRegulusOrAdmin}
-        <a class="btn btn-outline-info mt-2" href={$relUrl(`/detail/${data.ir}/users`)}>
+        <a class="btn btn-outline-info mt-2" href={detailUrl('/users')}>
             Uživatelé s přístupem k této evidenci
         </a>
     {/if}
@@ -207,17 +239,10 @@
         >{t.changeController}</button
         >
     {:else if change === 'input'}
-        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center mt-2">
-            <label class="form-floating d-block me-2">
-                <input
-                    type="search"
-                    placeholder={t.newSerialNumber}
-                    class="form-control"
-                    bind:this={input}
-                />
-                <label for="">{t.newSerialNumber}</label>
-            </label>
-            <div class="btn-group ms-sm-2 mt-2 mt-sm-0">
+        <div class="mt-2">
+            <Pisatko bind:vec={irNumber} data={undefined} {t} />
+            <Vybiratko bind:vec={irType} data={undefined} {t} />
+            <div class="btn-group">
                 <button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
                 <button class="btn btn-outline-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>
             </div>
@@ -232,10 +257,10 @@
     {/if}
     <a
         class="btn btn-outline-warning mt-2"
-        href={$relUrl(`/new?edit=${data.ir}`)}
+        href={relUrl(`/new?edit=${data.irid}`)}
         onclick={(e) => {
 			e.preventDefault();
-			window.location.href = $relUrl(`/new?edit=${data.ir}`);
+			window.location.href = relUrl(`/new?edit=${data.irid}`);
 		}}>{t.editRegistration}</a
     >
     <button class="btn btn-outline-danger d-block mt-2"

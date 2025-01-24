@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { logIn } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import { relUrl } from '$lib/helpers/stores';
@@ -8,19 +8,19 @@
 	import { onMount } from 'svelte';
 	import { setTitle } from '$lib/helpers/title.svelte';
 
-	const t: Translations = $page.data.translations;
+	const t: Translations = page.data.translations;
 
-	const done = browser ? <'reset' | 'edit' | 'register'>$page.url.searchParams.get('done') : null;
+	const done = browser ? <'reset' | 'edit' | 'register'>page.url.searchParams.get('done') : null;
 
-	let email = $state(browser ? $page.url.searchParams.get('email') ?? '' : '');
+	let email = $state(browser ? page.url.searchParams.get('email') ?? '' : '');
 	let password = $state('');
 	let redirect = $state('/new');
-	onMount(() => (redirect = $page.url.searchParams.get('redirect') ?? '/new'));
+	onMount(() => (redirect = page.url.searchParams.get('redirect') ?? '/new'));
 
-	let signUpLink = $derived($relUrl(
+	let signUpLink = $derived(relUrl(
 		`/signup?email=${email}&redirect=${redirect}`
 	));
-	let resetLink = $derived($relUrl(
+	let resetLink = $derived(relUrl(
 		`/newPassword?email=${email}&mode=resetEmail&redirect=${redirect}`
 	));
 
@@ -29,7 +29,7 @@
 	function prihlasitSe() {
 		error = '';
 		logIn(email, password)
-			.then(() => (window.location.href = $page.url.origin + $relUrl(redirect)))
+			.then(() => (window.location.href = page.url.origin + relUrl(redirect)))
 			.catch((e) => {
 				console.log(e.code);
 				if (e.code == 'auth/network-request-failed') {

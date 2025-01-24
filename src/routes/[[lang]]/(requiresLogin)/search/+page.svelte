@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
-    import { getAll } from '$lib/client/firestore';
+    import { page } from '$app/state';
+    import { getAll, IRNumberFromIRID } from '$lib/client/firestore';
     import { relUrl } from '$lib/helpers/stores';
     import { addToHistory, history, removeFromHistory, HistoryEntry } from '$lib/History';
     import type { Translations } from '$lib/translations';
@@ -15,21 +15,21 @@
         const all = res.docs
             .map((sn) => sn.data())
             .map((data) => HistoryEntry(data.evidence))
-            .toSorted((a, b) => a.ir.localeCompare(b.ir));
+            .filter((he) => he.irid)
+            .toSorted((a, b) => a.irid.localeCompare(b.irid));
         w.items = () => all
     });
 
-
-    const t: Translations = $page.data.translations;
+    const t: Translations = page.data.translations;
 
     let w = $state(new SearchWidget({
         type: 'search',
         label: 'search',
         items: [] as HistoryEntry[],
         getSearchItem: he => ({
-            href: $relUrl(`/detail/${he.ir.replace(' ', '')}`),
+            href: relUrl(`/detail/${he.irid}`),
             pieces: [
-                { text: p`${he.irType} ${he.ir}`, width: .4 },
+                { text: p`${he.irType} ${IRNumberFromIRID(he.irid)}`, width: .4 },
                 { text: p`${he.label}`, width: .6 },
             ] as const,
         })
@@ -39,7 +39,7 @@
         const he = w.value;
         if (he) {
             addToHistory(he);
-            goto($relUrl(`/detail/${he.ir.replace(' ', '')}`));
+            goto(relUrl(`/detail/${he.irid}`));
         }
     })
 
@@ -59,14 +59,14 @@
             <div class="d-flex list-group-item-group flex-nowrap">
                 <a
                     class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
-                    href={$relUrl(`/detail/${ir.ir.replace(' ', '')}`)}
+                    href={relUrl(`/detail/${ir.irid}`)}
                     onclick={(e) => {
 						e.preventDefault();
 						addToHistory(ir);
-						goto($relUrl(`/detail/${ir.ir.replace(' ', '')}`));
+						goto(relUrl(`/detail/${ir.irid}`));
 					}}
                 >
-                    <div class="col-md-5">{ir.irType} {ir.ir}</div>
+                    <div class="col-md-5">{ir.irType} {IRNumberFromIRID(ir.irid)}</div>
                     <div class="col-md-7">{ir.label}</div>
                 </a>
                 <button

@@ -36,7 +36,7 @@
 				.start(
 					{ facingMode: 'environment' },
 					undefined,
-					(decodedText, _) => {
+					(decodedText) => {
 						onScan(decodedText);
 
 						zrusitBtn?.click();

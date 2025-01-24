@@ -7,7 +7,7 @@
     import VecComponent from '$lib/components/Vec.svelte';
     import type { RawData } from '$lib/Data';
     import { currentUser, getToken } from '$lib/client/auth';
-    import { storable } from '$lib/helpers/stores';
+    import { detailUrl, storable } from '$lib/helpers/stores';
     import FormHeader from '../FormHeader.svelte';
     import { nowISO } from '$lib/helpers/date';
     import { type SparePart, sparePartsList, startSparePartsListening, startTechniciansListening, techniciansList } from '$lib/client/realtime';
@@ -17,27 +17,25 @@
     }
 
     let { data }: Props = $props();
-    const ir = data.ir;
     const t = data.translations;
 
-    const storedData = storable<RawDataSP>(`stored_sp_${ir}`);
+    const storedData = storable<RawDataSP>(`stored_sp_${data.irid}`);
 
     let p: DataSP = $state(defaultDataSP());
     let evidence = $state() as RawData;
-    let i = $state() as Number;
+    let i = $state() as number;
     onMount(async () => {
         await startTechniciansListening();
         await startSparePartsListening();
 
-        const snapshot = await getEvidence(ir as string);
+        const snapshot = await getEvidence(data.irid);
         if (snapshot.exists()) {
             const data = snapshot.data();
             evidence = data.evidence;
             i = data.installationProtocols.length;
         }
         const stored = $storedData;
-        if (stored == null) {
-        } else {
+        if (stored != null) {
             p = rawDataSPToDataSP(p, stored);
         }
 
@@ -52,7 +50,7 @@
     });
 
     let list = $derived((Object.values(p) as DataSP[keyof DataSP][]).flatMap(
-        (obj) => Object.values(obj) as Vec<UDSP, any>[]
+        (obj) => Object.values(obj) as Vec<UDSP, unknown>[]
     ));
     let d = $derived({ protokol: p, evidence } as UDSP);
 
@@ -76,7 +74,7 @@
         }
 
         vysledek = { load: true, red: false, text: t.saving };
-        await vyplnitServisniProtokol(ir as string, raw);
+        await vyplnitServisniProtokol(data.irid, raw);
 
         storedData.set(undefined);
         vysledek = {
@@ -87,7 +85,7 @@
 
         const token = await getToken();
         const newWin = window.open(
-            `/${data.languageCode}/detail/${data.ir}/pdf/installationProtocol-${i}?token=${token}`
+            detailUrl(`/pdf/installationProtocol-${i}?token=${token}`)
         );
         if (!newWin || newWin.closed) {
             vysledek = {
@@ -96,7 +94,7 @@
                 load: false
             };
         } else {
-            window.location.replace(`/${data.languageCode}/detail/${data.ir}`);
+            window.location.replace(detailUrl());
         }
     };
 

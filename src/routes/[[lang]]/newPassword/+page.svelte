@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { relUrl } from '$lib/helpers/stores';
 	import type { Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
@@ -16,11 +16,11 @@
 
 	let { data }: Props = $props();
 
-	let email = $state(browser ? ($page.url.searchParams.get('email') ?? data.email ?? '') : '');
+	let email = $state(browser ? (page.url.searchParams.get('email') ?? data.email ?? '') : '');
 
 	const t: Translations = data.translations;
 
-	const oobCode = browser ? $page.url.searchParams.get('oobCode') : null;
+	const oobCode = browser ? page.url.searchParams.get('oobCode') : null;
 	let mode:
 		| 'resetEmail'
 		| 'resetSending'
@@ -36,8 +36,8 @@
 
 	let redirect: string = '/new';
 	onMount(() => {
-		redirect = $page.url.searchParams.get('redirect') ?? '/new';
-		mode = $page.url.searchParams.get('mode') as typeof mode;
+		redirect = page.url.searchParams.get('redirect') ?? '/new';
+		mode = page.url.searchParams.get('mode') as typeof mode;
 	});
 
 	let error: string | null = $state(null);
@@ -49,7 +49,7 @@
 			redirect,
 			lang: data.languageCode
 		});
-		window.location.replace($relUrl('/newPassword?mode=resetSent'));
+		window.location.replace(relUrl('/newPassword?mode=resetSent'));
 	};
 
 	const resetPassword = async () => {
@@ -66,7 +66,7 @@
 		}
 		changePassword(oobCode!, heslo)
 			.then(() => {
-				window.location.href = $relUrl(`/login?email=${email}&done=${mode}&redirect=${redirect}`);
+				window.location.href = relUrl(`/login?email=${email}&done=${mode}&redirect=${redirect}`);
 			})
 			.catch((e) => {
 				console.log(e.code);

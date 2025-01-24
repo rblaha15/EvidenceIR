@@ -3,7 +3,6 @@ import { checkToken } from '$lib/server/auth';
 import { error } from '@sveltejs/kit';
 import { sendEmail } from '$lib/server/email';
 import type { Options } from 'nodemailer/lib/mailer';
-import { generateXML } from '$lib/createXML';
 
 export const POST: RequestHandler = async ({ url, request, fetch }) => {
     const token = url.searchParams.get('token');

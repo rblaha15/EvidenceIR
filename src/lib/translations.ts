@@ -25,8 +25,8 @@ const withGet = (translations: PlainTranslations): Translations => {
                 ? removePlain(ref)
                 : ((ref
                     .split('.')
-                    .reduce<Record<string, any> | string>((acc, key) =>
-                        (acc as Record<string, any>)[key], withDerived
+                    .reduce<Record<string, unknown> | string>((acc, key) =>
+                        (acc as Record<string, unknown>)[key], withDerived
                     ) as string) ?? ref);
     return <Translations> {
         ...withDerived,

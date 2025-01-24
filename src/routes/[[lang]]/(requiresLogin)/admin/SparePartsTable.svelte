@@ -13,9 +13,9 @@
     let colors = $state() as string[];
     if (sparePartsWithColors) {
         spareParts = sparePartsWithColors.map(([p]) => p);
-        colors = sparePartsWithColors.map(([_, c]) => c);
+        colors = sparePartsWithColors.map(([, c]) => c);
     } else if (spareParts) {
-        colors = spareParts.map(_ => '');
+        colors = spareParts.map(() => '');
     } else {
         throw 'No spareParts';
     }

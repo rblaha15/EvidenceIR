@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Company } from '$lib/client/realtime';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
 
     interface Props {
         companies?: Company[],
@@ -14,9 +14,9 @@
     let colors = $state() as string[];
     if (companiesWithColors) {
         companies = companiesWithColors.map(([p]) => p);
-        colors = companiesWithColors.map(([_, c]) => c);
+        colors = companiesWithColors.map(([, c]) => c);
     } else if (companies) {
-        colors = companies.map(_ => '');
+        colors = companies.map(() => '');
     } else {
         throw 'No companies';
     }
@@ -36,7 +36,7 @@
     {#each companies as company, i}
         <tr class="table-{colors[i]}" id={company.crn}
             style:scroll-margin-top={6 + (document.querySelector('nav')?.getBoundingClientRect()?.height ?? 0) + 'px'}
-            class:table-info={$page.url.hash.split("-")[1] === company.crn}
+            class:table-info={page.url.hash.split("-")[1] === company.crn}
         >
             <th>{company.crn}</th>
             <td>{company.companyName}</td>

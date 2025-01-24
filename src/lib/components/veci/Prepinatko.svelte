@@ -1,5 +1,4 @@
-<script lang="ts">
-	type D = $$Generic;
+<script lang="ts" generics="D">
 	import type { Translations } from '$lib/translations';
 	import { nazevSHvezdou, type Prepinatkova } from '$lib/Vec.svelte';
 

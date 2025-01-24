@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { Technician } from '$lib/client/realtime';
-    import { page } from '$app/stores';
 
     interface Props {
         technicians?: Technician[],
@@ -14,9 +13,9 @@
     let colors = $state() as string[];
     if (techniciansWithColors) {
         technicians = techniciansWithColors.map(([p]) => p);
-        colors = techniciansWithColors.map(([_, c]) => c);
+        colors = techniciansWithColors.map(([, c]) => c);
     } else if (technicians) {
-        colors = technicians.map(_ => '');
+        colors = technicians.map(() => '');
     } else {
         throw 'No technicians';
     }

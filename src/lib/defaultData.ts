@@ -30,7 +30,7 @@ export default (): Data => ({
         cisloBox: new Pisatkova({
             nazev: `serialNumberIndoor`,
             onError: `wrongNumberFormat`,
-            regex: d => d.ir.cisloBox.value.length < 6 ? /[0-9]{5}[0-9\-]/ : d.ir.cisloBox.value[5] == '-'
+            regex: d => d.ir.cisloBox.value.length < 6 ? /[0-9]{5}[0-9-]/ : d.ir.cisloBox.value[5] == '-'
                 ? /[0-9]{5}-[0-9]-[0-9]{4}-[0-9]{3}/
                 : /[0-9]{7}-[0-9]{7}/,
             maskOptions: d => ({
@@ -38,7 +38,7 @@ export default (): Data => ({
                     ? `00000-0-0000-000`
                     : `0000000-0000000`,
                 definitions: {
-                    'S': /[0-9\-]/
+                    'S': /[0-9-]/
                 },
             }),
             zobrazit: (data) => data.ir.typ.value.first?.includes(`BOX`) ?? false,

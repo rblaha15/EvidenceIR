@@ -1,4 +1,4 @@
-type KeyOfArray<Array> = Exclude<keyof Array, keyof any[]>
+type KeyOfArray<Array> = Exclude<keyof Array, keyof unknown[]>
 
 export type STemplate<T extends (number | string)[]> = (readonly [strings: readonly string[], keys: T])
 
@@ -12,10 +12,10 @@ export const template = <T extends (number | string)[]>(strings: readonly string
     return [strings, keys] as STemplate<T>;
 };
 
-export const addParsing = <T extends Record<string, string | STemplate<(string | number)[]> | Record<string, any>>>(obj: T): {
+export const addParsing = <T extends Record<string, string | STemplate<(string | number)[]> | Record<string, unknown>>>(obj: T): {
     [K in keyof T]: T[K] extends STemplate<infer U> ? Template<U> : T[K];
 } => Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, v instanceof Array ? (() => {
-    (v as Template<any>).parseTemplate = (args: Record<string | number, string>) => [
+    (v as Template<unknown>).parseTemplate = (args: Record<string | number, string>) => [
         v[0][0],
         ...v[1].map((key, i) => [(args as Record<string | number, string>)[key], v[0][i + 1]]
         ).flat()
@@ -25,7 +25,7 @@ export const addParsing = <T extends Record<string, string | STemplate<(string |
         [K in keyof T]: T[K] extends STemplate<infer U> ? Template<U> : T[K];
     };
 
-export type AddParsing<T extends Record<string, string | STemplate<(string | number)[]> | Record<string, any>>> = {
-    [K in keyof T]: T[K] extends STemplate<infer U> ? Template<U> : T[K] extends Record<string, any> ? AddParsing<T[K]> : T[K];
+export type AddParsing<T extends Record<string, string | STemplate<(string | number)[]> | Record<string, unknown>>> = {
+    [K in keyof T]: T[K] extends STemplate<infer U> ? Template<U> : T[K] extends Record<string, unknown> ? AddParsing<T[K]> : T[K];
 };
 

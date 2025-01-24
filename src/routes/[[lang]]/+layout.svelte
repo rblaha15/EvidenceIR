@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { dev } from '$app/environment';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { checkAuth } from '$lib/client/auth';
 	import Navigation from '$lib/components/Navigation.svelte';
 	import { preferredLanguage } from '$lib/languages';
 	import { onMount, type Snippet } from 'svelte';
-	import { writable } from 'svelte/store';
 	import { titleSvelte } from '$lib/helpers/title.svelte';
 	interface Props {
 		children?: Snippet;
@@ -13,7 +12,7 @@
 
 	let { children }: Props = $props();
 
-	const t = $page.data.translations;
+	const t = page.data.translations;
 
 	let nacita = $state(true);
 	onMount(async () => {
@@ -22,13 +21,13 @@
 	});
 	onMount(() => {
 		import('bootstrap');
-		const currentLangLength = $page.params.lang?.length ?? -1;
-		if (!$page.data.areTranslationsFromRoute)
+		const currentLangLength = page.params.lang?.length ?? -1;
+		if (!page.data.areTranslationsFromRoute)
 			window.location.replace(
 				'/' +
 					preferredLanguage() +
-					$page.url.pathname.slice(currentLangLength + 1) +
-					$page.url.search
+					page.url.pathname.slice(currentLangLength + 1) +
+					page.url.search
 			);
 	});
 </script>

@@ -2,19 +2,12 @@
 	import { evidence as getEvidence, uvestTCDoProvozu } from '$lib/client/firestore';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
-	import {
-		defaultUvedeniTC,
-		rawUvedeniTCToUvedeniTC,
-		uvedeniTCToRawUvedeniTC,
-		type RawUvedeniTC,
-		type UDTC,
-		type UvedeniTC
-	} from '$lib/UvedeniTC';
+	import { defaultUvedeniTC, type RawUvedeniTC, rawUvedeniTCToUvedeniTC, type UDTC, type UvedeniTC, uvedeniTCToRawUvedeniTC } from '$lib/UvedeniTC';
 	import { type Vec } from '$lib/Vec.svelte';
 	import VecComponent from '$lib/components/Vec.svelte';
 	import type { RawData } from '$lib/Data';
 	import { getToken } from '$lib/client/auth';
-	import { storable } from '$lib/helpers/stores';
+	import { detailUrl, storable } from '$lib/helpers/stores';
 	import FormHeader from '../FormHeader.svelte';
 
 	interface Props {
@@ -22,21 +15,19 @@
 	}
 
 	let { data }: Props = $props();
-	const ir = data.ir;
 	const t = data.translations;
 
-	const storedCommission = storable<RawUvedeniTC>(`stored_heat_pump_commission_${ir}`);
+	const storedCommission = storable<RawUvedeniTC>(`stored_heat_pump_commission_${(data.irid)}`);
 
 	let u: UvedeniTC = $state(defaultUvedeniTC());
 	let evidence = $state() as RawData;
 	onMount(async () => {
-		const snapshot = await getEvidence(ir as string);
+		const snapshot = await getEvidence(data.irid);
 		if (snapshot.exists()) {
 			evidence = snapshot.data().evidence;
 		}
 		const stored = $storedCommission;
-		if (stored == null) {
-		} else {
+		if (stored != null) {
 			u = rawUvedeniTCToUvedeniTC(u, stored);
 		}
 	});
@@ -48,7 +39,7 @@
 	});
 
 	let list = $derived((Object.values(u) as UvedeniTC[keyof UvedeniTC][]).flatMap(
-		(obj) => Object.values(obj) as Vec<UDTC, any>[]
+		(obj) => Object.values(obj) as Vec<UDTC, unknown>[]
 	));
 	let d = $derived({ uvedeni: u, evidence } as UDTC);
 
@@ -72,7 +63,7 @@
 		}
 
 		vysledek = { load: true, red: false, text: t.saving };
-		await uvestTCDoProvozu(ir as string, raw);
+		await uvestTCDoProvozu(data.irid, raw);
 
 		storedCommission.set(undefined);
 		vysledek = {
@@ -83,7 +74,7 @@
 
 		const token = await getToken();
 		const newWin = window.open(
-			`/${data.languageCode}/detail/${data.ir}/pdf/heatPumpCommissionProtocol?token=${token}`
+			detailUrl(`/pdf/heatPumpCommissionProtocol?token=${token}`)
 		);
 		if (!newWin || newWin.closed) {
 			vysledek = {
@@ -93,7 +84,7 @@
 			}	
 		}
 		else {
-			window.location.replace(`/${data.languageCode}/detail/${data.ir}`);
+			window.location.replace(detailUrl())
 		}
 	};
 

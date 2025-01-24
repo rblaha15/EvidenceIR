@@ -1,14 +1,6 @@
 <script lang="ts">
 	import { evidence, posledniKontrola, pridatKontrolu } from '$lib/client/firestore';
-	import {
-		kontrola,
-		kontrolaTypes,
-		checkNames,
-		orderArray,
-		type Kontrola,
-		type KontrolaAsRecord,
-		type NamesRecord
-	} from '$lib/Kontrola';
+	import { checkNames, kontrola, type Kontrola, type KontrolaAsRecord, kontrolaTypes, type NamesRecord, orderArray } from '$lib/Kontrola';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import { dateFromISO, todayISO } from '$lib/helpers/date';
@@ -19,7 +11,6 @@
 	}
 
 	let { data }: Props = $props();
-	const ir = data.ir;
 	const t = data.translations;
 
 	let uvadec: string = $state('');
@@ -31,8 +22,8 @@
 	let rok: number | undefined = $state();
 	let prvniKontrola: KontrolaAsRecord | undefined = $state();
 	onMount(async () => {
-		rok = (await posledniKontrola(ir as string)) + 1;
-		const snapshot = await evidence(ir as string);
+		rok = (await posledniKontrola(data.irid)) + 1;
+		const snapshot = await evidence(data.irid);
 		const kontroly = snapshot.data()?.kontroly as Record<number, Kontrola | undefined> | undefined;
 		prvniKontrola = kontroly?.[1];
 		const predchoziKontrola = kontroly?.[rok - 1];
@@ -50,7 +41,7 @@
 		k.meta.osoba = uvadec;
 		k.meta.poznamky = poznamka;
 		k.meta.datum = dateFromISO(date);
-		await pridatKontrolu(ir, rok!, k as Kontrola);
+		await pridatKontrolu(data.irid, rok!, k as Kontrola);
 
 		vysledek = {
 			text: 'Přesměrování...',

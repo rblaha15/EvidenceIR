@@ -7,7 +7,7 @@
     interface Props {
         title: string;
         showResetButton?: boolean;
-        store: Writable<any | undefined>;
+        store: Writable<unknown | undefined>;
         t: Translations;
     }
 

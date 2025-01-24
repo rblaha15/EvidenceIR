@@ -8,19 +8,18 @@
     import { responsiblePerson, startTechniciansListening, techniciansList } from '$lib/client/realtime';
     import { companies } from './companies';
     import odeslat from './odeslat.svelte';
-    import { evidence } from '$lib/client/firestore';
+    import { evidence, type IRID } from '$lib/client/firestore';
     import { storable } from '$lib/helpers/stores';
 
     import { dev } from '$app/environment';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import { onMount } from 'svelte';
     import { nazevFirmy } from '$lib/helpers/ares';
-    import FormHeader from '../detail/[ir]/FormHeader.svelte';
-    import Pisatko from '$lib/components/veci/Pisatko.svelte';
+    import FormHeader from '../detail/[irid]/FormHeader.svelte';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
     import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
 
-    const t = $page.data.translations;
+    const t = page.data.translations;
 
     const storedData = storable<RawData>(`stored_data`);
 
@@ -29,12 +28,14 @@
     onMount(async () => {
         await startTechniciansListening()
 
-        const ir = $page.url.searchParams.get('edit');
-        if (ir) {
-            const snapshot = await evidence(ir);
+        const irid = page.url.searchParams.get('edit') as IRID | null;
+        if (irid) {
+            const snapshot = await evidence(irid);
             console.log(snapshot);
             if (snapshot.exists() && snapshot.data() != undefined) {
                 data = rawDataToData(data, snapshot.data()!.evidence);
+                data.ir.cislo.lock = () => true;
+                data.ir.typ.lock1 = () => true;
                 return (mode = 'edit');
             }
         }
@@ -47,7 +48,7 @@
         }
     });
     $effect(() => {
-        if (!$page.url.searchParams.has('edit') && mode == 'edit') {
+        if (!page.url.searchParams.has('edit') && mode == 'edit') {
             location.reload();
         }
     });
@@ -146,7 +147,7 @@
     let list = $derived(
         data && mode != 'loading'
             ? (Object.values(data) as Data[keyof Data][]).flatMap(
-                (obj) => Object.values(obj) as v.Vec<Data, any>[]
+                (obj) => Object.values(obj) as v.Vec<Data, unknown>[]
             )
             : []
     );
@@ -203,13 +204,6 @@
             onScan={(text) => list[i].value = text.slice(-12)}
             {t}
             {data}
-        />
-    {:else if list[i] instanceof v.Pisatkova && list[i].zobrazit(data)}
-        <Pisatko
-            bind:vec={list[i]}
-            {t}
-            {data}
-            disabled={list[i] === data.ir.cislo && mode === 'edit'}
         />
     {:else}
         <VecComponent bind:vec={list[i]} {t} {data} />

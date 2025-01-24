@@ -2,7 +2,7 @@ import type { LanguageCode } from "./languages";
 import type { Translate } from "./translations";
 
 type Order = typeof kontrolaOrder
-type KeyOfArray<Array> = Exclude<keyof Array, keyof any[]>
+type KeyOfArray<Array> = Exclude<keyof Array, keyof unknown[]>
 
 export type KontrolaMetadata = {
     meta: {
@@ -254,8 +254,6 @@ export const kontrolaTypes: Record<string, Record<string, 'boolean' | 'string' |
         ...Object.fromEntries(sekce.map(key2 => [key2, key2.endsWith("B") ? "boolean" : key2.endsWith("T") ? 'tlak' : "string"])),
     }
 ])) as KontrolaTypes
-
-type R = Record<string, string | boolean | undefined>
 
 export const orderArray: OrderAsArray = kontrolaOrder.flatMap(([key1, sekce]) => [
     { key1, key2: 'nadpis' },

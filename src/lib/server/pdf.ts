@@ -6,7 +6,7 @@ import { getTranslations, type Translations } from '$lib/translations';
 import type { LanguageCode } from '$lib/languages';
 import { type Pdf, type PdfArgs, toPdfTypeName } from '$lib/client/pdf';
 import { evidence } from '$lib/server/firestore';
-import { type IR } from '$lib/client/firestore';
+import { type IR, type IRID } from '$lib/client/firestore';
 import check from '$lib/client/pdf/check';
 import warranty from '$lib/client/pdf/warranty';
 import rroute from '$lib/client/pdf/rroute';
@@ -15,7 +15,7 @@ import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtoc
 import solarCollectorCommissionProtocol from '$lib/client/pdf/solarCollectorCommissionProtocol';
 import installationProtocol from '$lib/client/pdf/installationProtocol';
 
-const node_fetch = fetch;
+type Fetch = typeof fetch;
 
 export type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole'
 export type GetPdfData = (data: IR, t: Translations) => Promise<{
@@ -37,13 +37,13 @@ export const getPdfData = (
     throw 'Invalid link name'
 };
 
-export const generatePdf = async (lang: LanguageCode, ir: string, fetch: typeof node_fetch, args: PdfArgs, getData: GetPdfData) => {
+export const generatePdf = async (lang: LanguageCode, irid: IRID, fetch: Fetch, args: PdfArgs, getData: GetPdfData) => {
     let snapshot: DocumentSnapshot<IR | undefined>;
     try {
-        snapshot = await evidence(ir);
+        snapshot = await evidence(irid);
     } catch (e) {
-        console.log(`Nepovedlo se načíst data z firebase ${{ lang, ir }}`);
-        error(500, `Nepovedlo se načíst data z firebase ${lang}, ${ir}, ${e}`);
+        console.log(`Nepovedlo se načíst data z firebase ${{ lang, irid }}`);
+        error(500, `Nepovedlo se načíst data z firebase ${lang}, ${irid}, ${e}`);
     }
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
     const t = getTranslations(formLanguage);
