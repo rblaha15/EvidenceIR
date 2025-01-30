@@ -76,12 +76,12 @@ const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uv
 /*      instalace */ Text13: `${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,
 /*   popisSystemu */ Text14: `${typIR(e.ir.typ)} ${e.ir.cislo}
 ${e.ir.cisloBox ? `BOX: ${e.ir.cisloBox}` : ''}
-${e.sol.typ ? `SOL: ${e.sol.typ} – ${e.sol.pocet}x` : ''}
+${e.sol?.typ ? `SOL: ${e.sol.typ} – ${e.sol.pocet}x` : ''}
 ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
     t.pumpDetails.parseTemplate({ n: isCascade ? `${i + 1}` : '', model, cislo })
 )) : ''}`,
 /*          datum */ Text15: dateFromISO(p.zasah.datum),
-/*   datumUvedeni */ Text16: h ? dateFromISO(h?.uvadeni.date) : null,
+/*   datumUvedeni */ Text16: h?.uvadeni?.date ? dateFromISO(h?.uvadeni?.date) : null,
 /*        technik */ Text17: p.zasah.clovek,
 /*     dobaZasahu */ Text18: p.zasah.doba + ' h',
 /*           druh */ 'Zaškrtávací pole26': p.zasah.druh.includes(`commissioning`),

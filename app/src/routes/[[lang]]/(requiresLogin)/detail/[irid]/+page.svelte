@@ -221,7 +221,12 @@
             {@const datum = p.zasah.datum.split('T')[0].split('-').join('/')}
             {@const hodina = p.zasah.datum.split('T')[1].split(':')[0]}
             {@const technik = p.zasah.inicialy}
-            <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true} />
+            <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true} >
+                <button
+                    class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
+                    onclick={() => (window.location.href = detailUrl(`/sp/?edit=${i}`))}
+                >Upravit protokol</button>
+            </PdfLink>
         {/each}
         <button class="btn btn-outline-info d-block mt-2"
                 onclick={() => window.location.href = detailUrl('/sp')}

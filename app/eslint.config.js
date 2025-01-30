@@ -36,6 +36,7 @@ export default ts.config(
         },
         rules: {
             '@typescript-eslint/no-unused-expressions': 'off',
+            '@typescript-eslint/no-unused-vars': 'warn',
             'svelte/no-at-html-tags': 'warn',
         },
     },
