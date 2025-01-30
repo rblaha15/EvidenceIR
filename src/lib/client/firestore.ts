@@ -97,9 +97,9 @@ const addUserType: Migration = (legacyIR: LegacyIR & IR) => {
     return legacyIR;
 };
 const removeUvedeni: Migration = (legacyIR: LegacyIR & IR) =>
-    legacyIR.uvedeni ? { uvedeniTC: legacyIR.uvedeni, ...legacyIR } : legacyIR;
+    legacyIR.uvedeni ? { uvedeniTC: legacyIR.uvedeni, ...legacyIR, uvedeni: undefined } : legacyIR;
 const removeInstallationProtocol: Migration = (legacyIR: LegacyIR & IR) =>
-    legacyIR.installationProtocol ? { ...legacyIR, installationProtocols: [legacyIR.installationProtocol] } : legacyIR;
+    legacyIR.installationProtocol ? { ...legacyIR, installationProtocols: [legacyIR.installationProtocol], installationProtocol: undefined } : legacyIR;
 
 type Migration = (legacyIR: LegacyIR & IR) => LegacyIR & IR;
 
@@ -144,11 +144,17 @@ export const pridatKontrolu = (irid: IRID, rok: number, kontrola: Kontrola) =>
     updateDoc(irDoc(irid), `kontroly.${rok}`, kontrola);
 
 export const vyplnitServisniProtokol = async (irid: IRID, protokol: RawDataSP) => {
-    const p = (await evidence(irid)).data()!.installationProtocols;
+    const p = (await evidence(irid)).data()!.installationProtocols ?? [];
     await updateDoc(
         irDoc(irid), `installationProtocols`,
         [...p, protokol]
     );
+};
+
+export const upravitServisniProtokol = async (irid: IRID, index: number, protokol: RawDataSP) => {
+    const p = (await evidence(irid)).data()!.installationProtocols;
+    p[index] = protokol;
+    await updateDoc(irDoc(irid), `installationProtocols`, p);
 };
 
 export const uvestTCDoProvozu = (irid: IRID, uvedeni: RawUvedeniTC) =>

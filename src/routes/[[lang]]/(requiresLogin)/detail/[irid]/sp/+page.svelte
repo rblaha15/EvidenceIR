@@ -1,16 +1,17 @@
 <script lang="ts">
-    import { evidence as getEvidence, vyplnitServisniProtokol } from '$lib/client/firestore';
+    import { evidence as getEvidence, upravitServisniProtokol, vyplnitServisniProtokol } from '$lib/client/firestore';
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
     import { type DataSP, dataSPToRawDataSP, defaultDataSP, type RawDataSP, rawDataSPToDataSP, type UDSP } from '$lib/SP';
     import { type Vec } from '$lib/Vec.svelte';
     import VecComponent from '$lib/components/Vec.svelte';
-    import type { RawData } from '$lib/Data';
+    import { type RawData } from '$lib/Data';
     import { currentUser, getToken } from '$lib/client/auth';
     import { detailUrl, storable } from '$lib/helpers/stores';
     import FormHeader from '../FormHeader.svelte';
     import { nowISO } from '$lib/helpers/date';
     import { type SparePart, sparePartsList, startSparePartsListening, startTechniciansListening, techniciansList } from '$lib/client/realtime';
+    import { page } from '$app/state';
 
     interface Props {
         data: PageData;
@@ -20,6 +21,7 @@
     const t = data.translations;
 
     const storedData = storable<RawDataSP>(`stored_sp_${data.irid}`);
+    let mode: 'create' | 'edit' | 'loading' = $state('loading');
 
     let p: DataSP = $state(defaultDataSP());
     let evidence = $state() as RawData;
@@ -32,11 +34,17 @@
         if (snapshot.exists()) {
             const data = snapshot.data();
             evidence = data.evidence;
-            i = data.installationProtocols.length;
-        }
-        const stored = $storedData;
-        if (stored != null) {
-            p = rawDataSPToDataSP(p, stored);
+            const spid = page.url.searchParams.get('edit') as string | null;
+            if (spid) {
+                i = Number(spid);
+                p = rawDataSPToDataSP(p, data.installationProtocols[i]);
+                mode = 'edit';
+            } else {
+                if ($storedData != null) {
+                    p = rawDataSPToDataSP(p, $storedData);
+                }
+                mode = 'create';
+            }
         }
 
         if (!p.zasah.datum.value)
@@ -74,7 +82,11 @@
         }
 
         vysledek = { load: true, red: false, text: t.saving };
-        await vyplnitServisniProtokol(data.irid, raw);
+        if (mode == 'edit') {
+            await upravitServisniProtokol(data.irid, i, raw);
+        } else {
+            await vyplnitServisniProtokol(data.irid, raw);
+        }
 
         storedData.set(undefined);
         vysledek = {
@@ -99,7 +111,7 @@
     };
 
     $effect(() => {
-        if (evidence) {
+        if (mode != 'loading' && mode != 'edit') {
             storedData.set(dataSPToRawDataSP(p));
         }
     });
@@ -119,14 +131,14 @@
             ...it,
             name: it.name.replace('  ', ' '),
         }) as SparePart);
-        p.nahradniDil1.dil.items = () => spareParts
-        p.nahradniDil2.dil.items = () => spareParts
-        p.nahradniDil3.dil.items = () => spareParts
+        p.nahradniDil1.dil.items = () => spareParts;
+        p.nahradniDil2.dil.items = () => spareParts;
+        p.nahradniDil3.dil.items = () => spareParts;
     });
 </script>
 
-{#if evidence}
-    <FormHeader store={storedData} {t} title="Instalační a servisní protokol" />
+{#if mode !== 'loading'}
+    <FormHeader store={storedData} {t} title={mode === 'edit' ? 'Editace SP' : 'Instalační a servisní protokol'} />
     {#each list as _, i}
         <VecComponent bind:vec={list[i]} {t} data={d} />
     {/each}
