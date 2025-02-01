@@ -6,16 +6,6 @@ export type GetOrVal<D, U = TranslationReference> = Get<D, U> | U;
 const toGet = <D, U>(getOrValue: GetOrVal<D, U>) =>
     getOrValue instanceof Function ? getOrValue : () => getOrValue;
 
-export type Raw<U, D = U> = {
-    [K in keyof U]: {
-        [K2 in keyof U[K]]: U[K][K2] extends Vec<D, infer T>
-            ? T extends undefined
-                ? never
-                : T
-            : U[K][K2];
-    };
-};
-
 type Opts = {
     mask: string;
     definitions?: {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Data } from '$lib/Data';
+	import type { Data } from '$lib/forms/Data';
 	import type { Translations } from '$lib/translations';
 	import {
 		DvojVybiratkova,

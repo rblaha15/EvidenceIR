@@ -14,9 +14,9 @@
 <ul class="navbar-nav">
     <li class="link-item" data-bs-dismiss="offcanvas">
         <a
-            aria-current={page.route.id?.includes('/new') && !page.url.searchParams.has('edit') ? 'page' : null}
+            aria-current={page.route.id?.includes('/new') && !page.url.searchParams.has('edit-irid') ? 'page' : null}
             class="nav-link mt-3 mt-sm-0"
-            class:active={page.route.id?.includes('/new') && !page.url.searchParams.has('edit')}
+            class:active={page.route.id?.includes('/new') && !page.url.searchParams.has('edit-irid')}
             href={relUrl('/new')}>{t.new}</a
         >
     </li>
@@ -28,15 +28,15 @@
             href={relUrl('/search')}>{t.controllerSearch}</a
         >
     </li>
-    {#if page.route.id?.includes('/detail') || page.url.searchParams.has('edit')}
+    {#if page.route.id?.includes('/detail') || page.url.searchParams.has('edit-irid')}
         <li class="link-item" data-bs-dismiss="offcanvas">
             <a
                 class="nav-link ms-sm-3 active"
                 aria-current={'page'}
                 href={
                     page.route.id?.includes('/detail')
-                        ? relUrl(`/detail/${page.data.ir ?? ''}`)
-                        : relUrl(`/detail/${page.url.searchParams.get('edit') ?? ''}`)
+                        ? relUrl(`/detail/${page.data.irid ?? ''}`)
+                        : relUrl(`/detail/${page.url.searchParams.get('edit-irid') ?? ''}`)
                 }
             >{t.evidenceDetails}</a>
         </li>

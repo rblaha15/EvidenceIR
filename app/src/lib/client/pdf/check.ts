@@ -1,11 +1,12 @@
 import { kontrolaTypes, orderArray, type KontrolaAsRecord } from '$lib/Kontrola';
 import { nazevFirmy } from '$lib/helpers/ares';
-import type { RawData } from '$lib/Data';
+import type { Data } from '$lib/forms/Data';
 import type { Translations } from '$lib/translations';
 import type { GetPdfData } from '$lib/server/pdf';
 import { jmenoUzivatele } from '$lib/helpers/ir';
+import type { Raw } from '$lib/forms/Form';
 
-export const cascadeDetails = (e: RawData, t: Translations) => ({
+export const cascadeDetails = (e: Raw<Data>, t: Translations) => ({
     isCascade: (e.tc.model2 ?? 'noPump') != 'noPump',
     pumps: [
         [e.tc.model!, e.tc.cislo] as const,

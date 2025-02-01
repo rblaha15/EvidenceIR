@@ -34,7 +34,7 @@
         ? data.languageCode
         : pdf.supportedLanguages[0]);
 
-    const lastToken = storable<string>('firebase_token');
+    const lastToken = storable<string>(`firebase_token_${data.irid}_${linkName}`);
 
     let offlineError = $state(false);
 

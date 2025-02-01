@@ -1,12 +1,11 @@
 import type { Options } from "nodemailer/lib/mailer";
 import { getToken } from "./auth";
 import { htmlToText } from "html-to-text";
-import { isString } from "lodash-es";
+import isString from "lodash.isstring";
 
 /**
  * Pošle email a pokud tam je html, převede to na text
  */
-
 export const sendEmail = async (message: Options) => {
 
 	if (isString(message.html)) {

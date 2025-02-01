@@ -1,10 +1,16 @@
-import type { RawData } from './Data';
-import { MultiZaskrtavatkova, Nadpisova, p, Pisatkova, Pocitatkova, Radiova, type Raw, SearchWidget, Vec, Vybiratkova } from './Vec.svelte';
-import type { SparePart } from '$lib/client/realtime';
+import { MultiZaskrtavatkova, Nadpisova, p, Pisatkova, Pocitatkova, Radiova, SearchWidget, Vybiratkova } from '../Vec.svelte.js';
+import { type SparePart, sparePartsList, startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
+import type { Raw } from '$lib/forms/Form';
+import type { Data } from '$lib/forms/Data';
+import { page } from '$app/state';
+import { upravitServisniProtokol, vyplnitServisniProtokol } from '$lib/client/firestore';
+import { currentUser } from '$lib/client/auth';
+import { type FormInfo } from './forms.svelte.js';
+import type { User } from 'firebase/auth';
 
 export type UDSP = {
     protokol: DataSP,
-    evidence: RawData,
+    evidence: Raw<Data>,
 }
 
 type NahradniDil = {
@@ -104,34 +110,52 @@ export const defaultDataSP = (): DataSP => ({
     },
 });
 
-export const rawDataSPToDataSP = (toData: DataSP, rawData: RawDataSP) => {
-    const d = toData as Record<string, Record<string, Vec<UDSP, unknown>>>;
-
-    Object.entries(rawData).map(a =>
-        a as [keyof DataSP, RawDataSP[keyof RawDataSP]]
-    ).forEach(([key1, section]) =>
-        Object.entries(section).map(a =>
-            a as [string, unknown]
-        ).forEach(([key2, value]) => {
-            d[key1][key2].value = value;
-        })
-    );
-
-    return d as DataSP;
-};
-
-export type RawDataSP = Raw<DataSP, UDSP>
-
-export const dataSPToRawDataSP = (data: DataSP): RawDataSP => {
-    const DataEntries = Object.entries(data);
-    const rawDataEntries = DataEntries.map(([key, subData]) => {
-        const subDataEntries = Object.entries(subData) as [string, Vec<UDSP, unknown>][];
-        const rawSubDataEntries = subDataEntries.map(([subKey, vec]) => {
-            if (vec.value == undefined) return undefined;
-            else return [subKey, vec.value] as const;
-        }).filter(it => it != undefined);
-        const rawSubData = Object.fromEntries(rawSubDataEntries);
-        return [key, rawSubData] as const;
-    });
-    return Object.fromEntries(rawDataEntries) as RawDataSP;
-};
+export const sp = (() => {
+    let i = $state() as number;
+    const info: FormInfo<UDSP, DataSP, [[Technician[], User | null], [SparePart[]]]> = {
+        storeName: 'stored_sp',
+        defaultData: defaultDataSP,
+        pdfLink: `installationProtocol-${i}`,
+        getEditData: ir => {
+            const editIndex = page.url.searchParams.get('edit') as string | null;
+            if (editIndex) {
+                i = Number(editIndex);
+                return ir.installationProtocols[i]
+            } else {
+                i = ir.installationProtocols.length;
+                return undefined
+            }
+        },
+        saveData: (irid, raw, edit) => edit
+            ? upravitServisniProtokol(irid, i, raw)
+            : vyplnitServisniProtokol(irid, raw),
+        createWidgetData: (evidence, protokol) => ({ evidence, protokol }),
+        title: p`Instalační a servisní protokol`,
+        editTitle: p`Editace SP`,
+        onMount: async () => {
+            await startTechniciansListening();
+            await startSparePartsListening();
+        },
+        storeEffects: [
+            [(p, [$techniciansList, $currentUser]) => {
+                const ja = $techniciansList.find(t => $currentUser?.email == t.email);
+                p.zasah.clovek.value = ja?.name ?? p.zasah.clovek.value;
+                p.zasah.clovek.zobrazit = () => !ja;
+                p.zasah.clovek.required = () => !ja;
+                p.zasah.inicialy.value = ja?.initials ?? p.zasah.inicialy.value;
+                p.zasah.inicialy.zobrazit = () => !ja;
+                p.zasah.inicialy.required = () => !ja;
+            }, [techniciansList, currentUser]],
+            [(p, [$sparePartsList]) => {
+                const spareParts = $sparePartsList.map(it => ({
+                    ...it,
+                    name: it.name.replace('  ', ' '),
+                }) as SparePart);
+                p.nahradniDil1.dil.items = () => spareParts;
+                p.nahradniDil2.dil.items = () => spareParts;
+                p.nahradniDil3.dil.items = () => spareParts;
+            }, [sparePartsList]],
+        ],
+    };
+    return info;
+})();

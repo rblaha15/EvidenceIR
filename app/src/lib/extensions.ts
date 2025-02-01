@@ -8,7 +8,7 @@ interface ObjectConstructor {
 interface Object {
     mapEntries<T extends Record<PropertyKey, unknown>, U extends [PropertyKey, unknown]>(
         this: T,
-        callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U
+        callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U | undefined
     ): {
         [K in U[0]]: U[1];
     };
@@ -17,6 +17,12 @@ interface Object {
         this: T,
         callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U
     ): U[];
+
+
+    forEachEntry<T extends Record<PropertyKey, unknown>>(
+        this: T,
+        callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => unknown
+    ): void;
 
     mapValues<T extends Record<PropertyKey, unknown>, U>(
         this: T,
@@ -57,6 +63,7 @@ Object.defineProperties(Object.prototype, {
     mapValues: { writable: true },
     filterValues: { writable: true },
     mapTo: { writable: true },
+    forEachEntry: { writable: true },
     entries: { writable: true },
     getValues: { writable: true },
     keys: { writable: true },
@@ -80,11 +87,19 @@ Object.prototype.mapTo = function<T extends Record<PropertyKey, unknown>, U>(
         callback(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][])
     );
 };
+Object.prototype.forEachEntry = function<T extends Record<PropertyKey, unknown>>(
+    this: T,
+    callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => unknown
+) {
+    this.entries().forEach(([key, value], index, array) =>
+        callback(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][])
+    );
+};
 Object.prototype.mapEntries = function<T extends Record<PropertyKey, unknown>, U extends [PropertyKey, unknown]>(
     this: T,
-    callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U
+    callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U | undefined
 ) {
-    return this.entries().map(([key, value], index, array) =>
+    return this.entries().mapNotUndefined(([key, value], index, array) =>
         callback(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][])
     ).toRecord<U[0], U[1]>();
 };
@@ -133,6 +148,15 @@ interface Array<T> {
         other: U[] | readonly U[],
     ): [T, U][];
 
+    mapNotUndefined<T, U>(
+        this: T[],
+        callback: (value: T, index: number, array: T[]) => U | undefined
+    ): U[];
+
+    filterNotUndefined<T>(
+        this: (T | undefined)[],
+    ): T[];
+
     toRecord<K extends PropertyKey, V>(
         this: [K, V][] | readonly [K, V][],
     ): {
@@ -144,6 +168,10 @@ interface Array<T> {
         key: (item: T, index: number, array: T[]) => K,
         options?: { reversed?: boolean },
     ): T[];
+
+    awaitAll<T>(
+        this: Iterable<T | PromiseLike<T>>,
+    ): Promise<Awaited<T>[]>
 }
 
 interface ReadonlyArray<T> {
@@ -169,8 +197,20 @@ Array.prototype.zip = <typeof Array.prototype.zip> function(other) {
     return this.map((item, index) => [item, other[index]]);
 };
 
+Array.prototype.mapNotUndefined = <typeof Array.prototype.mapNotUndefined> function(callback) {
+    return this.map(callback).filterNotUndefined();
+};
+
+Array.prototype.filterNotUndefined = <typeof Array.prototype.filterNotUndefined> function() {
+    return this.filter(it => it != undefined);
+};
+
 Array.prototype.toRecord = <typeof Array.prototype.toRecord> function() {
     return Object.fromEntries(this);
+};
+
+Array.prototype.awaitAll = <typeof Array.prototype.awaitAll> function() {
+    return Promise.all(this);
 };
 
 Array.prototype.distinctBy = function <T, K>(

@@ -5,13 +5,11 @@ import {
     Nadpisova,
     Pisatkova,
     Radiova,
-    type Raw,
     SearchWidget,
     Textova,
-    Vec,
     Vybiratkova,
     Zaskrtavatkova
-} from './Vec.svelte';
+} from '../Vec.svelte.js';
 import type { Company, Technician } from '$lib/client/realtime';
 
 export type Data = {
@@ -96,41 +94,4 @@ export type Data = {
     };
 }
 
-export const rawDataToData = (toData: Data, rawData: RawData) => {
-    const d = toData as GeneralData;
-
-    Object.entries(rawData).map(a =>
-        a as [keyof Data, RawData[keyof RawData]]
-    ).forEach(([key1, section]) =>
-        Object.entries(section).map(a =>
-            a as [string, unknown]
-        ).forEach(([key2, value]) => {
-            if (d[key1] == undefined) return;
-            if (d[key1][key2] == undefined) d[key1][key2] = (defaultData()[key1] as GeneralData[string])[key2];
-            else d[key1][key2].value = value;
-        })
-    );
-
-    return d as Data;
-};
-
 export const newData = () => defaultData();
-
-export type RawData = Raw<Data>
-export type GeneralData = Record<string, Record<string, Vec<Data, unknown>>>
-
-export const dataToRawData = (data: Data): RawData => {
-    const dataEntries = Object.entries(data);
-    const rawDataEntries = dataEntries.map(([key, subData]) => {
-        const subDataEntries = Object.entries(subData) as [string, Vec<Data, unknown>][];
-        const rawSubDataEntries = subDataEntries.map(([subKey, vec]) => {
-            if (vec == undefined) return undefined;
-            if (vec.value == undefined) return undefined;
-            else return [subKey, vec.value] as const;
-        }).filter(it => it != undefined);
-        const rawSubData = Object.fromEntries(rawSubDataEntries);
-        return [key, rawSubData] as const;
-    });
-    return Object.fromEntries(rawDataEntries) as RawData;
-};
-

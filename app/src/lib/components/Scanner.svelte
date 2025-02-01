@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	import Pisatko from './veci/Pisatko.svelte';
 	import type { Translations } from '$lib/translations';
-	import type { Data } from '$lib/Data';
+	import type { Data } from '$lib/forms/Data';
 
 	let zrusitBtn = $state<HTMLButtonElement>();
 

@@ -1,9 +1,11 @@
 import {
     collection,
     deleteDoc,
-    doc, enablePersistentCacheIndexAutoCreation,
+    doc,
+    enablePersistentCacheIndexAutoCreation,
     getDoc,
-    getDocs, getPersistentCacheIndexManager,
+    getDocs,
+    getPersistentCacheIndexManager,
     onSnapshot,
     query,
     type QueryDocumentSnapshot,
@@ -12,14 +14,15 @@ import {
     where,
     type WithFieldValue,
 } from 'firebase/firestore';
-import type { RawData } from '$lib/Data';
+import type { Raw } from '$lib/forms/Form';
+import type { Data } from '$lib/forms/Data';
 import type { Kontrola } from '$lib/Kontrola';
-import type { RawUvedeniTC } from '$lib/UvedeniTC';
+import type { UvedeniTC } from '$lib/forms/UvedeniTC';
 import { get, readonly, writable } from 'svelte/store';
 import { checkRegulusOrAdmin, currentUser } from './auth';
 import { firestore } from '../../hooks.client';
-import type { RawUvedeniSOL } from '$lib/UvedeniSOL';
-import type { RawDataSP } from '$lib/SP';
+import type { UvedeniSOL } from '$lib/forms/UvedeniSOL';
+import type { DataSP } from '$lib/forms/SP.svelte';
 import type { TranslationReference } from '$lib/translations';
 
 const persistentCacheIndexManager = getPersistentCacheIndexManager(firestore);
@@ -36,16 +39,16 @@ const extractIRTypeFromFullIRType = (fullIRType: string): IRType =>
                 : undefined)!;
 export const extractIRIDFromParts = (fullIRType: string, irNumber: string): IRID =>
     `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replace(' ', '')}`;
-export const extractIRIDFromRawData = (evidence: RawData): IRID =>
+export const extractIRIDFromRawData = (evidence: Raw<Data>): IRID =>
     extractIRIDFromParts(evidence.ir.typ.first!, evidence.ir.cislo);
 
 export const IRNumberFromIRID = (irid: IRID): string =>
     irid.slice(1, 3) + ' ' + irid.slice(3, 7);
 
 export type IR = {
-    evidence: RawData;
-    uvedeniTC?: RawUvedeniTC;
-    uvedeniSOL?: RawUvedeniSOL;
+    evidence: Raw<Data>;
+    uvedeniTC?: Raw<UvedeniTC>;
+    uvedeniSOL?: Raw<UvedeniSOL>;
     kontroly: {
         1?: Kontrola;
         2?: Kontrola;
@@ -53,13 +56,13 @@ export type IR = {
         4?: Kontrola;
     };
     users: string[];
-    installationProtocols: RawDataSP[];
+    installationProtocols: Raw<DataSP>[];
 };
 
 export type LegacyIR = {
-    uvedeni?: RawUvedeniTC;
-    installationProtocol?: RawDataSP;
-    evidence: RawData & {
+    uvedeni?: Raw<UvedeniTC>;
+    installationProtocol?: Raw<DataSP>;
+    evidence: Raw<Data> & {
         vzdalenyPristup: {
             fakturuje: TranslationReference;
         };
@@ -67,7 +70,7 @@ export type LegacyIR = {
             cisloBOX: string;
         };
     };
-    uvedeniTC?: RawUvedeniTC & {
+    uvedeniTC?: Raw<UvedeniTC> & {
         uvadeni: {
             typZaruky: null | TranslationReference | 'extendedWarranty10Years' | 'extendedWarranty7Years'
         };
@@ -119,7 +122,7 @@ export const evidence = (irid: IRID) =>
     getDoc(irDoc(irid));
 export const novaEvidence = (data: IR) =>
     setDoc(irDoc(extractIRIDFromRawData(data.evidence)), data);
-export const upravitEvidenci = (rawData: RawData) =>
+export const upravitEvidenci = (rawData: Raw<Data>) =>
     updateDoc(irDoc(extractIRIDFromRawData(rawData)), `evidence`, rawData);
 export const odstranitEvidenci = (irid: IRID) =>
     deleteDoc(irDoc(irid));
@@ -143,7 +146,7 @@ export const posledniKontrola = async (irid: IRID) => {
 export const pridatKontrolu = (irid: IRID, rok: number, kontrola: Kontrola) =>
     updateDoc(irDoc(irid), `kontroly.${rok}`, kontrola);
 
-export const vyplnitServisniProtokol = async (irid: IRID, protokol: RawDataSP) => {
+export const vyplnitServisniProtokol = async (irid: IRID, protokol: Raw<DataSP>) => {
     const p = (await evidence(irid)).data()!.installationProtocols ?? [];
     await updateDoc(
         irDoc(irid), `installationProtocols`,
@@ -151,16 +154,16 @@ export const vyplnitServisniProtokol = async (irid: IRID, protokol: RawDataSP) =
     );
 };
 
-export const upravitServisniProtokol = async (irid: IRID, index: number, protokol: RawDataSP) => {
+export const upravitServisniProtokol = async (irid: IRID, index: number, protokol: Raw<DataSP>) => {
     const p = (await evidence(irid)).data()!.installationProtocols;
     p[index] = protokol;
     await updateDoc(irDoc(irid), `installationProtocols`, p);
 };
 
-export const uvestTCDoProvozu = (irid: IRID, uvedeni: RawUvedeniTC) =>
+export const uvestTCDoProvozu = (irid: IRID, uvedeni: Raw<UvedeniTC>) =>
     updateDoc(irDoc(irid), `uvedeniTC`, uvedeni);
 
-export const uvestSOLDoProvozu = (irid: IRID, uvedeni: RawUvedeniSOL) =>
+export const uvestSOLDoProvozu = (irid: IRID, uvedeni: Raw<UvedeniSOL>) =>
     updateDoc(irDoc(irid), `uvedeniSOL`, uvedeni);
 
 export const upravitUzivatele = (irid: IRID, users: string[]) =>
