@@ -115,8 +115,8 @@ const irCollection = collection(firestore, 'ir').withConverter<IR>({
     fromFirestore: (snapshot: QueryDocumentSnapshot) => modernizeIR(snapshot.data() as IR & LegacyIR),
 });
 const checkCollection = collection(firestore, 'check');
-const irDoc = (irid: IRID) => doc(irCollection, irid.replace(' ', ''));
-const checkDoc = (irid: IRID) => doc(checkCollection, irid.replace(' ', ''));
+const irDoc = (irid: IRID) => doc(irCollection, irid);
+const checkDoc = (irid: IRID) => doc(checkCollection, irid);
 
 export const evidence = (irid: IRID) =>
     getDoc(irDoc(irid));
