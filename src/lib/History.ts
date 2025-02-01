@@ -1,8 +1,9 @@
 import { readonly } from 'svelte/store';
 import { storable } from "./helpers/stores"
-import { type RawData } from '$lib/Data';
+import { type Data } from '$lib/forms/Data';
 import { popisIR, typIR } from '$lib/helpers/ir';
 import { extractIRIDFromRawData, type IRID } from '$lib/client/firestore';
+import type { Raw } from '$lib/forms/Form';
 
 const _history = storable<HistoryEntry[]>("history3", [])
 
@@ -13,7 +14,7 @@ export type HistoryEntry = {
     label: string,
     irType: string,
 }
-export const HistoryEntry = (evidence: RawData): HistoryEntry => ({
+export const HistoryEntry = (evidence: Raw<Data>): HistoryEntry => ({
     irid: extractIRIDFromRawData(evidence),
     irType: typIR(evidence.ir.typ),
     label: popisIR(evidence)

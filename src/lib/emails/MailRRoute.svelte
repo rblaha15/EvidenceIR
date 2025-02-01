@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { type RawData } from '$lib/Data';
+	import { type Data } from '$lib/forms/Data';
 	import type { Translations } from '$lib/translations';
     import { nazevIR, popisIR } from '$lib/helpers/ir';
+	import type { Raw } from '$lib/forms/Form';
 
-	const typZarizeni = (e: RawData): string => {
+	const typZarizeni = (e: Raw<Data>): string => {
 		if (e.ir.typ.first!.includes('BOX')) return 'CP-2972';
 		if (e.ir.typ.first!.includes('12')) return 'CP-1054';
 		if (e.ir.typ.first!.includes('14')) return 'CP-2007';
@@ -11,7 +12,7 @@
 	};
 
 	interface Props {
-		e: RawData;
+		e: Raw<Data>;
 		t: Translations;
 		montazka: string | null;
 		uvadec: string | null;

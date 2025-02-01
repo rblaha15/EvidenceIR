@@ -18,10 +18,11 @@ export const GET: RequestHandler = async ({ url, fetch, params }) => {
         url.pathname = url.pathname.split("/pdf")[0]
         return redirect(303, url)
     }
+    const pdfTypeName = toPdfTypeName(pdfName);
 
-    if (pdfName !in Object.keys(pdfInfo)) return error(404)
+    if (!pdfInfo.keys().includes(pdfTypeName)) return error(404)
 
-    const pdfArgs = pdfInfo[toPdfTypeName(pdfName)];
+    const pdfArgs = pdfInfo[pdfTypeName];
     const getData = getPdfData(pdfName);
 
     if (pdfArgs.requiredAdmin && !checkAdmin(token) || pdfArgs.requiredRegulus && !checkRegulusOrAdmin(token))

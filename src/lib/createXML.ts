@@ -1,4 +1,4 @@
-import type { Data, GeneralData } from '$lib/Data';
+import type { Data } from '$lib/forms/Data';
 import {
     DvojVybiratkova,
     MultiZaskrtavatkova,
@@ -12,6 +12,7 @@ import {
     Zaskrtavatkova
 } from '$lib/Vec.svelte';
 import type { Translations } from '$lib/translations';
+import type { Form } from '$lib/forms/Form';
 
 const camelToSnakeCase = (str: string) =>
     str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
@@ -47,7 +48,7 @@ Verze dokumentu: 1.1
 -->
 
 <evidence>
-${Object.entries(data as GeneralData).map(([k1, section]) =>
+${Object.entries(data as Form<Data>).map(([k1, section]) =>
     `    <${camelToSnakeCase(k1)}>
 ${Object.entries(section).filter(([, v]) =>
         v.showText(data) && v.value != undefined

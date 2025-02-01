@@ -1,9 +1,12 @@
-import type { RawData } from './Data';
-import { type GetOrVal, Nadpisova, Pisatkova, Prepinatkova, type Raw, Vec, Vybiratkova, Zaskrtavatkova } from './Vec.svelte';
+import { type GetOrVal, Nadpisova, Pisatkova, Prepinatkova, Vybiratkova, Zaskrtavatkova } from '../Vec.svelte.js';
+import { uvestTCDoProvozu } from '$lib/client/firestore';
+import type { FormInfo } from './forms.svelte.js';
+import type { Raw } from '$lib/forms/Form';
+import type { Data } from './Data';
 
 export type UDTC = {
     uvedeni: UvedeniTC,
-    evidence: RawData,
+    evidence: Raw<Data>,
 }
 
 export class Vyhovuje<D> extends Prepinatkova<D> {
@@ -155,9 +158,12 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
         popis: new Pisatkova({
             nazev: d => {
                 switch (d.uvedeni.primar.typ.value) {
-                    case (`groundBoreholes`): return `numberAndDepthOfBoreholes`;
-                    case (`surfaceCollector`): return `numberAndLengthOfCircuits`;
-                    default: return `collectorDescription`;
+                    case (`groundBoreholes`):
+                        return `numberAndDepthOfBoreholes`;
+                    case (`surfaceCollector`):
+                        return `numberAndLengthOfCircuits`;
+                    default:
+                        return `collectorDescription`;
                 }
             },
             zobrazit: d => d.evidence.tc.typ == 'groundToWater',
@@ -196,34 +202,11 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
     },
 });
 
-export const rawUvedeniTCToUvedeniTC = (toUvedeni: UvedeniTC, rawUvedeni: RawUvedeniTC) => {
-    const d = toUvedeni as Record<string, Record<string, Vec<UDTC, unknown>>>;
-
-    Object.entries(rawUvedeni).map(a =>
-        a as [keyof UvedeniTC, RawUvedeniTC[keyof RawUvedeniTC]]
-    ).forEach(([key1, section]) =>
-        Object.entries(section).map(a =>
-            a as [string, unknown]
-        ).forEach(([key2, value]) => {
-            d[key1][key2].value = value;
-        })
-    );
-
-    return d as UvedeniTC;
-};
-
-export type RawUvedeniTC = Raw<UvedeniTC, UDTC>
-
-export const uvedeniTCToRawUvedeniTC = (uvedeni: UvedeniTC): RawUvedeniTC => {
-    const UvedeniEntries = Object.entries(uvedeni);
-    const rawUvedeniEntries = UvedeniEntries.map(([key, subUvedeni]) => {
-        const subUvedeniEntries = Object.entries(subUvedeni) as [string, Vec<UDTC, unknown>][];
-        const rawSubUvedeniEntries = subUvedeniEntries.map(([subKey, vec]) => {
-            if (vec.value == undefined) return undefined;
-            else return [subKey, vec.value] as const;
-        }).filter(it => it != undefined);
-        const rawSubUvedeni = Object.fromEntries(rawSubUvedeniEntries);
-        return [key, rawSubUvedeni] as const;
-    });
-    return Object.fromEntries(rawUvedeniEntries) as RawUvedeniTC;
-};
+export const heatPumpCommission: FormInfo<UDTC, UvedeniTC> = ({
+    storeName: 'stored_heat_pump_commission',
+    defaultData: defaultUvedeniTC,
+    pdfLink: 'heatPumpCommissionProtocol',
+    saveData: (irid, raw) => uvestTCDoProvozu(irid, raw),
+    createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence }),
+    title: `commissioning`,
+});

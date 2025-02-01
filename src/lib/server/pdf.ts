@@ -97,7 +97,7 @@ export const generatePdf = async (lang: LanguageCode, irid: IRID, fetch: Fetch, 
     }
 
     // const fields = form.getFields()
-    // fields.forEach(field => {
+    // fields.forEachEntry(field => {
     //     const type = field.constructor.name
     //     const name = field.getName()
     //     if (field instanceof PDFTextField) {

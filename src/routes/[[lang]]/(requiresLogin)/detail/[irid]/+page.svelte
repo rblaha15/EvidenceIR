@@ -5,18 +5,19 @@
     import { checkAuth, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { evidence, extractIRIDFromParts, extractIRIDFromRawData, type IR, novaEvidence, odstranitEvidenci } from '$lib/client/firestore';
     import { detailUrl, relUrl, storable } from '$lib/helpers/stores';
-    import type { RawUvedeniTC } from '$lib/UvedeniTC';
+    import { heatPumpCommission, type UvedeniTC } from '$lib/forms/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
     import { getIsOnline, startTechniciansListening } from '$lib/client/realtime';
     import { addToHistory, removeFromHistory, removeFromHistoryByIRID } from '$lib/History';
     import { HistoryEntry } from '$lib/History.js';
     import { page } from '$app/state';
-    import type { RawUvedeniSOL } from '$lib/UvedeniSOL';
+    import { solarCollectorCommission, type UvedeniSOL } from '$lib/forms/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { celyNazevIR } from '$lib/helpers/ir';
     import Pisatko from '$lib/components/veci/Pisatko.svelte';
     import Vybiratko from '$lib/components/veci/Vybiratko.svelte';
     import { p, Pisatkova, Vybiratkova } from '$lib/Vec.svelte';
+    import type { Raw } from '$lib/forms/Form';
 
     interface Props {
         data: PageData;
@@ -26,25 +27,21 @@
     const t = data.translations;
 
     const deleted = page.url.searchParams.has('deleted');
-    const storedHeatPumpCommission = storable<RawUvedeniTC>(`stored_heat_pump_commission_${data.irid}`);
-    const storedSolarCollectorCommission = storable<RawUvedeniSOL>(`stored_solar_collector_commission_${data.irid}`);
+    const storedHeatPumpCommission = storable<Raw<UvedeniTC>>(`${heatPumpCommission.storeName}_${data.irid}`);
+    const storedSolarCollectorCommission = storable<Raw<UvedeniSOL>>(`${solarCollectorCommission.storeName}_${data.irid}`);
 
     let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
     let values = $state() as IR;
     const historyEntry = $derived(HistoryEntry(values.evidence));
     onMount(async () => {
-
-        type = 'loading';
         await checkAuth();
         await startTechniciansListening();
 
         try {
-            const snapshot = (
-                data.irid.length == 6 ? [
-                    await evidence(`2${data.irid}`), await evidence(`4${data.irid}`),
-                    await evidence(`B${data.irid}`)
-                ] : [await evidence(data.irid)]
-            ).find(snapshot => snapshot.exists());
+            const snapshot = (await (data.irid.length == 6 ? [
+                evidence(`2${data.irid}`), evidence(`4${data.irid}`),
+                evidence(`B${data.irid}`)
+            ] : [evidence(data.irid)]).awaitAll()).find(snapshot => snapshot.exists());
 
             if (!snapshot) {
                 type = 'noAccess';
@@ -146,7 +143,7 @@
         {/if}
     </div>
 {/if}
-{#if type !== 'loaded'}
+{#if type !== 'loaded' && type !== 'loading'}
     <p class="mt-3">{t.sorrySomethingWentWrong}</p>
     <p>
         {#if type === 'noAccess'}
@@ -262,10 +259,10 @@
     {/if}
     <a
         class="btn btn-outline-warning mt-2"
-        href={relUrl(`/new?edit=${data.irid}`)}
+        href={relUrl(`/new?edit-irid=${data.irid}`)}
         onclick={(e) => {
 			e.preventDefault();
-			window.location.href = relUrl(`/new?edit=${data.irid}`);
+			window.location.href = relUrl(`/new?edit-irid=${data.irid}`);
 		}}>{t.editRegistration}</a
     >
     <button class="btn btn-outline-danger d-block mt-2"

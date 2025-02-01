@@ -1,13 +1,16 @@
-import type { RawData } from "./Data";
-import { Nadpisova, p, Pisatkova, Prepinatkova, Vec, Vybiratkova, Zaskrtavatkova, type GetOrVal, type Raw } from "./Vec.svelte";
+import { type GetOrVal, Nadpisova, p, Pisatkova, Prepinatkova, Vybiratkova, Zaskrtavatkova } from '../Vec.svelte.js';
 import { todayISO } from '$lib/helpers/date';
+import type { Raw } from '$lib/forms/Form';
+import type { Data } from '$lib/forms/Data';
+import { uvestSOLDoProvozu } from '$lib/client/firestore';
+import type { FormInfo } from './forms.svelte.js';
 
 export type UDSOL = {
     uvedeni: UvedeniSOL,
-    evidence: RawData,
+    evidence: Raw<Data>,
 }
 
-export class Ano <D> extends Prepinatkova<D> {
+export class Ano<D> extends Prepinatkova<D> {
     constructor(args: {
         nazev: GetOrVal<D>,
         onError?: GetOrVal<D>,
@@ -21,7 +24,7 @@ export class Ano <D> extends Prepinatkova<D> {
             ...args,
             moznosti: [`no`, `yes`] as const,
             hasPositivity: true,
-        })
+        });
     }
 }
 
@@ -58,7 +61,7 @@ export type UvedeniSOL = {
     },
 }
 
-export const defaultUvedeniSOL = (): UvedeniSOL => ({
+const defaultUvedeniSOL = (): UvedeniSOL => ({
     sol: {
         nadpis: new Nadpisova({ nazev: `solarSystem` }),
         orientace: new Pisatkova({ nazev: p`Orientace kolektorového pole` }),
@@ -84,41 +87,19 @@ export const defaultUvedeniSOL = (): UvedeniSOL => ({
         tlakUbytek: new Zaskrtavatkova({ nazev: p`Úbytek tlaku nepřesáhl po 2 hodinách tlakové zkoušky 0,1 bar / 0,01 MPa` }),
         ovzdusneni: new Zaskrtavatkova({ nazev: p`Bylo provedeno dostatečné odvzdušnění celého systému a byl odvzdušňovací ventil po odvzdušnění uzavřen` }),
         blesk: new Zaskrtavatkova({ nazev: p`Byla provedena ochrana proti blesku` }),
-        podminky: new Zaskrtavatkova({ nazev: p`Instalace a uvedení do provozu solárního systému byla provedena dle podmínek uvedených v návodu na montáž, připojení a obsluhu, instalačních podmínek a obecně platných norem` }),
+        podminky: new Zaskrtavatkova(
+            { nazev: p`Instalace a uvedení do provozu solárního systému byla provedena dle podmínek uvedených v návodu na montáž, připojení a obsluhu, instalačních podmínek a obecně platných norem` }),
         regulator: new Zaskrtavatkova({ nazev: p`Solární regulátor byl nastaven na předepsané parametry` }),
         vlastnik: new Zaskrtavatkova({ nazev: p`Vlastník nebo provozovatel byl seznámen se základní funkcí sol. systému a jeho obsluhou` }),
         date: new Pisatkova({ nazev: 'dateOfCommission', type: 'date', text: todayISO() }),
     },
-})
+});
 
-export const rawUvedeniSOLToUvedeniSOL = (toUvedeni: UvedeniSOL, rawUvedeni: RawUvedeniSOL) => {
-    const d = toUvedeni as Record<string, Record<string, Vec<UDSOL, unknown>>>
-
-    Object.entries(rawUvedeni).map(a =>
-        a as [keyof UvedeniSOL, RawUvedeniSOL[keyof RawUvedeniSOL]]
-    ).forEach(([key1, section]) =>
-        Object.entries(section).map(a =>
-            a as [string, unknown]
-        ).forEach(([key2, value]) => {
-            d[key1][key2].value = value
-        })
-    )
-
-    return d as UvedeniSOL
-}
-
-export type RawUvedeniSOL = Raw<UvedeniSOL, UDSOL>
-
-export const uvedeniSOLToRawUvedeniSOL = (uvedeni: UvedeniSOL): RawUvedeniSOL => {
-    const UvedeniEntries = Object.entries(uvedeni);
-    const rawUvedeniEntries = UvedeniEntries.map(([key, subUvedeni]) => {
-        const subUvedeniEntries = Object.entries(subUvedeni) as [string, Vec<UDSOL, unknown>][];
-        const rawSubUvedeniEntries = subUvedeniEntries.map(([subKey, vec]) => {
-            if (vec.value == undefined) return undefined;
-            else return [subKey, vec.value] as const;
-        }).filter(it => it != undefined);
-        const rawSubUvedeni = Object.fromEntries(rawSubUvedeniEntries);
-        return [key, rawSubUvedeni] as const;
-    });
-    return Object.fromEntries(rawUvedeniEntries) as RawUvedeniSOL;
-};
+export const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL> = ({
+    storeName: 'stored_solar_collector_commission',
+    defaultData: defaultUvedeniSOL,
+    pdfLink: 'solarCollectorCommissionProtocol',
+    saveData: (irid, raw) => uvestSOLDoProvozu(irid, raw),
+    createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence }),
+    title: `commissioning`,
+});

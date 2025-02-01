@@ -1,4 +1,4 @@
-import { DvojVybiratkova, MultiZaskrtavatkova, Nadpisova, p, Pisatkova, Radiova, SearchWidget, Textova, Vybiratkova, Zaskrtavatkova } from './Vec.svelte';
+import { DvojVybiratkova, MultiZaskrtavatkova, Nadpisova, p, Pisatkova, Radiova, SearchWidget, Textova, Vybiratkova, Zaskrtavatkova } from '../Vec.svelte.js';
 import { type Data } from './Data';
 import type { Company, Technician } from '$lib/client/realtime';
 import { regulusCRN } from '$lib/helpers/ares';

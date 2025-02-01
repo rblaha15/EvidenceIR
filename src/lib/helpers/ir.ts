@@ -1,10 +1,11 @@
 import type { Pair } from '$lib/Vec.svelte';
 import { removePlain } from '$lib/translations';
-import type { RawData } from '$lib/Data';
+import type { Data } from '$lib/forms/Data';
+import type { Raw } from '$lib/forms/Form';
 
-export const celyNazevIR = (evidence: RawData) => `${nazevIR(evidence.ir)} : ${popisIR(evidence)}`;
+export const celyNazevIR = (evidence: Raw<Data>) => `${nazevIR(evidence.ir)} : ${popisIR(evidence)}`;
 
-export const nazevIR = (ir: RawData['ir']) => `${typIR(ir.typ)} ${ir.cislo}`;
+export const nazevIR = (ir: Raw<Data>['ir']) => `${typIR(ir.typ)} ${ir.cislo}`;
 
 export const typIR = (typ: Pair) =>
     typ.first?.includes('BOX')
@@ -27,7 +28,7 @@ export const formaSpolecnostiJeSpatne = (spolecnost: string) =>
 
 const m = (s: string) => s ? `${s} ` : ''
 
-export const popisIR = (evidence: RawData) =>
+export const popisIR = (evidence: Raw<Data>) =>
     evidence.koncovyUzivatel.typ == `company`
         ? `${odebratFormuSpolecnosti(evidence.koncovyUzivatel.nazev)} ${m(evidence.koncovyUzivatel.pobocka)}- ${evidence.bydliste.obec}`
         : `${evidence.koncovyUzivatel.prijmeni} ${evidence.koncovyUzivatel.jmeno} - ${evidence.bydliste.obec}`;
@@ -53,5 +54,5 @@ export const typBOX = (cisloBOX: string) => ({
     '20631': 'HBOX K 106 RTC 3/1S EN',
 })[cisloBOX.slice(0, 5)];
 
-export const jmenoUzivatele = (k: RawData['koncovyUzivatel']) =>
+export const jmenoUzivatele = (k: Raw<Data>['koncovyUzivatel']) =>
     k.typ == 'company' ? k.nazev : `${k.jmeno} ${k.prijmeni}`

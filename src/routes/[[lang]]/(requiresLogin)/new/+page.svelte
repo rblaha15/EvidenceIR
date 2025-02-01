@@ -4,7 +4,7 @@
 
     import * as v from '$lib/Vec.svelte';
     import { p } from '$lib/Vec.svelte';
-    import { type Data, dataToRawData, newData, type RawData, rawDataToData } from '$lib/Data';
+    import { type Data, newData } from '$lib/forms/Data';
     import { responsiblePerson, startTechniciansListening, techniciansList } from '$lib/client/realtime';
     import { companies } from './companies';
     import odeslat from './odeslat.svelte';
@@ -18,17 +18,18 @@
     import FormHeader from '../detail/[irid]/FormHeader.svelte';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
     import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
+    import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
 
     const t = page.data.translations;
 
-    const storedData = storable<RawData>(`stored_data`);
+    const storedData = storable<Raw<Data>>(`stored_data`);
 
     let mode: 'loading' | 'create' | 'edit' | 'createStored' = $state('loading');
     let data: Data = $state(newData());
     onMount(async () => {
         await startTechniciansListening()
 
-        const irid = page.url.searchParams.get('edit') as IRID | null;
+        const irid = page.url.searchParams.get('edit-irid') as IRID | null;
         if (irid) {
             const snapshot = await evidence(irid);
             console.log(snapshot);
@@ -48,7 +49,7 @@
         }
     });
     $effect(() => {
-        if (!page.url.searchParams.has('edit') && mode == 'edit') {
+        if (!page.url.searchParams.has('edit-irid') && mode == 'edit') {
             location.reload();
         }
     });
