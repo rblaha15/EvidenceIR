@@ -23,5 +23,5 @@ export const sendEmail = async (message: Options) => {
 	});
 };
 
-export const SENDER = '"Regulus SEIR" aplikace.regulus@centrum.cz';
+export const SENDER = '"Regulus SEIR" aplikace.regulus@gmail.com';
 
