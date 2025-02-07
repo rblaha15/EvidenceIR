@@ -23,5 +23,8 @@ export const sendEmail = async (message: Options) => {
 	});
 };
 
-export const SENDER = '"Regulus SEIR" aplikace.regulus@gmail.com';
+export const SENDER = {
+	name: 'Regulus SEIR',
+	address: 'aplikace.regulus@gmail.com',
+};
 

@@ -1,6 +1,7 @@
-import { onAuthStateChanged, verifyPasswordResetCode, confirmPasswordReset, signInWithEmailAndPassword, type User, signOut } from 'firebase/auth';
-import { derived, readonly, writable } from 'svelte/store';
+import { onAuthStateChanged, updateProfile, verifyPasswordResetCode, confirmPasswordReset, signInWithEmailAndPassword, type User, signOut } from 'firebase/auth';
+import { derived, get, readonly, writable } from 'svelte/store';
 import { auth } from '../../hooks.client';
+import { techniciansList } from '$lib/client/realtime';
 
 const _currentUser = writable(null as User | null);
 onAuthStateChanged(auth, (usr) => _currentUser.set(usr));
@@ -45,12 +46,16 @@ export const isUserAdmin = derived(
 export const isUserRegulusOrAdmin = derived(
 	currentUser,
 	(user, set) => {
-		(async () => set(user != null ? (await _checkRegulus(user) || await checkAdmin()) : false))();
+		(async () => set(user != null ? (_checkRegulus(user) || await checkAdmin()) : false))();
 	},
 	false
 );
 
-export const logIn = (email: string, password: string) => signInWithEmailAndPassword(auth, email, password)
+export const logIn = async (email: string, password: string) => {
+	const credential = await signInWithEmailAndPassword(auth, email, password)
+	await updateProfile(credential.user, { displayName: get(techniciansList).find(t => t.email == credential.user.email)?.name })
+	return credential
+}
 
 export const verifyCode = (oobCode: string) => new Promise<string | null>(resolve => {
 	verifyPasswordResetCode(auth, oobCode)

@@ -38,332 +38,321 @@ export const p = createTemplate(
     (plainString: string) => `PLAIN_${plainString}` as `PLAIN_${typeof plainString}`
 );
 
-export function t(ref: TranslationReference) {
-    return ref;
-}
-
 export const nazevSHvezdou = <D>(
-    vec: Vec<D, unknown> & { required: Get<D, boolean> },
+    vec: Widget<D, unknown> & { required: Get<D, boolean> },
     data: D,
     t: Translations
 ) => {
-    const nazev = t.get(vec.nazev(data));
+    const nazev = t.get(vec.label(data));
     return nazev == '' ? '' : nazev + (!vec.required(data) ? '' : ' *');
 };
 
-export abstract class Vec<D, U> {
-    abstract nazev: Get<D, TranslationReference>;
-    abstract onError: Get<D, TranslationReference>;
-    zobrazitErrorVeto = $state(false);
-    abstract zobrazit: Get<D, boolean>;
-    abstract showText: Get<D, boolean>;
+export abstract class Widget<D, U> {
+    abstract label: Get<D>;
+    abstract onError: Get<D>;
+    displayErrorVeto = $state(false);
+    abstract show: Get<D, boolean>;
+    abstract showTextValue: Get<D, boolean>;
     abstract value: U;
 
-    abstract zpravaJeChybna: Get<D, boolean>;
-    zobrazitError: Get<D, boolean> = $state(
-        (data) => this.zobrazitErrorVeto && this.zpravaJeChybna(data)
-    );
-}
-
-export class Nadpisova<D> extends Vec<D, undefined> {
-    nazev = $state() as Get<D, TranslationReference>;
-    zobrazit = $state() as Get<D, boolean>;
-    showText = $state() as Get<D, boolean>;
-    onError = () => '' as const;
-    value = undefined;
-    zpravaJeChybna = () => false;
-
-    constructor(args: { nazev: GetOrVal<D>; zobrazit?: GetOrVal<D, boolean>; showInXML?: GetOrVal<D, boolean> }) {
-        super();
-        this.nazev = toGet(args.nazev);
-        this.zobrazit = toGet(args.zobrazit ?? true);
-        this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
-    }
-}
-
-export class Textova<D> extends Vec<D, undefined> {
-    nazev = $state() as Get<D, TranslationReference>;
-    zobrazit = $state() as Get<D, boolean>;
-    showText = $state() as Get<D, boolean>;
-    onError = () => '' as const;
-    value = undefined;
-    zpravaJeChybna = () => false;
-
-    constructor(args: { nazev: GetOrVal<D>; zobrazit?: GetOrVal<D, boolean>; showInXML?: GetOrVal<D, boolean> }) {
-        super();
-        this.nazev = toGet(args.nazev);
-        this.zobrazit = toGet(args.zobrazit ?? true);
-        this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
-    }
-}
-
-export class Vybiratkova<D> extends Vec<D, TranslationReference | null> {
-    nazev = $state() as Get<D, TranslationReference>;
-    onError = $state() as Get<D, TranslationReference>;
-    zobrazit = $state() as Get<D, boolean>;
-    showText = $state() as Get<D, boolean>;
-    moznosti = $state() as Get<D, TranslationReference[]>;
-    value = $state() as TranslationReference | null;
-    required = $state() as Get<D, boolean>;
-    zpravaJeChybna = $state((a) => this.value == null && this.required(a)) as Get<D, boolean>;
-
-    constructor(args: {
-        nazev: GetOrVal<D>;
-        moznosti: GetOrVal<D, TranslationReference[]>;
-        onError?: GetOrVal<D>;
-        required?: GetOrVal<D, boolean>;
-        zobrazit?: GetOrVal<D, boolean>;
-        showInXML?: GetOrVal<D, boolean>;
-        vybrano?: null | TranslationReference;
-    }) {
-        super();
-
-        this.nazev = toGet(args.nazev);
-        this.moznosti = toGet(args.moznosti);
-        this.onError = toGet(args.onError ?? t('requiredField'));
-        this.required = toGet(args.required ?? true);
-        this.zobrazit = toGet(args.zobrazit ?? true);
-        this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
-        this.value = args.vybrano ?? null;
-    }
+    abstract isError: Get<D, boolean>;
+    showError: Get<D, boolean> = $state((data) => this.displayErrorVeto && this.isError(data));
 }
 
 export type SearchItemPiece = { text: TranslationReference, width?: number };
 export type SearchItem = { pieces: SearchItemPiece[], href?: string };
-
-export class SearchWidget<D, T> extends Vec<D, T | null> {
-    nazev = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    zobrazit = $state() as Get<D, boolean>;
-    type = $state() as Get<D, HTMLInputTypeAttribute>;
-    getSearchItem = $state() as (item: T) => SearchItem;
-    getXmlEntry = $state() as () => string;
-    showText = $state() as Get<D, boolean>;
-    items = $state() as Get<D, T[]>;
-    value = $state() as T | null;
-    required = $state() as Get<D, boolean>;
-    zpravaJeChybna = $state((a) => this.value == null && this.required(a)) as Get<D, boolean>;
-
-    constructor(args: {
-        label: GetOrVal<D>;
-        items: GetOrVal<D, T[]>;
-        getSearchItem: (item: T) => SearchItem;
-        getXmlEntry?: () => string;
-        onError?: GetOrVal<D>;
-        type?: GetOrVal<D, HTMLInputTypeAttribute>;
-        required?: GetOrVal<D, boolean>;
-        show?: GetOrVal<D, boolean>;
-        showInXML?: GetOrVal<D, boolean>;
-        chosen?: null | T;
-    }) {
-        super();
-
-        this.nazev = toGet(args.label);
-        this.items = toGet(args.items);
-        this.getSearchItem = toGet(args.getSearchItem);
-        this.getXmlEntry = args.getXmlEntry ?? (() => JSON.stringify(this.value));
-        this.onError = toGet(args.onError ?? t('requiredField'));
-        this.required = toGet(args.required ?? false);
-        this.type = toGet(args.type ?? 'search');
-        this.zobrazit = toGet(args.show ?? true);
-        this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
-        this.value = args.chosen ?? null;
-    }
-}
-
-export type Pair = {
-    first: TranslationReference | null;
-    second: TranslationReference | null;
-};
-
-export class DvojVybiratkova<D> extends Vec<D, Pair> {
-    nazev = $state() as Get<D, TranslationReference>;
-    onError = $state() as Get<D, TranslationReference>;
-    zobrazit = $state() as Get<D, boolean>;
-    lock1 = $state() as Get<D, boolean>;
-    lock2 = $state() as Get<D, boolean>;
-    showText = $state() as Get<D, boolean>;
-    moznosti1 = $state() as Get<D, TranslationReference[]>;
-    moznosti2 = $state() as Get<D, TranslationReference[]>;
-    value = $state() as Pair;
-    required = $state() as Get<D, boolean>;
-
-    zpravaJeChybna = $state(
-        (a) => (this.value.first == null || this.value.second == null) && this.required(a)
-    ) as Get<D, boolean>;
-
-    constructor(args: {
-        nazev: GetOrVal<D>;
-        moznosti1: GetOrVal<D, TranslationReference[]>;
-        moznosti2: GetOrVal<D, TranslationReference[]>;
-        onError?: GetOrVal<D>;
-        required?: GetOrVal<D, boolean>;
-        zobrazit?: GetOrVal<D, boolean>;
-        lock1?: GetOrVal<D, boolean>;
-        lock2?: GetOrVal<D, boolean>;
-        showInXML?: GetOrVal<D, boolean>;
-        vybrano?: Pair;
-    }) {
-        super();
-
-        this.nazev = toGet(args.nazev);
-        this.moznosti1 = toGet(args.moznosti1);
-        this.moznosti2 = toGet(args.moznosti2);
-        this.onError = toGet(args.onError ?? t('requiredField'));
-        this.required = toGet(args.required ?? true);
-        this.zobrazit = toGet(args.zobrazit ?? true);
-        this.lock1 = toGet(args.lock1 ?? false);
-        this.lock2 = toGet(args.lock2 ?? false);
-        this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
-        this.value = args.vybrano ?? { first: null, second: null };
-    }
-}
-
-export class Pocitatkova<D> extends Vec<D, number> {
-    nazev = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    zobrazit = $state() as Get<D, boolean>;
-    showText = $state() as Get<D, boolean>;
-    min = $state() as Get<D, number>;
-    max = $state() as Get<D, number>;
-    value = $state() as number;
-
-    zpravaJeChybna = $state(() => false) as Get<D, boolean>;
-
-    constructor(args: {
-        nazev: GetOrVal<D>;
-        min: GetOrVal<D, number>;
-        max: GetOrVal<D, number>;
-        onError?: GetOrVal<D>;
-        zobrazit?: GetOrVal<D, boolean>;
-        showInXML?: GetOrVal<D, boolean>;
-        vybrano: number;
-    }) {
-        super();
-
-        this.nazev = toGet(args.nazev);
-        this.min = toGet(args.min);
-        this.max = toGet(args.max);
-        this.onError = toGet(args.onError ?? t('requiredField'));
-        this.zobrazit = toGet(args.zobrazit ?? true);
-        this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
-        this.value = args.vybrano;
-    }
-}
-
-export class Radiova<D> extends Vec<D, TranslationReference | null> {
-    nazev = $state() as Get<D, TranslationReference>;
-    onError = $state() as Get<D, TranslationReference>;
-    zobrazit = $state() as Get<D, boolean>;
-    showText = $state() as Get<D, boolean>;
-    moznosti = $state() as Get<D, TranslationReference[]>;
-    value = $state() as TranslationReference | null;
-    required = $state() as Get<D, boolean>;
-
-    zpravaJeChybna = $state((a) => this.value == null && this.required(a)) as Get<D, boolean>;
-
-    constructor(args: {
-        nazev: GetOrVal<D>;
-        moznosti: GetOrVal<D, TranslationReference[]>;
-        onError?: GetOrVal<D>;
-        required?: GetOrVal<D, boolean>;
-        zobrazit?: GetOrVal<D, boolean>;
-        showInXML?: GetOrVal<D, boolean>;
-        vybrano?: null | TranslationReference;
-    }) {
-        super();
-
-        this.nazev = toGet(args.nazev);
-        this.moznosti = toGet(args.moznosti);
-        this.onError = toGet(args.onError ?? t('requiredField'));
-        this.required = toGet(args.required ?? true);
-        this.zobrazit = toGet(args.zobrazit ?? true);
-        this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
-        this.value = args.vybrano ?? null;
-    }
-}
-
-export class Prepinatkova<D> extends Vec<D, boolean> {
-    nazev = $state() as Get<D, TranslationReference>;
-    onError = $state() as Get<D, TranslationReference>;
-    zobrazit = $state() as Get<D, boolean>;
-    showText = $state() as Get<D, boolean>;
-    moznosti = $state() as readonly [TranslationReference, TranslationReference];
-    value = $state() as boolean;
-    required = $state() as Get<D, boolean>;
-    hasPositivity = $state() as Get<D, boolean>;
-
-    zpravaJeChybna = $state((a) => !this.value && this.required(a)) as Get<D, boolean>;
-
-    constructor(args: {
-        nazev: GetOrVal<D>;
-        moznosti: readonly [TranslationReference, TranslationReference];
-        onError?: GetOrVal<D>;
-        required?: GetOrVal<D, boolean>;
-        zobrazit?: GetOrVal<D, boolean>;
-        showInXML?: GetOrVal<D, boolean>;
-        hasPositivity?: GetOrVal<D, boolean>;
-        vybrano?: boolean;
-    }) {
-        super();
-
-        this.nazev = toGet(args.nazev);
-        this.moznosti = args.moznosti;
-        this.onError = toGet(args.onError ?? t('requiredField'));
-        this.required = toGet(args.required ?? true);
-        this.zobrazit = toGet(args.zobrazit ?? true);
-        this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
-        this.hasPositivity = toGet(args.hasPositivity ?? false);
-        this.value = args.vybrano ?? false;
-    }
-}
-
+export type Pair = { first: TranslationReference | null; second: TranslationReference | null; };
+type Sides = readonly [TranslationReference, TranslationReference];
 export type Arr = TranslationReference[];
 
-export class MultiZaskrtavatkova<D> extends Vec<D, Arr> {
-    nazev = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    max = $state() as Get<D, number>;
-    zobrazit = $state() as Get<D, boolean>;
-    showText = $state() as Get<D, boolean>;
-    moznosti = $state() as Get<D, TranslationReference[]>;
-    value = $state() as TranslationReference[];
-    required = $state() as Get<D, boolean>;
+type TextArgs<D> = { label: GetOrVal<D>; show?: GetOrVal<D, boolean>; showInXML?: GetOrVal<D, boolean> };
+type ValueArgs<D> = { onError?: GetOrVal<D>; required?: GetOrVal<D, boolean> };
+type ChooserArgs<D> = { options: GetOrVal<D, Arr>; chosen?: TranslationReference | null; };
+type DoubleChooserArgs<D> = { options1: GetOrVal<D, Arr>; options2: GetOrVal<D, Arr>; chosen?: Pair; };
+type LockArgs<D> = { lock?: GetOrVal<D, boolean>; };
+type DoubleLockArgs<D> = { lock1?: GetOrVal<D, boolean>; lock2?: GetOrVal<D, boolean>; };
+type SearchArgs<D, T> = {
+    getSearchItem: (item: T) => SearchItem;
+    getXmlEntry?: () => string;
+    items: GetOrVal<D, T[]>;
+    type?: GetOrVal<D, HTMLInputTypeAttribute>;
+    chosen?: null | T;
+};
+type CounterArgs<D> = { chosen: number; min: GetOrVal<D, number>; max: GetOrVal<D, number>; };
+type CheckArgs = { checked?: boolean; };
+type SwitchArgs<D> = { hasPositivity?: GetOrVal<D, boolean>; options: Sides };
+type MultiChooserArgs<D> = { options: GetOrVal<D, Arr>; chosen?: Arr; max?: GetOrVal<D, number> };
+type InputArgs<D> = {
+    regex?: GetOrVal<D, RegExp>;
+    capitalize?: GetOrVal<D, boolean>;
+    maskOptions?: GetOrVal<D, Opts>;
+    type?: GetOrVal<D, HTMLInputTypeAttribute>;
+    autocomplete?: GetOrVal<D, FullAutoFill>;
+    text?: string;
+};
 
-    zpravaJeChybna = $state((a) => this.value.length == 0 && this.required(a)) as Get<D, boolean>;
+type Required<D> = Widget<D, unknown> & { required?: GetOrVal<D, boolean>; };
+type Lock<D> = Widget<D, unknown> & { lock?: GetOrVal<D, boolean>; };
+type DoubleLock<D> = Widget<D, unknown> & { lock1: Get<D, boolean>; lock2: Get<D, boolean>; };
+type Chooser<D> = Widget<D, TranslationReference | null> & { options: Get<D, Arr>; };
+type DoubleChooser<D> = Widget<D, Pair> & { options1: Get<D, Arr>; options2: Get<D, Arr>; };
+type Search<D, T> = Widget<D, T | null> & {
+    getSearchItem: (item: T) => SearchItem;
+    getXmlEntry: () => string;
+    items: Get<D, T[]>;
+    type: Get<D, HTMLInputTypeAttribute>;
+};
+type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; };
+type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: Get<D, boolean>; };
+type MultiChooser<D> = Widget<D, Arr> & { options: Get<D, Arr>; max: Get<D, number>; };
+type Input<D> = Widget<D, string> & {
+    type: Get<D, HTMLInputTypeAttribute>;
+    autocomplete: Get<D, FullAutoFill>;
+    updateMaskValue: (text: string) => void;
+    maskOptions: Get<D, Opts>;
+    regex: Get<D, RegExp>;
+    capitalize: Get<D, boolean>;
+};
 
-    constructor(args: {
-        nazev: GetOrVal<D>;
-        moznosti: GetOrVal<D, TranslationReference[]>;
-        onError?: GetOrVal<D>;
-        required?: GetOrVal<D, boolean>;
-        max?: GetOrVal<D, number>;
-        zobrazit?: GetOrVal<D, boolean>;
-        showInXML?: GetOrVal<D, boolean>;
-        vybrano?: TranslationReference[];
-    }) {
+const initText = function <D>(widget: Widget<D, unknown>, args: TextArgs<D>) {
+    widget.label = toGet(args.label);
+    widget.show = toGet(args.show ?? true);
+    widget.showTextValue = toGet(args.showInXML ?? ((data) => widget.show(data)));
+};
+const initValue = function <D>(widget: Required<D>, args: ValueArgs<D>) {
+    widget.onError = toGet(args.onError ?? 'requiredField');
+    widget.required = toGet(args.required ?? true);
+};
+const initChooser = function <D>(widget: Chooser<D>, args: ChooserArgs<D>) {
+    widget.options = toGet(args.options);
+    widget.value = args.chosen ?? null;
+};
+const initDoubleChooser = function <D>(widget: DoubleChooser<D>, args: DoubleChooserArgs<D>) {
+    widget.options1 = toGet(args.options1);
+    widget.options2 = toGet(args.options2);
+    widget.value = args.chosen ?? { first: null, second: null };
+};
+const initLock = function <D>(widget: Lock<D>, args: LockArgs<D>) {
+    widget.lock = toGet(args.lock ?? false);
+};
+const initDoubleLock = function <D>(widget: DoubleLock<D>, args: DoubleLockArgs<D>) {
+    widget.lock1 = toGet(args.lock1 ?? false);
+    widget.lock2 = toGet(args.lock2 ?? false);
+};
+const initSearch = function <D, T>(widget: Search<D, T>, args: SearchArgs<D, T>) {
+    widget.value = args.chosen ?? null;
+    widget.items = toGet(args.items);
+    widget.getSearchItem = toGet(args.getSearchItem);
+    widget.getXmlEntry = args.getXmlEntry ?? (() => JSON.stringify(widget.value));
+    widget.type = toGet(args.type ?? 'search');
+};
+const initCounter = function <D>(widget: Counter<D>, args: CounterArgs<D>) {
+    widget.value = args.chosen;
+    widget.min = toGet(args.min);
+    widget.max = toGet(args.max);
+};
+const initSwitch = function <D>(widget: Switch<D>, args: SwitchArgs<D>) {
+    widget.hasPositivity = toGet(args.hasPositivity ?? false);
+    widget.options = args.options;
+};
+const initCheck = function <D>(widget: Widget<D, boolean>, args: CheckArgs) {
+    widget.value = args.checked ?? false;
+};
+const initMultiChooser = function <D>(widget: MultiChooser<D>, args: MultiChooserArgs<D>) {
+    widget.value = args.chosen ?? [];
+    widget.max = toGet(args.max ?? Number.MAX_VALUE);
+    widget.options = toGet(args.options);
+};
+const initInput = function <D>(widget: Input<D>, args: InputArgs<D>) {
+    widget.regex = toGet(args.regex ?? /.*/);
+    widget.capitalize = toGet(args.capitalize ?? false);
+    widget.maskOptions = toGet(args.maskOptions ?? undefined);
+    widget.type = toGet(args.type ?? 'text');
+    widget.autocomplete = toGet(args.autocomplete ?? 'off');
+    widget.value = args.text ?? '';
+};
+
+export class TitleWidget<D> extends Widget<D, undefined> {
+    label = $state() as Get<D>;
+    onError = () => '' as const;
+    show = $state() as Get<D, boolean>;
+    showTextValue = $state() as Get<D, boolean>;
+    value = undefined;
+    isError = () => false;
+
+    constructor(args: TextArgs<D>) {
         super();
-
-        this.nazev = toGet(args.nazev);
-        this.moznosti = toGet(args.moznosti);
-        this.onError = toGet(args.onError ?? t('requiredField'));
-        this.max = toGet(args.max ?? Number.MAX_VALUE);
-        this.required = toGet(args.required ?? true);
-        this.zobrazit = toGet(args.zobrazit ?? true);
-        this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
-        this.value = args.vybrano ?? [];
+        initText(this, args);
     }
 }
 
-export class Pisatkova<D> extends Vec<D, string> {
-    nazev = $state() as Get<D, TranslationReference>;
-    type = $state() as Get<D, HTMLInputTypeAttribute>;
-    autocomplete = $state() as Get<D, FullAutoFill>;
-    onError = $state() as Get<D, TranslationReference>;
-    zobrazit = $state() as Get<D, boolean>;
+export class TextWidget<D> extends Widget<D, undefined> {
+    label = $state() as Get<D>;
+    onError = () => '' as const;
+    show = $state() as Get<D, boolean>;
+    showTextValue = $state() as Get<D, boolean>;
+    value = undefined;
+    isError = () => false;
+
+    constructor(args: TextArgs<D>) {
+        super();
+        initText(this, args);
+    }
+}
+
+export class ChooserWidget<D> extends Widget<D, TranslationReference | null> {
+    label = $state() as Get<D>;
+    onError = $state() as Get<D>;
+    show = $state() as Get<D, boolean>;
+    showTextValue = $state() as Get<D, boolean>;
+    value = $state() as TranslationReference | null;
+    isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
     lock = $state() as Get<D, boolean>;
-    showText = $state() as Get<D, boolean>;
+    options = $state() as Get<D, Arr>;
+
+    constructor(args: TextArgs<D> & ValueArgs<D> & ChooserArgs<D> & LockArgs<D>) {
+        super();
+        initText(this, args);
+        initValue(this, args);
+        initChooser(this, args);
+        initLock(this, args);
+    }
+}
+
+export class SearchWidget<D, T> extends Widget<D, T | null> {
+    label = $state() as Get<D>;
+    onError = $state() as Get<D>;
+    show = $state() as Get<D, boolean>;
+    showTextValue = $state() as Get<D, boolean>;
+    value = $state() as T | null;
+    isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
+    getSearchItem = $state() as (item: T) => SearchItem;
+    getXmlEntry = $state() as () => string;
+    items = $state() as Get<D, T[]>;
+    type = $state() as Get<D, HTMLInputTypeAttribute>;
+
+    constructor(args: TextArgs<D> & ValueArgs<D> & SearchArgs<D, T>) {
+        super();
+        initText(this, args);
+        initValue(this, args);
+        initSearch(this, args);
+    }
+}
+
+export class DoubleChooserWidget<D> extends Widget<D, Pair> {
+    label = $state() as Get<D>;
+    onError = $state() as Get<D>;
+    show = $state() as Get<D, boolean>;
+    showTextValue = $state() as Get<D, boolean>;
+    value = $state() as Pair;
+    isError = $state(
+        a => (this.value.first == null || this.value.second == null) && this.required(a)
+    ) as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
+    lock1 = $state() as Get<D, boolean>;
+    lock2 = $state() as Get<D, boolean>;
+    options1 = $state() as Get<D, Arr>;
+    options2 = $state() as Get<D, Arr>;
+
+    constructor(args: TextArgs<D> & ValueArgs<D> & DoubleLockArgs<D> & DoubleChooserArgs<D>) {
+        super();
+        initText(this, args);
+        initValue(this, args);
+        initDoubleChooser(this, args);
+        initDoubleLock(this, args);
+    }
+}
+
+export class CounterWidget<D> extends Widget<D, number> {
+    label = $state() as Get<D>;
+    onError = $state() as Get<D>;
+    show = $state() as Get<D, boolean>;
+    showTextValue = $state() as Get<D, boolean>;
+    value = $state() as number;
+    isError = $state(() => false) as Get<D, boolean>;
+    min = $state() as Get<D, number>;
+    max = $state() as Get<D, number>;
+
+    constructor(args: TextArgs<D> & ValueArgs<D> & CounterArgs<D>) {
+        super();
+        initText(this, args);
+        initValue(this, args);
+        initCounter(this, args);
+    }
+}
+
+export class RadioWidget<D> extends Widget<D, TranslationReference | null> {
+    label = $state() as Get<D>;
+    onError = $state() as Get<D>;
+    show = $state() as Get<D, boolean>;
+    showTextValue = $state() as Get<D, boolean>;
+    value = $state() as TranslationReference | null;
+    isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
+    lock = $state() as Get<D, boolean>;
+    options = $state() as Get<D, Arr>;
+
+    constructor(args: TextArgs<D> & ValueArgs<D> & ChooserArgs<D> & LockArgs<D>) {
+        super();
+        initText(this, args);
+        initValue(this, args);
+        initChooser(this, args);
+        initLock(this, args);
+    }
+}
+
+export class SwitchWidget<D> extends Widget<D, boolean> {
+    label = $state() as Get<D>;
+    onError = $state() as Get<D>;
+    show = $state() as Get<D, boolean>;
+    showTextValue = $state() as Get<D, boolean>;
+    value = $state() as boolean;
+    isError = $state(a => !this.value && this.required(a)) as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
+    options = $state() as Sides;
+    hasPositivity = $state() as Get<D, boolean>;
+
+    constructor(args: TextArgs<D> & ValueArgs<D> & CheckArgs & SwitchArgs<D>) {
+        super();
+        initText(this, args);
+        initValue(this, args);
+        initCheck(this, args);
+        initSwitch(this, args);
+    }
+}
+
+export class MultiCheckboxWidget<D> extends Widget<D, Arr> {
+    label = $state() as Get<D>;
+    onError = $state() as Get<D>;
+    show = $state() as Get<D, boolean>;
+    showTextValue = $state() as Get<D, boolean>;
+    value = $state() as Arr;
+    isError = $state(a => this.value.length == 0 && this.required(a)) as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
+    options = $state() as Get<D, Arr>;
+    max = $state() as Get<D, number>;
+
+    constructor(args: TextArgs<D> & ValueArgs<D> & MultiChooserArgs<D>) {
+        super();
+        initText(this, args);
+        initValue(this, args);
+        initMultiChooser(this, args);
+    }
+}
+
+export class InputWidget<D> extends Widget<D, string> {
+    label = $state() as Get<D>;
+    onError = $state() as Get<D>;
+    show = $state() as Get<D, boolean>;
+    showTextValue = $state() as Get<D, boolean>;
     private valueField = $state() as string;
+    isError = $state(
+        a => (this.value == '' && this.required(a)) || (this.value != '' && !this.regex(a).test(this.value))
+    ) as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
+    lock = $state() as Get<D, boolean>;
 
     get value() {
         return this.valueField;
@@ -374,75 +363,37 @@ export class Pisatkova<D> extends Vec<D, string> {
         this.updateMaskValue(value);
     }
 
+    type = $state() as Get<D, HTMLInputTypeAttribute>;
+    autocomplete = $state() as Get<D, FullAutoFill>;
     updateMaskValue = $state(() => {}) as (text: string) => void;
     maskOptions = $state() as Get<D, Opts>;
     regex = $state() as Get<D, RegExp>;
-    required = $state() as Get<D, boolean>;
     capitalize = $state() as Get<D, boolean>;
-    zpravaJeChybna = $state(
-        (a) =>
-            (this.value == '' && this.required(a)) || (this.value != '' && !this.regex(a).test(this.value))
-    ) as Get<D, boolean>;
 
-    constructor(args: {
-        nazev: GetOrVal<D>;
-        onError?: GetOrVal<D>;
-        regex?: GetOrVal<D, RegExp>;
-        required?: GetOrVal<D, boolean>;
-        capitalize?: GetOrVal<D, boolean>;
-        maskOptions?: GetOrVal<D, Opts>;
-        type?: GetOrVal<D, HTMLInputTypeAttribute>;
-        autocomplete?: GetOrVal<D, FullAutoFill>;
-        zobrazit?: GetOrVal<D, boolean>;
-        lock?: GetOrVal<D, boolean>;
-        showInXML?: GetOrVal<D, boolean>;
-        text?: string;
-    }) {
+    constructor(args: TextArgs<D> & ValueArgs<D> & LockArgs<D> & InputArgs<D>) {
         super();
-
-        this.nazev = toGet(args.nazev);
-        this.onError = toGet(args.onError ?? t('requiredField'));
-        this.regex = toGet(args.regex ?? /.*/);
-        this.required = toGet(args.required ?? true);
-        this.capitalize = toGet(args.capitalize ?? false);
-        this.maskOptions = toGet(args.maskOptions ?? undefined);
-        this.type = toGet(args.type ?? 'text');
-        this.autocomplete = toGet(args.autocomplete ?? 'off');
-        this.zobrazit = toGet(args.zobrazit ?? true);
-        this.lock = toGet(args.lock ?? false);
-        this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
-        this.value = args.text ?? '';
+        initText(this, args);
+        initValue(this, args);
+        initLock(this, args);
+        initInput(this, args);
     }
 }
 
-export class Zaskrtavatkova<D> extends Vec<D, boolean> {
-    nazev = $state() as Get<D, TranslationReference>;
-    onError = $state() as Get<D, TranslationReference>;
-    zobrazit = $state() as Get<D, boolean>;
-    showText = $state() as Get<D, boolean>;
-    enabled = $state() as Get<D, boolean>;
+export class CheckboxWidget<D> extends Widget<D, boolean> {
+    label = $state() as Get<D>;
+    onError = $state() as Get<D>;
+    show = $state() as Get<D, boolean>;
+    showTextValue = $state() as Get<D, boolean>;
     value = $state() as boolean;
     required = $state() as Get<D, boolean>;
+    isError = $state(a => !this.value && this.required(a)) as Get<D, boolean>;
+    lock = $state() as Get<D, boolean>;
 
-    zpravaJeChybna = $state((a) => !this.value && this.required(a)) as Get<D, boolean>;
-
-    constructor(args: {
-        nazev: GetOrVal<D>;
-        onError?: GetOrVal<D>;
-        required?: GetOrVal<D, boolean>;
-        zobrazit?: GetOrVal<D, boolean>;
-        showInXML?: GetOrVal<D, boolean>;
-        enabled?: GetOrVal<D, boolean>;
-        zaskrtnuto?: boolean;
-    }) {
+    constructor(args: TextArgs<D> & ValueArgs<D> & LockArgs<D> & CheckArgs) {
         super();
-
-        this.nazev = toGet(args.nazev);
-        this.onError = toGet(args.onError ?? t('requiredField'));
-        this.required = toGet(args.required ?? true);
-        this.zobrazit = toGet(args.zobrazit ?? true);
-        this.showText = toGet(args.showInXML ?? ((data) => this.zobrazit(data)));
-        this.enabled = toGet(args.enabled ?? true);
-        this.value = args.zaskrtnuto ?? false;
+        initText(this, args);
+        initValue(this, args);
+        initLock(this, args);
+        initCheck(this, args);
     }
 }

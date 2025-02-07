@@ -1,9 +1,9 @@
-import { Vec } from '$lib/Vec.svelte.js';
+import { Widget } from '$lib/Vec.svelte.js';
 
-export type Form<D> = Record<string, Record<string, Vec<D, unknown>>>
+export type Form<D> = Record<string, Record<string, Widget<D, unknown>>>
 export type Raw<F extends Form<never>> = {
     [K in keyof F]: {
-        [K2 in keyof F[K]]: F[K][K2] extends Vec<never, infer T>
+        [K2 in keyof F[K]]: F[K][K2] extends Widget<never, infer T>
             ? T extends undefined
                 ? never
                 : T

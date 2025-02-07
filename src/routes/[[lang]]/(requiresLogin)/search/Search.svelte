@@ -104,7 +104,7 @@
         </div>
     {/if}
 
-    {#if widget.zobrazitError(data)}
+    {#if widget.showError(data)}
         <p class="text-danger">{t.get(widget.onError(data))}</p>
     {/if}
 </div>

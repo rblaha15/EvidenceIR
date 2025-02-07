@@ -1,36 +1,36 @@
 <script lang="ts" generics="D">
 	import type { TranslationReference, Translations } from '$lib/translations';
-	import { nazevSHvezdou, type Vybiratkova } from '$lib/Vec.svelte';
+	import { nazevSHvezdou, type ChooserWidget } from '$lib/Vec.svelte';
 
 	interface Props {
         t: Translations;
-        vec: Vybiratkova<D>;
+        widget: ChooserWidget<D>;
         data: D;
     }
 
-    let { t, vec = $bindable(), data }: Props = $props();
+    let { t, widget = $bindable(), data }: Props = $props();
 
     const onChange = (
         e: Event & {
             currentTarget: HTMLSelectElement;
         }
-    ) => (vec.value = e.currentTarget.value as TranslationReference);
+    ) => (widget.value = e.currentTarget.value as TranslationReference);
 </script>
 
 <div class="mb-3">
-    {#if vec.zobrazit(data)}
+    {#if widget.show(data)}
         <label class="form-floating d-block">
-            <select class="form-select" value={vec.value ?? 'notChosen'} onchange={onChange}>
+            <select class="form-select" value={widget.value ?? 'notChosen'} onchange={onChange}>
                 <option class="d-none" value='notChosen'>{t.notChosen}</option>
-                {#each vec.moznosti(data) as moznost}
+                {#each widget.options(data) as moznost}
                     <option value={moznost}>{t.get(moznost)}</option>
                 {/each}
             </select>
-            <label for="">{nazevSHvezdou(vec, data, t)}</label>
+            <label for="">{nazevSHvezdou(widget, data, t)}</label>
         </label>
 
-        {#if vec.zobrazitError(data)}
-            <p class="text-danger">{t.get(vec.onError(data))}</p>
+        {#if widget.showError(data)}
+            <p class="text-danger">{t.get(widget.onError(data))}</p>
         {/if}
     {/if}
 </div>

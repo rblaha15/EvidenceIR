@@ -1,4 +1,4 @@
-import { MultiZaskrtavatkova, Nadpisova, p, Pisatkova, Pocitatkova, Radiova, SearchWidget, Vybiratkova } from '../Vec.svelte.js';
+import { MultiCheckboxWidget, TitleWidget, p, InputWidget, CounterWidget, RadioWidget, SearchWidget, ChooserWidget } from '../Vec.svelte.js';
 import { type SparePart, sparePartsList, startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
 import type { Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
@@ -16,37 +16,37 @@ export type UDSP = {
 
 type NahradniDil = {
     dil: SearchWidget<UDSP, SparePart>,
-    mnozstvi: Pisatkova<UDSP>,
+    mnozstvi: InputWidget<UDSP>,
 }
 
 export type DataSP = {
     zasah: {
-        datum: Pisatkova<UDSP>,
-        clovek: Pisatkova<UDSP>,
-        inicialy: Pisatkova<UDSP>,
-        doba: Pisatkova<UDSP>,
-        druh: MultiZaskrtavatkova<UDSP>,
-        nahlasenaZavada: Pisatkova<UDSP>,
-        popis: Pisatkova<UDSP>,
+        datum: InputWidget<UDSP>,
+        clovek: InputWidget<UDSP>,
+        inicialy: InputWidget<UDSP>,
+        doba: InputWidget<UDSP>,
+        druh: MultiCheckboxWidget<UDSP>,
+        nahlasenaZavada: InputWidget<UDSP>,
+        popis: InputWidget<UDSP>,
     },
     ukony: {
-        nadpis: Nadpisova<UDSP>,
-        doprava: Pisatkova<UDSP>,
-        typPrace: Radiova<UDSP>,
-        mnozstviPrace: Pisatkova<UDSP>,
-        ukony: MultiZaskrtavatkova<UDSP>,
+        nadpis: TitleWidget<UDSP>,
+        doprava: InputWidget<UDSP>,
+        typPrace: RadioWidget<UDSP>,
+        mnozstviPrace: InputWidget<UDSP>,
+        ukony: MultiCheckboxWidget<UDSP>,
     },
     nahradniDily: {
-        nadpis: Nadpisova<UDSP>,
-        pocet: Pocitatkova<UDSP>,
+        nadpis: TitleWidget<UDSP>,
+        pocet: CounterWidget<UDSP>,
     },
     nahradniDil1: NahradniDil,
     nahradniDil2: NahradniDil,
     nahradniDil3: NahradniDil,
     fakturace: {
-        hotove: Vybiratkova<UDSP>,
-        komu: Radiova<UDSP>,
-        jak: Radiova<UDSP>,
+        hotove: ChooserWidget<UDSP>,
+        komu: RadioWidget<UDSP>,
+        jak: RadioWidget<UDSP>,
     },
 }
 
@@ -60,53 +60,53 @@ const nahradniDil = (show: (d: UDSP) => boolean): NahradniDil => ({
             ] as const,
         })
     }),
-    mnozstvi: new Pisatkova({ nazev: p`Množství`, type: `number`, onError: `wrongNumberFormat`, zobrazit: show, text: '1' }),
+    mnozstvi: new InputWidget({ label: p`Množství`, type: `number`, onError: `wrongNumberFormat`, show: show, text: '1' }),
 });
 
 export const defaultDataSP = (): DataSP => ({
     zasah: {
-        datum: new Pisatkova({ nazev: p`Datum a čas zásahu`, type: 'datetime-local' }),
-        clovek: new Pisatkova({ nazev: p`Jméno technika`, zobrazit: false, required: false }),
-        inicialy: new Pisatkova({ nazev: p`Iniciály technika (do ID SP)`, zobrazit: false, required: false }),
-        doba: new Pisatkova({ nazev: p`Celková doba zásahu (hodin)`, type: 'number', onError: `wrongNumberFormat` }),
-        druh: new MultiZaskrtavatkova({
-            nazev: p`Druh zásahu`,
-            moznosti: [`commissioning`, `sp.yearlyCheck`, `sp.warrantyRepair`, `sp.postWarrantyRepair`, `sp.installationApproval`, `sp.otherType`]
+        datum: new InputWidget({ label: p`Datum a čas zásahu`, type: 'datetime-local' }),
+        clovek: new InputWidget({ label: p`Jméno technika`, show: false, required: false }),
+        inicialy: new InputWidget({ label: p`Iniciály technika (do ID SP)`, show: false, required: false }),
+        doba: new InputWidget({ label: p`Celková doba zásahu (hodin)`, type: 'number', onError: `wrongNumberFormat` }),
+        druh: new MultiCheckboxWidget({
+            label: p`Druh zásahu`,
+            options: [`commissioning`, `sp.yearlyCheck`, `sp.warrantyRepair`, `sp.postWarrantyRepair`, `sp.installationApproval`, `sp.otherType`]
         }),
-        nahlasenaZavada: new Pisatkova({ nazev: p`Nahlášená závada`, required: false }),
-        popis: new Pisatkova({ nazev: p`Popis zásahu`, required: false })
+        nahlasenaZavada: new InputWidget({ label: p`Nahlášená závada`, required: false }),
+        popis: new InputWidget({ label: p`Popis zásahu`, required: false })
     },
     ukony: {
-        nadpis: new Nadpisova({ nazev: p`Vyúčtování` }),
-        doprava: new Pisatkova({ nazev: p`Doprava (km)`, type: 'number', onError: `wrongNumberFormat` }),
-        typPrace: new Radiova({ nazev: p`Typ práce`, moznosti: [`sp.technicalAssistance`, `sp.assemblyWork`], required: false }),
-        mnozstviPrace: new Pisatkova({
-            nazev: p`Počet hodin práce`, type: 'number', onError: `wrongNumberFormat`,
-            zobrazit: d => d.protokol.ukony.typPrace.value != null, required: d => d.protokol.ukony.typPrace.value != null
+        nadpis: new TitleWidget({ label: p`Vyúčtování` }),
+        doprava: new InputWidget({ label: p`Doprava (km)`, type: 'number', onError: `wrongNumberFormat` }),
+        typPrace: new RadioWidget({ label: p`Typ práce`, options: [`sp.technicalAssistance`, `sp.assemblyWork`], required: false }),
+        mnozstviPrace: new InputWidget({
+            label: p`Počet hodin práce`, type: 'number', onError: `wrongNumberFormat`,
+            show: d => d.protokol.ukony.typPrace.value != null, required: d => d.protokol.ukony.typPrace.value != null
         }),
-        ukony: new MultiZaskrtavatkova({
-            nazev: p`Pracovní úkony (max. 3)`, max: 3, required: false, moznosti: [
+        ukony: new MultiCheckboxWidget({
+            label: p`Pracovní úkony (max. 3)`, max: 3, required: false, options: [
                 `sp.regulusRoute`, `sp.commissioningTC`, `sp.commissioningSOL`, `yearlyHPCheck`,
                 `sp.yearlySOLCheck`, `sp.extendedWarranty`, `sp.installationApproval`,
             ]
         }),
     },
     nahradniDily: {
-        nadpis: new Nadpisova({ nazev: p`Použité náhradní díly` }),
-        pocet: new Pocitatkova({ nazev: p`Počet náhradních dílů`, min: 0, max: 3, vybrano: 0 }),
+        nadpis: new TitleWidget({ label: p`Použité náhradní díly` }),
+        pocet: new CounterWidget({ label: p`Počet náhradních dílů`, min: 0, max: 3, chosen: 0 }),
     },
     nahradniDil1: nahradniDil(d => d.protokol.nahradniDily.pocet.value >= 1),
     nahradniDil2: nahradniDil(d => d.protokol.nahradniDily.pocet.value >= 2),
     nahradniDil3: nahradniDil(d => d.protokol.nahradniDily.pocet.value >= 3),
     fakturace: {
-        hotove: new Vybiratkova({ nazev: p`Placeno hotově`, moznosti: ['yes', 'no', 'doNotInvoice'] }),
-        komu: new Radiova({
-            nazev: p`Komu fakturovat`, moznosti: [p`Investor`, `assemblyCompany`],
-            required: d => d.protokol.fakturace.hotove.value == 'no', zobrazit: d => d.protokol.fakturace.hotove.value == 'no',
+        hotove: new ChooserWidget({ label: p`Placeno hotově`, options: ['yes', 'no', 'doNotInvoice'] }),
+        komu: new RadioWidget({
+            label: p`Komu fakturovat`, options: [p`Investor`, `assemblyCompany`],
+            required: d => d.protokol.fakturace.hotove.value == 'no', show: d => d.protokol.fakturace.hotove.value == 'no',
         }),
-        jak: new Radiova({
-            nazev: p`Fakturovat`, moznosti: [p`Papírově`, p`Elektronicky`],
-            required: d => d.protokol.fakturace.hotove.value == 'no', zobrazit: d => d.protokol.fakturace.hotove.value == 'no',
+        jak: new RadioWidget({
+            label: p`Fakturovat`, options: [p`Papírově`, p`Elektronicky`],
+            required: d => d.protokol.fakturace.hotove.value == 'no', show: d => d.protokol.fakturace.hotove.value == 'no',
         }),
     },
 });
@@ -144,10 +144,10 @@ export const sp = (() => {
             [(p, [$techniciansList, $currentUser]) => {
                 const ja = $techniciansList.find(t => $currentUser?.email == t.email);
                 p.zasah.clovek.value = ja?.name ?? p.zasah.clovek.value;
-                p.zasah.clovek.zobrazit = () => !ja;
+                p.zasah.clovek.show = () => !ja;
                 p.zasah.clovek.required = () => !ja;
                 p.zasah.inicialy.value = ja?.initials ?? p.zasah.inicialy.value;
-                p.zasah.inicialy.zobrazit = () => !ja;
+                p.zasah.inicialy.show = () => !ja;
                 p.zasah.inicialy.required = () => !ja;
             }, [techniciansList, currentUser]],
             [(p, [$sparePartsList]) => {

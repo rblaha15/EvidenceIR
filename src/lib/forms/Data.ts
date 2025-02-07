@@ -1,96 +1,96 @@
 import defaultData from './defaultData';
 import {
-    DvojVybiratkova,
-    MultiZaskrtavatkova,
-    Nadpisova,
-    Pisatkova,
-    Radiova,
+    DoubleChooserWidget,
+    MultiCheckboxWidget,
+    TitleWidget,
+    InputWidget,
+    RadioWidget,
     SearchWidget,
-    Textova,
-    Vybiratkova,
-    Zaskrtavatkova
+    TextWidget,
+    ChooserWidget,
+    CheckboxWidget
 } from '../Vec.svelte.js';
 import type { Company, Technician } from '$lib/client/realtime';
 
 export type Data = {
     ir: {
-        typ: DvojVybiratkova<Data>;
-        cislo: Pisatkova<Data>;
-        cisloBox: Pisatkova<Data>;
-        chceVyplnitK: MultiZaskrtavatkova<Data>;
+        typ: DoubleChooserWidget<Data>;
+        cislo: InputWidget<Data>;
+        cisloBox: InputWidget<Data>;
+        chceVyplnitK: MultiCheckboxWidget<Data>;
     };
     tc: {
-        nadpis: Nadpisova<Data>;
-        poznamka: Textova<Data>;
-        typ: Radiova<Data>;
-        model: Vybiratkova<Data>;
-        cislo: Pisatkova<Data>;
-        model2: Vybiratkova<Data>;
-        cislo2: Pisatkova<Data>;
-        model3: Vybiratkova<Data>;
-        cislo3: Pisatkova<Data>;
-        model4: Vybiratkova<Data>;
-        cislo4: Pisatkova<Data>;
+        nadpis: TitleWidget<Data>;
+        poznamka: TextWidget<Data>;
+        typ: RadioWidget<Data>;
+        model: ChooserWidget<Data>;
+        cislo: InputWidget<Data>;
+        model2: ChooserWidget<Data>;
+        cislo2: InputWidget<Data>;
+        model3: ChooserWidget<Data>;
+        cislo3: InputWidget<Data>;
+        model4: ChooserWidget<Data>;
+        cislo4: InputWidget<Data>;
     };
     sol: {
-        title: Nadpisova<Data>;
-        typ: Pisatkova<Data>;
-        pocet: Pisatkova<Data>;
+        title: TitleWidget<Data>;
+        typ: InputWidget<Data>;
+        pocet: InputWidget<Data>;
     };
     koncovyUzivatel: {
-        nadpis: Nadpisova<Data>;
-        typ: Radiova<Data>;
-        prijmeni: Pisatkova<Data>;
-        jmeno: Pisatkova<Data>;
-        narozeni: Pisatkova<Data>;
-        nazev: Pisatkova<Data>;
-        pobocka: Pisatkova<Data>;
-        ico: Pisatkova<Data>;
-        telefon: Pisatkova<Data>;
-        email: Pisatkova<Data>;
+        nadpis: TitleWidget<Data>;
+        typ: RadioWidget<Data>;
+        prijmeni: InputWidget<Data>;
+        jmeno: InputWidget<Data>;
+        narozeni: InputWidget<Data>;
+        nazev: InputWidget<Data>;
+        pobocka: InputWidget<Data>;
+        ico: InputWidget<Data>;
+        telefon: InputWidget<Data>;
+        email: InputWidget<Data>;
     };
     bydliste: {
-        nadpis: Nadpisova<Data>;
-        obec: Pisatkova<Data>;
-        ulice: Pisatkova<Data>;
-        psc: Pisatkova<Data>;
+        nadpis: TitleWidget<Data>;
+        obec: InputWidget<Data>;
+        ulice: InputWidget<Data>;
+        psc: InputWidget<Data>;
     };
     mistoRealizace: {
-        nadpis: Nadpisova<Data>;
-        jakoBydliste: Zaskrtavatkova<Data>;
-        obec: Pisatkova<Data>;
-        ulice: Pisatkova<Data>;
-        psc: Pisatkova<Data>;
+        nadpis: TitleWidget<Data>;
+        jakoBydliste: CheckboxWidget<Data>;
+        obec: InputWidget<Data>;
+        ulice: InputWidget<Data>;
+        psc: InputWidget<Data>;
     };
     montazka: {
-        nadpis: Nadpisova<Data>;
+        nadpis: TitleWidget<Data>;
         company: SearchWidget<Data, Company>;
-        nebo: Textova<Data>;
-        ico: Pisatkova<Data>;
-        zastupce: Pisatkova<Data>;
-        email: Pisatkova<Data>;
-        telefon: Pisatkova<Data>;
+        nebo: TextWidget<Data>;
+        ico: InputWidget<Data>;
+        zastupce: InputWidget<Data>;
+        email: InputWidget<Data>;
+        telefon: InputWidget<Data>;
     };
     uvedeni: {
-        nadpis: Nadpisova<Data>;
-        jakoMontazka: Zaskrtavatkova<Data>;
+        nadpis: TitleWidget<Data>;
+        jakoMontazka: CheckboxWidget<Data>;
         company: SearchWidget<Data, Company>;
-        nebo: Textova<Data>;
-        ico: Pisatkova<Data>;
+        nebo: TextWidget<Data>;
+        ico: InputWidget<Data>;
         regulus: SearchWidget<Data, Technician>;
-        zastupce: Pisatkova<Data>;
-        email: Pisatkova<Data>;
-        telefon: Pisatkova<Data>;
+        zastupce: InputWidget<Data>;
+        email: InputWidget<Data>;
+        telefon: InputWidget<Data>;
     };
     vzdalenyPristup: {
-        nadpis: Nadpisova<Data>;
-        chce: Zaskrtavatkova<Data>;
-        pristupMa: MultiZaskrtavatkova<Data>;
-        plati: Radiova<Data>;
+        nadpis: TitleWidget<Data>;
+        chce: CheckboxWidget<Data>;
+        pristupMa: MultiCheckboxWidget<Data>;
+        plati: RadioWidget<Data>;
     };
     ostatni: {
-        zodpovednaOsoba: Pisatkova<Data>;
-        poznamka: Pisatkova<Data>;
+        zodpovednaOsoba: InputWidget<Data>;
+        poznamka: InputWidget<Data>;
     };
 }
 
