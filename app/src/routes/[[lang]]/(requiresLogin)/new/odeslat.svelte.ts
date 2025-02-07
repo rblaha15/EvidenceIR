@@ -3,7 +3,7 @@ import { sendEmail, SENDER } from "$lib/client/email";
 import { existuje, extractIRIDFromRawData, novaEvidence, upravitEvidenci } from '$lib/client/firestore';
 import { type Data, newData } from '$lib/forms/Data';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
-import type { Vec } from "$lib/Vec.svelte";
+import type { Widget } from "$lib/Vec.svelte";
 import { default as MailRRoute } from "$lib/emails/MailRRoute.svelte";
 import { default as MailSDaty } from "$lib/emails/MailSDaty.svelte";
 import { get } from "svelte/store";
@@ -11,7 +11,7 @@ import { page } from "$app/state";
 import { relUrl, storable } from "$lib/helpers/stores";
 import { currentUser } from "$lib/client/auth";
 import { getTranslations } from '$lib/translations';
-import { getIsOnline } from "$lib/client/realtime";
+import { getIsOnline, techniciansList } from '$lib/client/realtime';
 import { mount } from "svelte";
 import { generateXML } from '$lib/createXML';
 import { typIR } from '$lib/helpers/ir';
@@ -43,12 +43,12 @@ export default async (
         }
 
         const seznam = (Object.values(data) as Data[keyof Data][]).flatMap(
-            (obj) => Object.values(obj) as Vec<Data, unknown>[]
+            (obj) => Object.values(obj) as Widget<Data, unknown>[]
         );
 
         if (seznam.some((it) => {
-            if (it.zpravaJeChybna(data)) console.log(it)
-            return it.zpravaJeChybna(data)
+            if (it.isError(data)) console.log(it)
+            return it.isError(data)
         })) {
             zobrazitError()
             progress({
@@ -110,6 +110,11 @@ export default async (
             await novaEvidence({ evidence: rawData, kontroly: {}, users: [user.email!], installationProtocols: [] });
         }
 
+        const userAddress = {
+            address: user.email!,
+            name: user.displayName ?? '',
+        };
+
         if (rawData.vzdalenyPristup.chce && !doNotSend) {
             const t = getTranslations('cs')
             const montazka = (await nazevFirmy(rawData.montazka.ico)) ?? null;
@@ -123,7 +128,7 @@ export default async (
 
             const response = await sendEmail({
                 from: SENDER,
-                replyTo: user.email!,
+                replyTo: userAddress,
                 to: dev ? 'radek.blaha.15@gmail.com' : 'david.cervenka@regulus.cz',
                 subject: `Založení RegulusRoute k ${typIR(rawData.ir.typ)} ${rawData.ir.cislo}`,
                 html,
@@ -140,9 +145,9 @@ export default async (
 
         const response = doNotSend ? undefined : await sendEmail({
             from: SENDER,
-            replyTo: user.email!,
+            replyTo: userAddress,
             to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
-            cc: dev ? undefined : user.email!,
+            cc: dev ? undefined : userAddress,
             subject: `Nově zaevidovaný regulátor ${typIR(rawData.ir.typ)} ${rawData.ir.cislo}`,
             html,
         });

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { Pisatkova } from '$lib/Vec.svelte';
+	import type { InputWidget } from '$lib/Vec.svelte';
 	import { Html5Qrcode } from 'html5-qrcode';
 	import { onMount } from 'svelte';
-	import Pisatko from './veci/Pisatko.svelte';
+	import Input from '$lib/components/widgets/Input.svelte';
 	import type { Translations } from '$lib/translations';
 	import type { Data } from '$lib/forms/Data';
 
@@ -18,14 +18,14 @@
 		data: Data;
 		t: Translations;
 		onScan: (text: string) => void;
-		vec: Pisatkova<Data>;
+		widget: InputWidget<Data>;
 	}
 
 	let {
 		data,
 		t,
 		onScan,
-		vec = $bindable(),
+		widget = $bindable(),
 	}: Props = $props();
 
 	const onClick = async () => {
@@ -57,7 +57,7 @@
 </script>
 
 <div class="d-sm-flex flex-sm-row align-items-end">
-	<div class="flex-grow-1"><Pisatko bind:vec {t} {data} /></div>
+	<div class="flex-grow-1"><Input bind:widget {t} {data} /></div>
 	<span class="p-2 mb-3"> {t.or} </span>
 	<div>
 		<button

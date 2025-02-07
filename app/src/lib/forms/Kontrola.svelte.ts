@@ -1,6 +1,6 @@
 import type { FormInfo } from '$lib/forms/forms.svelte.js';
 import { type IR, pridatKontrolu } from '$lib/client/firestore';
-import { Nadpisova, p, Pisatkova, Zaskrtavatkova } from '$lib/Vec.svelte.js';
+import { TitleWidget, p, InputWidget, CheckboxWidget } from '$lib/Vec.svelte.js';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
 import { todayISO } from '$lib/helpers/date';
@@ -13,144 +13,144 @@ export type UDKO = {
 
 export type Kontrola = {
     info: {
-        osoba: Pisatkova<UDKO>,
-        datum: Pisatkova<UDKO>,
+        osoba: InputWidget<UDKO>,
+        datum: InputWidget<UDKO>,
     },
     kontrolniUkonyTepelnehoCerpadla: {
-        nadpis: Nadpisova<UDKO>,
-        kontrolaChoduKompresoru: Zaskrtavatkova<UDKO>,
-        optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu: Zaskrtavatkova<UDKO>,
-        kontrolaOdvoduKondenzatu: Zaskrtavatkova<UDKO>,
-        kontrolaUchyceniVentilatoru: Zaskrtavatkova<UDKO>,
-        vycisteniVzduchovychCestJednotky: Zaskrtavatkova<UDKO>,
-        kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem: Zaskrtavatkova<UDKO>,
-        proveritZdaNicNebraniOptimalniCirkulaciVzduchu: Zaskrtavatkova<UDKO>,
-        kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu: Zaskrtavatkova<UDKO>,
-        kontrolaElektrickeCastiJednotkyTepelnehoCerpadla: Zaskrtavatkova<UDKO>,
+        nadpis: TitleWidget<UDKO>,
+        kontrolaChoduKompresoru: CheckboxWidget<UDKO>,
+        optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu: CheckboxWidget<UDKO>,
+        kontrolaOdvoduKondenzatu: CheckboxWidget<UDKO>,
+        kontrolaUchyceniVentilatoru: CheckboxWidget<UDKO>,
+        vycisteniVzduchovychCestJednotky: CheckboxWidget<UDKO>,
+        kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem: CheckboxWidget<UDKO>,
+        proveritZdaNicNebraniOptimalniCirkulaciVzduchu: CheckboxWidget<UDKO>,
+        kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu: CheckboxWidget<UDKO>,
+        kontrolaElektrickeCastiJednotkyTepelnehoCerpadla: CheckboxWidget<UDKO>,
     },
     kontrolniUkonyRegulace: {
-        nadpis: Nadpisova<UDKO>,
-        kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: Zaskrtavatkova<UDKO>,
-        kontrolaNastaveniParametruRegulatoru: Zaskrtavatkova<UDKO>,
-        preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni: Zaskrtavatkova<UDKO>,
-        stavPocitadlaCelkovychProvoznichHodinKompresoru: Pisatkova<UDKO>
-        stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace: Pisatkova<UDKO>
-        stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace: Pisatkova<UDKO>
-        stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace: Pisatkova<UDKO>
-        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje: Pisatkova<UDKO>
-        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv: Pisatkova<UDKO>
-        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: Pisatkova<UDKO>
-        prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly: Pisatkova<UDKO>
+        nadpis: TitleWidget<UDKO>,
+        kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: CheckboxWidget<UDKO>,
+        kontrolaNastaveniParametruRegulatoru: CheckboxWidget<UDKO>,
+        preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni: CheckboxWidget<UDKO>,
+        stavPocitadlaCelkovychProvoznichHodinKompresoru: InputWidget<UDKO>
+        stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace: InputWidget<UDKO>
+        stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace: InputWidget<UDKO>
+        stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace: InputWidget<UDKO>
+        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje: InputWidget<UDKO>
+        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv: InputWidget<UDKO>
+        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: InputWidget<UDKO>
+        prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly: InputWidget<UDKO>
     },
     kontrolniElektroinstalace: {
-        nadpis: Nadpisova<UDKO>,
-        kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace: Zaskrtavatkova<UDKO>,
-        kontrolaDotazeniSvorkovychSpoju: Zaskrtavatkova<UDKO>,
-        vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni: Zaskrtavatkova<UDKO>,
-        kontrolaSepnutiDohrevuSepnutiStykacePripadneRele: Zaskrtavatkova<UDKO>,
+        nadpis: TitleWidget<UDKO>,
+        kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace: CheckboxWidget<UDKO>,
+        kontrolaDotazeniSvorkovychSpoju: CheckboxWidget<UDKO>,
+        vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni: CheckboxWidget<UDKO>,
+        kontrolaSepnutiDohrevuSepnutiStykacePripadneRele: CheckboxWidget<UDKO>,
     },
     kontrolniUkonyOtopneSoustavy: {
-        nadpis: Nadpisova<UDKO>,
-        kontrolaFunkceObehovychCerpadel: Zaskrtavatkova<UDKO>,
-        vycisteniFiltruObehovychCerpadel: Zaskrtavatkova<UDKO>,
-        odvzdusneniZdrojeTc: Zaskrtavatkova<UDKO>,
-        kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych: Zaskrtavatkova<UDKO>,
-        kontrolaTesnostiOtopneSoustavy: Zaskrtavatkova<UDKO>,
-        kontrolaTlakuVExpanzniNadobeOtopneSoustavy: Zaskrtavatkova<UDKO>,
-        nastavenyTlakPriUvadeniDoProvozu: Pisatkova<UDKO>
-        pripadneProvedteKontroluTlakuVOtopneSoustave: Zaskrtavatkova<UDKO>,
-        nastavenyTlakPriUvadeniDoProvozu2: Pisatkova<UDKO>
+        nadpis: TitleWidget<UDKO>,
+        kontrolaFunkceObehovychCerpadel: CheckboxWidget<UDKO>,
+        vycisteniFiltruObehovychCerpadel: CheckboxWidget<UDKO>,
+        odvzdusneniZdrojeTc: CheckboxWidget<UDKO>,
+        kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych: CheckboxWidget<UDKO>,
+        kontrolaTesnostiOtopneSoustavy: CheckboxWidget<UDKO>,
+        kontrolaTlakuVExpanzniNadobeOtopneSoustavy: CheckboxWidget<UDKO>,
+        nastavenyTlakPriUvadeniDoProvozu: InputWidget<UDKO>
+        pripadneProvedteKontroluTlakuVOtopneSoustave: CheckboxWidget<UDKO>,
+        nastavenyTlakPriUvadeniDoProvozu2: InputWidget<UDKO>
     },
     kontrolaZasobnikuTv: {
-        nadpis: Nadpisova<UDKO>,
-        kontrolaMgAnodyVZasobnikuPripVymena: Zaskrtavatkova<UDKO>,
-        kontrolaPojistovacihoVentilu: Zaskrtavatkova<UDKO>,
-        pripadneProvedteKontroluTlakuVEnTepleVody: Zaskrtavatkova<UDKO>,
-        nastavenyTlakPriUvadeniDoProvozu: Pisatkova<UDKO>
+        nadpis: TitleWidget<UDKO>,
+        kontrolaMgAnodyVZasobnikuPripVymena: CheckboxWidget<UDKO>,
+        kontrolaPojistovacihoVentilu: CheckboxWidget<UDKO>,
+        pripadneProvedteKontroluTlakuVEnTepleVody: CheckboxWidget<UDKO>,
+        nastavenyTlakPriUvadeniDoProvozu: InputWidget<UDKO>
     },
     poznamky: {
-        poznamka: Pisatkova<UDKO>,
+        poznamka: InputWidget<UDKO>,
     },
 }
 
 export const defaultKontrola = (): Kontrola => ({
     info: {
-        osoba: new Pisatkova<UDKO>({ nazev: 'performingPerson' }),
-        datum: new Pisatkova<UDKO>({ nazev: 'checkDate', type: 'date' }),
+        osoba: new InputWidget<UDKO>({ label: 'performingPerson' }),
+        datum: new InputWidget<UDKO>({ label: 'checkDate', type: 'date' }),
     },
     kontrolniUkonyTepelnehoCerpadla: {
-        nadpis: new Nadpisova({ nazev: 'check.kontrolniUkonyTepelnehoCerpadla' }),
-        kontrolaChoduKompresoru: new Zaskrtavatkova<UDKO>({ nazev: 'check.kontrolaChoduKompresoru', required: false }),
-        optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu: new Zaskrtavatkova<UDKO>(
-            { nazev: 'check.optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu', required: false }),
-        kontrolaOdvoduKondenzatu: new Zaskrtavatkova<UDKO>({ nazev: 'check.kontrolaOdvoduKondenzatu', required: false }),
-        kontrolaUchyceniVentilatoru: new Zaskrtavatkova<UDKO>({ nazev: 'check.kontrolaUchyceniVentilatoru', required: false }),
-        vycisteniVzduchovychCestJednotky: new Zaskrtavatkova<UDKO>({ nazev: 'check.vycisteniVzduchovychCestJednotky', required: false }),
-        kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem: new Zaskrtavatkova<UDKO>(
-            { nazev: 'check.kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem', required: false }),
-        proveritZdaNicNebraniOptimalniCirkulaciVzduchu: new Zaskrtavatkova<UDKO>(
-            { nazev: 'check.proveritZdaNicNebraniOptimalniCirkulaciVzduchu', required: false }),
-        kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu: new Zaskrtavatkova<UDKO>(
-            { nazev: 'check.kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu', required: false }),
-        kontrolaElektrickeCastiJednotkyTepelnehoCerpadla: new Zaskrtavatkova<UDKO>(
-            { nazev: 'check.kontrolaElektrickeCastiJednotkyTepelnehoCerpadla', required: false }),
+        nadpis: new TitleWidget({ label: 'check.kontrolniUkonyTepelnehoCerpadla' }),
+        kontrolaChoduKompresoru: new CheckboxWidget<UDKO>({ label: 'check.kontrolaChoduKompresoru', required: false }),
+        optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu: new CheckboxWidget<UDKO>(
+            { label: 'check.optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu', required: false }),
+        kontrolaOdvoduKondenzatu: new CheckboxWidget<UDKO>({ label: 'check.kontrolaOdvoduKondenzatu', required: false }),
+        kontrolaUchyceniVentilatoru: new CheckboxWidget<UDKO>({ label: 'check.kontrolaUchyceniVentilatoru', required: false }),
+        vycisteniVzduchovychCestJednotky: new CheckboxWidget<UDKO>({ label: 'check.vycisteniVzduchovychCestJednotky', required: false }),
+        kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem: new CheckboxWidget<UDKO>(
+            { label: 'check.kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem', required: false }),
+        proveritZdaNicNebraniOptimalniCirkulaciVzduchu: new CheckboxWidget<UDKO>(
+            { label: 'check.proveritZdaNicNebraniOptimalniCirkulaciVzduchu', required: false }),
+        kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu: new CheckboxWidget<UDKO>(
+            { label: 'check.kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu', required: false }),
+        kontrolaElektrickeCastiJednotkyTepelnehoCerpadla: new CheckboxWidget<UDKO>(
+            { label: 'check.kontrolaElektrickeCastiJednotkyTepelnehoCerpadla', required: false }),
     },
     kontrolniUkonyRegulace: {
-        nadpis: new Nadpisova({ nazev: 'check.kontrolniUkonyRegulace' }),
-        kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: new Zaskrtavatkova<UDKO>(
-            { nazev: 'check.kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin', required: false }),
-        kontrolaNastaveniParametruRegulatoru: new Zaskrtavatkova<UDKO>({ nazev: 'check.kontrolaNastaveniParametruRegulatoru', required: false }),
-        preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni: new Zaskrtavatkova<UDKO>(
-            { nazev: 'check.preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni', required: false }),
-        stavPocitadlaCelkovychProvoznichHodinKompresoru: new Pisatkova({ nazev: 'check.stavPocitadlaCelkovychProvoznichHodinKompresoru', required: false }),
-        stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace: new Pisatkova(
-            { nazev: 'check.stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace', required: false }),
-        stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace: new Pisatkova(
-            { nazev: 'check.stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace', required: false }),
-        stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace: new Pisatkova(
-            { nazev: 'check.stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace', required: false }),
-        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje: new Pisatkova(
-            { nazev: 'check.stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje', required: false }),
-        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv: new Pisatkova(
-            { nazev: 'check.stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv', required: false }),
-        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: new Pisatkova(
-            { nazev: 'check.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly', required: false }),
-        prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly: new Pisatkova(
-            { nazev: 'check.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly', required: false }),
+        nadpis: new TitleWidget({ label: 'check.kontrolniUkonyRegulace' }),
+        kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: new CheckboxWidget<UDKO>(
+            { label: 'check.kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin', required: false }),
+        kontrolaNastaveniParametruRegulatoru: new CheckboxWidget<UDKO>({ label: 'check.kontrolaNastaveniParametruRegulatoru', required: false }),
+        preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni: new CheckboxWidget<UDKO>(
+            { label: 'check.preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni', required: false }),
+        stavPocitadlaCelkovychProvoznichHodinKompresoru: new InputWidget({ label: 'check.stavPocitadlaCelkovychProvoznichHodinKompresoru', required: false }),
+        stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace: new InputWidget(
+            { label: 'check.stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace', required: false }),
+        stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace: new InputWidget(
+            { label: 'check.stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace', required: false }),
+        stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace: new InputWidget(
+            { label: 'check.stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace', required: false }),
+        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje: new InputWidget(
+            { label: 'check.stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje', required: false }),
+        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv: new InputWidget(
+            { label: 'check.stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv', required: false }),
+        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: new InputWidget(
+            { label: 'check.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly', required: false }),
+        prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly: new InputWidget(
+            { label: 'check.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly', required: false }),
     },
     kontrolniElektroinstalace: {
-        nadpis: new Nadpisova({ nazev: 'check.kontrolniElektroinstalace' }),
-        kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace: new Zaskrtavatkova<UDKO>(
-            { nazev: 'check.kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace', required: false }),
-        kontrolaDotazeniSvorkovychSpoju: new Zaskrtavatkova<UDKO>({ nazev: 'check.kontrolaDotazeniSvorkovychSpoju', required: false }),
-        vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni: new Zaskrtavatkova<UDKO>(
-            { nazev: 'check.vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni', required: false }),
-        kontrolaSepnutiDohrevuSepnutiStykacePripadneRele: new Zaskrtavatkova<UDKO>(
-            { nazev: 'check.kontrolaSepnutiDohrevuSepnutiStykacePripadneRele', required: false }),
+        nadpis: new TitleWidget({ label: 'check.kontrolniElektroinstalace' }),
+        kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace: new CheckboxWidget<UDKO>(
+            { label: 'check.kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace', required: false }),
+        kontrolaDotazeniSvorkovychSpoju: new CheckboxWidget<UDKO>({ label: 'check.kontrolaDotazeniSvorkovychSpoju', required: false }),
+        vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni: new CheckboxWidget<UDKO>(
+            { label: 'check.vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni', required: false }),
+        kontrolaSepnutiDohrevuSepnutiStykacePripadneRele: new CheckboxWidget<UDKO>(
+            { label: 'check.kontrolaSepnutiDohrevuSepnutiStykacePripadneRele', required: false }),
     },
     kontrolniUkonyOtopneSoustavy: {
-        nadpis: new Nadpisova({ nazev: 'check.kontrolniUkonyOtopneSoustavy' }),
-        kontrolaFunkceObehovychCerpadel: new Zaskrtavatkova<UDKO>({ nazev: 'check.kontrolaFunkceObehovychCerpadel', required: false }),
-        vycisteniFiltruObehovychCerpadel: new Zaskrtavatkova<UDKO>({ nazev: 'check.vycisteniFiltruObehovychCerpadel', required: false }),
-        odvzdusneniZdrojeTc: new Zaskrtavatkova<UDKO>({ nazev: 'check.odvzdusneniZdrojeTc', required: false }),
-        kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych: new Zaskrtavatkova<UDKO>(
-            { nazev: 'check.kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych', required: false }),
-        kontrolaTesnostiOtopneSoustavy: new Zaskrtavatkova<UDKO>({ nazev: 'check.kontrolaTesnostiOtopneSoustavy', required: false }),
-        kontrolaTlakuVExpanzniNadobeOtopneSoustavy: new Zaskrtavatkova<UDKO>({ nazev: 'check.kontrolaTlakuVExpanzniNadobeOtopneSoustavy', required: false }),
-        nastavenyTlakPriUvadeniDoProvozu: new Pisatkova({ nazev: 'check.nastavenyTlakPriUvadeniDoProvozu', required: false, lock: ({ rok }) => rok != 1 }),
-        pripadneProvedteKontroluTlakuVOtopneSoustave: new Zaskrtavatkova<UDKO>(
-            { nazev: 'check.pripadneProvedteKontroluTlakuVOtopneSoustave', required: false }),
-        nastavenyTlakPriUvadeniDoProvozu2: new Pisatkova({ nazev: 'check.nastavenyTlakPriUvadeniDoProvozu', required: false, lock: ({ rok }) => rok != 1 }),
+        nadpis: new TitleWidget({ label: 'check.kontrolniUkonyOtopneSoustavy' }),
+        kontrolaFunkceObehovychCerpadel: new CheckboxWidget<UDKO>({ label: 'check.kontrolaFunkceObehovychCerpadel', required: false }),
+        vycisteniFiltruObehovychCerpadel: new CheckboxWidget<UDKO>({ label: 'check.vycisteniFiltruObehovychCerpadel', required: false }),
+        odvzdusneniZdrojeTc: new CheckboxWidget<UDKO>({ label: 'check.odvzdusneniZdrojeTc', required: false }),
+        kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych: new CheckboxWidget<UDKO>(
+            { label: 'check.kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych', required: false }),
+        kontrolaTesnostiOtopneSoustavy: new CheckboxWidget<UDKO>({ label: 'check.kontrolaTesnostiOtopneSoustavy', required: false }),
+        kontrolaTlakuVExpanzniNadobeOtopneSoustavy: new CheckboxWidget<UDKO>({ label: 'check.kontrolaTlakuVExpanzniNadobeOtopneSoustavy', required: false }),
+        nastavenyTlakPriUvadeniDoProvozu: new InputWidget({ label: 'check.nastavenyTlakPriUvadeniDoProvozu', required: false, lock: ({ rok }) => rok != 1 }),
+        pripadneProvedteKontroluTlakuVOtopneSoustave: new CheckboxWidget<UDKO>(
+            { label: 'check.pripadneProvedteKontroluTlakuVOtopneSoustave', required: false }),
+        nastavenyTlakPriUvadeniDoProvozu2: new InputWidget({ label: 'check.nastavenyTlakPriUvadeniDoProvozu', required: false, lock: ({ rok }) => rok != 1 }),
     },
     kontrolaZasobnikuTv: {
-        nadpis: new Nadpisova({ nazev: 'check.kontrolaZasobnikuTv' }),
-        kontrolaMgAnodyVZasobnikuPripVymena: new Zaskrtavatkova<UDKO>({ nazev: 'check.kontrolaMgAnodyVZasobnikuPripVymena', required: false }),
-        kontrolaPojistovacihoVentilu: new Zaskrtavatkova<UDKO>({ nazev: 'check.kontrolaPojistovacihoVentilu', required: false }),
-        pripadneProvedteKontroluTlakuVEnTepleVody: new Zaskrtavatkova<UDKO>({ nazev: 'check.pripadneProvedteKontroluTlakuVEnTepleVody', required: false }),
-        nastavenyTlakPriUvadeniDoProvozu: new Pisatkova({ nazev: 'check.nastavenyTlakPriUvadeniDoProvozu', required: false, lock: ({ rok }) => rok != 1 }),
+        nadpis: new TitleWidget({ label: 'check.kontrolaZasobnikuTv' }),
+        kontrolaMgAnodyVZasobnikuPripVymena: new CheckboxWidget<UDKO>({ label: 'check.kontrolaMgAnodyVZasobnikuPripVymena', required: false }),
+        kontrolaPojistovacihoVentilu: new CheckboxWidget<UDKO>({ label: 'check.kontrolaPojistovacihoVentilu', required: false }),
+        pripadneProvedteKontroluTlakuVEnTepleVody: new CheckboxWidget<UDKO>({ label: 'check.pripadneProvedteKontroluTlakuVEnTepleVody', required: false }),
+        nastavenyTlakPriUvadeniDoProvozu: new InputWidget({ label: 'check.nastavenyTlakPriUvadeniDoProvozu', required: false, lock: ({ rok }) => rok != 1 }),
     },
     poznamky: {
-        poznamka: new Pisatkova<UDKO>({ nazev: 'note', required: false }),
+        poznamka: new InputWidget<UDKO>({ label: 'note', required: false }),
     }
 });
 

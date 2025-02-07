@@ -66,7 +66,7 @@ sw.addEventListener('fetch', (event) => {
 			}
 
 			if (response.status === 200) {
-				cache.put(event.request, response.clone());
+				await cache.put(event.request, response.clone());
 			}
 
 			return response;

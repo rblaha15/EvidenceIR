@@ -50,7 +50,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
     else if (data.action == 'sendPasswordResetEmail') {
         const link = url.origin + await getPasswordResetLink(data.email, data.lang, data.redirect, 'reset')
         const t = getTranslations(data.lang)
-        sendEmail({
+        await sendEmail({
             from: SENDER,
             to: data.email,
             subject: t.passwordReset,

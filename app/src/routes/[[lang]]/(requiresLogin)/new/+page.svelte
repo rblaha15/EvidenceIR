@@ -1,5 +1,5 @@
 <script lang="ts">
-    import VecComponent from '$lib/components/Vec.svelte';
+    import WidgetComponent from '$lib/components/Widget.svelte';
     import Scanner from '$lib/components/Scanner.svelte';
 
     import * as v from '$lib/Vec.svelte';
@@ -57,7 +57,7 @@
     $effect(() => {
         data;
         if (mode != 'loading') {
-            data.ostatni.zodpovednaOsoba.zobrazit = () => $responsiblePerson == null;
+            data.ostatni.zodpovednaOsoba.show = () => $responsiblePerson == null;
             if ($responsiblePerson != null) data.ostatni.zodpovednaOsoba.value = $responsiblePerson;
         }
     });
@@ -116,7 +116,7 @@
     $effect(() => {
         data;
         if (mode != 'loading') {
-            if (!data.tc.model.moznosti(data).includes(data.tc.model.value ?? '')) {
+            if (!data.tc.model.options(data).includes(data.tc.model.value ?? '')) {
                 data.tc.model.value = null;
             }
         }
@@ -148,7 +148,7 @@
     let list = $derived(
         data && mode != 'loading'
             ? (Object.values(data) as Data[keyof Data][]).flatMap(
-                (obj) => Object.values(obj) as v.Vec<Data, unknown>[]
+                (obj) => Object.values(obj) as v.Widget<Data, unknown>[]
             )
             : []
     );
@@ -188,7 +188,7 @@
         data.uvedeni.regulus.items = () => $techniciansList
     });
     $effect(() => {
-        data.vzdalenyPristup.plati.moznosti = () => $isUserRegulusOrAdmin
+        data.vzdalenyPristup.plati.options = () => $isUserRegulusOrAdmin
             ? ['assemblyCompany', 'endCustomer', 'doNotInvoice', p`Později, dle protokolu`]
             : ['assemblyCompany', 'endCustomer']
     });
@@ -199,23 +199,23 @@
             title={mode === 'edit' ? t.editation : t.controllerRegistration} />
 
 {#each list as _, i}
-    {#if list[i] instanceof v.Pisatkova && cisla.includes(list[i]) && list[i].zobrazit(data)}
+    {#if list[i] instanceof v.InputWidget && cisla.includes(list[i]) && list[i].show(data)}
         <Scanner
-            bind:vec={list[i]}
+            bind:widget={list[i]}
             onScan={(text) => list[i].value = text.slice(-12)}
             {t}
             {data}
         />
     {:else}
-        <VecComponent bind:vec={list[i]} {t} {data} />
+        <WidgetComponent bind:widget={list[i]} {t} {data} />
     {/if}
-    {#if list[i] === data.ir.cisloBox && list[i].zobrazit(data) && typBOXu}
+    {#if list[i] === data.ir.cisloBox && list[i].show(data) && typBOXu}
         <p>Rozpoznáno: {typBOXu}</p>
     {/if}
-    {#if list[i] === data.koncovyUzivatel.nazev && list[i].zobrazit(data) && chyba}
+    {#if list[i] === data.koncovyUzivatel.nazev && list[i].show(data) && chyba}
         <p>Pozor, zadaná forma společnosti není správně formátovaná!</p>
     {/if}
-    {#if list[i] === data.montazka.ico && list[i].zobrazit(data)}
+    {#if list[i] === data.montazka.ico && list[i].show(data)}
         <p>
             {#await chosen?.assemblyCompany then a}
                 {#if a}
@@ -224,7 +224,7 @@
             {/await}
         </p>
     {/if}
-    {#if list[i] === data.uvedeni.ico && list[i].zobrazit(data)}
+    {#if list[i] === data.uvedeni.ico && list[i].show(data)}
         <p>
             {#await chosen?.commissioningCompany then c}
                 {#if c}
@@ -261,7 +261,7 @@
 						mode === 'edit',
 						() => {
 							for (const i in list) {
-								list[i].zobrazitErrorVeto = true;
+								list[i].displayErrorVeto = true;
 							}
 						}
 					)}

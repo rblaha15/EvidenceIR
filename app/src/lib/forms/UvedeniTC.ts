@@ -1,4 +1,4 @@
-import { type GetOrVal, Nadpisova, Pisatkova, Prepinatkova, Vybiratkova, Zaskrtavatkova } from '../Vec.svelte.js';
+import { type GetOrVal, TitleWidget, InputWidget, SwitchWidget, ChooserWidget, CheckboxWidget } from '../Vec.svelte.js';
 import { uvestTCDoProvozu } from '$lib/client/firestore';
 import type { FormInfo } from './forms.svelte.js';
 import type { Raw } from '$lib/forms/Form';
@@ -9,19 +9,19 @@ export type UDTC = {
     evidence: Raw<Data>,
 }
 
-export class Vyhovuje<D> extends Prepinatkova<D> {
+export class Vyhovuje<D> extends SwitchWidget<D> {
     constructor(args: {
-        nazev: GetOrVal<D>,
+        label: GetOrVal<D>,
         onError?: GetOrVal<D>,
-        nutne?: GetOrVal<D, boolean>,
-        zobrazit?: GetOrVal<D, boolean>,
-        vybrano?: boolean,
+        required?: GetOrVal<D, boolean>,
+        show?: GetOrVal<D, boolean>,
+        chosen?: boolean,
     }) {
         super({
-            vybrano: args.vybrano ?? false,
-            required: args.nutne ?? false,
+            chosen: args.chosen ?? false,
+            required: args.required ?? false,
             ...args,
-            moznosti: [`suitsNot`, `suits`] as const,
+            options: [`suitsNot`, `suits`] as const,
             hasPositivity: true,
         });
     }
@@ -29,134 +29,134 @@ export class Vyhovuje<D> extends Prepinatkova<D> {
 
 export type UvedeniTC = {
     tc: {
-        nadpis: Nadpisova<UDTC>,
+        nadpis: TitleWidget<UDTC>,
         jisticTC: Vyhovuje<UDTC>,
         jisticVJ: Vyhovuje<UDTC>,
         vzdalenostZdi: Vyhovuje<UDTC>,
-        kondenzator: Zaskrtavatkova<UDTC>,
-        filtr: Zaskrtavatkova<UDTC>,
+        kondenzator: CheckboxWidget<UDTC>,
+        filtr: CheckboxWidget<UDTC>,
     },
     nadrze: {
-        nadpis: Nadpisova<UDTC>,
-        akumulacka: Pisatkova<UDTC>,
-        zasobnik: Pisatkova<UDTC>,
+        nadpis: TitleWidget<UDTC>,
+        akumulacka: InputWidget<UDTC>,
+        zasobnik: InputWidget<UDTC>,
     },
     os: {
-        nadpis: Nadpisova<UDTC>,
-        tvori: Vybiratkova<UDTC>,
-        popis: Pisatkova<UDTC>,
-        dzTop: Zaskrtavatkova<UDTC>,
-        typDzTop: Pisatkova<UDTC>,
-        tcTv: Zaskrtavatkova<UDTC>,
-        zTv: Pisatkova<UDTC>,
+        nadpis: TitleWidget<UDTC>,
+        tvori: ChooserWidget<UDTC>,
+        popis: InputWidget<UDTC>,
+        dzTop: CheckboxWidget<UDTC>,
+        typDzTop: InputWidget<UDTC>,
+        tcTv: CheckboxWidget<UDTC>,
+        zTv: InputWidget<UDTC>,
         objemEnOs: Vyhovuje<UDTC>,
-        bazenTc: Zaskrtavatkova<UDTC>,
+        bazenTc: CheckboxWidget<UDTC>,
     },
     reg: {
-        nadpis: Nadpisova<UDTC>,
-        pripojeniKInternetu: Vybiratkova<UDTC>,
-        pospojeni: Zaskrtavatkova<UDTC>,
-        spotrebice: Zaskrtavatkova<UDTC>,
-        zalZdroj: Zaskrtavatkova<UDTC>,
+        nadpis: TitleWidget<UDTC>,
+        pripojeniKInternetu: ChooserWidget<UDTC>,
+        pospojeni: CheckboxWidget<UDTC>,
+        spotrebice: CheckboxWidget<UDTC>,
+        zalZdroj: CheckboxWidget<UDTC>,
     },
     primar: {
-        nadpis: Nadpisova<UDTC>,
-        typ: Vybiratkova<UDTC>,
-        popis: Pisatkova<UDTC>,
-        nemrz: Pisatkova<UDTC>
-        nadoba: Vybiratkova<UDTC>,
-        kontrola: Zaskrtavatkova<UDTC>,
+        nadpis: TitleWidget<UDTC>,
+        typ: ChooserWidget<UDTC>,
+        popis: InputWidget<UDTC>,
+        nemrz: InputWidget<UDTC>
+        nadoba: ChooserWidget<UDTC>,
+        kontrola: CheckboxWidget<UDTC>,
     },
     uvadeni: {
-        nadpis: Nadpisova<UDTC>,
-        tc: Zaskrtavatkova<UDTC>,
-        reg: Zaskrtavatkova<UDTC>,
-        vlastnik: Zaskrtavatkova<UDTC>,
-        typZaruky: Vybiratkova<UDTC>,
-        zaruka: Zaskrtavatkova<UDTC>,
-        date: Pisatkova<UDTC>,
+        nadpis: TitleWidget<UDTC>,
+        tc: CheckboxWidget<UDTC>,
+        reg: CheckboxWidget<UDTC>,
+        vlastnik: CheckboxWidget<UDTC>,
+        typZaruky: ChooserWidget<UDTC>,
+        zaruka: CheckboxWidget<UDTC>,
+        date: InputWidget<UDTC>,
     },
 }
 
 export const defaultUvedeniTC = (): UvedeniTC => ({
     tc: {
-        nadpis: new Nadpisova({ nazev: `heatPump` }),
-        jisticTC: new Vyhovuje({ nazev: `characteristicsAndSizeOfHeatPumpBreaker` }),
-        jisticVJ: new Vyhovuje({ zobrazit: d => d.evidence.ir.typ.first!.includes('BOX'), nazev: `characteristicsAndSizeOfIndoorUnitBreaker` }),
-        vzdalenostZdi: new Vyhovuje({ nazev: `distanceFromWall`, zobrazit: d => d.evidence.tc.typ == `airToWater` }),
-        kondenzator: new Zaskrtavatkova({
+        nadpis: new TitleWidget({ label: `heatPump` }),
+        jisticTC: new Vyhovuje({ label: `characteristicsAndSizeOfHeatPumpBreaker` }),
+        jisticVJ: new Vyhovuje({ show: d => d.evidence.ir.typ.first!.includes('BOX'), label: `characteristicsAndSizeOfIndoorUnitBreaker` }),
+        vzdalenostZdi: new Vyhovuje({ label: `distanceFromWall`, show: d => d.evidence.tc.typ == `airToWater` }),
+        kondenzator: new CheckboxWidget({
             required: false,
-            nazev: `isCompensatorInstalled`,
-            zobrazit: d => d.evidence.tc.typ == `airToWater`,
+            label: `isCompensatorInstalled`,
+            show: d => d.evidence.tc.typ == `airToWater`,
         }),
-        filtr: new Zaskrtavatkova({ required: false, nazev: `isCirculationPumpFilterInstalled` }),
+        filtr: new CheckboxWidget({ required: false, label: `isCirculationPumpFilterInstalled` }),
     },
     nadrze: {
-        nadpis: new Nadpisova({ nazev: `tanks` }),
-        akumulacka: new Pisatkova({ nazev: `typeOfAccumulationTank`, required: false }),
-        zasobnik: new Pisatkova({ nazev: `typeOfStorageTank`, required: false }),
+        nadpis: new TitleWidget({ label: `tanks` }),
+        akumulacka: new InputWidget({ label: `typeOfAccumulationTank`, required: false }),
+        zasobnik: new InputWidget({ label: `typeOfStorageTank`, required: false }),
     },
     os: {
-        nadpis: new Nadpisova({ nazev: `heatingSystem` }),
-        tvori: new Vybiratkova({
-            nazev: `heatingSystemConsistsOf`, moznosti: [
+        nadpis: new TitleWidget({ label: `heatingSystem` }),
+        tvori: new ChooserWidget({
+            label: `heatingSystemConsistsOf`, options: [
                 `radiators`,
                 `underfloorHeating`,
                 `combinationHeating`,
                 `otherHeatingSystem`,
             ],
         }),
-        popis: new Pisatkova({
-            nazev: `heatingSystemDescription`,
-            zobrazit: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
+        popis: new InputWidget({
+            label: `heatingSystemDescription`,
+            show: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
             required: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
         }),
-        dzTop: new Zaskrtavatkova({ required: false, nazev: `isAdditionalHeatingSourceConnected` }),
-        typDzTop: new Pisatkova({
-            nazev: `typeAndPowerOfAdditionalHeatingSource`,
-            zobrazit: d => d.uvedeni.os.dzTop.value,
+        dzTop: new CheckboxWidget({ required: false, label: `isAdditionalHeatingSourceConnected` }),
+        typDzTop: new InputWidget({
+            label: `typeAndPowerOfAdditionalHeatingSource`,
+            show: d => d.uvedeni.os.dzTop.value,
             required: d => d.uvedeni.os.dzTop.value
         }),
-        tcTv: new Zaskrtavatkova({ required: false, nazev: `doesHeatPumpPrepareHotWater` }),
-        zTv: new Pisatkova(
-            { nazev: d => d.uvedeni.os.tcTv.value ? `additionalHotWaterSource` : `mainHotWaterSource`, required: d => !d.uvedeni.os.tcTv.value }),
-        objemEnOs: new Vyhovuje({ nazev: `volumeOfExpansionTank` }),
-        bazenTc: new Zaskrtavatkova({ required: false, nazev: `isPoolHeatingManagedByHeatPump` }),
+        tcTv: new CheckboxWidget({ required: false, label: `doesHeatPumpPrepareHotWater` }),
+        zTv: new InputWidget(
+            { label: d => d.uvedeni.os.tcTv.value ? `additionalHotWaterSource` : `mainHotWaterSource`, required: d => !d.uvedeni.os.tcTv.value }),
+        objemEnOs: new Vyhovuje({ label: `volumeOfExpansionTank` }),
+        bazenTc: new CheckboxWidget({ required: false, label: `isPoolHeatingManagedByHeatPump` }),
     },
     reg: {
-        nadpis: new Nadpisova({ nazev: `controlAndElectricalInstallation` }),
-        pripojeniKInternetu: new Vybiratkova({
-            nazev: `internetConnection`, moznosti: [
+        nadpis: new TitleWidget({ label: `controlAndElectricalInstallation` }),
+        pripojeniKInternetu: new ChooserWidget({
+            label: `internetConnection`, options: [
                 `connectedViaRegulusRoute`,
                 `connectedWithPublicIpAddress`,
                 `notConnected`,
             ],
         }),
-        pospojeni: new Zaskrtavatkova({ required: false, nazev: `isElectricalBondingComplete` }),
-        spotrebice: new Zaskrtavatkova({ required: false, nazev: `areElectricalDevicesTested` }),
-        zalZdroj: new Zaskrtavatkova({
+        pospojeni: new CheckboxWidget({ required: false, label: `isElectricalBondingComplete` }),
+        spotrebice: new CheckboxWidget({ required: false, label: `areElectricalDevicesTested` }),
+        zalZdroj: new CheckboxWidget({
             required: false,
-            nazev: `isBackupPowerSourceInstalled`,
-            zobrazit: d => d.evidence.tc.typ == `airToWater`,
+            label: `isBackupPowerSourceInstalled`,
+            show: d => d.evidence.tc.typ == `airToWater`,
         }),
     },
     primar: {
-        nadpis: new Nadpisova({
-            nazev: `primaryCircuit`,
-            zobrazit: d => d.evidence.tc.typ == 'groundToWater',
+        nadpis: new TitleWidget({
+            label: `primaryCircuit`,
+            show: d => d.evidence.tc.typ == 'groundToWater',
         }),
-        typ: new Vybiratkova({
-            nazev: `typeOfPrimaryCircuit`,
-            moznosti: [
+        typ: new ChooserWidget({
+            label: `typeOfPrimaryCircuit`,
+            options: [
                 `groundBoreholes`,
                 `surfaceCollector`,
                 `otherCollector`,
             ],
-            zobrazit: d => d.evidence.tc.typ == 'groundToWater',
+            show: d => d.evidence.tc.typ == 'groundToWater',
             required: d => d.evidence.tc.typ == 'groundToWater',
         }),
-        popis: new Pisatkova({
-            nazev: d => {
+        popis: new InputWidget({
+            label: d => {
                 switch (d.uvedeni.primar.typ.value) {
                     case (`groundBoreholes`):
                         return `numberAndDepthOfBoreholes`;
@@ -166,39 +166,39 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
                         return `collectorDescription`;
                 }
             },
-            zobrazit: d => d.evidence.tc.typ == 'groundToWater',
+            show: d => d.evidence.tc.typ == 'groundToWater',
             required: d => d.evidence.tc.typ == 'groundToWater' && d.uvedeni.primar.typ.value != null,
         }),
-        nemrz: new Pisatkova({
-            nazev: `typeOfAntifreezeMixture`,
-            zobrazit: d => d.evidence.tc.typ == 'groundToWater',
+        nemrz: new InputWidget({
+            label: `typeOfAntifreezeMixture`,
+            show: d => d.evidence.tc.typ == 'groundToWater',
             required: d => d.evidence.tc.typ == 'groundToWater',
         }),
-        nadoba: new Vybiratkova({
-            nazev: `onPrimaryCircuitInstalled`,
-            moznosti: [`expansionTankInstalled`, `bufferTankInstalled`],
-            zobrazit: d => d.evidence.tc.typ == 'groundToWater',
+        nadoba: new ChooserWidget({
+            label: `onPrimaryCircuitInstalled`,
+            options: [`expansionTankInstalled`, `bufferTankInstalled`],
+            show: d => d.evidence.tc.typ == 'groundToWater',
             required: d => d.evidence.tc.typ == 'groundToWater',
         }),
-        kontrola: new Zaskrtavatkova({
+        kontrola: new CheckboxWidget({
             required: false,
-            nazev: `wasPrimaryCircuitTested`,
-            zobrazit: d => d.evidence.tc.typ == 'groundToWater',
+            label: `wasPrimaryCircuitTested`,
+            show: d => d.evidence.tc.typ == 'groundToWater',
         }),
     },
     uvadeni: {
-        nadpis: new Nadpisova({ nazev: `commissioningSteps` }),
-        tc: new Zaskrtavatkova({ required: false, nazev: `wasInstallationAccordingToManual` }),
-        reg: new Zaskrtavatkova({ required: false, nazev: `wasControllerSetToParameters` }),
-        vlastnik: new Zaskrtavatkova({ required: false, nazev: `wasOwnerFamiliarizedWithFunction` }),
-        typZaruky: new Vybiratkova({
-            nazev: `isExtendedWarrantyDesired`, moznosti: [`no`, `yes`]
+        nadpis: new TitleWidget({ label: `commissioningSteps` }),
+        tc: new CheckboxWidget({ required: false, label: `wasInstallationAccordingToManual` }),
+        reg: new CheckboxWidget({ required: false, label: `wasControllerSetToParameters` }),
+        vlastnik: new CheckboxWidget({ required: false, label: `wasOwnerFamiliarizedWithFunction` }),
+        typZaruky: new ChooserWidget({
+            label: `isExtendedWarrantyDesired`, options: [`no`, `yes`]
         }),
-        zaruka: new Zaskrtavatkova({
-            required: false, nazev: `isInstallationInWarrantyConditions`,
-            zobrazit: d => d.uvedeni.uvadeni.typZaruky.value == 'yes'
+        zaruka: new CheckboxWidget({
+            required: false, label: `isInstallationInWarrantyConditions`,
+            show: d => d.uvedeni.uvadeni.typZaruky.value == 'yes'
         }),
-        date: new Pisatkova({ nazev: 'dateOfCommission', type: 'date', text: (new Date()).toISOString().split('T')[0] }),
+        date: new InputWidget({ label: 'dateOfCommission', type: 'date', text: (new Date()).toISOString().split('T')[0] }),
     },
 });
 

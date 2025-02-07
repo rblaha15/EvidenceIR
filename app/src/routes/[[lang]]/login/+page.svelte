@@ -7,6 +7,7 @@
 	import { type Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
 	import { setTitle } from '$lib/helpers/title.svelte';
+	import { startTechniciansListening } from '$lib/client/realtime';
 
 	const t: Translations = page.data.translations;
 
@@ -15,7 +16,10 @@
 	let email = $state(browser ? page.url.searchParams.get('email') ?? '' : '');
 	let password = $state('');
 	let redirect = $state('/new');
-	onMount(() => (redirect = page.url.searchParams.get('redirect') ?? '/new'));
+	onMount(() => {
+		startTechniciansListening()
+		redirect = page.url.searchParams.get('redirect') ?? '/new'
+	});
 
 	let signUpLink = $derived(relUrl(
 		`/signup?email=${email}&redirect=${redirect}`

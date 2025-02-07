@@ -14,9 +14,9 @@
     import { solarCollectorCommission, type UvedeniSOL } from '$lib/forms/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { celyNazevIR } from '$lib/helpers/ir';
-    import Pisatko from '$lib/components/veci/Pisatko.svelte';
-    import Vybiratko from '$lib/components/veci/Vybiratko.svelte';
-    import { p, Pisatkova, Vybiratkova } from '$lib/Vec.svelte';
+    import Input from '$lib/components/widgets/Input.svelte';
+    import Chooser from '$lib/components/widgets/Chooser.svelte';
+    import { p, InputWidget, ChooserWidget } from '$lib/Vec.svelte';
     import type { Raw } from '$lib/forms/Form';
 
     interface Props {
@@ -74,7 +74,7 @@
 
     let change: 'no' | 'input' | 'sending' | 'fail' = $state('no');
 
-    let irNumber = $state(new Pisatkova({
+    let irNumber = $state(new InputWidget({
         nazev: `newSerialNumber`, onError: `wrongNumberFormat`,
         regex: /([A-Z][1-9OND]) ([0-9]{4})/, capitalize: true,
         maskOptions: {
@@ -85,9 +85,9 @@
             }
         },
     }));
-    let irType = $state(new Vybiratkova({
+    let irType = $state(new ChooserWidget({
         nazev: `controllerType`,
-        moznosti: [p`IR RegulusBOX`, p`IR RegulusHBOX`, p`IR RegulusHBOXK`, p`IR 14`, p`IR 12`],
+        options: [p`IR RegulusBOX`, p`IR RegulusHBOX`, p`IR RegulusHBOXK`, p`IR 14`, p`IR 12`],
     }));
 
     $effect(() => {
@@ -97,9 +97,9 @@
     });
 
     const changeController = async () => {
-        irNumber.zobrazitErrorVeto = true;
-        irType.zobrazitErrorVeto = true;
-        if (irNumber.zobrazitError(undefined) || irType.zobrazitError(undefined)) return;
+        irNumber.displayErrorVeto = true;
+        irType.displayErrorVeto = true;
+        if (irNumber.showError(undefined) || irType.showError(undefined)) return;
         const newNumber = irNumber.value;
         const newType = irType.value;
         change = 'sending';
@@ -242,8 +242,8 @@
         >
     {:else if change === 'input'}
         <div class="mt-2">
-            <Pisatko bind:vec={irNumber} data={undefined} {t} />
-            <Vybiratko bind:vec={irType} data={undefined} {t} />
+            <Input bind:vec={irNumber} data={undefined} {t} />
+            <Chooser bind:vec={irType} data={undefined} {t} />
             <div class="btn-group">
                 <button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
                 <button class="btn btn-outline-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>

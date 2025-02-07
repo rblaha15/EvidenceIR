@@ -1,15 +1,15 @@
 import type { Data } from '$lib/forms/Data';
 import {
-    DvojVybiratkova,
-    MultiZaskrtavatkova,
-    Pisatkova,
-    Pocitatkova,
-    Prepinatkova,
-    Radiova,
+    DoubleChooserWidget,
+    MultiCheckboxWidget,
+    InputWidget,
+    CounterWidget,
+    SwitchWidget,
+    RadioWidget,
     SearchWidget,
-    type Vec,
-    Vybiratkova,
-    Zaskrtavatkova
+    type Widget,
+    ChooserWidget,
+    CheckboxWidget
 } from '$lib/Vec.svelte';
 import type { Translations } from '$lib/translations';
 import type { Form } from '$lib/forms/Form';
@@ -17,22 +17,22 @@ import type { Form } from '$lib/forms/Form';
 const camelToSnakeCase = (str: string) =>
     str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
-const widgetToXML = (v: Vec<Data, unknown>, t: Translations) => {
-    if (v instanceof Pisatkova)
+const widgetToXML = (v: Widget<Data, unknown>, t: Translations) => {
+    if (v instanceof InputWidget)
         return v.value;
-    if (v instanceof DvojVybiratkova)
+    if (v instanceof DoubleChooserWidget)
         return `${t.get(v.value.first) ?? ''} ${t.get(v.value.second) ?? ''}`;
-    if (v instanceof Vybiratkova)
+    if (v instanceof ChooserWidget)
         return t.get(v.value) ?? '';
-    if (v instanceof Radiova)
+    if (v instanceof RadioWidget)
         return t.get(v.value) ?? '';
-    if (v instanceof Prepinatkova)
-        return t.get(v.value ? v.moznosti[1] : v.moznosti[0]);
-    if (v instanceof MultiZaskrtavatkova)
+    if (v instanceof SwitchWidget)
+        return t.get(v.value ? v.options[1] : v.options[0]);
+    if (v instanceof MultiCheckboxWidget)
         return v.value.map(s => t.get(s)).join(', ');
-    if (v instanceof Zaskrtavatkova)
+    if (v instanceof CheckboxWidget)
         return v.value ? t.yes : t.no;
-    if (v instanceof Pocitatkova)
+    if (v instanceof CounterWidget)
         return v.value.toLocaleString('cs');
     if (v instanceof SearchWidget)
         return v.getXmlEntry();
@@ -51,7 +51,7 @@ Verze dokumentu: 1.1
 ${Object.entries(data as Form<Data>).map(([k1, section]) =>
     `    <${camelToSnakeCase(k1)}>
 ${Object.entries(section).filter(([, v]) =>
-        v.showText(data) && v.value != undefined
+        v.showTextValue(data) && v.value != undefined
     ).map(([k2, v]) =>
         `        <${camelToSnakeCase(k2)}>${
             widgetToXML(v, t)

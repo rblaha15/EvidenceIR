@@ -2,28 +2,28 @@
     import { onMount } from 'svelte';
     import type { Action } from 'svelte/action';
     import type { TranslationReference, Translations } from '$lib/translations';
-    import { type DvojVybiratkova, nazevSHvezdou } from '$lib/Vec.svelte';
+    import { type DoubleChooserWidget, nazevSHvezdou } from '$lib/Vec.svelte';
 
     interface Props {
         t: Translations;
-        vec: DvojVybiratkova<D>;
+        widget: DoubleChooserWidget<D>;
         data: D;
     }
 
-    let { t, vec = $bindable(), data }: Props = $props();
+    let { t, widget = $bindable(), data }: Props = $props();
 
     const onChange1 = (
         e: Event & {
             currentTarget: HTMLSelectElement;
         }
     ) => {
-        vec.value.first = e.currentTarget.value as TranslationReference;
+        widget.value.first = e.currentTarget.value as TranslationReference;
     };
     const onChange2 = (
         e: Event & {
             currentTarget: HTMLSelectElement;
         }
-    ) => (vec.value.second = e.currentTarget.value as TranslationReference);
+    ) => (widget.value.second = e.currentTarget.value as TranslationReference);
 
     let mounted = false;
     onMount(() => (mounted = true));
@@ -32,36 +32,36 @@
     };
 </script>
 
-{#if vec.zobrazit(data)}
+{#if widget.show(data)}
     <div class="input-group mb-3">
         <label class="form-floating d-block left">
-            <select class="form-select" value={vec.value.first ?? 'notChosen'}
-                    disabled={vec.lock1(data)} onchange={onChange1}>
+            <select class="form-select" value={widget.value.first ?? 'notChosen'}
+                    disabled={widget.lock1(data)} onchange={onChange1}>
                 <option class="d-none" value="notChosen">{t.notChosen}</option>
-                {#each vec.moznosti1(data) as moznost}
+                {#each widget.options1(data) as moznost}
                     <option value={moznost}>{t.get(moznost)}</option>
                 {/each}
             </select>
-            <label for="">{nazevSHvezdou(vec, data, t)}</label>
+            <label for="">{nazevSHvezdou(widget, data, t)}</label>
         </label>
-        {#if vec.value.first != null}
+        {#if widget.value.first != null}
             <select
                 class="form-select right"
-                id={nazevSHvezdou(vec, data, t)}
-                value={vec.value.second ?? 'notChosen'}
-                disabled={vec.moznosti2(data).length < 2 || vec.lock2(data)}
+                id={nazevSHvezdou(widget, data, t)}
+                value={widget.value.second ?? 'notChosen'}
+                disabled={widget.options2(data).length < 2 || widget.lock2(data)}
                 onchange={onChange2}
                 use:Select
             >
                 <option class="d-none" value="notChosen">{t.notChosen}</option>
-                {#each vec.moznosti2(data) as moznost}
+                {#each widget.options2(data) as moznost}
                     <option value={moznost}>{t.get(moznost)}</option>
                 {/each}
             </select>
         {/if}
     </div>
-    {#if vec.zobrazitError(data)}
-        <p class="text-danger">{t.get(vec.onError(data))}</p>
+    {#if widget.showError(data)}
+        <p class="text-danger">{t.get(widget.onError(data))}</p>
     {/if}
 {/if}
 

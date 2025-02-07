@@ -4,7 +4,7 @@
     import { evidence as getEvidence } from '$lib/client/firestore';
     import { onMount } from 'svelte';
     import { derived as derivedStore } from 'svelte/store';
-    import VecComponent from '$lib/components/Vec.svelte';
+    import WidgetComponent from '$lib/components/Widget.svelte';
     import type { Data } from '$lib/forms/Data';
     import { getToken } from '$lib/client/auth';
     import { detailUrl, storable } from '$lib/helpers/stores';
@@ -71,12 +71,12 @@
         const raw = dataToRawData(f);
         if (
             list.some((it) => {
-                if (it.zpravaJeChybna(d)) console.log(it);
-                return it.zpravaJeChybna(d);
+                if (it.isError(d)) console.log(it);
+                return it.isError(d);
             })
         ) {
             for (const i in list) {
-                list[i].zobrazitErrorVeto = true;
+                list[i].displayErrorVeto = true;
             }
             vysledek = {
                 red: true,
@@ -124,7 +124,7 @@
         <h3>{t.get(subtitle(mode === 'edit', t))}</h3>
     {/if}
     {#each list as _, i}
-        <VecComponent bind:vec={list[i]} {t} data={d} />
+        <WidgetComponent bind:widget={list[i]} {t} data={d} />
     {/each}
     <div class="d-inline-flex align-content-center">
         {#if !vysledek.load}

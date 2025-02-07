@@ -38,7 +38,7 @@ ${t.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}
         const start =
             1 + // Indexujeme od 1
             1 + // Text1
-            (Number(rok) - 1) * array.length + // veci v každém roce
+            (Number(rok) - 1) * array.length + // widgets v každém roce
             (rok == 1 ? 0 : 3); // tlaky v roce 1
 
         return array.map((v, i) => [
