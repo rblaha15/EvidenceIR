@@ -20,43 +20,36 @@ export const pdfInfo: PdfInfo = {
         formName: 'check',
         supportedLanguages: ['cs', 'de'],
         title: `yearlyCheckTitle`,
-        fileName: `yearlyCheckFileName`,
     },
     warranty: {
         formName: 'warranty',
         supportedLanguages: ['cs', 'de'],
         title: `hpWarranty`,
-        fileName: `warrantyFileName`,
     },
     rroute: {
         formName: 'rroute',
         supportedLanguages: ['cs', 'de'],
         title: `regulusRouteTitle`,
-        fileName: `regulusRouteFileName`,
     },
     guide: {
         formName: 'guide',
         supportedLanguages: ['cs'],
         title: p`Návod na přístup do regulátoru IR`,
-        fileName: p`Návod IR.pdf`,
     },
     heatPumpCommissionProtocol: {
         formName: 'heatPumpCommissionProtocol',
         supportedLanguages: ['cs', 'de'],
         title: p`Protokol o uvedení tepelného čerpadla do trvalého provozu`,
-        fileName: p`Protokol uvedení TČ.pdf`,
     },
     solarCollectorCommissionProtocol: {
         formName: 'solarCollectorCommissionProtocol',
         supportedLanguages: ['cs'],
         title: p`Protokol o uvedení solárního systému do trvalého provozu`,
-        fileName: p`Protokol uvedení SOL.pdf`,
     },
     installationProtocol: {
         formName: 'installationProtocol',
         supportedLanguages: ['cs'],
         title: p`Instalační a servisní protokol`,
-        fileName: p`SP.pdf`,
         requiredRegulus: true,
     },
 };
@@ -64,7 +57,6 @@ export type PdfArgs = {
     formName: string;
     supportedLanguages: LanguageCode[];
     title: TranslationReference;
-    fileName: TranslationReference;
     saveOptions?: SaveOptions;
     requiredAdmin?: boolean;
     requiredRegulus?: boolean;

@@ -7,7 +7,7 @@ const solarCollectorCommissionProtocol: GetPdfData = async ({ evidence: e, uvede
     const u = uvedeniSOL!;
 
     return {
-        fileName: `${e.ir.cislo} Protokol uvedení SOL.pdf`,
+        fileName: `Protokol uvedení SOL.pdf`,
 /*    koncakJmeno */ Text1: jmenoUzivatele(e.koncovyUzivatel),
 /*      koncakTel */ Text2: e.koncovyUzivatel.telefon,
 /*    koncakEmail */ Text3: e.koncovyUzivatel.email,
