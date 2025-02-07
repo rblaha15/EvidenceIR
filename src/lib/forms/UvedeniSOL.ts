@@ -101,5 +101,5 @@ export const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL> = ({
     pdfLink: 'solarCollectorCommissionProtocol',
     saveData: (irid, raw) => uvestSOLDoProvozu(irid, raw),
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence }),
-    title: `commissioning`,
+    title: () => `commissioning`,
 });

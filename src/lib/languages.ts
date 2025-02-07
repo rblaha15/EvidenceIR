@@ -3,7 +3,7 @@ import { storable } from './helpers/stores'
 
 export const languageCodes = ["cs", "en", "de"/* , "sk" */] as const
 
-export const isLanguageCode = (code: unknown): code is LanguageCode => languageCodes.includes(code)
+export const isLanguageCode = (code: unknown): code is LanguageCode => (languageCodes as readonly unknown[]).includes(code)
 
 export const asLanguageCodeOrNull = (code: unknown): LanguageCode | null =>
     isLanguageCode(code) ? code : null

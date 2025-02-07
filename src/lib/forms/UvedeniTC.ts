@@ -208,5 +208,5 @@ export const heatPumpCommission: FormInfo<UDTC, UvedeniTC> = ({
     pdfLink: 'heatPumpCommissionProtocol',
     saveData: (irid, raw) => uvestTCDoProvozu(irid, raw),
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence }),
-    title: `commissioning`,
+    title: () => `commissioning`,
 });

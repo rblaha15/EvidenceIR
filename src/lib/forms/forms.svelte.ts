@@ -5,10 +5,11 @@ import type { Readable } from 'svelte/store';
 import { sp } from '$lib/forms/SP.svelte';
 import { heatPumpCommission } from '$lib/forms/UvedeniTC';
 import type { Pdf } from '$lib/client/pdf';
-import type { TranslationReference } from '$lib/translations';
+import type { TranslationReference, Translations } from '$lib/translations';
 import { solarCollectorCommission } from '$lib/forms/UvedeniSOL';
+import { check } from '$lib/forms/Kontrola.svelte';
 
-export type FormName = 'sp' | 'heatPumpCommission' | 'solarCollectorCommission'
+export type FormName = 'sp' | 'heatPumpCommission' | 'solarCollectorCommission' | 'check'
 
 export type Effect<
     F, S extends unknown[]
@@ -23,10 +24,10 @@ export type FormInfo<D, F extends Form<D> = Form<D>, S extends unknown[][] = []>
     pdfLink: Pdf;
     saveData: (irid: IRID, raw: Raw<F>, edit: boolean) => Promise<void>;
     createWidgetData: (evidence: Raw<Data>, data: F) => D;
-    title: TranslationReference;
+    title: (edit: boolean, t: Translations) => TranslationReference;
+    subtitle?: ((edit: boolean, t: Translations) => TranslationReference) | undefined;
     getEditData?: ((ir: IR) => Raw<F> | undefined) | undefined;
-    editTitle?: TranslationReference;
-    onMount?: () => Promise<void> | undefined;
+    onMount?: (data: F) => Promise<void> | undefined;
     storeEffects?: { [I in keyof S]: Effect<F, S[I]> } | undefined;
     requiredAdmin?: boolean | undefined;
     requiredRegulus?: boolean | undefined;
@@ -37,4 +38,5 @@ export const formInfo: { [F in FormName]: FormInfo<any, any, any> } = {
     sp,
     heatPumpCommission,
     solarCollectorCommission,
+    check,
 };
