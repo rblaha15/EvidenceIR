@@ -7,6 +7,7 @@ import { upravitServisniProtokol, vyplnitServisniProtokol } from '$lib/client/fi
 import { currentUser } from '$lib/client/auth';
 import { type FormInfo } from './forms.svelte.js';
 import type { User } from 'firebase/auth';
+import { nowISO } from '$lib/helpers/date';
 
 export type UDSP = {
     protokol: DataSP,
@@ -130,11 +131,14 @@ export const sp = (() => {
             ? upravitServisniProtokol(irid, i, raw)
             : vyplnitServisniProtokol(irid, raw),
         createWidgetData: (evidence, protokol) => ({ evidence, protokol }),
-        title: p`Instalační a servisní protokol`,
-        editTitle: p`Editace SP`,
-        onMount: async () => {
+        title: edit => edit
+            ? p`Editace SP`
+            : p`Instalační a servisní protokol`,
+        onMount: async p => {
             await startTechniciansListening();
             await startSparePartsListening();
+            if (!p.zasah.datum.value)
+                p.zasah.datum.value = nowISO()
         },
         storeEffects: [
             [(p, [$techniciansList, $currentUser]) => {

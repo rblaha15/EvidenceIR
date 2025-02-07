@@ -56,6 +56,11 @@ interface Object {
     ): {
         [K in keyof T | keyof U]: [T[K], U[K]]
     };
+
+    omit<T extends Record<PropertyKey, unknown>, K extends keyof T>(
+        this: T,
+        ...keys: K[]
+    ): Omit<T, K>;
 }
 
 Object.defineProperties(Object.prototype, {
@@ -68,6 +73,7 @@ Object.defineProperties(Object.prototype, {
     getValues: { writable: true },
     keys: { writable: true },
     zip: { writable: true },
+    omit: { writable: true },
 });
 
 Object.prototype.entries = <typeof Object.prototype.entries> function() {
@@ -124,6 +130,13 @@ Object.prototype.filterValues = function<T extends Record<PropertyKey, unknown>>
 Object.prototype.zip = <typeof Object.prototype.zip> function(other) {
     const keys = [...this.keys(), ...other.keys()];
     return keys.map(key => [key, [this[key], other[key]]] as [PropertyKey, unknown[]]).toRecord();
+};
+
+Object.prototype.omit = function<T extends Record<PropertyKey, unknown>, K extends keyof T>(
+    this: T,
+    ...keys: K[]
+): Omit<T, K> {
+    return this.filterValues(key => !(keys as (keyof T)[]).includes(key));
 };
 
 Object.recursiveKeys = (o: Record<string, unknown>): string[] =>

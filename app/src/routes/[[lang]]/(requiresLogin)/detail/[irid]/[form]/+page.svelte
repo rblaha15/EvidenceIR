@@ -24,10 +24,10 @@
         saveData,
         createWidgetData,
         title,
-        editTitle,
         onMount: mountEffect,
         storeEffects,
         getEditData,
+        subtitle,
     } = formInfo[formName] as FormInfo<D, F, S>;
 
     const storedData = storable<Raw<F>>(`${storeName}_${(irid)}`);
@@ -36,8 +36,6 @@
     let f: F = $state(defaultData());
     let evidence = $state() as Raw<Data>;
     onMount(async () => {
-        await mountEffect?.();
-
         const snapshot = await getEvidence(irid);
         if (snapshot.exists()) {
             const ir = snapshot.data();
@@ -52,6 +50,8 @@
                 mode = 'create';
             }
         }
+
+        await mountEffect?.(f);
 
         storeEffects?.forEach(([callback, stores]) => {
             derivedStore(stores, values => values).subscribe(values => callback(f, values));
@@ -119,7 +119,10 @@
 </script>
 
 {#if mode !== 'loading'}
-    <FormHeader store={storedData} {t} title={mode === 'edit' && editTitle ? t.get(editTitle) : t.get(title)} />
+    <FormHeader store={storedData} {t} title={t.get(title(mode === 'edit', t))} />
+    {#if subtitle}
+        <h3>{t.get(subtitle(mode === 'edit', t))}</h3>
+    {/if}
     {#each list as _, i}
         <VecComponent bind:vec={list[i]} {t} data={d} />
     {/each}

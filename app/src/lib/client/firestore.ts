@@ -16,7 +16,7 @@ import {
 } from 'firebase/firestore';
 import type { Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
-import type { Kontrola } from '$lib/Kontrola';
+import type { Kontrola } from '$lib/forms/Kontrola.svelte';
 import type { UvedeniTC } from '$lib/forms/UvedeniTC';
 import { get, readonly, writable } from 'svelte/store';
 import { checkRegulusOrAdmin, currentUser } from './auth';
@@ -50,10 +50,10 @@ export type IR = {
     uvedeniTC?: Raw<UvedeniTC>;
     uvedeniSOL?: Raw<UvedeniSOL>;
     kontroly: {
-        1?: Kontrola;
-        2?: Kontrola;
-        3?: Kontrola;
-        4?: Kontrola;
+        1?: Raw<Kontrola>;
+        2?: Raw<Kontrola>;
+        3?: Raw<Kontrola>;
+        4?: Raw<Kontrola>;
     };
     users: string[];
     installationProtocols: Raw<DataSP>[];
@@ -72,12 +72,12 @@ export type LegacyIR = {
     };
     uvedeniTC?: Raw<UvedeniTC> & {
         uvadeni: {
-            typZaruky: null | TranslationReference | 'extendedWarranty10Years' | 'extendedWarranty7Years'
+            typZaruky: null | string
         };
     };
 };
 
-const changeHPWarranty: Migration = (legacyIR: LegacyIR & IR) => {
+const changeHPWarranty: Migration = (legacyIR: LegacyIR & IR): LegacyIR & IR => {
     if (!legacyIR.uvedeniTC) return legacyIR;
     if (!legacyIR.uvedeniTC.uvadeni.typZaruky!.includes('extended')) return legacyIR;
     legacyIR.uvedeniTC.uvadeni.typZaruky =
@@ -100,7 +100,7 @@ const addUserType: Migration = (legacyIR: LegacyIR & IR) => {
     return legacyIR;
 };
 const removeUvedeni: Migration = (legacyIR: LegacyIR & IR) =>
-    legacyIR.uvedeni ? { uvedeniTC: legacyIR.uvedeni, ...legacyIR, uvedeni: undefined } : legacyIR;
+    legacyIR.uvedeni ? <LegacyIR & IR>{ uvedeniTC: legacyIR.uvedeni, ...legacyIR, uvedeni: undefined } : legacyIR;
 const removeInstallationProtocol: Migration = (legacyIR: LegacyIR & IR) =>
     legacyIR.installationProtocol ? { ...legacyIR, installationProtocols: [legacyIR.installationProtocol], installationProtocol: undefined } : legacyIR;
 
@@ -136,14 +136,7 @@ export const existuje = async (irid: IRID) => {
     }
 };
 
-export const posledniKontrola = async (irid: IRID) => {
-    const snapshot = await getDoc(irDoc(irid));
-    const kontroly = snapshot.data()!.kontroly;
-    if (kontroly?.[1] == undefined) return 0;
-    return Math.max(...Object.keys(kontroly).map((it) => Number(it)));
-};
-
-export const pridatKontrolu = (irid: IRID, rok: number, kontrola: Kontrola) =>
+export const pridatKontrolu = (irid: IRID, rok: number, kontrola: Raw<Kontrola>) =>
     updateDoc(irDoc(irid), `kontroly.${rok}`, kontrola);
 
 export const vyplnitServisniProtokol = async (irid: IRID, protokol: Raw<DataSP>) => {
