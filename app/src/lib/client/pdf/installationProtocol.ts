@@ -60,6 +60,7 @@ const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uv
 
     return {
         fileName: `SP-${technik}-${datum.replace('/', '_')}-${hodina}.pdf`,
+        doNotPrefixFileNameWithIR: true,
 /*             id */ Text1: `${technik} ${datum}-${hodina}`,
 /*    koncakJmeno */ Text2: jmenoUzivatele(e.koncovyUzivatel),
 /* koncakNarozeni */ Text3: e.koncovyUzivatel.typ == 'company'

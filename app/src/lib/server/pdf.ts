@@ -14,6 +14,7 @@ import guide from '$lib/client/pdf/guide';
 import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtocol';
 import solarCollectorCommissionProtocol from '$lib/client/pdf/solarCollectorCommissionProtocol';
 import installationProtocol from '$lib/client/pdf/installationProtocol';
+import { nazevIR } from '$lib/helpers/ir';
 
 type Fetch = typeof fetch;
 
@@ -21,7 +22,8 @@ export type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole'
 export type GetPdfData = (data: IR, t: Translations) => Promise<{
     [fieldName in `${PdfFieldType}${number}`]: (fieldName extends `Zaškrtávací pole${number}` ? boolean : string) | null;
 } & {
-    fileName?: string;
+    fileName: string;
+    doNotPrefixFileNameWithIR?: boolean;
 }>;
 export const getPdfData = (
     link: Pdf,
@@ -34,7 +36,7 @@ export const getPdfData = (
     if (t == 'heatPumpCommissionProtocol') return heatPumpCommissionProtocol;
     if (t == 'solarCollectorCommissionProtocol') return solarCollectorCommissionProtocol;
     if (t == 'installationProtocol') return installationProtocol(Number(link.split('-')[1]));
-    throw 'Invalid link name'
+    throw `Invalid link name: ${t}`
 };
 
 export const generatePdf = async (lang: LanguageCode, irid: IRID, fetch: Fetch, args: PdfArgs, getData: GetPdfData) => {
@@ -64,10 +66,11 @@ export const generatePdf = async (lang: LanguageCode, irid: IRID, fetch: Fetch, 
 
     const formData = await getData(data, t);
 
-    const fileName = formData.fileName ?? t.get(args.fileName);
-    formData.fileName = undefined;
+    const prefixFileNameWithIR = !(formData.doNotPrefixFileNameWithIR ?? false);
+    const prefix = prefixFileNameWithIR ? nazevIR(data.evidence.ir) + ' ' : '';
+    const fileName = prefix + formData.fileName;
 
-    for (const fieldName in formData) {
+    for (const fieldName in formData.omit('fileName', 'doNotPrefixFileNameWithIR')) {
         const name = fieldName as `${PdfFieldType}${number}`
         const type = name.split(/\d+/)[0] as PdfFieldType;
         if (type == 'Text') {

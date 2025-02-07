@@ -23,7 +23,7 @@ const check: GetPdfData = async ({ kontroly: k, evidence: e }, t) => {
     const montazka = await nazevFirmy(e.montazka.ico);
     const { isCascade, pumps } = cascadeDetails(e, t);
     const start = {
-        fileName: `${e.ir.cislo} ${t.yearlyCheckFileName}`,
+        fileName: t.yearlyCheckFileName,
         /*           info */ Text1:
             `${t.endCustomer}: ${jmenoUzivatele(e.koncovyUzivatel)} – ${e.koncovyUzivatel.telefon} – ${e.koncovyUzivatel.email}
 ${t.realizationLocation}: ${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}
