@@ -116,7 +116,7 @@ export const sp = (() => {
     const info: FormInfo<UDSP, DataSP, [[Technician[], User | null], [SparePart[]]]> = {
         storeName: 'stored_sp',
         defaultData: defaultDataSP,
-        pdfLink: `installationProtocol-${i}`,
+        pdfLink: () => `installationProtocol-${i}`,
         getEditData: ir => {
             const editIndex = page.url.searchParams.get('edit') as string | null;
             if (editIndex) {

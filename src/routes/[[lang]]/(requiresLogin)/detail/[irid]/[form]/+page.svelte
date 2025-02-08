@@ -99,7 +99,7 @@
 
         const token = await getToken();
         const newWin = window.open(
-            detailUrl(`/pdf/${pdfLink}?token=${token}`)
+            detailUrl(`/pdf/${pdfLink()}?token=${token}`)
         );
         if (!newWin || newWin.closed) {
             vysledek = {

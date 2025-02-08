@@ -21,7 +21,7 @@ export type Effect<
 export type FormInfo<D, F extends Form<D> = Form<D>, S extends unknown[][] = []> = {
     storeName: string;
     defaultData: () => F;
-    pdfLink: Pdf;
+    pdfLink: () => Pdf;
     saveData: (irid: IRID, raw: Raw<F>, edit: boolean) => Promise<void>;
     createWidgetData: (evidence: Raw<Data>, data: F) => D;
     title: (edit: boolean, t: Translations) => TranslationReference;

@@ -166,7 +166,7 @@ export const check = (() => {
     const info: FormInfo<UDKO, Kontrola> = {
         storeName: 'stored_check',
         defaultData: defaultKontrola,
-        pdfLink: 'check',
+        pdfLink: () => 'check',
         getEditData: ir => {
             rok = posledniKontrola(ir) + 1;
             if (rok != 1) {

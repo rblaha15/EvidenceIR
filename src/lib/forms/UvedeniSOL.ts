@@ -98,7 +98,7 @@ const defaultUvedeniSOL = (): UvedeniSOL => ({
 export const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL> = ({
     storeName: 'stored_solar_collector_commission',
     defaultData: defaultUvedeniSOL,
-    pdfLink: 'solarCollectorCommissionProtocol',
+    pdfLink: () => 'solarCollectorCommissionProtocol',
     saveData: (irid, raw) => uvestSOLDoProvozu(irid, raw),
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence }),
     title: () => `commissioning`,
