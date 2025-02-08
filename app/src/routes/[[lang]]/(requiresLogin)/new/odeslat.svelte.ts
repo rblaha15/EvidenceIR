@@ -11,7 +11,7 @@ import { page } from "$app/state";
 import { relUrl, storable } from "$lib/helpers/stores";
 import { currentUser } from "$lib/client/auth";
 import { getTranslations } from '$lib/translations';
-import { getIsOnline, techniciansList } from '$lib/client/realtime';
+import { getIsOnline } from '$lib/client/realtime';
 import { mount } from "svelte";
 import { generateXML } from '$lib/createXML';
 import { typIR } from '$lib/helpers/ir';

@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
-	import { logIn } from '$lib/client/auth';
+	import { logIn, setName } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import { relUrl } from '$lib/helpers/stores';
 	import { type Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
 	import { setTitle } from '$lib/helpers/title.svelte';
-	import { startTechniciansListening } from '$lib/client/realtime';
+	import { startTechniciansListening, techniciansList } from '$lib/client/realtime';
+	import { get } from 'svelte/store';
 
 	const t: Translations = page.data.translations;
 
@@ -33,8 +34,12 @@
 	function prihlasitSe() {
 		error = '';
 		logIn(email, password)
-			.then(() => (window.location.href = page.url.origin + relUrl(redirect)))
-			.catch((e) => {
+			.then(c => {
+				setName(get(techniciansList).find(t => t.email == c.user.email)?.name).then(() =>
+					window.location.href = page.url.origin + relUrl(redirect)
+				)
+			})
+			.catch(e => {
 				console.log(e.code);
 				if (e.code == 'auth/network-request-failed') {
 					error = t.checkInternet;
