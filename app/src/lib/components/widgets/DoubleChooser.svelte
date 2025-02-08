@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import type { Action } from 'svelte/action';
     import type { TranslationReference, Translations } from '$lib/translations';
-    import { type DoubleChooserWidget, nazevSHvezdou } from '$lib/Vec.svelte';
+    import { type DoubleChooserWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
 
     interface Props {
         t: Translations;

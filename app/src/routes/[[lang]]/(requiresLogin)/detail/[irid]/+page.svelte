@@ -14,7 +14,7 @@
     import { solarCollectorCommission, type UvedeniSOL } from '$lib/forms/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { celyNazevIR } from '$lib/helpers/ir';
-    import { ChooserWidget, InputWidget, p } from '$lib/Vec.svelte';
+    import { ChooserWidget, InputWidget, p } from '$lib/Widget.svelte.js';
     import type { Raw } from '$lib/forms/Form';
     import { detailUrl, relUrl } from '$lib/helpers/runes.svelte';
     import Widget from '$lib/components/Widget.svelte';

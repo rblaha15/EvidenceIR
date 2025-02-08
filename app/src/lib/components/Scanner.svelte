@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { InputWidget } from '$lib/Vec.svelte';
+	import type { InputWidget } from '$lib/Widget.svelte.js';
 	import { Html5Qrcode } from 'html5-qrcode';
 	import { onMount } from 'svelte';
 	import Input from '$lib/components/widgets/Input.svelte';

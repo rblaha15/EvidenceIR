@@ -12,7 +12,7 @@
 		Widget,
 		ChooserWidget,
 		CheckboxWidget
-	} from '$lib/Vec.svelte';
+	} from '$lib/Widget.svelte.js';
 	import type { User } from 'firebase/auth';
 
 	interface Props {

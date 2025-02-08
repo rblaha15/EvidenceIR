@@ -3,7 +3,7 @@ import { sendEmail, SENDER } from "$lib/client/email";
 import { existuje, extractIRIDFromRawData, novaEvidence, upravitEvidenci } from '$lib/client/firestore';
 import { type Data, newData } from '$lib/forms/Data';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
-import type { Widget } from "$lib/Vec.svelte";
+import type { Widget } from "$lib/Widget.svelte.js";
 import { default as MailRRoute } from "$lib/emails/MailRRoute.svelte";
 import { default as MailSDaty } from "$lib/emails/MailSDaty.svelte";
 import { get } from "svelte/store";

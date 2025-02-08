@@ -1,4 +1,4 @@
-import { type GetOrVal, TitleWidget, p, InputWidget, SwitchWidget, ChooserWidget, CheckboxWidget } from '../Vec.svelte.js';
+import { type GetOrVal, TitleWidget, p, InputWidget, SwitchWidget, ChooserWidget, CheckboxWidget } from '../Widget.svelte.js';
 import { todayISO } from '$lib/helpers/date';
 import type { Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';

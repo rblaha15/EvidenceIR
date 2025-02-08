@@ -1,4 +1,4 @@
-import { MultiCheckboxWidget, TitleWidget, p, InputWidget, CounterWidget, RadioWidget, SearchWidget, ChooserWidget } from '../Vec.svelte.js';
+import { MultiCheckboxWidget, TitleWidget, p, InputWidget, CounterWidget, RadioWidget, SearchWidget, ChooserWidget } from '../Widget.svelte.js';
 import { type SparePart, sparePartsList, startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
 import type { Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';

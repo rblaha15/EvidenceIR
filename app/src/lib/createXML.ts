@@ -10,7 +10,7 @@ import {
     type Widget,
     ChooserWidget,
     CheckboxWidget
-} from '$lib/Vec.svelte';
+} from '$lib/Widget.svelte.js';
 import type { Translations } from '$lib/translations';
 import type { Form } from '$lib/forms/Form';
 

@@ -9,7 +9,7 @@ import {
     TextWidget,
     ChooserWidget,
     CheckboxWidget
-} from '../Vec.svelte.js';
+} from '../Widget.svelte.js';
 import type { Company, Technician } from '$lib/client/realtime';
 
 export type Data = {

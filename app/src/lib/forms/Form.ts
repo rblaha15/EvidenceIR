@@ -1,4 +1,4 @@
-import { Widget } from '$lib/Vec.svelte.js';
+import { Widget } from '$lib/Widget.svelte.js';
 
 export type Form<D> = Record<string, Record<string, Widget<D, unknown>>>
 export type Raw<F extends Form<never>> = {

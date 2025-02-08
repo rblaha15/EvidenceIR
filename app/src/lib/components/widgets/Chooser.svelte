@@ -1,6 +1,6 @@
 <script lang="ts" generics="D">
 	import type { TranslationReference, Translations } from '$lib/translations';
-	import { nazevSHvezdou, type ChooserWidget } from '$lib/Vec.svelte';
+	import { nazevSHvezdou, type ChooserWidget } from '$lib/Widget.svelte.js';
 
 	interface Props {
         t: Translations;
