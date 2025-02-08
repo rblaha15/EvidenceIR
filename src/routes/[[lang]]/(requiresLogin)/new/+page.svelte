@@ -2,8 +2,8 @@
     import WidgetComponent from '$lib/components/Widget.svelte';
     import Scanner from '$lib/components/Scanner.svelte';
 
-    import * as v from '$lib/Vec.svelte';
-    import { p } from '$lib/Vec.svelte';
+    import * as v from '$lib/Widget.svelte.js';
+    import { p } from '$lib/Widget.svelte.js';
     import { type Data, newData } from '$lib/forms/Data';
     import { responsiblePerson, startTechniciansListening, techniciansList } from '$lib/client/realtime';
     import { companies } from './companies';

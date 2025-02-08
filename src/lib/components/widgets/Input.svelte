@@ -1,6 +1,6 @@
 <script lang="ts" generics="D">
     import type { Translations } from '$lib/translations';
-    import { nazevSHvezdou, type InputWidget } from '$lib/Vec.svelte';
+    import { nazevSHvezdou, type InputWidget } from '$lib/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount } from 'svelte';
 

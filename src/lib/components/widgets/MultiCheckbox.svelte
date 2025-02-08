@@ -1,6 +1,6 @@
 <script lang="ts" generics="D">
     import type { Translations } from '$lib/translations';
-    import { nazevSHvezdou, type MultiCheckboxWidget } from '$lib/Vec.svelte';
+    import { nazevSHvezdou, type MultiCheckboxWidget } from '$lib/Widget.svelte.js';
 
     interface Props {
         t: Translations;

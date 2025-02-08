@@ -1,4 +1,4 @@
-import { DoubleChooserWidget, MultiCheckboxWidget, TitleWidget, p, InputWidget, RadioWidget, SearchWidget, TextWidget, ChooserWidget, CheckboxWidget } from '../Vec.svelte.js';
+import { DoubleChooserWidget, MultiCheckboxWidget, TitleWidget, p, InputWidget, RadioWidget, SearchWidget, TextWidget, ChooserWidget, CheckboxWidget } from '../Widget.svelte.js';
 import { type Data } from './Data';
 import type { Company, Technician } from '$lib/client/realtime';
 import { regulusCRN } from '$lib/helpers/ares';
@@ -280,7 +280,7 @@ export default (): Data => ({
                     { text: p`${i.crn}`, width: .2 },
                     { text: p`${i.companyName}`, width: .8 },
                 ],
-            }), showInXML: false,
+            }), showInXML: false, required: false,
         }),
         nebo: new TextWidget({ label: `or`, showInXML: false }),
         ico: new InputWidget({
@@ -318,7 +318,7 @@ export default (): Data => ({
                     { text: p`${i.crn}`, width: .2 },
                     { text: p`${i.companyName}`, width: .8 },
                 ],
-            }), show: d => !d.uvedeni.jakoMontazka.value, showInXML: false,
+            }), show: d => !d.uvedeni.jakoMontazka.value, showInXML: false, required: false,
         }),
         nebo: new TextWidget({ label: `or`, showInXML: false, show: d => !d.uvedeni.jakoMontazka.value }),
         ico: new InputWidget({

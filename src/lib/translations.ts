@@ -3,7 +3,7 @@ import type { LanguageCode } from './languages';
 import cs from './translations/cs';
 import de from './translations/de';
 import en from './translations/en';
-import { createTemplateG } from './Vec.svelte';
+import { createTemplateG } from './Widget.svelte.js';
 import derived, { type Derived } from '$lib/derived';
 import './extensions';
 

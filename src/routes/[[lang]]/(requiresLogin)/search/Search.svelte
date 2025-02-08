@@ -1,6 +1,6 @@
 <script generics="D, T" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { nazevSHvezdou, type SearchWidget } from '$lib/Vec.svelte';
+    import { nazevSHvezdou, type SearchWidget } from '$lib/Widget.svelte.js';
     import { browser } from '$app/environment';
 
     export const wordsToFilter = (s: string) => s

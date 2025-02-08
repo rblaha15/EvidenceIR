@@ -1,6 +1,6 @@
 import type { FormInfo } from '$lib/forms/forms.svelte.js';
 import { type IR, pridatKontrolu } from '$lib/client/firestore';
-import { TitleWidget, p, InputWidget, CheckboxWidget } from '$lib/Vec.svelte.js';
+import { TitleWidget, p, InputWidget, CheckboxWidget } from '$lib/Widget.svelte.js';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
 import { todayISO } from '$lib/helpers/date';

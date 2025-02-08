@@ -1,4 +1,4 @@
-import { type GetOrVal, TitleWidget, InputWidget, SwitchWidget, ChooserWidget, CheckboxWidget } from '../Vec.svelte.js';
+import { type GetOrVal, TitleWidget, InputWidget, SwitchWidget, ChooserWidget, CheckboxWidget } from '../Widget.svelte.js';
 import { uvestTCDoProvozu } from '$lib/client/firestore';
 import type { FormInfo } from './forms.svelte.js';
 import type { Raw } from '$lib/forms/Form';

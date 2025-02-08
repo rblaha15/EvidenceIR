@@ -1,7 +1,7 @@
 import type { LanguageCode } from '$lib/languages';
 import type { TranslationReference } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
-import { p } from '$lib/Vec.svelte';
+import { p } from '$lib/Widget.svelte.js';
 
 export const toPdfTypeName = (linkName: Pdf) =>
     linkName.split('-')[0] as PdfTypeName;

@@ -1,4 +1,4 @@
-import type { Pair } from '$lib/Vec.svelte';
+import type { Pair } from '$lib/Widget.svelte.js';
 import { removePlain } from '$lib/translations';
 import type { Data } from '$lib/forms/Data';
 import type { Raw } from '$lib/forms/Form';

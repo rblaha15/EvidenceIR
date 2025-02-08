@@ -10,7 +10,7 @@
         TextWidget,
         type Widget,
         ChooserWidget, CheckboxWidget,
-    } from '$lib/Vec.svelte';
+    } from '$lib/Widget.svelte.js';
     import Input from '$lib/components/widgets/Input.svelte';
     import DoubleChooser from '$lib/components/widgets/DoubleChooser.svelte';
     import Chooser from '$lib/components/widgets/Chooser.svelte';
