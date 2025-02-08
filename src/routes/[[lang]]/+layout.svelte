@@ -34,6 +34,8 @@
 
 <svelte:head>
 	<style lang="scss">
+		$color-mode-type: media-query;
+
 		@import 'bootstrap/scss/bootstrap';
 	</style>
 

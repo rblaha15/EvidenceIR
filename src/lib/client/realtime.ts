@@ -1,5 +1,5 @@
 import { derived, get as getFromStore, readonly, writable } from 'svelte/store';
-import { checkRegulusOrAdmin, currentUser } from './auth';
+import { checkRegulusOrAdmin, currentUser } from '$lib/client/auth';
 import type { User } from 'firebase/auth';
 import { onValue, type Query, ref } from 'firebase/database';
 import { storable } from '$lib/helpers/stores';
