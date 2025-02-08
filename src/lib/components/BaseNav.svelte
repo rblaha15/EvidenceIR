@@ -1,8 +1,8 @@
 <script lang="ts">
     import { page } from '$app/state';
     import { isUserAdmin } from '$lib/client/auth';
-    import { relUrl } from '$lib/helpers/stores';
     import type { Translations } from '$lib/translations';
+    import { relUrl } from '$lib/helpers/runes.svelte';
 
     interface Props {
         t: Translations;
@@ -14,6 +14,7 @@
 <ul class="navbar-nav">
     <li class="link-item" data-bs-dismiss="offcanvas">
         <a
+            tabindex="0"
             aria-current={page.route.id?.includes('/new') && !page.url.searchParams.has('edit-irid') ? 'page' : null}
             class="nav-link mt-3 mt-sm-0"
             class:active={page.route.id?.includes('/new') && !page.url.searchParams.has('edit-irid')}
@@ -22,6 +23,7 @@
     </li>
     <li class="link-item" data-bs-dismiss="offcanvas">
         <a
+            tabindex="0"
             aria-current={page.route.id?.endsWith('/search') ? 'page' : null}
             class="nav-link ms-sm-3"
             class:active={page.route.id?.endsWith('/search')}
@@ -31,6 +33,7 @@
     {#if page.route.id?.includes('/detail') || page.url.searchParams.has('edit-irid')}
         <li class="link-item" data-bs-dismiss="offcanvas">
             <a
+                tabindex="0"
                 class="nav-link ms-sm-3 active"
                 aria-current={'page'}
                 href={
@@ -44,6 +47,7 @@
     {#if $isUserAdmin}
         <li class="link-item" data-bs-dismiss="offcanvas">
             <a
+                tabindex="0"
                 class="nav-link ms-sm-3"
                 class:active={page.route.id?.endsWith('/admin')}
                 aria-current={page.route.id?.endsWith('/admin') ? 'page' : null}

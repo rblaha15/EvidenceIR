@@ -3,12 +3,12 @@
 	import { page } from '$app/state';
 	import { logIn, setName } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
-	import { relUrl } from '$lib/helpers/stores';
 	import { type Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
 	import { setTitle } from '$lib/helpers/title.svelte';
 	import { startTechniciansListening, techniciansList } from '$lib/client/realtime';
 	import { get } from 'svelte/store';
+	import { relUrl } from '$lib/helpers/runes.svelte';
 
 	const t: Translations = page.data.translations;
 

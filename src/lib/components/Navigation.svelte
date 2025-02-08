@@ -4,10 +4,11 @@
     import { currentUser, logOut } from '$lib/client/auth';
     import authentication from '$lib/client/authentication';
     import { isOnline, responsiblePerson } from '$lib/client/realtime';
-    import { relUrl } from '$lib/helpers/stores';
     import type { Translations } from '$lib/translations';
     import BaseNav from './BaseNav.svelte';
     import LanguageSelector from './LanguageSelector.svelte';
+    import { relUrl } from '$lib/helpers/runes.svelte';
+    import ThemeSelector from '$lib/components/ThemeSelector.svelte';
 
     interface Props {
         t: Translations;
@@ -24,24 +25,13 @@
     <div class="container-fluid">
         {#if jePrihlasen}
             <button
-                type="button"
-                class="d-sm-none me-2 btn navbar-toggler"
+                class="d-sm-none me-2 btn nav-link btn-link"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#NOC"
                 aria-controls="NOC"
                 aria-label="Menu"
             >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="32"
-                    height="32"
-                    fill="currentColor"
-                    viewBox="0 0 16 16"
-                >
-                    <path
-                        d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"
-                    />
-                </svg>
+                <i class="bi-list fs-1"></i>
             </button>
         {/if}
         <!--suppress CheckImageSize -->
@@ -60,20 +50,15 @@
                 <BaseNav {t} />
             </div>
             <div class="d-flex flex-row ms-auto ms-sm-0">
-                <div class="d-none d-sm-block">
+                <div class="d-none d-sm-block ms-2">
+                    <ThemeSelector {t} />
+                </div>
+                <div class="d-none d-sm-block ms-2">
                     <LanguageSelector />
                 </div>
-                <div class="dropdown">
-                    <button type="button" class="ms-2 btn" data-bs-toggle="dropdown" aria-label="User">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="32"
-                            height="32"
-                            fill="currentColor"
-                            viewBox="0 0 16 16"
-                        >
-                            <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
-                        </svg>
+                <div class="dropdown ms-2">
+                    <button class="btn btn-link nav-link" data-bs-toggle="dropdown" aria-label="User">
+                        <i class="bi-person-fill fs-2"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><span class="dropdown-item-text">{t.email}:<br />{prihlasenyEmail}</span></li>
@@ -118,19 +103,10 @@
                     <!--suppress CheckImageSize -->
                     <img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
                     <span class="navbar-brand">{t.appName}</span>
+                    <ThemeSelector {t} />
                     <LanguageSelector />
-                    <button type="button" class="btn ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 16 16"
-                            fill="currentColor"
-                        >
-                            <path
-                                d="M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z"
-                            />
-                        </svg>
+                    <button class="btn btn-link nav-link ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
+                        <i class="bi-x fs-1"></i>
                     </button>
                 </div>
                 <div class="offcanvas-body">
@@ -167,14 +143,18 @@
     </div>
 </nav>
 
-<style>
+<style global>
     .navbar {
         background-color: lightgray;
     }
 
-    @media (prefers-color-scheme: dark) {
+    :root[data-bs-theme="dark"] {
         .navbar {
             background-color: dimgray;
         }
+    }
+
+    .nav-link {
+        --bs-nav-link-hover-color: var(--bs-link-color);
     }
 </style>

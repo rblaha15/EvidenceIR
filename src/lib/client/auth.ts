@@ -23,7 +23,7 @@ export const checkAuth = async () => {
 
 export const getToken = async () => {
 	await auth.authStateReady()
-	return auth.currentUser!.getIdToken(true)
+	return auth.currentUser!.getIdToken()
 }
 
 const _checkAdmin = async (user: User) =>

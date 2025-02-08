@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
-	import { relUrl } from '$lib/helpers/stores';
 	import type { Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
 	import authentication from '$lib/client/authentication';
@@ -9,6 +8,7 @@
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import type { PageData } from './$types';
 	import { setTitle } from '$lib/helpers/title.svelte';
+	import { relUrl } from '$lib/helpers/runes.svelte';
 
 	interface Props {
 		data: PageData;

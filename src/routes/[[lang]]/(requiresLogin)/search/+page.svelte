@@ -2,13 +2,13 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import { getAll, IRNumberFromIRID } from '$lib/client/firestore';
-    import { relUrl } from '$lib/helpers/stores';
     import { addToHistory, history, removeFromHistory, HistoryEntry } from '$lib/History';
     import type { Translations } from '$lib/translations';
     import { onMount } from 'svelte';
     import { p, SearchWidget } from '$lib/Vec.svelte';
     import Search from './Search.svelte';
     import { setTitle } from '$lib/helpers/title.svelte';
+    import { relUrl } from '$lib/helpers/runes.svelte';
 
     onMount(async () => {
         const res = await getAll();
@@ -47,7 +47,7 @@
 </script>
 
 <Search
-    data={{}}
+    data={undefined}
     {t}
     bind:widget={w}
 />
