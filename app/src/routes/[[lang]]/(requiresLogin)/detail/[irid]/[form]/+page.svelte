@@ -7,11 +7,12 @@
     import WidgetComponent from '$lib/components/Widget.svelte';
     import type { Data } from '$lib/forms/Data';
     import { getToken } from '$lib/client/auth';
-    import { detailUrl, storable } from '$lib/helpers/stores';
+    import { storable } from '$lib/helpers/stores';
     // noinspection ES6UnusedImports
     import type { Form } from '$lib/forms/Form';
     import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
     import FormHeader from '../FormHeader.svelte';
+    import { detailUrl } from '$lib/helpers/runes.svelte';
 
     const { data }: PageProps = $props();
     const formName = data.formName as FormName;

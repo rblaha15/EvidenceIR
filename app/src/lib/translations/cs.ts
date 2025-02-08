@@ -221,6 +221,11 @@ export default {
     cascadeSee: `kaskáda – viz níže`,
     cascade: `Kaskáda:`,
     pumpDetails: t`TČ${'n'}: ${'model'} – ${'cislo'}`,
+    theme: {
+        dark: 'Tmavý',
+        light: 'Světlý',
+        auto: 'Podle prohlížeče',
+    },
     sp: {
         yearlyCheck: `Roční prohlídka`,
         warrantyRepair: `Záruční oprava`,

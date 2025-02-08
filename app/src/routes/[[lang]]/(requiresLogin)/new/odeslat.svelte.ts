@@ -8,7 +8,7 @@ import { default as MailRRoute } from "$lib/emails/MailRRoute.svelte";
 import { default as MailSDaty } from "$lib/emails/MailSDaty.svelte";
 import { get } from "svelte/store";
 import { page } from "$app/state";
-import { relUrl, storable } from "$lib/helpers/stores";
+import { storable } from "$lib/helpers/stores";
 import { currentUser } from "$lib/client/auth";
 import { getTranslations } from '$lib/translations';
 import { getIsOnline } from '$lib/client/realtime';
@@ -16,6 +16,7 @@ import { mount } from "svelte";
 import { generateXML } from '$lib/createXML';
 import { typIR } from '$lib/helpers/ir';
 import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
+import { relUrl } from '$lib/helpers/runes.svelte';
 
 const storedData = storable<Raw<Data>>('stored_data');
 

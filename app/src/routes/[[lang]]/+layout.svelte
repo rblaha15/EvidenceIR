@@ -34,9 +34,9 @@
 
 <svelte:head>
 	<style lang="scss">
-		$color-mode-type: media-query;
+		@use 'bootstrap/scss/bootstrap';
 
-		@import 'bootstrap/scss/bootstrap';
+		@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
 	</style>
 
 	<title>{dev ? '(dev) ' : ''}SEIR :: {$titleSvelte}</title>

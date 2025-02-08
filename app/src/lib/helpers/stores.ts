@@ -1,9 +1,5 @@
 import { browser } from '$app/environment';
 import { get, writable, type Writable } from 'svelte/store';
-import { page } from '$app/state';
-
-export const relUrl = (url: string = '') => '/' + page.params.lang + url;
-export const detailUrl = (url: string = '') => relUrl('/detail/' + page.params.irid + url);
 
 type GetStorable = {
 	<T>(key: string): Writable<T | undefined>;
@@ -12,11 +8,9 @@ type GetStorable = {
 
 export const storable: GetStorable = <T>(key: string, defaultValue?: T) => {
 	const store = writable<T | undefined>(defaultValue);
-	const isBrowser = () => browser;
-
 	key = `storable_${key}`;
 
-	if (isBrowser()) {
+	if (browser) {
 		const currentValue = localStorage.getItem(key);
 		if (currentValue != null && currentValue != 'undefined' && currentValue != 'null')
 			store.set(JSON.parse(currentValue));
@@ -26,7 +20,7 @@ export const storable: GetStorable = <T>(key: string, defaultValue?: T) => {
 	const _storeable: Writable<T | undefined> = {
 		subscribe: store.subscribe,
 		set: (value) => {
-			if (isBrowser())
+			if (browser)
 				if (value != undefined)
 					localStorage.setItem(key, JSON.stringify(value))
 				else
@@ -36,7 +30,7 @@ export const storable: GetStorable = <T>(key: string, defaultValue?: T) => {
 		update: (updater) => {
 			const updated = updater(get(store));
 
-			if (isBrowser())
+			if (browser)
 				if (updated != undefined)
 					localStorage.setItem(key, JSON.stringify(updated))
 				else

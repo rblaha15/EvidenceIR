@@ -4,7 +4,7 @@
     import PdfLink from './PDFLink.svelte';
     import { checkAuth, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { evidence, extractIRIDFromParts, extractIRIDFromRawData, type IR, novaEvidence, odstranitEvidenci } from '$lib/client/firestore';
-    import { detailUrl, relUrl, storable } from '$lib/helpers/stores';
+    import { storable } from '$lib/helpers/stores';
     import { heatPumpCommission, type UvedeniTC } from '$lib/forms/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
     import { getIsOnline, startTechniciansListening } from '$lib/client/realtime';
@@ -14,10 +14,10 @@
     import { solarCollectorCommission, type UvedeniSOL } from '$lib/forms/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { celyNazevIR } from '$lib/helpers/ir';
-    import Input from '$lib/components/widgets/Input.svelte';
-    import Chooser from '$lib/components/widgets/Chooser.svelte';
-    import { p, InputWidget, ChooserWidget } from '$lib/Vec.svelte';
+    import { ChooserWidget, InputWidget, p } from '$lib/Vec.svelte';
     import type { Raw } from '$lib/forms/Form';
+    import { detailUrl, relUrl } from '$lib/helpers/runes.svelte';
+    import Widget from '$lib/components/Widget.svelte';
 
     interface Props {
         data: PageData;
@@ -75,7 +75,7 @@
     let change: 'no' | 'input' | 'sending' | 'fail' = $state('no');
 
     let irNumber = $state(new InputWidget({
-        nazev: `newSerialNumber`, onError: `wrongNumberFormat`,
+        label: `newSerialNumber`, onError: `wrongNumberFormat`,
         regex: /([A-Z][1-9OND]) ([0-9]{4})/, capitalize: true,
         maskOptions: {
             mask: `A1 0000`,
@@ -86,7 +86,7 @@
         },
     }));
     let irType = $state(new ChooserWidget({
-        nazev: `controllerType`,
+        label: `controllerType`,
         options: [p`IR RegulusBOX`, p`IR RegulusHBOX`, p`IR RegulusHBOXK`, p`IR 14`, p`IR 12`],
     }));
 
@@ -179,19 +179,20 @@
             {data}
         >
             {#if !values.uvedeniTC}
-                <button
+                <a
+                    tabindex="0"
                     class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
-                    onclick={() => (window.location.href = detailUrl('/heatPumpCommission'))}
-                >{t.commission}</button
+                    href={detailUrl('/heatPumpCommission')}
+                >{t.commission}</a
                 >
             {/if}
         </PdfLink>
         <PdfLink name={t.filledYearlyCheck} {t} linkName="check" {data}>
-            <button
+            <a
+                tabindex="0"
                 class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
-                onclick={() => (window.location.href = detailUrl('/check'))}
-            >{t.doYearlyCheck}</button
-            >
+                href={detailUrl('/check')}
+            >{t.doYearlyCheck}</a>
         </PdfLink>
     {/if}
     {#if values.evidence.ir.chceVyplnitK.includes('solarCollector')}
@@ -203,11 +204,11 @@
             {data}
         >
             {#if !values.uvedeniSOL}
-                <button
+                <a
+                    tabindex="0"
                     class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
-                    onclick={() => (window.location.href = detailUrl('/solarCollectorCommission'))}
-                >{t.commission}</button
-                >
+                    href={detailUrl('/solarCollectorCommission')}
+                >{t.commission}</a>
             {/if}
         </PdfLink>
     {/if}
@@ -218,21 +219,19 @@
             {@const datum = p.zasah.datum.split('T')[0].split('-').join('/')}
             {@const hodina = p.zasah.datum.split('T')[1].split(':')[0]}
             {@const technik = p.zasah.inicialy}
-            <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true} >
+            <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true}>
                 <button
                     class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
-                    onclick={() => (window.location.href = detailUrl(`/sp/?edit=${i}`))}
-                >Upravit protokol</button>
+                    href={detailUrl(`/sp/?edit=${i}`)}
+                >Upravit protokol
+                </button>
             </PdfLink>
         {/each}
-        <button class="btn btn-outline-info d-block mt-2"
-                onclick={() => window.location.href = detailUrl('/sp')}
-        >Vyplnit protokol
-        </button>
+        <a class="btn btn-outline-info mt-2" tabindex="0" href={detailUrl('/sp')}>Vyplnit protokol</a>
     {/if}
     <hr />
     {#if $isUserRegulusOrAdmin}
-        <a class="btn btn-outline-info mt-2" href={detailUrl('/users')}>
+        <a tabindex="0" class="btn btn-outline-info mt-2" href={detailUrl('/users')}>
             Uživatelé s přístupem k této evidenci
         </a>
     {/if}
@@ -242,8 +241,8 @@
         >
     {:else if change === 'input'}
         <div class="mt-2">
-            <Input bind:vec={irNumber} data={undefined} {t} />
-            <Chooser bind:vec={irType} data={undefined} {t} />
+            <Widget bind:widget={irNumber} data={undefined} {t} />
+            <Widget bind:widget={irType} data={undefined} {t} />
             <div class="btn-group">
                 <button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
                 <button class="btn btn-outline-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>
@@ -258,6 +257,7 @@
         <p class="mt-2 text-danger">{t.changeWentWrong}</p>
     {/if}
     <a
+        tabindex="0"
         class="btn btn-outline-warning mt-2"
         href={relUrl(`/new?edit-irid=${data.irid}`)}
         onclick={(e) => {

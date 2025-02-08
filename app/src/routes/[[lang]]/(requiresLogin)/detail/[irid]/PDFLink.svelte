@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { type LanguageCode } from '$lib/languages';
     import { languageNames, type Translations } from '$lib/translations';
     import type { PageData } from './$types';
     import { getToken } from '$lib/client/auth';
@@ -36,66 +35,57 @@
 
     const lastToken = storable<string>(`firebase_token_${data.irid}_${linkName}`);
 
-    let offlineError = $state(false);
-
-    const open = async (lang: LanguageCode) => {
-        offlineError = false;
-        let token: string;
-        if (getIsOnline()) {
-            token = await getToken();
-            lastToken.set(token);
-        } else {
-            const t = get(lastToken);
-            if (t) {
-                token = t;
-            } else {
-                offlineError = true;
-                return;
-            }
-        }
-        window.open(`/${lang}/detail/${data.irid}/pdf/${linkName}?token=${token}`);
-    };
+    const token = getIsOnline() ? getToken() : get(lastToken);
 </script>
 
 <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center mt-2">
     <span>{name}</span>
 
-    {#if !offlineError}
-        <div class="btn-group ms-sm-2 mt-2 mt-sm-0">
-            <button
-                onclick={() => open(defaultLanguage)}
-                type="button"
-                disabled={!enabled}
-                class="btn btn-outline-info text-nowrap">{t.openPdf}</button
-            >
-            {#if !hideLanguageSelector}
-                <button
+    {#await token then token}
+        {#if token}
+            <div class="btn-group ms-sm-2 mt-2 mt-sm-0">
+                <a
+                    tabindex={enabled ? 0 : undefined}
                     type="button"
-                    disabled={!enabled || pdf.supportedLanguages.length === 1}
-                    class="btn btn-outline-secondary"
-                    class:dropdown-toggle={pdf.supportedLanguages.length > 1}
-                    data-bs-toggle="dropdown"
-                >
-                    <span>{defaultLanguage.toUpperCase()}</span>
-                </button>
-                {#if pdf.supportedLanguages.length > 1}
-                    <ul class="dropdown-menu">
-                        {#each pdf.supportedLanguages as code}
-                            <li>
-                                <button onclick={() => open(code)} type="button" class="dropdown-item">
-                                    <span class="fs-5">{code.toUpperCase()}</span>
-                                    {languageNames[code]}
-                                </button>
-                            </li>
-                        {/each}
-                    </ul>
+                    onclick={() => lastToken.set(token)}
+                    target="_blank"
+                    href="/{defaultLanguage}/detail/{data.irid}/pdf/{linkName}?token={token}"
+                    class:disabled={!enabled}
+                    class="btn btn-outline-info text-nowrap"
+                >{t.openPdf}</a>
+                {#if !hideLanguageSelector}
+                    <button
+                        disabled={!enabled || pdf.supportedLanguages.length === 1}
+                        class="btn btn-outline-secondary"
+                        class:dropdown-toggle={pdf.supportedLanguages.length > 1}
+                        data-bs-toggle="dropdown"
+                    >
+                        <span>{defaultLanguage.toUpperCase()}</span>
+                    </button>
+                    {#if pdf.supportedLanguages.length > 1}
+                        <ul class="dropdown-menu">
+                            {#each pdf.supportedLanguages as code}
+                                <li>
+                                    <a
+                                        tabindex="0" target="_blank"
+                                        class="dropdown-item d-flex align-items-center"
+                                        href="/{code}/detail/{data.irid}/pdf/{linkName}?token={token}"
+                                        onclick={() => lastToken.set(token)}
+                                    >
+                                        <span class="fs-6 me-2">{code.toUpperCase()}</span>
+                                        {languageNames[code]}
+                                    </a>
+                                </li>
+                            {/each}
+                        </ul>
+                    {/if}
                 {/if}
-            {/if}
-        </div>
-    {:else}
-        <div class="ms-sm-2 mt-2 mt-sm-0">
-            {t.offline}
-        </div>
-    {/if}
-    {@render children?.()}
+            </div>
+        {:else}
+            <div class="ms-sm-2 mt-2 mt-sm-0">
+                {t.offline}
+            </div>
+        {/if}
+        {@render children?.()}
+    {/await}
 </div>

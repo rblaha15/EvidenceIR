@@ -20,13 +20,13 @@
     import { languageCodes } from '$lib/languages';
     import type { Template } from '$lib/helpers/templates';
     import { page } from '$app/state';
-    import { relUrl } from '$lib/helpers/stores';
     import PeopleTable from './PeopleTable.svelte';
     import CompaniesTable from './CompaniesTable.svelte';
     import TechniciansTable from './TechniciansTable.svelte';
     import SparePartsTable from './SparePartsTable.svelte';
     import { regulusCRN } from '$lib/helpers/ares';
     import { setTitle } from '$lib/helpers/title.svelte';
+    import { relUrl } from '$lib/helpers/runes.svelte';
 
     onMount(async () => {
         await startLidiListening();

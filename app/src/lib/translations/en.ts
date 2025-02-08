@@ -152,5 +152,10 @@ const en: PlainTranslations = {
     offline: `You are offline!`,
     successfullyDeleted: `Record successfully deleted.`,
     mandatoryFields: `mandatory fields`,
+    theme: {
+        dark: 'Dark',
+        light: 'Light',
+        auto: 'Auto',
+    },
 }
 export default en
