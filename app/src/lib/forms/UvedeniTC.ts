@@ -205,7 +205,7 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
 export const heatPumpCommission: FormInfo<UDTC, UvedeniTC> = ({
     storeName: 'stored_heat_pump_commission',
     defaultData: defaultUvedeniTC,
-    pdfLink: 'heatPumpCommissionProtocol',
+    pdfLink: () => 'heatPumpCommissionProtocol',
     saveData: (irid, raw) => uvestTCDoProvozu(irid, raw),
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence }),
     title: () => `commissioning`,

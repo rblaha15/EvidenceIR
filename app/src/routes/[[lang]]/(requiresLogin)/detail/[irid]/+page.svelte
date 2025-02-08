@@ -220,11 +220,12 @@
             {@const hodina = p.zasah.datum.split('T')[1].split(':')[0]}
             {@const technik = p.zasah.inicialy}
             <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true}>
-                <button
+                <a
+                    tabindex="0"
                     class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
                     href={detailUrl(`/sp/?edit=${i}`)}
                 >Upravit protokol
-                </button>
+                </a>
             </PdfLink>
         {/each}
         <a class="btn btn-outline-info mt-2" tabindex="0" href={detailUrl('/sp')}>Vyplnit protokol</a>
