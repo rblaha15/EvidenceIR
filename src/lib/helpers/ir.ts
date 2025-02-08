@@ -3,10 +3,19 @@ import { removePlain } from '$lib/translations';
 import type { Data } from '$lib/forms/Data';
 import type { Raw } from '$lib/forms/Form';
 
+/**
+ * IR14CTC R8 2547 : Novák Jan - Brno
+ */
 export const celyNazevIR = (evidence: Raw<Data>) => `${nazevIR(evidence.ir)} : ${popisIR(evidence)}`;
 
+/**
+ * IR14CTC R8 2547
+ */
 export const nazevIR = (ir: Raw<Data>['ir']) => `${typIR(ir.typ)} ${ir.cislo}`;
 
+/**
+ * IR14CTC
+ */
 export const typIR = (typ: Pair) =>
     typ.first?.includes('BOX')
         ? `${removePlain(typ.first!.split(' ').slice(0, 2).join(' '))} ${removePlain(typ.second!)}`
@@ -28,6 +37,9 @@ export const formaSpolecnostiJeSpatne = (spolecnost: string) =>
 
 const m = (s: string) => s ? `${s} ` : ''
 
+/**
+ * Novák Jan - Brno
+ */
 export const popisIR = (evidence: Raw<Data>) =>
     evidence.koncovyUzivatel.typ == `company`
         ? `${odebratFormuSpolecnosti(evidence.koncovyUzivatel.nazev)} ${m(evidence.koncovyUzivatel.pobocka)}- ${evidence.bydliste.obec}`
