@@ -17,6 +17,7 @@ import { generateXML } from '$lib/createXML';
 import { typIR } from '$lib/helpers/ir';
 import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
 import { relUrl } from '$lib/helpers/runes.svelte';
+import { pdfInfo } from '$lib/client/pdf';
 
 const storedData = storable<Raw<Data>>('stored_data');
 
@@ -140,6 +141,10 @@ export default async (
                         filename: `Evidence ${rawData.ir.cislo}.xml`
                     }
                 ],
+                pdf: {
+                    link: `/cs/detail/${irid}/pdf/rroute`,
+                    title: 'Souhlas RegulusRoute.pdf',
+                },
             });
             console.log(response);
         }

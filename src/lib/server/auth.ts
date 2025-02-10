@@ -7,7 +7,6 @@ const auth = getAuth(app);
 
 export const checkToken = (token: string | undefined | null) =>
     new Promise<DecodedIdToken | null>((resolve) => {
-        if (token == 'NAROZENINY') resolve(<DecodedIdToken>{})
         if (!token) resolve(null)
         else auth.verifyIdToken(token, true)
             .then(resolve)
