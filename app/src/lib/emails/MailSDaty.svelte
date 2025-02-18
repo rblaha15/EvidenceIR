@@ -34,7 +34,7 @@
 		(obj) => Object.values(obj) as Widget<Data, unknown>[]
 	));
 
-    const irid = extractIRIDFromParts(data.ir.cislo.value, data.ir.typ.value
+    const irid = extractIRIDFromParts(data.ir.typ.value.first, data.ir.cislo.value
 )
 </script>
 
