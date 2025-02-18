@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Data } from '$lib/forms/Data';
+    import { extractIRIDFromParts } from '$lib/client/firestore'
 	import type { Translations } from '$lib/translations';
 	import {
 		DoubleChooserWidget,
@@ -32,9 +33,12 @@
 	let list = $derived((Object.values(data) as Data[keyof Data][]).flatMap(
 		(obj) => Object.values(obj) as Widget<Data, unknown>[]
 	));
+
+    const irid = extractIRIDFromParts(data.ir.cislo.value, data.ir.typ.value
+)
 </script>
 
-<p>Odkaz na podrobnosti evidence: <a href={host + `/detail/${data.ir.cislo.value.replace(' ', '')}`}>{host + `/detail/${data.ir.cislo.value.replace(' ', '')}`}</a></p>
+<p>Odkaz na podrobnosti evidence: <a href={host + `/detail/${irid}`}>{host + `/detail/${irid}`}</a></p>
 
 {#each list as vec}
 	{#if vec instanceof TitleWidget && vec.showTextValue(data)}
