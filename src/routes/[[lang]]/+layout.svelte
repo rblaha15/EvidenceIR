@@ -27,7 +27,8 @@
 				'/' +
 					preferredLanguage() +
 					page.url.pathname.slice(currentLangLength + 1) +
-					page.url.search
+					page.url.search +
+					page.url.hash
 			);
 	});
 </script>
