@@ -17,7 +17,6 @@ import { generateXML } from '$lib/createXML';
 import { typIR } from '$lib/helpers/ir';
 import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
 import { relUrl } from '$lib/helpers/runes.svelte';
-import { pdfInfo } from '$lib/client/pdf';
 
 const storedData = storable<Raw<Data>>('stored_data');
 
@@ -78,18 +77,18 @@ export default async (
 
         const dataToSend = rawDataToData(newData(), dataToRawData(data))
 
-        if (dataToSend.uvedeni.jakoMontazka.value) {
-            dataToSend.uvedeni.jakoMontazka.value = false;
+        if (data.uvedeni.jakoMontazka.value) {
+            data.uvedeni.jakoMontazka.value = false;
             dataToSend.uvedeni.ico.value = dataToSend.montazka.ico.value;
             dataToSend.uvedeni.email.value = dataToSend.montazka.email.value;
             dataToSend.uvedeni.telefon.value = dataToSend.montazka.telefon.value;
         } else if (dataToSend.uvedeni.ico.value == regulusCRN.toString()) {
-            dataToSend.uvedeni.email.value = dataToSend.uvedeni.regulus.value!.email;
-            dataToSend.uvedeni.telefon.value = dataToSend.uvedeni.regulus.value!.phone;
-            dataToSend.uvedeni.zastupce.value = dataToSend.uvedeni.regulus.value!.name;
+            dataToSend.uvedeni.email.value = data.uvedeni.regulus.value!.email;
+            dataToSend.uvedeni.telefon.value = data.uvedeni.regulus.value!.phone;
+            dataToSend.uvedeni.zastupce.value = data.uvedeni.regulus.value!.name;
         }
-        if (dataToSend.mistoRealizace.jakoBydliste.value) {
-            dataToSend.mistoRealizace.jakoBydliste.value = false;
+        if (data.mistoRealizace.jakoBydliste.value) {
+            data.mistoRealizace.jakoBydliste.value = false;
             dataToSend.mistoRealizace.ulice.value = dataToSend.bydliste.ulice.value;
             dataToSend.mistoRealizace.obec.value = dataToSend.bydliste.obec.value;
             dataToSend.mistoRealizace.psc.value = dataToSend.bydliste.psc.value;

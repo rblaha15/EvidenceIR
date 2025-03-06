@@ -246,7 +246,7 @@ export default (): Data => ({
         nadpis: new TitleWidget({ label: `realizationLocation` }),
         jakoBydliste: new CheckboxWidget({
             label: d => jeFO(d) ? `samePlaceAsResidence` : `samePlaceAsHeadquarters`,
-            required: false, showInXML: false,
+            required: false, showInXML: false, hideInRawData: true,
         }),
         ulice: new InputWidget({
             label: `street`,
@@ -274,13 +274,13 @@ export default (): Data => ({
     },
     montazka: {
         nadpis: new TitleWidget({ label: `assemblyCompany` }),
-        company: new SearchWidget<Data, Company>({
+        company: new SearchWidget<Data, Company, true>({
             label: `searchCompanyInList`, items: [], getSearchItem: i => ({
                 pieces: [
                     { text: p`${i.crn}`, width: .2 },
                     { text: p`${i.companyName}`, width: .8 },
                 ],
-            }), showInXML: false, required: false,
+            }), showInXML: false, required: false, hideInRawData: true,
         }),
         nebo: new TextWidget({ label: `or`, showInXML: false }),
         ico: new InputWidget({
@@ -311,14 +311,14 @@ export default (): Data => ({
     },
     uvedeni: {
         nadpis: new TitleWidget({ label: `commissioning` }),
-        jakoMontazka: new CheckboxWidget({ label: `commissionedByAssemblyCompany`, required: false, showInXML: false }),
-        company: new SearchWidget<Data, Company>({
+        jakoMontazka: new CheckboxWidget({ label: `commissionedByAssemblyCompany`, required: false, showInXML: false, hideInRawData: true }),
+        company: new SearchWidget<Data, Company, true>({
             label: `searchCompanyInList`, items: [], getSearchItem: i => ({
                 pieces: [
                     { text: p`${i.crn}`, width: .2 },
                     { text: p`${i.companyName}`, width: .8 },
                 ],
-            }), show: d => !d.uvedeni.jakoMontazka.value, showInXML: false, required: false,
+            }), show: d => !d.uvedeni.jakoMontazka.value, showInXML: false, required: false, hideInRawData: true,
         }),
         nebo: new TextWidget({ label: `or`, showInXML: false, show: d => !d.uvedeni.jakoMontazka.value }),
         ico: new InputWidget({
@@ -331,7 +331,7 @@ export default (): Data => ({
             show: data => !data.uvedeni.jakoMontazka.value,
             required: data => !data.uvedeni.jakoMontazka.value
         }),
-        regulus: new SearchWidget<Data, Technician>({
+        regulus: new SearchWidget<Data, Technician, true>({
             label: `searchRepresentative`, items: [], showInXML: false, getSearchItem: i => ({
                 pieces: [
                     { text: p`${i.name}` },
@@ -340,6 +340,7 @@ export default (): Data => ({
                 ],
             }), show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value == regulusCRN.toString(),
             required: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value == regulusCRN.toString(),
+            hideInRawData: true,
         }),
         zastupce: new InputWidget({
             label: `representativeName`,
