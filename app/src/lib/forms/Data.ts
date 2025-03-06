@@ -57,14 +57,14 @@ export type Data = {
     };
     mistoRealizace: {
         nadpis: TitleWidget<Data>;
-        jakoBydliste: CheckboxWidget<Data>;
+        jakoBydliste: CheckboxWidget<Data, true>;
         obec: InputWidget<Data>;
         ulice: InputWidget<Data>;
         psc: InputWidget<Data>;
     };
     montazka: {
         nadpis: TitleWidget<Data>;
-        company: SearchWidget<Data, Company>;
+        company: SearchWidget<Data, Company, true>;
         nebo: TextWidget<Data>;
         ico: InputWidget<Data>;
         zastupce: InputWidget<Data>;
@@ -73,11 +73,11 @@ export type Data = {
     };
     uvedeni: {
         nadpis: TitleWidget<Data>;
-        jakoMontazka: CheckboxWidget<Data>;
-        company: SearchWidget<Data, Company>;
+        jakoMontazka: CheckboxWidget<Data, true>;
+        company: SearchWidget<Data, Company, true>;
         nebo: TextWidget<Data>;
         ico: InputWidget<Data>;
-        regulus: SearchWidget<Data, Technician>;
+        regulus: SearchWidget<Data, Technician, true>;
         zastupce: InputWidget<Data>;
         email: InputWidget<Data>;
         telefon: InputWidget<Data>;
