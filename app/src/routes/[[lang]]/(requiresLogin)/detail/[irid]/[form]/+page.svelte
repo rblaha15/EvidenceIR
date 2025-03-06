@@ -88,7 +88,7 @@
         }
 
         vysledek = { load: true, red: false, text: t.saving };
-        await saveData(irid, raw, mode == 'edit');
+        await saveData(irid, raw, mode == 'edit', f);
 
         storedData.set(undefined);
         vysledek = {

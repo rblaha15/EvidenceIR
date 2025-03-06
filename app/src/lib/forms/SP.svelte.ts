@@ -1,4 +1,4 @@
-import { MultiCheckboxWidget, TitleWidget, p, InputWidget, CounterWidget, RadioWidget, SearchWidget, ChooserWidget } from '../Widget.svelte.js';
+import { ChooserWidget, CounterWidget, InputWidget, MultiCheckboxWidget, p, RadioWidget, SearchWidget, TextWidget, TitleWidget } from '../Widget.svelte.js';
 import { type SparePart, sparePartsList, startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
 import type { Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
@@ -8,6 +8,7 @@ import { currentUser } from '$lib/client/auth';
 import { type FormInfo } from './forms.svelte.js';
 import type { User } from 'firebase/auth';
 import { nowISO } from '$lib/helpers/date';
+import type { TranslationReference } from '$lib/translations';
 
 export type UDSP = {
     protokol: DataSP,
@@ -15,7 +16,11 @@ export type UDSP = {
 }
 
 type NahradniDil = {
+    label: TextWidget<UDSP>,
     dil: SearchWidget<UDSP, SparePart>,
+    name: InputWidget<UDSP, true>;
+    code: InputWidget<UDSP, true>;
+    unitPrice: InputWidget<UDSP, true>;
     mnozstvi: InputWidget<UDSP>,
 }
 
@@ -44,24 +49,56 @@ export type DataSP = {
     nahradniDil2: NahradniDil,
     nahradniDil3: NahradniDil,
     fakturace: {
+        nadpis: TitleWidget<UDSP>,
         hotove: ChooserWidget<UDSP>,
         komu: RadioWidget<UDSP>,
         jak: RadioWidget<UDSP>,
     },
 }
 
-const nahradniDil = (show: (d: UDSP) => boolean): NahradniDil => ({
-    dil: new SearchWidget({
-        label: p`Položka`, show, required: show, items: [], getSearchItem: (i: SparePart) => ({
-            pieces: [
-                { text: p`${i.code.toString()}`, width: .08 },
-                { text: p`${i.name}`, width: .8 },
-                { text: p`${i.unitPrice.roundTo(2).toLocaleString('cs')} Kč`, width: .12 },
-            ] as const,
-        })
-    }),
-    mnozstvi: new InputWidget({ label: p`Množství`, type: `number`, onError: `wrongNumberFormat`, show: show, text: '1' }),
-});
+export const otherPart = <SparePart> {
+    name: p`Jíné`,
+};
+
+const nahradniDil = (n: 1 | 2 | 3): NahradniDil => {
+    const show = (d: UDSP) => d.protokol.nahradniDily.pocet.value >= n;
+    const dil = (d: UDSP) => d.protokol[`nahradniDil${n}` as const];
+    const showDetails = (d: UDSP) => show(d) && dil(d).dil.value?.name == otherPart.name;
+
+    return ({
+        label: new TextWidget({
+            show: show, label: p`Náhradní díl ${n.toString()}:`,
+        }),
+        dil: new SearchWidget({
+            show: show, required: show,
+            label: p`Položka`, items: [], getSearchItem: (i: SparePart) => {
+                console.log(i)
+                return i.name == otherPart.name
+                    ? ({ pieces: [{ text: i.name as TranslationReference }] as const })
+                    : ({
+                        pieces: [
+                            { text: p`${i.code.toString()}`, width: .08 },
+                            { text: p`${i.name}`, width: .8 },
+                            { text: p`${i.unitPrice.roundTo(2).toLocaleString('cs')} Kč`, width: .12 },
+                        ] as const,
+                    });
+            }
+        }),
+        name: new InputWidget({
+            label: p`Název`, hideInRawData: true, required: showDetails, show: showDetails,
+        }),
+        code: new InputWidget({
+            label: p`Kód`, type: 'number', hideInRawData: true, required: showDetails, show: showDetails,
+        }),
+        unitPrice: new InputWidget({
+            label: p`Jednotková cena`, type: 'number', hideInRawData: true, required: showDetails, show: showDetails
+        }),
+        mnozstvi: new InputWidget({
+            label: p`Množství`, type: `number`, onError: `wrongNumberFormat`, text: '1',
+            show: show, required: show,
+        }),
+    });
+};
 
 export const defaultDataSP = (): DataSP => ({
     zasah: {
@@ -95,10 +132,11 @@ export const defaultDataSP = (): DataSP => ({
         nadpis: new TitleWidget({ label: p`Použité náhradní díly` }),
         pocet: new CounterWidget({ label: p`Počet náhradních dílů`, min: 0, max: 3, chosen: 0 }),
     },
-    nahradniDil1: nahradniDil(d => d.protokol.nahradniDily.pocet.value >= 1),
-    nahradniDil2: nahradniDil(d => d.protokol.nahradniDily.pocet.value >= 2),
-    nahradniDil3: nahradniDil(d => d.protokol.nahradniDily.pocet.value >= 3),
+    nahradniDil1: nahradniDil(1),
+    nahradniDil2: nahradniDil(2),
+    nahradniDil3: nahradniDil(3),
     fakturace: {
+        nadpis: new TitleWidget({ label: p`Fakturace` }),
         hotove: new ChooserWidget({ label: p`Placeno hotově`, options: ['yes', 'no', 'doNotInvoice'] }),
         komu: new RadioWidget({
             label: p`Komu fakturovat`, options: [p`Investor`, `assemblyCompany`],
@@ -121,15 +159,24 @@ export const sp = (() => {
             const editIndex = page.url.searchParams.get('edit') as string | null;
             if (editIndex) {
                 i = Number(editIndex);
-                return ir.installationProtocols[i]
+                return ir.installationProtocols[i];
             } else {
                 i = ir.installationProtocols.length;
-                return undefined
+                return undefined;
             }
         },
-        saveData: (irid, raw, edit) => edit
-            ? upravitServisniProtokol(irid, i, raw)
-            : vyplnitServisniProtokol(irid, raw),
+        saveData: (irid, raw, edit, data) => {
+            (['nahradniDil1', 'nahradniDil2', 'nahradniDil3'] as const).forEach(dil => {
+                if (raw[dil].dil?.name == otherPart.name) raw[dil].dil = {
+                    name: data[dil].name.value,
+                    code: Number(data[dil].code.value).roundTo(2),
+                    unitPrice: Number(data[dil].unitPrice.value).roundTo(2),
+                };
+            });
+            return edit
+                ? upravitServisniProtokol(irid, i, raw)
+                : vyplnitServisniProtokol(irid, raw);
+        },
         createWidgetData: (evidence, protokol) => ({ evidence, protokol }),
         title: edit => edit
             ? p`Editace SP`
@@ -138,7 +185,7 @@ export const sp = (() => {
             await startTechniciansListening();
             await startSparePartsListening();
             if (!p.zasah.datum.value)
-                p.zasah.datum.value = nowISO()
+                p.zasah.datum.value = nowISO();
         },
         storeEffects: [
             [(p, [$techniciansList, $currentUser]) => {
@@ -151,10 +198,10 @@ export const sp = (() => {
                 p.zasah.inicialy.required = () => !ja;
             }, [techniciansList, currentUser]],
             [(p, [$sparePartsList]) => {
-                const spareParts = $sparePartsList.map(it => ({
+                const spareParts = [otherPart, ...$sparePartsList.map(it => ({
                     ...it,
                     name: it.name.replace('  ', ' '),
-                }) as SparePart);
+                }) as SparePart)];
                 p.nahradniDil1.dil.items = () => spareParts;
                 p.nahradniDil2.dil.items = () => spareParts;
                 p.nahradniDil3.dil.items = () => spareParts;
