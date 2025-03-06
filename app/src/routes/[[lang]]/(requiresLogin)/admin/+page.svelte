@@ -740,7 +740,7 @@
                         {@const v = getTranslations(lang).getMaybeTemplate(tr)}
                         {@const cs = getTranslations('cs').getMaybeTemplate(tr)}
                         {@const en = getTranslations('en').getMaybeTemplate(tr)}
-                        <td class="col-3"
+                        <td class="col-20"
                             class:table-danger={lang !== 'cs' && cs === v}
                             class:table-warning={lang !== 'en' && lang !== 'cs' && en === v}>
                             {#if typeof v === 'string'}
@@ -756,3 +756,9 @@
         </table>
     </div>
 </div>
+
+<style>
+    .col-20 {
+        width: 20%;
+    }
+</style>
