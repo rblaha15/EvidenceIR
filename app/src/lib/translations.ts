@@ -6,8 +6,9 @@ import en from './translations/en';
 import { createTemplateG } from './Widget.svelte.js';
 import derived, { type Derived } from '$lib/derived';
 import './extensions';
+import sk from '$lib/translations/sk';
 
-const translationsMap: PlainTranslationsMap = { cs, en, de /*, sk */ };
+const translationsMap: PlainTranslationsMap = { cs, en, de, sk  };
 
 export const removePlain = (ref: string) => ref.slice(6);
 export const isPlain = (ref: TranslationReference) => ref.startsWith('PLAIN_');
@@ -69,7 +70,7 @@ type LanguageNames = Translate<string>;
 export const languageNames: LanguageNames = {
     cs: 'čeština',
     en: 'English',
-    //     sk: "slovenčina",
+    sk: "slovenčina",
     de: 'Deutsch'
 };
 
