@@ -1,7 +1,7 @@
 import { get } from "svelte/store"
 import { storable } from './helpers/stores'
 
-export const languageCodes = ["cs", "en", "de"/* , "sk" */] as const
+export const languageCodes = ["cs", "en", "de", "sk" ] as const
 
 export const isLanguageCode = (code: unknown): code is LanguageCode => (languageCodes as readonly unknown[]).includes(code)
 
