@@ -57,7 +57,7 @@ export type DataSP = {
 }
 
 export const otherPart = <SparePart> {
-    name: p`Jíné`,
+    name: p`Jiné`,
 };
 
 const nahradniDil = (n: 1 | 2 | 3): NahradniDil => {
