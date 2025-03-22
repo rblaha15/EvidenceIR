@@ -8,6 +8,7 @@ import type { Pdf } from '$lib/client/pdf';
 import type { TranslationReference, Translations } from '$lib/translations';
 import { solarCollectorCommission } from '$lib/forms/UvedeniSOL';
 import { check } from '$lib/forms/Kontrola.svelte';
+import type { ExcelImport } from '$lib/forms/Import';
 
 export type FormName = 'sp' | 'heatPumpCommission' | 'solarCollectorCommission' | 'check'
 
@@ -23,6 +24,7 @@ export type FormInfo<D, F extends Form<D> = Form<D>, S extends unknown[][] = []>
     defaultData: () => F;
     pdfLink: () => Pdf;
     saveData: (irid: IRID, raw: Raw<F>, edit: boolean, data: F) => Promise<void>;
+    storeData?: (data: F) => Raw<F>;
     createWidgetData: (evidence: Raw<Data>, data: F) => D;
     title: (edit: boolean, t: Translations) => TranslationReference;
     subtitle?: ((edit: boolean, t: Translations) => TranslationReference) | undefined;
@@ -31,6 +33,9 @@ export type FormInfo<D, F extends Form<D> = Form<D>, S extends unknown[][] = []>
     storeEffects?: { [I in keyof S]: Effect<F, S[I]> } | undefined;
     requiredAdmin?: boolean | undefined;
     requiredRegulus?: boolean | undefined;
+    importOptions?: Omit<ExcelImport<Raw<F>>, 'defaultData'> & {
+        onImport: (data: F) => void;
+    };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -44,7 +44,7 @@ export const nazevSHvezdou = <D>(
     t: Translations
 ) => {
     const nazev = t.get(vec.label(data));
-    return nazev == '' ? '' : nazev + (!vec.required(data) ? '' : ' *');
+    return nazev == '' ? '' : nazev + (!vec.required(data) ? '' : ' ∗');
 };
 
 export abstract class Widget<D, U, H extends boolean = boolean> {
@@ -87,6 +87,7 @@ type MultiChooserArgs<D> = { options: GetOrVal<D, Arr>; chosen?: Arr; max?: GetO
 type InputArgs<D> = {
     regex?: GetOrVal<D, RegExp>;
     capitalize?: GetOrVal<D, boolean>;
+    textArea?: GetOrVal<D, boolean>;
     maskOptions?: GetOrVal<D, Opts>;
     type?: GetOrVal<D, HTMLInputTypeAttribute>;
     autocomplete?: GetOrVal<D, FullAutoFill>;
@@ -114,6 +115,7 @@ type Input<D> = Widget<D, string> & {
     maskOptions: Get<D, Opts>;
     regex: Get<D, RegExp>;
     capitalize: Get<D, boolean>;
+    textArea: Get<D, boolean>;
 };
 
 const initText = function <D>(widget: Widget<D, unknown>, args: TextArgs<D>) {
@@ -169,6 +171,7 @@ const initMultiChooser = function <D>(widget: MultiChooser<D>, args: MultiChoose
 const initInput = function <D>(widget: Input<D>, args: InputArgs<D>) {
     widget.regex = toGet(args.regex ?? /.*/);
     widget.capitalize = toGet(args.capitalize ?? false);
+    widget.textArea = toGet(args.textArea ?? false);
     widget.maskOptions = toGet(args.maskOptions ?? undefined);
     widget.type = toGet(args.type ?? 'text');
     widget.autocomplete = toGet(args.autocomplete ?? 'off');
@@ -382,6 +385,7 @@ export class InputWidget<D, H extends boolean = false> extends Widget<D, string,
     maskOptions = $state() as Get<D, Opts>;
     regex = $state() as Get<D, RegExp>;
     capitalize = $state() as Get<D, boolean>;
+    textArea = $state() as Get<D, boolean>;
 
     constructor(args: TextArgs<D> & ValueArgs<D, H> & LockArgs<D> & InputArgs<D>) {
         super();

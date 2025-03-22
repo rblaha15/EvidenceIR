@@ -2,7 +2,7 @@
     import { formInfo, type FormInfo, type FormName } from '$lib/forms/forms.svelte';
     import type { PageProps } from './$types';
     import { evidence as getEvidence } from '$lib/client/firestore';
-    import { onMount } from 'svelte';
+    import { onMount, untrack } from 'svelte';
     import { derived as derivedStore } from 'svelte/store';
     import WidgetComponent from '$lib/components/Widget.svelte';
     import type { Data } from '$lib/forms/Data';
@@ -29,6 +29,8 @@
         storeEffects,
         getEditData,
         subtitle,
+        storeData,
+        importOptions,
     } = formInfo[formName] as FormInfo<D, F, S>;
 
     const storedData = storable<Raw<F>>(`${storeName}_${(irid)}`);
@@ -114,13 +116,25 @@
 
     $effect(() => {
         if (mode != 'loading' && mode != 'edit') {
-            storedData.set(dataToRawData(f));
+            storedData.set((storeData ?? dataToRawData)(f));
         }
     });
+
+    const onImport = (newData: Raw<F>) => {
+        f = rawDataToData(f, newData);
+        for (const i in list) {
+            list[i].displayErrorVeto = true;
+        }
+        importOptions!.onImport(f);
+    };
+
+    const isDangerous = $derived(JSON.stringify(dataToRawData(f)) != JSON.stringify(dataToRawData(untrack(defaultData))));
 </script>
 
 {#if mode !== 'loading'}
-    <FormHeader store={storedData} {t} title={t.get(title(mode === 'edit', t))} />
+    <FormHeader store={storedData} {t} title={t.get(title(mode === 'edit', t))} importData={importOptions ? {
+        ...importOptions, onImport, isDangerous, defaultData: () => dataToRawData(defaultData())
+    } : undefined} />
     {#if subtitle}
         <h3>{t.get(subtitle(mode === 'edit', t))}</h3>
     {/if}
