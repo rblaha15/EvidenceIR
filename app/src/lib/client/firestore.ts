@@ -24,6 +24,7 @@ import { firestore } from '../../hooks.client';
 import type { UvedeniSOL } from '$lib/forms/UvedeniSOL';
 import type { DataSP } from '$lib/forms/SP.svelte';
 import type { TranslationReference } from '$lib/translations';
+import type { DataSP2 } from '$lib/forms/SP2';
 
 const persistentCacheIndexManager = getPersistentCacheIndexManager(firestore);
 if (persistentCacheIndexManager)
@@ -31,6 +32,7 @@ if (persistentCacheIndexManager)
 
 export type IRType = '2' | '4' | 'B';
 export type IRID = `${IRType}${string}`;
+export type SPID = `${string}-${string}-${string}`;
 
 const extractIRTypeFromFullIRType = (fullIRType: string): IRType =>
     (fullIRType.includes('12') ? '2'
@@ -41,6 +43,12 @@ export const extractIRIDFromParts = (fullIRType: string, irNumber: string): IRID
     `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replace(' ', '')}`;
 export const extractIRIDFromRawData = (evidence: Raw<Data>): IRID =>
     extractIRIDFromParts(evidence.ir.typ.first!, evidence.ir.cislo);
+export const extractSPIDFromRawData = (p: Raw<DataSP2>): SPID => {
+    const datum = p.zasah.datum.split('T')[0]
+    const hodina = p.zasah.datum.split('T')[1].split(':')[0]
+    const technik = p.zasah.inicialy
+    return `${technik}-${datum}-${hodina}`
+};
 
 export const IRNumberFromIRID = (irid: IRID): string =>
     irid.slice(1, 3) + ' ' + irid.slice(3, 7);
@@ -116,6 +124,10 @@ const irCollection = collection(firestore, 'ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
     fromFirestore: (snapshot: QueryDocumentSnapshot) => modernizeIR(snapshot.data() as IR & LegacyIR),
 });
+const spCollection = collection(firestore, 'sp').withConverter<Raw<DataSP2>>({
+    toFirestore: (modelObject: WithFieldValue<Raw<DataSP2>>) => modelObject,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<DataSP2>,
+})
 const checkCollection = collection(firestore, 'check');
 const irDoc = (irid: IRID) => doc(irCollection, irid);
 const checkDoc = (irid: IRID) => doc(checkCollection, irid);
@@ -148,6 +160,8 @@ export const vyplnitServisniProtokol = async (irid: IRID, protokol: Raw<DataSP>)
         [...p, protokol]
     );
 };
+export const vyplnitObecnyServisniProtokol = (protokol: Raw<DataSP2>) =>
+    setDoc(doc(spCollection, extractSPIDFromRawData(protokol)), protokol);
 
 export const upravitServisniProtokol = async (irid: IRID, index: number, protokol: Raw<DataSP>) => {
     const p = (await evidence(irid)).data()!.installationProtocols;

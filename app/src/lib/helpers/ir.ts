@@ -2,6 +2,9 @@ import type { Pair } from '$lib/Widget.svelte.js';
 import { removePlain } from '$lib/translations';
 import type { Data } from '$lib/forms/Data';
 import type { Raw } from '$lib/forms/Form';
+import type { IRID } from '$lib/client/firestore';
+
+export const isIRID = (irid_spid: string): irid_spid is IRID => !irid_spid.includes('-');
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno

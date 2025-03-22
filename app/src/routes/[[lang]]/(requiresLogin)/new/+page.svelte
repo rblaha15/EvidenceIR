@@ -14,7 +14,7 @@
     import { dev } from '$app/environment';
     import { page } from '$app/state';
     import { onMount, untrack } from 'svelte';
-    import { nazevFirmy } from '$lib/helpers/ares';
+    import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
     import FormHeader from '../detail/[irid]/FormHeader.svelte';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
     import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
@@ -27,6 +27,7 @@
 
     let mode: 'loading' | 'create' | 'edit' | 'createStored' = $state('loading');
     let data: Data = $state(newData());
+    const d: { d: Data } = $derived({ d: data });
     onMount(async () => {
         await startTechniciansListening()
 
@@ -117,7 +118,7 @@
     $effect(() => {
         data;
         if (mode != 'loading') {
-            if (!data.tc.model.options(data).includes(data.tc.model.value ?? '')) {
+            if (!data.tc.model.options(d).includes(data.tc.model.value ?? '')) {
                 data.tc.model.value = null;
             }
         }
@@ -132,7 +133,22 @@
     });
     $effect(() => {
         if (mode != 'loading' && mode != 'edit') {
-            storedData.set(dataToRawData(data));
+            const raw = dataToRawData(data)
+            if (data.uvedeni.jakoMontazka.value) {
+                raw.uvedeni.ico = raw.montazka.ico;
+                raw.uvedeni.email = raw.montazka.email;
+                raw.uvedeni.telefon = raw.montazka.telefon;
+            } else if (raw.uvedeni.ico == regulusCRN.toString() && data.uvedeni.regulus.value) {
+                raw.uvedeni.email = data.uvedeni.regulus.value.email;
+                raw.uvedeni.telefon = data.uvedeni.regulus.value.phone;
+                raw.uvedeni.zastupce = data.uvedeni.regulus.value.name;
+            }
+            if (data.mistoRealizace.jakoBydliste.value) {
+                raw.mistoRealizace.ulice = raw.bydliste.ulice;
+                raw.mistoRealizace.obec = raw.bydliste.obec;
+                raw.mistoRealizace.psc = raw.bydliste.psc;
+            }
+            storedData.set(raw);
         }
     });
     let typBOXu = $derived(typBOX(data.ir.cisloBox.value));
@@ -149,7 +165,7 @@
     let list = $derived(
         data && mode != 'loading'
             ? (Object.values(data) as Data[keyof Data][]).flatMap(
-                (obj) => Object.values(obj) as v.Widget<Data, unknown>[]
+                (obj) => Object.values(obj) as v.Widget<{ d: Data }, unknown>[]
             )
             : []
     );
@@ -186,8 +202,8 @@
         }
     });
     $effect(() => {
-        if (data.uvedeni.email.value) {
-            data.uvedeni.regulus.value = data.uvedeni.regulus.items(data).find(t => t.email == data.uvedeni.email.value) ?? data.uvedeni.regulus.value
+        if (data.uvedeni.ico.value == regulusCRN.toString() && data.uvedeni.email.value) {
+            data.uvedeni.regulus.value = data.uvedeni.regulus.items(d).find(t => t.email == data.uvedeni.email.value) ?? data.uvedeni.regulus.value
         }
     });
     $effect(() => {
@@ -216,23 +232,22 @@
             importData={{...importData, onImport, isDangerous}} />
 
 {#each list as _, i}
-    {#if list[i] instanceof v.InputWidget && cisla.includes(list[i]) && list[i].show(data)}
+    {#if list[i] instanceof v.InputWidget && cisla.includes(list[i]) && list[i].show(d)}
         <Scanner
             bind:widget={list[i]}
             onScan={(text) => list[i].value = text.slice(-12)}
-            {t}
-            {data}
+            {t} {d}
         />
     {:else}
-        <WidgetComponent bind:widget={list[i]} {t} {data} />
+        <WidgetComponent bind:widget={list[i]} {t} data={d} />
     {/if}
-    {#if list[i] === data.ir.cisloBox && list[i].show(data) && typBOXu}
+    {#if list[i] === data.ir.cisloBox && list[i].show(d) && typBOXu}
         <p>Rozpoznáno: {typBOXu}</p>
     {/if}
-    {#if list[i] === data.koncovyUzivatel.nazev && list[i].show(data) && chyba}
+    {#if list[i] === data.koncovyUzivatel.nazev && list[i].show(d) && chyba}
         <p>Pozor, zadaná forma společnosti není správně formátovaná!</p>
     {/if}
-    {#if list[i] === data.montazka.ico && list[i].show(data)}
+    {#if list[i] === data.montazka.ico && list[i].show(d)}
         <p>
             {#await chosen?.assemblyCompany then a}
                 {#if a}
@@ -241,7 +256,7 @@
             {/await}
         </p>
     {/if}
-    {#if list[i] === data.uvedeni.ico && list[i].show(data)}
+    {#if list[i] === data.uvedeni.ico && list[i].show(d)}
         <p>
             {#await chosen?.commissioningCompany then c}
                 {#if c}

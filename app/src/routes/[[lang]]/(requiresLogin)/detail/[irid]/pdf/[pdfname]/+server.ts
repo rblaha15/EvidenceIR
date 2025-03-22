@@ -6,14 +6,14 @@ import type { RequestHandler } from './$types';
 import { error, redirect } from '@sveltejs/kit';
 import type { LanguageCode } from '$lib/languages';
 import { checkAdmin, checkRegulusOrAdmin } from '$lib/server/auth';
-import type { IRID } from '$lib/client/firestore';
+import type { IRID, SPID } from '$lib/client/firestore';
 
 export const GET: RequestHandler = async ({ url, fetch, params }) => {
     const pdfName = params.pdfname as Pdf
     const t = url.searchParams.get("token")
 
     const token = await checkToken(t)
-    if (!token)  {
+    if (!token && pdfName != 'publicInstallationProtocol')  {
         url.search = ""
         url.pathname = url.pathname.split("/pdf")[0]
         return redirect(303, url)
@@ -25,8 +25,8 @@ export const GET: RequestHandler = async ({ url, fetch, params }) => {
     const pdfArgs = pdfInfo[pdfTypeName];
     const getData = getPdfData(pdfName);
 
-    if (pdfArgs.requiredAdmin && !checkAdmin(token) || pdfArgs.requiredRegulus && !checkRegulusOrAdmin(token))
-        return error(402);
+    if (pdfArgs.requiredAdmin && !checkAdmin(token!) || pdfArgs.requiredRegulus && !checkRegulusOrAdmin(token!))
+        return error(401);
 
-    return generatePdf(params.lang as LanguageCode, params.irid as IRID, fetch, pdfArgs, getData)
+    return generatePdf(params.lang as LanguageCode, params.irid as IRID | SPID, fetch, pdfArgs, getData)
 }

@@ -1,7 +1,6 @@
 import { ChooserWidget, CounterWidget, InputWidget, MultiCheckboxWidget, p, RadioWidget, SearchWidget, TextWidget, TitleWidget } from '../Widget.svelte.js';
 import { type SparePart, sparePartsList, startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
-import type { Data } from '$lib/forms/Data';
 import { page } from '$app/state';
 import { upravitServisniProtokol, vyplnitServisniProtokol } from '$lib/client/firestore';
 import { currentUser } from '$lib/client/auth';
@@ -13,7 +12,6 @@ import type { ExcelImport } from '$lib/forms/Import';
 
 export type UDSP = {
     protokol: DataSP,
-    evidence: Raw<Data>,
 }
 
 type NahradniDil = {
@@ -210,18 +208,18 @@ const cells: ExcelImport<Raw<DataSP>>['cells'] = {
     },
 };
 
-const updateOtherSpareParts = (p: DataSP, spareParts: SparePart[] = p.nahradniDil1.dil.items({} as UDSP)) => {
+export const updateOtherSpareParts = (p: DataSP, spareParts: SparePart[] = p.nahradniDil1.dil.items({} as UDSP)) => {
     [p.nahradniDil1, p.nahradniDil2, p.nahradniDil3].forEach(nahradniDil => {
         if (nahradniDil.dil.value && !spareParts.some(p => p.code == nahradniDil.dil.value?.code)) {
             nahradniDil.name.value = nahradniDil.dil.value.name;
             nahradniDil.code.value = nahradniDil.dil.value.code.toString();
-            nahradniDil.unitPrice.value = nahradniDil.dil.value.unitPrice.roundTo(2).toLocaleString('cs');
+            nahradniDil.unitPrice.value = nahradniDil.dil.value.unitPrice?.toString();
             nahradniDil.dil.value = otherPart;
         }
     });
 };
 
-const compactOtherSpareData = (raw: Raw<DataSP>, data: DataSP) => {
+export const compactOtherSpareData = (raw: Raw<DataSP>, data: DataSP) => {
     (['nahradniDil1', 'nahradniDil2', 'nahradniDil3'] as const).forEach(dil => {
         if (raw[dil].dil?.name == otherPart.name) raw[dil].dil = {
             name: data[dil].name.value,
