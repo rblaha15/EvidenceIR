@@ -5,21 +5,24 @@ import type { DocumentSnapshot } from 'firebase-admin/firestore';
 import { getTranslations, type Translations } from '$lib/translations';
 import type { LanguageCode } from '$lib/languages';
 import { type Pdf, type PdfArgs, toPdfTypeName } from '$lib/client/pdf';
-import { evidence } from '$lib/server/firestore';
-import { type IR, type IRID } from '$lib/client/firestore';
+import { evidence_sp2 } from '$lib/server/firestore';
+import { type IR, type IRID, type SPID } from '$lib/client/firestore';
 import check from '$lib/client/pdf/check';
 import warranty from '$lib/client/pdf/warranty';
 import rroute from '$lib/client/pdf/rroute';
 import guide from '$lib/client/pdf/guide';
 import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtocol';
 import solarCollectorCommissionProtocol from '$lib/client/pdf/solarCollectorCommissionProtocol';
-import installationProtocol from '$lib/client/pdf/installationProtocol';
-import { nazevIR } from '$lib/helpers/ir';
+import installationProtocol, { publicInstallationProtocol } from '$lib/client/pdf/installationProtocol';
+import { isIRID, nazevIR } from '$lib/helpers/ir';
+import type { DataSP2 } from '$lib/forms/SP2';
+import type { Raw } from '$lib/forms/Form';
 
 type Fetch = typeof fetch;
 
 export type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole'
-export type GetPdfData = (data: IR, t: Translations) => Promise<{
+export type DataOfID<ID extends IRID | SPID> = ID extends IRID ? IR : Raw<DataSP2>;
+export type GetPdfData<ID extends IRID | SPID = IRID> = (data: DataOfID<ID>, t: Translations) => Promise<{
     [fieldName in `${PdfFieldType}${number}`]: (fieldName extends `Zaškrtávací pole${number}` ? boolean : string) | null;
 } & {
     fileName: string;
@@ -36,16 +39,17 @@ export const getPdfData = (
     if (t == 'heatPumpCommissionProtocol') return heatPumpCommissionProtocol;
     if (t == 'solarCollectorCommissionProtocol') return solarCollectorCommissionProtocol;
     if (t == 'installationProtocol') return installationProtocol(Number(link.split('-')[1]));
+    if (t == 'publicInstallationProtocol') return publicInstallationProtocol;
     throw `Invalid link name: ${t}`
 };
 
-export const generatePdf = async (lang: LanguageCode, irid: IRID, fetch: Fetch, args: PdfArgs, getData: GetPdfData) => {
-    let snapshot: DocumentSnapshot<IR | undefined>;
+export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, irid_spid: ID, fetch: Fetch, args: PdfArgs, getData: GetPdfData<ID>) => {
+    let snapshot: DocumentSnapshot<DataOfID<ID> | undefined>;
     try {
-        snapshot = await evidence(irid);
+        snapshot = await evidence_sp2(irid_spid);
     } catch (e) {
-        console.log(`Nepovedlo se načíst data z firebase ${{ lang, irid }}`);
-        error(500, `Nepovedlo se načíst data z firebase ${lang}, ${irid}, ${e}`);
+        console.log(`Nepovedlo se načíst data z firebase ${{ lang, irid_spid }}`);
+        error(500, `Nepovedlo se načíst data z firebase ${lang}, ${irid_spid}, ${e}`);
     }
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
     const t = getTranslations(formLanguage);
@@ -67,7 +71,7 @@ export const generatePdf = async (lang: LanguageCode, irid: IRID, fetch: Fetch, 
     const formData = await getData(data, t);
 
     const prefixFileNameWithIR = !(formData.doNotPrefixFileNameWithIR ?? false);
-    const prefix = prefixFileNameWithIR ? nazevIR(data.evidence.ir) + ' ' : '';
+    const prefix = prefixFileNameWithIR && isIRID(irid_spid) ? nazevIR((data as IR).evidence.ir) + ' ' : '';
     const fileName = prefix + formData.fileName;
 
     for (const fieldName in formData.omit('fileName', 'doNotPrefixFileNameWithIR')) {

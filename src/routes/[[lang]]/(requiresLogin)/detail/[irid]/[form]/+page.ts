@@ -11,7 +11,7 @@ export const load: PageLoad = async ({ params }) => {
     const info = formInfo[formName]
 
     if (info.requiredAdmin && !await checkAdmin() || info.requiredRegulus && !await checkRegulusOrAdmin())
-        return error(402);
+        return error(401);
 
     return {
         formName

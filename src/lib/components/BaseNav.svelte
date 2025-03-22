@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page } from '$app/state';
-    import { isUserAdmin } from '$lib/client/auth';
+    import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import type { Translations } from '$lib/translations';
     import { relUrl } from '$lib/helpers/runes.svelte';
 
@@ -15,12 +15,23 @@
     <li class="link-item" data-bs-dismiss="offcanvas">
         <a
             tabindex="0"
-            aria-current={page.route.id?.includes('/new') && !page.url.searchParams.has('edit-irid') ? 'page' : null}
+            aria-current={page.route.id?.match(/.*\/new($|\?)/) && !page.url.searchParams.has('edit-irid') ? 'page' : null}
             class="nav-link mt-3 mt-sm-0"
-            class:active={page.route.id?.includes('/new') && !page.url.searchParams.has('edit-irid')}
+            class:active={page.route.id?.match(/.*\/new($|\?)/) && !page.url.searchParams.has('edit-irid')}
             href={relUrl('/new')}>{t.new}</a
         >
     </li>
+    {#if $isUserRegulusOrAdmin}
+        <li class="link-item" data-bs-dismiss="offcanvas">
+            <a
+                tabindex="0"
+                class="nav-link ms-sm-3"
+                class:active={page.route.id?.endsWith('/newSP')}
+                aria-current={page.route.id?.endsWith('/newSP') ? 'page' : null}
+                href={relUrl('/newSP')}>Nezávislý servisní protokol</a
+            >
+        </li>
+    {/if}
     <li class="link-item" data-bs-dismiss="offcanvas">
         <a
             tabindex="0"

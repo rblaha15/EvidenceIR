@@ -26,6 +26,7 @@
         vec.capitalize(data) ? value.toUpperCase() : value;
 
     let input = $state<HTMLInputElement>();
+    let textarea = $state<HTMLTextAreaElement>();
     let mask = $state<InputMask<MyOpts>>();
 
     let opts = $derived(widget.maskOptions(data));
@@ -72,9 +73,10 @@
                 autocomplete={widget.autocomplete(data)}
                 placeholder={nazevSHvezdou(widget, data, t)}
                 class="form-control"
+                bind:this={textarea}
                 value={widget.value}
                 oninput={() => {
-					if (input) widget.value = maybeCapitalized(input.value, widget);
+					if (textarea) widget.value = maybeCapitalized(textarea.value, widget);
 				}}
                 disabled={widget.lock(data)}
                 style="height: 100px"

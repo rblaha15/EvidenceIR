@@ -4,7 +4,7 @@
     import { getToken } from '$lib/client/auth';
     import { type Pdf, pdfInfo, toPdfTypeName } from '$lib/client/pdf';
     import { storable } from '$lib/helpers/stores';
-    import { getIsOnline } from '$lib/client/realtime';
+    import { getIsOnline, isOnline } from '$lib/client/realtime';
     import { get } from 'svelte/store';
     import type { Snippet } from 'svelte';
 
@@ -35,7 +35,7 @@
 
     const lastToken = storable<string>(`firebase_token_${data.irid}_${linkName}`);
 
-    const token = getIsOnline() ? getToken() : get(lastToken);
+    const token = $isOnline ? getToken() : get(lastToken);
 </script>
 
 <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center mt-2">

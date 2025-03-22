@@ -15,85 +15,85 @@ import type { ExcelImport } from '$lib/forms/Import';
 import { makePlain } from '$lib/translations';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
 
-export type Data = {
+export type Data<D = { d: Data }> = {
     ir: {
-        typ: DoubleChooserWidget<Data>;
-        cislo: InputWidget<Data>;
-        cisloBox: InputWidget<Data>;
-        chceVyplnitK: MultiCheckboxWidget<Data>;
+        typ: DoubleChooserWidget<D>;
+        cislo: InputWidget<D>;
+        cisloBox: InputWidget<D>;
+        chceVyplnitK: MultiCheckboxWidget<D>;
     };
     tc: {
-        nadpis: TitleWidget<Data>;
-        poznamka: TextWidget<Data>;
-        typ: RadioWidget<Data>;
-        model: ChooserWidget<Data>;
-        cislo: InputWidget<Data>;
-        model2: ChooserWidget<Data>;
-        cislo2: InputWidget<Data>;
-        model3: ChooserWidget<Data>;
-        cislo3: InputWidget<Data>;
-        model4: ChooserWidget<Data>;
-        cislo4: InputWidget<Data>;
+        nadpis: TitleWidget<D>;
+        poznamka: TextWidget<D>;
+        typ: RadioWidget<D>;
+        model: ChooserWidget<D>;
+        cislo: InputWidget<D>;
+        model2: ChooserWidget<D>;
+        cislo2: InputWidget<D>;
+        model3: ChooserWidget<D>;
+        cislo3: InputWidget<D>;
+        model4: ChooserWidget<D>;
+        cislo4: InputWidget<D>;
     };
     sol: {
-        title: TitleWidget<Data>;
-        typ: InputWidget<Data>;
-        pocet: InputWidget<Data>;
+        title: TitleWidget<D>;
+        typ: InputWidget<D>;
+        pocet: InputWidget<D>;
     };
     koncovyUzivatel: {
-        nadpis: TitleWidget<Data>;
-        typ: RadioWidget<Data>;
-        prijmeni: InputWidget<Data>;
-        jmeno: InputWidget<Data>;
-        narozeni: InputWidget<Data>;
-        nazev: InputWidget<Data>;
-        pobocka: InputWidget<Data>;
-        ico: InputWidget<Data>;
-        telefon: InputWidget<Data>;
-        email: InputWidget<Data>;
+        nadpis: TitleWidget<D>;
+        typ: RadioWidget<D>;
+        prijmeni: InputWidget<D>;
+        jmeno: InputWidget<D>;
+        narozeni: InputWidget<D>;
+        nazev: InputWidget<D>;
+        pobocka: InputWidget<D>;
+        ico: InputWidget<D>;
+        telefon: InputWidget<D>;
+        email: InputWidget<D>;
     };
     bydliste: {
-        nadpis: TitleWidget<Data>;
-        obec: InputWidget<Data>;
-        ulice: InputWidget<Data>;
-        psc: InputWidget<Data>;
+        nadpis: TitleWidget<D>;
+        obec: InputWidget<D>;
+        ulice: InputWidget<D>;
+        psc: InputWidget<D>;
     };
     mistoRealizace: {
-        nadpis: TitleWidget<Data>;
-        jakoBydliste: CheckboxWidget<Data, true>;
-        obec: InputWidget<Data>;
-        ulice: InputWidget<Data>;
-        psc: InputWidget<Data>;
+        nadpis: TitleWidget<D>;
+        jakoBydliste: CheckboxWidget<D, true>;
+        obec: InputWidget<D>;
+        ulice: InputWidget<D>;
+        psc: InputWidget<D>;
     };
     montazka: {
-        nadpis: TitleWidget<Data>;
-        company: SearchWidget<Data, Company, true>;
-        nebo: TextWidget<Data>;
-        ico: InputWidget<Data>;
-        zastupce: InputWidget<Data>;
-        email: InputWidget<Data>;
-        telefon: InputWidget<Data>;
+        nadpis: TitleWidget<D>;
+        company: SearchWidget<D, Company, true>;
+        nebo: TextWidget<D>;
+        ico: InputWidget<D>;
+        zastupce: InputWidget<D>;
+        email: InputWidget<D>;
+        telefon: InputWidget<D>;
     };
     uvedeni: {
-        nadpis: TitleWidget<Data>;
-        jakoMontazka: CheckboxWidget<Data, true>;
-        company: SearchWidget<Data, Company, true>;
-        nebo: TextWidget<Data>;
-        ico: InputWidget<Data>;
-        regulus: SearchWidget<Data, Technician, true>;
-        zastupce: InputWidget<Data>;
-        email: InputWidget<Data>;
-        telefon: InputWidget<Data>;
+        nadpis: TitleWidget<D>;
+        jakoMontazka: CheckboxWidget<D, true>;
+        company: SearchWidget<D, Company, true>;
+        nebo: TextWidget<D>;
+        ico: InputWidget<D>;
+        regulus: SearchWidget<D, Technician, true>;
+        zastupce: InputWidget<D>;
+        email: InputWidget<D>;
+        telefon: InputWidget<D>;
     };
     vzdalenyPristup: {
-        nadpis: TitleWidget<Data>;
-        chce: CheckboxWidget<Data>;
-        pristupMa: MultiCheckboxWidget<Data>;
-        plati: RadioWidget<Data>;
+        nadpis: TitleWidget<D>;
+        chce: CheckboxWidget<D>;
+        pristupMa: MultiCheckboxWidget<D>;
+        plati: RadioWidget<D>;
     };
     ostatni: {
-        zodpovednaOsoba: InputWidget<Data>;
-        poznamka: InputWidget<Data>;
+        zodpovednaOsoba: InputWidget<D>;
+        poznamka: InputWidget<D>;
     };
 }
 
