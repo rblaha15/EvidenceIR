@@ -7,7 +7,7 @@ export const toPdfTypeName = (linkName: Pdf) =>
     linkName.split('-')[0] as PdfTypeName;
 
 export type Pdf =
-    | 'check' | `warranty-${'' | 2 | 3 | 4}` | 'rroute' | 'guide'
+    | 'check' | `warranty-${'' | 2 | 3 | 4}` | 'rroute' | 'guide' | `publicInstallationProtocol-${string}`
     | 'heatPumpCommissionProtocol' | 'solarCollectorCommissionProtocol' | `installationProtocol-${number}`;
 type PdfTypeName = {
     [P in Pdf]: P extends `${infer S}-${string}` ? S : P;
@@ -47,6 +47,12 @@ export const pdfInfo: PdfInfo = {
         title: p`Protokol o uvedení solárního systému do trvalého provozu`,
     },
     installationProtocol: {
+        formName: 'installationProtocol',
+        supportedLanguages: ['cs'],
+        title: p`Instalační a servisní protokol`,
+        requiredRegulus: true,
+    },
+    publicInstallationProtocol: {
         formName: 'installationProtocol',
         supportedLanguages: ['cs'],
         title: p`Instalační a servisní protokol`,

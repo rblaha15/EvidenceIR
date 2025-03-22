@@ -2,7 +2,6 @@ import { type IR, type IRID } from '$lib/client/firestore';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
 import type { Readable } from 'svelte/store';
-import { sp } from '$lib/forms/SP.svelte';
 import { heatPumpCommission } from '$lib/forms/UvedeniTC';
 import type { Pdf } from '$lib/client/pdf';
 import type { TranslationReference, Translations } from '$lib/translations';
@@ -40,8 +39,13 @@ export type FormInfo<D, F extends Form<D> = Form<D>, S extends unknown[][] = []>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const formInfo: { [F in FormName]: FormInfo<any, any, any> } = {
-    sp,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sp: <FormInfo<any, any, any>>{},
     heatPumpCommission,
     solarCollectorCommission,
     check,
 };
+
+(async () => {
+    formInfo.sp = (await import("$lib/forms/SP.svelte")).sp
+})()

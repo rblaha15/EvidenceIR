@@ -26,7 +26,7 @@ export const GET: RequestHandler = async ({ url, fetch, params }) => {
     const getData = getPdfData(pdfName);
 
     if (pdfArgs.requiredAdmin && !checkAdmin(token) || pdfArgs.requiredRegulus && !checkRegulusOrAdmin(token))
-        return error(402);
+        return error(401);
 
     return generatePdf(params.lang as LanguageCode, params.irid as IRID, fetch, pdfArgs, getData)
 }

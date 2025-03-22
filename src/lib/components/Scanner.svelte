@@ -15,14 +15,14 @@
 	});
 
 	interface Props {
-		data: Data;
+		d: { d: Data };
 		t: Translations;
 		onScan: (text: string) => void;
-		widget: InputWidget<Data>;
+		widget: InputWidget<{ d: Data }>;
 	}
 
 	let {
-		data,
+		d,
 		t,
 		onScan,
 		widget = $bindable(),
@@ -57,7 +57,7 @@
 </script>
 
 <div class="d-sm-flex flex-sm-row align-items-end">
-	<div class="flex-grow-1"><Input bind:widget {t} {data} /></div>
+	<div class="flex-grow-1"><Input bind:widget {t} data={d} /></div>
 	<span class="p-2 mb-3"> {t.or} </span>
 	<div>
 		<button
