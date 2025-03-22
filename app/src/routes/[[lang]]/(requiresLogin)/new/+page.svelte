@@ -4,7 +4,7 @@
 
     import * as v from '$lib/Widget.svelte.js';
     import { p } from '$lib/Widget.svelte.js';
-    import { type Data, newData } from '$lib/forms/Data';
+    import { type Data, importData, newData } from '$lib/forms/Data';
     import { responsiblePerson, startTechniciansListening, techniciansList } from '$lib/client/realtime';
     import { companies } from './companies';
     import odeslat from './odeslat.svelte';
@@ -13,12 +13,13 @@
 
     import { dev } from '$app/environment';
     import { page } from '$app/state';
-    import { onMount } from 'svelte';
+    import { onMount, untrack } from 'svelte';
     import { nazevFirmy } from '$lib/helpers/ares';
     import FormHeader from '../detail/[irid]/FormHeader.svelte';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
     import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
     import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
+    import defaultData from '$lib/forms/defaultData';
 
     const t = page.data.translations;
 
@@ -185,6 +186,11 @@
         }
     });
     $effect(() => {
+        if (data.uvedeni.email.value) {
+            data.uvedeni.regulus.value = data.uvedeni.regulus.items(data).find(t => t.email == data.uvedeni.email.value) ?? data.uvedeni.regulus.value
+        }
+    });
+    $effect(() => {
         data.uvedeni.regulus.items = () => $techniciansList
     });
     $effect(() => {
@@ -193,10 +199,21 @@
             : ['assemblyCompany', 'endCustomer']
     });
     const chyba = $derived(formaSpolecnostiJeSpatne(data.koncovyUzivatel.nazev.value))
+
+    const onImport = (newData: Raw<Data>) => {
+        console.log(newData);
+        data = rawDataToData(data, newData)
+        for (const i in list) {
+            list[i].displayErrorVeto = true;
+        }
+    }
+
+    const isDangerous = $derived(JSON.stringify(dataToRawData(data)) != JSON.stringify(dataToRawData(untrack(defaultData))))
 </script>
 
 <FormHeader showResetButton={mode === 'create' || mode === 'createStored'} store={storedData} {t}
-            title={mode === 'edit' ? t.editation : t.controllerRegistration} />
+            title={mode === 'edit' ? t.editation : t.controllerRegistration}
+            importData={{...importData, onImport, isDangerous}} />
 
 {#each list as _, i}
     {#if list[i] instanceof v.InputWidget && cisla.includes(list[i]) && list[i].show(data)}

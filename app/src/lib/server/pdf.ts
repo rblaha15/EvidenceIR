@@ -77,7 +77,7 @@ export const generatePdf = async (lang: LanguageCode, irid: IRID, fetch: Fetch, 
             const fieldName = name as `Text${number}`;
             const fieldValue = formData[fieldName];
             const field = form.getTextField(fieldName);
-            field.setText(fieldValue ?? '');
+            field.setText(fieldValue?.toString() ?? '');
             field.disableSpellChecking();
             if (fieldValue != null) field.enableReadOnly();
         }

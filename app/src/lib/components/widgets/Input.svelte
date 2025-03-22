@@ -1,6 +1,6 @@
-<script lang="ts" generics="D">
+<script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { nazevSHvezdou, type InputWidget } from '$lib/Widget.svelte.js';
+    import { type InputWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount } from 'svelte';
 
@@ -67,7 +67,19 @@
 
 {#if widget.show(data)}
     <label class="form-floating d-block mb-1">
-        {#if options !== undefined}
+        {#if widget.textArea(data)}
+            <textarea
+                autocomplete={widget.autocomplete(data)}
+                placeholder={nazevSHvezdou(widget, data, t)}
+                class="form-control"
+                value={widget.value}
+                oninput={() => {
+					if (input) widget.value = maybeCapitalized(input.value, widget);
+				}}
+                disabled={widget.lock(data)}
+                style="height: 100px"
+            ></textarea>
+        {:else if options !== undefined}
             <input
                 type={widget.type(data)}
                 autocomplete={widget.autocomplete(data)}

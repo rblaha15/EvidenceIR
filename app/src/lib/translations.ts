@@ -10,6 +10,7 @@ import sk from '$lib/translations/sk';
 
 const translationsMap: PlainTranslationsMap = { cs, en, de, sk  };
 
+export const makePlain = <T extends string | undefined | null>(text: T) => text ? `PLAIN_${text}` as const : undefined;
 export const removePlain = (ref: string) => ref.slice(6);
 export const isPlain = (ref: TranslationReference) => ref.startsWith('PLAIN_');
 

@@ -103,11 +103,13 @@ const removeUvedeni: Migration = (legacyIR: LegacyIR & IR) =>
     legacyIR.uvedeni ? <LegacyIR & IR>{ uvedeniTC: legacyIR.uvedeni, ...legacyIR, uvedeni: undefined } : legacyIR;
 const removeInstallationProtocol: Migration = (legacyIR: LegacyIR & IR) =>
     legacyIR.installationProtocol ? { ...legacyIR, installationProtocols: [legacyIR.installationProtocol], installationProtocol: undefined } : legacyIR;
+const addInstallationProtocols: Migration = (legacyIR: LegacyIR & IR) =>
+    !legacyIR.installationProtocols ? { ...legacyIR, installationProtocols: [] } : legacyIR;
 
 type Migration = (legacyIR: LegacyIR & IR) => LegacyIR & IR;
 
 export const modernizeIR = (legacyIR: LegacyIR & IR): IR =>
-    [removeInstallationProtocol, removeUvedeni, addUserType, changeBOX, changeFaktutruje, changeHPWarranty]
+    [removeInstallationProtocol, removeUvedeni, addUserType, changeBOX, changeFaktutruje, changeHPWarranty, addInstallationProtocols]
         .reduce((data, migration) => migration(data), legacyIR);
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({

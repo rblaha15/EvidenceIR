@@ -1,6 +1,6 @@
 import { ChooserWidget, CounterWidget, InputWidget, MultiCheckboxWidget, p, RadioWidget, SearchWidget, TextWidget, TitleWidget } from '../Widget.svelte.js';
 import { type SparePart, sparePartsList, startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
-import type { Raw } from '$lib/forms/Form';
+import { dataToRawData, type Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
 import { page } from '$app/state';
 import { upravitServisniProtokol, vyplnitServisniProtokol } from '$lib/client/firestore';
@@ -8,7 +8,8 @@ import { currentUser } from '$lib/client/auth';
 import { type FormInfo } from './forms.svelte.js';
 import type { User } from 'firebase/auth';
 import { nowISO } from '$lib/helpers/date';
-import type { TranslationReference } from '$lib/translations';
+import { makePlain, type TranslationReference } from '$lib/translations';
+import type { ExcelImport } from '$lib/forms/Import';
 
 export type UDSP = {
     protokol: DataSP,
@@ -72,7 +73,6 @@ const nahradniDil = (n: 1 | 2 | 3): NahradniDil => {
         dil: new SearchWidget({
             show: show, required: show,
             label: p`Položka`, items: [], getSearchItem: (i: SparePart) => {
-                console.log(i)
                 return i.name == otherPart.name
                     ? ({ pieces: [{ text: i.name as TranslationReference }] as const })
                     : ({
@@ -111,7 +111,7 @@ export const defaultDataSP = (): DataSP => ({
             options: [`commissioning`, `sp.yearlyCheck`, `sp.warrantyRepair`, `sp.postWarrantyRepair`, `sp.installationApproval`, `sp.otherType`]
         }),
         nahlasenaZavada: new InputWidget({ label: p`Nahlášená závada`, required: false }),
-        popis: new InputWidget({ label: p`Popis zásahu`, required: false })
+        popis: new InputWidget({ label: p`Popis zásahu`, required: false, textArea: true })
     },
     ukony: {
         nadpis: new TitleWidget({ label: p`Vyúčtování` }),
@@ -149,6 +149,88 @@ export const defaultDataSP = (): DataSP => ({
     },
 });
 
+const importSparePart = (i: 0 | 1 | 2): ExcelImport<Raw<DataSP>>['cells']['nahradniDil1'] => ({
+    dil: {
+        getData: get => ({
+            name: get([1, 43 + i]),
+            code: Number(get([6, 43 + i])),
+            unitPrice: Number(get([12, 43 + i])),
+        })
+    },
+    mnozstvi: { address: [9, 43 + i] },
+});
+
+const cells: ExcelImport<Raw<DataSP>>['cells'] = {
+    zasah: {
+        datum: { address: [14, 1], transform: v => v.split('-')[0].split('/').map(n => n.padStart(2, '0')).join('-') + 'T' + v.split('-')[1] + ':00' },
+        clovek: { address: [11, 21] },
+        doba: { address: [16, 21] },
+        druh: {
+            getData: get => ([
+                ['commissioning', get([6, 23])],
+                [`sp.yearlyCheck`, get([6, 25])],
+                [`sp.warrantyRepair`, get([13, 23])],
+                [`sp.postWarrantyRepair`, get([13, 25])],
+                [`sp.installationApproval`, get([20, 23])],
+                [`sp.otherType`, get([20, 25])],
+            ] as const).filter(([, i]) => i as unknown as boolean).map(([n]) => n)
+        },
+        inicialy: { address: [13, 1] },
+        popis: { address: [1, 30] },
+        nahlasenaZavada: { address: [5, 28] },
+    },
+    ukony: {
+        doprava: { address: [9, 38] },
+        mnozstviPrace: { address: [9, 39] },
+        typPrace: { address: [1, 39], transform: v => v.includes('pomoc') ? `sp.technicalAssistance` : 'sp.assemblyWork' },
+        ukony: {
+            getData: get => [get([1, 40]), get([1, 41]), get([1, 42])]
+                .filter(it => it != 'Vyberte úkon')
+                .map(u => ([
+                    ['Route', `sp.regulusRoute`] as const,
+                    ['Uvedení TČ', `sp.commissioningTC`] as const,
+                    ['Uvedení SOL', `sp.commissioningSOL`] as const,
+                    ['kontrola TČ', `yearlyHPCheck`] as const,
+                    ['kontrola SOL', `sp.yearlySOLCheck`] as const,
+                    ['Záruka', `sp.extendedWarranty`] as const,
+                    ['instalace', `sp.installationApproval`] as const,
+                ] as const).find(([s]) => u.includes(s))![1])
+        },
+    },
+    nahradniDil1: importSparePart(0),
+    nahradniDil2: importSparePart(1),
+    nahradniDil3: importSparePart(2),
+    nahradniDily: {
+        pocet: { constant: 1 },
+    },
+    fakturace: {
+        hotove: { address: [18, 43], transform: v => v == 'ANO' ? 'yes' : v == 'NE' ? 'no' : 'doNotInvoice' },
+        komu: { address: [18, 45], transform: v => v == 'Odběratel' ? p`Investor` : 'assemblyCompany' },
+        jak: { address: [18, 46], transform: v => makePlain(v[0].toUpperCase() + v.slice(1))! },
+    },
+};
+
+const updateOtherSpareParts = (p: DataSP, spareParts: SparePart[] = p.nahradniDil1.dil.items({} as UDSP)) => {
+    [p.nahradniDil1, p.nahradniDil2, p.nahradniDil3].forEach(nahradniDil => {
+        if (nahradniDil.dil.value && !spareParts.some(p => p.code == nahradniDil.dil.value?.code)) {
+            nahradniDil.name.value = nahradniDil.dil.value.name;
+            nahradniDil.code.value = nahradniDil.dil.value.code.toString();
+            nahradniDil.unitPrice.value = nahradniDil.dil.value.unitPrice.roundTo(2).toLocaleString('cs');
+            nahradniDil.dil.value = otherPart;
+        }
+    });
+};
+
+const compactOtherSpareData = (raw: Raw<DataSP>, data: DataSP) => {
+    (['nahradniDil1', 'nahradniDil2', 'nahradniDil3'] as const).forEach(dil => {
+        if (raw[dil].dil?.name == otherPart.name) raw[dil].dil = {
+            name: data[dil].name.value,
+            code: Number(data[dil].code.value).roundTo(2),
+            unitPrice: Number(data[dil].unitPrice.value).roundTo(2),
+        };
+    });
+};
+
 export const sp = (() => {
     let i = $state() as number;
     const info: FormInfo<UDSP, DataSP, [[Technician[], User | null], [SparePart[]]]> = {
@@ -166,16 +248,15 @@ export const sp = (() => {
             }
         },
         saveData: (irid, raw, edit, data) => {
-            (['nahradniDil1', 'nahradniDil2', 'nahradniDil3'] as const).forEach(dil => {
-                if (raw[dil].dil?.name == otherPart.name) raw[dil].dil = {
-                    name: data[dil].name.value,
-                    code: Number(data[dil].code.value).roundTo(2),
-                    unitPrice: Number(data[dil].unitPrice.value).roundTo(2),
-                };
-            });
+            compactOtherSpareData(raw, data);
             return edit
                 ? upravitServisniProtokol(irid, i, raw)
                 : vyplnitServisniProtokol(irid, raw);
+        },
+        storeData: data => {
+            const raw = dataToRawData(data);
+            compactOtherSpareData(raw, data);
+            return raw;
         },
         createWidgetData: (evidence, protokol) => ({ evidence, protokol }),
         title: edit => edit
@@ -202,11 +283,17 @@ export const sp = (() => {
                     ...it,
                     name: it.name.replace('  ', ' '),
                 }) as SparePart)];
-                p.nahradniDil1.dil.items = () => spareParts;
-                p.nahradniDil2.dil.items = () => spareParts;
-                p.nahradniDil3.dil.items = () => spareParts;
+                [p.nahradniDil1, p.nahradniDil2, p.nahradniDil3].forEach(nahradniDil => {
+                    nahradniDil.dil.items = () => spareParts;
+                });
+                updateOtherSpareParts(p, spareParts);
             }, [sparePartsList]],
         ],
+        importOptions: {
+            sheet: 'Protokol',
+            onImport: updateOtherSpareParts,
+            cells,
+        },
     };
     return info;
 })();
