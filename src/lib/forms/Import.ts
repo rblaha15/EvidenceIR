@@ -25,8 +25,8 @@ export type ExcelImport<R extends Raw<Form<never>>> = {
 const parseSimpleImport = <U>(i: SimpleImport<U>): ExcelDataTransformation<U> => {
     if ('getData' in i) return i
     if ('constant' in i) return { getData: () => i.constant }
-    if ('transform' in i && i.transform) return { getData: get => i.transform!(get(i.address)) }
-    return { getData: get => get(i.address) as U }
+    if ('transform' in i && i.transform) return { getData: get => i.transform!(String(get(i.address))) }
+    return { getData: get => String(get(i.address)) as U }
 }
 
 export const processExcel = <R extends Raw<Form<never>>>(info: ExcelImport<R>, rows: Row[]): R => {
