@@ -121,7 +121,8 @@ export const userData = <D extends { d: Pick<Data<D>, UserSections> }>(): Pick<D
             regex: /^\d{8}(\d{2})?$/,
             maskOptions: {
                 mask: `00000000[00]`
-            }
+            },
+            required: false,
         }),
         zastupce: new InputWidget({
             label: `representativeName`,
