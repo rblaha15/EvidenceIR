@@ -78,7 +78,6 @@ export default async (
         const dataToSend = rawDataToData(newData(), dataToRawData(data))
 
         if (data.uvedeni.jakoMontazka.value) {
-            data.uvedeni.jakoMontazka.value = false;
             dataToSend.uvedeni.ico.value = dataToSend.montazka.ico.value;
             dataToSend.uvedeni.email.value = dataToSend.montazka.email.value;
             dataToSend.uvedeni.telefon.value = dataToSend.montazka.telefon.value;
@@ -88,7 +87,6 @@ export default async (
             dataToSend.uvedeni.zastupce.value = data.uvedeni.regulus.value!.name;
         }
         if (data.mistoRealizace.jakoBydliste.value) {
-            data.mistoRealizace.jakoBydliste.value = false;
             dataToSend.mistoRealizace.ulice.value = dataToSend.bydliste.ulice.value;
             dataToSend.mistoRealizace.obec.value = dataToSend.bydliste.obec.value;
             dataToSend.mistoRealizace.psc.value = dataToSend.bydliste.psc.value;
