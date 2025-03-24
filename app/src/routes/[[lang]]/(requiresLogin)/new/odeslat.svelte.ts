@@ -44,12 +44,12 @@ export default async (
         }
 
         const seznam = (Object.values(data) as Data[keyof Data][]).flatMap(
-            (obj) => Object.values(obj) as Widget<Data, unknown>[]
+            (obj) => Object.values(obj) as Widget<{ d: Data }, unknown>[]
         );
 
         if (seznam.some((it) => {
-            if (it.isError(data)) console.log(it)
-            return it.isError(data)
+            if (it.isError({ d: data })) console.log(it)
+            return it.isError({ d: data })
         })) {
             zobrazitError()
             progress({
