@@ -51,12 +51,12 @@
                     target="_blank"
                     href="/{defaultLanguage}/detail/{data.irid}/pdf/{linkName}?token={token}"
                     class:disabled={!enabled}
-                    class="btn btn-outline-info text-nowrap"
+                    class="btn btn-info text-nowrap"
                 >{t.openPdf}</a>
                 {#if !hideLanguageSelector}
                     <button
                         disabled={!enabled || pdf.supportedLanguages.length === 1}
-                        class="btn btn-outline-secondary"
+                        class="btn btn-secondary"
                         class:dropdown-toggle={pdf.supportedLanguages.length > 1}
                         data-bs-toggle="dropdown"
                     >

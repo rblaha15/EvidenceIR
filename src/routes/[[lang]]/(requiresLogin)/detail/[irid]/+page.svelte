@@ -181,7 +181,7 @@
             {#if !values.uvedeniTC}
                 <a
                     tabindex="0"
-                    class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
+                    class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
                     href={detailUrl('/heatPumpCommission')}
                 >{t.commission}</a
                 >
@@ -190,7 +190,7 @@
         <PdfLink name={t.filledYearlyCheck} {t} linkName="check" {data}>
             <a
                 tabindex="0"
-                class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
+                class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
                 href={detailUrl('/check')}
             >{t.doYearlyCheck}</a>
         </PdfLink>
@@ -206,7 +206,7 @@
             {#if !values.uvedeniSOL}
                 <a
                     tabindex="0"
-                    class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
+                    class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
                     href={detailUrl('/solarCollectorCommission')}
                 >{t.commission}</a>
             {/if}
@@ -222,22 +222,22 @@
             <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true}>
                 <a
                     tabindex="0"
-                    class="btn btn-outline-info d-block mt-2 mt-sm-0 ms-sm-2"
+                    class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
                     href={detailUrl(`/sp/?edit=${i}`)}
                 >Upravit protokol
                 </a>
             </PdfLink>
         {/each}
-        <a class="btn btn-outline-info mt-2" tabindex="0" href={detailUrl('/sp')}>Vyplnit protokol</a>
+        <a class="btn btn-info mt-2" tabindex="0" href={detailUrl('/sp')}>Vyplnit protokol</a>
     {/if}
     <hr />
     {#if $isUserRegulusOrAdmin}
-        <a tabindex="0" class="btn btn-outline-info mt-2" href={detailUrl('/users')}>
+        <a tabindex="0" class="btn btn-info mt-2" href={detailUrl('/users')}>
             Uživatelé s přístupem k této evidenci
         </a>
     {/if}
     {#if change === 'no'}
-        <button class="btn btn-outline-warning d-block mt-2" onclick={() => (change = 'input')}
+        <button class="btn btn-warning d-block mt-2" onclick={() => (change = 'input')}
         >{t.changeController}</button
         >
     {:else if change === 'input'}
@@ -246,7 +246,7 @@
             <Widget bind:widget={irType} data={undefined} {t} />
             <div class="btn-group">
                 <button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
-                <button class="btn btn-outline-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>
+                <button class="btn btn-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>
             </div>
         </div>
     {:else if change === 'sending'}
@@ -259,14 +259,14 @@
     {/if}
     <a
         tabindex="0"
-        class="btn btn-outline-warning mt-2"
+        class="btn btn-warning mt-2"
         href={relUrl(`/new?edit-irid=${data.irid}`)}
         onclick={(e) => {
 			e.preventDefault();
 			window.location.href = relUrl(`/new?edit-irid=${data.irid}`);
 		}}>{t.editRegistration}</a
     >
-    <button class="btn btn-outline-danger d-block mt-2"
+    <button class="btn btn-danger d-block mt-2"
             data-bs-toggle="modal" data-bs-target="#deleteModal"
     >{t.deleteThisEvidence}</button>
 
@@ -281,7 +281,7 @@
                     Opravdu chcete odstranit evidenci instalace?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Zrušit</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Zrušit</button>
                     <button type="button" class="btn btn-danger" onclick={remove}>Odstranit</button>
                 </div>
             </div>

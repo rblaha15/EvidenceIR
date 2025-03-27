@@ -100,7 +100,7 @@
                         <p class="m-0">{t.chosenFile} {file}</p>
                         <button
                             type="button"
-                            class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                            class="btn btn-info mt-2 ms-md-2 mt-md-0"
                             onclick={() => {input.value = ''; file = ''; input?.click()}}
                         >
                             Vybrat jiný soubor
@@ -114,7 +114,7 @@
 
             <div class="modal-footer">
                 <button
-                    class="btn btn-outline-info"
+                    class="btn btn-info"
                     data-bs-dismiss="modal"
                     type="button">{t.cancel}</button
                 >

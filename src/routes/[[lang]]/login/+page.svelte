@@ -97,7 +97,7 @@
 		<button type="submit" class="btn btn-primary me-2" onclick={prihlasitSe}>
 			{t.toLogIn}
 		</button>
-		<button type="button" class="btn btn-outline-secondary" onclick={() => history.back()}>
+		<button type="button" class="btn btn-secondary" onclick={() => history.back()}>
 			{t.back}
 		</button>
 	</div>

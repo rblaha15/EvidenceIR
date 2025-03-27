@@ -302,7 +302,7 @@
             </button>
         {/if}
         {#if mode === 'edit'}
-            <button type="button" class="btn btn-outline-secondary ms-2" onclick={() => history.back()}>
+            <button type="button" class="btn btn-secondary ms-2" onclick={() => history.back()}>
                 {t.back}
             </button>
         {/if}

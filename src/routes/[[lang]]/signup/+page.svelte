@@ -73,7 +73,7 @@
 				{t.toSignUp}
 			</button>
 		{/if}
-		<button type="button" class="btn btn-outline-secondary" onclick={() => history.back()}>
+		<button type="button" class="btn btn-secondary" onclick={() => history.back()}>
 			{t.back}
 		</button>
 	</div>
