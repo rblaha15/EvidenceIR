@@ -8,7 +8,7 @@
     type ThemeSetting = typeof themeSettings[number];
     type Theme = Exclude<ThemeSetting, 'auto'>;
     const media = '(prefers-color-scheme: dark)';
-    const icons = ['sun-fill', 'moon-stars-fill', 'circle-half'] as const;
+    const icons = ['moon-stars-fill', 'sun-fill', 'circle-half'] as const;
 
     const storedTheme = storableState<ThemeSetting>('theme', 'auto');
 
