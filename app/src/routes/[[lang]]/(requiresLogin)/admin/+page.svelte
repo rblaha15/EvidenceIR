@@ -429,21 +429,21 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
                     onclick={() => (newDataPeople = [])}
                 >
                     Zrušit změny
                 </button>
                 <button
                     type="button"
-                    class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
                     onclick={() => document.getElementById('file-people')?.click()}
                 >
                     Vybrat jiný soubor
                 </button>
             {/if}
             <button
-                class="btn btn-outline-primary mt-2 ms-md-2 mt-md-0"
+                class="btn btn-primary mt-2 ms-md-2 mt-md-0"
                 onclick={stahnoutPeople}
                 type="button"
             >
@@ -516,21 +516,21 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
                     onclick={() => (newDataCompanies = [])}
                 >
                     Zrušit změny
                 </button>
                 <button
                     type="button"
-                    class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
                     onclick={() => document.getElementById('file-companies')?.click()}
                 >
                     Vybrat jiný soubor
                 </button>
             {/if}
             <button
-                class="btn btn-outline-primary mt-2 ms-md-2 mt-md-0"
+                class="btn btn-primary mt-2 ms-md-2 mt-md-0"
                 onclick={stahnoutCompanies}
                 type="button"
             >
@@ -594,21 +594,21 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
                     onclick={() => (newDataTechnicians = [])}
                 >
                     Zrušit změny
                 </button>
                 <button
                     type="button"
-                    class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
                     onclick={() => document.getElementById('file-technicians')?.click()}
                 >
                     Vybrat jiný soubor
                 </button>
             {/if}
             <button
-                class="btn btn-outline-primary mt-2 ms-md-2 mt-md-0"
+                class="btn btn-primary mt-2 ms-md-2 mt-md-0"
                 onclick={stahnoutTechnicians}
                 type="button"
             >
@@ -672,21 +672,21 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
                     onclick={() => (newDataSpareParts = [])}
                 >
                     Zrušit změny
                 </button>
                 <button
                     type="button"
-                    class="btn btn-outline-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
                     onclick={() => document.getElementById('file-spareParts')?.click()}
                 >
                     Vybrat jiný soubor
                 </button>
             {/if}
             <button
-                class="btn btn-outline-primary mt-2 ms-md-2 mt-md-0"
+                class="btn btn-primary mt-2 ms-md-2 mt-md-0"
                 onclick={stahnoutSpareParts}
                 type="button"
             >

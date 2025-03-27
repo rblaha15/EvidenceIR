@@ -24,7 +24,7 @@
 					id={widget.label(data) + Boolean(i)}
 					autocomplete="off"
 				/>
-				<label class="btn btn-sm {widget.hasPositivity(data) && widget.value === Boolean(i) ? i === 1 ? 'btn-outline-success' : 'btn-outline-danger' : 'btn-outline-secondary'}" for={widget.label(data) + Boolean(i)}
+				<label class="btn btn-sm {widget.hasPositivity(data) && widget.value === Boolean(i) ? i === 1 ? 'btn-success' : 'btn-danger' : 'btn-secondary'}" for={widget.label(data) + Boolean(i)}
 					>{t.get(moznost)}</label
 				>
 			{/each}

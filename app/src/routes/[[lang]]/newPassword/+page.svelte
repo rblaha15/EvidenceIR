@@ -114,7 +114,7 @@
 			<button type="submit" class="btn btn-primary me-2" onclick={sendCode}>
 				{t.sendConfirmEmail}
 			</button>
-			<button type="button" class="btn btn-outline-secondary" onclick={() => history.back()}>
+			<button type="button" class="btn btn-secondary" onclick={() => history.back()}>
 				{t.back}
 			</button>
 		</div>
@@ -151,7 +151,7 @@
 					{t.save}
 				</button>
 			{/if}
-			<button type="button" class="btn btn-outline-secondary" onclick={() => history.back()}>
+			<button type="button" class="btn btn-secondary" onclick={() => history.back()}>
 				{t.back}
 			</button>
 		</div>

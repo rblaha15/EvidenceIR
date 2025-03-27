@@ -71,7 +71,7 @@
                     <div class="col-md-7">{ir.label}</div>
                 </a>
                 <button
-                    class="btn btn-outline-danger rl-0"
+                    class="btn btn-danger rl-0"
                     aria-label="Odstarnit"
                     onclick={(e) => {
 						e.preventDefault();

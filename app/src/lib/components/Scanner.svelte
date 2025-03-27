@@ -62,7 +62,7 @@
 	<div>
 		<button
 			type="button"
-			class="btn btn-outline-secondary h-auto mb-3"
+			class="btn btn-secondary h-auto mb-3"
 			data-bs-toggle="modal"
 			data-bs-target="#cam"
 			onclick={onClick}
@@ -93,7 +93,7 @@
 			<div class="modal-footer">
 				<button
 					type="button"
-					class="btn btn-outline-danger"
+					class="btn btn-danger"
 					bind:this={zrusitBtn}
 					onclick={zrusit}
 					data-bs-dismiss="modal">{t.cancel}</button

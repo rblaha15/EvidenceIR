@@ -259,7 +259,7 @@
         {#if vysledek.load}
             <div class="spinner-border text-danger ms-2"></div>
         {/if}
-        <button type="button" class="btn btn-outline-secondary ms-2" onclick={() => history.back()}>
+        <button type="button" class="btn btn-secondary ms-2" onclick={() => history.back()}>
             {t.back}
         </button>
         <p class:text-danger={vysledek.red} class="ms-2 my-auto">{@html vysledek.text}</p>
