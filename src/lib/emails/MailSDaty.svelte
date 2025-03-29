@@ -20,14 +20,14 @@
 		data: Data;
 		user: User;
 		t: Translations;
-		host: string;
+		origin: string;
 	}
 
 	let {
 		data,
 		user,
 		t,
-		host
+		origin
 	}: Props = $props();
 
     const d = $derived({ d: data })
@@ -39,7 +39,7 @@
     const irid = extractIRIDFromParts(data.ir.typ.value.first!, data.ir.cislo.value)
 </script>
 
-<p>Odkaz na podrobnosti evidence: <a href={host + `/detail/${irid}`}>{host + `/detail/${irid}`}</a></p>
+<p>Odkaz na podrobnosti evidence: <a href={origin + `/detail/${irid}`}>{origin + `/detail/${irid}`}</a></p>
 
 {#each list as vec}
 	{#if vec instanceof TitleWidget && vec.showTextValue(d)}
