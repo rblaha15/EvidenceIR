@@ -8,8 +8,6 @@
     import { heatPumpCommission, type UvedeniTC } from '$lib/forms/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
     import { getIsOnline, startTechniciansListening } from '$lib/client/realtime';
-    import { addToHistory, removeFromHistory, removeFromHistoryByIRID } from '$lib/History';
-    import { HistoryEntry } from '$lib/History.js';
     import { page } from '$app/state';
     import { solarCollectorCommission, type UvedeniSOL } from '$lib/forms/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
@@ -32,7 +30,6 @@
 
     let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
     let values = $state() as IR;
-    const historyEntry = $derived(HistoryEntry(values.evidence));
     onMount(async () => {
         await checkAuth();
         await startTechniciansListening();
@@ -45,7 +42,6 @@
 
             if (!snapshot) {
                 type = 'noAccess';
-                removeFromHistoryByIRID(data.irid);
                 return;
             }
             values = snapshot.data();
@@ -53,21 +49,16 @@
         } catch (e) {
             console.log((e as FirebaseError).code);
             if ((e as FirebaseError).code == 'unavailable' && !getIsOnline()) type = 'offline';
-            else {
-                removeFromHistoryByIRID(data.irid);
-                type = 'noAccess';
-            }
+            else type = 'noAccess';
             return;
         }
         if ($storedHeatPumpCommission != undefined && values.uvedeniTC != undefined)
             storedHeatPumpCommission.set(undefined);
         if ($storedSolarCollectorCommission != undefined && values.uvedeniSOL != undefined)
             storedSolarCollectorCommission.set(undefined);
-        addToHistory(historyEntry);
     });
 
     const remove = async () => {
-        removeFromHistory(historyEntry);
         await odstranitEvidenci(data.irid);
         window.location.replace(detailUrl(`?deleted`));
     };
