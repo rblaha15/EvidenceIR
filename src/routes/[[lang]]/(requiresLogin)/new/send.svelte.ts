@@ -1,36 +1,35 @@
-import { dev } from "$app/environment";
-import { sendEmail, SENDER } from "$lib/client/email";
+import { dev } from '$app/environment';
+import { sendEmail, SENDER } from '$lib/client/email';
 import { existuje, extractIRIDFromRawData, novaEvidence, upravitEvidenci } from '$lib/client/firestore';
 import { type Data, newData } from '$lib/forms/Data';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
-import type { Widget } from "$lib/Widget.svelte.js";
-import { default as MailRRoute } from "$lib/emails/MailRRoute.svelte";
-import { default as MailSDaty } from "$lib/emails/MailSDaty.svelte";
-import { get } from "svelte/store";
-import { page } from "$app/state";
-import { storable } from "$lib/helpers/stores";
-import { currentUser } from "$lib/client/auth";
+import { default as MailRRoute } from '$lib/emails/MailRRoute.svelte';
+import { default as MailSDaty } from '$lib/emails/MailSDaty.svelte';
+import { get } from 'svelte/store';
+import { page } from '$app/state';
+import { storable } from '$lib/helpers/stores';
+import { currentUser } from '$lib/client/auth';
 import { getTranslations } from '$lib/translations';
 import { getIsOnline } from '$lib/client/realtime';
-import { mount } from "svelte";
+import { mount } from 'svelte';
 import { generateXML } from '$lib/createXML';
-import { typIR } from '$lib/helpers/ir';
-import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
+import { nazevIR } from '$lib/helpers/ir';
+import { dataToRawData, type Form, type Raw, rawDataToData } from '$lib/forms/Form';
 import { relUrl } from '$lib/helpers/runes.svelte';
 
 const storedData = storable<Raw<Data>>('stored_data');
 
 export default async (
-    data: Data,
-    progress: (vysledek: { red: boolean, text: string, load: boolean }) => void,
-    doNotSend: boolean,
-    editMode: boolean,
-    zobrazitError: () => void
+    { data, progress, doNotSend, editMode, showError }: {
+        data: Data,
+        progress: (result: { red: boolean; text: string; load: boolean }) => void,
+        doNotSend: boolean,
+        editMode: boolean,
+        showError: () => void,
+    },
 ) => {
     try {
-        if (editMode && !dev) doNotSend = true
-
-        const t = page.data.translations
+        const t = page.data.translations;
 
         const irid = extractIRIDFromRawData(dataToRawData(data));
 
@@ -43,15 +42,14 @@ export default async (
             return;
         }
 
-        const seznam = (Object.values(data) as Data[keyof Data][]).flatMap(
-            (obj) => Object.values(obj) as Widget<{ d: Data }, unknown>[]
-        );
+        const list = (data as Form<{ d: Data }>).getValues().flatMap(obj => obj.getValues());
 
-        if (seznam.some((it) => {
-            if (it.isError({ d: data })) console.log(it)
-            return it.isError({ d: data })
+        if (list.some(section => {
+            const isError = section.isError({ d: data });
+            if (isError) console.log(section);
+            return isError;
         })) {
-            zobrazitError()
+            showError();
             progress({
                 red: true,
                 text: t.youHaveAMistake,
@@ -66,7 +64,7 @@ export default async (
                 text: t.offline,
                 load: false
             });
-            return
+            return;
         }
 
         progress({
@@ -75,7 +73,7 @@ export default async (
             load: true
         });
 
-        const dataToSend = rawDataToData(newData(), dataToRawData(data))
+        const dataToSend = rawDataToData(newData(), dataToRawData(data));
 
         if (data.uvedeni.jakoMontazka.value) {
             dataToSend.uvedeni.ico.value = dataToSend.montazka.ico.value;
@@ -93,13 +91,13 @@ export default async (
         }
         const rawData = dataToRawData(dataToSend);
 
-        const user = get(currentUser)!
+        const user = get(currentUser)!;
 
         const div = document.createElement('div');
         mount(MailSDaty, {
             target: div,
             props: { data: dataToSend, t, user, host: page.url.host },
-        })
+        });
 
         const html = div.innerHTML;
 
@@ -115,7 +113,7 @@ export default async (
         };
 
         if (rawData.vzdalenyPristup.chce && !doNotSend) {
-            const t = getTranslations('cs')
+            const t = getTranslations('cs');
             const montazka = (await nazevFirmy(rawData.montazka.ico)) ?? null;
             const uvadec = (await nazevFirmy(rawData.uvedeni.ico)) ?? null;
             const div = document.createElement('div');
@@ -129,15 +127,13 @@ export default async (
                 from: SENDER,
                 replyTo: userAddress,
                 to: dev ? 'radek.blaha.15@gmail.com' : 'david.cervenka@regulus.cz',
-                subject: `Založení RegulusRoute k ${typIR(rawData.ir.typ)} ${rawData.ir.cislo}`,
+                subject: `Založení RegulusRoute k ${nazevIR(rawData.ir)}`,
                 html,
-                attachments: [
-                    {
-                        content: generateXML(dataToSend, t),
-                        contentType: 'application/xml',
-                        filename: `Evidence ${rawData.ir.cislo}.xml`
-                    }
-                ],
+                attachments: [{
+                    content: generateXML(dataToSend, t),
+                    contentType: 'application/xml',
+                    filename: `Evidence ${extractIRIDFromRawData(rawData)}.xml`
+                }],
                 pdf: {
                     link: `/cs/detail/${irid}/pdf/rroute`,
                     title: 'Souhlas RegulusRoute.pdf',
@@ -151,12 +147,14 @@ export default async (
             replyTo: userAddress,
             to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
             cc: dev ? undefined : userAddress,
-            subject: `Nově zaevidovaný regulátor ${typIR(rawData.ir.typ)} ${rawData.ir.cislo}`,
+            subject: editMode
+                ? `Úprava evidence regulátoru ${nazevIR(rawData.ir)}`
+                : `Nově zaevidovaný regulátor ${nazevIR(rawData.ir)}`,
             html,
         });
 
         if (doNotSend || response!.ok) {
-            if (!dev) storedData.set(undefined)
+            if (!dev) storedData.set(undefined);
             progress({
                 text: t.redirecting,
                 red: false,
@@ -178,8 +176,8 @@ export default async (
             });
         }
     } catch (e) {
-        const t = page.data.translations
-        console.log(e)
+        const t = page.data.translations;
+        console.log(e);
         progress({
             red: true,
             text: t.somethingWentWrongContactUsHtml,

@@ -7,7 +7,7 @@
     import { type Data, importData, newData } from '$lib/forms/Data';
     import { responsiblePerson, startTechniciansListening, techniciansList } from '$lib/client/realtime';
     import { companies } from './companies';
-    import odeslat from './odeslat.svelte';
+    import send from './send.svelte';
     import { evidence, type IRID } from '$lib/client/firestore';
     import { storable } from '$lib/helpers/stores';
 
@@ -29,7 +29,7 @@
     let data: Data = $state(newData());
     const d: { d: Data } = $derived({ d: data });
     onMount(async () => {
-        await startTechniciansListening()
+        await startTechniciansListening();
 
         const irid = page.url.searchParams.get('edit-irid') as IRID | null;
         if (irid) {
@@ -133,7 +133,7 @@
     });
     $effect(() => {
         if (mode != 'loading' && mode != 'edit') {
-            const raw = dataToRawData(data)
+            const raw = dataToRawData(data);
             if (data.uvedeni.jakoMontazka.value) {
                 raw.uvedeni.ico = raw.montazka.ico;
                 raw.uvedeni.email = raw.montazka.email;
@@ -170,7 +170,7 @@
             : []
     );
 
-    let vysledek = $state({
+    let result = $state({
         text: '',
         red: false,
         load: false
@@ -186,7 +186,7 @@
     $effect(() => {
         const company = data.uvedeni.company.value;
         if (company) {
-            data.uvedeni.ico.value = company.crn
+            data.uvedeni.ico.value = company.crn;
             data.uvedeni.email.value = company.email ?? '';
             data.uvedeni.telefon.value = company.phone ?? '';
             data.uvedeni.zastupce.value = company.representative ?? '';
@@ -195,7 +195,7 @@
     $effect(() => {
         const company = data.montazka.company.value;
         if (company) {
-            data.montazka.ico.value = company.crn
+            data.montazka.ico.value = company.crn;
             data.montazka.email.value = company.email ?? '';
             data.montazka.telefon.value = company.phone ?? '';
             data.montazka.zastupce.value = company.representative ?? '';
@@ -203,33 +203,33 @@
     });
     $effect(() => {
         if (data.uvedeni.ico.value == regulusCRN.toString() && data.uvedeni.email.value) {
-            data.uvedeni.regulus.value = data.uvedeni.regulus.items(d).find(t => t.email == data.uvedeni.email.value) ?? data.uvedeni.regulus.value
+            data.uvedeni.regulus.value = data.uvedeni.regulus.items(d).find(t => t.email == data.uvedeni.email.value) ?? data.uvedeni.regulus.value;
         }
     });
     $effect(() => {
-        data.uvedeni.regulus.items = () => $techniciansList
+        data.uvedeni.regulus.items = () => $techniciansList;
     });
     $effect(() => {
         data.vzdalenyPristup.plati.options = () => $isUserRegulusOrAdmin
             ? ['assemblyCompany', 'endCustomer', 'doNotInvoice', p`Později, dle protokolu`]
-            : ['assemblyCompany', 'endCustomer']
+            : ['assemblyCompany', 'endCustomer'];
     });
-    const chyba = $derived(formaSpolecnostiJeSpatne(data.koncovyUzivatel.nazev.value))
+    const chyba = $derived(formaSpolecnostiJeSpatne(data.koncovyUzivatel.nazev.value));
 
     const onImport = (newData: Raw<Data>) => {
         console.log(newData);
-        data = rawDataToData(data, newData)
+        data = rawDataToData(data, newData);
         for (const i in list) {
             list[i].displayErrorVeto = true;
         }
-    }
+    };
 
-    const isDangerous = $derived(JSON.stringify(dataToRawData(data)) != JSON.stringify(dataToRawData(untrack(defaultData))))
+    const isDangerous = $derived(JSON.stringify(dataToRawData(data)) != JSON.stringify(dataToRawData(untrack(defaultData))));
 </script>
 
-<FormHeader showResetButton={mode === 'create' || mode === 'createStored'} store={storedData} {t}
-            title={mode === 'edit' ? t.editation : t.controllerRegistration}
-            importData={{...importData, onImport, isDangerous}} />
+<FormHeader importData={{...importData, onImport, isDangerous}} showResetButton={mode === 'create' || mode === 'createStored'} store={storedData}
+            {t}
+            title={mode === 'edit' ? t.editation : t.controllerRegistration} />
 
 {#each list as _, i}
     {#if list[i] instanceof v.InputWidget && cisla.includes(list[i]) && list[i].show(d)}
@@ -280,26 +280,36 @@
 
 <div class="d-inline-flex flex-sm-row flex-column align-content-center">
     <div class="d-inline-flex align-content-center text-break">
-        {#if !vysledek.load}
+        {#if !result.load}
             <button
-                id="odeslat"
                 type="button"
                 class="btn btn-success"
-                onclick={() =>
-					odeslat(
-						data,
-						(v) => (vysledek = v),
-						doNotSend,
-						mode === 'edit',
-						() => {
-							for (const i in list) {
-								list[i].displayErrorVeto = true;
-							}
-						}
-					)}
-            >
-                {t.save}
-            </button>
+                onclick={() => send({
+                    data, progress: v => result = v,
+                    doNotSend: doNotSend || (mode === 'edit' && !dev),
+                    editMode: mode === 'edit',
+                    showError: () => {
+                        for (const i in list) {
+                            list[i].displayErrorVeto = true;
+                        }
+                    }
+                })}
+            >{t.save}</button>
+        {/if}
+        {#if !result.load && mode === 'edit'}
+            <button
+                type="button"
+                class="btn btn-warning ms-2"
+                onclick={() => send({
+                    data, progress: v => result = v,
+                    doNotSend, editMode: true,
+                    showError: () => {
+                        for (const i in list) {
+                            list[i].displayErrorVeto = true;
+                        }
+                    }
+                })}
+            >{t.saveAndSend}</button>
         {/if}
         {#if mode === 'edit'}
             <button type="button" class="btn btn-secondary ms-2" onclick={() => history.back()}>
@@ -309,9 +319,9 @@
     </div>
 
     <div class="d-inline-flex align-content-center text-break mt-2 mt-sm-0">
-        {#if vysledek.load}
+        {#if result.load}
             <div class="spinner-border text-danger ms-2"></div>
         {/if}
-        <p class="ms-2 my-auto" class:text-danger={vysledek.red}>{@html vysledek.text}</p>
+        <p class="ms-2 my-auto" class:text-danger={result.red}>{@html result.text}</p>
     </div>
 </div>

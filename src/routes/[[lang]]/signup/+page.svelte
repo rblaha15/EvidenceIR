@@ -36,7 +36,7 @@
 			}
 		} else if (enabled == null) {
 			odesila = false;
-			error = t.pleaseUseBuisnessEmail;
+			error = t.pleaseUseBusinessEmail;
 			return;
 		}
 		const { link } = await authentication('getPasswordResetLink', {
