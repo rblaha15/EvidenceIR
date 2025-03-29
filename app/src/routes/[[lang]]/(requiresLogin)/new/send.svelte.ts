@@ -96,7 +96,7 @@ export default async (
         const div = document.createElement('div');
         mount(MailSDaty, {
             target: div,
-            props: { data: dataToSend, t, user, host: page.url.host },
+            props: { data: dataToSend, t, user, origin: page.url.origin },
         });
 
         const html = div.innerHTML;
