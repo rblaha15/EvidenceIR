@@ -82,7 +82,7 @@ const de: PlainTranslations = {
     linkInvalid: `Entweder ist der Link zu dieser Seite falsch oder der Eintrag wurde bereits gelöscht.`,
     linkToThis: `Link zu dieser Seite`,
     copy: `Kopieren`,
-    regulusRouteForm: `Formular für den Zugriff auf den Regler durch den RegulusRoute-Dienst`,
+    regulusRouteForm: `RegulusRoute Zustimmung`,
     regulusRouteTitle: `Zustimmung zur Bereitstellung des IR-Controllers RegulusRoute`,
     regulusRouteFileName: `RegulusRoute Zustimmung`,
     openPdf: `PDF öffnen`,

@@ -145,6 +145,7 @@
     </p>
 {/if}
 {#if type === 'loaded' && data.irid.length !== 6}
+    <div class="table-responsive"><table class="table table-borderless table-sm align-middle text-nowrap" style="width: fit-content"><tbody>
     {#if values.evidence.vzdalenyPristup.chce}
         <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
     {/if}
@@ -172,16 +173,16 @@
             {#if !values.uvedeniTC}
                 <a
                     tabindex="0"
-                    class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
+                    class="btn btn-info"
                     href={detailUrl('/heatPumpCommission')}
                 >{t.commission}</a
                 >
             {/if}
         </PdfLink>
-        <PdfLink name={t.filledYearlyCheck} {t} linkName="check" {data}>
+        <PdfLink name={t.filledYearlyCheck} {t} linkName="check" {data} enabled={values.kontroly[1] !== undefined}>
             <a
                 tabindex="0"
-                class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
+                class="btn btn-info"
                 href={detailUrl('/check')}
             >{t.doYearlyCheck}</a>
         </PdfLink>
@@ -197,15 +198,17 @@
             {#if !values.uvedeniSOL}
                 <a
                     tabindex="0"
-                    class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
+                    class="btn btn-info"
                     href={detailUrl('/solarCollectorCommission')}
                 >{t.commission}</a>
             {/if}
         </PdfLink>
     {/if}
     {#if $isUserRegulusOrAdmin}
-        <hr />
-        <h4 class="mt-2">Protokoly servisního zásahu</h4>
+        <tr><td colspan="3"><hr /></td></tr>
+        <tr>
+            <th colspan="3"><h4>Protokoly servisního zásahu</h4></th>
+        </tr>
         {#each values.installationProtocols as p, i}
             {@const datum = p.zasah.datum.split('T')[0].split('-').join('/')}
             {@const hodina = p.zasah.datum.split('T')[1].split(':')[0]}
@@ -213,14 +216,20 @@
             <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true}>
                 <a
                     tabindex="0"
-                    class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
+                    class="btn btn-info"
                     href={detailUrl(`/sp/?edit=${i}`)}
                 >Upravit protokol
                 </a>
             </PdfLink>
         {/each}
-        <a class="btn btn-info mt-2" tabindex="0" href={detailUrl('/sp')}>Vyplnit protokol</a>
+        <tr>
+            <td colspan="2"></td>
+            <td>
+                <a class="btn btn-info" tabindex="0" href={detailUrl('/sp')}>Vyplnit {values.installationProtocols.length ? 'další' : ''}protokol</a>
+            </td>
+        </tr>
     {/if}
+    </tbody></table></div>
     <hr />
     {#if $isUserRegulusOrAdmin}
         <a tabindex="0" class="btn btn-info mt-2" href={detailUrl('/users')}>
