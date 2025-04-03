@@ -38,54 +38,54 @@
     const token = $isOnline ? getToken() : get(lastToken);
 </script>
 
-<tr>
-    <td>{name}</td>
+<div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center mt-2">
+    <span>{name}</span>
+
     {#await token then token}
-        <td>
-            {#if !token}
+        {#if !token}
+            <div class="ms-sm-2 mt-2 mt-sm-0">
                 {t.offline}
-            {:else if enabled}
-                <div class="btn-group">
-                    <a
-                        tabindex={enabled ? 0 : undefined}
-                        type="button"
-                        onclick={() => lastToken.set(token)}
-                        target="_blank"
-                        href="/{defaultLanguage}/detail/{data.irid}/pdf/{linkName}?token={token}"
-                        class="btn btn-info text-nowrap"
-                    >{t.openPdf}</a>
-                    {#if !hideLanguageSelector}
-                        <button
-                            disabled={!enabled || pdf.supportedLanguages.length === 1}
-                            class="btn btn-secondary"
-                            class:dropdown-toggle={pdf.supportedLanguages.length > 1}
-                            data-bs-toggle="dropdown"
-                        >
-                            <span>{defaultLanguage.toUpperCase()}</span>
-                        </button>
-                        {#if pdf.supportedLanguages.length > 1}
-                            <ul class="dropdown-menu">
-                                {#each pdf.supportedLanguages as code}
-                                    <li>
-                                        <a
-                                            tabindex="0" target="_blank"
-                                            class="dropdown-item d-flex align-items-center"
-                                            href="/{code}/detail/{data.irid}/pdf/{linkName}?token={token}"
-                                            onclick={() => lastToken.set(token)}
-                                        >
-                                            <span class="fs-6 me-2">{code.toUpperCase()}</span>
-                                            {languageNames[code]}
-                                        </a>
-                                    </li>
-                                {/each}
-                            </ul>
-                        {/if}
+            </div>
+        {:else if enabled}
+            <div class="btn-group ms-sm-2 mt-2 mt-sm-0">
+                <a
+                    tabindex={enabled ? 0 : undefined}
+                    type="button"
+                    onclick={() => lastToken.set(token)}
+                    target="_blank"
+                    href="/{defaultLanguage}/detail/{data.irid}/pdf/{linkName}?token={token}"
+                    class:disabled={!enabled}
+                    class="btn btn-info text-nowrap"
+                >{t.openPdf}</a>
+                {#if !hideLanguageSelector}
+                    <button
+                        disabled={!enabled || pdf.supportedLanguages.length === 1}
+                        class="btn btn-secondary"
+                        class:dropdown-toggle={pdf.supportedLanguages.length > 1}
+                        data-bs-toggle="dropdown"
+                    >
+                        <span>{defaultLanguage.toUpperCase()}</span>
+                    </button>
+                    {#if pdf.supportedLanguages.length > 1}
+                        <ul class="dropdown-menu">
+                            {#each pdf.supportedLanguages as code}
+                                <li>
+                                    <a
+                                        tabindex="0" target="_blank"
+                                        class="dropdown-item d-flex align-items-center"
+                                        href="/{code}/detail/{data.irid}/pdf/{linkName}?token={token}"
+                                        onclick={() => lastToken.set(token)}
+                                    >
+                                        <span class="fs-6 me-2">{code.toUpperCase()}</span>
+                                        {languageNames[code]}
+                                    </a>
+                                </li>
+                            {/each}
+                        </ul>
                     {/if}
-                </div>
-            {/if}
-        </td>
-        <td>
-            {@render children?.()}
-        </td>
+                {/if}
+            </div>
+        {/if}
+        {@render children?.()}
     {/await}
-</tr>
+</div>
