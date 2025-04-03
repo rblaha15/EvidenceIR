@@ -1,6 +1,7 @@
 import { getDatabase } from "firebase-admin/database"
 import { app } from "./firebase"
 import type { Company, Person, SparePart, Technician } from '$lib/client/realtime';
+import '$lib/extensions'
 
 const realtime = getDatabase(app)
 
@@ -20,4 +21,4 @@ export const people = async () => ((await lidiRef.get()).val() as Record<string,
 export const technicians = async () => (await techniciRef.get()).val() as Technician[] ?? []
 
 const defined = <T extends Record<PropertyKey, unknown>>(obj: T): T =>
-    obj.filterValues((_, v) => v != undefined && v != null) as T
+    obj.filterValues((_, v) => v != null) as T
