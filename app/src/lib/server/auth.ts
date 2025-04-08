@@ -1,6 +1,6 @@
 import { getAuth, type CreateRequest, type DecodedIdToken, type UpdateRequest } from "firebase-admin/auth";
 import { app } from "./firebase";
-import { chunk } from "$lib/helpers/arrays";
+import "$lib/extensions"
 import type { LanguageCode } from "$lib/languages";
 
 const auth = getAuth(app);
@@ -31,7 +31,7 @@ export const enableUser = (uid: string) => auth.updateUser(uid, { disabled: fals
 export const removeUsers = (uids: string[]) => promiseBy100(uids, uids => auth.deleteUsers(uids))
 
 const promiseBy100 = <T, U>(arr: T[], mapper: (value: T[], index: number, array: T[][]) => Promise<U>): Promise<U[]> =>
-    Promise.all(chunk(arr, 100).map(mapper))
+    Promise.all(arr.chunk(100).map(mapper))
 
 export const removeAccounts = async () => {
     (await auth.deleteUsers((await auth.listUsers()).users.filter(u => u.disabled).map(u => u.uid))).errors.forEach(e => console.error(e))

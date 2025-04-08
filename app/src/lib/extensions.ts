@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
 // noinspection JSUnusedGlobalSymbols
 
 interface ObjectConstructor {
@@ -61,6 +62,11 @@ interface Object {
         this: T,
         ...keys: K[]
     ): Omit<T, K>;
+
+    let<T, U>(
+        this: T,
+        callback: (self: T) => U,
+    ): U;
 }
 
 Object.defineProperties(Object.prototype, {
@@ -74,6 +80,7 @@ Object.defineProperties(Object.prototype, {
     keys: { writable: true },
     zip: { writable: true },
     omit: { writable: true },
+    let: { writable: true },
 });
 
 Object.prototype.entries = <typeof Object.prototype.entries> function() {
@@ -85,7 +92,7 @@ Object.prototype.getValues = <typeof Object.prototype.getValues> function() {
 Object.prototype.keys = <typeof Object.prototype.keys> function() {
     return Object.keys(this);
 };
-Object.prototype.mapTo = function<T extends Record<PropertyKey, unknown>, U>(
+Object.prototype.mapTo = function <T extends Record<PropertyKey, unknown>, U>(
     this: T,
     callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U
 ) {
@@ -93,7 +100,7 @@ Object.prototype.mapTo = function<T extends Record<PropertyKey, unknown>, U>(
         callback(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][])
     );
 };
-Object.prototype.forEachEntry = function<T extends Record<PropertyKey, unknown>>(
+Object.prototype.forEachEntry = function <T extends Record<PropertyKey, unknown>>(
     this: T,
     callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => unknown
 ) {
@@ -101,7 +108,7 @@ Object.prototype.forEachEntry = function<T extends Record<PropertyKey, unknown>>
         callback(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][])
     );
 };
-Object.prototype.mapEntries = function<T extends Record<PropertyKey, unknown>, U extends [PropertyKey, unknown]>(
+Object.prototype.mapEntries = function <T extends Record<PropertyKey, unknown>, U extends [PropertyKey, unknown]>(
     this: T,
     callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U | undefined
 ) {
@@ -109,16 +116,16 @@ Object.prototype.mapEntries = function<T extends Record<PropertyKey, unknown>, U
         callback(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][])
     ).toRecord<U[0], U[1]>();
 };
-Object.prototype.mapValues = function<T extends Record<PropertyKey, unknown>, U>(
+Object.prototype.mapValues = function <T extends Record<PropertyKey, unknown>, U>(
     this: T,
     callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U
 ) {
     return this.entries().map(([key, value], index, array) => [
         key,
         callback(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][])
-    ] as [keyof T, U]).toRecord()
+    ] as [keyof T, U]).toRecord();
 };
-Object.prototype.filterValues = function<T extends Record<PropertyKey, unknown>>(
+Object.prototype.filterValues = function <T extends Record<PropertyKey, unknown>>(
     this: T,
     predicate: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => boolean
 ) {
@@ -132,7 +139,7 @@ Object.prototype.zip = <typeof Object.prototype.zip> function(other) {
     return keys.map(key => [key, [this[key], other[key]]] as [PropertyKey, unknown[]]).toRecord();
 };
 
-Object.prototype.omit = function<T extends Record<PropertyKey, unknown>, K extends keyof T>(
+Object.prototype.omit = function <T extends Record<PropertyKey, unknown>, K extends keyof T>(
     this: T,
     ...keys: K[]
 ): Omit<T, K> {
@@ -145,6 +152,14 @@ Object.recursiveKeys = (o: Record<string, unknown>): string[] =>
             ? Object.recursiveKeys(value as Record<string, unknown>).map(it => `${key}.${it}`)
             : [key]
     ).flat();
+
+Object.prototype.let = function<T, U>(
+    this: T,
+    callback: (self: T) => U,
+): U {
+    return callback(this)
+};
+
 
 interface Number {
     roundTo: (decimalPlaces?: number) => number;
@@ -184,7 +199,19 @@ interface Array<T> {
 
     awaitAll<T>(
         this: Iterable<T | PromiseLike<T>>,
-    ): Promise<Awaited<T>[]>
+    ): Promise<Awaited<T>[]>;
+
+    window<T>(
+        this: T[],
+        size: number,
+        step?: number,
+        partialWindows?: boolean,
+    ): T[][];
+
+    chunk<T>(
+        this: T[],
+        size: number,
+    ): T[][];
 }
 
 interface ReadonlyArray<T> {
@@ -243,4 +270,33 @@ Array.prototype.distinctBy = function <T, K>(
             ))
         ).values()
     ]);
+};
+
+Array.prototype.window = function<T>(
+    this: T[],
+    size: number,
+    step: number = 1,
+    partialWindows: boolean = false,
+): T[][] {
+    if (size <= 0 || step <= 0) throw new RangeError('Size and step bust be positive');
+
+    const thisSize = this.length;
+    const resultCapacity = Math.floor(thisSize / step) + (thisSize % step == 0 ? 0 : 1);
+    const result = Array<T[]>(resultCapacity);
+    let index = 0;
+    let arrayIndex = 0;
+    while (0 <= index && index < thisSize) {
+        const windowSize = Math.min(size, thisSize - index);
+        if (windowSize < size && !partialWindows) break;
+        result[arrayIndex++] = Array.from(Array(windowSize), (_, i) => this[i + index]);
+        index += step;
+    }
+    return result;
+};
+
+Array.prototype.chunk = function<T>(
+    this: T[],
+    size: number,
+): T[][] {
+    return this.window(size, size, true);
 };
