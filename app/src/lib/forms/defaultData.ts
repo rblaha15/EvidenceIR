@@ -208,21 +208,24 @@ export default (): Data => ({
     ir: {
         typ: new DoubleChooserWidget({
             label: `controllerType`,
-            options1: [p`IR RegulusBOX`, p`IR RegulusHBOX`, p`IR RegulusHBOXK`, p`IR 14`, p`IR 12`],
-            options2: ({ d }) => (d.ir.typ.value.first == p`IR 12` ? [p`CTC`] : [p`CTC`, p`RTC`])
+            options1: [p`IR RegulusBOX`, p`IR RegulusHBOX`, p`IR RegulusHBOXK`, p`IR 34`, p`IR 14`, p`IR 12`, p`SOREL`],
+            options2: ({ d: { ir: { typ: { value: { first: f } } } } }) => (
+                f == p`IR 12` ? [p`CTC`] : f == p`SOREL` ? [p`SRS1 T`, p`SRS2 TE`, p`SRS3 E`, p`SRS6 EP`, p`STDC E`, p`TRS3`, p`TRS4`, p`TRS5`] : [p`CTC`, p`RTC`]
+            ),
         }),
         cislo: new InputWidget({
             label: `serialNumber`,
             onError: `wrongNumberFormat`,
-            regex: /([A-Z][1-9OND]) ([0-9]{4})/,
+            regex: ({ d }) => d.ir.typ.value.first?.includes('SOREL') ? /[0-9]{4}-[0-9]{2}-[0-9]{2}/ : /[A-Z][1-9OND] [0-9]{4}/,
             capitalize: true,
-            maskOptions: {
-                mask: `A1 0000`,
+            maskOptions: ({ d }) => ({
+                mask: d.ir.typ.value.first?.includes('SOREL') ? `0000-00-00` : `A1 0000`,
                 definitions: {
                     A: /[A-Za-z]/,
                     '1': /[1-9ONDond]/
                 }
-            }
+            }),
+            show: ({ d }) => !d.ir.typ.value.first?.includes('SOREL'),
         }),
         cisloBox: new InputWidget({
             label: `serialNumberIndoor`,
@@ -243,10 +246,9 @@ export default (): Data => ({
         }),
         chceVyplnitK: new MultiCheckboxWidget({
             label: `whatToAddInfoTo`,
-            options: [
-                `heatPump`,
-                `solarCollector` //fve
-            ],
+            options: ({ d }) => d.ir.typ.value.first?.includes(`SOREL`)
+                ? [`heatPump`]
+                : [`heatPump`, `solarCollector`],
             required: false, showInXML: false
         })
     },
@@ -387,19 +389,19 @@ export default (): Data => ({
     },
     ...userData<{ d: Data }>(),
     vzdalenyPristup: {
-        nadpis: new TitleWidget({ label: `remoteAccess` }),
-        chce: new CheckboxWidget({ label: `doYouWantRemoteAccess`, required: false }),
+        nadpis: new TitleWidget({ label: `remoteAccess`, show: ({ d }) => !d.ir.typ.value.first?.includes('SOREL') }),
+        chce: new CheckboxWidget({ label: `doYouWantRemoteAccess`, required: false, show: ({ d }) => !d.ir.typ.value.first?.includes('SOREL') }),
         pristupMa: new MultiCheckboxWidget({
             label: `whoHasAccess`,
             options: [`endCustomer`, `assemblyCompany`, `commissioningCompany`],
-            show: ({ d }) => d.vzdalenyPristup.chce.value,
-            required: ({ d }) => d.vzdalenyPristup.chce.value
+            show: ({ d }) => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
+            required: ({ d }) => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value
         }),
         plati: new RadioWidget({
             label: `whoWillBeInvoiced`,
             options: ['assemblyCompany', 'endCustomer'],
-            show: ({ d }) => d.vzdalenyPristup.chce.value,
-            required: ({ d }) => d.vzdalenyPristup.chce.value
+            show: ({ d }) => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
+            required: ({ d }) => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value
         })
     },
     ostatni: {

@@ -6,7 +6,7 @@ import { cascadeDetails } from '$lib/client/pdf/check';
 import type { TranslationReference, Translations } from '$lib/translations';
 import '$lib/extensions';
 import type { GetPdfData } from '$lib/server/pdf';
-import { jmenoUzivatele, typIR } from '$lib/helpers/ir';
+import { jmenoUzivatele, nazevIR, typIR } from '$lib/helpers/ir';
 import type { Raw } from '$lib/forms/Form';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { SPID } from '$lib/client/firestore';
@@ -54,7 +54,7 @@ export const installationProtocol = (i: number): GetPdfData => async ({ evidence
         ...p,
         system: {
             nadpis: undefined as never,
-            popis: `${typIR(e.ir.typ)} ${e.ir.cislo}
+            popis: `${nazevIR(e.ir)}
 ${e.ir.cisloBox ? `BOX: ${e.ir.cisloBox}` : ''}
 ${e.sol?.typ ? `SOL: ${e.sol.typ} – ${e.sol.pocet}x` : ''}
 ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>

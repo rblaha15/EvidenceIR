@@ -12,7 +12,7 @@ import {
     setDoc,
     updateDoc,
     where,
-    type WithFieldValue,
+    type WithFieldValue
 } from 'firebase/firestore';
 import type { Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
@@ -30,24 +30,26 @@ const persistentCacheIndexManager = getPersistentCacheIndexManager(firestore);
 if (persistentCacheIndexManager)
     enablePersistentCacheIndexAutoCreation(persistentCacheIndexManager);
 
-export type IRType = '2' | '4' | 'B';
+export type IRType = '2' | '4' | '3' | 'B' | 'S';
 export type IRID = `${IRType}${string}`;
 export type SPID = `${string}-${string}-${string}`;
 
 const extractIRTypeFromFullIRType = (fullIRType: string): IRType =>
     (fullIRType.includes('12') ? '2'
         : fullIRType.includes('14') ? '4'
-            : fullIRType.includes('BOX') ? 'B'
-                : undefined)!;
+            : fullIRType.includes('34') ? '3'
+                : fullIRType.includes('BOX') ? 'B'
+                    : fullIRType.includes('SOREL') ? 'S'
+                        : undefined)!;
 export const extractIRIDFromParts = (fullIRType: string, irNumber: string): IRID =>
-    `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replace(' ', '')}`;
+    `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replace(/[ -]/, '')}`;
 export const extractIRIDFromRawData = (evidence: Raw<Data>): IRID =>
     extractIRIDFromParts(evidence.ir.typ.first!, evidence.ir.cislo);
 export const extractSPIDFromRawData = (p: Raw<DataSP2>): SPID => {
-    const datum = p.zasah.datum.split('T')[0]
-    const hodina = p.zasah.datum.split('T')[1].split(':')[0]
-    const technik = p.zasah.inicialy
-    return `${technik}-${datum}-${hodina}`
+    const datum = p.zasah.datum.split('T')[0];
+    const hodina = p.zasah.datum.split('T')[1].split(':')[0];
+    const technik = p.zasah.inicialy;
+    return `${technik}-${datum}-${hodina}`;
 };
 
 export const IRNumberFromIRID = (irid: IRID): string =>
@@ -108,7 +110,7 @@ const addUserType: Migration = (legacyIR: LegacyIR & IR) => {
     return legacyIR;
 };
 const removeUvedeni: Migration = (legacyIR: LegacyIR & IR) =>
-    legacyIR.uvedeni ? <LegacyIR & IR>{ uvedeniTC: legacyIR.uvedeni, ...legacyIR, uvedeni: undefined } : legacyIR;
+    legacyIR.uvedeni ? <LegacyIR & IR> { uvedeniTC: legacyIR.uvedeni, ...legacyIR, uvedeni: undefined } : legacyIR;
 const removeInstallationProtocol: Migration = (legacyIR: LegacyIR & IR) =>
     legacyIR.installationProtocol ? { ...legacyIR, installationProtocols: [legacyIR.installationProtocol], installationProtocol: undefined } : legacyIR;
 const addInstallationProtocols: Migration = (legacyIR: LegacyIR & IR) =>
@@ -127,7 +129,7 @@ const irCollection = collection(firestore, 'ir').withConverter<IR>({
 const spCollection = collection(firestore, 'sp').withConverter<Raw<DataSP2>>({
     toFirestore: (modelObject: WithFieldValue<Raw<DataSP2>>) => modelObject,
     fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<DataSP2>,
-})
+});
 const checkCollection = collection(firestore, 'check');
 const irDoc = (irid: IRID) => doc(irCollection, irid);
 const checkDoc = (irid: IRID) => doc(checkCollection, irid);

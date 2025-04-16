@@ -1,6 +1,6 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import type { GetPdfData } from '$lib/server/pdf';
-import { jmenoUzivatele } from '$lib/helpers/ir';
+import { jmenoUzivatele, typIR } from '$lib/helpers/ir';
 
 const rroute: GetPdfData = async ({ evidence: e }, t) => ({
     fileName: t.regulusRouteFileName,
@@ -18,9 +18,9 @@ const rroute: GetPdfData = async ({ evidence: e }, t) => ({
 /*        adresa2 */ Text11: `${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,
 /*          email */ Text12: e.koncovyUzivatel.email,
 /*        telefon */ Text13: e.koncovyUzivatel.telefon,
-/*          typIR */ Text14: t.getT`${e.ir.typ.first!} ${e.ir.typ.second!}`,
-/*         serCis */ Text15: e.ir.cislo.split(' ')[0],
-/*        serCis2 */ Text16: e.ir.cislo.split(' ')[1],
+/*          typIR */ Text14: typIR(e.ir.typ),
+/*         serCis */ Text15: e.ir.typ.first?.includes('SOREL') ? '—' : e.ir.cislo.split(' ')[0],
+/*        serCis2 */ Text16: e.ir.typ.first?.includes('SOREL') ? '—' : e.ir.cislo.split(' ')[1],
 /*       cisloBOX */ Text17: e.ir.cisloBox,
 /*        cisloTC */ Text18: [e.tc.cislo, e.tc.cislo2, e.tc.cislo3, e.tc.cislo4].filter(c => (c?.length ?? 0) != 0).join(', '),
 /*       zaplatim */ Text22: e.vzdalenyPristup.plati == 'endCustomer' ? t.agreeWIthRRPrice : '',

@@ -8,21 +8,31 @@ export const isIRID = (irid_spid: string): irid_spid is IRID => !irid_spid.inclu
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno
+ * IR RegulusBOX CTC R8 2547 : Novák Jan - Brno
+ * SRS1 T : Novák Jan - Brno
  */
 export const celyNazevIR = (evidence: Raw<Data>) => `${nazevIR(evidence.ir)} : ${popisIR(evidence)}`;
 
 /**
  * IR14CTC R8 2547
+ * IR RegulusBOX CTC R8 2547
+ * SRS1 T
  */
-export const nazevIR = (ir: Raw<Data>['ir']) => `${typIR(ir.typ)} ${ir.cislo}`;
+export const nazevIR = (ir: Raw<Data>['ir']) => ir.typ.first?.includes('SOREL')
+    ? typIR(ir.typ)
+    : `${typIR(ir.typ)} ${ir.cislo}`;
 
 /**
  * IR14CTC
+ * IR RegulusBOX CTC
+ * SRS1 T
  */
 export const typIR = (typ: Pair) =>
-    typ.first?.includes('BOX')
-        ? `${removePlain(typ.first!.split(' ').slice(0, 2).join(' '))} ${removePlain(typ.second!)}`
-        : `${removePlain(typ.first!.replaceAll(' ', ''))}${removePlain(typ.second!)}`;
+    typ.first?.includes('SOREL')
+        ? removePlain(typ.second!)
+        : typ.first?.includes('BOX')
+            ? `${removePlain(typ.first!.split(' ').slice(0, 2).join(' '))} ${removePlain(typ.second!)}`
+            : `${removePlain(typ.first!.replaceAll(' ', ''))}${removePlain(typ.second!)}`;
 
 const formySpolecnosti = [
     's.r.o.', 'spol. s r.o.', 'a.s.', 'k.s.', 'v.o.s.'

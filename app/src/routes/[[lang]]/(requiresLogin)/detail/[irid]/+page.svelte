@@ -16,6 +16,7 @@
     import type { Raw } from '$lib/forms/Form';
     import { detailUrl, relUrl } from '$lib/helpers/runes.svelte';
     import Widget from '$lib/components/Widget.svelte';
+    import { todayISO } from '$lib/helpers/date';
 
     interface Props {
         data: PageData;
@@ -65,20 +66,23 @@
 
     let change: 'no' | 'input' | 'sending' | 'fail' = $state('no');
 
-    let irNumber = $state(new InputWidget({
-        label: `newSerialNumber`, onError: `wrongNumberFormat`,
-        regex: /([A-Z][1-9OND]) ([0-9]{4})/, capitalize: true,
-        maskOptions: {
-            mask: `A1 0000`,
+    let irNumber = $state(new InputWidget<boolean>({
+        label: `serialNumber`,
+        onError: `wrongNumberFormat`,
+        regex: s => s ? /[0-9]{4}-[0-9]{2}-[0-9]{2}/ : /[A-Z][1-9OND] [0-9]{4}/,
+        capitalize: true,
+        maskOptions: s => ({
+            mask: s ? `0000-00-00` : `A1 0000`,
             definitions: {
                 A: /[A-Za-z]/,
                 '1': /[1-9ONDond]/
             }
-        },
+        }),
+        show: s => !s,
     }));
     let irType = $state(new ChooserWidget({
         label: `controllerType`,
-        options: [p`IR RegulusBOX`, p`IR RegulusHBOX`, p`IR RegulusHBOXK`, p`IR 14`, p`IR 12`],
+        options: [p`IR RegulusBOX`, p`IR RegulusHBOX`, p`IR RegulusHBOXK`, p`IR 34`, p`IR 14`, p`IR 12`, p`SOREL`],
     }));
 
     $effect(() => {
@@ -86,11 +90,18 @@
         irNumber.value = values.evidence.ir.cislo;
         irType.value = values.evidence.ir.typ.first;
     });
+    $effect(() => {
+        if (irType.value == p`SOREL`) {
+            irNumber.value = todayISO();
+        }
+    });
+
+    const s = $derived(irType.value?.includes('SOREL') ?? false);
 
     const changeController = async () => {
         irNumber.displayErrorVeto = true;
         irType.displayErrorVeto = true;
-        if (irNumber.showError(undefined) || irType.showError(undefined)) return;
+        if (irNumber.showError(s) || irType.showError(s)) return;
         const newNumber = irNumber.value;
         const newType = irType.value;
         change = 'sending';
@@ -229,12 +240,11 @@
     {/if}
     {#if change === 'no'}
         <button class="btn btn-warning d-block mt-2" onclick={() => (change = 'input')}
-        >{t.changeController}</button
-        >
+        >{t.changeController}</button>
     {:else if change === 'input'}
         <div class="mt-2">
-            <Widget bind:widget={irNumber} data={undefined} {t} />
-            <Widget bind:widget={irType} data={undefined} {t} />
+            <Widget bind:widget={irNumber} data={s} {t} />
+            <Widget bind:widget={irType} data={s} {t} />
             <div class="btn-group">
                 <button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
                 <button class="btn btn-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>
