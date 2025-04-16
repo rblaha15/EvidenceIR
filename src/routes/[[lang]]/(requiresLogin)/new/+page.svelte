@@ -20,6 +20,7 @@
     import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
     import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
     import defaultData from '$lib/forms/defaultData';
+    import { todayISO } from '$lib/helpers/date';
 
     const t = page.data.translations;
 
@@ -128,6 +129,14 @@
         if (mode != 'loading') {
             if (data.ir.typ.value.second == p`RTC`) {
                 data.tc.typ.value = 'airToWater';
+            }
+        }
+    });
+    $effect(() => {
+        data;
+        if (mode != 'loading') {
+            if (data.ir.typ.value.first == p`SOREL`) {
+                data.ir.cislo.value = todayISO();
             }
         }
     });

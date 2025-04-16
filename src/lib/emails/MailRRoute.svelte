@@ -30,7 +30,9 @@
 
 <h2>Regulátor</h2>
 <p><b>Typ zařízení:</b> {typZarizeni(e)}</p>
-<p><b>Výrobní číslo:</b> {e.ir.cislo}</p>
+{#if !e.ir.typ.first?.includes('SOREL')}
+	<p><b>Výrobní číslo:</b> {e.ir.cislo}</p>
+{/if}
 <p><b>Přihlášení:</b> {nazevIR(e.ir)}</p>
 <p><b>Poznámka:</b> {popisIR(e)}</p>
 <h3>Zodpovědná osoba:</h3>
