@@ -1,12 +1,12 @@
-<script generics="R extends Raw<Form<never>>" lang="ts">
+<script generics="R extends Raw<Form>" lang="ts">
     import type { Writable } from 'svelte/store';
     import type { Translations } from '$lib/translations';
-    import { setTitle } from '$lib/helpers/title.svelte';
+    import { setTitle } from '$lib/helpers/title.svelte.js';
     import type { Form, Raw } from '$lib/forms/Form';
     import { type ExcelImport, processExcel } from '$lib/forms/Import';
     import readXlsxFile from 'read-excel-file';
 
-    interface Props<R extends Raw<Form<never>>> {
+    interface Props<R extends Raw<Form>> {
         title: string;
         showResetButton?: boolean;
         importData?: ExcelImport<R> & {
@@ -36,7 +36,7 @@
         if (!importData || !input.files) return;
         const rows = await readXlsxFile(input.files[0], importData);
         console.log(rows);
-        importData.onImport(processExcel(importData, rows));
+        importData.onImport(processExcel<R>(importData, rows));
     };
 </script>
 

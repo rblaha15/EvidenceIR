@@ -5,7 +5,7 @@
     import type { Translations } from '$lib/translations';
     import { onMount } from 'svelte';
     import { p, SearchWidget } from '$lib/Widget.svelte.js';
-    import Search from './Search.svelte';
+    import Search from '$lib/components/widgets/Search.svelte';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { popisIR, typIR } from '$lib/helpers/ir';

@@ -3,12 +3,10 @@
 import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
-import type { TranslationReference, Translations } from '$lib/translations';
+import type { TranslationReference } from '$lib/translations';
 import '$lib/extensions';
 import type { GetPdfData } from '$lib/server/pdf';
-import { jmenoUzivatele, nazevIR, typIR } from '$lib/helpers/ir';
-import type { Raw } from '$lib/forms/Form';
-import type { DataSP2 } from '$lib/forms/SP2';
+import { jmenoUzivatele, nazevIR } from '$lib/helpers/ir';
 import type { SPID } from '$lib/client/firestore';
 
 const cenik = {
@@ -65,7 +63,7 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
     }, t);
 };
 
-export const publicInstallationProtocol: GetPdfData<SPID> = async (p: Raw<DataSP2>, t: Translations) => {
+export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t) => {
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
     const nahradniDily = [p.nahradniDil1, p.nahradniDil2, p.nahradniDil3].slice(0, p.nahradniDily.pocet);
     const cenaDopravy = cenik.transportation * Number(p.ukony.doprava);

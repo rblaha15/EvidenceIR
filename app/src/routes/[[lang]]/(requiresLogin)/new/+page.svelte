@@ -4,9 +4,9 @@
 
     import * as v from '$lib/Widget.svelte.js';
     import { p } from '$lib/Widget.svelte.js';
-    import { type Data, importData, newData } from '$lib/forms/Data';
+    import { type Data, importData, newData, type UDDA } from '$lib/forms/Data';
     import { responsiblePerson, startTechniciansListening, techniciansList } from '$lib/client/realtime';
-    import { companies } from './companies';
+    import { companies } from '$lib/helpers/companies';
     import send from './send.svelte';
     import { evidence, type IRID } from '$lib/client/firestore';
     import { storable } from '$lib/helpers/stores';
@@ -15,7 +15,7 @@
     import { page } from '$app/state';
     import { onMount, untrack } from 'svelte';
     import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
-    import FormHeader from '../detail/[irid]/FormHeader.svelte';
+    import FormHeader from '$lib/forms/FormHeader.svelte';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
     import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
     import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
@@ -28,7 +28,7 @@
 
     let mode: 'loading' | 'create' | 'edit' | 'createStored' = $state('loading');
     let data: Data = $state(newData());
-    const d: { d: Data } = $derived({ d: data });
+    const d: UDDA = $derived({ d: data });
     onMount(async () => {
         await startTechniciansListening();
 
@@ -61,58 +61,14 @@
         data;
         if (mode != 'loading') {
             data.ostatni.zodpovednaOsoba.show = () => $responsiblePerson == null;
-            if ($responsiblePerson != null) data.ostatni.zodpovednaOsoba.value = $responsiblePerson;
-        }
-    });
-    $effect(() => {
-        data;
-        if (mode != 'loading') {
-            if (data.uvedeni.jakoMontazka.value) {
-                data.uvedeni.ico.value = '';
-                data.uvedeni.email.value = '';
-                data.uvedeni.telefon.value = '';
-            } else if (
-                data.uvedeni.ico.value == data.montazka.ico.value &&
-                data.uvedeni.ico.value != '' &&
-                data.uvedeni.email.value == data.montazka.email.value &&
-                data.uvedeni.email.value != '' &&
-                data.uvedeni.telefon.value == data.montazka.telefon.value &&
-                data.uvedeni.telefon.value != ''
-            ) {
-                data.uvedeni.jakoMontazka.value = true;
-                data.uvedeni.ico.value = '';
-                data.uvedeni.email.value = '';
-                data.uvedeni.telefon.value = '';
-            }
+            if ($responsiblePerson != null) data.ostatni.zodpovednaOsoba.setValue(data, $responsiblePerson);
         }
     });
     $effect(() => {
         data;
         if (mode != 'loading') {
             if (data.ir.typ.value.first == p`IR 12`) {
-                data.ir.typ.value.second = p`CTC`;
-            }
-        }
-    });
-    $effect(() => {
-        data;
-        if (mode != 'loading') {
-            if (data.mistoRealizace.jakoBydliste.value) {
-                data.mistoRealizace.obec.value = '';
-                data.mistoRealizace.psc.value = '';
-                data.mistoRealizace.ulice.value = '';
-            } else if (
-                data.mistoRealizace.obec.value == data.bydliste.obec.value &&
-                data.mistoRealizace.obec.value != '' &&
-                data.mistoRealizace.psc.value == data.bydliste.psc.value &&
-                data.mistoRealizace.psc.value != '' &&
-                data.mistoRealizace.ulice.value == data.bydliste.ulice.value &&
-                data.mistoRealizace.ulice.value != ''
-            ) {
-                data.mistoRealizace.jakoBydliste.value = true;
-                data.mistoRealizace.obec.value = '';
-                data.mistoRealizace.psc.value = '';
-                data.mistoRealizace.ulice.value = '';
+                data.ir.typ.mutateValue(data, v => ({ ...v, second: p`CTC` }));
             }
         }
     });
@@ -120,7 +76,7 @@
         data;
         if (mode != 'loading') {
             if (!data.tc.model.options(d).includes(data.tc.model.value ?? '')) {
-                data.tc.model.value = null;
+                data.tc.model.setValue(data, null);
             }
         }
     });
@@ -128,7 +84,7 @@
         data;
         if (mode != 'loading') {
             if (data.ir.typ.value.second == p`RTC`) {
-                data.tc.typ.value = 'airToWater';
+                data.tc.typ.setValue(data, 'airToWater');
             }
         }
     });
@@ -136,7 +92,7 @@
         data;
         if (mode != 'loading') {
             if (data.ir.typ.value.first == p`SOREL`) {
-                data.ir.cislo.value = todayISO();
+                data.ir.cislo.setValue(data, todayISO());
             }
         }
     });
@@ -160,7 +116,6 @@
             storedData.set(raw);
         }
     });
-    let typBOXu = $derived(typBOX(data.ir.cisloBox.value));
 
     let chosen = $derived(
         data && mode != 'loading'
@@ -174,7 +129,7 @@
     let list = $derived(
         data && mode != 'loading'
             ? (Object.values(data) as Data[keyof Data][]).flatMap(
-                (obj) => Object.values(obj) as v.Widget<{ d: Data }, unknown>[]
+                (obj) => Object.values(obj) as v.Widget<UDDA, Data>[]
             )
             : []
     );
@@ -193,29 +148,6 @@
         data.montazka.company.items = () => $companies.assemblyCompanies;
     });
     $effect(() => {
-        const company = data.uvedeni.company.value;
-        if (company) {
-            data.uvedeni.ico.value = company.crn;
-            data.uvedeni.email.value = company.email ?? '';
-            data.uvedeni.telefon.value = company.phone ?? '';
-            data.uvedeni.zastupce.value = company.representative ?? '';
-        }
-    });
-    $effect(() => {
-        const company = data.montazka.company.value;
-        if (company) {
-            data.montazka.ico.value = company.crn;
-            data.montazka.email.value = company.email ?? '';
-            data.montazka.telefon.value = company.phone ?? '';
-            data.montazka.zastupce.value = company.representative ?? '';
-        }
-    });
-    $effect(() => {
-        if (data.uvedeni.ico.value == regulusCRN.toString() && data.uvedeni.email.value) {
-            data.uvedeni.regulus.value = data.uvedeni.regulus.items(d).find(t => t.email == data.uvedeni.email.value) ?? data.uvedeni.regulus.value;
-        }
-    });
-    $effect(() => {
         data.uvedeni.regulus.items = () => $techniciansList;
     });
     $effect(() => {
@@ -223,8 +155,6 @@
             ? ['assemblyCompany', 'endCustomer', 'doNotInvoice', p`Později, dle protokolu`]
             : ['assemblyCompany', 'endCustomer'];
     });
-    const chyba = $derived(formaSpolecnostiJeSpatne(data.koncovyUzivatel.nazev.value));
-
     const onImport = (newData: Raw<Data>) => {
         console.log(newData);
         data = rawDataToData(data, newData);
@@ -233,7 +163,7 @@
         }
     };
 
-    const isDangerous = $derived(JSON.stringify(dataToRawData(data)) != JSON.stringify(dataToRawData(untrack(defaultData))));
+    const isDangerous = $derived(JSON.stringify(dataToRawData(data)) != JSON.stringify(dataToRawData(untrack(newData))));
 </script>
 
 <FormHeader importData={{...importData, onImport, isDangerous}} showResetButton={mode === 'create' || mode === 'createStored'} store={storedData}
@@ -244,17 +174,11 @@
     {#if list[i] instanceof v.InputWidget && cisla.includes(list[i]) && list[i].show(d)}
         <Scanner
             bind:widget={list[i]}
-            onScan={(text) => list[i].value = text.slice(-12)}
-            {t} {d}
+            onScan={(text) => list[i].setValue(data, text.slice(-12))}
+            {t} {d} f={data}
         />
     {:else}
-        <WidgetComponent bind:widget={list[i]} {t} data={d} />
-    {/if}
-    {#if list[i] === data.ir.cisloBox && list[i].show(d) && typBOXu}
-        <p>Rozpoznáno: {typBOXu}</p>
-    {/if}
-    {#if list[i] === data.koncovyUzivatel.nazev && list[i].show(d) && chyba}
-        <p>Pozor, zadaná forma společnosti není správně formátovaná!</p>
+        <WidgetComponent bind:widget={list[i]} {t} data={d} form={data} />
     {/if}
     {#if list[i] === data.montazka.ico && list[i].show(d)}
         <p>

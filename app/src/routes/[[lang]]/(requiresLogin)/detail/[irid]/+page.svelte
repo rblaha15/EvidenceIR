@@ -66,7 +66,7 @@
 
     let change: 'no' | 'input' | 'sending' | 'fail' = $state('no');
 
-    let irNumber = $state(new InputWidget<boolean>({
+    let irNumber = $state(new InputWidget({
         label: `serialNumber`,
         onError: `wrongNumberFormat`,
         regex: s => s ? /[0-9]{4}-[0-9]{2}-[0-9]{2}/ : /[A-Z][1-9OND] [0-9]{4}/,
@@ -87,12 +87,12 @@
 
     $effect(() => {
         if (!values) return;
-        irNumber.value = values.evidence.ir.cislo;
-        irType.value = values.evidence.ir.typ.first;
+        irNumber.setValue({}, values.evidence.ir.cislo);
+        irType.setValue({}, values.evidence.ir.typ.first);
     });
     $effect(() => {
         if (irType.value == p`SOREL`) {
-            irNumber.value = todayISO();
+            irNumber.setValue({}, todayISO());
         }
     });
 
@@ -243,8 +243,8 @@
         >{t.changeController}</button>
     {:else if change === 'input'}
         <div class="mt-2">
-            <Widget bind:widget={irNumber} data={s} {t} />
-            <Widget bind:widget={irType} data={s} {t} />
+            <Widget bind:widget={irNumber} data={s} {t} form={{}} />
+            <Widget bind:widget={irType} data={s} {t} form={{}} />
             <div class="btn-group">
                 <button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
                 <button class="btn btn-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>

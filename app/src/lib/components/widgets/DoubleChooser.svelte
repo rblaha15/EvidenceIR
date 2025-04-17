@@ -16,14 +16,14 @@
         e: Event & {
             currentTarget: HTMLSelectElement;
         }
-    ) => {
-        widget.value.first = e.currentTarget.value as TranslationReference;
-    };
+    ) =>
+        widget.mutateValue(data, v => ({ ...v, first: e.currentTarget.value as TranslationReference }));
     const onChange2 = (
         e: Event & {
             currentTarget: HTMLSelectElement;
         }
-    ) => (widget.value.second = e.currentTarget.value as TranslationReference);
+    ) =>
+        widget.mutateValue(data, v => ({ ...v, second: e.currentTarget.value as TranslationReference }));
 
     let mounted = false;
     onMount(() => (mounted = true));
@@ -61,7 +61,7 @@
         {/if}
     </div>
     {#if widget.showError(data)}
-        <p class="text-danger">{t.get(widget.onError(data))}</p>
+        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
     {/if}
 {/if}
 

@@ -45,11 +45,11 @@
             class:rb-0={!hidden}
             onblur={() => {
                 if (!selecting) hidden = true;
-                widget.value = filtered.length === 1 ? filtered[0]: null;
+                widget.setValue(data, filtered.length === 1 ? filtered[0]: null);
             }}
             onfocus={() => hidden = false}
             placeholder=""
-            type={widget.type(data)}
+            type={widget.type(data, t)}
         />
         <label for="">{nazevSHvezdou(widget, data, t)}</label>
     </label>
@@ -72,7 +72,7 @@
                     onclick={(e) => {
                         e.preventDefault();
                         selecting = false
-                        widget.value = item;
+                        widget.setValue(data, item);
                         hidden = true
                     }}
                 >
@@ -105,7 +105,7 @@
     {/if}
 
     {#if widget.showError(data)}
-        <p class="text-danger">{t.get(widget.onError(data))}</p>
+        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
     {/if}
 </div>
 <style>

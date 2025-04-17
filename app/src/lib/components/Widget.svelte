@@ -1,4 +1,4 @@
-<script lang="ts" generics="D">
+<script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
     import {
         DoubleChooserWidget,
@@ -19,11 +19,11 @@
     import MultiCheckbox from '$lib/components/widgets/MultiCheckbox.svelte';
     import Checkbox from '$lib/components/widgets/Checkbox.svelte';
     import Counter from '$lib/components/widgets/Counter.svelte';
-    import Search from '../../routes/[[lang]]/(requiresLogin)/search/Search.svelte';
+    import Search from './widgets/Search.svelte';
 
     interface Props {
         t: Translations;
-        widget: Widget<D, unknown>;
+        widget: Widget<D>;
         data: D;
     }
 
@@ -31,9 +31,9 @@
 </script>
 
 {#if widget instanceof TitleWidget && widget.show(data)}
-    <h2>{t.get(widget.label(data))}</h2>
+    <h2>{t.get(widget.label(data, t))}</h2>
 {:else if widget instanceof TextWidget && widget.show(data)}
-    <p class="mb-2">{t.get(widget.label(data))}</p>
+    <p class="mb-2">{t.get(widget.label(data, t))}</p>
 {:else if widget instanceof InputWidget && widget.show(data)}
     <Input bind:widget {t} {data} />
 {:else if widget instanceof DoubleChooserWidget && widget.show(data)}

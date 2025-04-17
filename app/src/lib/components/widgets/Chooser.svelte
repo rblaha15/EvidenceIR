@@ -1,4 +1,4 @@
-<script lang="ts" generics="D">
+<script generics="D" lang="ts">
 	import type { TranslationReference, Translations } from '$lib/translations';
 	import { nazevSHvezdou, type ChooserWidget } from '$lib/Widget.svelte.js';
 
@@ -14,7 +14,7 @@
         e: Event & {
             currentTarget: HTMLSelectElement;
         }
-    ) => (widget.value = e.currentTarget.value as TranslationReference);
+    ) => (widget.setValue(data, e.currentTarget.value as TranslationReference));
 </script>
 
 <div class="mb-3">
@@ -30,7 +30,7 @@
         </label>
 
         {#if widget.showError(data)}
-            <p class="text-danger">{t.get(widget.onError(data))}</p>
+            <p class="text-danger">{t.get(widget.onError(data, t))}</p>
         {/if}
     {/if}
 </div>
