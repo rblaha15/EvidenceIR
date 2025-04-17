@@ -49,6 +49,7 @@ export interface UserData<D extends { d: UserData<D> }> extends Form<D> {
         company: SearchWidget<D, Company, true>;
         nebo: TextWidget<D>;
         ico: InputWidget<D>;
+        chosen: TextWidget<D>;
         zastupce: InputWidget<D>;
         email: InputWidget<D>;
         telefon: InputWidget<D>;
@@ -59,6 +60,7 @@ export interface UserData<D extends { d: UserData<D> }> extends Form<D> {
         company: SearchWidget<D, Company, true>;
         nebo: TextWidget<D>;
         ico: InputWidget<D>;
+        chosen: TextWidget<D>;
         regulus: SearchWidget<D, Technician, true>;
         zastupce: InputWidget<D>;
         email: InputWidget<D>;

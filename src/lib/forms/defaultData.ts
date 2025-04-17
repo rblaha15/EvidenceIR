@@ -12,7 +12,7 @@ import {
 } from '../Widget.svelte.js';
 import { type Data, type UDDA, type UserData } from './Data';
 import type { Company, Technician } from '$lib/client/realtime';
-import { regulusCRN } from '$lib/helpers/ares';
+import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
 
 const jeFO = (d: UserData<never>) => d.koncovyUzivatel.typ.value == `individual`;
@@ -142,6 +142,12 @@ export const userData = <D extends { d: UserData<D> }>(): UserData<D> => ({
             },
             required: false,
         }),
+        chosen: new TextWidget<D>({
+            text: async ({ d }, t) => {
+                const company = await nazevFirmy(d.montazka.ico.value);
+                return company ? p`${t.chosenCompany}: ${company}` : '';
+            }, showInXML: false,
+        }),
         zastupce: new InputWidget<D>({
             label: `representativeName`,
             autocomplete: `section-assemblyRepr billing name`
@@ -198,6 +204,12 @@ export const userData = <D extends { d: UserData<D> }>(): UserData<D> => ({
             },
             show: ({ d }) => !d.uvedeni.jakoMontazka.value,
             required: ({ d }) => !d.uvedeni.jakoMontazka.value
+        }),
+        chosen: new TextWidget<D>({
+            text: async ({ d }, t) => {
+                const company = await nazevFirmy(d.uvedeni.ico.value);
+                return company ? p`${t.chosenCompany}: ${company}` : '';
+            }, showInXML: false,
         }),
         regulus: new SearchWidget<D, Technician, true>({
             label: `searchRepresentative`, items: [], showInXML: false, getSearchItem: i => ({

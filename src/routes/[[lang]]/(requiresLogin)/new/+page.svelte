@@ -17,9 +17,7 @@
     import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
     import FormHeader from '$lib/forms/FormHeader.svelte';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
-    import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
-    import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
-    import defaultData from '$lib/forms/defaultData';
+    import { dataToRawData, type Form, type Raw, rawDataToData } from '$lib/forms/Form';
     import { todayISO } from '$lib/helpers/date';
 
     const t = page.data.translations;
@@ -61,14 +59,14 @@
         data;
         if (mode != 'loading') {
             data.ostatni.zodpovednaOsoba.show = () => $responsiblePerson == null;
-            if ($responsiblePerson != null) data.ostatni.zodpovednaOsoba.setValue(data, $responsiblePerson);
+            if ($responsiblePerson != null) data.ostatni.zodpovednaOsoba.setValue(d, $responsiblePerson);
         }
     });
     $effect(() => {
         data;
         if (mode != 'loading') {
             if (data.ir.typ.value.first == p`IR 12`) {
-                data.ir.typ.mutateValue(data, v => ({ ...v, second: p`CTC` }));
+                data.ir.typ.mutateValue(d, v => ({ ...v, second: p`CTC` }));
             }
         }
     });
@@ -76,7 +74,7 @@
         data;
         if (mode != 'loading') {
             if (!data.tc.model.options(d).includes(data.tc.model.value ?? '')) {
-                data.tc.model.setValue(data, null);
+                data.tc.model.setValue(d, null);
             }
         }
     });
@@ -84,7 +82,7 @@
         data;
         if (mode != 'loading') {
             if (data.ir.typ.value.second == p`RTC`) {
-                data.tc.typ.setValue(data, 'airToWater');
+                data.tc.typ.setValue(d, 'airToWater');
             }
         }
     });
@@ -92,7 +90,7 @@
         data;
         if (mode != 'loading') {
             if (data.ir.typ.value.first == p`SOREL`) {
-                data.ir.cislo.setValue(data, todayISO());
+                data.ir.cislo.setValue(d, todayISO());
             }
         }
     });
@@ -128,9 +126,7 @@
 
     let list = $derived(
         data && mode != 'loading'
-            ? (Object.values(data) as Data[keyof Data][]).flatMap(
-                (obj) => Object.values(obj) as v.Widget<UDDA, Data>[]
-            )
+            ? (data as Form<UDDA>).getValues().flatMap(obj => obj.getValues())
             : []
     );
 
@@ -174,29 +170,11 @@
     {#if list[i] instanceof v.InputWidget && cisla.includes(list[i]) && list[i].show(d)}
         <Scanner
             bind:widget={list[i]}
-            onScan={(text) => list[i].setValue(data, text.slice(-12))}
-            {t} {d} f={data}
+            onScan={(text) => list[i].setValue(d, text.slice(-12))}
+            {t} {d}
         />
     {:else}
-        <WidgetComponent bind:widget={list[i]} {t} data={d} form={data} />
-    {/if}
-    {#if list[i] === data.montazka.ico && list[i].show(d)}
-        <p>
-            {#await chosen?.assemblyCompany then a}
-                {#if a}
-                    {t.chosenCompany}: {a}
-                {/if}
-            {/await}
-        </p>
-    {/if}
-    {#if list[i] === data.uvedeni.ico && list[i].show(d)}
-        <p>
-            {#await chosen?.commissioningCompany then c}
-                {#if c}
-                    {t.chosenCompany}: {c}
-                {/if}
-            {/await}
-        </p>
+        <WidgetComponent bind:widget={list[i]} {t} data={d} />
     {/if}
 {/each}
 
