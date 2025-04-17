@@ -42,7 +42,6 @@ export const defaultDataSP2 = (): DataSP2 => ({
     ...defaultDataSP(),
 })
 
-
 const sp2: DetachedFormInfo<UDSP2, DataSP2, [[Technician[], User | null], [SparePart[]], [FriendlyCompanies]]> = {
     storeName: 'stored_new_SP',
     defaultData: defaultDataSP2,
@@ -108,7 +107,7 @@ const sp2: DetachedFormInfo<UDSP2, DataSP2, [[Technician[], User | null], [Spare
             });
             updateOtherSpareParts(d, spareParts);
         }, [sparePartsList]],
-        [(d, f, [$companies]) => {
+        [(_, f, [$companies]) => {
             f.uvedeni.company.items = () => $companies.commissioningCompanies;
             f.montazka.company.items = () => $companies.assemblyCompanies;
         }, [companies]],
