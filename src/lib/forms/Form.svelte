@@ -5,16 +5,15 @@
     import type { Translations } from '$lib/translations';
     import type { DetachedFormInfo } from '$lib/forms/forms.svelte.js';
     import FormHeader from '$lib/forms/FormHeader.svelte';
-    import { onMount, type Snippet, untrack } from 'svelte';
+    import { onMount, untrack } from 'svelte';
     import { derived as derivedStore } from 'svelte/store';
     import WidgetComponent from '$lib/components/Widget.svelte';
     import { storable } from '$lib/helpers/stores';
-    import type { Widget } from '$lib/Widget.svelte';
+    import { page } from '$app/state';
 
-    const { t, formInfo, trailingContent }: {
+    const { t, formInfo }: {
         t: Translations,
         formInfo: DetachedFormInfo<D, F, S>,
-        trailingContent?: Snippet<[widget: Widget<D, F>, d: D, f: F]>,
     } = $props();
     const {
         storeName,
@@ -28,6 +27,9 @@
         subtitle,
         storeData,
         importOptions,
+        isSendingEmails,
+        openTabLink,
+        redirectLink,
     } = formInfo;
 
     const storedData = storable<Raw<F>>(storeName);
@@ -45,45 +47,80 @@
             mode = 'create';
         }
 
-        await mountEffect?.(d, f);
+        await mountEffect?.(d, f, mode == 'edit');
 
         storeEffects?.forEach(([callback, stores]) => {
             derivedStore(stores, values => values).subscribe(values => callback(d, f, values));
         });
     });
 
-    let vysledek = $state({
+    let result = $state({
         text: '',
         red: false,
         load: false
     });
 
-    let list = $derived(f.getValues().flatMap(obj => obj.getValues()));
-    let d = $derived(createWidgetData(f));
+    const list = $derived(f.getValues().flatMap(obj => obj.getValues()));
+    const d = $derived(createWidgetData(f));
 
-    const save = async () => {
-        const raw = dataToRawData(f);
-        if (
-            list.some((it) => {
-                if (it.isError(d)) console.log(it);
-                return it.isError(d);
-            })
-        ) {
-            for (const i in list) {
-                list[i].displayErrorVeto = true;
+    const save = (send: boolean) => async () => {
+        try {
+            const raw = dataToRawData(f);
+            if (
+                list.some((it) => {
+                    if (it.isError(d)) console.log(it);
+                    return it.isError(d);
+                })
+            ) {
+                for (const i in list) {
+                    list[i].displayErrorVeto = true;
+                }
+                result = {
+                    red: true,
+                    text: t.youHaveAMistake,
+                    load: false
+                };
+                return;
             }
-            vysledek = {
+
+            result = { load: true, red: false, text: t.saving };
+            const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send);
+
+            storedData.set(undefined);
+
+            if (success) {
+                result = {
+                    text: t.redirecting,
+                    red: false,
+                    load: true
+                };
+
+                if (openTabLink) {
+                    const newWin = window.open(await openTabLink(raw));
+                    if (!newWin || newWin.closed) {
+                        result = {
+                            text: 'Povolte prosím otevírání oken v prohlížeči',
+                            red: true, load: false,
+                        };
+                        return
+                    }
+                }
+
+                if (redirectLink) window.location.replace(await redirectLink(raw));
+                if (redirectLink) setTimeout(async () => result = {
+                    text: t.redirectFailedHtml.parseTemplate({ link: page.url.origin + await redirectLink(raw) }),
+                    red: true,
+                    load: false
+                }, 5000);
+            }
+        } catch (e) {
+            console.log(e);
+            result = {
                 red: true,
-                text: t.youHaveAMistake,
+                text: t.somethingWentWrongContactUsHtml,
                 load: false
             };
-            return;
         }
-
-        vysledek = { load: true, red: false, text: t.saving };
-        await saveData(raw, mode == 'edit', f, result => vysledek = result);
-
-        storedData.set(undefined);
     };
 
     $effect(() => {
@@ -110,21 +147,23 @@
     {#if subtitle}
         <h3>{subtitle(t, mode === 'edit')}</h3>
     {/if}
-    {#each list as widget, i}
+    {#each list as _, i}
         <WidgetComponent bind:widget={list[i]} {t} data={d} />
-        {@render trailingContent?.(widget, d, f)}
     {/each}
     <div class="d-inline-flex align-content-center">
-        {#if !vysledek.load}
-            <button onclick={save} class="btn btn-success">{t.save}</button>
+        {#if !result.load}
+            <button onclick={save(false)} class="btn btn-success">{t.save}</button>
         {/if}
-        {#if vysledek.load}
+        {#if !result.load && mode === 'edit' && isSendingEmails}
+            <button onclick={save(true)} class="btn btn-success">{t.saveAndSend}</button>
+        {/if}
+        {#if result.load}
             <div class="spinner-border text-danger ms-2"></div>
         {/if}
         <button type="button" class="btn btn-secondary ms-2" onclick={() => history.back()}>
             {t.back}
         </button>
-        <p class:text-danger={vysledek.red} class="ms-2 my-auto">{@html vysledek.text}</p>
+        <p class:text-danger={result.red} class="ms-2 my-auto">{@html result.text}</p>
     </div>
 {:else}
     <div class="spinner-border text-danger m-2"></div>

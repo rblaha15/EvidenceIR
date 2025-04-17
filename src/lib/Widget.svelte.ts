@@ -420,6 +420,7 @@ export class InputWidget<D, H extends boolean = false> extends Widget<D, string,
         initInput(this, args);
     }
 }
+export class ScannerWidget<D> extends InputWidget<D> {}
 
 export class CheckboxWidget<D, H extends boolean = false> extends Widget<D, boolean, H> {
     label = $state() as Get<D>;

@@ -14,7 +14,7 @@ import {
 import type { User } from 'firebase/auth';
 import { extractSPIDFromRawData, vyplnitObecnyServisniProtokol } from '$lib/client/firestore';
 import { currentUser, getToken } from '$lib/client/auth';
-import { relUrl } from '$lib/helpers/runes.svelte';
+import { detailUrl, relUrl } from '$lib/helpers/runes.svelte';
 import { dataToRawData, type Form } from '$lib/forms/Form';
 import { nowISO, todayISO } from '$lib/helpers/date';
 import { companies } from '$lib/helpers/companies';
@@ -46,30 +46,13 @@ const sp2: DetachedFormInfo<UDSP2, DataSP2, [[Technician[], User | null], [Spare
     storeName: 'stored_new_SP',
     defaultData: defaultDataSP2,
     getEditData: async () => undefined,
-    saveData: async (raw, _, data, editResult) => {
+    saveData: async (raw, _, data) => {
         compactOtherSpareData<UDSP2, DataSP2>(data, raw);
         await vyplnitObecnyServisniProtokol(raw)
-
-        editResult({
-            text: 'Přesměrování...',
-            red: false,
-            load: true
-        });
-
-        const token = await getToken();
-        const newWin = window.open(
-            relUrl(`/detail/${extractSPIDFromRawData(raw)}/pdf/publicInstallationProtocol?token=${token}`)
-        );
-        if (!newWin || newWin.closed) {
-            editResult({
-                text: 'Povolte prosím otevírání oken v prohlížeči',
-                red: true,
-                load: false
-            });
-        } else {
-            window.location.replace(relUrl());
-        }
+        return true
     },
+    redirectLink: async () => relUrl(),
+    openTabLink: async raw => relUrl(`/detail/${extractSPIDFromRawData(raw)}/pdf/publicInstallationProtocol?token=${await getToken()}`),
     storeData: f => {
         const raw = dataToRawData(f);
         compactOtherSpareData<UDSP2, DataSP2>(f, raw);
