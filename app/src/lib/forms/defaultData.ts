@@ -21,7 +21,7 @@ const po = ({ d }: { d: UserData<never> }) => !jeFO(d);
 
 export const userData = <D extends { d: UserData<D> }>(): UserData<D> => ({
     koncovyUzivatel: {
-        nadpis: new TitleWidget<D>({ label: `endUser` }),
+        nadpis: new TitleWidget<D>({ text: `endUser` }),
         typ: new RadioWidget<D>({
             label: ``, chosen: `individual`,
             options: [`individual`, `company`]
@@ -40,7 +40,8 @@ export const userData = <D extends { d: UserData<D> }>(): UserData<D> => ({
         }),
         nazev: new InputWidget<D>({ label: `companyName`, show: po, required: po }),
         wrongFormat: new TextWidget<D>({
-            label: `wrongCompanyType`, show: ({ d }) => !jeFO(d) && formaSpolecnostiJeSpatne(d.koncovyUzivatel.nazev.value),
+            text: `wrongCompanyType`, showInXML: false,
+            show: ({ d }) => !jeFO(d) && formaSpolecnostiJeSpatne(d.koncovyUzivatel.nazev.value),
         }),
         pobocka: new InputWidget<D>({ label: `establishment`, required: false, show: po }),
         ico: new InputWidget<D>({
@@ -60,7 +61,7 @@ export const userData = <D extends { d: UserData<D> }>(): UserData<D> => ({
         })
     },
     bydliste: {
-        nadpis: new TitleWidget<D>({ label: ({ d }) => jeFO(d) ? `residence` : `headquarters` }),
+        nadpis: new TitleWidget<D>({ text: ({ d }) => jeFO(d) ? `residence` : `headquarters` }),
         ulice: new InputWidget<D>({
             label: `street`,
             autocomplete: `section-user billing street-address`
@@ -77,7 +78,7 @@ export const userData = <D extends { d: UserData<D> }>(): UserData<D> => ({
         })
     },
     mistoRealizace: {
-        nadpis: new TitleWidget<D>({ label: `realizationLocation` }),
+        nadpis: new TitleWidget<D>({ text: `realizationLocation` }),
         jakoBydliste: new CheckboxWidget<D, true>({
             label: ({ d }) => jeFO(d) ? `samePlaceAsResidence` : `samePlaceAsHeadquarters`,
             required: false, showInXML: false, hideInRawData: true,
@@ -114,7 +115,7 @@ export const userData = <D extends { d: UserData<D> }>(): UserData<D> => ({
         })
     },
     montazka: {
-        nadpis: new TitleWidget<D>({ label: `assemblyCompany` }),
+        nadpis: new TitleWidget<D>({ text: `assemblyCompany` }),
         company: new SearchWidget<D, Company, true>({
             label: `searchCompanyInList`, items: [], getSearchItem: i => ({
                 pieces: [
@@ -131,7 +132,7 @@ export const userData = <D extends { d: UserData<D> }>(): UserData<D> => ({
                 }
             }
         }),
-        nebo: new TextWidget<D>({ label: `or`, showInXML: false }),
+        nebo: new TextWidget<D>({ text: `or`, showInXML: false }),
         ico: new InputWidget<D>({
             label: `crn`,
             onError: `wrongCRNFormat`,
@@ -160,7 +161,7 @@ export const userData = <D extends { d: UserData<D> }>(): UserData<D> => ({
         })
     },
     uvedeni: {
-        nadpis: new TitleWidget<D>({ label: `commissioning` }),
+        nadpis: new TitleWidget<D>({ text: `commissioning` }),
         jakoMontazka: new CheckboxWidget<D, true>({
             label: `commissionedByAssemblyCompany`, required: false, showInXML: false, hideInRawData: true,
             onValueSet: (d, v) => {
@@ -187,7 +188,7 @@ export const userData = <D extends { d: UserData<D> }>(): UserData<D> => ({
                 }
             }
         }),
-        nebo: new TextWidget<D>({ label: `or`, showInXML: false, show: ({ d }) => !d.uvedeni.jakoMontazka.value }),
+        nebo: new TextWidget<D>({ text: `or`, showInXML: false, show: ({ d }) => !d.uvedeni.jakoMontazka.value }),
         ico: new InputWidget<D>({
             label: `crn`,
             onError: `wrongCRNFormat`,
@@ -279,7 +280,7 @@ export default (): Data => ({
             required: ({ d }) => d.ir.typ.value.first?.includes(`BOX`) ?? false
         }),
         boxType: new TextWidget<UDDA>({
-            label: ({ d }, t) => t.refFromTemplate('recognised', [typBOX(d.ir.cisloBox.value) ?? '']),
+            text: ({ d }, t) => t.refFromTemplate('recognised', [typBOX(d.ir.cisloBox.value) ?? '']), showInXML: false,
             show: ({ d }) => (d.ir.typ.value.first?.includes(`BOX`) ?? false) && typBOX(d.ir.cisloBox.value) != undefined,
         }),
         chceVyplnitK: new MultiCheckboxWidget<UDDA>({
@@ -292,11 +293,11 @@ export default (): Data => ({
     },
     tc: {
         nadpis: new TitleWidget<UDDA>({
-            label: ({ d }) => (d.tc.model2.value != `noPump` ? `heatPumps` : `heatPump`),
+            text: ({ d }) => (d.tc.model2.value != `noPump` ? `heatPumps` : `heatPump`),
             show: ({ d }) => d.ir.chceVyplnitK.value.includes(`heatPump`)
         }),
         poznamka: new TextWidget<UDDA>({
-            label: `pleaseFillInIrType`,
+            text: `pleaseFillInIrType`, showInXML: false,
             show: ({ d }) =>
                 d.ir.typ.value.second == null && d.ir.chceVyplnitK.value.includes(`heatPump`)
         }),
@@ -410,7 +411,7 @@ export default (): Data => ({
     },
     sol: {
         title: new TitleWidget<UDDA>({
-            label: `solarCollector`,
+            text: `solarCollector`,
             show: ({ d }) => d.ir.chceVyplnitK.value.includes(`solarCollector`)
         }),
         typ: new InputWidget<UDDA>({
@@ -427,7 +428,7 @@ export default (): Data => ({
     },
     ...userData(),
     vzdalenyPristup: {
-        nadpis: new TitleWidget<UDDA>({ label: `remoteAccess`, show: ({ d }) => !d.ir.typ.value.first?.includes('SOREL') }),
+        nadpis: new TitleWidget<UDDA>({ text: `remoteAccess`, show: ({ d }) => !d.ir.typ.value.first?.includes('SOREL') }),
         chce: new CheckboxWidget<UDDA>({ label: `doYouWantRemoteAccess`, required: false, show: ({ d }) => !d.ir.typ.value.first?.includes('SOREL') }),
         pristupMa: new MultiCheckboxWidget<UDDA>({
             label: `whoHasAccess`,

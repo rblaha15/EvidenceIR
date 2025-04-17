@@ -63,7 +63,7 @@ export type UvedeniSOL = {
 
 const defaultUvedeniSOL = (): UvedeniSOL => ({
     sol: {
-        nadpis: new TitleWidget({ label: `solarSystem` }),
+        nadpis: new TitleWidget({ text: `solarSystem` }),
         orientace: new InputWidget({ label: p`Orientace kolektorového pole` }),
         sklon: new InputWidget({ label: p`Sklon kolektorů` }),
         zasobnik: new InputWidget({ label: p`Typ zásobníkového ohřívače` }),
@@ -81,7 +81,7 @@ const defaultUvedeniSOL = (): UvedeniSOL => ({
         izolacePotrubi: new CheckboxWidget({ label: p`Potrubí bylo opatřeno izolací s teplotní odolností min. 160 °C` }),
     },
     uvadeni: {
-        nadpis: new TitleWidget({ label: `commissioningSteps` }),
+        nadpis: new TitleWidget({ text: `commissioningSteps` }),
         tlakDoba: new CheckboxWidget({ label: p`Byla provedena tlaková zkouška těsnosti solárního systému o minimální délce trvání 2 hodiny` }),
         tlakTlak: new CheckboxWidget({ label: p`Tlaková zkouška byla provedena pod tlakem 5 bar / 0,5 MPa` }),
         tlakUbytek: new CheckboxWidget({ label: p`Úbytek tlaku nepřesáhl po 2 hodinách tlakové zkoušky 0,1 bar / 0,01 MPa` }),

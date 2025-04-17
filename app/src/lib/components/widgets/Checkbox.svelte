@@ -1,17 +1,14 @@
 <script generics="D" lang="ts">
-	// noinspection ES6UnusedImports
-	import type { Form } from '$lib/forms/Form';
 	import type { Translations } from '$lib/translations';
 	import { nazevSHvezdou, type CheckboxWidget } from '$lib/Widget.svelte.js';
 
 	interface Props {
 		t: Translations;
-		widget: CheckboxWidget<D, F>;
+		widget: CheckboxWidget<D>;
 		data: D;
-		form: F;
 	}
 
-	let { t, widget = $bindable(), data, form }: Props = $props();
+	let { t, widget = $bindable(), data }: Props = $props();
 	const value = $derived(widget.bindableValue(data))
 </script>
 

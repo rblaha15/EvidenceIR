@@ -79,7 +79,7 @@ export const defaultKontrola = (): Kontrola => ({
         datum: new InputWidget<UDKO>({ label: 'checkDate', type: 'date' }),
     },
     kontrolniUkonyTepelnehoCerpadla: {
-        nadpis: new TitleWidget({ label: 'check.kontrolniUkonyTepelnehoCerpadla' }),
+        nadpis: new TitleWidget({ text: 'check.kontrolniUkonyTepelnehoCerpadla' }),
         kontrolaChoduKompresoru: new CheckboxWidget<UDKO>({ label: 'check.kontrolaChoduKompresoru', required: false }),
         optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu: new CheckboxWidget<UDKO>(
             { label: 'check.optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu', required: false }),
@@ -96,7 +96,7 @@ export const defaultKontrola = (): Kontrola => ({
             { label: 'check.kontrolaElektrickeCastiJednotkyTepelnehoCerpadla', required: false }),
     },
     kontrolniUkonyRegulace: {
-        nadpis: new TitleWidget({ label: 'check.kontrolniUkonyRegulace' }),
+        nadpis: new TitleWidget({ text: 'check.kontrolniUkonyRegulace' }),
         kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: new CheckboxWidget<UDKO>(
             { label: 'check.kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin', required: false }),
         kontrolaNastaveniParametruRegulatoru: new CheckboxWidget<UDKO>({ label: 'check.kontrolaNastaveniParametruRegulatoru', required: false }),
@@ -119,7 +119,7 @@ export const defaultKontrola = (): Kontrola => ({
             { label: 'check.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly', required: false }),
     },
     kontrolniElektroinstalace: {
-        nadpis: new TitleWidget({ label: 'check.kontrolniElektroinstalace' }),
+        nadpis: new TitleWidget({ text: 'check.kontrolniElektroinstalace' }),
         kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace: new CheckboxWidget<UDKO>(
             { label: 'check.kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace', required: false }),
         kontrolaDotazeniSvorkovychSpoju: new CheckboxWidget<UDKO>({ label: 'check.kontrolaDotazeniSvorkovychSpoju', required: false }),
@@ -129,7 +129,7 @@ export const defaultKontrola = (): Kontrola => ({
             { label: 'check.kontrolaSepnutiDohrevuSepnutiStykacePripadneRele', required: false }),
     },
     kontrolniUkonyOtopneSoustavy: {
-        nadpis: new TitleWidget({ label: 'check.kontrolniUkonyOtopneSoustavy' }),
+        nadpis: new TitleWidget({ text: 'check.kontrolniUkonyOtopneSoustavy' }),
         kontrolaFunkceObehovychCerpadel: new CheckboxWidget<UDKO>({ label: 'check.kontrolaFunkceObehovychCerpadel', required: false }),
         vycisteniFiltruObehovychCerpadel: new CheckboxWidget<UDKO>({ label: 'check.vycisteniFiltruObehovychCerpadel', required: false }),
         odvzdusneniZdrojeTc: new CheckboxWidget<UDKO>({ label: 'check.odvzdusneniZdrojeTc', required: false }),
@@ -143,7 +143,7 @@ export const defaultKontrola = (): Kontrola => ({
         nastavenyTlakPriUvadeniDoProvozu2: new InputWidget({ label: 'check.nastavenyTlakPriUvadeniDoProvozu', required: false, lock: ({ rok }) => rok != 1 }),
     },
     kontrolaZasobnikuTv: {
-        nadpis: new TitleWidget({ label: 'check.kontrolaZasobnikuTv' }),
+        nadpis: new TitleWidget({ text: 'check.kontrolaZasobnikuTv' }),
         kontrolaMgAnodyVZasobnikuPripVymena: new CheckboxWidget<UDKO>({ label: 'check.kontrolaMgAnodyVZasobnikuPripVymena', required: false }),
         kontrolaPojistovacihoVentilu: new CheckboxWidget<UDKO>({ label: 'check.kontrolaPojistovacihoVentilu', required: false }),
         pripadneProvedteKontroluTlakuVEnTepleVody: new CheckboxWidget<UDKO>({ label: 'check.pripadneProvedteKontroluTlakuVEnTepleVody', required: false }),

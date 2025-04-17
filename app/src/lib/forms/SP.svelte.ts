@@ -68,7 +68,7 @@ const nahradniDil = <D extends { protokol: F }, F extends Form<D>>(n: 1 | 2 | 3)
 
     return ({
         label: new TextWidget({
-            show: show, label: p`Náhradní díl ${n.toString()}:`,
+            show: show, text: p`Náhradní díl ${n.toString()}:`,
         }),
         dil: new SearchWidget({
             show: show, required: show,
@@ -114,7 +114,7 @@ export const defaultDataSP = <D extends { protokol: F }, F extends GenericDataSP
         popis: new InputWidget({ label: p`Popis zásahu`, required: false, textArea: true })
     },
     ukony: {
-        nadpis: new TitleWidget({ label: p`Vyúčtování` }),
+        nadpis: new TitleWidget({ text: p`Vyúčtování` }),
         doprava: new InputWidget({ label: p`Doprava (km)`, type: 'number', onError: `wrongNumberFormat` }),
         typPrace: new RadioWidget({ label: p`Typ práce`, options: [`sp.technicalAssistance`, `sp.assemblyWork`], required: false }),
         mnozstviPrace: new InputWidget({
@@ -129,14 +129,14 @@ export const defaultDataSP = <D extends { protokol: F }, F extends GenericDataSP
         }),
     },
     nahradniDily: {
-        nadpis: new TitleWidget({ label: p`Použité náhradní díly` }),
+        nadpis: new TitleWidget({ text: p`Použité náhradní díly` }),
         pocet: new CounterWidget({ label: p`Počet náhradních dílů`, min: 0, max: 3, chosen: 0 }),
     },
     nahradniDil1: nahradniDil(1),
     nahradniDil2: nahradniDil(2),
     nahradniDil3: nahradniDil(3),
     fakturace: {
-        nadpis: new TitleWidget({ label: p`Fakturace` }),
+        nadpis: new TitleWidget({ text: p`Fakturace` }),
         hotove: new ChooserWidget({ label: p`Placeno hotově`, options: ['yes', 'no', 'doNotInvoice'] }),
         komu: new RadioWidget({
             label: p`Komu fakturovat`, options: [p`Investor`, `assemblyCompany`],
