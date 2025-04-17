@@ -35,29 +35,12 @@
                 return getEditData?.(ir);
             } else return undefined;
         },
-        saveData: async (raw, edit, data, editResult) => {
+        saveData: async (raw, edit, data) => {
             await saveData(irid, raw, edit, data);
-
-            editResult({
-                text: 'Přesměrování...',
-                red: false,
-                load: true
-            });
-
-            const token = await getToken();
-            const newWin = window.open(
-                detailUrl(`/pdf/${pdfLink()}?token=${token}`)
-            );
-            if (!newWin || newWin.closed) {
-                editResult({
-                    text: 'Povolte prosím otevírání oken v prohlížeči',
-                    red: true,
-                    load: false
-                });
-            } else {
-                window.location.replace(detailUrl());
-            }
+            return true
         },
+        redirectLink: async () => detailUrl(),
+        openTabLink: async () => detailUrl(`/pdf/${pdfLink()}?token=${await getToken()}`),
         createWidgetData: data => createWidgetData(evidence, data),
     });
 </script>

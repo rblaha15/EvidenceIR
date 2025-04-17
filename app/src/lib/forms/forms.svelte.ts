@@ -21,17 +21,20 @@ export type Effect<
 export type DetachedFormInfo<D, F extends Form<D>, S extends unknown[][] = [], R extends Raw<F> = Raw<F>> = {
     storeName: string;
     defaultData: () => F;
-    saveData: (raw: R, edit: boolean, data: F, editResult: (result: { text: string, red: boolean, load: boolean }) => void) => Promise<void>;
+    saveData: (raw: R, edit: boolean, data: F, editResult: (result: { text: string, red: boolean, load: boolean }) => void, t: Translations, send: boolean) => Promise<boolean | void>;
     storeData?: (data: F) => R;
     createWidgetData: (data: F) => D;
     title: (t: Translations, edit: boolean) => string;
     subtitle?: ((t: Translations, edit: boolean) => string) | undefined;
     getEditData?: (() => Promise<R | undefined>) | undefined;
-    onMount?: (data: D, form: F) => Promise<void> | undefined;
+    onMount?: (data: D, form: F, edit: boolean) => Promise<void> | undefined;
     storeEffects?: { [I in keyof S]: Effect<D, F, S[I]> } | undefined;
     importOptions?: Omit<ExcelImport<R>, 'defaultData'> & {
         onImport: (data: D, form: F) => void;
     };
+    isSendingEmails?: boolean;
+    redirectLink?: (raw: R) => Promise<string>;
+    openTabLink?: (raw: R) => Promise<string>;
 }
 
 export type FormInfo<D, F extends Form<D>, S extends unknown[][] = [], R extends Raw<F> = Raw<F>> = {
@@ -39,7 +42,7 @@ export type FormInfo<D, F extends Form<D>, S extends unknown[][] = [], R extends
     saveData: (irid: IRID, raw: R, edit: boolean, data: F) => Promise<void>;
     createWidgetData: (evidence: Raw<Data>, data: F) => D;
     getEditData?: ((ir: IR) => R | undefined) | undefined;
-} & Omit<DetachedFormInfo<D, F, S, R>, 'saveData' | 'createWidgetData' | 'getEditData'>
+} & Omit<DetachedFormInfo<D, F, S, R>, 'saveData' | 'createWidgetData' | 'getEditData' | 'redirect'>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const formInfo: { [F in FormName]: FormInfo<any, any, any, any> } = {

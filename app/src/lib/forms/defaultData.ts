@@ -5,7 +5,7 @@ import {
     InputWidget,
     MultiCheckboxWidget,
     p,
-    RadioWidget,
+    RadioWidget, ScannerWidget,
     SearchWidget,
     TextWidget,
     TitleWidget
@@ -14,6 +14,7 @@ import { type Data, type UDDA, type UserData } from './Data';
 import type { Company, Technician } from '$lib/client/realtime';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
+import { todayISO } from '$lib/helpers/date';
 
 const jeFO = (d: UserData<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = ({ d }: { d: UserData<never> }) => jeFO(d);
@@ -259,6 +260,17 @@ export default (): Data => ({
             options2: ({ d: { ir: { typ: { value: { first: f } } } } }) => (
                 f == p`IR 12` ? [p`CTC`] : f == p`SOREL` ? [p`SRS1 T`, p`SRS2 TE`, p`SRS3 E`, p`SRS6 EP`, p`STDC E`, p`TRS3`, p`TRS4`, p`TRS5`] : [p`CTC`, p`RTC`]
             ),
+            onValueSet: (d, v) => {
+                if (v.second == p`RTC`) {
+                    d.d.tc.typ.setValue(d, 'airToWater');
+                }
+                if (v.first == p`SOREL`) {
+                    d.d.ir.cislo.setValue(d, todayISO());
+                }
+                if (v.first == p`IR 12`) {
+                    d.d.ir.typ.setValue(d, { ...v, second: p`CTC` });
+                }
+            }
         }),
         cislo: new InputWidget<UDDA>({
             label: `serialNumber`,
@@ -350,9 +362,14 @@ export default (): Data => ({
             show: ({ d }) =>
                 d.ir.typ.value.second != null &&
                 (d.ir.typ.value.second == p`RTC` || d.tc.typ.value != null) &&
-                d.ir.chceVyplnitK.value.includes(`heatPump`)
+                d.ir.chceVyplnitK.value.includes(`heatPump`),
+            onValueSet: d => {
+                if (!d.d.tc.model.options(d).includes(d.d.tc.model.value ?? '')) {
+                    d.d.tc.model.setValue(d, null);
+                }
+            }
         }),
-        cislo: new InputWidget<UDDA>({
+        cislo: new ScannerWidget<UDDA>({
             label: ({ d }) =>
                 d.tc.model2.value != `noPump`
                     ? `heatPumpManufactureNumber1`
@@ -370,7 +387,8 @@ export default (): Data => ({
                     A: /[A-Za-z]/
                 }
             }),
-            show: ({ d }) => d.ir.typ.value.second != null && d.ir.chceVyplnitK.value.includes(`heatPump`)
+            show: ({ d }) => d.ir.typ.value.second != null && d.ir.chceVyplnitK.value.includes(`heatPump`),
+            onValueSet: (d, v) => d.d.tc.cislo.setValue(d, v.slice(-12)),
         }),
         model2: new ChooserWidget<UDDA>({
             label: `heatPumpModel2`,
@@ -379,14 +397,15 @@ export default (): Data => ({
             chosen: `noPump`,
             show: ({ d }) => d.tc.model.show({ d }) && d.tc.model.value != null
         }),
-        cislo2: new InputWidget<UDDA>({
+        cislo2: new ScannerWidget<UDDA>({
             label: `heatPumpManufactureNumber2`,
             onError: `wrongNumberFormat`,
             regex: ({ d }) => d.tc.cislo.regex({ d }),
             capitalize: true,
             required: ({ d }) => d.tc.cislo.show({ d }) && d.tc.model2.value != `noPump`,
             maskOptions: ({ d }) => d.tc.cislo.maskOptions({ d }),
-            show: ({ d }) => d.tc.cislo.show({ d }) && d.tc.model2.value != `noPump`
+            show: ({ d }) => d.tc.cislo.show({ d }) && d.tc.model2.value != `noPump`,
+            onValueSet: (d, v) => d.d.tc.cislo2.setValue(d, v.slice(-12)),
         }),
         model3: new ChooserWidget<UDDA>({
             label: `heatPumpModel3`,
@@ -395,23 +414,24 @@ export default (): Data => ({
             chosen: `noPump`,
             show: ({ d }) => d.tc.model.show({ d }) && d.tc.model2.value != `noPump`
         }),
-        cislo3: new InputWidget<UDDA>({
+        cislo3: new ScannerWidget<UDDA>({
             label: `heatPumpManufactureNumber3`,
             onError: `wrongNumberFormat`,
             regex: ({ d }) => d.tc.cislo.regex({ d }),
             capitalize: true,
             required: ({ d }) => d.tc.cislo.show({ d }) && d.tc.model3.value != `noPump`,
             maskOptions: ({ d }) => d.tc.cislo.maskOptions({ d }),
-            show: ({ d }) => d.tc.cislo.show({ d }) && d.tc.model3.value != `noPump`
+            show: ({ d }) => d.tc.cislo.show({ d }) && d.tc.model3.value != `noPump`,
+            onValueSet: (d, v) => d.d.tc.cislo3.setValue(d, v.slice(-12)),
         }),
         model4: new ChooserWidget<UDDA>({
             label: `heatPumpModel4`,
             options: ({ d }) => [`noPump`, ...d.tc.model.options({ d })],
             required: false,
             chosen: `noPump`,
-            show: ({ d }) => d.tc.model.show({ d }) && d.tc.model3.value != `noPump`
+            show: ({ d }) => d.tc.model.show({ d }) && d.tc.model3.value != `noPump`,
         }),
-        cislo4: new InputWidget<UDDA>({
+        cislo4: new ScannerWidget<UDDA>({
             label: `heatPumpManufactureNumber4`,
             onError: `wrongNumberFormat`,
             regex: ({ d }) => d.tc.cislo.regex({ d }),
@@ -419,6 +439,7 @@ export default (): Data => ({
             required: ({ d }) => d.tc.cislo.show({ d }) && d.tc.model4.value != `noPump`,
             maskOptions: ({ d }) => d.tc.cislo.maskOptions({ d }),
             show: ({ d }) => d.tc.cislo.show({ d }) && d.tc.model4.value != `noPump`,
+            onValueSet: (d, v) => d.d.tc.cislo4.setValue(d, v.slice(-12)),
         })
     },
     sol: {

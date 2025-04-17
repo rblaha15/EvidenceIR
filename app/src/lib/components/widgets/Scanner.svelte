@@ -1,10 +1,9 @@
-<script lang="ts">
-	import type { InputWidget } from '$lib/Widget.svelte.js';
+<script lang="ts" generics="D">
+	import { ScannerWidget } from '$lib/Widget.svelte.js';
 	import { Html5Qrcode } from 'html5-qrcode';
 	import { onMount } from 'svelte';
 	import Input from '$lib/components/widgets/Input.svelte';
 	import type { Translations } from '$lib/translations';
-	import type { UDDA } from '$lib/forms/Data';
 
 	let zrusitBtn = $state<HTMLButtonElement>();
 
@@ -15,39 +14,33 @@
 	});
 
 	interface Props {
-		d: UDDA;
+		data: D;
 		t: Translations;
-		onScan: (text: string) => void;
-		widget: InputWidget<UDDA>;
+		widget: ScannerWidget<D>;
 	}
 
 	let {
-		d, t,
-		onScan,
+		data, t,
 		widget = $bindable(),
 	}: Props = $props();
 
 	const onClick = async () => {
 		const devices = await Html5Qrcode.getCameras();
 
-		if (devices && devices.length) {
-			html5QrCode
-				.start(
-					{ facingMode: 'environment' },
-					undefined,
-					(decodedText) => {
-						onScan(decodedText);
-
-						zrusitBtn?.click();
-					},
-					undefined
-				)
-				.catch((e) => {
-					console.error(e);
-
+		if (devices && devices.length) html5QrCode
+			.start(
+				{ facingMode: 'environment' },
+				undefined,
+				decodedText => {
+					widget.setValue(data, decodedText);
 					zrusitBtn?.click();
-				});
-		}
+				},
+				undefined
+			)
+			.catch(e => {
+				console.error(e);
+				zrusitBtn?.click();
+			});
 	};
 
 	const zrusit = () => {
@@ -56,7 +49,7 @@
 </script>
 
 <div class="d-sm-flex flex-sm-row align-items-end">
-	<div class="flex-grow-1"><Input bind:widget {t} data={d} /></div>
+	<div class="flex-grow-1"><Input bind:widget {t} {data} /></div>
 	<span class="p-2 mb-3"> {t.or} </span>
 	<div>
 		<button

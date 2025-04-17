@@ -1,37 +1,50 @@
-import type { Options } from "nodemailer/lib/mailer";
-import { getToken } from "./auth";
-import { htmlToText } from "html-to-text";
-import isString from "lodash.isstring";
+import type { Address, Attachment } from 'nodemailer/lib/mailer';
+import { getToken } from './auth';
+import { htmlToText } from 'html-to-text';
+import { type Component, mount } from 'svelte';
 
-export type EmailOptions = Options & {
-	pdf?: {
-		link: string;
-		title: string;
-	};
+export type EmailOptions<Props extends Record<string, unknown>> = {
+    from: Address | string;
+    replyTo?: Address | string;
+    to?: Address | string;
+    cc?: Address | string;
+    bcc?: Address | string;
+    subject: string;
+    attachments?: Attachment[];
+    pdf?: {
+        link: string;
+        title: string;
+    };
+    component: Component<Props, Record<string, unknown>, '' | keyof Props>;
+    props: Props;
+}
+export type EmailMessage = Omit<EmailOptions<never>, 'component' | 'props'> & {
+    text: string, html: string,
 }
 
-/**
- * Pošle email a pokud tam je html, převede to na text
- */
-export const sendEmail = async (message: EmailOptions) => {
+export const sendEmail = async <Props extends Record<string, unknown>>(options: EmailOptions<Props>) => {
+    const div = document.createElement('div');
+    mount(options.component, {
+        target: div,
+        props: options.props,
+    });
+    const html = div.innerHTML;
+    const message: EmailMessage = {
+        ...options, html, text: htmlToText(html)
+    };
 
-	if (isString(message.html)) {
-		message.text = message.text ?? htmlToText(message.html);
-	}
-
-	const token = await getToken();
-
-	return await fetch(`/api/sendEmail?token=${token}`, {
-		method: 'POST',
-		body: JSON.stringify({ message }),
-		headers: {
-			'content-type': 'application/json'
-		}
-	});
+    const token = await getToken();
+    return await fetch(`/api/sendEmail?token=${token}`, {
+        method: 'POST',
+        body: JSON.stringify({ message }),
+        headers: {
+            'content-type': 'application/json'
+        }
+    });
 };
 
 export const SENDER = {
-	name: 'Regulus SEIR',
-	address: 'aplikace.regulus@gmail.com',
+    name: 'Regulus SEIR',
+    address: 'aplikace.regulus@gmail.com',
 };
 

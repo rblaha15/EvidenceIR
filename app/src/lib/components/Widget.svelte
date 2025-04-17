@@ -9,7 +9,7 @@
         RadioWidget, SearchWidget,
         TextWidget,
         type Widget,
-        ChooserWidget, CheckboxWidget,
+        ChooserWidget, CheckboxWidget, ScannerWidget,
     } from '$lib/Widget.svelte.js';
     import Input from '$lib/components/widgets/Input.svelte';
     import DoubleChooser from '$lib/components/widgets/DoubleChooser.svelte';
@@ -20,6 +20,7 @@
     import Checkbox from '$lib/components/widgets/Checkbox.svelte';
     import Counter from '$lib/components/widgets/Counter.svelte';
     import Search from './widgets/Search.svelte';
+    import Scanner from '$lib/components/widgets/Scanner.svelte';
 
     interface Props {
         t: Translations;
@@ -34,6 +35,8 @@
     {#await widget.text(data, t) then text}<h2>{t.get(text)}</h2>{/await}
 {:else if widget instanceof TextWidget && widget.show(data)}
     {#await widget.text(data, t) then text}<p>{t.get(text)}</p>{/await}
+{:else if widget instanceof ScannerWidget && widget.show(data)}
+    <Scanner bind:widget {t} {data} />
 {:else if widget instanceof InputWidget && widget.show(data)}
     <Input bind:widget {t} {data} />
 {:else if widget instanceof DoubleChooserWidget && widget.show(data)}
