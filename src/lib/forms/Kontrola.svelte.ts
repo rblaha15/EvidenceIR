@@ -1,6 +1,6 @@
 import type { FormInfo } from '$lib/forms/forms.svelte.js';
 import { type IR, pridatKontrolu } from '$lib/client/firestore';
-import { TitleWidget, p, InputWidget, CheckboxWidget } from '$lib/Widget.svelte.js';
+import { TitleWidget, InputWidget, CheckboxWidget } from '$lib/Widget.svelte.js';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
 import { todayISO } from '$lib/helpers/date';
@@ -182,11 +182,11 @@ export const check = (() => {
         },
         saveData: (irid, raw) => pridatKontrolu(irid, rok, raw),
         createWidgetData: (evidence, kontrola) => ({ evidence, kontrola, rok }),
-        title: () => 'yearlyHPCheck',
-        subtitle: (_, t) => p`${t.year}: ${rok.toString() ?? '…'}`,
-        onMount: async k => {
+        title: t => t.yearlyHPCheck,
+        subtitle: t => `${t.year}: ${rok.toString() ?? '…'}`,
+        onMount: async (d, k) => {
             if (!k.info.datum.value)
-                k.info.datum.value = todayISO();
+                k.info.datum.setValue(d, todayISO());
         },
     };
     return info;

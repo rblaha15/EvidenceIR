@@ -1,7 +1,7 @@
 import { dev } from '$app/environment';
 import { sendEmail, SENDER } from '$lib/client/email';
 import { existuje, extractIRIDFromRawData, novaEvidence, upravitEvidenci } from '$lib/client/firestore';
-import { type Data, newData } from '$lib/forms/Data';
+import { type Data, newData, type UDDA } from '$lib/forms/Data';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { default as MailRRoute } from '$lib/emails/MailRRoute.svelte';
 import { default as MailSDaty } from '$lib/emails/MailSDaty.svelte';
@@ -42,7 +42,7 @@ export default async (
             return;
         }
 
-        const list = (data as Form<{ d: Data }>).getValues().flatMap(obj => obj.getValues());
+        const list = (data as Form<UDDA>).getValues().flatMap(obj => obj.getValues());
 
         if (list.some(section => {
             const isError = section.isError({ d: data });
@@ -73,30 +73,14 @@ export default async (
             load: true
         });
 
-        const dataToSend = rawDataToData(newData(), dataToRawData(data));
-
-        if (data.uvedeni.jakoMontazka.value) {
-            dataToSend.uvedeni.ico.value = dataToSend.montazka.ico.value;
-            dataToSend.uvedeni.email.value = dataToSend.montazka.email.value;
-            dataToSend.uvedeni.telefon.value = dataToSend.montazka.telefon.value;
-        } else if (dataToSend.uvedeni.ico.value == regulusCRN.toString()) {
-            dataToSend.uvedeni.email.value = data.uvedeni.regulus.value!.email;
-            dataToSend.uvedeni.telefon.value = data.uvedeni.regulus.value!.phone;
-            dataToSend.uvedeni.zastupce.value = data.uvedeni.regulus.value!.name;
-        }
-        if (data.mistoRealizace.jakoBydliste.value) {
-            dataToSend.mistoRealizace.ulice.value = dataToSend.bydliste.ulice.value;
-            dataToSend.mistoRealizace.obec.value = dataToSend.bydliste.obec.value;
-            dataToSend.mistoRealizace.psc.value = dataToSend.bydliste.psc.value;
-        }
-        const rawData = dataToRawData(dataToSend);
+        const rawData = dataToRawData(data);
 
         const user = get(currentUser)!;
 
         const div = document.createElement('div');
         mount(MailSDaty, {
             target: div,
-            props: { data: dataToSend, t, user, origin: page.url.origin },
+            props: { data, t, user, origin: page.url.origin },
         });
 
         const html = div.innerHTML;
@@ -130,7 +114,7 @@ export default async (
                 subject: `Založení RegulusRoute k ${nazevIR(rawData.ir)}`,
                 html,
                 attachments: [{
-                    content: generateXML(dataToSend, t),
+                    content: generateXML(data, t),
                     contentType: 'application/xml',
                     filename: `Evidence ${extractIRIDFromRawData(rawData)}.xml`
                 }],

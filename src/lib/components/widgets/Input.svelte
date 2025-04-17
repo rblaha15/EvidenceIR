@@ -45,7 +45,7 @@
         if (options != undefined && input != undefined) {
             mask = IMask(input, options);
             mask.value = widget.value;
-            mask.on('accept', () => widget.value = maybeCapitalized(mask!.value, widget));
+            mask.on('accept', () => widget.setValue(data, maybeCapitalized(mask!.value, widget)));
         }
     });
 
@@ -76,14 +76,14 @@
                 bind:this={textarea}
                 value={widget.value}
                 oninput={() => {
-					if (textarea) widget.value = maybeCapitalized(textarea.value, widget);
+					if (textarea) widget.setValue(data, maybeCapitalized(textarea.value, widget));
 				}}
                 disabled={widget.lock(data)}
                 style="height: 100px"
             ></textarea>
         {:else if options !== undefined}
             <input
-                type={widget.type(data)}
+                type={widget.type(data, t)}
                 autocomplete={widget.autocomplete(data)}
                 placeholder={nazevSHvezdou(widget, data, t)}
                 class="form-control"
@@ -92,14 +92,14 @@
             />
         {:else}
             <input
-                type={widget.type(data)}
+                type={widget.type(data, t)}
                 autocomplete={widget.autocomplete(data)}
                 placeholder={nazevSHvezdou(widget, data, t)}
                 class="form-control"
                 bind:this={input}
                 value={widget.value}
                 oninput={() => {
-					if (input) widget.value = maybeCapitalized(input.value, widget);
+					if (input) widget.setValue(data, maybeCapitalized(input.value, widget));
 				}}
                 disabled={widget.lock(data)}
             />
@@ -108,7 +108,7 @@
     </label>
 
     {#if widget.showError(data)}
-        <span class="text-danger help-block">{t.get(widget.onError(data))}</span>
+        <span class="text-danger help-block">{t.get(widget.onError(data, t))}</span>
     {/if}
 
     <div class="mb-2"></div>

@@ -1,4 +1,4 @@
-<script lang="ts" generics="D">
+<script generics="D" lang="ts">
 	import type { Translations } from '$lib/translations';
 	import { nazevSHvezdou, type SwitchWidget } from '$lib/Widget.svelte.js';
 
@@ -9,6 +9,7 @@
 	}
 
 	let { t, widget = $bindable(), data }: Props = $props();
+	const value = $derived(widget.bindableValue(data))
 </script>
 
 {#if widget.show(data)}
@@ -19,12 +20,12 @@
 				<input
 					type="radio"
 					class="btn-check"
-					bind:group={widget.value}
+					bind:group={value.value}
 					value={Boolean(i)}
-					id={widget.label(data) + Boolean(i)}
+					id={widget.label(data, t) + Boolean(i)}
 					autocomplete="off"
 				/>
-				<label class="btn btn-sm {widget.hasPositivity(data) && widget.value === Boolean(i) ? i === 1 ? 'btn-success' : 'btn-danger' : 'btn-secondary'}" for={widget.label(data) + Boolean(i)}
+				<label class="btn btn-sm {widget.hasPositivity(data) && widget.value === Boolean(i) ? i === 1 ? 'btn-success' : 'btn-danger' : 'btn-secondary'}" for={widget.label(data, t) + Boolean(i)}
 					>{t.get(moznost)}</label
 				>
 			{/each}
@@ -32,6 +33,6 @@
 	</div>
 
 	{#if widget.showError(data)}
-		<p class="text-danger">{t.get(widget.onError(data))}</p>
+		<p class="text-danger">{t.get(widget.onError(data, t))}</p>
 	{/if}
 {/if}

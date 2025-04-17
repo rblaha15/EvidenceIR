@@ -1,4 +1,4 @@
-<script lang="ts" generics="D">
+<script generics="D" lang="ts">
 	import type { Translations } from '$lib/translations';
 	import { nazevSHvezdou, type RadioWidget } from '$lib/Widget.svelte.js';
 
@@ -9,6 +9,7 @@
 	}
 
 	let { t, widget = $bindable(), data }: Props = $props();
+	const value = $derived(widget.bindableValue(data))
 </script>
 
 {#if widget.show(data)}
@@ -17,7 +18,7 @@
 		<div class="form-check">
 			<label class="form-check-label">
 				{t.get(moznost)}
-				<input type="radio" class="form-check-input" bind:group={widget.value} value={moznost} />
+				<input type="radio" class="form-check-input" bind:group={value.value} value={moznost} />
 			</label>
 		</div>
 	{/each}
@@ -25,6 +26,6 @@
 	<div class="mb-2"></div>
 
 	{#if widget.showError(data)}
-		<p class="text-danger">{t.get(widget.onError(data))}</p>
+		<p class="text-danger">{t.get(widget.onError(data, t))}</p>
 	{/if}
 {/if}

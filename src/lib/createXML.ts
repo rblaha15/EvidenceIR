@@ -1,6 +1,6 @@
 // noinspection SuspiciousTypeOfGuard
 
-import type { Data } from '$lib/forms/Data';
+import type { Data, UDDA } from '$lib/forms/Data';
 import {
     DoubleChooserWidget,
     MultiCheckboxWidget,
@@ -19,7 +19,7 @@ import type { Form } from '$lib/forms/Form';
 const camelToSnakeCase = (str: string) =>
     str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
-const widgetToXML = (v: Widget<{ d: Data }, unknown>, t: Translations) => {
+const widgetToXML = (v: Widget<UDDA, Data>, t: Translations) => {
     if (v instanceof InputWidget)
         return v.value;
     if (v instanceof DoubleChooserWidget)
@@ -50,7 +50,7 @@ Verze dokumentu: 1.1
 -->
 
 <evidence>
-${Object.entries(data as Form<{ d: Data }>).map(([k1, section]) =>
+${Object.entries(data as Form<UDDA>).map(([k1, section]) =>
     `    <${camelToSnakeCase(k1)}>
 ${Object.entries(section).filter(([, v]) =>
         v.showTextValue({ d: data }) && v.value != undefined

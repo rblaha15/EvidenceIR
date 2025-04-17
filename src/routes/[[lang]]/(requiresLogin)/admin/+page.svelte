@@ -737,9 +737,9 @@
                 <tr>
                     <th>{tr}</th>
                     {#each languageCodes as lang}
-                        {@const v = getTranslations(lang).getMaybeTemplate(tr)}
-                        {@const cs = getTranslations('cs').getMaybeTemplate(tr)}
-                        {@const en = getTranslations('en').getMaybeTemplate(tr)}
+                        {@const v = getTranslations(lang).get(tr)}
+                        {@const cs = getTranslations('cs').get(tr)}
+                        {@const en = getTranslations('en').get(tr)}
                         <td class="col-20"
                             class:table-danger={lang !== 'cs' && cs === v}
                             class:table-warning={lang !== 'en' && lang !== 'cs' && en === v}>

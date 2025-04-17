@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	import Input from '$lib/components/widgets/Input.svelte';
 	import type { Translations } from '$lib/translations';
-	import type { Data } from '$lib/forms/Data';
+	import type { UDDA } from '$lib/forms/Data';
 
 	let zrusitBtn = $state<HTMLButtonElement>();
 
@@ -15,15 +15,14 @@
 	});
 
 	interface Props {
-		d: { d: Data };
+		d: UDDA;
 		t: Translations;
 		onScan: (text: string) => void;
-		widget: InputWidget<{ d: Data }>;
+		widget: InputWidget<UDDA>;
 	}
 
 	let {
-		d,
-		t,
+		d, t,
 		onScan,
 		widget = $bindable(),
 	}: Props = $props();

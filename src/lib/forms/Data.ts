@@ -13,33 +13,11 @@ import {
 import type { Company, Technician } from '$lib/client/realtime';
 import type { ExcelImport } from '$lib/forms/Import';
 import { makePlain } from '$lib/translations';
-import { dataToRawData, type Raw } from '$lib/forms/Form';
+import { dataToRawData, type Form, type Raw } from '$lib/forms/Form';
 
-export type Data<D = { d: Data }> = {
-    ir: {
-        typ: DoubleChooserWidget<D>;
-        cislo: InputWidget<D>;
-        cisloBox: InputWidget<D>;
-        chceVyplnitK: MultiCheckboxWidget<D>;
-    };
-    tc: {
-        nadpis: TitleWidget<D>;
-        poznamka: TextWidget<D>;
-        typ: RadioWidget<D>;
-        model: ChooserWidget<D>;
-        cislo: InputWidget<D>;
-        model2: ChooserWidget<D>;
-        cislo2: InputWidget<D>;
-        model3: ChooserWidget<D>;
-        cislo3: InputWidget<D>;
-        model4: ChooserWidget<D>;
-        cislo4: InputWidget<D>;
-    };
-    sol: {
-        title: TitleWidget<D>;
-        typ: InputWidget<D>;
-        pocet: InputWidget<D>;
-    };
+export type UDDA = { d: Data }
+
+export interface UserData<D extends { d: UserData<D> }> extends Form<D> {
     koncovyUzivatel: {
         nadpis: TitleWidget<D>;
         typ: RadioWidget<D>;
@@ -47,6 +25,7 @@ export type Data<D = { d: Data }> = {
         jmeno: InputWidget<D>;
         narozeni: InputWidget<D>;
         nazev: InputWidget<D>;
+        wrongFormat: TextWidget<D>;
         pobocka: InputWidget<D>;
         ico: InputWidget<D>;
         telefon: InputWidget<D>;
@@ -85,19 +64,47 @@ export type Data<D = { d: Data }> = {
         email: InputWidget<D>;
         telefon: InputWidget<D>;
     };
+}
+
+export interface Data extends UserData<UDDA>, Form<UDDA> {
+    ir: {
+        typ: DoubleChooserWidget<UDDA>;
+        cislo: InputWidget<UDDA>;
+        cisloBox: InputWidget<UDDA>;
+        boxType: TextWidget<UDDA>;
+        chceVyplnitK: MultiCheckboxWidget<UDDA>;
+    };
+    tc: {
+        nadpis: TitleWidget<UDDA>;
+        poznamka: TextWidget<UDDA>;
+        typ: RadioWidget<UDDA>;
+        model: ChooserWidget<UDDA>;
+        cislo: InputWidget<UDDA>;
+        model2: ChooserWidget<UDDA>;
+        cislo2: InputWidget<UDDA>;
+        model3: ChooserWidget<UDDA>;
+        cislo3: InputWidget<UDDA>;
+        model4: ChooserWidget<UDDA>;
+        cislo4: InputWidget<UDDA>;
+    };
+    sol: {
+        title: TitleWidget<UDDA>;
+        typ: InputWidget<UDDA>;
+        pocet: InputWidget<UDDA>;
+    };
     vzdalenyPristup: {
-        nadpis: TitleWidget<D>;
-        chce: CheckboxWidget<D>;
-        pristupMa: MultiCheckboxWidget<D>;
-        plati: RadioWidget<D>;
+        nadpis: TitleWidget<UDDA>;
+        chce: CheckboxWidget<UDDA>;
+        pristupMa: MultiCheckboxWidget<UDDA>;
+        plati: RadioWidget<UDDA>;
     };
     ostatni: {
-        zodpovednaOsoba: InputWidget<D>;
-        poznamka: InputWidget<D>;
+        zodpovednaOsoba: InputWidget<UDDA>;
+        poznamka: InputWidget<UDDA>;
     };
 }
 
-export const newData = () => defaultData();
+export const newData = () => defaultData() as Data;
 
 export const importData: ExcelImport<Raw<Data>> = {
     cells: {
@@ -166,6 +173,6 @@ export const importData: ExcelImport<Raw<Data>> = {
             pocet: { address: [6, 40] },
         },
     },
-    defaultData: () => dataToRawData(defaultData()),
+    defaultData: () => dataToRawData(newData()),
     sheet: 'ZADÁNÍ',
 };
