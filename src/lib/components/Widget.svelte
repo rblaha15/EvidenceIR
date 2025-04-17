@@ -31,9 +31,9 @@
 </script>
 
 {#if widget instanceof TitleWidget && widget.show(data)}
-    <h2>{t.get(widget.label(data, t))}</h2>
+    {#await widget.text(data, t) then text}<h2>{t.get(text)}</h2>{/await}
 {:else if widget instanceof TextWidget && widget.show(data)}
-    <p class="mb-2">{t.get(widget.label(data, t))}</p>
+    {#await widget.text(data, t) then text}<p>{t.get(text)}</p>{/await}
 {:else if widget instanceof InputWidget && widget.show(data)}
     <Input bind:widget {t} {data} />
 {:else if widget instanceof DoubleChooserWidget && widget.show(data)}

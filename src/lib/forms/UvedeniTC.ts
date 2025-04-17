@@ -80,7 +80,7 @@ export type UvedeniTC = {
 
 export const defaultUvedeniTC = (): UvedeniTC => ({
     tc: {
-        nadpis: new TitleWidget({ label: `heatPump` }),
+        nadpis: new TitleWidget({ text: `heatPump` }),
         jisticTC: new Vyhovuje({ label: `characteristicsAndSizeOfHeatPumpBreaker` }),
         jisticVJ: new Vyhovuje({ show: d => d.evidence.ir.typ.first!.includes('BOX'), label: `characteristicsAndSizeOfIndoorUnitBreaker` }),
         vzdalenostZdi: new Vyhovuje({ label: `distanceFromWall`, show: d => d.evidence.tc.typ == `airToWater` }),
@@ -92,12 +92,12 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
         filtr: new CheckboxWidget({ required: false, label: `isCirculationPumpFilterInstalled` }),
     },
     nadrze: {
-        nadpis: new TitleWidget({ label: `tanks` }),
+        nadpis: new TitleWidget({ text: `tanks` }),
         akumulacka: new InputWidget({ label: `typeOfAccumulationTank`, required: false }),
         zasobnik: new InputWidget({ label: `typeOfStorageTank`, required: false }),
     },
     os: {
-        nadpis: new TitleWidget({ label: `heatingSystem` }),
+        nadpis: new TitleWidget({ text: `heatingSystem` }),
         tvori: new ChooserWidget({
             label: `heatingSystemConsistsOf`, options: [
                 `radiators`,
@@ -124,7 +124,7 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
         bazenTc: new CheckboxWidget({ required: false, label: `isPoolHeatingManagedByHeatPump` }),
     },
     reg: {
-        nadpis: new TitleWidget({ label: `controlAndElectricalInstallation` }),
+        nadpis: new TitleWidget({ text: `controlAndElectricalInstallation` }),
         pripojeniKInternetu: new ChooserWidget({
             label: `internetConnection`, options: [
                 `connectedViaRegulusRoute`,
@@ -142,7 +142,7 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
     },
     primar: {
         nadpis: new TitleWidget({
-            label: `primaryCircuit`,
+            text: `primaryCircuit`,
             show: d => d.evidence.tc.typ == 'groundToWater',
         }),
         typ: new ChooserWidget({
@@ -187,7 +187,7 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
         }),
     },
     uvadeni: {
-        nadpis: new TitleWidget({ label: `commissioningSteps` }),
+        nadpis: new TitleWidget({ text: `commissioningSteps` }),
         tc: new CheckboxWidget({ required: false, label: `wasInstallationAccordingToManual` }),
         reg: new CheckboxWidget({ required: false, label: `wasControllerSetToParameters` }),
         vlastnik: new CheckboxWidget({ required: false, label: `wasOwnerFamiliarizedWithFunction` }),
