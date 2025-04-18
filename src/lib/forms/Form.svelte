@@ -10,6 +10,7 @@
     import WidgetComponent from '$lib/components/Widget.svelte';
     import { storable } from '$lib/helpers/stores';
     import { page } from '$app/state';
+    import { dev } from '$app/environment';
 
     const { t, formInfo }: {
         t: Translations,
@@ -86,7 +87,7 @@
             result = { load: true, red: false, text: t.saving };
             const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send);
 
-            storedData.set(undefined);
+            if (!dev) storedData.set(undefined);
 
             if (success) {
                 result = {

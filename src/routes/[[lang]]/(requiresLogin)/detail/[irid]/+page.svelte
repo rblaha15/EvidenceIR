@@ -123,9 +123,11 @@
         {#if data.irid.length === 6}
             {data.irid.slice(0, 2)}
             {data.irid.slice(2, 6)}
-        {:else}
+        {:else if data.irid.length === 7}
             {data.irid.slice(1, 3)}
             {data.irid.slice(3, 7)}
+        {:else if data.irid.length === 9}
+            SOREL
         {/if}
     </h3>
 {:else}
@@ -159,7 +161,9 @@
     {#if values.evidence.vzdalenyPristup.chce}
         <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
     {/if}
-    <PdfLink name={t.routeGuide} {t} linkName="guide" {data} />
+    {#if values.evidence.ir.typ.first !== p`SOREL`}
+        <PdfLink name={t.routeGuide} {t} linkName="guide" {data} />
+    {/if}
     {#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
         {#if (values.evidence.tc.model2 ?? 'noPump') === 'noPump'}
             <PdfLink name={t.warranty} {t} linkName="warranty-" {data} />
@@ -243,8 +247,8 @@
         >{t.changeController}</button>
     {:else if change === 'input'}
         <div class="mt-2">
-            <Widget bind:widget={irNumber} data={s} {t} form={{}} />
-            <Widget bind:widget={irType} data={s} {t} form={{}} />
+            <Widget bind:widget={irNumber} data={s} {t} />
+            <Widget bind:widget={irType} data={s} {t} />
             <div class="btn-group">
                 <button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
                 <button class="btn btn-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>

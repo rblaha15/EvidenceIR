@@ -60,7 +60,7 @@
                 {#if !hideLanguageSelector}
                     <button
                         disabled={!enabled || pdf.supportedLanguages.length === 1}
-                        class="btn btn-secondary"
+                        class="btn btn-outline-secondary"
                         class:dropdown-toggle={pdf.supportedLanguages.length > 1}
                         data-bs-toggle="dropdown"
                     >
