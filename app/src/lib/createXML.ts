@@ -1,6 +1,6 @@
 // noinspection SuspiciousTypeOfGuard
 
-import type { Data, UDDA } from '$lib/forms/Data';
+import type { Data } from '$lib/forms/Data';
 import {
     DoubleChooserWidget,
     MultiCheckboxWidget,
@@ -17,9 +17,9 @@ import type { Translations } from '$lib/translations';
 import type { Form } from '$lib/forms/Form';
 
 const camelToSnakeCase = (str: string) =>
-    str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+    str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
-const widgetToXML = (v: Widget<UDDA, Data>, t: Translations) => {
+const widgetToXML = (v: Widget<Data>, t: Translations) => {
     if (v instanceof InputWidget)
         return v.value;
     if (v instanceof DoubleChooserWidget)
@@ -50,15 +50,13 @@ Verze dokumentu: 1.1
 -->
 
 <evidence>
-${Object.entries(data as Form<UDDA>).map(([k1, section]) =>
+${(data as Form<Data>).mapTo((k1, section) =>
     `    <${camelToSnakeCase(k1)}>
-${Object.entries(section).filter(([, v]) =>
-        v.showTextValue({ d: data }) && v.value != undefined
-    ).map(([k2, v]) =>
-        `        <${camelToSnakeCase(k2)}>${
-            widgetToXML(v, t)
-        }</${camelToSnakeCase(k2)}>`
-    ).join('\n')}
+${section.entries().filter(([, v]) =>
+    v.showTextValue(data) && v.value != undefined
+).map(([k2, v]) =>
+    `        <${camelToSnakeCase(k2)}>${widgetToXML(v, t)}</${camelToSnakeCase(k2)}>`
+).join('\n')}
     </${camelToSnakeCase(k1)}>`
 ).join('\n')}
 </evidence>

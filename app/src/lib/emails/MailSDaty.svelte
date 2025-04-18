@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Data, UDDA } from '$lib/forms/Data';
+    import type { Data } from '$lib/forms/Data';
     import { extractIRIDFromParts } from '$lib/client/firestore';
     import type { Translations } from '$lib/translations';
     import {
@@ -32,7 +32,7 @@
 
     const d = $derived({ d: data });
 
-    let list = $derived((data as Form<UDDA>).getValues().flatMap(obj => obj.getValues()));
+    let list = $derived((data as Form<Data>).getValues().flatMap(obj => obj.getValues()));
 
     const irid = extractIRIDFromParts(data.ir.typ.value.first!, data.ir.cislo.value);
 </script>

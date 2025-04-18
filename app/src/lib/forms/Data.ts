@@ -39,9 +39,7 @@ import { generateXML } from '$lib/createXML';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
 import MailSDaty from '$lib/emails/MailSDaty.svelte';
 
-export type UDDA = { d: Data }
-
-export interface UserData<D extends { d: UserData<D> }> extends Form<D> {
+export interface UserData<D extends UserData<D>> extends Form<D> {
     koncovyUzivatel: {
         nadpis: TitleWidget<D>;
         typ: RadioWidget<D>;
@@ -92,41 +90,41 @@ export interface UserData<D extends { d: UserData<D> }> extends Form<D> {
     };
 }
 
-export interface Data extends UserData<UDDA>, Form<UDDA> {
+export interface Data extends UserData<Data>, Form<Data> {
     ir: {
-        typ: DoubleChooserWidget<UDDA>;
-        cislo: InputWidget<UDDA>;
-        cisloBox: InputWidget<UDDA>;
-        boxType: TextWidget<UDDA>;
-        chceVyplnitK: MultiCheckboxWidget<UDDA>;
+        typ: DoubleChooserWidget<Data>;
+        cislo: InputWidget<Data>;
+        cisloBox: InputWidget<Data>;
+        boxType: TextWidget<Data>;
+        chceVyplnitK: MultiCheckboxWidget<Data>;
     };
     tc: {
-        nadpis: TitleWidget<UDDA>;
-        poznamka: TextWidget<UDDA>;
-        typ: RadioWidget<UDDA>;
-        model: ChooserWidget<UDDA>;
-        cislo: ScannerWidget<UDDA>;
-        model2: ChooserWidget<UDDA>;
-        cislo2: ScannerWidget<UDDA>;
-        model3: ChooserWidget<UDDA>;
-        cislo3: ScannerWidget<UDDA>;
-        model4: ChooserWidget<UDDA>;
-        cislo4: ScannerWidget<UDDA>;
+        nadpis: TitleWidget<Data>;
+        poznamka: TextWidget<Data>;
+        typ: RadioWidget<Data>;
+        model: ChooserWidget<Data>;
+        cislo: ScannerWidget<Data>;
+        model2: ChooserWidget<Data>;
+        cislo2: ScannerWidget<Data>;
+        model3: ChooserWidget<Data>;
+        cislo3: ScannerWidget<Data>;
+        model4: ChooserWidget<Data>;
+        cislo4: ScannerWidget<Data>;
     };
     sol: {
-        title: TitleWidget<UDDA>;
-        typ: InputWidget<UDDA>;
-        pocet: InputWidget<UDDA>;
+        title: TitleWidget<Data>;
+        typ: InputWidget<Data>;
+        pocet: InputWidget<Data>;
     };
     vzdalenyPristup: {
-        nadpis: TitleWidget<UDDA>;
-        chce: CheckboxWidget<UDDA>;
-        pristupMa: MultiCheckboxWidget<UDDA>;
-        plati: RadioWidget<UDDA>;
+        nadpis: TitleWidget<Data>;
+        chce: CheckboxWidget<Data>;
+        pristupMa: MultiCheckboxWidget<Data>;
+        plati: RadioWidget<Data>;
     };
     ostatni: {
-        zodpovednaOsoba: InputWidget<UDDA>;
-        poznamka: InputWidget<UDDA>;
+        zodpovednaOsoba: InputWidget<Data>;
+        poznamka: InputWidget<Data>;
     };
 }
 
@@ -199,7 +197,7 @@ const cells: ExcelImport<Raw<Data>>['cells'] = {
     },
 };
 
-const data: DetachedFormInfo<UDDA, Data, [[Technician[]], [FriendlyCompanies], [boolean], [string | null]]> = {
+const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [boolean], [string | null]]> = {
     storeName: 'stored_data',
     defaultData: newData,
     saveData: async (raw, edit, data, editResult, t, send) => {
@@ -273,7 +271,7 @@ const data: DetachedFormInfo<UDDA, Data, [[Technician[]], [FriendlyCompanies], [
         });
     },
     redirectLink: async raw => relUrl(`/detail/${extractIRIDFromRawData(raw)}`),
-    createWidgetData: d => ({ d }),
+    createWidgetData: d => d,
     title: (t, edit) => edit ? t.editation : t.controllerRegistration,
     getEditData: async () => {
         const irid = page.url.searchParams.get('edit-irid') as IRID | null;
@@ -284,7 +282,7 @@ const data: DetachedFormInfo<UDDA, Data, [[Technician[]], [FriendlyCompanies], [
 
         return snapshot.data()!.evidence;
     },
-    onMount: async (d, data, edit) => {
+    onMount: async (_, data, edit) => {
         await startTechniciansListening();
 
         data.ir.cislo.lock = () => edit;
@@ -303,9 +301,9 @@ const data: DetachedFormInfo<UDDA, Data, [[Technician[]], [FriendlyCompanies], [
                 ? ['assemblyCompany', 'endCustomer', 'doNotInvoice', p`Později, dle protokolu`]
                 : ['assemblyCompany', 'endCustomer'];
         }, [isUserRegulusOrAdmin]],
-        [(d, data, [$responsiblePerson]) => {
+        [(_, data, [$responsiblePerson]) => {
             data.ostatni.zodpovednaOsoba.show = () => $responsiblePerson == null;
-            if ($responsiblePerson != null) data.ostatni.zodpovednaOsoba.setValue(d, $responsiblePerson);
+            if ($responsiblePerson != null) data.ostatni.zodpovednaOsoba.setValue(data, $responsiblePerson);
         }, [responsiblePerson]],
     ],
     importOptions: {

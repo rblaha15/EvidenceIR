@@ -14,21 +14,18 @@ import {
 import type { User } from 'firebase/auth';
 import { extractSPIDFromRawData, vyplnitObecnyServisniProtokol } from '$lib/client/firestore';
 import { currentUser, getToken } from '$lib/client/auth';
-import { detailUrl, relUrl } from '$lib/helpers/runes.svelte';
+import { relUrl } from '$lib/helpers/runes.svelte';
 import { dataToRawData, type Form } from '$lib/forms/Form';
 import { nowISO, todayISO } from '$lib/helpers/date';
 import { companies } from '$lib/helpers/companies';
 
-export type UDSP2 = {
-    protokol: DataSP2,
-    d: DataSP2,
-}
+export type UDSP = UserData<UDSP> & GenericDataSP<UDSP>
 
-export interface DataSP2 extends GenericDataSP<UDSP2>, UserData<UDSP2>, Form<UDSP2> {
+export interface DataSP2 extends GenericDataSP<UDSP>, UserData<UDSP>, Form<UDSP> {
     system: {
-        nadpis: TitleWidget<UDSP2>;
-        popis: InputWidget<UDSP2>;
-        datumUvedeni: InputWidget<UDSP2>;
+        nadpis: TitleWidget<UDSP>;
+        popis: InputWidget<UDSP>;
+        datumUvedeni: InputWidget<UDSP>;
     }
 }
 
@@ -42,12 +39,12 @@ export const defaultDataSP2 = (): DataSP2 => ({
     ...defaultDataSP(),
 })
 
-const sp2: DetachedFormInfo<UDSP2, DataSP2, [[Technician[], User | null], [SparePart[]], [FriendlyCompanies]]> = {
+const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SparePart[]], [FriendlyCompanies]]> = {
     storeName: 'stored_new_SP',
     defaultData: defaultDataSP2,
     getEditData: async () => undefined,
     saveData: async (raw, _, data) => {
-        compactOtherSpareData<UDSP2, DataSP2>(data, raw);
+        compactOtherSpareData(data, raw);
         await vyplnitObecnyServisniProtokol(raw)
         return true
     },
@@ -55,10 +52,10 @@ const sp2: DetachedFormInfo<UDSP2, DataSP2, [[Technician[], User | null], [Spare
     openTabLink: async raw => relUrl(`/detail/${extractSPIDFromRawData(raw)}/pdf/publicInstallationProtocol?token=${await getToken()}`),
     storeData: f => {
         const raw = dataToRawData(f);
-        compactOtherSpareData<UDSP2, DataSP2>(f, raw);
+        compactOtherSpareData(f, raw);
         return raw;
     },
-    createWidgetData: f => ({ protokol: f, d: f }),
+    createWidgetData: f => f,
     title: () => `Instalační a servisní protokol`,
     onMount: async (d, f) => {
         await startTechniciansListening();

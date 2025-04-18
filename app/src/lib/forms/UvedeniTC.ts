@@ -1,7 +1,7 @@
-import { type GetOrVal, TitleWidget, InputWidget, SwitchWidget, ChooserWidget, CheckboxWidget } from '../Widget.svelte.js';
+import { type GetOrVal, TitleWidget, InputWidget, SwitchWidget, ChooserWidget, CheckboxWidget } from '../Widget.svelte';
 import { uvestTCDoProvozu } from '$lib/client/firestore';
-import type { FormInfo } from './forms.svelte.js';
-import type { Raw } from '$lib/forms/Form';
+import type { FormInfo } from './forms.svelte';
+import type { Form, Raw } from '$lib/forms/Form';
 import type { Data } from './Data';
 
 export type UDTC = {
@@ -27,7 +27,7 @@ export class Vyhovuje<D> extends SwitchWidget<D> {
     }
 }
 
-export type UvedeniTC = {
+export interface UvedeniTC extends Form<UDTC> {
     tc: {
         nadpis: TitleWidget<UDTC>,
         jisticTC: Vyhovuje<UDTC>,
