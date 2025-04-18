@@ -30,12 +30,24 @@
         ) ?? []
     );
     let hidden = $state(true);
-    let selecting = $state(false);
+    let hideRequest = $state(false);
+    const hide = () => {
+        hideRequest = true;
+        setTimeout(() => {
+            if (!hideRequest) return;
+            hideRequest = false;
+            hidden = true;
+        }, 100);
+    }
+    const show = () => {
+        hideRequest = false;
+        hidden = false;
+    }
 
     const wide = browser ? window.matchMedia('(min-width: 768px)').matches : false;
 </script>
 
-<div class="position-relative mb-2">
+<div class="position-relative mb-2" onfocusin={show} onfocusout={hide}>
     <label class="form-floating d-block">
         <input
             value={hidden ? widget.value ? ' ' : '' : search}
@@ -43,11 +55,6 @@
             class="form-control border ps-3"
             class:border-bottom-0={!hidden || widget.value}
             class:rb-0={!hidden}
-            onblur={() => {
-                if (!selecting) hidden = true;
-                widget.setValue(data, filtered.length === 1 ? filtered[0]: null);
-            }}
-            onfocus={() => hidden = false}
             placeholder=""
             type={widget.type(data, t)}
         />
@@ -59,19 +66,12 @@
             {#each filtered as item, i}
                 {@const searchItem = widget.getSearchItem(item)}
                 <a
+                    tabindex="0"
                     class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
                     class:rt-0={i === 0}
                     href={searchItem.href ?? '#'}
-                    onmousedown={() => selecting = true}
-                    onmouseleave={() => {
-                        if (selecting) {
-                            hidden = true
-                            selecting = false
-                        }
-                    }}
                     onclick={(e) => {
                         e.preventDefault();
-                        selecting = false
                         widget.setValue(data, item);
                         hidden = true
                     }}
@@ -92,8 +92,7 @@
         {@const searchItem = widget.getSearchItem(widget.value)}
         <div class="list-group w-100 position-absolute z-2 selected">
             <div
-                class="list-group-item-action list-group-item d-flex flex-column flex-md-row align-items-md-center"
-                class:rt-0={true}
+                class="list-group-item-action list-group-item d-flex flex-column flex-md-row align-items-md-center rt-0"
             >
                 {#each searchItem.pieces as piece, j}
                     <p class="mb-0 me-1 d-md-block" class:d-none={j !== 0}

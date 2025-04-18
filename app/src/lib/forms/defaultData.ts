@@ -24,7 +24,7 @@ export const userData = <D extends { d: UserData<D> }>(): UserData<D> => ({
     koncovyUzivatel: {
         nadpis: new TitleWidget<D>({ text: `endUser` }),
         typ: new RadioWidget<D>({
-            label: ``, chosen: `individual`,
+            label: ``, chosen: `individual`, showInXML: false,
             options: [`individual`, `company`]
         }),
         prijmeni: new InputWidget<D>({
@@ -310,7 +310,7 @@ export default (): Data => ({
         chceVyplnitK: new MultiCheckboxWidget<UDDA>({
             label: `whatToAddInfoTo`,
             options: ({ d }) => d.ir.typ.value.first?.includes(`SOREL`)
-                ? [`heatPump`]
+                ? [`solarCollector`]
                 : [`heatPump`, `solarCollector`],
             required: false, showInXML: false
         })

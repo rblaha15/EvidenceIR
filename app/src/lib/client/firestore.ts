@@ -30,7 +30,19 @@ const persistentCacheIndexManager = getPersistentCacheIndexManager(firestore);
 if (persistentCacheIndexManager)
     enablePersistentCacheIndexAutoCreation(persistentCacheIndexManager);
 
+/**
+ * 2: IR 12;
+ * 4: IR 14;
+ * 3: IR 34;
+ * B: BOX/HBOX/HBOXK;
+ * S: SOREL;
+ */
 export type IRType = '2' | '4' | '3' | 'B' | 'S';
+/**
+ * Zastaralé IR ID: A12345;
+ * Moderní IR ID: 4A12345;
+ * ID SOREL: S20241231;
+ */
 export type IRID = `${IRType}${string}`;
 export type SPID = `${string}-${string}-${string}`;
 
@@ -42,7 +54,7 @@ const extractIRTypeFromFullIRType = (fullIRType: string): IRType =>
                     : fullIRType.includes('SOREL') ? 'S'
                         : undefined)!;
 export const extractIRIDFromParts = (fullIRType: string, irNumber: string): IRID =>
-    `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replace(/[ -]/, '')}`;
+    `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replaceAll(/[ -]/g, '')}`;
 export const extractIRIDFromRawData = (evidence: Raw<Data>): IRID =>
     extractIRIDFromParts(evidence.ir.typ.first!, evidence.ir.cislo);
 export const extractSPIDFromRawData = (p: Raw<DataSP2>): SPID => {
