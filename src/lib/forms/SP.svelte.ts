@@ -10,11 +10,7 @@ import { nowISO } from '$lib/helpers/date';
 import { makePlain, type TranslationReference } from '$lib/translations';
 import type { ExcelImport } from '$lib/forms/Import';
 
-export type UDSP = {
-    protokol: DataSP,
-}
-
-type NahradniDil<D extends { protokol: Form<D> }> = {
+type NahradniDil<D extends Form<D>> = {
     label: TextWidget<D>,
     dil: SearchWidget<D, SparePart>,
     name: InputWidget<D, true>;
@@ -23,9 +19,9 @@ type NahradniDil<D extends { protokol: Form<D> }> = {
     mnozstvi: InputWidget<D>,
 }
 
-export type DataSP = GenericDataSP<UDSP>
+export type DataSP = GenericDataSP<DataSP>
 
-export interface GenericDataSP<D extends { protokol: GenericDataSP<D> }> extends Form<D> {
+export interface GenericDataSP<D extends GenericDataSP<D>> extends Form<D> {
     zasah: {
         datum: InputWidget<D>,
         clovek: InputWidget<D>,
@@ -61,9 +57,9 @@ export const otherPart = <SparePart> {
     name: p`Jiné`,
 };
 
-const nahradniDil = <D extends { protokol: F }, F extends Form<D>>(n: 1 | 2 | 3): NahradniDil<D> => {
-    const show = (d: D) => d.protokol.nahradniDily.pocet.value >= n;
-    const dil = (d: D) => d.protokol[`nahradniDil${n}` as const];
+const nahradniDil = <D extends Form<D>>(n: 1 | 2 | 3): NahradniDil<D> => {
+    const show = (d: D) => d.nahradniDily.pocet.value >= n;
+    const dil = (d: D) => d[`nahradniDil${n}` as const];
     const showDetails = (d: D) => show(d) && dil(d).dil.value?.name == otherPart.name;
 
     return ({
@@ -100,7 +96,7 @@ const nahradniDil = <D extends { protokol: F }, F extends Form<D>>(n: 1 | 2 | 3)
     });
 };
 
-export const defaultDataSP = <D extends { protokol: F }, F extends GenericDataSP<D>>(): GenericDataSP<D> => ({
+export const defaultDataSP = <D extends GenericDataSP<D>>(): GenericDataSP<D> => ({
     zasah: {
         datum: new InputWidget({ label: p`Datum a čas zásahu`, type: 'datetime-local' }),
         clovek: new InputWidget({ label: p`Jméno technika`, show: false, required: false }),
@@ -119,7 +115,7 @@ export const defaultDataSP = <D extends { protokol: F }, F extends GenericDataSP
         typPrace: new RadioWidget({ label: p`Typ práce`, options: [`sp.technicalAssistance`, `sp.assemblyWork`], required: false }),
         mnozstviPrace: new InputWidget({
             label: p`Počet hodin práce`, type: 'number', onError: `wrongNumberFormat`,
-            show: d => d.protokol.ukony.typPrace.value != null, required: d => d.protokol.ukony.typPrace.value != null
+            show: d => d.ukony.typPrace.value != null, required: d => d.ukony.typPrace.value != null
         }),
         ukony: new MultiCheckboxWidget({
             label: p`Pracovní úkony (max. 3)`, max: 3, required: false, options: [
@@ -140,11 +136,11 @@ export const defaultDataSP = <D extends { protokol: F }, F extends GenericDataSP
         hotove: new ChooserWidget({ label: p`Placeno hotově`, options: ['yes', 'no', 'doNotInvoice'] }),
         komu: new RadioWidget({
             label: p`Komu fakturovat`, options: [p`Investor`, `assemblyCompany`],
-            required: d => d.protokol.fakturace.hotove.value == 'no', show: d => d.protokol.fakturace.hotove.value == 'no',
+            required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
         }),
         jak: new RadioWidget({
             label: p`Fakturovat`, options: [p`Papírově`, p`Elektronicky`],
-            required: d => d.protokol.fakturace.hotove.value == 'no', show: d => d.protokol.fakturace.hotove.value == 'no',
+            required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
         }),
     },
 });
@@ -210,8 +206,8 @@ const cells: ExcelImport<Raw<DataSP>>['cells'] = {
     },
 };
 
-export const updateOtherSpareParts = <D extends { protokol: GenericDataSP<D> }>(d: D, spareParts: SparePart[] = d.protokol.nahradniDil1.dil.items(d)) => {
-    [d.protokol.nahradniDil1, d.protokol.nahradniDil2, d.protokol.nahradniDil3].forEach(nahradniDil => {
+export const updateOtherSpareParts = <D extends GenericDataSP<D>>(d: D, spareParts: SparePart[] = d.nahradniDil1.dil.items(d)) => {
+    [d.nahradniDil1, d.nahradniDil2, d.nahradniDil3].forEach(nahradniDil => {
         if (nahradniDil.dil.value && !spareParts.some(p => p.code == nahradniDil.dil.value?.code)) {
             nahradniDil.name.setValue(d, nahradniDil.dil.value.name);
             nahradniDil.code.setValue(d, nahradniDil.dil.value.code.toString());
@@ -221,7 +217,7 @@ export const updateOtherSpareParts = <D extends { protokol: GenericDataSP<D> }>(
     });
 };
 
-export const compactOtherSpareData = <D extends { protokol: F }, F extends GenericDataSP<D>>(data: F, raw: Raw<F>) => {
+export const compactOtherSpareData = <D extends GenericDataSP<D>>(data: GenericDataSP<D>, raw: Raw<GenericDataSP<D>>) => {
     (['nahradniDil1', 'nahradniDil2', 'nahradniDil3'] as const).forEach(dil => {
         const nahradniDil = raw[dil] as Raw<NahradniDil<D>>;
         if (nahradniDil.dil?.name == otherPart.name) nahradniDil.dil = {
@@ -234,9 +230,9 @@ export const compactOtherSpareData = <D extends { protokol: F }, F extends Gener
 
 export const sp = (() => {
     let i = $state() as number;
-    const info: FormInfo<UDSP, DataSP, [[Technician[], User | null], [SparePart[]]]> = {
+    const info: FormInfo<DataSP, DataSP, [[Technician[], User | null], [SparePart[]]]> = {
         storeName: 'stored_sp',
-        defaultData: () => defaultDataSP() as DataSP,
+        defaultData: () => defaultDataSP(),
         pdfLink: () => `installationProtocol-${i}`,
         getEditData: ir => {
             const editIndex = page.url.searchParams.get('edit') as string | null;
@@ -249,17 +245,17 @@ export const sp = (() => {
             }
         },
         saveData: (irid, raw, edit, data) => {
-            compactOtherSpareData<UDSP, DataSP>(data, raw);
+            compactOtherSpareData(data, raw);
             return edit
                 ? upravitServisniProtokol(irid, i, raw)
                 : vyplnitServisniProtokol(irid, raw);
         },
         storeData: data => {
             const raw = dataToRawData(data);
-            compactOtherSpareData<UDSP, DataSP>(data, raw);
+            compactOtherSpareData(data, raw);
             return raw;
         },
-        createWidgetData: (evidence, protokol) => ({ evidence, protokol }),
+        createWidgetData: (_, protokol) => protokol,
         title: (_, edit) => edit
             ? `Editace SP`
             : `Instalační a servisní protokol`,
@@ -270,16 +266,16 @@ export const sp = (() => {
                 p.zasah.datum.setValue(d, nowISO());
         },
         storeEffects: [
-            [(d, p, [$techniciansList, $currentUser]) => {
+            [(_, p, [$techniciansList, $currentUser]) => {
                 const ja = $techniciansList.find(t => $currentUser?.email == t.email);
-                p.zasah.clovek.setValue(d, ja?.name ?? p.zasah.clovek.value);
+                p.zasah.clovek.setValue(p, ja?.name ?? p.zasah.clovek.value);
                 p.zasah.clovek.show = () => !ja;
                 p.zasah.clovek.required = () => !ja;
-                p.zasah.inicialy.setValue(d, ja?.initials ?? p.zasah.inicialy.value);
+                p.zasah.inicialy.setValue(p, ja?.initials ?? p.zasah.inicialy.value);
                 p.zasah.inicialy.show = () => !ja;
                 p.zasah.inicialy.required = () => !ja;
             }, [techniciansList, currentUser]],
-            [(d, p, [$sparePartsList]) => {
+            [(_, p, [$sparePartsList]) => {
                 const spareParts = [otherPart, ...$sparePartsList.map(it => ({
                     ...it,
                     name: it.name.replace('  ', ' '),
@@ -287,7 +283,7 @@ export const sp = (() => {
                 [p.nahradniDil1, p.nahradniDil2, p.nahradniDil3].forEach(nahradniDil => {
                     nahradniDil.dil.items = () => spareParts;
                 });
-                updateOtherSpareParts(d, spareParts);
+                updateOtherSpareParts(p, spareParts);
             }, [sparePartsList]],
         ],
         importOptions: {

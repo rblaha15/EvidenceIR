@@ -1,9 +1,9 @@
-import { type GetOrVal, TitleWidget, p, InputWidget, SwitchWidget, ChooserWidget, CheckboxWidget } from '../Widget.svelte.js';
+import { type GetOrVal, TitleWidget, p, InputWidget, SwitchWidget, ChooserWidget, CheckboxWidget } from '../Widget.svelte';
 import { todayISO } from '$lib/helpers/date';
-import type { Raw } from '$lib/forms/Form';
+import type { Form, Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
 import { uvestSOLDoProvozu } from '$lib/client/firestore';
-import type { FormInfo } from './forms.svelte.js';
+import type { FormInfo } from './forms.svelte';
 
 export type UDSOL = {
     uvedeni: UvedeniSOL,
@@ -28,7 +28,7 @@ export class Ano<D> extends SwitchWidget<D> {
     }
 }
 
-export type UvedeniSOL = {
+export interface UvedeniSOL extends Form<UDSOL> {
     sol: {
         nadpis: TitleWidget<UDSOL>,
         orientace: InputWidget<UDSOL>,
