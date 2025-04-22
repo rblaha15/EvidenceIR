@@ -14,7 +14,7 @@ import { type Data, type UserData } from './Data';
 import type { Company, Technician } from '$lib/client/realtime';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
-import { todayISO } from '$lib/helpers/date';
+import { nowISO, todayISO } from '$lib/helpers/date';
 
 const jeFO = (d: UserData<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserData<never>) => jeFO(d);
@@ -265,7 +265,7 @@ export default (): Data => ({
                     d.tc.typ.setValue(d, 'airToWater');
                 }
                 if (v.first == p`SOREL`) {
-                    d.ir.cislo.setValue(d, todayISO());
+                    d.ir.cislo.setValue(d, nowISO());
                 }
                 if (v.first == p`IR 12`) {
                     d.ir.typ.setValue(d, { ...v, second: p`CTC` });
@@ -275,10 +275,10 @@ export default (): Data => ({
         cislo: new InputWidget({
             label: `serialNumber`,
             onError: `wrongNumberFormat`,
-            regex: d => d.ir.typ.value.first?.includes('SOREL') ? /[0-9]{4}-[0-9]{2}-[0-9]{2}/ : /[A-Z][1-9OND] [0-9]{4}/,
+            regex: d => d.ir.typ.value.first?.includes('SOREL') ? /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}/ : /[A-Z][1-9OND] [0-9]{4}/,
             capitalize: true,
             maskOptions: d => ({
-                mask: d.ir.typ.value.first?.includes('SOREL') ? `0000-00-00` : `A1 0000`,
+                mask: d.ir.typ.value.first?.includes('SOREL') ? `0000-00-00T00:00` : `A1 0000`,
                 definitions: {
                     A: /[A-Za-z]/,
                     '1': /[1-9ONDond]/
