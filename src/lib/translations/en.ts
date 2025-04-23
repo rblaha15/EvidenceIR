@@ -71,7 +71,7 @@ const en: PlainTranslations = {
     save: 'Save',
     saveAndSend: 'Save & send emails',
     saving: 'Saving...',
-    youHaveAMistake: 'You have a mistake in the form. Please, check the filled information.',
+    youHaveAMistake: t`You have a mistake in the form. Please, check the filled information. Invalid fields: ${'fields'}`,
     logInNeeded: 'You must log in to view and fill out the form!',
     evidenceDetailsHtml: t`Installation with ${'irType'} ${'irNumber'} details`,
     evidenceDetails: `Installation details`,

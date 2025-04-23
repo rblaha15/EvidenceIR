@@ -42,6 +42,7 @@
         redirectLink: async () => detailUrl(),
         openTabLink: async () => detailUrl(`/pdf/${pdfLink()}?token=${await getToken()}`),
         createWidgetData: data => createWidgetData(evidence, data),
+        showBackButton: true,
     });
 </script>
 

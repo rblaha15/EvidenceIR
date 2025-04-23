@@ -78,7 +78,7 @@ export default {
     save: `Uložit`,
     saveAndSend: `Uložit a odeslat emaily`,
     saving: `Ukládání...`,
-    youHaveAMistake: `Ve formuláři máte chybu. Prosím, zkontrolujte vyplněné informace.`,
+    youHaveAMistake: t`Ve formuláři máte chybu. Prosím, zkontrolujte vyplněné informace. Chybná pole: ${'fields'}`,
     logInNeeded: `Pro zobrazení a vyplnění formuláře je nutné se přihlásit!`,
     evidenceDetailsHtml: t`Podrobnosti o instalaci s ${'irType'} ${'irNumber'}`,
     evidenceDetails: `Podrobnosti o instalaci`,
