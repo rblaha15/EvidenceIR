@@ -77,7 +77,7 @@ const defaultUvedeniSOL = (): UvedeniSOL => ({
         teplonosnaKapalina: new ChooserWidget({ label: p`Typ teplonosné kapaliny`, options: [p`Solarten Super`, p`Solarten HT`, p`jiná`] }),
         potrubi: new InputWidget({ label: p`Materiál/typ potrubí` }),
         prumer: new InputWidget({ label: p`Průměr` }),
-        delkyPotrubi: new InputWidget({ label: p`Součet délek výstupního a vratného potrubí (mezi kolektory a zásobníkem / akumulační nádrží)` }),
+        delkyPotrubi: new InputWidget({ label: p`Součet délek výstupního a vratného potrubí` }),
         izolacePotrubi: new CheckboxWidget({ label: p`Potrubí bylo opatřeno izolací s teplotní odolností min. 160 °C` }),
     },
     uvadeni: {

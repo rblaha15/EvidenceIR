@@ -219,8 +219,8 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
                     { text: p`${i.email}` },
                     { text: p`${i.phone}` },
                 ],
-            }), show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value == regulusCRN.toString(),
-            required: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value == regulusCRN.toString(),
+            }), show: d => d.uvedeni.ico.value == regulusCRN.toString(),
+            required: d => d.uvedeni.ico.value == regulusCRN.toString(),
             hideInRawData: true,
         }),
         zastupce: new InputWidget({
@@ -266,6 +266,8 @@ export default (): Data => ({
                 }
                 if (v.first == p`SOREL`) {
                     d.ir.cislo.setValue(d, `${todayISO()} ${time()}`);
+                    d.ir.cisloBox.setValue(d, '')
+                    d.vzdalenyPristup.chce.setValue(d, false)
                 }
                 if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
                     d.ir.typ.setValue(d, { ...v, second: null });
@@ -465,7 +467,15 @@ export default (): Data => ({
     ...userData(),
     vzdalenyPristup: {
         nadpis: new TitleWidget({ text: `remoteAccess`, show: d => !d.ir.typ.value.first?.includes('SOREL') }),
-        chce: new CheckboxWidget({ label: `doYouWantRemoteAccess`, required: false, show: d => !d.ir.typ.value.first?.includes('SOREL') }),
+        chce: new CheckboxWidget({
+            label: `doYouWantRemoteAccess`, required: false, show: d => !d.ir.typ.value.first?.includes('SOREL'),
+            onValueSet: (d, v) => {
+                if (!v) {
+                    d.vzdalenyPristup.pristupMa.setValue(d, [])
+                    d.vzdalenyPristup.plati.setValue(d, null)
+                }
+            }
+        }),
         pristupMa: new MultiCheckboxWidget({
             label: `whoHasAccess`,
             options: [`endCustomer`, `assemblyCompany`, `commissioningCompany`],

@@ -311,6 +311,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         sheet: 'ZADÁNÍ',
         onImport: () => {},
     },
+    isSendingEmails: true,
 };
 
 export default data;
