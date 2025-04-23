@@ -153,7 +153,7 @@
             <button onclick={save(false)} class="btn btn-success">{t.save}</button>
         {/if}
         {#if !result.load && mode === 'edit' && isSendingEmails}
-            <button onclick={save(true)} class="btn btn-success">{t.saveAndSend}</button>
+            <button onclick={save(true)} class="btn btn-success ms-2">{t.saveAndSend}</button>
         {/if}
         {#if result.load}
             <div class="spinner-border text-danger ms-2"></div>
