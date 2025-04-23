@@ -267,6 +267,9 @@ export default (): Data => ({
                 if (v.first == p`SOREL`) {
                     d.ir.cislo.setValue(d, `${todayISO()} ${time()}`);
                 }
+                if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
+                    d.ir.typ.setValue(d, { ...v, second: null });
+                }
                 if (v.first == p`IR 12`) {
                     d.ir.typ.setValue(d, { ...v, second: p`CTC` });
                 }
@@ -275,7 +278,7 @@ export default (): Data => ({
         cislo: new InputWidget({
             label: `serialNumber`,
             onError: `wrongNumberFormat`,
-            regex: d => d.ir.typ.value.first?.includes('SOREL') ? /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}/ : /[A-Z][1-9OND] [0-9]{4}/,
+            regex: d => d.ir.typ.value.first?.includes('SOREL') ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/ : /[A-Z][1-9OND] [0-9]{4}/,
             capitalize: true,
             maskOptions: d => ({
                 mask: d.ir.typ.value.first?.includes('SOREL') ? `0000-00-00T00:00` : `A1 0000`,
