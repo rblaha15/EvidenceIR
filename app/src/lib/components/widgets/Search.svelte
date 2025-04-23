@@ -47,7 +47,7 @@
     const wide = browser ? window.matchMedia('(min-width: 768px)').matches : false;
 </script>
 
-<div class="position-relative mb-2" onfocusin={show} onfocusout={hide}>
+<div class="position-relative" onfocusin={show} onfocusout={hide}>
     <label class="form-floating d-block">
         <input
             value={hidden ? widget.value ? ' ' : '' : search}
@@ -104,8 +104,10 @@
     {/if}
 
     {#if widget.showError(data)}
-        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
+        <p class="text-danger mt-1">{t.get(widget.onError(data, t))}</p>
     {/if}
+
+    <div class="mb-3"></div>
 </div>
 <style>
     .rb-0 {

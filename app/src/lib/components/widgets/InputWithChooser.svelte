@@ -1,12 +1,12 @@
 <script generics="D" lang="ts">
-    import type { Translations } from '$lib/translations';
-    import { type InputWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
+    import type { TranslationReference, Translations } from '$lib/translations';
+    import { InputWithChooserWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount } from 'svelte';
 
     interface Props {
         t: Translations;
-        widget: InputWidget<D>;
+        widget: InputWithChooserWidget<D>;
         data: D;
     }
 
@@ -22,8 +22,8 @@
         value?: string;
     };
 
-    const maybeCapitalized = (value: string, vec: InputWidget<D>): string =>
-        vec.capitalize(data) ? value.toUpperCase() : value;
+    const maybeCapitalized = (value: string, widget: InputWithChooserWidget<D>): string =>
+        widget.capitalize(data) ? value.toUpperCase() : value;
 
     let input = $state<HTMLInputElement>();
     let textarea = $state<HTMLTextAreaElement>();
@@ -44,8 +44,10 @@
     onMount(() => {
         if (options != undefined && input != undefined) {
             mask = IMask(input, options);
-            mask.value = widget.value;
-            mask.on('accept', () => widget.setValue(data, maybeCapitalized(mask!.value, widget)));
+            mask.value = widget.value.text;
+            mask.on('accept', () => widget.mutateValue(data, v => (
+                { ...v, text: maybeCapitalized(mask!.value, widget) }
+            )));
         }
     });
 
@@ -64,11 +66,19 @@
     widget.updateMaskValue = (text) => {
         if (mask) mask.value = text;
     };
+
+    const onChange = (
+        e: Event & {
+            currentTarget: HTMLSelectElement;
+        }
+    ) => widget.mutateValue(data, v => (
+        { ...v, chosen: e.currentTarget.value as TranslationReference }
+    ));
 </script>
 
 {#if widget.show(data)}
     <div class="input-group">
-        <label class="form-floating d-block">
+        <label class="form-floating d-block left">
             {#if widget.textArea(data)}
             <textarea
                 autocomplete={widget.autocomplete(data)}
@@ -78,9 +88,11 @@
                 placeholder={nazevSHvezdou(widget, data, t)}
                 class="form-control"
                 bind:this={textarea}
-                value={widget.value}
+                value={widget.value.text}
                 oninput={() => {
-					if (textarea) widget.setValue(data, maybeCapitalized(textarea.value, widget));
+					if (textarea) widget.mutateValue(data, v => (
+                        { ...v, text: maybeCapitalized(textarea?.value ?? v.text, widget) }
+                    ));
 				}}
                 disabled={widget.lock(data)}
                 style="height: 100px"
@@ -107,18 +119,27 @@
                     placeholder={nazevSHvezdou(widget, data, t)}
                     class="form-control"
                     bind:this={input}
-                    value={widget.value}
+                    value={widget.value.text}
                     oninput={() => {
-					if (input) widget.setValue(data, maybeCapitalized(input.value, widget));
-				}}
+                        if (input) widget.mutateValue(data, v => (
+                            { ...v, text: maybeCapitalized(input?.value ?? v.text, widget) }
+                        ));
+                    }}
                     disabled={widget.lock(data)}
                 />
             {/if}
             <label for="">{nazevSHvezdou(widget, data, t)}</label>
         </label>
-        {#if widget.suffix(data, t)}
-            <span class="input-group-text">{t.get(widget.suffix(data, t) ?? '')}</span>
-        {/if}
+        <select
+            class="form-select right"
+            id={nazevSHvezdou(widget, data, t)}
+            value={widget.value.chosen}
+            onchange={onChange}
+        >
+            {#each widget.options as moznost}
+                <option value={moznost}>{t.get(moznost)}</option>
+            {/each}
+        </select>
     </div>
 
     {#if widget.showError(data)}
@@ -127,3 +148,14 @@
 
     <div class="mb-3"></div>
 {/if}
+
+<style>
+    .left {
+        width: 80%;
+        max-width: 80%;
+    }
+
+    .right {
+        width: 20%;
+    }
+</style>

@@ -1,12 +1,12 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { type InputWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
+    import { CheckboxWithInputWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount } from 'svelte';
 
     interface Props {
         t: Translations;
-        widget: InputWidget<D>;
+        widget: CheckboxWithInputWidget<D>;
         data: D;
     }
 
@@ -22,7 +22,7 @@
         value?: string;
     };
 
-    const maybeCapitalized = (value: string, vec: InputWidget<D>): string =>
+    const maybeCapitalized = (value: string, vec: CheckboxWithInputWidget<D>): string =>
         vec.capitalize(data) ? value.toUpperCase() : value;
 
     let input = $state<HTMLInputElement>();
@@ -44,8 +44,10 @@
     onMount(() => {
         if (options != undefined && input != undefined) {
             mask = IMask(input, options);
-            mask.value = widget.value;
-            mask.on('accept', () => widget.setValue(data, maybeCapitalized(mask!.value, widget)));
+            mask.value = widget.value.text;
+            mask.on('accept', () => widget.mutateValue(data, v => (
+                { ...v, text: maybeCapitalized(mask!.value, widget) }
+            )));
         }
     });
 
@@ -64,12 +66,25 @@
     widget.updateMaskValue = (text) => {
         if (mask) mask.value = text;
     };
+
+    const onClick = () => {
+        widget.mutateValue(data, v => ({ ...v, checked: !v.checked }));
+    };
+
+    const uid = $props.id();
 </script>
 
 {#if widget.show(data)}
     <div class="input-group">
-        <label class="form-floating d-block">
-            {#if widget.textArea(data)}
+        <button class="input-group-text" onclick={onClick} aria-labelledby="label-{uid}" tabindex="-1">
+            <input class="form-check-input m-0" type="checkbox" role="button" disabled={widget.lock(data)} bind:checked={widget.value.checked} />
+        </button>
+        <label class="form-floating d-block" id="label-{uid}">
+            {#if !widget.value.checked}
+                <input type="text" placeholder={nazevSHvezdou(widget, data, t)} readonly onclick={onClick}
+                       class="form-control shadow-none" role="button" disabled={widget.lock(data)}
+                       tabindex="-1" style="border-color: var(--bs-border-color)" />
+            {:else if widget.textArea(data)}
             <textarea
                 autocomplete={widget.autocomplete(data)}
                 inputmode={widget.inputmode(data)}
@@ -78,9 +93,11 @@
                 placeholder={nazevSHvezdou(widget, data, t)}
                 class="form-control"
                 bind:this={textarea}
-                value={widget.value}
+                value={widget.value.text}
                 oninput={() => {
-					if (textarea) widget.setValue(data, maybeCapitalized(textarea.value, widget));
+                    if (textarea) widget.mutateValue(data, v => (
+                        { ...v, text: maybeCapitalized(textarea?.value ?? v.text, widget) }
+                    ));
 				}}
                 disabled={widget.lock(data)}
                 style="height: 100px"
@@ -107,18 +124,17 @@
                     placeholder={nazevSHvezdou(widget, data, t)}
                     class="form-control"
                     bind:this={input}
-                    value={widget.value}
+                    value={widget.value.text}
                     oninput={() => {
-					if (input) widget.setValue(data, maybeCapitalized(input.value, widget));
-				}}
+                        if (input) widget.mutateValue(data, v => (
+                            { ...v, text: maybeCapitalized(input?.value ?? v.text, widget) }
+                        ));
+				    }}
                     disabled={widget.lock(data)}
                 />
             {/if}
             <label for="">{nazevSHvezdou(widget, data, t)}</label>
         </label>
-        {#if widget.suffix(data, t)}
-            <span class="input-group-text">{t.get(widget.suffix(data, t) ?? '')}</span>
-        {/if}
     </div>
 
     {#if widget.showError(data)}

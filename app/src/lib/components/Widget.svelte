@@ -9,8 +9,15 @@
         RadioWidget, SearchWidget,
         TextWidget,
         type Widget,
-        ChooserWidget, CheckboxWidget, ScannerWidget,
-    } from '$lib/Widget.svelte.js';
+        ChooserWidget,
+        CheckboxWidget,
+        ScannerWidget,
+        CheckboxWithChooserWidget,
+        InputWithSuggestionsWidget,
+        CountersWidget,
+        InputWithChooserWidget,
+        CheckboxWithInputWidget,
+    } from '$lib/Widget.svelte';
     import Input from '$lib/components/widgets/Input.svelte';
     import DoubleChooser from '$lib/components/widgets/DoubleChooser.svelte';
     import Chooser from '$lib/components/widgets/Chooser.svelte';
@@ -19,8 +26,13 @@
     import MultiCheckbox from '$lib/components/widgets/MultiCheckbox.svelte';
     import Checkbox from '$lib/components/widgets/Checkbox.svelte';
     import Counter from '$lib/components/widgets/Counter.svelte';
-    import Search from './widgets/Search.svelte';
+    import Search from '$lib/components/widgets/Search.svelte';
     import Scanner from '$lib/components/widgets/Scanner.svelte';
+    import CheckboxWithChooser from '$lib/components/widgets/CheckboxWithChooser.svelte'
+    import InputWithSuggestions from '$lib/components/widgets/InputWithSuggestions.svelte'
+    import Counters from '$lib/components/widgets/Counters.svelte'
+    import InputWithChooser from '$lib/components/widgets/InputWithChooser.svelte'
+    import CheckboxWithInput from '$lib/components/widgets/CheckboxWithInput.svelte'
 
     interface Props {
         t: Translations;
@@ -53,6 +65,16 @@
     <Checkbox {t} bind:widget {data} />
 {:else if widget instanceof CounterWidget && widget.show(data)}
     <Counter {t} bind:widget {data} />
+{:else if widget instanceof CheckboxWithChooserWidget && widget.show(data)}
+    <CheckboxWithChooser {t} bind:widget={widget} {data} />
+{:else if widget instanceof InputWithSuggestionsWidget && widget.show(data)}
+    <InputWithSuggestions {t} bind:widget={widget} {data} />
+{:else if widget instanceof CountersWidget && widget.show(data)}
+    <Counters {t} bind:widget={widget} {data} />
+{:else if widget instanceof InputWithChooserWidget && widget.show(data)}
+    <InputWithChooser {t} bind:widget={widget} {data} />
+{:else if widget instanceof CheckboxWithInputWidget && widget.show(data)}
+    <CheckboxWithInput {t} bind:widget={widget} {data} />
 {:else if widget instanceof SearchWidget && widget.show(data)}
     <Search {t} bind:widget={widget} {data} />
 {/if}

@@ -3,9 +3,10 @@ import type { LanguageCode } from './languages';
 import cs from './translations/cs';
 import de from './translations/de';
 import en from './translations/en';
+import sk from '$lib/translations/sk';
 import derived, { type Derived } from '$lib/derived';
 import './extensions';
-import sk from '$lib/translations/sk';
+import merge from 'lodash.merge';
 
 const translationsMap: PlainTranslationsMap = { cs, en, de, sk };
 
@@ -17,20 +18,13 @@ type Translation = string | Template<(string | number)[]>;
 
 const withGet = (translations: PlainTranslations): Translations => {
     const withParsing = addParsing(translations) as AddParsing<PlainTranslations>;
-    const withDerived = {
-        ...withParsing,
-        ...derived(withParsing)
-    } as AddParsing<PlainTranslations> & Derived;
-    const get = (ref: TranslationReference | TemplateKey) =>
-        ref == ''
-            ? ''
-            : isPlain(ref)
-                ? removePlain(ref)
-                : ((ref
-                    .split('.')
-                    .reduce<Record<string, unknown> | Translation>((acc, key) =>
-                        (acc as Record<string, Translation | Record<string, unknown>>)[key], withDerived
-                    ) as Translation) ?? ref);
+    const withDerived = merge<AddParsing<PlainTranslations>, Derived>(withParsing, derived(withParsing));
+    const get = (ref: TranslationReference | TemplateKey) => ref == '' ? ''
+        : isPlain(ref) ? removePlain(ref) : ((ref
+            .split('.')
+            .reduce<Record<string, unknown> | Translation>((acc, key) =>
+                (acc as Record<string, Translation | Record<string, unknown>>)[key], withDerived
+            ) as Translation) ?? ref);
     return <Translations> {
         ...withDerived,
         get: ref => ref == null ? null : get(ref),

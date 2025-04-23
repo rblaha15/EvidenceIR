@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
 // noinspection JSUnusedGlobalSymbols
 
 interface ObjectConstructor {
@@ -212,6 +211,12 @@ interface Array<T> {
         this: T[],
         size: number,
     ): T[][];
+
+    with<T extends unknown[]>(
+        this: T,
+        index: number,
+        value: T[keyof T],
+    ): T;
 }
 
 interface ReadonlyArray<T> {
@@ -299,4 +304,14 @@ Array.prototype.chunk = function<T>(
     size: number,
 ): T[][] {
     return this.window(size, size, true);
+};
+
+Array.prototype.with = function<T extends unknown[]>(
+    this: T,
+    index: number,
+    value: T[keyof T],
+): T {
+    const copy = [...this];
+    copy[index] = value;
+    return copy as T;
 };
