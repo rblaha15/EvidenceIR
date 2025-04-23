@@ -72,7 +72,7 @@ const de: PlainTranslations = {
     save: `Speichern`,
     saveAndSend: `Speichern und E-Mails senden`,
     saving: `Speichern...`,
-    youHaveAMistake: `Im Formular liegt ein Fehler vor. Bitte überprüfen Sie die eingegebenen Informationen.`,
+    youHaveAMistake: t`Im Formular liegt ein Fehler vor. Bitte überprüfen Sie die eingegebenen Informationen. Falsche Felder: ${'fields'}`,
     logInNeeded: `Zum Anzeigen und Ausfüllen des Formulars ist eine Anmeldung erforderlich!`,
     evidenceDetailsHtml: t`Details zur Installation mit ${'irType'} ${'irNumber'}`,
     evidenceDetails: `Details zur Installation`,

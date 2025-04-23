@@ -32,6 +32,7 @@ export type DetachedFormInfo<D, F extends Form<D>, S extends unknown[][] = [], R
     importOptions?: Omit<ExcelImport<R>, 'defaultData'> & {
         onImport: (data: D, form: F) => void;
     };
+    showBackButton?: boolean;
     isSendingEmails?: boolean;
     redirectLink?: (raw: R) => Promise<string>;
     openTabLink?: (raw: R) => Promise<string>;
@@ -42,7 +43,7 @@ export type FormInfo<D, F extends Form<D>, S extends unknown[][] = [], R extends
     saveData: (irid: IRID, raw: R, edit: boolean, data: F) => Promise<void>;
     createWidgetData: (evidence: Raw<Data>, data: F) => D;
     getEditData?: ((ir: IR) => R | undefined) | undefined;
-} & Omit<DetachedFormInfo<D, F, S, R>, 'saveData' | 'createWidgetData' | 'getEditData' | 'redirect'>
+} & Omit<DetachedFormInfo<D, F, S, R>, 'saveData' | 'createWidgetData' | 'getEditData' | 'redirect' | 'showBackButton'>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const formInfo: { [F in FormName]: FormInfo<any, any, any, any> } = {

@@ -31,6 +31,7 @@
         isSendingEmails,
         openTabLink,
         redirectLink,
+        showBackButton,
     } = formInfo;
 
     const storedData = storable<Raw<F>>(storeName);
@@ -67,18 +68,14 @@
     const save = (send: boolean) => async () => {
         try {
             const raw = dataToRawData(f);
-            if (
-                list.some((it) => {
-                    if (it.isError(d)) console.log(it);
-                    return it.isError(d);
-                })
-            ) {
+            const errors = list.filter(w => w.isError(d)).map(w => w.label(d, t))
+            if (errors.length > 0) {
                 for (const i in list) {
                     list[i].displayErrorVeto = true;
                 }
                 result = {
                     red: true,
-                    text: t.youHaveAMistake,
+                    text: t.youHaveAMistake.parseTemplate({ fields: errors.join(', ') }),
                     load: false
                 };
                 return;
@@ -161,9 +158,11 @@
         {#if result.load}
             <div class="spinner-border text-danger ms-2"></div>
         {/if}
-        <button type="button" class="btn btn-secondary ms-2" onclick={() => history.back()}>
-            {t.back}
-        </button>
+        {#if showBackButton}
+            <button type="button" class="btn btn-secondary ms-2" onclick={() => history.back()}>
+                {t.back}
+            </button>
+        {/if}
         <p class:text-danger={result.red} class="ms-2 my-auto">{@html result.text}</p>
     </div>
 {:else}
