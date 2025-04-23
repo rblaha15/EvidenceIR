@@ -33,7 +33,7 @@
 </script>
 
 {#if widget.show(data)}
-    <div class="input-group mb-3">
+    <div class="input-group">
         <label class="form-floating d-block left">
             <select class="form-select" value={widget.value.first ?? 'notChosen'}
                     disabled={widget.lock1(data)} onchange={onChange1}>
@@ -44,7 +44,7 @@
             </select>
             <label for="">{nazevSHvezdou(widget, data, t)}</label>
         </label>
-        {#if widget.value.first != null}
+        {#if widget.value.first != null && widget.options2(data).length > 0}
             <select
                 class="form-select right"
                 id={nazevSHvezdou(widget, data, t)}
@@ -61,8 +61,9 @@
         {/if}
     </div>
     {#if widget.showError(data)}
-        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
+        <p class="text-danger mt-1">{t.get(widget.onError(data, t))}</p>
     {/if}
+    <div class="mb-3"></div>
 {/if}
 
 <style>

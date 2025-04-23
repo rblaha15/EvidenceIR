@@ -15,6 +15,7 @@ import type { Company, Technician } from '$lib/client/realtime';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
+import products from '$lib/helpers/products';
 
 const jeFO = (d: UserData<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserData<never>) => jeFO(d);
@@ -256,7 +257,7 @@ export default (): Data => ({
     ir: {
         typ: new DoubleChooserWidget({
             label: `controllerType`,
-            options1: [p`IR RegulusBOX`, p`IR RegulusHBOX`, p`IR RegulusHBOXK`, p`IR 34`, p`IR 14`, p`IR 12`, p`SOREL`],
+            options1: [p`IR RegulusBOX`, p`IR RegulusHBOX`, p`IR RegulusHBOX K`, p`IR 34`, p`IR 14`, p`IR 12`, p`SOREL`],
             options2: ({ ir: { typ: { value: { first: f } } } }) => (
                 f == p`IR 12` ? [p`CTC`] : f == p`SOREL` ? [p`SRS1 T`, p`SRS2 TE`, p`SRS3 E`, p`SRS6 EP`, p`STDC E`, p`TRS3`, p`TRS4`, p`TRS5`] : [p`CTC`, p`RTC`]
             ),
@@ -275,7 +276,7 @@ export default (): Data => ({
                 if (v.first == p`IR 12`) {
                     d.ir.typ.setValue(d, { ...v, second: p`CTC` });
                 }
-            }
+            },
         }),
         cislo: new InputWidget({
             label: `serialNumber`,
@@ -341,28 +342,10 @@ export default (): Data => ({
             label: d => (d.tc.model2.value != `noPump` ? `heatPumpModel1` : `heatPumpModel`),
             options: d =>
                 d.ir.typ.value.second == p`RTC`
-                    ? [p`RTC 6i`, p`RTC 13e`, p`RTC 20e`]
+                    ? products.heatPumpsRTC
                     : d.tc.typ.value == 'airToWater'
-                        ? [
-                            p`EcoAir 614M`,
-                            p`EcoAir 622M`,
-                            p`EcoAir 406`,
-                            p`EcoAir 408`,
-                            p`EcoAir 410`,
-                            p`EcoAir 415`,
-                            p`EcoAir 420`
-                        ]
-                        : [
-                            p`EcoPart 612M`,
-                            p`EcoPart 616M`,
-                            p`EcoPart 406`,
-                            p`EcoPart 408`,
-                            p`EcoPart 410`,
-                            p`EcoPart 412`,
-                            p`EcoPart 414`,
-                            p`EcoPart 417`,
-                            p`EcoPart 435`
-                        ],
+                        ? products.heatPumpsAirToWaterCTC
+                        : products.heatPumpsGroundToWater,
             required: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
             show: d =>
                 d.ir.typ.value.second != null &&
