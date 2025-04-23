@@ -14,7 +14,7 @@ import { type Data, type UserData } from './Data';
 import type { Company, Technician } from '$lib/client/realtime';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
-import { nowISO, todayISO } from '$lib/helpers/date';
+import { time, todayISO } from '$lib/helpers/date';
 
 const jeFO = (d: UserData<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserData<never>) => jeFO(d);
@@ -265,7 +265,7 @@ export default (): Data => ({
                     d.tc.typ.setValue(d, 'airToWater');
                 }
                 if (v.first == p`SOREL`) {
-                    d.ir.cislo.setValue(d, nowISO());
+                    d.ir.cislo.setValue(d, `${todayISO()} ${time()}`);
                 }
                 if (v.first == p`IR 12`) {
                     d.ir.typ.setValue(d, { ...v, second: p`CTC` });
