@@ -15,7 +15,7 @@
 
 {#if widget.show(data)}
     <div class="input-group flex-nowrap" style="width: min-content">
-        <span class="input-group-text w-auto" id="label-{uid}">{t.get(widget.label(data, t))}</span>
+        <span class="input-group-text" style="width: max-content" id="label-{uid}">{t.get(widget.label(data, t))}</span>
         <button class="btn btn-outline-primary" onclick={() => widget.mutateValue(data, v => v - 1)}
                 disabled={widget.value === widget.min(data)}
         ><strong>-</strong></button>

@@ -17,18 +17,18 @@
 
 {#if widget.show(data)}
     <label class="d-block" for="">{t.get(widget.label(data, t))}</label>
-    <div class="input-group input-group-grid" style="width: min-content; --grid-cols: 4">
+    <div class="input-group input-group-grid" style="--grid-cols: 4">
         {#each widget.options(data) as option, i}
-            <span class="input-group-text w-auto first" id="label-{uid}">{t.get(option)}</span>
-            <button class="btn btn-outline-primary" onclick={() =>
+            <button class="btn btn-outline-primary first" onclick={() =>
                 widget.mutateValue(data, v => v.with(i, v[i] - 1))
             } disabled={widget.value[i] === 0}
             ><strong>-</strong></button>
             <span class="input-group-text input-group-input">{widget.value[i]}</span>
-            <button class="btn btn-outline-primary last" onclick={
+            <button class="btn btn-outline-primary" onclick={
                 () => widget.mutateValue(data, v => v.with(i, v[i] + 1))
             } disabled={sum === widget.max(data)}
             ><strong>+</strong></button>
+            <button class="input-group-text last" id="label-{uid}">{t.get(option)}</button>
         {/each}
     </div>
 
