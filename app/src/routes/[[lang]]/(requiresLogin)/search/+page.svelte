@@ -1,19 +1,19 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
-    import { extractIRIDFromRawData, getAll, type IRID, IRNumberFromIRID } from '$lib/client/firestore';
+    import { extractIRIDFromRawData, getAll, type IRID } from '$lib/client/firestore';
     import type { Translations } from '$lib/translations';
     import { onMount } from 'svelte';
     import { p, SearchWidget } from '$lib/Widget.svelte.js';
     import Search from '$lib/components/widgets/Search.svelte';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { relUrl } from '$lib/helpers/runes.svelte';
-    import { popisIR, typIR } from '$lib/helpers/ir';
+    import { nazevIR, popisIR } from '$lib/helpers/ir';
 
     type Installation = {
         irid: IRID,
         label: string,
-        irType: string,
+        irName: string,
     }
     onMount(async () => {
         const res = await getAll();
@@ -21,7 +21,7 @@
             .map(snapshot => snapshot.data())
             .map(data => <Installation>{
                 irid: extractIRIDFromRawData(data.evidence),
-                irType: typIR(data.evidence.ir.typ),
+                irName: nazevIR(data.evidence.ir),
                 label: popisIR(data.evidence)
             })
             .filter(i => i.irid)
@@ -39,16 +39,14 @@
         getSearchItem: i => ({
             href: relUrl(`/detail/${i.irid}`),
             pieces: [
-                { text: p`${i.irType} ${IRNumberFromIRID(i.irid)}`, width: .4 },
+                { text: p`${i.irName}`, width: .4 },
                 { text: p`${i.label}`, width: .6 },
             ] as const,
-        })
+        }),
+        onValueSet: (_, i) => {
+            if (i) goto(relUrl(`/detail/${i.irid}`));
+        }
     }));
-
-    $effect(() => {
-        const i = w.value;
-        if (i) goto(relUrl(`/detail/${i.irid}`));
-    })
 
     setTitle(t.controllerSearch)
 </script>

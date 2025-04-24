@@ -67,7 +67,7 @@ const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SpareP
     },
     storeEffects: [
         [(d, f, [$techniciansList, $currentUser]) => {
-            f.uvedeni.regulus.items = () => $techniciansList
+            f.uvedeni.regulus.items = () => $techniciansList.filter(t => t.email.endsWith('cz'))
 
             const ja = $techniciansList.find(t => $currentUser?.email == t.email);
             f.zasah.clovek.setValue(d, ja?.name ?? f.zasah.clovek.value);
