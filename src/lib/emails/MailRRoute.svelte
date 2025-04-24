@@ -16,14 +16,18 @@
 		t: Translations;
 		montazka: string | null;
 		uvadec: string | null;
+        origin: string;
 	}
 
 	let {
 		e,
 		t,
 		montazka,
-		uvadec
+		uvadec,
+        origin,
 	}: Props = $props();
+
+    const irid = extractIRIDFromParts(e.ir.typ.first!, e.ir.cislo);
 </script>
 
 <p>Prosím o založení RegulusRoutu k tomuto regulátoru:</p>
@@ -72,3 +76,5 @@
 
 <h2>Poznámka</h2>
 <p>{e.ostatni.poznamka}</p>
+
+<p>Odkaz na podrobnosti evidence: <a href={origin + `/detail/${irid}`}>{origin + `/detail/${irid}`}</a></p>
