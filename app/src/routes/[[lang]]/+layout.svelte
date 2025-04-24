@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dev } from '$app/environment';
+	import { dev, version } from '$app/environment';
 	import { page } from '$app/state';
 	import { checkAuth } from '$lib/client/auth';
 	import Navigation from '$lib/components/Navigation.svelte';
@@ -50,5 +50,6 @@
 	<div class="container my-3">
 		<h1>{$titleSvelte}</h1>
 		{@render children?.()}
+		<p class="text-black-50 fs-6">{version}</p>
 	</div>
 {/if}
