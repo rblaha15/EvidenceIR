@@ -224,7 +224,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
             address: user.email!,
             name: user.displayName ?? '',
         };
-        const doNotSend = edit && (!send || !dev);
+        const doNotSend = edit && !send;
 
         if (raw.vzdalenyPristup.chce && !doNotSend) {
             const t = getTranslations('cs');
