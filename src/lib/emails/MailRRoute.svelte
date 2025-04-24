@@ -8,6 +8,7 @@
 		if (e.ir.typ.first!.includes('BOX')) return 'CP-2972';
 		if (e.ir.typ.first!.includes('12')) return 'CP-1054';
 		if (e.ir.typ.first!.includes('14')) return 'CP-2007';
+        if (e.ir.typ.first!.includes('34')) return 'CP-2007';
 		return '???';
 	};
 
