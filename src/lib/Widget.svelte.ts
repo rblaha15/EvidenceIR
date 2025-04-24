@@ -322,7 +322,7 @@ export class CheckboxWithChooserWidget<D, H extends boolean = false> extends Wid
     _value = $state() as SeCh;
     onValueSet = $state() as (data: D, newValue: SeCh) => void;
     hideInRawData = $state() as H;
-    isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
+    isError = $state(a => (this.value.chosen == null || !this.value.checked) && this.required(a)) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
     options = $state() as Get<D, Arr>;
 
