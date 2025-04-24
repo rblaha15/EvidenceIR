@@ -5,10 +5,10 @@ import { type Component, mount } from 'svelte';
 
 export type EmailOptions<Props extends Record<string, unknown>> = {
     from: Address | string;
-    replyTo?: Address | string;
-    to?: Address | string;
-    cc?: Address | string;
-    bcc?: Address | string;
+    replyTo?: Address | string | (Address | string)[];
+    to?: Address | string | (Address | string)[];
+    cc?: Address | string | (Address | string)[];
+    bcc?: Address | string | (Address | string)[];
     subject: string;
     attachments?: Attachment[];
     pdf?: {

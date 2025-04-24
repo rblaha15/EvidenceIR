@@ -234,7 +234,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
             const response = await sendEmail({
                 from: SENDER,
                 replyTo: userAddress,
-                to: dev ? 'radek.blaha.15@gmail.com' : 'david.cervenka@regulus.cz',
+                to: dev ? 'radek.blaha.15@gmail.com' : ['david.cervenka@regulus.cz', 'jakub.cervenka@regulus.cz'],
                 subject: `Založení RegulusRoute k ${nazevIR(raw.ir)}`,
                 attachments: [{
                     content: generateXML(data, t),
@@ -246,7 +246,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
                     title: 'Souhlas RegulusRoute.pdf',
                 },
                 component: MailRRoute,
-                props: { e: raw, montazka, uvadec, t },
+                props: { e: raw, montazka, uvadec, t, origin: page.url.origin },
             });
             console.log(response);
         }

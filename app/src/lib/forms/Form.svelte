@@ -150,16 +150,16 @@
     {/each}
     <div class="d-inline-flex align-content-center">
         {#if !result.load}
-            <button onclick={save(false)} class="btn btn-success">{t.save}</button>
+            <button onclick={save(false)} class="mb-auto btn btn-success">{t.save}</button>
         {/if}
         {#if !result.load && mode === 'edit' && isSendingEmails}
-            <button onclick={save(true)} class="btn btn-success ms-2">{t.saveAndSend}</button>
+            <button onclick={save(true)} class="mb-auto btn btn-success ms-2 text-nowrap">{t.saveAndSend}</button>
         {/if}
         {#if result.load}
             <div class="spinner-border text-danger ms-2"></div>
         {/if}
         {#if showBackButton}
-            <button type="button" class="btn btn-secondary ms-2" onclick={() => history.back()}>
+            <button type="button" class="mb-auto btn btn-secondary ms-2" onclick={() => history.back()}>
                 {t.back}
             </button>
         {/if}
