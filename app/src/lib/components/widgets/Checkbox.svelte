@@ -19,12 +19,15 @@
 
 {#if widget.show(data)}
     <div class="input-group">
-        <button class="input-group-text" onclick={onClick} aria-labelledby="label-{uid}" tabindex="-1">
-            <input class="form-check-input m-0" type="checkbox" role="button" disabled={widget.lock(data)} bind:checked={widget.value} />
+        <button class="input-group-text input-group-input" onclick={onClick}
+                aria-labelledby="label-{uid}" tabindex="-1" disabled={widget.lock(data)}
+        >
+            <input class="form-check-input m-0" type="checkbox" role="button"
+                   disabled={widget.lock(data)} bind:checked={widget.value} />
         </button>
-        <input type="text" placeholder={nazevSHvezdou(widget, data, t)} readonly onclick={onClick}
-               class="form-control shadow-none" role="button" disabled={widget.lock(data)}
-               tabindex="-1" style="border-color: var(--bs-border-color)" id="label-{uid}" />
+        <button onclick={onClick} tabindex="-1"
+                id="label-{uid}" class="input-group-text flex-grow-1"
+        >{nazevSHvezdou(widget, data, t)}</button>
     </div>
 
     {#if widget.showError(data)}
