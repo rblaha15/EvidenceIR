@@ -290,7 +290,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
     },
     storeEffects: [
         [(_, data, [$technicians]) => {
-            data.uvedeni.regulus.items = () => $technicians;
+            data.uvedeni.regulus.items = () => $technicians.filter(t => t.email.endsWith('cz'));
         }, [techniciansList]],
         [(_, data, [$companies]) => {
             data.uvedeni.company.items = () => $companies.commissioningCompanies;
@@ -298,7 +298,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         }, [companies]],
         [(_, data, [$isUserRegulusOrAdmin]) => {
             data.vzdalenyPristup.plati.options = () => $isUserRegulusOrAdmin
-                ? ['assemblyCompany', 'endCustomer', 'doNotInvoice', p`Později, dle protokolu`]
+                ? [p`Později, dle protokolu`, 'doNotInvoice', 'assemblyCompany', 'endCustomer']
                 : ['assemblyCompany', 'endCustomer'];
             if ($isUserRegulusOrAdmin) data.vzdalenyPristup.plati.setValue(data, p`Později, dle protokolu`)
         }, [isUserRegulusOrAdmin]],
