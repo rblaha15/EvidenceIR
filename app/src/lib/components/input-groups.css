@@ -28,6 +28,15 @@
     }
 }
 
+.input-group {
+    flex-wrap: nowrap;
+}
+
+.input-group-text {
+    text-wrap: wrap;
+    text-align: start;
+}
+
 .input-group-text + label {
     color: var(--bs-body-color);
 }
