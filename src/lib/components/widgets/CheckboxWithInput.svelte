@@ -76,14 +76,14 @@
 
 {#if widget.show(data)}
     <div class="input-group">
-        <button class="input-group-text" onclick={onClick} aria-labelledby="label-{uid}" tabindex="-1">
+        <button class="input-group-text input-group-input" onclick={onClick} aria-labelledby="label-{uid}" tabindex="-1">
             <input class="form-check-input m-0" type="checkbox" role="button" disabled={widget.lock(data)} bind:checked={widget.value.checked} />
         </button>
         <label class="form-floating d-block" id="label-{uid}">
             {#if !widget.value.checked}
-                <input type="text" placeholder={nazevSHvezdou(widget, data, t)} readonly onclick={onClick}
-                       class="form-control shadow-none" role="button" disabled={widget.lock(data)}
-                       tabindex="-1" style="border-color: var(--bs-border-color)" />
+                <input type="text" placeholder={nazevSHvezdou(widget, data, t)} readonly
+                       onclick={onClick} class="form-control shadow-none input-group-text"
+                       role="button" disabled={widget.lock(data)} tabindex="-1" />
             {:else if widget.textArea(data)}
             <textarea
                 autocomplete={widget.autocomplete(data)}

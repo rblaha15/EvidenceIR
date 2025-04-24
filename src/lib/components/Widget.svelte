@@ -78,3 +78,7 @@
 {:else if widget instanceof SearchWidget && widget.show(data)}
     <Search {t} bind:widget={widget} {data} />
 {/if}
+
+<style>
+    @import "input-groups.css";
+</style>

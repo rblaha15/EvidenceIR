@@ -217,6 +217,11 @@ interface Array<T> {
         index: number,
         value: T[keyof T],
     ): T;
+
+    toggle<T>(
+        this: T[],
+        value: T,
+    ): T[];
 }
 
 interface ReadonlyArray<T> {
@@ -235,6 +240,11 @@ interface ReadonlyArray<T> {
         this: T[] | readonly T[],
         key: (item: T, index: number, array: T[]) => K,
         options?: { reversed?: boolean },
+    ): T[];
+
+    toggle<T>(
+        this: T[] | readonly T[],
+        value: T,
     ): T[];
 }
 
@@ -314,4 +324,11 @@ Array.prototype.with = function<T extends unknown[]>(
     const copy = [...this];
     copy[index] = value;
     return copy as T;
+};
+
+Array.prototype.toggle = function<T>(
+    this: T[],
+    value: T,
+): T[] {
+    return this.includes(value) ? this.toSpliced(this.indexOf(value), 1) : [...this, value]
 };

@@ -36,7 +36,7 @@
 <div class="mb-3 d-flex align-items-center">
     {#if widget.show(data)}
         <div class="input-group">
-            <button class="input-group-text" onclick={onClick} aria-labelledby="label-{uid}" tabindex="-1">
+            <button class="input-group-text input-group-input" onclick={onClick} aria-labelledby="label-{uid}" tabindex="-1">
                 <input class="form-check-input m-0" type="checkbox" role="button" bind:checked={widget.value.checked} />
             </button>
             <label class="form-floating d-block" id="label-{uid}">
@@ -49,8 +49,8 @@
                     </select>
                 {:else}
                     <input type="text" placeholder={nazevSHvezdou(widget, data, t)} readonly onclick={onClick}
-                           class="form-control shadow-none" role="button"
-                           tabindex="-1" style="border-color: var(--bs-border-color)" />
+                           class="form-control shadow-none input-group-text" role="button"
+                           tabindex="-1" />
                 {/if}
                 <label for="">{nazevSHvezdou(widget, data, t)}</label>
             </label>

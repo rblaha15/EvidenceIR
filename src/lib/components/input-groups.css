@@ -1,0 +1,39 @@
+.input-group-grid {
+    display: grid;
+    --grid-cols: 2;
+    grid-template-columns: repeat(calc(var(--grid-cols) - 1), auto) 1fr;
+    & > * {
+        margin-top: calc(-1 * var(--bs-border-width));
+        border-radius: 0;
+    }
+
+    & > :has(~ :nth-child(1 of .last)), :nth-child(1 of .last) {
+        margin-top: 0;
+    }
+    & > :nth-child(1 of .first) {
+        border-top-left-radius: var(--bs-border-radius) !important;
+    }
+    & > :nth-child(1 of .last) {
+        border-top-right-radius: var(--bs-border-radius) !important;
+    }
+    & > .first {
+        margin-left: 0 !important;
+    }
+
+    & > :nth-last-child(1 of .first) {
+        border-bottom-left-radius: var(--bs-border-radius) !important;
+    }
+    & > :nth-last-child(1 of .last) {
+        border-bottom-right-radius: var(--bs-border-radius) !important;
+    }
+}
+
+.input-group-text + label {
+    color: var(--bs-body-color);
+}
+.input-group-input {
+    color: var(--bs-secondary-color);
+}
+.input-group-input:not([disabled]) {
+    background-color: var(--bs-body-bg);
+}

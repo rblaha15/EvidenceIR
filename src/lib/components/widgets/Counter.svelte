@@ -10,21 +10,24 @@
 
     let { t, widget = $bindable(), data }: Props = $props();
 
+    const uid = $props.id();
 </script>
 
 {#if widget.show(data)}
-    <p class="mb-1">{t.get(widget.label(data, t))}</p>
-    <div class="d-flex flex-row mb-2 align-items-center">
-        <button class="btn btn-sm btn-secondary" onclick={() => widget.mutateValue(data, v => v - 1)}
-                disabled={widget.value === widget.min(data)}>-
-        </button>
-        <span class="m-2">{widget.value}</span>
-        <button class="btn btn-sm btn-secondary" onclick={() => widget.mutateValue(data, v => v + 1)}
-                disabled={widget.value === widget.max(data)}>+
-        </button>
+    <div class="input-group flex-nowrap" style="width: min-content">
+        <span class="input-group-text w-auto" id="label-{uid}">{t.get(widget.label(data, t))}</span>
+        <button class="btn btn-outline-primary" onclick={() => widget.mutateValue(data, v => v - 1)}
+                disabled={widget.value === widget.min(data)}
+        ><strong>-</strong></button>
+        <span class="input-group-text input-group-input">{widget.value}</span>
+        <button class="btn btn-outline-primary" onclick={() => widget.mutateValue(data, v => v + 1)}
+                disabled={widget.value === widget.max(data)}
+        ><strong>+</strong></button>
     </div>
 
     {#if widget.showError(data)}
         <span class="text-danger help-block">{t.get(widget.onError(data, t))}</span>
     {/if}
+
+    <div class="mb-3"></div>
 {/if}
