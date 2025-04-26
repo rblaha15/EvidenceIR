@@ -93,8 +93,9 @@
     <div class="mb-3"></div>
 
     <input
-        accept={widget.accept(data, t)}
+        accept="image/*"
         {multiple}
+        capture="environment"
         class="d-none"
         type="file"
         bind:this={input}

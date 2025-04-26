@@ -92,7 +92,7 @@ type ValueArgs<D, U, H> = {
     label: GetOrVal<D>, onError?: GetOrVal<D>; required?: GetOrVal<D, boolean>; onValueSet?: (data: D, newValue: U) => void
 } & HideArgs<H> & ShowArgs<D>;
 type FileArgs<D> = {
-    accept?: GetOrVal<D, string>; multiple?: GetOrVal<D, boolean>; max?: GetOrVal<D, number>;
+    multiple?: GetOrVal<D, boolean>; max?: GetOrVal<D, number>;
 };
 type ChooserArgs<D> = { options: GetOrVal<D, Arr>; chosen?: TR | null; };
 type SecondChooserArgs = { options: Arr; chosen?: TR; text?: string; };
@@ -137,7 +137,7 @@ type SuggestionsArgs<D> = {
 
 type Info<D, U> = Widget<D, U> & { text: Get<D, TR | Promise<TR>>; };
 type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: Get<D, boolean>; };
-type FileW<D> = Widget<D, Files> & { accept: Get<D, string | undefined>; multiple: Get<D, boolean>; max: Get<D, number>; };
+type File<D> = Widget<D, Files> & { multiple: Get<D, boolean>; max: Get<D, number>; };
 type Lock<D, U> = Widget<D, U> & { lock: Get<D, boolean>; };
 type DoubleLock<D, U> = Widget<D, U> & { lock1: Get<D, boolean>; lock2: Get<D, boolean>; };
 type Chooser<D> = Widget<D, TR | null> & { options: Get<D, Arr>; };
@@ -191,8 +191,7 @@ const initValue = function <D, U, H extends boolean>(widget: Required<D, U, H>, 
     widget.required = toGet(args.required ?? true);
     widget.onValueSet = args.onValueSet ?? (() => {});
 };
-const initFile = function <D>(widget: FileW<D>, args: FileArgs<D>) {
-    widget.accept = toGet(args.accept);
+const initFile = function <D>(widget: File<D>, args: FileArgs<D>) {
     widget.multiple = toGet(args.multiple ?? false);
     widget.max = toGet(args.max ?? Number.POSITIVE_INFINITY);
 };
@@ -584,7 +583,6 @@ export class PhotoSelectorWidget<D, H extends boolean = false> extends Widget<D,
     isError = $state(a => (this.value.length == 0) && this.required(a)) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
     lock = $state() as Get<D, boolean>;
-    accept = $state() as Get<D, string | undefined>;
     multiple = $state() as Get<D, boolean>;
     max = $state() as Get<D, number>;
 
