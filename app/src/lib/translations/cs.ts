@@ -464,17 +464,6 @@ export default {
             surnameNeeded: 'Je potřeba vyplnit příjmení',
             nameNeeded: 'Je potřeba vypllnit jméno',
         },
-        photos: {
-            photosManager: 'Správa fotek',
-            takePhoto: 'Vyfotit',
-            choosePhoto: 'Vybrat z galerie',
-            photo: 'Fotka',
-            add: 'Přidat fotku',
-            maxPhotosReached: 'Můžete přidat maximálně 5 fotek',
-            maxPhotosOvershoot: 'Protože můžete přidat maximálně 5 fotek, nebyly všechny vybrané fotky vloženy',
-            noPhotos: 'Zatím jste nepřidali žádné fotky',
-            remove: 'Odstranit',
-        },
         export: {
             sending: 'Odesílání',
             emailIsBeingSend: 'Email se odesílá',
@@ -509,4 +498,9 @@ export default {
         m: 'm',
         degreeCelsius: '°C',
     },
+    photos: 'Fotografie:',
+    addPhoto: 'Přidat fotku',
+    addPhotos: 'Přidat fotky',
+    noPhotos: 'Zatím jste nepřidali žádné fotky',
+    remove: 'Odstranit',
 };

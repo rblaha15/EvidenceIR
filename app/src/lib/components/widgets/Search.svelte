@@ -96,7 +96,7 @@
             >
                 {#each searchItem.pieces as piece, j}
                     <p class="mb-0 me-1 d-md-block" class:d-none={j !== 0}
-                       style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
+                       style="color: var(--bs-body-color); flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                     >{t.get(piece.text)}</p>
                 {/each}
             </div>

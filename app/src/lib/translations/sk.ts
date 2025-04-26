@@ -183,17 +183,6 @@ const sk: PlainTranslations = {
             youAreNotLoggedIn: `Nie ste prihlásený!`,
             logOut: `Odhlásiť sa`,
         },
-        photos: {
-            photosManager: `Správa fotiek`,
-            takePhoto: `Odfotiť`,
-            choosePhoto: `Vybrať z galérie`,
-            photo: `Fotka`,
-            add: `Pridať fotku`,
-            maxPhotosReached: `Môžete pridať maximálne 5 fotiek`,
-            maxPhotosOvershoot: `Pretože môžete pridať maximálne 5 fotiek, neboli všetky vybrané fotky vložené`,
-            noPhotos: `Zatiaľ ste nepridali žiadne fotky`,
-            remove: `Odstrániť`,
-        },
         export: {
             sending: `Odosielanie`,
             missingField: `Nevyplnené pole`,
@@ -218,6 +207,11 @@ const sk: PlainTranslations = {
         add: `Pridať`,
         currency: '€',
     },
+    photos: `Fotky`,
+    addPhoto: `Pridať fotku`,
+    addPhotos: `Pridať fotky`,
+    noPhotos: `Zatiaľ ste nepridali žiadne fotky`,
+    remove: `Odstrániť`,
 };
 
 export default sk;

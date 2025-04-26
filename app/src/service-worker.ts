@@ -17,7 +17,7 @@ const ASSETS = [
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
 sw.addEventListener('install', (event) => {
-	// Create a new cache and add all files to it
+	// Create a new cache and add all value to it
 	async function addFilesToCache() {
 		const cache = await caches.open(CACHE);
 		await cache.addAll(ASSETS);
@@ -45,7 +45,7 @@ sw.addEventListener('fetch', (event) => {
 		const url = new URL(event.request.url);
 		const cache = await caches.open(CACHE);
 
-		// `build`/`files` can always be served from the cache
+		// `build`/`value` can always be served from the cache
 		if (files.includes(url.pathname) || build.includes(url.pathname)) {
 			const response = await cache.match(url.pathname);
 
