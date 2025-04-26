@@ -33,8 +33,7 @@ export const processExcel = <R extends Raw<Form>>(info: ExcelImport<R>, rows: Ro
     const data = info.defaultData()
     info.cells.forEachEntry((k1, section) => {
         section?.forEachEntry((k2, i) => {
-            if (i)
-                data[k1][k2] = parseSimpleImport(i).getData(([x, y]) => rows[y - 1][x - 1] as string | null  ?? '')
+            if (i) data[k1][k2] = parseSimpleImport(i).getData(([x, y]) => rows[y - 1][x - 1] as string | null  ?? '')
         })
     })
     return data
