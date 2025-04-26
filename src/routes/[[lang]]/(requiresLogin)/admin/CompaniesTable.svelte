@@ -22,28 +22,30 @@
     }
 </script>
 
-<table class="table text-break table-striped table-hover">
-    <thead>
-    <tr>
-        <th>IČO</th>
-        <th>Jméno</th>
-        <th>Email</th>
-        <th>Telefon</th>
-        <th>Zástupce</th>
-    </tr>
-    </thead>
-    <tbody>
-    {#each companies as company, i}
-        <tr class="table-{colors[i]}" id={company.crn}
-            style:scroll-margin-top={6 + (document.querySelector('nav')?.getBoundingClientRect()?.height ?? 0) + 'px'}
-            class:table-info={page.url.hash.split("-")[1] === company.crn}
-        >
-            <th>{company.crn}</th>
-            <td>{company.companyName}</td>
-            <td>{company.email}</td>
-            <td>{company.phone}</td>
-            <td>{company.representative}</td>
+<div class="overflow-x-auto">
+    <table class="table text-break table-striped table-hover text-nowrap">
+        <thead>
+        <tr>
+            <th>IČO</th>
+            <th>Jméno</th>
+            <th>Email</th>
+            <th>Telefon</th>
+            <th>Zástupce</th>
         </tr>
-    {/each}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        {#each companies as company, i}
+            <tr class="table-{colors[i]}" id={company.crn}
+                style:scroll-margin-top={6 + (document.querySelector('nav')?.getBoundingClientRect()?.height ?? 0) + 'px'}
+                class:table-info={page.url.hash.split("-")[1] === company.crn}
+            >
+                <th>{company.crn}</th>
+                <td>{company.companyName}</td>
+                <td>{company.email}</td>
+                <td>{company.phone}</td>
+                <td>{company.representative}</td>
+            </tr>
+        {/each}
+        </tbody>
+    </table>
+</div>

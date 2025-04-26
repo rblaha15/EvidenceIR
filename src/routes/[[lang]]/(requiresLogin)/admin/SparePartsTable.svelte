@@ -21,21 +21,23 @@
     }
 </script>
 
-<table class="table text-break table-striped table-hover">
-    <thead>
-    <tr>
-        <th>Číslo</th>
-        <th>Název</th>
-        <th>Jednotková cena</th>
-    </tr>
-    </thead>
-    <tbody>
-    {#each spareParts as sparePart, i}
-        <tr class="table-{colors[i]}">
-            <td>{sparePart.code}</td>
-            <th>{sparePart.name}</th>
-            <td>{sparePart.unitPrice.roundTo(2).toLocaleString('cs')} Kč</td>
+<div class="overflow-x-auto">
+    <table class="table text-break table-striped table-hover text-nowrap">
+        <thead>
+        <tr>
+            <th>Číslo</th>
+            <th>Název</th>
+            <th>Jednotková cena</th>
         </tr>
-    {/each}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        {#each spareParts as sparePart, i}
+            <tr class="table-{colors[i]}">
+                <td>{sparePart.code}</td>
+                <th>{sparePart.name}</th>
+                <td>{sparePart.unitPrice.roundTo(2).toLocaleString('cs')} Kč</td>
+            </tr>
+        {/each}
+        </tbody>
+    </table>
+</div>
