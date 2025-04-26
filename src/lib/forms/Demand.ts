@@ -31,7 +31,7 @@ import { page } from '$app/state';
 import { companies } from '$lib/helpers/companies';
 import MailDemand from '$lib/emails/MailDemand.svelte';
 import type { Attachment } from "nodemailer/lib/mailer";
-import { getPhoto, removePhoto } from '$lib/components/widgets/PhotoSelector.svelte';
+import { getPhoto, removeAllPhotos } from '$lib/components/widgets/PhotoSelector.svelte';
 
 interface Demand extends Form<Demand> {
     contacts: {
@@ -661,7 +661,7 @@ const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Technician
         });
 
         if (response!.ok) {
-            raw.other.photos.forEach(photoId => removePhoto(photoId))
+            await removeAllPhotos()
             return true;
         } else editResult({
             text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
