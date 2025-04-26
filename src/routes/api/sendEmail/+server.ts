@@ -2,29 +2,30 @@ import type { RequestHandler } from './$types';
 import { checkToken } from '$lib/server/auth';
 import { error } from '@sveltejs/kit';
 import { sendEmail } from '$lib/server/email';
-import type { Options } from 'nodemailer/lib/mailer';
+import type { EmailMessage } from '$lib/client/email';
 
 export const POST: RequestHandler = async ({ url, request, fetch }) => {
-	const token = url.searchParams.get("token")
+    const token = url.searchParams.get('token');
 
-	if (!await checkToken(token)) error(401, "Unauthorized")
+    if (!(await checkToken(token))) error(401, 'Unauthorized');
 
-	const { message }: { message: Options } = await request.json()
+    const { message }: { message: EmailMessage } = await request.json();
 
-	if (message.subject!.includes('RegulusRoute')) {
-        const pdfResponse = await fetch(`/cs/detail/${message.subject!.split(" ").slice(-2).join('')}/pdf/rroute?token=${token}`)
-		message.attachments = [
-			{
-				content: Buffer.from(await pdfResponse.arrayBuffer()),
-				contentType: 'application/pdf',
-				filename: 'Souhlas RegulusRoute.pdf',
-			}
-		]
-	}
+    if (message.pdf) {
+        const pdfResponse = await fetch(`${message.pdf.link}?token=${token}`);
+        message.attachments = [
+            ...message.attachments ?? [],
+            {
+                content: Buffer.from(await pdfResponse.arrayBuffer()),
+                contentType: 'application/pdf',
+                filename: message.pdf.title,
+            },
+        ];
+    }
 
-	const { response } = await sendEmail(message);
+    const { response } = await sendEmail(message);
 
-	return new Response(null, {
-		status: Number(response.slice(0, 3))
-	});
+    return new Response(null, {
+        status: Number(response.slice(0, 3)),
+    });
 };

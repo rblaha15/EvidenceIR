@@ -1,22 +1,26 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { page } from '$app/stores';
-	import Navigation from '$lib/components/Navigation.svelte';
-	import { relUrl } from '$lib/helpers/stores';
+	import { page } from '$app/state';
 	import type { Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
 	import authentication from '$lib/client/authentication';
 	import { changePassword } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import type { PageData } from './$types';
+	import { setTitle } from '$lib/helpers/title.svelte';
+	import { relUrl } from '$lib/helpers/runes.svelte';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
 
-	let email = browser ? $page.url.searchParams.get('email') ?? data.email ?? '' : '';
+	let { data }: Props = $props();
+
+	let email = $state(browser ? (page.url.searchParams.get('email') ?? data.email ?? '') : '');
 
 	const t: Translations = data.translations;
 
-	const oobCode = browser ? $page.url.searchParams.get('oobCode') : null;
+	const oobCode = browser ? page.url.searchParams.get('oobCode') : null;
 	let mode:
 		| 'resetEmail'
 		| 'resetSending'
@@ -24,18 +28,19 @@
 		| 'reset'
 		| 'edit'
 		| 'register'
-		| 'loading' = 'loading';
+		| 'saving'
+		| 'loading' = $state('loading');
 
-	let heslo: string;
-	let hesloZnovu: string;
+	let heslo = $state('');
+	let hesloZnovu = $state('');
 
 	let redirect: string = '/new';
 	onMount(() => {
-		redirect = $page.url.searchParams.get('redirect') ?? '/new';
-		mode = $page.url.searchParams.get('mode') as typeof mode;
+		redirect = page.url.searchParams.get('redirect') ?? '/new';
+		mode = page.url.searchParams.get('mode') as typeof mode;
 	});
 
-	let error: string | null = null;
+	let error: string | null = $state(null);
 
 	const sendCode = async () => {
 		mode = 'resetSending';
@@ -44,21 +49,24 @@
 			redirect,
 			lang: data.languageCode
 		});
-		window.location.replace($relUrl('/newPassword?mode=resetSent'));
+		window.location.replace(relUrl('/newPassword?mode=resetSent'));
 	};
 
 	const resetPassword = async () => {
+		const originalMode = mode;
+		mode = 'saving';
 		error = '';
 		if (heslo != hesloZnovu) {
 			error = t.passwordsDoNotMatch;
+			mode = originalMode
 			return;
 		}
-		if (mode == 'register') {
+		if (originalMode == 'register') {
 			await authentication('enableUser', { email });
 		}
 		changePassword(oobCode!, heslo)
 			.then(() => {
-				window.location.href = $relUrl(`/login?email=${email}&done=${mode}&redirect=${redirect}`)
+				window.location.href = relUrl(`/login?email=${email}&done=${mode}&redirect=${redirect}`);
 			})
 			.catch((e) => {
 				console.log(e.code);
@@ -73,20 +81,21 @@
 				} else {
 					error = t.somethingWentWrong;
 				}
+				mode = originalMode
 			});
 	};
+
+	setTitle(t.newPassword)
 </script>
 
-<h1>{t.newPassword}</h1>
-
-{#if mode == 'resetSent'}
+{#if mode === 'resetSent'}
 	<p>Email odeslán. Nyní můžete toto okno zavřít.</p>
-{:else if mode == 'resetSending'}
+{:else if mode === 'resetSending'}
 	<div class="d-flex align-items-center">
 		<span>Odesílání</span>
-		<div class="spinner-border text-danger ms-2" />
+		<div class="spinner-border text-danger ms-2"></div>
 	</div>
-{:else if mode == 'resetEmail' || !oobCode}
+{:else if mode === 'resetEmail' || !oobCode}
 	<form>
 		<FormDefaults />
 		<div class="mt-3">
@@ -102,10 +111,10 @@
 			<p class="text-danger mt-3 mb-0">{@html error}</p>
 		{/if}
 		<div class="d-flex align-content-center mt-3">
-			<button type="submit" class="btn btn-primary me-2" on:click={sendCode}>
+			<button type="submit" class="btn btn-primary me-2" onclick={sendCode}>
 				{t.sendConfirmEmail}
 			</button>
-			<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
+			<button type="button" class="btn btn-secondary" onclick={() => history.back()}>
 				{t.back}
 			</button>
 		</div>
@@ -135,10 +144,14 @@
 			<p class="text-danger mt-3 mb-0">{@html error}</p>
 		{/if}
 		<div class="d-flex align-content-center mt-3">
-			<button type="submit" class="btn btn-primary me-2" on:click={resetPassword}>
-				{t.save}
-			</button>
-			<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
+			{#if mode === "saving"}
+				<div class="spinner-border text-danger m-2"></div>
+			{:else}
+				<button type="submit" class="btn btn-primary me-2" onclick={resetPassword}>
+					{t.save}
+				</button>
+			{/if}
+			<button type="button" class="btn btn-secondary" onclick={() => history.back()}>
 				{t.back}
 			</button>
 		</div>

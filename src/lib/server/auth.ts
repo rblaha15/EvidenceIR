@@ -1,6 +1,6 @@
-import { getAuth, type ActionCodeSettings, type CreateRequest, type DecodedIdToken, type UpdateRequest } from "firebase-admin/auth";
+import { getAuth, type CreateRequest, type DecodedIdToken, type UpdateRequest } from "firebase-admin/auth";
 import { app } from "./firebase";
-import { chunk } from "$lib/helpers/arrays";
+import "$lib/extensions"
 import type { LanguageCode } from "$lib/languages";
 
 const auth = getAuth(app);
@@ -16,7 +16,9 @@ export const checkToken = (token: string | undefined | null) =>
             })
     })
 
-export const checkAdmin = (token: DecodedIdToken) => token?.admin
+export const checkAdmin = (token: DecodedIdToken) => token.admin
+export const checkRegulus = (token: DecodedIdToken) => token.email!.endsWith('@regulus.cz')
+export const checkRegulusOrAdmin = (token: DecodedIdToken) => checkAdmin(token) || checkRegulus(token)
 
 export const getUsersByEmail = (emails: string[]) => promiseBy100(emails.map(email => ({ email })), ids => auth.getUsers(ids))
 export const getUserByEmail = (email: string) => auth.getUserByEmail(email)
@@ -29,7 +31,7 @@ export const enableUser = (uid: string) => auth.updateUser(uid, { disabled: fals
 export const removeUsers = (uids: string[]) => promiseBy100(uids, uids => auth.deleteUsers(uids))
 
 const promiseBy100 = <T, U>(arr: T[], mapper: (value: T[], index: number, array: T[][]) => Promise<U>): Promise<U[]> =>
-    Promise.all(chunk(arr, 100).map(mapper))
+    Promise.all(arr.chunk(100).map(mapper))
 
 export const removeAccounts = async () => {
     (await auth.deleteUsers((await auth.listUsers()).users.filter(u => u.disabled).map(u => u.uid))).errors.forEach(e => console.error(e))

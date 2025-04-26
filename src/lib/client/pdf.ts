@@ -1,32 +1,69 @@
-import type { LanguageCode } from "$lib/languages";
-import type { TranslationReference, Translations } from "$lib/translations";
-import type { DocumentSnapshot } from "firebase-admin/firestore";
-import type { SaveOptions } from "pdf-lib";
-import check from '$lib/client/pdf/check';
-import warranty from '$lib/client/pdf/warranty';
-import rroute from '$lib/client/pdf/rroute';
-import guide from '$lib/client/pdf/guide';
-import commissionProtocol from '$lib/client/pdf/commissionProtocol';
-import { type IR } from "$lib/client/firestore";
+import type { LanguageCode } from '$lib/languages';
+import type { TranslationReference } from '$lib/translations';
+import type { SaveOptions } from 'pdf-lib';
+import { p } from '$lib/Widget.svelte.js';
 
-export type Pdf = 'check' | 'warranty' | 'rroute' | 'guide' | 'commissionProtocol';export type PdfData = {
-    [P in Pdf]: PdfArgs;
+export const toPdfTypeName = (linkName: Pdf) =>
+    linkName.split('-')[0] as PdfTypeName;
+
+export type Pdf =
+    | 'check' | `warranty-${'' | 2 | 3 | 4}` | 'rroute' | 'guide' | `publicInstallationProtocol`
+    | 'heatPumpCommissionProtocol' | 'solarCollectorCommissionProtocol' | `installationProtocol-${number}`;
+type PdfTypeName = {
+    [P in Pdf]: P extends `${infer S}-${string}` ? S : P;
+}[Pdf]
+export type PdfInfo = {
+    [P in PdfTypeName]: PdfArgs;
 };
-export const pdfData: PdfData = {
-    check,
-    warranty,
-    rroute,
-    guide,
-    commissionProtocol,
+export const pdfInfo: PdfInfo = {
+    check: {
+        formName: 'check',
+        supportedLanguages: ['cs', 'de'],
+        title: `yearlyCheckTitle`,
+    },
+    warranty: {
+        formName: 'warranty',
+        supportedLanguages: ['cs', 'de'],
+        title: `hpWarranty`,
+    },
+    rroute: {
+        formName: 'rroute',
+        supportedLanguages: ['cs', 'de'],
+        title: `regulusRouteTitle`,
+    },
+    guide: {
+        formName: 'guide',
+        supportedLanguages: ['cs'],
+        title: p`Návod na přístup do regulátoru IR`,
+    },
+    heatPumpCommissionProtocol: {
+        formName: 'heatPumpCommissionProtocol',
+        supportedLanguages: ['cs', 'de'],
+        title: p`Protokol o uvedení tepelného čerpadla do trvalého provozu`,
+    },
+    solarCollectorCommissionProtocol: {
+        formName: 'solarCollectorCommissionProtocol',
+        supportedLanguages: ['cs'],
+        title: p`Protokol o uvedení solárního systému do trvalého provozu`,
+    },
+    installationProtocol: {
+        formName: 'installationProtocol',
+        supportedLanguages: ['cs'],
+        title: p`Instalační a servisní protokol`,
+        requiredRegulus: true,
+    },
+    publicInstallationProtocol: {
+        formName: 'installationProtocol',
+        supportedLanguages: ['cs'],
+        title: p`Instalační a servisní protokol`,
+        requiredRegulus: true,
+    },
 };
 export type PdfArgs = {
     formName: string;
     supportedLanguages: LanguageCode[];
     title: TranslationReference;
-    fileName: TranslationReference;
-    getFormData: (data: IR, t: Translations) => Promise<{
-        [fieldName: string]: string | null;
-    }>;
     saveOptions?: SaveOptions;
+    requiredAdmin?: boolean;
+    requiredRegulus?: boolean;
 };
-

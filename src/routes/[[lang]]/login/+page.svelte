@@ -1,38 +1,45 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { page } from '$app/stores';
-	import { logIn } from '$lib/client/auth';
+	import { page } from '$app/state';
+	import { logIn, setName } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
-	import { relUrl } from '$lib/helpers/stores';
 	import { type Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
+	import { setTitle } from '$lib/helpers/title.svelte';
+	import { startTechniciansListening, techniciansList } from '$lib/client/realtime';
+	import { get } from 'svelte/store';
+	import { relUrl } from '$lib/helpers/runes.svelte';
 
-	let nacita = true;
-	onMount(() => (nacita = false));
+	const t: Translations = page.data.translations;
 
-	const t: Translations = $page.data.translations;
+	const done = browser ? <'reset' | 'edit' | 'register'>page.url.searchParams.get('done') : null;
 
-	const done = browser ? <'reset' | 'edit' | 'register'>$page.url.searchParams.get('done') : null;
+	let email = $state(browser ? page.url.searchParams.get('email') ?? '' : '');
+	let password = $state('');
+	let redirect = $state('/new');
+	onMount(() => {
+		startTechniciansListening()
+		redirect = page.url.searchParams.get('redirect') ?? '/new'
+	});
 
-	let email = browser ? $page.url.searchParams.get('email') ?? '' : '';
-	let password: string;
-	let redirect: string = '/new';
-	onMount(() => (redirect = $page.url.searchParams.get('redirect') ?? '/new'));
-
-	$: signUpLink = $relUrl(
+	let signUpLink = $derived(relUrl(
 		`/signup?email=${email}&redirect=${redirect}`
-	);
-	$: resetLink = $relUrl(
+	));
+	let resetLink = $derived(relUrl(
 		`/newPassword?email=${email}&mode=resetEmail&redirect=${redirect}`
-	);
+	));
 
-	let error: string | null = null;
+	let error: string | null = $state(null);
 
 	function prihlasitSe() {
 		error = '';
 		logIn(email, password)
-			.then(() => (window.location.href = $page.url.origin + $relUrl(redirect)))
-			.catch((e) => {
+			.then(c => {
+				setName(get(techniciansList).find(t => t.email == c.user.email)?.name).then(() =>
+					window.location.href = page.url.origin + relUrl(redirect)
+				)
+			})
+			.catch(e => {
 				console.log(e.code);
 				if (e.code == 'auth/network-request-failed') {
 					error = t.checkInternet;
@@ -49,16 +56,16 @@
 				}
 			});
 	}
+	setTitle(t.logIn)
 </script>
 
-<h1>{t.logIn}</h1>
 {#if done}
 	<div class="alert alert-success" role="alert">
-		{#if done == 'edit'}
+		{#if done === 'edit'}
 			{t.passwordEdited}
-		{:else if done == 'register'}
+		{:else if done === 'register'}
 			{t.registered}
-		{:else if done == 'reset'}
+		{:else if done === 'reset'}
 			{t.passwordHasBeenReset}
 		{/if}
 	</div>
@@ -87,10 +94,10 @@
 		<p class="text-danger mt-3 mb-0">{@html error}</p>
 	{/if}
 	<div class="d-flex align-content-center mt-3">
-		<button type="submit" class="btn btn-primary me-2" on:click={prihlasitSe}>
+		<button type="submit" class="btn btn-primary me-2" onclick={prihlasitSe}>
 			{t.toLogIn}
 		</button>
-		<button type="button" class="btn btn-outline-secondary" on:click={() => history.back()}>
+		<button type="button" class="btn btn-secondary" onclick={() => history.back()}>
 			{t.back}
 		</button>
 	</div>

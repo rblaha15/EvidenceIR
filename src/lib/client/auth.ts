@@ -1,8 +1,14 @@
-import { getAuth, onAuthStateChanged, getAdditionalUserInfo, verifyPasswordResetCode, confirmPasswordReset, signInWithEmailAndPassword, type User, signOut } from 'firebase/auth';
-import { app } from './firebase';
+import {
+	confirmPasswordReset,
+	onAuthStateChanged,
+	signInWithEmailAndPassword,
+	signOut,
+	updateProfile,
+	type User,
+	verifyPasswordResetCode
+} from 'firebase/auth';
 import { derived, readonly, writable } from 'svelte/store';
-
-const auth = getAuth(app);
+import { auth } from '../../hooks.client';
 
 const _currentUser = writable(null as User | null);
 onAuthStateChanged(auth, (usr) => _currentUser.set(usr));
@@ -17,7 +23,7 @@ export const checkAuth = async () => {
 
 export const getToken = async () => {
 	await auth.authStateReady()
-	return auth.currentUser!.getIdToken(true)
+	return auth.currentUser!.getIdToken()
 }
 
 const _checkAdmin = async (user: User) =>
@@ -28,6 +34,14 @@ export const checkAdmin = async () => {
 	return await checkAuth() && _checkAdmin(auth.currentUser!)
 }
 
+const _checkRegulus = (user: User) =>
+	user.email?.endsWith('@regulus.cz');
+
+export const checkRegulusOrAdmin = async () => {
+	await auth.authStateReady()
+	return await checkAuth() && (_checkRegulus(auth.currentUser!) || _checkAdmin(auth.currentUser!))
+}
+
 export const isUserAdmin = derived(
 	currentUser,
 	(user, set) => {
@@ -36,12 +50,21 @@ export const isUserAdmin = derived(
 	false
 );
 
+export const isUserRegulusOrAdmin = derived(
+	currentUser,
+	(user, set) => {
+		(async () => set(user != null ? (_checkRegulus(user) || await checkAdmin()) : false))();
+	},
+	false
+);
+
+export const setName = (name: string | null | undefined) => updateProfile(auth.currentUser!, { displayName: name });
 export const logIn = (email: string, password: string) => signInWithEmailAndPassword(auth, email, password)
 
 export const verifyCode = (oobCode: string) => new Promise<string | null>(resolve => {
 	verifyPasswordResetCode(auth, oobCode)
 		.then(e => resolve(e))
-		.catch(_ => resolve(null))
+		.catch(() => resolve(null))
 })
 
 export const changePassword = (oobCode: string, newPassword: string) => confirmPasswordReset(auth, oobCode, newPassword)

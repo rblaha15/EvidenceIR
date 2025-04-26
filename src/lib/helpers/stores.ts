@@ -1,30 +1,42 @@
 import { browser } from '$app/environment';
-import { page } from '$app/stores';
-import { derived, get, writable, type Writable } from 'svelte/store';
+import { get, writable, type Writable } from 'svelte/store';
 
-export const relUrl = derived(page, (page) => (url: string) => "/" + page.params.lang + url);
+type GetStorable = {
+	<T>(key: string): Writable<T | undefined>;
+	<T>(key: string, defaultValue: T): Writable<T>;
+};
 
-export function storable<T>(defaultValue: T, key: string): Writable<T> {
-    const store = writable<T>(defaultValue);
-    const isBrowser = () => browser;
+export const storable: GetStorable = <T>(key: string, defaultValue?: T) => {
+	const store = writable<T | undefined>(defaultValue);
+	key = `storable_${key}`;
 
-    key = `storable-${key}`;
+	if (browser) {
+		const currentValue = localStorage.getItem(key);
+		if (currentValue != null && currentValue != 'undefined' && currentValue != 'null')
+			store.set(JSON.parse(currentValue));
+		else if (defaultValue != undefined) localStorage.setItem(key, JSON.stringify(defaultValue));
+	}
 
-    if (isBrowser() && localStorage.getItem(key))
-        store.set(JSON.parse(localStorage[key]));
+	const _storeable: Writable<T | undefined> = {
+		subscribe: store.subscribe,
+		set: (value) => {
+			if (browser)
+				if (value != undefined)
+					localStorage.setItem(key, JSON.stringify(value))
+				else
+					localStorage.removeItem(key);
+			store.set(value);
+		},
+		update: (updater) => {
+			const updated = updater(get(store));
 
-    return {
-        subscribe: store.subscribe,
-        set: value => {
-            if (isBrowser()) value != null ? localStorage.setItem(key, JSON.stringify(value)) : localStorage.removeItem(key)
-            store.set(value);
-        },
-        update: (updater) => {
-            const updated = updater(get(store));
-
-            if (isBrowser()) updated != null ? localStorage.setItem(key, JSON.stringify(updated)) : localStorage.removeItem(key)
-            store.set(updated);
-        }
-    };
-}
-
+			if (browser)
+				if (updated != undefined)
+					localStorage.setItem(key, JSON.stringify(updated))
+				else
+					localStorage.removeItem(key);
+			store.set(updated);
+		}
+	};
+	return _storeable;
+};

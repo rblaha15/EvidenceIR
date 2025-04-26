@@ -1,44 +1,55 @@
 <script lang="ts">
 	import { dev } from '$app/environment';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { checkAuth } from '$lib/client/auth';
 	import Navigation from '$lib/components/Navigation.svelte';
-	import { preferedLanguage } from '$lib/languages';
-	import { onMount } from 'svelte';
+	import { preferredLanguage } from '$lib/languages';
+	import { onMount, type Snippet } from 'svelte';
+	import { titleSvelte } from '$lib/helpers/title.svelte';
+	interface Props {
+		children?: Snippet;
+	}
 
-	const t = $page.data.translations;
+	let { children }: Props = $props();
 
-	let nacita = true;
+	const t = page.data.translations;
+
+	let nacita = $state(true);
 	onMount(async () => {
 		await checkAuth();
 		nacita = false;
 	});
 	onMount(() => {
 		import('bootstrap');
-		const currentLangLength = $page.params.lang?.length ?? -1;
-		if (!$page.data.areTranslationsFromRoute)
+		const currentLangLength = page.params.lang?.length ?? -1;
+		if (!page.data.areTranslationsFromRoute)
 			window.location.replace(
 				'/' +
-					preferedLanguage() +
-					$page.url.pathname.slice(currentLangLength + 1) +
-					$page.url.search
+					preferredLanguage() +
+					page.url.pathname.slice(currentLangLength + 1) +
+					page.url.search +
+					page.url.hash
 			);
 	});
 </script>
 
 <svelte:head>
 	<style lang="scss">
-		@import 'bootstrap/scss/bootstrap';
+		@use 'bootstrap/scss/bootstrap';
+		@use '../../lib/components/input-groups.css';
+
+		@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
 	</style>
+
+	<title>{dev ? '(dev) ' : ''}SEIR :: {$titleSvelte}</title>
 </svelte:head>
 
-<title>{dev ? '(dev) ' : ''}{t.longAppName}</title>
-
 {#if nacita}
-	<div class="spinner-border text-danger m-2" />
+	<div class="spinner-border text-danger m-2"></div>
 {:else}
 	<Navigation {t} />
 	<div class="container my-3">
-		<slot />
+		<h1>{$titleSvelte}</h1>
+		{@render children?.()}
 	</div>
 {/if}

@@ -1,16 +1,20 @@
 const node_fetch = fetch;
 
+export const regulusCRN = 45317020
+
 const companyOverrides = {
     4466601609: {
         obchodniJmeno: "Regulus Wärmetechnik GmbH",
         sidlo: { textovaAdresa: "Ruhrstraße 22, 67574 Osthofen, Deutschland" },
     }
-}
+} as Record<string, { obchodniJmeno: string; sidlo: { textovaAdresa: string; }; }>
 
 export const nazevAdresaFirmy = async (ico: string, fetch: typeof node_fetch = node_fetch) => {
 
     if (Object.keys(companyOverrides).includes(ico))
-        return (<Record<string, { obchodniJmeno: string; sidlo: { textovaAdresa: string; }; }>>companyOverrides)[ico]
+        return (companyOverrides)[ico]
+
+    if (ico.length != 8) return undefined
 
     let response;
     try {
@@ -29,7 +33,9 @@ export const nazevAdresaFirmy = async (ico: string, fetch: typeof node_fetch = n
 export const nazevFirmy = async (ico: string, fetch: typeof node_fetch = node_fetch) => {
 
     if (Object.keys(companyOverrides).includes(ico))
-        return (<Record<string, { obchodniJmeno: string; sidlo: { textovaAdresa: string; }; }>>companyOverrides)[ico].obchodniJmeno
+        return (companyOverrides)[ico].obchodniJmeno
+
+    if (ico.length != 8) return undefined
 
     let response;
     try {

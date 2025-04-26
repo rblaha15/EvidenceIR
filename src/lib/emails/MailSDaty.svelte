@@ -1,52 +1,61 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import type { Data } from '$lib/Data';
-	import type { Translations } from '$lib/translations';
-	import {
-		DvojVybiratkova,
-		MultiZaskrtavatkova,
-		Nadpisova,
-		p,
-		Pisatkova,
-		Prepinatkova,
-		Radiova,
-		Textova,
-		Vec,
-		Vybiratkova,
-		Zaskrtavatkova
-	} from '$lib/Vec';
-	import type { User } from 'firebase/auth';
+    import type { Data } from '$lib/forms/Data';
+    import { extractIRIDFromParts } from '$lib/client/firestore';
+    import type { Translations } from '$lib/translations';
+    import {
+        CheckboxWidget,
+        ChooserWidget,
+        DoubleChooserWidget,
+        InputWidget,
+        MultiCheckboxWidget,
+        RadioWidget,
+        SwitchWidget,
+        TextWidget,
+        TitleWidget
+    } from '$lib/Widget.svelte.js';
+    import type { User } from 'firebase/auth';
+    import type { Form } from '$lib/forms/Form';
 
-	export let data: Data;
-	export let user: User;
-	export let t: Translations;
+    interface Props {
+        data: Data;
+        user: User;
+        t: Translations;
+        origin: string;
+    }
 
-	$: list = (Object.values(data) as Data[keyof Data][]).flatMap(
-		(obj) => Object.values(obj) as Vec<Data, any>[]
-	);
+    let {
+        data,
+        user,
+        t,
+        origin
+    }: Props = $props();
+
+    let list = $derived((data as Form<Data>).getValues().flatMap(obj => obj.getValues()));
+
+    const irid = extractIRIDFromParts(data.ir.typ.value.first!, data.ir.cislo.value);
 </script>
 
-<p><a href={$page.url.host + `/detail/${data.ir.cislo.value.replace(' ', '')}`}>Odkaz na podrobnosti evidence</a></p>
+<p>Odkaz na podrobnosti evidence: <a href={origin + `/detail/${irid}`}>{origin + `/detail/${irid}`}</a></p>
 
 {#each list as vec}
-	{#if vec instanceof Nadpisova && vec.zobrazit(data)}
-		<h2>{t.get(vec.nazev(data))}</h2>
-	{:else if vec instanceof Textova && vec.zobrazit(data)}
-		<p>{t.get(vec.nazev(data))}</p>
-	{:else if vec instanceof Pisatkova && vec.zobrazit(data)}
-		<p><b>{t.get(vec.nazev(data))}</b>: {vec.value}</p>
-	{:else if vec instanceof DvojVybiratkova && vec.zobrazit(data)}
-		<p><b>{t.get(vec.nazev(data))}</b>: {t.getN(vec.value.first) ?? ''} {t.getN(vec.value.second) ?? ''}</p>
-	{:else if vec instanceof Vybiratkova && vec.zobrazit(data)}
-		<p><b>{t.get(vec.nazev(data))}</b>: {t.getN(vec.value) ?? ''}</p>
-	{:else if vec instanceof Radiova && vec.zobrazit(data)}
-		<p><b>{t.get(vec.nazev(data))}</b>: {t.getN(vec.value) ?? ''}</p>
-	{:else if vec instanceof Prepinatkova && vec.zobrazit(data)}
-		<p><b>{t.get(vec.nazev(data))}</b>: {t.get(vec.value ? vec.moznosti[1] : vec.moznosti[0])}</p>
-	{:else if vec instanceof MultiZaskrtavatkova && vec.zobrazit(data)}
-		<p><b>{t.get(vec.nazev(data))}</b>: {vec.value.map(s => t.get(s)).join(', ')}</p>
-	{:else if vec instanceof Zaskrtavatkova && vec.zobrazit(data)}
-		<p><b>{t.get(vec.nazev(data))}</b>: {vec.value ? t.yes : t.no}</p>
-	{/if}
+    {#if vec instanceof TitleWidget && vec.showTextValue(data)}
+        {#await vec.text(data, t) then text}<h2>{t.get(text)}</h2>{/await}
+    {:else if vec instanceof TextWidget && vec.showTextValue(data)}
+        {#await vec.text(data, t) then text}<p>{t.get(text)}</p>{/await}
+    {:else if vec instanceof InputWidget && vec.showTextValue(data)}
+        <p><b>{t.get(vec.label(data, t))}</b>: {vec.value}</p>
+    {:else if vec instanceof DoubleChooserWidget && vec.showTextValue(data)}
+        <p><b>{t.get(vec.label(data, t))}</b>: {t.get(vec.value.first) ?? ''} {t.get(vec.value.second) ?? ''}</p>
+    {:else if vec instanceof ChooserWidget && vec.showTextValue(data)}
+        <p><b>{t.get(vec.label(data, t))}</b>: {t.get(vec.value) ?? ''}</p>
+    {:else if vec instanceof RadioWidget && vec.showTextValue(data)}
+        <p><b>{t.get(vec.label(data, t))}</b>: {t.get(vec.value) ?? ''}</p>
+    {:else if vec instanceof SwitchWidget && vec.showTextValue(data)}
+        <p><b>{t.get(vec.label(data, t))}</b>: {t.get(vec.value ? vec.options[1] : vec.options[0])}</p>
+    {:else if vec instanceof MultiCheckboxWidget && vec.showTextValue(data)}
+        <p><b>{t.get(vec.label(data, t))}</b>: {vec.value.map(s => t.get(s)).join(', ')}</p>
+    {:else if vec instanceof CheckboxWidget && vec.showTextValue(data)}
+        <p><b>{t.get(vec.label(data, t))}</b>: {vec.value ? t.yes : t.no}</p>
+    {/if}
 {/each}
 <p><b>Zaevidoval</b>: {user.email}</p>
