@@ -120,6 +120,7 @@ const en: PlainTranslations = {
     yearlyCheckTitle: `Description of operations during the preventive annual inspection of an air heat pump`,
     searchCompanyInList: 'Search company in list',
     searchRepresentative: 'Search representative',
+    representative: 'Representative',
     newPassword: 'New Password',
     sendConfirmEmail: 'Send confirmation email',
     emailNotSent: t`The email could not be sent: ${'status'} ${'statusText'}`,
