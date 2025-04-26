@@ -208,8 +208,10 @@ const sk: PlainTranslations = {
         currency: '€',
     },
     photos: `Fotky`,
-    addPhoto: `Pridať fotku`,
-    addPhotos: `Pridať fotky`,
+    selectPhoto: 'Vybrať fotku',
+    selectPhotos: 'Vybrať fotky',
+    capturePhoto: 'Odfotiť fotku',
+    capturePhotos: 'Odfotiť fotky',
     noPhotos: `Zatiaľ ste nepridali žiadne fotky`,
     remove: `Odstrániť`,
 };

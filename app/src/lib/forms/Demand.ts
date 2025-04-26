@@ -31,7 +31,7 @@ import { page } from '$app/state';
 import { companies } from '$lib/helpers/companies';
 import MailDemand from '$lib/emails/MailDemand.svelte';
 import type { Attachment } from "nodemailer/lib/mailer";
-import { getPhoto } from '$lib/components/widgets/PhotoSelector.svelte';
+import { getPhoto, removePhoto } from '$lib/components/widgets/PhotoSelector.svelte';
 
 interface Demand extends Form<Demand> {
     contacts: {
@@ -660,8 +660,10 @@ const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Technician
             props: raw.other.representative!,
         });
 
-        if (response!.ok) return true;
-        else editResult({
+        if (response!.ok) {
+            raw.other.photos.forEach(photoId => removePhoto(photoId))
+            return true;
+        } else editResult({
             text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false
