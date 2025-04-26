@@ -137,6 +137,7 @@ export default {
     filledYearlyCheck: `Roční kontroly TČ`,
     searchCompanyInList: `Vyhledat firmu v seznamu`,
     searchRepresentative: `Vyhledat zástupce`,
+    representative: `Zástupce`,
     newPassword: `Nové heslo`,
     sendConfirmEmail: `Odeslat potvrzovací email`,
     passwordReset: `Obnovení hesla`,

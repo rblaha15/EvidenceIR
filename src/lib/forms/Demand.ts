@@ -1,5 +1,4 @@
-import { type Form } from '$lib/forms/Form';
-import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
+import { type Form, type Raw } from '$lib/forms/Form';
 import {
     CheckboxWidget,
     CheckboxWithChooserWidget,
@@ -12,18 +11,25 @@ import {
     InputWithSuggestionsWidget,
     MultiCheckboxWidget,
     p,
-    SearchWidget,
+    SearchWidget, type SeCh,
     TextWidget,
     TitleWidget
 } from '$lib/Widget.svelte';
-import type { Company, FriendlyCompanies } from '$lib/client/realtime';
-import { companies } from '$lib/helpers/companies';
-import { dev } from '$app/environment';
+import { type Company, type FriendlyCompanies, getIsOnline, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
+import { version, dev, browser } from '$app/environment';
 import products from '$lib/helpers/products';
 import { languageCodes } from '$lib/languages';
-import { getTranslations } from '$lib/translations';
+import { getTranslations, type Translations } from '$lib/translations';
+import type { User } from 'firebase/auth';
+import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
+import { get } from 'svelte/store';
+import { currentUser } from '$lib/client/auth';
+import { sendEmail, SENDER } from '$lib/client/email';
+import { page } from '$app/state';
+import { companies } from '$lib/helpers/companies';
+import MailDemand from '$lib/emails/MailDemand.svelte';
 
-export interface Demand extends Form<Demand> {
+interface Demand extends Form<Demand> {
     contacts: {
         title: TitleWidget<Demand>
         demandOrigin: ChooserWidget<Demand>
@@ -38,7 +44,7 @@ export interface Demand extends Form<Demand> {
         assemblyCompanySearch: SearchWidget<Demand, Company, true>
         assemblyCompanyCRN: InputWidget<Demand>
         note: InputWidget<Demand>
-    }
+    };
     photovoltaicPowerPlant: {
         title: TitleWidget<Demand>
         titleCurrent: TitleWidget<Demand>
@@ -76,7 +82,7 @@ export interface Demand extends Form<Demand> {
         network: CheckboxWithInputWidget<Demand>
         charging: CheckboxWidget<Demand>
         note: InputWidget<Demand>
-    }
+    };
     objectDetails: {
         title: TitleWidget<Demand>
         heatLost: InputWidget<Demand>
@@ -90,7 +96,7 @@ export interface Demand extends Form<Demand> {
         fuelType2: InputWidget<Demand>
         fuelConsumption2: InputWithChooserWidget<Demand>
         note: InputWidget<Demand>
-    }
+    };
     system: {
         title: TitleWidget<Demand>
         hPType: ChooserWidget<Demand>
@@ -104,7 +110,7 @@ export interface Demand extends Form<Demand> {
         hotWaterCirculation: CheckboxWidget<Demand>
         wantsPool: CheckboxWidget<Demand>
         note: InputWidget<Demand>
-    }
+    };
     pool: {
         title: TitleWidget<Demand>
         usagePeriod: ChooserWidget<Demand>
@@ -118,7 +124,7 @@ export interface Demand extends Form<Demand> {
         coverage: ChooserWidget<Demand>
         desiredTemperature: InputWidget<Demand>
         note: InputWidget<Demand>
-    }
+    };
     additionalSources: {
         title: TitleWidget<Demand>
         heatingTitle: TitleWidget<Demand>
@@ -134,7 +140,7 @@ export interface Demand extends Form<Demand> {
         hotWaterFireplace: CheckboxWidget<Demand>
         hotWaterOther: InputWidget<Demand>
         note: InputWidget<Demand>
-    }
+    };
     accessories: {
         title: TitleWidget<Demand>
         hose: CheckboxWithChooserWidget<Demand>
@@ -142,7 +148,10 @@ export interface Demand extends Form<Demand> {
         wallSupportBracket: CheckboxWithChooserWidget<Demand>
         roomUnitsAndSensors: CountersWidget<Demand>
         note: InputWidget<Demand>
-    }
+    };
+    other: {
+        representative: SearchWidget<Demand, Technician>
+    };
 }
 
 const origins = {
@@ -158,11 +167,11 @@ const origins = {
     )
 } as const;
 
-const fve = (d: Demand) => d.contacts.demandSubject.value.includes(`demand.contacts.fve`)
-const hp = (d: Demand) => d.contacts.demandSubject.value.includes(`demand.contacts.heatPump`)
-const pool = (d: Demand) => hp(d) && d.system.wantsPool.value
+const fve = (d: Demand) => d.contacts.demandSubject.value.includes(`demand.contacts.fve`);
+const hp = (d: Demand) => d.contacts.demandSubject.value.includes(`demand.contacts.heatPump`);
+const pool = (d: Demand) => hp(d) && d.system.wantsPool.value;
 
-export const defaultDemand = (): Demand => ({
+const defaultDemand = (): Demand => ({
     contacts: {
         title: new TitleWidget({ text: `demand.contacts.contacts` }),
         demandOrigin: new ChooserWidget({ options: origins.keys(), required: true, label: `demand.contacts.demandOrigin` }),
@@ -173,7 +182,10 @@ export const defaultDemand = (): Demand => ({
         name: new InputWidget({ required: false, label: `demand.contacts.name`, autocapitalize: 'words' }),
         street: new InputWidget({ required: false, label: `demand.contacts.street`, autocapitalize: 'sentences' }),
         city: new InputWidget({ required: false, label: `demand.contacts.city`, autocapitalize: 'words' }),
-        zip: new InputWidget({ required: false, label: `demand.contacts.zip`, type: 'number', inputmode: 'numeric' }),
+        zip: new InputWidget({
+            required: false, label: `demand.contacts.zip`, type: 'number', inputmode: 'numeric',
+            onError: `wrongZIPFormat`, regex: /^\d{3} \d{2}$/, maskOptions: { mask: `000 00` },
+        }),
         phone: new InputWidget({ required: false, label: `demand.contacts.phone`, inputmode: 'tel' }),
         email: new InputWidget({ required: false, label: `demand.contacts.email`, type: 'email', inputmode: 'email' }),
         assemblyCompanySearch: new SearchWidget<Demand, Company, true>({
@@ -188,7 +200,7 @@ export const defaultDemand = (): Demand => ({
                     d.contacts.assemblyCompanyCRN.setValue(d, company.crn);
             }
         }),
-        assemblyCompanyCRN: new InputWidget({ required: false, label: `demand.contacts.email`, type: 'email', inputmode: 'email' }),
+        assemblyCompanyCRN: new InputWidget({ required: false, label: `demand.contacts.crn`, type: 'number', inputmode: 'numeric' }),
         note: new InputWidget({ required: false, label: `note`, }),
     },
     photovoltaicPowerPlant: {
@@ -398,90 +410,249 @@ export const defaultDemand = (): Demand => ({
         }),
         note: new InputWidget({ required: false, label: `note` }),
     },
-})
+    other: {
+        representative: new SearchWidget<Demand, Technician>({
+            label: `representative`, items: [], getSearchItem: t => ({
+                pieces: [
+                    { text: p`${t.name}`, width: .4 },
+                    { text: p`${t.koNumber}`, width: .1 },
+                    { text: p`${t.email}`, width: .5 },
+                ],
+            }), show: false, required: true,
+        })
+    },
+});
 
-const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies]]> = {
+const fveR = (d: Raw<Demand>) => d.contacts.demandSubject.includes(`demand.contacts.fve`);
+const hpR = (d: Raw<Demand>) => d.contacts.demandSubject.includes(`demand.contacts.heatPump`);
+const poolR = (d: Raw<Demand>) => hpR(d) && d.system.wantsPool;
+
+const seCh = (t: Translations, v: SeCh) => v.checked ? t.get(v.chosen ?? '') : t.no
+
+const xml = (d: Raw<Demand>, user: User, t: Translations, dem: Demand) => `
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="dotaznik_app.xsl"?>
+
+<!-- 
+Tento soubor byl vygenerován automaticky aplikací Regulus SEIR
+Verze dokumentu: 3.0 (Zaveden ve verzi aplikace 5.1.1 (Android) a 1.2.0 (SEIR))
+Verze aplikace: 1.2.0 (${version}) (${dev ? 'DEV' : browser ? 'BROWSER' : 'UNKNOWN'})
+-->
+
+<!--
+Změny ve verzi 3.0 oproti verzi 2.3:
+- Přidána všechna pole "řeší" v sekci /xml/system
+  - Né každá poptávka nyní řeší TČ
+- Přidána fotovoltaická elektrárna
+  - Přidána sekce /xml/fve - pouze pokud je poptávána
+  - Sekce  /xml/detailobjektu, /xml/tc, /xml/zdrojeTop, /xml/tv, /xml/zdrojeTV, /xml/bazen, /xml/prislusenstvi jsou zahrnuty pouze pokud je poptávané TČ
+  - Přidána poznámka k FVE (/xml/poznamka/fve)
+-->
+
+<!--
+Změny ve verzi 2.3 oproti verzi 2.2:
+- Přidán kód1 (/xml/system/kod1)
+  - Možnosti jsou: _dotazEmail, _dotaznikVYS, _dotazOsobně, _poptávkaDis, _poptávkaMF, _poptávkaPROJ 
+  - V DEBUG verzi aplikace lze zadat i možnost _debug, ta by se ale nikdy neměla objevit v opravdových poptávkách
+- Pokojová čidla a jednotky sjednoceny do jednoho pole (/xml/prislusenstvi/pokojova_cidla_a_jednotky)
+  - Nyní mohou obsahovat více možností, oddělených čárkou
+  - Každá možnost má před sebou vždy specifikován počet položek pomocí písmene x 
+  - Název žádné jednotky ani čidla neobsahuje čárku
+  - Příklad: \`<pokojove_cidlo>1x RS 10, 2x RDC</pokojove_cidlo>\`
+-->
+
+<xml>
+    <system>
+        <kod1>${t.get(d.contacts.demandOrigin!)}</kod1>
+        <resi_tc>${hpR(d) ? t.yes : t.no}</resi_tc>
+        <resi_fve>${fveR(d) ? t.yes : t.no}</resi_fve>
+        <resi_sol>${d.strings.no}</resi_sol>
+        <resi_rek>${d.strings.no}</resi_rek>
+        <resi_krb>${d.strings.no}</resi_krb>
+        <resi_konz>${d.strings.no}</resi_konz>
+        <resi_jine>${d.strings.no}</resi_jine>
+        <resi_jine_uvedte>${d.strings.no}</resi_jine_uvedte>
+        <resi_doporuc>${d.strings.no}</resi_doporuc>
+        <cislo_ko>${d.other.representative!.koNumber}</cislo_ko>
+        <odesilatel>${user.email}</odesilatel>
+    </system>
+    <kontakt>
+        <jmeno>${d.contacts.name}</jmeno>
+        <prijmeni>${d.contacts.surname}</prijmeni>
+        <telefon>${d.contacts.phone}</telefon>
+        <email>${d.contacts.email}</email>
+        <ulice>${d.contacts.street}</ulice>
+        <psc>${d.contacts.zip}</psc>
+        <mesto>${d.contacts.city}</mesto>
+        <partner_ico>${d.contacts.assemblyCompanyCRN}</partner_ico>
+    </kontakt>${hpR(d) ? `
+    <detailobjektu>
+        <os_popis>${t.get(d.system.heatingSystem ?? '')}</os_popis>
+        <tepelna_ztrata>${d.objectDetails.heatLost}</tepelna_ztrata>
+        <rocni_spotreba_vytapeni>${d.objectDetails.heatNeedsForHeating}</rocni_spotreba_vytapeni>
+        <rocni_spotreba_tv>${d.objectDetails.heatNeedsForHotWater}</rocni_spotreba_tv>
+        <vytapena_plocha>${d.objectDetails.heatedArea}</vytapena_plocha>
+        <vytapeny_objem>${d.objectDetails.heatedVolume}</vytapeny_objem>
+        <spotreba_paliva_druh>${d.objectDetails.fuelType}</spotreba_paliva_druh>
+        <spotreba_paliva_mnozstvi>${d.objectDetails.fuelConsumption.text}</spotreba_paliva_mnozstvi>
+        <spotreba_paliva_jednotky>${t.get(d.objectDetails.fuelConsumption.chosen ?? '')}</spotreba_paliva_jednotky>
+        <spotreba_paliva_2_druh>${d.objectDetails.fuelType2}</spotreba_paliva_2_druh>
+        <spotreba_paliva_2_mnozstvi>${d.objectDetails.fuelConsumption2.text}</spotreba_paliva_2_mnozstvi>
+        <spotreba_paliva_2_jednotky>${t.get(d.objectDetails.fuelConsumption2.chosen ?? '')}</spotreba_paliva_2_jednotky>
+        <rocni_platba_vytapeni>${d.objectDetails.heatingCosts} ${d.strings.currency}</rocni_platba_vytapeni>
+    </detailobjektu>
+    <tc>
+        <typ>${t.get(d.system.hPType ?? '')}</typ>
+        <model>${t.get(d.system.hPModel ?? '')}</model>
+        <nadrz>${t.get(d.system.thermalStoreType.first ?? '')} ${t.get(d.system.thermalStoreType.second ?? '')} {d.system.thermalStoreVolume}</nadrz>
+        <vnitrni_jednotka>${t.get(d.system.indoorUnitType ?? '')}</vnitrni_jednotka>
+    </tc>
+    <zdrojeTop>
+        <topne_teleso>${seCh(t, d.additionalSources.heatingHeatingElementInStore)}</topne_teleso>
+        <elektrokotel>${seCh(t, d.additionalSources.heatingElectricBoiler)}</elektrokotel>
+        <plyn_kotel>${seCh(t, d.additionalSources.heatingGasBoiler)}</plyn_kotel>
+        <krb_KTP>${seCh(t, d.additionalSources.heatingFireplace)}</krb_KTP>
+        <jiny_zdroj>${d.additionalSources.heatingOther}</jiny_zdroj>
+    </zdrojeTop>
+    <tv>
+        <zasobnik>${t.get(d.system.waterTankType ?? '')} ${d.system.waterTankVolume}</zasobnik>
+        <cirkulace>${d.system.hotWaterCirculation ? t.yes : t.no}</cirkulace>
+    </tv>
+    <zdrojeTV>
+        <topne_teleso>${seCh(t, d.additionalSources.hotWaterHeatingElementInStore)}</topne_teleso>
+        <elektrokotel>${d.additionalSources.hotWaterElectricBoiler ? t.yes : t.no}</elektrokotel>
+        <plyn_kotel>${d.additionalSources.hotWaterGasBoiler ? t.yes : t.no}</plyn_kotel>
+        <krb_KTP>${d.additionalSources.hotWaterFireplace ? t.yes : t.no}</krb_KTP>
+        <jiny_zdroj>${d.additionalSources.hotWaterOther}</jiny_zdroj>
+    </zdrojeTV>
+    <bazen>
+        <ohrev>${d.system.wantsPool ? t.yes : t.no}</ohrev>
+        <doba_vyuzivani>${poolR(d) ? '' : t.get(d.pool.usagePeriod ?? '')}</doba_vyuzivani>
+        <umisteni>${poolR(d) ? '' : t.get(d.pool.placement ?? '')}</umisteni>
+        <zakryti>${poolR(d) ? '' : t.get(d.pool.coverage ?? '')}</zakryti>
+        <tvar>${poolR(d) ? '' : t.get(d.pool.shape ?? '')}</tvar>
+        <sirka>${d.pool.width}</sirka>
+        <delka>${d.pool.length}</delka>
+        <hloubka>${d.pool.depth}</hloubka>
+        <prumer>${d.pool.radius}</prumer>
+        <teplota>${d.pool.desiredTemperature}</teplota>
+        <voda>${poolR(d) ? '' : t.get(d.pool.waterType ?? '')}</voda>
+    </bazen>
+    <prislusenstvi>
+        <hadice>${seCh(t, d.accessories.hose)}</hadice>
+        <topny_kabel>${seCh(t, d.accessories.heatingCable)}</topny_kabel>
+        <drzak_na_tc>${seCh(t, d.accessories.wallSupportBracket)}</drzak_na_tc>
+        <pokojova_cidla_a_jednotky>${dem.accessories.roomUnitsAndSensors.options(dem)
+            .zip(d.accessories.roomUnitsAndSensors)
+            .filter(([, c]) => c > 0)
+            .map(([k, c]) => `${c}x ${t.get(k)}`)}</pokojova_cidla_a_jednotky>
+    </prislusenstvi>` : ''}${fveR(d) ? `
+    <fve>
+        <stavajici_topeni>${d.photovoltaicPowerPlant.currentHeating}</stavajici_topeni>
+        <stavajici_tuv>${d.photovoltaicPowerPlant.currentHotWater}</stavajici_tuv>
+        <stavajici_zasobniky>${d.photovoltaicPowerPlant.currentTanks}</stavajici_zasobniky>
+        <stavajici_spotreba>${d.photovoltaicPowerPlant.currentConsumption}</stavajici_spotreba>
+        <jistic>${d.photovoltaicPowerPlant.breakerSize}</jistic>
+        <sazba>${d.photovoltaicPowerPlant.tariff}</sazba>
+        <umisteni_rozvadece>${d.photovoltaicPowerPlant.breakerBoxLocation}</umisteni_rozvadece>
+        <pozadovany_vykon>${d.photovoltaicPowerPlant.requiredPower}</pozadovany_vykon>
+        <typ_budovy_instalace>${d.photovoltaicPowerPlant.locationBuildingType}</typ_budovy_instalace>
+        <hromosvod>${d.photovoltaicPowerPlant.lightningRod ? t.yes : t.no}</hromosvod>
+        <material_krytiny>${d.photovoltaicPowerPlant.roofMaterial}</material_krytiny>
+        <typ_tasek>${d.photovoltaicPowerPlant.tileType}</typ_tasek>
+        <stari_krytiny>${d.photovoltaicPowerPlant.roofAge}</stari_krytiny>
+        <pouzit_optimizatory>${d.photovoltaicPowerPlant.useOptimizers ? t.yes : t.no}</pouzit_optimizatory>
+        <rozmer_1>${d.photovoltaicPowerPlant.size1}</rozmer_1>
+        <orientace_1>${d.photovoltaicPowerPlant.orientation1}</orientace_1>
+        <sklon_1>${d.photovoltaicPowerPlant.slope1}</sklon_1>
+        <rozmer_2>${d.photovoltaicPowerPlant.size2}</rozmer_2>
+        <orientace_2>${d.photovoltaicPowerPlant.orientation2}</orientace_2>
+        <sklon_2>${d.photovoltaicPowerPlant.slope2}</sklon_2>
+        <rozmer_3>${d.photovoltaicPowerPlant.size3}</rozmer_3>
+        <orientace_3>${d.photovoltaicPowerPlant.orientation3}</orientace_3>
+        <sklon_3>${d.photovoltaicPowerPlant.slope3}</sklon_3>
+        <rozmer_4>${d.photovoltaicPowerPlant.size4}</rozmer_4>
+        <orientace_4>${d.photovoltaicPowerPlant.orientation4}</orientace_4>
+        <sklon_4>${d.photovoltaicPowerPlant.slope4}</sklon_4>
+        <baterie>${d.photovoltaicPowerPlant.battery.checked ? t.yes : t.no}</baterie>
+        <baterie_kapacita>${d.photovoltaicPowerPlant.battery.text}</baterie_kapacita>
+        <voda>${d.photovoltaicPowerPlant.water ? t.yes : t.no}</voda>
+        <sit>${d.photovoltaicPowerPlant.network.checked ? t.yes : t.no}</sit>
+        <sit_vykon>${d.photovoltaicPowerPlant.network.text}</sit_vykon>
+        <dobijeni>${d.photovoltaicPowerPlant.charging ? t.yes : t.no}</dobijeni>
+    </fve>` : ''}
+    <poznamka>
+        <kontakty>${d.contacts.note}</kontakty>
+        <detail_objektu>${d.objectDetails.note}</detail_objektu>
+        <tv_tc_nadrz_a_os>${d.system.note}</tv_tc_nadrz_a_os>
+        <bazen>${d.pool.note}</bazen>
+        <doplnkove_zdroje>${d.additionalSources.note}</doplnkove_zdroje>
+        <prislusenstvi>${d.accessories.note}</prislusenstvi>
+        <fve>${d.photovoltaicPowerPlant.note}</fve>
+    </poznamka>
+</xml>`;
+
+const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Technician[], User | null]]> = {
     storeName: 'stored_demand',
     defaultData: defaultDemand,
-    saveData: async (/*raw, edit, data, editResult, t, send*/) => {
-        // const irid = extractIRIDFromRawData(raw);
-        //
-        // if (!edit && irid && getIsOnline() && await existuje(irid)) {
-        //     editResult({
-        //         red: true, load: false,
-        //         text: t.irExistsHtml.parseTemplate({ link: relUrl(`/detail/${irid}`) }),
-        //     });
-        //     return;
-        // }
-        // if (!getIsOnline()) {
-        //     editResult({ red: true, text: t.offline, load: false });
-        //     return;
-        // }
-        //
-        // const user = get(currentUser)!;
-        //
-        // if (edit) await upravitEvidenci(raw);
-        // else await novaEvidence({ evidence: raw, kontroly: {}, users: [user.email!], installationProtocols: [] });
-        //
-        // const userAddress = {
-        //     address: user.email!,
-        //     name: user.displayName ?? '',
-        // };
-        // const doNotSend = edit && (!send || !dev);
-        //
-        // if (raw.vzdalenyPristup.chce && !doNotSend) {
-        //     const t = getTranslations('cs');
-        //     const montazka = (await nazevFirmy(raw.montazka.ico)) ?? null;
-        //     const uvadec = (await nazevFirmy(raw.uvedeni.ico)) ?? null;
-        //
-        //     const response = await sendEmail({
-        //         from: SENDER,
-        //         replyTo: userAddress,
-        //         to: dev ? 'radek.blaha.15@gmail.com' : 'david.cervenka@regulus.cz',
-        //         subject: `Založení RegulusRoute k ${nazevIR(raw.ir)}`,
-        //         attachments: [{
-        //             content: generateXML(data, t),
-        //             contentType: 'application/xml',
-        //             filename: `Evidence ${irid}.xml`
-        //         }],
-        //         pdf: {
-        //             link: `/cs/detail/${irid}/pdf/rroute`,
-        //             title: 'Souhlas RegulusRoute.pdf',
-        //         },
-        //         component: MailRRoute,
-        //         props: { e: raw, montazka, uvadec, t },
-        //     });
-        //     console.log(response);
-        // }
-        //
-        // const response = doNotSend ? undefined : await sendEmail({
-        //     from: SENDER,
-        //     replyTo: userAddress,
-        //     to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
-        //     cc: dev ? undefined : userAddress,
-        //     subject: edit
-        //         ? `Úprava evidence regulátoru ${nazevIR(raw.ir)}`
-        //         : `Nově zaevidovaný regulátor ${nazevIR(raw.ir)}`,
-        //     component: MailSDaty,
-        //     props: { data, t, user, origin: page.url.origin },
-        // });
-        //
-        // if (doNotSend || response!.ok) return true
-        // else editResult({
-        //     text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
-        //     red: true,
-        //     load: false
-        // });
+    saveData: async (raw, _, data, editResult, t) => {
+        if (!getIsOnline()) {
+            editResult({ red: true, text: t.offline, load: false });
+            return;
+        }
+
+        const user = get(currentUser)!;
+
+        const userAddress = {
+            address: user.email!,
+            name: user.displayName ?? '',
+        };
+
+        const name = raw.contacts.name;
+        const surname = raw.contacts.surname;
+
+        const cs = getTranslations('cs');
+        const response = await sendEmail({
+            from: SENDER,
+            replyTo: userAddress,
+            to: dev ? 'radek.blaha.15@gmail.com'
+                : page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz',
+            cc: dev ? undefined : userAddress,
+            subject: `Poptávka z aplikace – OSOBA: ${name} ${surname}`,
+            attachments: [{
+                content: xml(raw, user, cs, data),
+                contentType: 'application/xml',
+                filename: `Dotazník ${name} ${surname}.xml`
+            }],
+            component: MailDemand,
+            props: raw.other.representative!,
+        });
+
+        if (response!.ok) return true;
+        else editResult({
+            text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
+            red: true,
+            load: false
+        });
     },
     createWidgetData: d => d,
     title: t => t.demand.demandForm,
     onMount: async () => {
-
+        await startTechniciansListening()
     },
     storeEffects: [
         [(_, d, [$companies]) => {
             d.contacts.assemblyCompanySearch.items = () => $companies.assemblyCompanies;
         }, [companies]],
+        [(_, d, [$techniciansList, $currentUser]) => {
+            const me = $techniciansList.find(t => $currentUser?.email == t.email);
+            d.other.representative.items = () => $techniciansList
+                .filter(t => t.email.endsWith('cz'))
+                .toSorted((a, b) => a.name.split(" ").at(-1)!
+                    .localeCompare(b.name.split(" ").at(-1)!));
+            d.other.representative.setValue(d, me ?? d.other.representative.value);
+            d.other.representative.show = () => !me;
+        }, [techniciansList, currentUser]],
     ],
     isSendingEmails: true,
 };

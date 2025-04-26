@@ -124,6 +124,7 @@ const de: PlainTranslations = {
     filledYearlyCheck: `Durchgeführte jährliche Überprüfung der Wärmepumpe`,
     searchCompanyInList: `Der Firma in der Liste suchen`,
     searchRepresentative: 'Kontaktperson suchen',
+    representative: 'Kontaktperson',
     newPassword: `Neues Passwort`,
     sendConfirmEmail: `Bestätigungs-E-Mail senden`,
     passwordReset: `Passwort zurücksetzen`,

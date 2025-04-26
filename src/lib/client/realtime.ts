@@ -26,6 +26,7 @@ export type Technician = {
 	name: string;
 	phone: string;
 	initials: string;
+	koNumber: string;
 };
 export type SparePart = {
 	name: string;
