@@ -21,23 +21,27 @@
     }
 </script>
 
-<table class="table text-break table-striped table-hover">
-    <thead>
-    <tr>
-        <th>Jméno</th>
-        <th>Email</th>
-        <th>Telefonní číslo</th>
-        <th>Iniciály do SP</th>
-    </tr>
-    </thead>
-    <tbody>
-    {#each technicians as technician, i}
-        <tr class="table-{colors[i]}">
-            <th>{technician.name}</th>
-            <td>{technician.email}</td>
-            <td>{technician.phone}</td>
-            <td>{technician.initials}</td>
+<div class="overflow-x-auto">
+    <table class="table text-break table-striped table-hover text-nowrap">
+        <thead>
+        <tr>
+            <th>Jméno</th>
+            <th>Email</th>
+            <th>Telefonní číslo</th>
+            <th>Iniciály do SP</th>
+            <th>Číslo KO</th>
         </tr>
-    {/each}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        {#each technicians as technician, i}
+            <tr class="table-{colors[i]}">
+                <th>{technician.name}</th>
+                <td>{technician.email}</td>
+                <td>{technician.phone}</td>
+                <td>{technician.initials}</td>
+                <td>{technician.koNumber}</td>
+            </tr>
+        {/each}
+        </tbody>
+    </table>
+</div>

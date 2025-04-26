@@ -27,26 +27,28 @@
         .join(', ');
 </script>
 
-<table class="table text-break table-striped table-hover">
-    <thead>
-    <tr>
-        <th>Email</th>
-        <th>Montážní firmy</th>
-        <th>Uvaděči</th>
-        <th>Zodpovědná osoba</th>
-    </tr>
-    </thead>
-    <tbody>
-    {#each people as person, i}
-        <tr class="table-{colors[i]}" id={person.email}
-            style:scroll-margin-top={6 + (document.querySelector('nav')?.getBoundingClientRect()?.height ?? 0) + 'px'}
-            class:table-info={page.url.hash.split("-")[1] === person.email}
-        >
-            <th>{person.email}</th>
-            <td>{@html showCompanies(person.assemblyCompanies)}</td>
-            <td>{@html showCompanies(person.commissioningCompanies)}</td>
-            <td>{person.responsiblePerson}</td>
+<div class="overflow-x-auto">
+    <table class="table text-break table-striped table-hover text-nowrap">
+        <thead>
+        <tr>
+            <th>Email</th>
+            <th>Montážní firmy</th>
+            <th>Uvaděči</th>
+            <th>Zodpovědná osoba</th>
         </tr>
-    {/each}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        {#each people as person, i}
+            <tr class="table-{colors[i]}" id={person.email}
+                style:scroll-margin-top={6 + (document.querySelector('nav')?.getBoundingClientRect()?.height ?? 0) + 'px'}
+                class:table-info={page.url.hash.split("-")[1] === person.email}
+            >
+                <th>{person.email}</th>
+                <td>{@html showCompanies(person.assemblyCompanies)}</td>
+                <td>{@html showCompanies(person.commissioningCompanies)}</td>
+                <td>{person.responsiblePerson}</td>
+            </tr>
+        {/each}
+        </tbody>
+    </table>
+</div>

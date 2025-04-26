@@ -107,11 +107,12 @@
                     .split('\n')
                     .filter((radek) => radek != '')
                     .map((radek) => radek.split(';').map((vec) => (vec != '' ? vec : undefined)))
-                    .map(([name, email, phone, initials]) => ({
+                    .map(([name, email, phone, initials, koNumber]) => ({
                         name,
                         email,
                         phone,
                         initials,
+                        koNumber,
                     })) as Technician[];
             };
         }
@@ -184,8 +185,8 @@
     };
 
     const stahnoutTechnicians = () => {
-        download(new File([oldDataTechnicians.map(({ name, email, phone, initials }) =>
-            `${name};${email};${phone};${initials}`.trim()
+        download(new File([oldDataTechnicians.map(({ name, email, phone, initials, koNumber }) =>
+            `${name};${email};${phone};${initials};${koNumber}`.trim()
         ).join('\n')], 'technici.csv'), 'technici.csv', 'text/csv');
     };
 
@@ -569,8 +570,8 @@
         <h2>Seznam techniků</h2>
         <p class="mt-3 mb-0">
             Vložte .csv soubor oddělený středníky (;), kde v prvním sloupci je email, v druhém sloupci jméno, ve
-            třetím telefonní číslo a ve čtvrtém spoupci iniciály (do SP) technika <a href="#companies-{regulusCRN}">Regulusu</a>: <br />
-            Př.: Jan Novák;jan.novak@regulus.cz;+420789456123;JN <br />
+            třetím telefonní číslo, ve čtvrtém spoupci iniciály (do SP) a v pátém číslo KO technika <a href="#companies-{regulusCRN}">Regulusu</a>: <br />
+            Př.: Jan Novák;jan.novak@regulus.cz;+420789456123;JN;6417 <br />
             Všechna pole jsou povinná
         </p>
 
@@ -723,37 +724,39 @@
         tabindex="0"
     >
         <h2>Překlady</h2>
-        <table class="table text-break table-striped table-hover">
-            <thead>
-            <tr>
-                <th>ID</th>
-                {#each languageCodes as lang}
-                    <th>{lang.toUpperCase()}</th>
-                {/each}
-            </tr>
-            </thead>
-            <tbody>
-            {#each allKeys as tr}
+        <div class="overflow-x-auto">
+            <table class="table text-break table-striped table-hover" style="width: max-content; max-width: min(400vw, 2000px)">
+                <thead>
                 <tr>
-                    <th>{tr}</th>
+                    <th>ID</th>
                     {#each languageCodes as lang}
-                        {@const v = getTranslations(lang).get(tr)}
-                        {@const cs = getTranslations('cs').get(tr)}
-                        {@const en = getTranslations('en').get(tr)}
-                        <td class="col-20"
-                            class:table-danger={lang !== 'cs' && cs === v}
-                            class:table-warning={lang !== 'en' && lang !== 'cs' && en === v}>
-                            {#if typeof v === 'string'}
-                                {v}
-                            {:else}
-                                {parseSelf(v)}
-                            {/if}
-                        </td>
+                        <th>{lang.toUpperCase()}</th>
                     {/each}
                 </tr>
-            {/each}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {#each allKeys as tr}
+                    <tr>
+                        <th>{tr}</th>
+                        {#each languageCodes as lang}
+                            {@const v = getTranslations(lang).get(tr)}
+                            {@const cs = getTranslations('cs').get(tr)}
+                            {@const en = getTranslations('en').get(tr)}
+                            <td class="col-20"
+                                class:table-danger={lang !== 'cs' && lang !== 'sk' && cs === v}
+                                class:table-warning={lang !== 'en' && lang !== 'cs' && en === v || lang === 'sk' && cs === v}>
+                                {#if typeof v === 'string'}
+                                    {v}
+                                {:else}
+                                    {parseSelf(v)}
+                                {/if}
+                            </td>
+                        {/each}
+                    </tr>
+                {/each}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
