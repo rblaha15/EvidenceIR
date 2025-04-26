@@ -1,14 +1,18 @@
 import type { Address, Attachment } from 'nodemailer/lib/mailer';
-import { getToken } from './auth';
+import { currentUser, getToken } from './auth';
 import { htmlToText } from 'html-to-text';
 import { type Component, mount } from 'svelte';
+import { dev } from '$app/environment';
+import { get } from 'svelte/store';
+import type { User } from 'firebase/auth';
 
+export type AddressLike = Address | string | (Address | string)[];
 export type EmailOptions<Props extends Record<string, unknown>> = {
     from: Address | string;
-    replyTo?: Address | string | (Address | string)[];
-    to?: Address | string | (Address | string)[];
-    cc?: Address | string | (Address | string)[];
-    bcc?: Address | string | (Address | string)[];
+    replyTo?: AddressLike;
+    to?: AddressLike;
+    cc?: AddressLike;
+    bcc?: AddressLike;
     subject: string;
     attachments?: Attachment[];
     pdf?: {
@@ -43,8 +47,24 @@ export const sendEmail = async <Props extends Record<string, unknown>>(options: 
     });
 };
 
-export const SENDER = {
+export const cervenka: AddressLike = ['david.cervenka@regulus.cz', 'jakub.cervenka@regulus.cz']
+
+export const SENDER: Address = {
     name: 'Regulus SEIR',
     address: 'aplikace.regulus@gmail.com',
 };
 
+const userAddress = (user: User): AddressLike => ({
+    address: user.email!,
+    name: user.displayName ?? '',
+});
+
+export const defaultAddresses = (recipient: AddressLike = cervenka, sendCopy: boolean = false) => {
+    const user = userAddress(get(currentUser)!);
+    return ({
+        from: SENDER,
+        replyTo: user,
+        to: dev ? 'radek.blaha.15@gmail.com' : recipient,
+        cc: dev || !sendCopy ? undefined : user,
+    });
+}

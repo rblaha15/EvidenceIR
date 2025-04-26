@@ -2,13 +2,15 @@ import { ChooserWidget, CounterWidget, InputWidget, MultiCheckboxWidget, p, Radi
 import { type SparePart, sparePartsList, startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
 import { dataToRawData, type Form, type Raw } from '$lib/forms/Form';
 import { page } from '$app/state';
-import { upravitServisniProtokol, vyplnitServisniProtokol } from '$lib/client/firestore';
+import { extractSPIDFromRawData, upravitServisniProtokol, vyplnitServisniProtokol } from '$lib/client/firestore';
 import { currentUser } from '$lib/client/auth';
-import { type FormInfo } from './forms.svelte.js';
 import type { User } from 'firebase/auth';
 import { nowISO } from '$lib/helpers/date';
 import { makePlain, type TranslationReference } from '$lib/translations';
 import type { ExcelImport } from '$lib/forms/Import';
+import { defaultAddresses, sendEmail } from '$lib/client/email';
+import { nazevSP } from '$lib/helpers/ir';
+import MailProtocol from '$lib/emails/MailProtocol.svelte';
 
 type NahradniDil<D extends Form<D>> = {
     label: TextWidget<D>,
@@ -230,7 +232,7 @@ export const compactOtherSpareData = <D extends GenericDataSP<D>>(data: GenericD
 
 export const sp = (() => {
     let i = $state() as number;
-    const info: FormInfo<DataSP, DataSP, [[Technician[], User | null], [SparePart[]]]> = {
+    const info: import('./forms.svelte').FormInfo<DataSP, DataSP, [[Technician[], User | null], [SparePart[]]]> = {
         storeName: 'stored_sp',
         defaultData: () => defaultDataSP(),
         pdfLink: () => `installationProtocol-${i}`,
@@ -244,11 +246,28 @@ export const sp = (() => {
                 return undefined;
             }
         },
-        saveData: (irid, raw, edit, data) => {
+        saveData: async (irid, raw, edit, data, editResult, t, send) => {
             compactOtherSpareData(data, raw);
-            return edit
-                ? upravitServisniProtokol(irid, i, raw)
-                : vyplnitServisniProtokol(irid, raw);
+            if (edit) await upravitServisniProtokol(irid, i, raw);
+            else await vyplnitServisniProtokol(irid, raw);
+
+            if (edit && !send) return true
+
+            const response = await sendEmail({
+                ...defaultAddresses(),
+                subject: edit
+                    ? `Upravený servisní protokol: ${nazevSP(raw.zasah)}`
+                    : `Nový servisní protokol: ${nazevSP(raw.zasah)}`,
+                component: MailProtocol,
+                props: { name: raw.zasah.clovek, origin: page.url.origin, irid_spid: extractSPIDFromRawData(raw.zasah) },
+            });
+
+            if (response!.ok) return true;
+            else editResult({
+                text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
+                red: true,
+                load: false
+            });
         },
         storeData: data => {
             const raw = dataToRawData(data);

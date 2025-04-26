@@ -56,6 +56,7 @@ export const pdfInfo: PdfInfo = {
         formName: 'installationProtocol',
         supportedLanguages: ['cs'],
         title: p`Instalační a servisní protokol`,
+        requiredRegulus: true,
     },
 };
 export type PdfArgs = {

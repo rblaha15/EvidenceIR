@@ -25,7 +25,6 @@ import type { ExcelImport } from '$lib/forms/Import';
 import { getTranslations, makePlain } from '$lib/translations';
 import { type Form, type Raw } from '$lib/forms/Form';
 import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
-import { dev } from '$app/environment';
 import { page } from '$app/state';
 import { evidence, existuje, extractIRIDFromRawData, type IRID, novaEvidence, upravitEvidenci } from '$lib/client/firestore';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
@@ -33,7 +32,7 @@ import { companies } from '$lib/helpers/companies';
 import { relUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { nazevFirmy } from '$lib/helpers/ares';
-import { sendEmail, SENDER } from '$lib/client/email';
+import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { nazevIR } from '$lib/helpers/ir';
 import { generateXML } from '$lib/createXML';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
@@ -210,20 +209,12 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
             });
             return;
         }
-        if (!getIsOnline()) {
-            editResult({ red: true, text: t.offline, load: false });
-            return;
-        }
 
         const user = get(currentUser)!;
 
         if (edit) await upravitEvidenci(raw);
         else await novaEvidence({ evidence: raw, kontroly: {}, users: [user.email!], installationProtocols: [] });
 
-        const userAddress = {
-            address: user.email!,
-            name: user.displayName ?? '',
-        };
         const doNotSend = edit && !send;
 
         if (raw.vzdalenyPristup.chce && !doNotSend) {
@@ -232,9 +223,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
             const uvadec = (await nazevFirmy(raw.uvedeni.ico)) ?? null;
 
             const response = await sendEmail({
-                from: SENDER,
-                replyTo: userAddress,
-                to: dev ? 'radek.blaha.15@gmail.com' : ['david.cervenka@regulus.cz', 'jakub.cervenka@regulus.cz'],
+                ...defaultAddresses(),
                 subject: `Založení RegulusRoute k ${nazevIR(raw.ir)}`,
                 attachments: [{
                     content: generateXML(data, t),
@@ -252,10 +241,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         }
 
         const response = doNotSend ? undefined : await sendEmail({
-            from: SENDER,
-            replyTo: userAddress,
-            to: dev ? 'radek.blaha.15@gmail.com' : 'blahova@regulus.cz',
-            cc: dev ? undefined : userAddress,
+            ...defaultAddresses('blahova@regulus.cz', true),
             subject: edit
                 ? `Úprava evidence regulátoru ${nazevIR(raw.ir)}`
                 : `Nově zaevidovaný regulátor ${nazevIR(raw.ir)}`,

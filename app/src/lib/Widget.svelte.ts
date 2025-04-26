@@ -378,6 +378,11 @@ export class InputWithSuggestionsWidget<D, H extends boolean = false> extends Wi
     regex = $state() as Get<D, RegExp>;
     capitalize = $state() as Get<D, boolean>;
 
+    setValue(data: D, value: string) {
+        this._value = value.trim();
+        this.onValueSet(data, this._value);
+    }
+
     constructor(args: ValueArgs<D, string, H> & Input1Args<D> & Input3Args<D> & SuggestionsArgs<D>) {
         super();
         initValue(this, args);
@@ -529,9 +534,9 @@ export class InputWidget<D, H extends boolean = false> extends Widget<D, string,
     lock = $state() as Get<D, boolean>;
 
     setValue(data: D, value: string) {
-        this._value = value;
-        this.onValueSet(data, value);
-        this.updateMaskValue(value);
+        this._value = value.trim();
+        this.onValueSet(data, this._value);
+        this.updateMaskValue(this._value);
     }
 
     type = $state() as Get<D, HTMLInputTypeAttribute>;
@@ -574,9 +579,9 @@ export class InputWithChooserWidget<D, H extends boolean = false> extends Widget
     lock = $state() as Get<D, boolean>;
 
     setValue(data: D, value: SeI) {
-        this._value = value;
-        this.onValueSet(data, value);
-        this.updateMaskValue(value.text);
+        this._value = { ...value, text: value.text.trim() };
+        this.onValueSet(data, this._value);
+        this.updateMaskValue(this._value.text);
     }
 
     type = $state() as Get<D, HTMLInputTypeAttribute>;
@@ -617,9 +622,9 @@ export class CheckboxWithInputWidget<D, H extends boolean = false> extends Widge
     lock = $state() as Get<D, boolean>;
 
     setValue(data: D, value: ChI) {
-        this._value = value;
-        this.onValueSet(data, value);
-        this.updateMaskValue(value.text);
+        this._value = { ...value, text: value.text.trim() };
+        this.onValueSet(data, this._value);
+        this.updateMaskValue(this._value.text);
     }
 
     type = $state() as Get<D, HTMLInputTypeAttribute>;

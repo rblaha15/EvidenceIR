@@ -23,7 +23,7 @@
                 aria-labelledby="label-{uid}" tabindex="-1" disabled={widget.lock(data)}
         >
             <input class="form-check-input m-0" type="checkbox" role="button"
-                   disabled={widget.lock(data)} bind:checked={widget.value} />
+                   disabled={widget.lock(data)} checked={widget.value} onclick={onClick} />
         </button>
         <button onclick={onClick} tabindex="-1"
                 id="label-{uid}" class="input-group-text flex-grow-1"

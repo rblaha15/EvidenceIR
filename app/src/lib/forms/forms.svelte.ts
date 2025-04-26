@@ -18,10 +18,11 @@ export type Effect<
     { [I in keyof S]: Readable<S[I]> }
 ]
 
+export type Result = { text: string, red: boolean, load: boolean };
 export type DetachedFormInfo<D, F extends Form<D>, S extends unknown[][] = [], R extends Raw<F> = Raw<F>> = {
     storeName: string;
     defaultData: () => F;
-    saveData: (raw: R, edit: boolean, data: F, editResult: (result: { text: string, red: boolean, load: boolean }) => void, t: Translations, send: boolean) => Promise<boolean | void>;
+    saveData: (raw: R, edit: boolean, data: F, editResult: (result: Result) => void, t: Translations, send: boolean) => Promise<boolean | void>;
     storeData?: (data: F) => R;
     createWidgetData: (data: F) => D;
     title: (t: Translations, edit: boolean) => string;
@@ -40,7 +41,7 @@ export type DetachedFormInfo<D, F extends Form<D>, S extends unknown[][] = [], R
 
 export type FormInfo<D, F extends Form<D>, S extends unknown[][] = [], R extends Raw<F> = Raw<F>> = {
     pdfLink: () => Pdf;
-    saveData: (irid: IRID, raw: R, edit: boolean, data: F) => Promise<void>;
+    saveData: (irid: IRID, ...args: Parameters<DetachedFormInfo<D, F, S, R>['saveData']>) => Promise<boolean | void>;
     createWidgetData: (evidence: Raw<Data>, data: F) => D;
     getEditData?: ((ir: IR) => R | undefined) | undefined;
 } & Omit<DetachedFormInfo<D, F, S, R>, 'saveData' | 'createWidgetData' | 'getEditData' | 'redirect' | 'showBackButton'>

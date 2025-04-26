@@ -22,7 +22,7 @@ import { get, readonly, writable } from 'svelte/store';
 import { checkRegulusOrAdmin, currentUser } from './auth';
 import { firestore } from '../../hooks.client';
 import type { UvedeniSOL } from '$lib/forms/UvedeniSOL';
-import type { DataSP } from '$lib/forms/SP.svelte';
+import type { DataSP, GenericDataSP } from '$lib/forms/SP.svelte';
 import type { TranslationReference } from '$lib/translations';
 import type { DataSP2 } from '$lib/forms/SP2';
 
@@ -44,6 +44,9 @@ export type IRType = '2' | '4' | '3' | 'B' | 'S';
  * ID SOREL: S202412312359;
  */
 export type IRID = `${IRType}${string}`;
+/**
+ * RB-2024-12-31-23;
+ */
 export type SPID = `${string}-${string}-${string}`;
 
 const extractIRTypeFromFullIRType = (fullIRType: string): IRType =>
@@ -57,10 +60,10 @@ export const extractIRIDFromParts = (fullIRType: string, irNumber: string): IRID
     `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replaceAll(/[ :T-]/g, '')}`;
 export const extractIRIDFromRawData = (evidence: Raw<Data>): IRID =>
     extractIRIDFromParts(evidence.ir.typ.first!, evidence.ir.cislo);
-export const extractSPIDFromRawData = (p: Raw<DataSP2>): SPID => {
-    const datum = p.zasah.datum.split('T')[0];
-    const hodina = p.zasah.datum.split('T')[1].split(':')[0];
-    const technik = p.zasah.inicialy;
+export const extractSPIDFromRawData = (zasah: Raw<GenericDataSP<never>['zasah']>): SPID => {
+    const datum = zasah.datum.split('T')[0];
+    const hodina = zasah.datum.split('T')[1].split(':')[0];
+    const technik = zasah.inicialy;
     return `${technik}-${datum}-${hodina}`;
 };
 
@@ -144,6 +147,7 @@ const spCollection = collection(firestore, 'sp').withConverter<Raw<DataSP2>>({
 });
 const checkCollection = collection(firestore, 'check');
 const irDoc = (irid: IRID) => doc(irCollection, irid);
+const spDoc = (spid: SPID) => doc(spCollection, spid);
 const checkDoc = (irid: IRID) => doc(checkCollection, irid);
 
 export const evidence = (irid: IRID) =>
@@ -175,7 +179,7 @@ export const vyplnitServisniProtokol = async (irid: IRID, protokol: Raw<DataSP>)
     );
 };
 export const vyplnitObecnyServisniProtokol = (protokol: Raw<DataSP2>) =>
-    setDoc(doc(spCollection, extractSPIDFromRawData(protokol)), protokol);
+    setDoc(spDoc(extractSPIDFromRawData(protokol.zasah)), protokol);
 
 export const upravitServisniProtokol = async (irid: IRID, index: number, protokol: Raw<DataSP>) => {
     const p = (await evidence(irid)).data()!.installationProtocols;
@@ -203,3 +207,7 @@ export const getAll = async () => {
         return await getDocs(irCollection);
     return await getDocs(query(irCollection, where('users', 'array-contains', user?.email)));
 };
+
+export const publicProtocols = () => getDocs(spCollection);
+export const publicProtocol = (spid: SPID) =>
+    getDoc(spDoc(spid));

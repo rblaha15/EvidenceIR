@@ -1,17 +1,27 @@
 import type { Pair } from '$lib/Widget.svelte.js';
 import { removePlain } from '$lib/translations';
-import type { Data } from '$lib/forms/Data';
+import type { Data, UserData } from '$lib/forms/Data';
 import type { Raw } from '$lib/forms/Form';
-import type { IRID } from '$lib/client/firestore';
+import type { IRID, SPID } from '$lib/client/firestore';
+import type { DataSP2 } from '$lib/forms/SP2';
+import type { GenericDataSP } from '$lib/forms/SP.svelte';
 
 export const isIRID = (irid_spid: string): irid_spid is IRID => !irid_spid.includes('-');
+export const isSPID = (irid_spid: string): irid_spid is SPID => irid_spid.includes('-');
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno
  * IR RegulusBOX CTC R8 2547 : Novák Jan - Brno
  * SRS1 T : Novák Jan - Brno
  */
-export const celyNazevIR = (evidence: Raw<Data>) => `${nazevIR(evidence.ir)} : ${popisIR(evidence)}`;
+export const celyNazevIR = (evidence: Raw<Data>, includeEstablishment: boolean = true) =>
+    `${nazevIR(evidence.ir)} : ${popisIR(evidence, includeEstablishment)}`;
+
+/**
+ * RB 2024/12/31-23 : Novák Jan - Brno
+ */
+export const celyNazevSP = (sp: Raw<DataSP2>, includeEstablishment: boolean = true) =>
+    `${nazevSP(sp.zasah)} : ${popisIR(sp, includeEstablishment)}`;
 
 /**
  * IR14CTC R8 2547
@@ -21,6 +31,16 @@ export const celyNazevIR = (evidence: Raw<Data>) => `${nazevIR(evidence.ir)} : $
 export const nazevIR = (ir: Raw<Data>['ir']) => ir.typ.first?.includes('SOREL')
     ? typIR(ir.typ)
     : `${typIR(ir.typ)} ${ir.cislo}`;
+
+/**
+ * RB 2024/12/31-23
+ */
+export const nazevSP = (zasah: Raw<GenericDataSP<never>>["zasah"]) => {
+    const datum = zasah.datum.split('T')[0].replaceAll('-', '/');
+    const hodina = zasah.datum.split('T')[1].split(':')[0];
+    const technik = zasah.inicialy;
+    return `${technik} ${datum}-${hodina}`;
+};
 
 /**
  * IR14CTC
@@ -46,17 +66,16 @@ export const formaSpolecnostiJeSpatne = (spolecnost: string) =>
         jenPismena(spolecnost).endsWith(jenPismena(typ))
     ) && !formySpolecnosti.some(typ =>
         spolecnost.endsWith(typ)
-    )
+    );
 
-const m = (s: string) => s ? `${s} ` : ''
+const m = (s: string) => s ? `(${s}) ` : '';
 
 /**
  * Novák Jan - Brno
  */
-export const popisIR = (evidence: Raw<Data>) =>
-    evidence.koncovyUzivatel.typ == `company`
-        ? `${odebratFormuSpolecnosti(evidence.koncovyUzivatel.nazev)} ${m(evidence.koncovyUzivatel.pobocka)}- ${evidence.bydliste.obec}`
-        : `${evidence.koncovyUzivatel.prijmeni} ${evidence.koncovyUzivatel.jmeno} - ${evidence.bydliste.obec}`;
+export const popisIR = <D extends UserData<D>>(evidence: Raw<UserData<D>>, includeEstablishment: boolean = true) => evidence.koncovyUzivatel.typ == `company`
+    ? `${odebratFormuSpolecnosti(evidence.koncovyUzivatel.nazev)} ${m(includeEstablishment ? evidence.koncovyUzivatel.pobocka : '')}- ${evidence.bydliste.obec}`
+    : `${evidence.koncovyUzivatel.prijmeni} ${evidence.koncovyUzivatel.jmeno} - ${evidence.bydliste.obec}`;
 
 export const typBOX = (cisloBOX: string) => ({
     '18054': 'BOX 12 CTC 3/3',
@@ -80,4 +99,4 @@ export const typBOX = (cisloBOX: string) => ({
 })[cisloBOX.slice(0, 5)];
 
 export const jmenoUzivatele = (k: Raw<Data>['koncovyUzivatel']) =>
-    k.typ == 'company' ? k.nazev : `${k.jmeno} ${k.prijmeni}`
+    k.typ == 'company' ? k.nazev : `${k.jmeno} ${k.prijmeni}`;
