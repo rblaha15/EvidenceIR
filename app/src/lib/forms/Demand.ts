@@ -648,13 +648,13 @@ const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Technician
                 content: xml(raw, user, cs, data),
                 contentType: 'application/xml',
                 filename: `Dotazník ${name} ${surname}.xml`
-            }, ...raw.other.photos
+            }, ...(await raw.other.photos
                 .map(photoId => getPhoto(photoId))
+                .awaitAll())
                 .filterNotUndefined()
                 .map((photo, i) => <Attachment> {
-                    content: photo.replace('data:', '').replace(/^.+,/, ''),
-                    contentType: photo.split('data:')[1].split(';')[0],
-                    filename: `Fotka ${i}`,
+                    path: photo,
+                    filename: `Fotka ${i + 1}`,
                 })],
             component: MailDemand,
             props: raw.other.representative!,

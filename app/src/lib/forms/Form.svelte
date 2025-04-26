@@ -92,12 +92,10 @@
 
             if (!dev) storedData.set(undefined);
 
-            if (success && (openTabLink || redirectLink)) {
-                result = {
-                    text: t.redirecting,
-                    red: false,
-                    load: true
-                };
+            if (success) {
+                result = openTabLink || redirectLink
+                    ? { text: t.redirecting, red: false, load: true }
+                    : { text: '', red: false, load: false };
 
                 if (openTabLink) {
                     const newWin = window.open(await openTabLink(raw));
