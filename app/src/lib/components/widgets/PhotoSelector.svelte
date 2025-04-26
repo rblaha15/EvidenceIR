@@ -19,6 +19,8 @@
         uuid().also(id => db!.add('photos', photo, id))
     export const removePhoto = (id: string) =>
         db!.delete('photos', id)
+    export const removeAllPhotos = () =>
+        db!.clear('photos')
     export const getPhoto = (id: string) =>
         db!.get('photos', id)
 </script>
