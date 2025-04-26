@@ -1,24 +1,26 @@
 <script lang="ts" module>
-    import { storable } from "$lib/helpers/stores";
     import { v4 as uuid } from "uuid";
-    import { get } from "svelte/store";
+    import { openDB } from 'idb';
+    import { browser } from "$app/environment";
 
-    const photoStore = (id: string) => storable<string>(`photo-${id}`)
-    export const addPhoto = (photo: string) => {
-        const id = uuid()
-        const store = photoStore(id)
-        store.set(photo)
-        return id
-    }
-    export const removePhoto = (id: string) => {
-        const store = photoStore(id)
-        store.set(undefined)
-        return id
-    }
-    export const getPhoto = (id: string) => {
-        const store = photoStore(id)
-        return get(store)
-    }
+    const db = browser ? await openDB<{
+        photos: {
+            key: string;
+            value: string;
+        };
+    }>('photo-selector', 1, {
+        upgrade: db => {
+            if (!db.objectStoreNames.contains('photos'))
+                db.createObjectStore('photos');
+        },
+    }) : undefined
+
+    export const addPhoto = (photo: string) =>
+        uuid().also(id => db!.add('photos', photo, id))
+    export const removePhoto = (id: string) =>
+        db!.delete('photos', id)
+    export const getPhoto = (id: string) =>
+        db!.get('photos', id)
 </script>
 
 <script generics="D" lang="ts">
@@ -52,7 +54,13 @@
             })).awaitAll()
 
             widget.mutateValue(data, v => [...v, ...photoStrings].slice(0, max))
+            if (e.currentTarget) e.currentTarget.value = ''
         }
+    }
+
+    const remove = (photoId: string) => async () => {
+        await removePhoto(photoId);
+        widget.mutateValue(data, v => v.toggle(photoId))
     }
 </script>
 
@@ -81,11 +89,11 @@
         <ul class="list-group mt-3">
             {#each widget.value as photoId}
                 <li class="d-flex w-100 align-items-center list-group-item">
-                    <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
-                         src={getPhoto(photoId)} alt="Fotografie">
-                    <button class="btn text-danger ms-3" onclick={() => widget.mutateValue(data, v => v.toggle(removePhoto(photoId)))}
-                    ><i class="my-1 bi-trash"></i> {t.remove}
-                    </button>
+                    {#await getPhoto(photoId) then photo}
+                        <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
+                             src={photo} alt="Fotografie">
+                    {/await}
+                    <button class="btn text-danger ms-3" onclick={remove(photoId)}><i class="my-1 bi-trash"></i> {t.remove}</button>
                 </li>
             {/each}
         </ul>

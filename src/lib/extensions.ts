@@ -66,6 +66,11 @@ interface Object {
         this: T,
         callback: (self: T) => U,
     ): U;
+
+    also<T, U>(
+        this: T,
+        callback: (self: T) => U,
+    ): U extends PromiseLike<infer _> ? Promise<T> : T;
 }
 
 Object.defineProperties(Object.prototype, {
@@ -80,6 +85,7 @@ Object.defineProperties(Object.prototype, {
     zip: { writable: true },
     omit: { writable: true },
     let: { writable: true },
+    also: { writable: true },
 });
 
 Object.prototype.entries = <typeof Object.prototype.entries> function() {
@@ -157,6 +163,18 @@ Object.prototype.let = function<T, U>(
     callback: (self: T) => U,
 ): U {
     return callback(this)
+};
+Object.prototype.also = function<T, U>(
+    this: T,
+    callback: (self: T) => U,
+): (U extends PromiseLike<infer _> ? Promise<T> : T) {
+    const result = callback(this)
+    if (typeof result == 'object' && result != null && 'then' in result && result.then instanceof Function)
+        return new Promise<T>(resolve => {
+            (result.then as (fn: () => void) => void)(() => resolve(this))
+        }) as U extends PromiseLike<infer _> ? Promise<T> : T
+    else
+        return this as U extends PromiseLike<infer _> ? Promise<T> : T;
 };
 
 

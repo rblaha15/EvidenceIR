@@ -50,6 +50,7 @@
 		"firebase-admin": "^13.3.0",
 		"html-to-text": "^9.0.5",
 		"html5-qrcode": "^2.3.8",
+		"idb": "^8.0.2",
 		"imask": "^7.6.1",
 		"lodash.isstring": "^4.0.1",
 		"lodash.merge": "^4.6.2",
