@@ -1,4 +1,4 @@
-<script module lang="ts">
+<script lang="ts" module>
     import { storable } from "$lib/helpers/stores";
     import { v4 as uuid } from "uuid";
     import { get } from "svelte/store";
@@ -25,7 +25,6 @@
     import type { Translations } from "$lib/translations";
     import { nazevSHvezdou, type PhotoSelectorWidget } from "$lib/Widget.svelte";
     import type { ChangeEventHandler } from "svelte/elements";
-    import { derived as derivedStore } from "svelte/store";
 
     interface Props {
         t: Translations;
@@ -35,7 +34,8 @@
 
     let { t, widget = $bindable(), data }: Props = $props();
 
-    let input = $state<HTMLInputElement>()
+    let inputSelect = $state<HTMLInputElement>()
+    let inputCapture = $state<HTMLInputElement>()
     const multiple = $derived(widget.multiple(data))
     const max = $derived(widget.max(data))
 
@@ -54,28 +54,35 @@
             widget.mutateValue(data, v => [...v, ...photoStrings].slice(0, max))
         }
     }
-
-    const photos = derivedStore(widget.value.map(photoId => photoStore(photoId)), (photos) => photos.zip(widget.value))
 </script>
 
 {#if widget.show(data)}
     <div>{nazevSHvezdou(widget, data, t)}</div>
     {#if widget.value.length === 0 || (multiple && widget.value.length < max)}
-        <button
-            type="button"
-            class="btn btn-outline-primary"
-            onclick={() => input?.click()}
-        >
-            {multiple ? t.addPhoto : t.addPhotos}
-        </button>
+        <div class="d-flex">
+            <button
+                type="button"
+                class="btn btn-outline-primary"
+                onclick={() => inputSelect?.click()}
+            >
+                {multiple ? t.selectPhoto : t.selectPhotos}
+            </button>
+            <button
+                type="button"
+                class="btn btn-outline-primary ms-2"
+                onclick={() => inputCapture?.click()}
+            >
+                {multiple ? t.capturePhoto : t.capturePhotos}
+            </button>
+        </div>
     {/if}
 
     {#if widget.value}
         <ul class="list-group mt-3">
-            {#each $photos as [photo, photoId]}
+            {#each widget.value as photoId}
                 <li class="d-flex w-100 align-items-center list-group-item">
                     <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
-                         src={photo} alt="Fotografie">
+                         src={getPhoto(photoId)} alt="Fotografie">
                     <button class="btn text-danger ms-3" onclick={() => widget.mutateValue(data, v => v.toggle(removePhoto(photoId)))}
                     ><i class="my-1 bi-trash"></i> {t.remove}
                     </button>
@@ -95,10 +102,18 @@
     <input
         accept="image/*"
         {multiple}
+        class="d-none"
+        type="file"
+        bind:this={inputSelect}
+        {onchange}
+    />
+    <input
+        accept="image/*"
+        {multiple}
         capture="environment"
         class="d-none"
         type="file"
-        bind:this={input}
+        bind:this={inputCapture}
         {onchange}
     />
 {/if}

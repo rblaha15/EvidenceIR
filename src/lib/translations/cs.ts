@@ -499,8 +499,10 @@ export default {
         degreeCelsius: '°C',
     },
     photos: 'Fotografie:',
-    addPhoto: 'Přidat fotku',
-    addPhotos: 'Přidat fotky',
+    selectPhoto: 'Vybrat fotku',
+    selectPhotos: 'Vybrat fotky',
+    capturePhoto: 'Vyfotit fotku',
+    capturePhotos: 'Vyfotit fotky',
     noPhotos: 'Zatím jste nepřidali žádné fotky',
     remove: 'Odstranit',
 };
