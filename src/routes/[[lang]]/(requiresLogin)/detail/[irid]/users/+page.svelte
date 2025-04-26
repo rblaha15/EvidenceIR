@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PageData } from './$types';
-    import { evidenceStore, upravitUzivatele } from '$lib/client/firestore';
+    import { evidenceStore, type IRID, upravitUzivatele } from '$lib/client/firestore';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { celyNazevIR } from '$lib/helpers/ir';
 
@@ -11,7 +11,8 @@
     let { data }: Props = $props();
     const t = data.translations;
 
-    const ir = evidenceStore(data.irid);
+    const irid = data.irid_spid as IRID;
+    const ir = evidenceStore(irid);
 
     let email = $state('');
 
@@ -32,7 +33,7 @@
             class="btn btn-success"
             type="submit"
             onclick={() => {
-				upravitUzivatele(data.irid, [...new Set([...$ir.users, email])]);
+				upravitUzivatele(irid, [...new Set([...$ir.users, email])]);
 				email = '';
 			}}>Přidat uživatele
         </button
@@ -45,7 +46,7 @@
                 <button
                     class="btn ms-2 text-danger"
                     onclick={() => {
-						upravitUzivatele(data.irid, $ir.users.toSpliced($ir.users.indexOf(user), 1));
+						upravitUzivatele(irid, $ir.users.toSpliced($ir.users.indexOf(user), 1));
 					}}
                     aria-label="Odstranit"
                 >

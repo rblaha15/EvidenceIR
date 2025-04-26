@@ -15,7 +15,7 @@ import {
     TextWidget,
     TitleWidget
 } from '$lib/Widget.svelte';
-import { type Company, type FriendlyCompanies, getIsOnline, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
+import { type Company, type FriendlyCompanies, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
 import { version, dev, browser } from '$app/environment';
 import products from '$lib/helpers/products';
 import { languageCodes } from '$lib/languages';
@@ -24,7 +24,7 @@ import type { User } from 'firebase/auth';
 import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
-import { sendEmail, SENDER } from '$lib/client/email';
+import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import { companies } from '$lib/helpers/companies';
 import MailDemand from '$lib/emails/MailDemand.svelte';
@@ -596,28 +596,14 @@ const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Technician
     storeName: 'stored_demand',
     defaultData: defaultDemand,
     saveData: async (raw, _, data, editResult, t) => {
-        if (!getIsOnline()) {
-            editResult({ red: true, text: t.offline, load: false });
-            return;
-        }
-
         const user = get(currentUser)!;
-
-        const userAddress = {
-            address: user.email!,
-            name: user.displayName ?? '',
-        };
 
         const name = raw.contacts.name;
         const surname = raw.contacts.surname;
 
         const cs = getTranslations('cs');
         const response = await sendEmail({
-            from: SENDER,
-            replyTo: userAddress,
-            to: dev ? 'radek.blaha.15@gmail.com'
-                : page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz',
-            cc: dev ? undefined : userAddress,
+            ...defaultAddresses(page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz', true),
             subject: `Poptávka z aplikace – OSOBA: ${name} ${surname}`,
             attachments: [{
                 content: xml(raw, user, cs, data),

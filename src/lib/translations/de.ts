@@ -1,7 +1,7 @@
-import { template as t } from "$lib/helpers/templates"
-import type { PlainTranslations } from "$lib/translations"
-import cs from "./cs"
-import en from "./en"
+import { template as t } from '$lib/helpers/templates';
+import type { PlainTranslations } from '$lib/translations';
+import cs from './cs';
+import en from './en';
 
 const de: PlainTranslations = {
     ...cs,
@@ -78,7 +78,7 @@ const de: PlainTranslations = {
     evidenceDetails: `Details zur Installation`,
     loadingData: `Daten werden geladen...`,
     sorrySomethingWentWrong: `Entschuldigung, etwas ist schiefgelaufen.`,
-    somethingWentWrongContactUsHtml: `Entschuldigung, etwas ist schiefgelaufen, bitte kontaktieren Sie uns unter <a href="mailto:aplikace.regulus@gmail.com">aplikace.regulus@gmail.com</a>`,
+    somethingWentWrongContactUsHtml: `Entschuldigung, etwas ist schiefgelaufen, bitte kontaktieren Sie uns unter <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Fehler beim Speichern eines Formulars" target="_blank">aplikace.regulus@gmail.com</a>`,
     linkInvalid: `Entweder ist der Link zu dieser Seite falsch oder der Eintrag wurde bereits gelöscht.`,
     linkToThis: `Link zu dieser Seite`,
     copy: `Kopieren`,
@@ -254,5 +254,5 @@ const de: PlainTranslations = {
         kontrolaPojistovacihoVentilu: 'Kontrolle des Sicherheitsventils',
         pripadneProvedteKontroluTlakuVEnTepleVody: 'Warmwasserdruck prüfen, falls erforderlich',
     },
-}
-export default de
+};
+export default de;

@@ -3,7 +3,15 @@
     import type { PageData } from './$types';
     import PdfLink from './PDFLink.svelte';
     import { checkAuth, isUserRegulusOrAdmin } from '$lib/client/auth';
-    import { evidence, extractIRIDFromParts, extractIRIDFromRawData, type IR, novaEvidence, odstranitEvidenci } from '$lib/client/firestore';
+    import {
+        evidence,
+        extractIRIDFromParts,
+        extractIRIDFromRawData,
+        type IR,
+        novaEvidence,
+        odstranitEvidenci,
+        publicProtocol
+    } from '$lib/client/firestore';
     import { storable } from '$lib/helpers/stores';
     import { heatPumpCommission, type UvedeniTC } from '$lib/forms/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
@@ -11,12 +19,13 @@
     import { page } from '$app/state';
     import { solarCollectorCommission, type UvedeniSOL } from '$lib/forms/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
-    import { celyNazevIR } from '$lib/helpers/ir';
+    import { celyNazevIR, celyNazevSP, isIRID, isSPID } from '$lib/helpers/ir';
     import { ChooserWidget, InputWidget, p } from '$lib/Widget.svelte.js';
     import type { Raw } from '$lib/forms/Form';
     import { detailUrl, relUrl } from '$lib/helpers/runes.svelte';
     import Widget from '$lib/components/Widget.svelte';
     import { todayISO } from '$lib/helpers/date';
+    import sp2, { type DataSP2 } from '$lib/forms/SP2';
 
     interface Props {
         data: PageData;
@@ -24,28 +33,41 @@
 
     let { data }: Props = $props();
     const t = data.translations;
+    const irid = isIRID(data.irid_spid) ? data.irid_spid : undefined;
+    const spid = isSPID(data.irid_spid) ? data.irid_spid : undefined;
 
     const deleted = page.url.searchParams.has('deleted');
-    const storedHeatPumpCommission = storable<Raw<UvedeniTC>>(`${heatPumpCommission.storeName}_${data.irid}`);
-    const storedSolarCollectorCommission = storable<Raw<UvedeniSOL>>(`${solarCollectorCommission.storeName}_${data.irid}`);
+    const storedHeatPumpCommission = storable<Raw<UvedeniTC>>(`${heatPumpCommission.storeName}_${irid}`);
+    const storedSolarCollectorCommission = storable<Raw<UvedeniSOL>>(`${solarCollectorCommission.storeName}_${irid}`);
 
     let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
     let values = $state() as IR;
+    let sp = $state() as Raw<DataSP2>;
     onMount(async () => {
         await checkAuth();
         await startTechniciansListening();
 
         try {
-            const snapshot = (await (data.irid.length == 6 ? [
-                evidence(`2${data.irid}`), evidence(`4${data.irid}`),
-                evidence(`B${data.irid}`)
-            ] : [evidence(data.irid)]).awaitAll()).find(snapshot => snapshot.exists());
+            if (irid) {
+                const snapshot = (await (irid.length == 6 ? [
+                    evidence(`2${irid}`), evidence(`4${irid}`),
+                    evidence(`B${irid}`)
+                ] : [evidence(irid)]).awaitAll()).find(snapshot => snapshot.exists());
 
-            if (!snapshot) {
-                type = 'noAccess';
-                return;
+                if (!snapshot) {
+                    type = 'noAccess';
+                    return;
+                }
+                values = snapshot.data();
+            } else if (spid) {
+                const snapshot = await publicProtocol(spid);
+
+                if (!snapshot || !snapshot.exists()) {
+                    type = 'noAccess';
+                    return;
+                }
+                sp = snapshot.data();
             }
-            values = snapshot.data();
             type = 'loaded';
         } catch (e) {
             console.log((e as FirebaseError).code);
@@ -60,7 +82,7 @@
     });
 
     const remove = async () => {
-        await odstranitEvidenci(data.irid);
+        await odstranitEvidenci(irid!);
         window.location.replace(detailUrl(`?deleted`));
     };
 
@@ -105,40 +127,42 @@
         const newNumber = irNumber.value;
         const newType = irType.value;
         change = 'sending';
-        const record = (await evidence(data.irid)).data()!;
+        const record = (await evidence(irid!)).data()!;
         record.evidence.ir.cislo = newNumber;
         record.evidence.ir.typ.first = newType;
         await novaEvidence(record);
-        await odstranitEvidenci(data.irid);
+        await odstranitEvidenci(irid!);
         window.location.replace(relUrl(`/detail/${extractIRIDFromParts(newType!, newNumber)}`));
     };
 
-    setTitle(t.evidenceDetails);
+    $effect(() => setTitle(spid ? 'Instalační a servisní protokol' : t.evidenceDetails));
 </script>
 
 {#if type === 'loading'}
     <div class="spinner-border text-danger"></div>
 {:else if type !== 'loaded'}
     <h3>
-        {#if data.irid.length === 6}
-            {data.irid.slice(0, 2)}
-            {data.irid.slice(2, 6)}
-        {:else if data.irid.length === 7}
-            {data.irid.slice(1, 3)}
-            {data.irid.slice(3, 7)}
-        {:else if data.irid.length === 9}
+        {#if !irid}
+            {spid?.replace('-', ' ').replace('-', '/').replace('-', '/')}
+        {:else if irid.length === 6}
+            {irid.slice(0, 2)}
+            {irid.slice(2, 6)}
+        {:else if irid.length === 7}
+            {irid.slice(1, 3)}
+            {irid.slice(3, 7)}
+        {:else if irid.length === 9}
             SOREL
         {/if}
     </h3>
 {:else}
-    <h3>{celyNazevIR(values.evidence)}</h3>
+    <h3>{sp ? celyNazevSP(sp) : celyNazevIR(values.evidence)}</h3>
 {/if}
 {#if deleted}
     <div class="alert alert-success" role="alert">
         {t.successfullyDeleted}
     </div>
 {/if}
-{#if data.irid.length === 6}
+{#if irid && irid.length === 6}
     <div class="alert alert-warning" role="alert">
         Pozor! Toto je zastaralý odkaz.
         {#if values}
@@ -150,14 +174,23 @@
 {#if type !== 'loaded' && type !== 'loading'}
     <p class="mt-3">{t.sorrySomethingWentWrong}</p>
     <p>
-        {#if type === 'noAccess'}
+        {#if type === 'noAccess' && irid}
             {t.linkInvalid}
+        {:else if type === 'noAccess' && spid}
+            Buď protokol neexistuje nebo k němu nemáte přístup.
         {:else if type === 'offline'}
             {t.offline}
         {/if}
     </p>
 {/if}
-{#if type === 'loaded' && data.irid.length !== 6}
+{#if type === 'loaded' && spid}
+    <PdfLink {data} {t} linkName="publicInstallationProtocol" hideLanguageSelector={true} />
+
+    <a class="btn btn-warning mt-2" href={relUrl('/newSP')} onclick={() => {
+        storable<typeof sp>(sp2.storeName).set(sp)
+    }}>Vytvořit kopii protokolu</a>
+{/if}
+{#if type === 'loaded' && irid && irid.length !== 6}
     {#if values.evidence.vzdalenyPristup.chce}
         <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
     {/if}
@@ -265,10 +298,10 @@
     <a
         tabindex="0"
         class="btn btn-warning mt-2"
-        href={relUrl(`/new?edit-irid=${data.irid}`)}
+        href={relUrl(`/new?edit-irid=${irid}`)}
         onclick={(e) => {
 			e.preventDefault();
-			window.location.href = relUrl(`/new?edit-irid=${data.irid}`);
+			window.location.href = relUrl(`/new?edit-irid=${irid}`);
 		}}>{t.editRegistration}</a
     >
     <button class="btn btn-danger d-block mt-2"

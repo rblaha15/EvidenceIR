@@ -13,7 +13,7 @@ const guide: GetPdfData = async ({ evidence: e }) => ({
 /*        hesloIR */ Text7: `uzivatel`,
 /*          email */ Text8: e.koncovyUzivatel.email,
 /*        hesloRR */ Text9: `Regulusroute1`,
-/*       PLCjmeno */ Text10: celyNazevIR(e),
+/*       PLCjmeno */ Text10: celyNazevIR(e, false),
 /*        hesloIR */ Text11: `uzivatel`,
 });
 export default guide

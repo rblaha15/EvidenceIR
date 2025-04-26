@@ -10,7 +10,7 @@
 
     interface Props {
         linkName: Pdf;
-        name: string;
+        name?: string;
         data: PageData;
         t: Translations;
         enabled?: boolean;
@@ -33,27 +33,25 @@
         ? data.languageCode
         : pdf.supportedLanguages[0]);
 
-    const lastToken = storable<string>(`firebase_token_${data.irid}_${linkName}`);
+    const lastToken = storable<string>(`firebase_token_${data.irid_spid}_${linkName}`);
 
     const token = $isOnline ? getToken() : get(lastToken);
 </script>
 
 <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center mt-2">
-    <span>{name}</span>
+    {#if name}<span class="me-sm-2 mb-2 mb-sm-0">{name}</span>{/if}
 
     {#await token then token}
         {#if !token}
-            <div class="ms-sm-2 mt-2 mt-sm-0">
-                {t.offline}
-            </div>
+            <div>{t.offline}</div>
         {:else if enabled}
-            <div class="btn-group ms-sm-2 mt-2 mt-sm-0">
+            <div class="btn-group">
                 <a
                     tabindex={enabled ? 0 : undefined}
                     type="button"
                     onclick={() => lastToken.set(token)}
                     target="_blank"
-                    href="/{defaultLanguage}/detail/{data.irid}/pdf/{linkName}?token={token}"
+                    href="/{defaultLanguage}/detail/{data.irid_spid}/pdf/{linkName}?token={token}"
                     class:disabled={!enabled}
                     class="btn btn-info text-nowrap"
                 >{t.openPdf}</a>
@@ -73,7 +71,7 @@
                                     <a
                                         tabindex="0" target="_blank"
                                         class="dropdown-item d-flex align-items-center"
-                                        href="/{code}/detail/{data.irid}/pdf/{linkName}?token={token}"
+                                        href="/{code}/detail/{data.irid_spid}/pdf/{linkName}?token={token}"
                                         onclick={() => lastToken.set(token)}
                                     >
                                         <span class="fs-6 me-2">{code.toUpperCase()}</span>

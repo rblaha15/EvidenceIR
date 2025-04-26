@@ -13,7 +13,7 @@ export const GET: RequestHandler = async ({ url, fetch, params }) => {
     const t = url.searchParams.get("token")
 
     const token = await checkToken(t)
-    if (!token && pdfName != 'publicInstallationProtocol')  {
+    if (!token)  {
         url.search = ""
         url.pathname = url.pathname.split("/pdf")[0]
         return redirect(303, url)

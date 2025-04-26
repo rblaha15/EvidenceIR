@@ -4,6 +4,7 @@ import { createUser, getPasswordResetLink, getUserByEmail, updateUser } from '$l
 import { sendEmail } from '$lib/server/email';
 import { getTranslations } from '$lib/translations';
 import type { RequestHandler } from './$types';
+import { htmlToText } from 'html-to-text';
 
 type Params = {
     [Type in keyof AuthTypes]: { action: Type } & AuthTypes[Type]['params']
@@ -50,14 +51,13 @@ export const POST: RequestHandler = async ({ request, url }) => {
     else if (data.action == 'sendPasswordResetEmail') {
         const link = url.origin + await getPasswordResetLink(data.email, data.lang, data.redirect, 'reset')
         const t = getTranslations(data.lang)
+        const html = t.passwordResetEmailHtml.parseTemplate({ link, email: data.email, });
         await sendEmail({
             from: SENDER,
             to: data.email,
             subject: t.passwordReset,
-            html: t.passwordResetEmailHtml
-                .parseTemplate({
-                    link, email: data.email,
-                })
+            html,
+            text: htmlToText(html)
         })
         result = {}
     }

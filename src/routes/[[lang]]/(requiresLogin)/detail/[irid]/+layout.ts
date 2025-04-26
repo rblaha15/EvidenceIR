@@ -1,9 +1,9 @@
 import type { LayoutLoad } from './$types';
-import type { IRID } from '$lib/client/firestore';
+import type { IRID, SPID } from '$lib/client/firestore';
 
 export const load: LayoutLoad = async ({ params }) => {
 	return {
-		irid: params.irid as IRID
+		irid_spid: params.irid as IRID | SPID
 	} as const
 };
 

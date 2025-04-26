@@ -11,6 +11,7 @@
     import { storable } from '$lib/helpers/stores';
     import { page } from '$app/state';
     import { dev } from '$app/environment';
+    import { getIsOnline } from '$lib/client/realtime';
 
     const { t, formInfo }: {
         t: Translations,
@@ -81,6 +82,11 @@
                 return;
             }
 
+            if (!getIsOnline()) {
+                result = { red: true, text: t.offline, load: false };
+                return;
+            }
+
             result = { load: true, red: false, text: t.saving };
             const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send);
 
@@ -112,7 +118,7 @@
                 }, 5000);
             }
         } catch (e) {
-            console.log(e);
+            console.error(e);
             result = {
                 red: true,
                 text: t.somethingWentWrongContactUsHtml,

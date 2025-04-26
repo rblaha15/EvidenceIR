@@ -77,7 +77,7 @@ const en: PlainTranslations = {
     evidenceDetails: `Installation details`,
     loadingData: 'Loading data...',
     sorrySomethingWentWrong: 'Apologize, something went wrong.',
-    somethingWentWrongContactUsHtml: `Apologize, something went wrong, please contact us at <a href="mailto:aplikace.regulus@gmail.com">aplikace.regulus@gmail.com</a>`,
+    somethingWentWrongContactUsHtml: `Apologize, something went wrong, please contact us at <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Error saving a form" target="_blank">aplikace.regulus@gmail.com</a>`,
     linkInvalid: 'Either the link to this page is incorrect or the registration record has already been removed.',
     linkToThis: 'Lint to this page',
     copy: 'Copy',

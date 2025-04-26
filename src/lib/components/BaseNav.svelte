@@ -49,7 +49,7 @@
                 aria-current={'page'}
                 href={
                     page.route.id?.includes('/detail')
-                        ? relUrl(`/detail/${page.data.irid ?? ''}`)
+                        ? relUrl(`/detail/${page.data.irid_spid ?? ''}`)
                         : relUrl(`/detail/${page.url.searchParams.get('edit-irid') ?? ''}`)
                 }
             >{t.evidenceDetails}</a>

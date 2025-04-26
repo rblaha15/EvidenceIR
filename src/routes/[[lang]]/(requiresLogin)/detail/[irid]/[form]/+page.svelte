@@ -6,13 +6,13 @@
     import type { Data } from '$lib/forms/Data';
     import { getToken } from '$lib/client/auth';
     import { detailUrl } from '$lib/helpers/runes.svelte';
-    import { evidence as getEvidence } from '$lib/client/firestore';
+    import { evidence as getEvidence, type IRID } from '$lib/client/firestore';
     import FormComponent from '$lib/forms/Form.svelte';
 
     const { data }: PageProps = $props();
     const formName = data.formName as FormName;
     const t = data.translations;
-    const irid = data.irid;
+    const irid = data.irid_spid as IRID;
     const formInfo = formInfos[formName] as FormInfo<D, F, S>;
     const {
         storeName,
@@ -35,9 +35,9 @@
                 return getEditData?.(ir);
             } else return undefined;
         },
-        saveData: async (raw, edit, data) => {
-            await saveData(irid, raw, edit, data);
-            return true
+        saveData: async (raw, edit, data, editResult, t, send) => {
+            const result = await saveData(irid, raw, edit, data, editResult, t, send);
+            return result != false
         },
         redirectLink: async () => detailUrl(),
         openTabLink: async () => detailUrl(`/pdf/${pdfLink()}?token=${await getToken()}`),
