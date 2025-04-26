@@ -457,7 +457,7 @@ const defaultDemand = (): Demand => ({
             }), show: false, required: true,
         }),
         photos: new PhotoSelectorWidget({
-            label: `photos`, required: false, multiple: true, accept: `image/*`, max: 5,
+            label: `photos`, required: false, multiple: true, max: 5,
         }),
     },
 });
