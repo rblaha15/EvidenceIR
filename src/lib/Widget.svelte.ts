@@ -83,6 +83,7 @@ export type Arr = readonly TR[];
 export type ChI = { readonly checked: boolean; readonly text: string; };
 export type SeI = { readonly chosen: TR; readonly text: string; };
 export type SeCh = { readonly chosen: TR | null; readonly checked: boolean; };
+export type Files = readonly string[];
 
 type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H };
 type ShowArgs<D> = { show?: GetOrVal<D, boolean>; showInXML?: GetOrVal<D, boolean> };
@@ -90,6 +91,9 @@ type InfoArgs<D> = { text: GetOrVal<D, TR | Promise<TR>> } & ShowArgs<D>;
 type ValueArgs<D, U, H> = {
     label: GetOrVal<D>, onError?: GetOrVal<D>; required?: GetOrVal<D, boolean>; onValueSet?: (data: D, newValue: U) => void
 } & HideArgs<H> & ShowArgs<D>;
+type FileArgs<D> = {
+    accept?: GetOrVal<D, string>; multiple?: GetOrVal<D, boolean>; max?: GetOrVal<D, number>;
+};
 type ChooserArgs<D> = { options: GetOrVal<D, Arr>; chosen?: TR | null; };
 type SecondChooserArgs = { options: Arr; chosen?: TR; text?: string; };
 type DoubleChooserArgs<D> = { options1: GetOrVal<D, Arr>; options2: GetOrVal<D, Arr>; chosen?: Pair; };
@@ -133,6 +137,7 @@ type SuggestionsArgs<D> = {
 
 type Info<D, U> = Widget<D, U> & { text: Get<D, TR | Promise<TR>>; };
 type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: Get<D, boolean>; };
+type FileW<D> = Widget<D, Files> & { accept: Get<D, string | undefined>; multiple: Get<D, boolean>; max: Get<D, number>; };
 type Lock<D, U> = Widget<D, U> & { lock: Get<D, boolean>; };
 type DoubleLock<D, U> = Widget<D, U> & { lock1: Get<D, boolean>; lock2: Get<D, boolean>; };
 type Chooser<D> = Widget<D, TR | null> & { options: Get<D, Arr>; };
@@ -185,6 +190,11 @@ const initValue = function <D, U, H extends boolean>(widget: Required<D, U, H>, 
     widget.onError = toGet(args.onError ?? 'requiredField');
     widget.required = toGet(args.required ?? true);
     widget.onValueSet = args.onValueSet ?? (() => {});
+};
+const initFile = function <D>(widget: FileW<D>, args: FileArgs<D>) {
+    widget.accept = toGet(args.accept);
+    widget.multiple = toGet(args.multiple ?? false);
+    widget.max = toGet(args.max ?? Number.POSITIVE_INFINITY);
 };
 const initChooser = function <D>(widget: Chooser<D>, args: ChooserArgs<D>) {
     widget.options = toGet(args.options);
@@ -562,6 +572,29 @@ export class InputWidget<D, H extends boolean = false> extends Widget<D, string,
 }
 
 export class ScannerWidget<D> extends InputWidget<D> {}
+
+export class PhotoSelectorWidget<D, H extends boolean = false> extends Widget<D, Files, H> {
+    label = $state() as Get<D>;
+    onError = $state() as Get<D>;
+    show = $state() as Get<D, boolean>;
+    showTextValue = () => false;
+    hideInRawData = $state() as H;
+    _value = $state<Files>([]);
+    onValueSet = $state() as (data: D, newValue: Files) => void;
+    isError = $state(a => (this.value.length == 0) && this.required(a)) as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
+    lock = $state() as Get<D, boolean>;
+    accept = $state() as Get<D, string | undefined>;
+    multiple = $state() as Get<D, boolean>;
+    max = $state() as Get<D, number>;
+
+    constructor(args: ValueArgs<D, Files, H> & FileArgs<D> & LockArgs<D>) {
+        super();
+        initValue(this, args);
+        initFile(this, args);
+        initLock(this, args);
+    }
+}
 
 export class InputWithChooserWidget<D, H extends boolean = false> extends Widget<D, SeI, H> {
     label = $state() as Get<D>;

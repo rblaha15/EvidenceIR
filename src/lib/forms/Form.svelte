@@ -92,7 +92,7 @@
 
             if (!dev) storedData.set(undefined);
 
-            if (success) {
+            if (success && (openTabLink || redirectLink)) {
                 result = {
                     text: t.redirecting,
                     red: false,

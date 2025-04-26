@@ -11,12 +11,14 @@ import {
     InputWithSuggestionsWidget,
     MultiCheckboxWidget,
     p,
-    SearchWidget, type SeCh,
+    PhotoSelectorWidget,
+    SearchWidget,
+    type SeCh,
     TextWidget,
     TitleWidget
 } from '$lib/Widget.svelte';
 import { type Company, type FriendlyCompanies, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
-import { version, dev, browser } from '$app/environment';
+import { browser, dev, version } from '$app/environment';
 import products from '$lib/helpers/products';
 import { languageCodes } from '$lib/languages';
 import { getTranslations, type Translations } from '$lib/translations';
@@ -28,6 +30,8 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import { companies } from '$lib/helpers/companies';
 import MailDemand from '$lib/emails/MailDemand.svelte';
+import type { Attachment } from "nodemailer/lib/mailer";
+import { getPhoto } from '$lib/components/widgets/PhotoSelector.svelte';
 
 interface Demand extends Form<Demand> {
     contacts: {
@@ -151,6 +155,7 @@ interface Demand extends Form<Demand> {
     };
     other: {
         representative: SearchWidget<Demand, Technician>
+        photos: PhotoSelectorWidget<Demand>
     };
 }
 
@@ -163,7 +168,7 @@ const origins = {
         'demand.contacts.originAssembleres': '_poptávkaMF',
         [`demand.contacts.originDesigner`]: '_poptávkaPROJ',
     }, ...(!dev ? {}
-            : { [p`Zkoušení funkčnosti aplikace, prosím, nepoužívejte tuto možnost v reálných poptávkách (DEBUG)`]: '' } as const
+            : { [p`Zkoušení funkčnosti aplikace, prosím, nepoužívejte tuto možnost v reálných poptávkách`]: '' } as const
     )
 } as const;
 
@@ -178,8 +183,8 @@ const defaultDemand = (): Demand => ({
         demandSubject: new MultiCheckboxWidget({
             options: [`demand.contacts.heatPump`, `demand.contacts.fve`], label: `demand.contacts.demandSubject`, required: false,
         }),
-        surname: new InputWidget({ required: false, label: `demand.contacts.surname`, autocapitalize: 'words' }),
-        name: new InputWidget({ required: false, label: `demand.contacts.name`, autocapitalize: 'words' }),
+        surname: new InputWidget({ label: `demand.contacts.surname`, autocapitalize: 'words' }),
+        name: new InputWidget({ label: `demand.contacts.name`, autocapitalize: 'words' }),
         street: new InputWidget({ required: false, label: `demand.contacts.street`, autocapitalize: 'sentences' }),
         city: new InputWidget({ required: false, label: `demand.contacts.city`, autocapitalize: 'words' }),
         zip: new InputWidget({
@@ -276,23 +281,27 @@ const defaultDemand = (): Demand => ({
         }),
         fuelType: new InputWidget({ show: hp, required: false, label: `demand.objectDetail.type` }),
         fuelConsumption: new InputWithChooserWidget({
-            required: false, label: `demand.objectDetail.usage`, options: [`units.q`, `units.m3`, `units.kWh`], show: hp,
+            required: false, label: `demand.objectDetail.usage`, chosen: `units.q`, options: [`units.q`, `units.m3`, `units.kWh`], show: hp,
         }),
         fuelType2: new InputWidget({ show: hp, required: false, label: `demand.objectDetail.type2` }),
         fuelConsumption2: new InputWithChooserWidget({
-            required: false, label: `demand.objectDetail.usage2`, options: [`units.q`, `units.m3`, `units.kWh`], show: hp,
+            required: false, label: `demand.objectDetail.usage2`, chosen: `units.q`, options: [`units.q`, `units.m3`, `units.kWh`], show: hp,
         }),
         note: new InputWidget({ show: hp, required: false, label: `note` }),
     },
     system: {
         title: new TitleWidget({ show: hp, text: `demand.system.system` }),
-        hPType: new ChooserWidget({ show: hp, required: false, label: `heatPumpType`, options: [`airToWater`, `groundToWater`] }),
+        hPType: new ChooserWidget({ show: hp, required: false, label: `heatPumpType`, chosen: `airToWater`, options: [`airToWater`, `groundToWater`] }),
         hPModel: new ChooserWidget({
             required: false, label: `heatPumpModel`, show: hp, options: d => d.system.hPType.value == 'airToWater'
                 ? [...products.heatPumpsRTC, ...products.heatPumpsAirToWaterCTC] : products.heatPumpsGroundToWater,
         }),
         indoorUnitType: new ChooserWidget({
-            required: false, label: `demand.system.indoorUnitType`, options: [`demand.system.indoorUnitNone`, ...products.indoorUnits], show: hp,
+            required: false,
+            label: `demand.system.indoorUnitType`,
+            chosen: `demand.system.indoorUnitNone`,
+            options: [`demand.system.indoorUnitNone`, ...products.indoorUnits],
+            show: hp,
         }),
         thermalStoreType: new DoubleChooserWidget({
             required: false, label: `demand.system.storeType`, options1: [`demand.system.storeNone`, ...products.thermalStores.keys()], show: hp,
@@ -307,7 +316,11 @@ const defaultDemand = (): Demand => ({
             show: d => hp(d) && d.system.thermalStoreType.value.first != `demand.system.storeNone`,
         }),
         waterTankType: new ChooserWidget({
-            required: false, label: `demand.system.tankType`, options: [`demand.system.tankNone`, ...products.waterTanks], show: hp,
+            required: false,
+            label: `demand.system.tankType`,
+            chosen: `demand.system.tankNone`,
+            options: [`demand.system.tankNone`, ...products.waterTanks],
+            show: hp,
         }),
         waterTankVolume: new InputWidget({
             required: false, label: `demand.system.tankVolume`, suffix: `units.dm3`, type: 'number', inputmode: 'numeric',
@@ -326,18 +339,30 @@ const defaultDemand = (): Demand => ({
     pool: {
         title: new TitleWidget({ show: pool, text: `demand.pool.pool` }),
         usagePeriod: new ChooserWidget({
-            required: false, label: `demand.pool.usagePeriod`, options: [`demand.pool.periodYearlong`, `demand.pool.periodSeasonal`], show: pool,
+            required: false,
+            label: `demand.pool.usagePeriod`,
+            chosen: `demand.pool.periodYearlong`,
+            options: [`demand.pool.periodYearlong`, `demand.pool.periodSeasonal`],
+            show: pool,
         }),
         placement: new ChooserWidget({
-            required: false, label: `demand.pool.location`, options: [`demand.pool.locationOutdoor`, `demand.pool.locationIndoor`], show: pool,
+            required: false,
+            label: `demand.pool.location`,
+            chosen: `demand.pool.locationOutdoor`,
+            options: [`demand.pool.locationOutdoor`, `demand.pool.locationIndoor`],
+            show: pool,
         }),
         waterType: new ChooserWidget({
-            required: false, label: `demand.pool.waterType`, options: [`demand.pool.freshType`, `demand.pool.saltType`], show: pool,
+            required: false,
+            label: `demand.pool.waterType`,
+            chosen: `demand.pool.freshType`,
+            options: [`demand.pool.freshType`, `demand.pool.saltType`],
+            show: pool,
         }),
         shape: new ChooserWidget({
             required: false,
             label: `demand.pool.shape`,
-            options: [`demand.pool.shapeRectangle`, `demand.pool.shapeOval`, `demand.pool.shapeCircle`],
+            chosen: `demand.pool.shapeRectangle`, options: [`demand.pool.shapeRectangle`, `demand.pool.shapeOval`, `demand.pool.shapeCircle`],
             show: pool,
         }),
         length: new InputWidget({
@@ -354,7 +379,10 @@ const defaultDemand = (): Demand => ({
         }),
         depth: new InputWidget({ show: pool, required: false, label: `demand.pool.depth`, suffix: `units.m`, type: 'number', inputmode: 'decimal' }),
         coverage: new ChooserWidget({
-            required: false, label: `demand.pool.coverage`, show: pool,
+            required: false,
+            label: `demand.pool.coverage`,
+            show: pool,
+            chosen: `demand.pool.coverageNone`,
             options: [`demand.pool.coverageNone`, `demand.pool.coverageSolid`, `demand.pool.coveragePolycarbonate`, `demand.pool.coverageOther`],
         }),
         desiredTemperature: new InputWidget({
@@ -371,21 +399,21 @@ const defaultDemand = (): Demand => ({
         }),
         heatingElectricBoiler: new CheckboxWithChooserWidget({
             required: false, label: `demand.additionalSources.electricBoiler`, show: hp,
-            options: [`demand.additionalSources.existing`, `demand.additionalSources.newMasculine`],
+            chosen: `demand.additionalSources.existing`, options: [`demand.additionalSources.existing`, `demand.additionalSources.newMasculine`],
         }),
         heatingGasBoiler: new CheckboxWithChooserWidget({
             required: false, label: `demand.additionalSources.gasBoiler`, show: hp,
-            options: [`demand.additionalSources.existing`, `demand.additionalSources.newMasculine`],
+            chosen: `demand.additionalSources.existing`, options: [`demand.additionalSources.existing`, `demand.additionalSources.newMasculine`],
         }),
         heatingFireplace: new CheckboxWithChooserWidget({
             required: false, label: `demand.additionalSources.fireplace`, show: hp,
-            options: [`demand.additionalSources.existing`, `demand.additionalSources.newMasculine`],
+            chosen: `demand.additionalSources.existing`, options: [`demand.additionalSources.existing`, `demand.additionalSources.newMasculine`],
         }),
         heatingOther: new InputWidget({ show: hp, required: false, label: `demand.additionalSources.otherSource` }),
         hotWaterTitle: new TitleWidget({ show: hp, text: `demand.additionalSources.hotWater` }),
         hotWaterHeatingElementInStore: new CheckboxWithChooserWidget({
             required: false, label: `demand.additionalSources.heatingElement`, show: hp,
-            options: [`demand.additionalSources.toSocket`, `demand.additionalSources.fromRegulation`],
+            chosen: `demand.additionalSources.toSocket`, options: [`demand.additionalSources.toSocket`, `demand.additionalSources.fromRegulation`],
         }),
         hotWaterElectricBoiler: new CheckboxWidget({ show: hp, required: false, label: `demand.additionalSources.electricBoiler` }),
         hotWaterGasBoiler: new CheckboxWidget({ show: hp, required: false, label: `demand.additionalSources.gasBoiler` }),
@@ -398,9 +426,17 @@ const defaultDemand = (): Demand => ({
         hose: new CheckboxWithChooserWidget({
             required: false, label: `demand.accessories.hose`, chosen: p`500 mm`, options: [p`300 mm`, p`500 mm`, p`700 mm`, p`1000 mm`],
         }),
-        heatingCable: new CheckboxWithChooserWidget({ required: false, label: `demand.accessories.heatingCable`, options: [p`3,5 m`, p`5 m`] }),
+        heatingCable: new CheckboxWithChooserWidget({
+            required: false,
+            label: `demand.accessories.heatingCable`,
+            chosen: p`3,5 m`,
+            options: [p`3,5 m`, p`5 m`]
+        }),
         wallSupportBracket: new CheckboxWithChooserWidget({
-            required: false, label: `demand.accessories.wallSupportBracket`, options: [`demand.accessories.onWall`, `demand.accessories.onIsolatedWall`],
+            required: false,
+            label: `demand.accessories.wallSupportBracket`,
+            chosen: `demand.accessories.onWall`,
+            options: [`demand.accessories.onWall`, `demand.accessories.onIsolatedWall`],
         }),
         roomUnitsAndSensors: new CountersWidget({
             label: `demand.accessories.roomUnitsAndSensors`, options: [p`RC 25`, p`RDC`, p`RS 10`, p`RSW 30 - WiFi`], counts: [0, 0, 0, 0], max: d => ({
@@ -419,7 +455,10 @@ const defaultDemand = (): Demand => ({
                     { text: p`${t.email}`, width: .5 },
                 ],
             }), show: false, required: true,
-        })
+        }),
+        photos: new PhotoSelectorWidget({
+            label: `photos`, required: false, multiple: true, accept: `image/*`, max: 5,
+        }),
     },
 });
 
@@ -466,13 +505,13 @@ Změny ve verzi 2.3 oproti verzi 2.2:
         <kod1>${t.get(d.contacts.demandOrigin!)}</kod1>
         <resi_tc>${hpR(d) ? t.yes : t.no}</resi_tc>
         <resi_fve>${fveR(d) ? t.yes : t.no}</resi_fve>
-        <resi_sol>${d.strings.no}</resi_sol>
-        <resi_rek>${d.strings.no}</resi_rek>
-        <resi_krb>${d.strings.no}</resi_krb>
-        <resi_konz>${d.strings.no}</resi_konz>
-        <resi_jine>${d.strings.no}</resi_jine>
-        <resi_jine_uvedte>${d.strings.no}</resi_jine_uvedte>
-        <resi_doporuc>${d.strings.no}</resi_doporuc>
+        <resi_sol>${t.no}</resi_sol>
+        <resi_rek>${t.no}</resi_rek>
+        <resi_krb>${t.no}</resi_krb>
+        <resi_konz>${t.no}</resi_konz>
+        <resi_jine>${t.no}</resi_jine>
+        <resi_jine_uvedte>${t.no}</resi_jine_uvedte>
+        <resi_doporuc>${t.no}</resi_doporuc>
         <cislo_ko>${d.other.representative!.koNumber}</cislo_ko>
         <odesilatel>${user.email}</odesilatel>
     </system>
@@ -499,7 +538,7 @@ Změny ve verzi 2.3 oproti verzi 2.2:
         <spotreba_paliva_2_druh>${d.objectDetails.fuelType2}</spotreba_paliva_2_druh>
         <spotreba_paliva_2_mnozstvi>${d.objectDetails.fuelConsumption2.text}</spotreba_paliva_2_mnozstvi>
         <spotreba_paliva_2_jednotky>${t.get(d.objectDetails.fuelConsumption2.chosen ?? '')}</spotreba_paliva_2_jednotky>
-        <rocni_platba_vytapeni>${d.objectDetails.heatingCosts} ${d.strings.currency}</rocni_platba_vytapeni>
+        <rocni_platba_vytapeni>${d.objectDetails.heatingCosts} ${t.demand.currency}</rocni_platba_vytapeni>
     </detailobjektu>
     <tc>
         <typ>${t.get(d.system.hPType ?? '')}</typ>
@@ -543,9 +582,9 @@ Změny ve verzi 2.3 oproti verzi 2.2:
         <topny_kabel>${seCh(t, d.accessories.heatingCable)}</topny_kabel>
         <drzak_na_tc>${seCh(t, d.accessories.wallSupportBracket)}</drzak_na_tc>
         <pokojova_cidla_a_jednotky>${dem.accessories.roomUnitsAndSensors.options(dem)
-            .zip(d.accessories.roomUnitsAndSensors)
-            .filter(([, c]) => c > 0)
-            .map(([k, c]) => `${c}x ${t.get(k)}`)}</pokojova_cidla_a_jednotky>
+    .zip(d.accessories.roomUnitsAndSensors)
+    .filter(([, c]) => c > 0)
+    .map(([k, c]) => `${c}x ${t.get(k)}`)}</pokojova_cidla_a_jednotky>
     </prislusenstvi>` : ''}${fveR(d) ? `
     <fve>
         <stavajici_topeni>${d.photovoltaicPowerPlant.currentHeating}</stavajici_topeni>
@@ -609,7 +648,14 @@ const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Technician
                 content: xml(raw, user, cs, data),
                 contentType: 'application/xml',
                 filename: `Dotazník ${name} ${surname}.xml`
-            }],
+            }, ...raw.other.photos
+                .map(photoId => getPhoto(photoId))
+                .filterNotUndefined()
+                .map((photo, i) => <Attachment> {
+                    content: photo.replace('data:', '').replace(/^.+,/, ''),
+                    contentType: photo.split('data:')[1].split(';')[0],
+                    filename: `Fotka ${i}`,
+                })],
             component: MailDemand,
             props: raw.other.representative!,
         });
