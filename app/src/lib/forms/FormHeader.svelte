@@ -40,8 +40,8 @@
     };
 </script>
 
-<div class="d-flex mx-2 w-100 align-items-center">
-    <span class="me-auto">∗ = {t.mandatoryFields}</span>
+<div class="d-flex w-100 align-items-center text-nowrap flex-wrap">
+    <span class="me-auto" style="padding: 0.375rem 0.75rem">∗ = {t.mandatoryFields}</span>
     {#if importData}
         <button
             class="btn"
