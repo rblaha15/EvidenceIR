@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
     import type { TranslationReference, Translations } from '$lib/translations';
-    import { InputWithChooserWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
+    import { InputWithChooserWidget, labelAndStar } from '$lib/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount } from 'svelte';
 
@@ -85,7 +85,7 @@
                 inputmode={widget.inputmode(data)}
                 enterkeyhint={widget.enterkeyhint(data)}
                 autocapitalize={widget.autocapitalize(data)}
-                placeholder={nazevSHvezdou(widget, data, t)}
+                placeholder={labelAndStar(widget, data, t)}
                 class="form-control"
                 bind:this={textarea}
                 value={widget.value.text}
@@ -104,7 +104,7 @@
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
                     autocomplete={widget.autocomplete(data)}
-                    placeholder={nazevSHvezdou(widget, data, t)}
+                    placeholder={labelAndStar(widget, data, t)}
                     class="form-control"
                     bind:this={input}
                     disabled={widget.lock(data)}
@@ -116,7 +116,7 @@
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
                     autocomplete={widget.autocomplete(data)}
-                    placeholder={nazevSHvezdou(widget, data, t)}
+                    placeholder={labelAndStar(widget, data, t)}
                     class="form-control"
                     bind:this={input}
                     value={widget.value.text}
@@ -128,11 +128,11 @@
                     disabled={widget.lock(data)}
                 />
             {/if}
-            <label for="">{nazevSHvezdou(widget, data, t)}</label>
+            <label for="">{labelAndStar(widget, data, t)}</label>
         </label>
         <select
             class="form-select right"
-            id={nazevSHvezdou(widget, data, t)}
+            id={labelAndStar(widget, data, t)}
             value={widget.value.chosen}
             onchange={onChange}
         >

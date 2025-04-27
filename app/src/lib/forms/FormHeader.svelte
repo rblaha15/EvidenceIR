@@ -5,6 +5,7 @@
     import type { Form, Raw } from '$lib/forms/Form';
     import { type ExcelImport, processExcel } from '$lib/forms/Import';
     import readXlsxFile from 'read-excel-file';
+    import { STAR } from "$lib/Widget.svelte";
 
     interface Props<R extends Raw<Form>> {
         title: string;
@@ -41,7 +42,7 @@
 </script>
 
 <div class="d-flex w-100 align-items-center text-nowrap flex-wrap">
-    <span class="me-auto" style="padding: 0.375rem 0.75rem">∗ = {t.mandatoryFields}</span>
+    <span class="me-auto" style="padding: 0.375rem 0.75rem">{STAR} = {t.mandatoryFields}</span>
     {#if importData}
         <button
             class="btn"

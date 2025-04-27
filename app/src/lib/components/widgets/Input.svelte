@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { type InputWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
+    import { type InputWidget, labelAndStar } from '$lib/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount } from 'svelte';
 
@@ -75,7 +75,7 @@
                 inputmode={widget.inputmode(data)}
                 enterkeyhint={widget.enterkeyhint(data)}
                 autocapitalize={widget.autocapitalize(data)}
-                placeholder={nazevSHvezdou(widget, data, t)}
+                placeholder={labelAndStar(widget, data, t)}
                 class="form-control"
                 bind:this={textarea}
                 value={widget.value}
@@ -92,7 +92,7 @@
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
                     autocomplete={widget.autocomplete(data)}
-                    placeholder={nazevSHvezdou(widget, data, t)}
+                    placeholder={labelAndStar(widget, data, t)}
                     class="form-control"
                     bind:this={input}
                     disabled={widget.lock(data)}
@@ -104,7 +104,7 @@
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
                     autocomplete={widget.autocomplete(data)}
-                    placeholder={nazevSHvezdou(widget, data, t)}
+                    placeholder={labelAndStar(widget, data, t)}
                     class="form-control"
                     bind:this={input}
                     value={widget.value}
@@ -114,7 +114,7 @@
                     disabled={widget.lock(data)}
                 />
             {/if}
-            <label for="">{nazevSHvezdou(widget, data, t)}</label>
+            <label for="">{labelAndStar(widget, data, t)}</label>
         </label>
         {#if widget.suffix(data, t)}
             <span class="input-group-text">{t.get(widget.suffix(data, t) ?? '')}</span>

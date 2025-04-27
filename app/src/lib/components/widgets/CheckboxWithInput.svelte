@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { CheckboxWithInputWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
+    import { CheckboxWithInputWidget, labelAndStar } from '$lib/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount } from 'svelte';
 
@@ -81,7 +81,7 @@
         </button>
         <label class="form-floating d-block" id="label-{uid}">
             {#if !widget.value.checked}
-                <input type="text" placeholder={nazevSHvezdou(widget, data, t)} readonly
+                <input type="text" placeholder={labelAndStar(widget, data, t)} readonly
                        onclick={onClick} class="form-control shadow-none input-group-text"
                        role="button" disabled={widget.lock(data)} tabindex="-1" />
             {:else if widget.textArea(data)}
@@ -90,7 +90,7 @@
                 inputmode={widget.inputmode(data)}
                 enterkeyhint={widget.enterkeyhint(data)}
                 autocapitalize={widget.autocapitalize(data)}
-                placeholder={nazevSHvezdou(widget, data, t)}
+                placeholder={labelAndStar(widget, data, t)}
                 class="form-control"
                 bind:this={textarea}
                 value={widget.value.text}
@@ -109,7 +109,7 @@
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
                     autocomplete={widget.autocomplete(data)}
-                    placeholder={nazevSHvezdou(widget, data, t)}
+                    placeholder={labelAndStar(widget, data, t)}
                     class="form-control"
                     bind:this={input}
                     disabled={widget.lock(data)}
@@ -121,7 +121,7 @@
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
                     autocomplete={widget.autocomplete(data)}
-                    placeholder={nazevSHvezdou(widget, data, t)}
+                    placeholder={labelAndStar(widget, data, t)}
                     class="form-control"
                     bind:this={input}
                     value={widget.value.text}
@@ -133,7 +133,7 @@
                     disabled={widget.lock(data)}
                 />
             {/if}
-            <label for="">{nazevSHvezdou(widget, data, t)}</label>
+            <label for="">{labelAndStar(widget, data, t)}</label>
         </label>
     </div>
 

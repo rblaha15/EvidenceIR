@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { type CheckboxWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
+    import { type CheckboxWidget, labelAndStar } from '$lib/Widget.svelte.js';
 
     interface Props {
         t: Translations;
@@ -27,7 +27,7 @@
         </button>
         <button onclick={onClick} tabindex="-1"
                 id="label-{uid}" class="input-group-text flex-grow-1"
-        >{nazevSHvezdou(widget, data, t)}</button>
+        >{labelAndStar(widget, data, t)}</button>
     </div>
 
     {#if widget.showError(data)}

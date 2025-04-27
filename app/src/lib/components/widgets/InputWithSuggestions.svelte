@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { InputWithSuggestionsWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
+    import { InputWithSuggestionsWidget, labelAndStar } from '$lib/Widget.svelte.js';
 
     interface Props {
         t: Translations;
@@ -27,7 +27,7 @@
                 inputmode={widget.inputmode(data)}
                 enterkeyhint={widget.enterkeyhint(data)}
                 autocapitalize={widget.autocapitalize(data)}
-                placeholder={nazevSHvezdou(widget, data, t)}
+                placeholder={labelAndStar(widget, data, t)}
                 class="form-control"
                 bind:this={input}
                 value={widget.value}
@@ -40,7 +40,7 @@
                     <option value={t.get(suggestion)}>{t.get(suggestion)}</option>
                 {/each}
             </datalist>
-            <label for="">{nazevSHvezdou(widget, data, t)}</label>
+            <label for="">{labelAndStar(widget, data, t)}</label>
         </label>
         {#if widget.suffix(data, t)}
             <span class="input-group-text">{t.get(widget.suffix(data, t) ?? '')}</span>

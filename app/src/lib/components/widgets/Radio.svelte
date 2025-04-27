@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
 	import type { TranslationReference, Translations } from '$lib/translations';
-	import { nazevSHvezdou, type RadioWidget } from '$lib/Widget.svelte.js';
+	import { labelAndStar, type RadioWidget } from '$lib/Widget.svelte.js';
 
 	interface Props {
 		t: Translations;
@@ -11,7 +11,7 @@
 	let { t, widget = $bindable(), data }: Props = $props();
 	const value = $derived(widget.bindableValue(data))
 
-	const onClick = (item: TranslationReference) => () => {
+	const onClick = (item: TranslationReference | null) => () => {
 		widget.setValue(data, item);
 	};
 
@@ -19,7 +19,12 @@
 </script>
 
 {#if widget.show(data)}
-	<label class="d-block" for="">{nazevSHvezdou(widget, data, t)}</label>
+	<div class="d-flex align-items-center">
+		{labelAndStar(widget, data, t)}
+		{#if !widget.required(data)}
+			<button class="btn py-1 px-2 m-1" aria-label={t.clearSelection} onclick={onClick(null)}><i class="bi bi-eraser"></i></button>
+		{/if}
+	</div>
 	<div class="input-group input-group-grid">
 		{#each widget.options(data) as item}
 			<button class="input-group-text input-group-input first" onclick={onClick(item)}
