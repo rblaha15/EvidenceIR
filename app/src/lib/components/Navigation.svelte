@@ -9,6 +9,7 @@
     import LanguageSelector from './LanguageSelector.svelte';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import ThemeSelector from '$lib/components/ThemeSelector.svelte';
+    import Settings from "$lib/components/Settings.svelte";
 
     interface Props {
         t: Translations;
@@ -47,13 +48,12 @@
         {/if}
         {#if jePrihlasen}
             <div class="d-flex flex-row ms-auto ms-md-0">
-                <div class="d-none d-md-block ms-2">
-                    <ThemeSelector {t} />
+                <div class="d-none d-md-block ms-3">
+                    <button class="btn btn-link nav-link" data-bs-toggle="modal" data-bs-target="#settings" aria-label="Settings">
+                        <i class="bi-gear-fill fs-2"></i>
+                    </button>
                 </div>
-                <div class="d-none d-md-block ms-2">
-                    <LanguageSelector />
-                </div>
-                <div class="dropdown ms-2">
+                <div class="dropdown ms-3">
                     <button class="btn btn-link nav-link" data-bs-toggle="dropdown" aria-label="User">
                         <i class="bi-person-fill fs-2"></i>
                     </button>
@@ -100,14 +100,14 @@
                     <!--suppress CheckImageSize -->
                     <img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
                     <span class="navbar-brand">{t.appName}</span>
-                    <ThemeSelector {t} />
-                    <LanguageSelector />
-                    <button class="btn btn-link nav-link ms-auto" data-bs-dimdiss="offcanvas" aria-label="Close">
+                    <button class="btn btn-link nav-link ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
                         <i class="bi-x fs-1"></i>
                     </button>
                 </div>
                 <div class="offcanvas-body">
                     <BaseNav {t} />
+                    <hr />
+                    <Settings {t} />
                 </div>
             </div>
         {:else}
@@ -139,6 +139,32 @@
         {/if}
     </div>
 </nav>
+
+<div class="modal" id="settings">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{t.settings}</h4>
+                <button
+                    aria-label={t.close}
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
+            </div>
+
+            <div class="modal-body">
+                <Settings {t} />
+            </div>
+
+            <div class="modal-footer">
+                <button
+                    class="btn btn-primary"
+                    data-bs-dismiss="modal"
+                >{t.close}</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style global>
     .navbar {

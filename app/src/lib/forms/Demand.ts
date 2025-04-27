@@ -472,10 +472,10 @@ const xml = (d: Raw<Demand>, user: User, t: Translations, dem: Demand) => `
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="dotaznik_app.xsl"?>
 
-<!-- 
+<!--
 Tento soubor byl vygenerován automaticky aplikací Regulus SEIR
 Verze dokumentu: 3.0 (Zaveden ve verzi aplikace 5.1.1 (Android) a 1.2.0 (SEIR))
-Verze aplikace: 1.2.0 (${version}) (${dev ? 'DEV' : browser ? 'BROWSER' : 'UNKNOWN'})
+Verze aplikace: ${appVersion} (${version}) (${dev ? 'DEV' : browser ? 'BROWSER' : 'UNKNOWN'})
 -->
 
 <!--

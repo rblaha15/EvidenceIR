@@ -21,3 +21,10 @@ export const firestore = initializeFirestore(app, { localCache: persistentLocalC
 export const realtime = getDatabase(app);
 
 export const auth = getAuth(app);
+
+declare global {
+	/**
+	 * Delared in vite.config.ts
+	 */
+	const appVersion: string;
+}

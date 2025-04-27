@@ -11,11 +11,11 @@
 </script>
 
 <div class="dropdown">
-	<button class="btn btn-link nav-link py-2 px-2 dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
-		<i class="my-1 bi-globe"></i>
-		<span class="mx-2">{page.data.languageCode.toUpperCase()}</span>
+	<button class="btn py-2 px-2 dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+		<i class="m-1 bi-globe"></i>
+		<span class="mx-1">{page.data.languageCode.toUpperCase()}</span>
 	</button>
-	<ul class="dropdown-menu dropdown-menu-end">
+	<ul class="dropdown-menu">
 		{#each languageCodes.filter(it => it !== 'sk') as code}
 			<li>
 				<button
