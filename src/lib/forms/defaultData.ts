@@ -175,6 +175,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
             onValueSet: (d, v) => {
                 if (v) {
                     d.uvedeni.ico.setValue(d, d.montazka.ico.value);
+                    d.uvedeni.zastupce.setValue(d, d.montazka.zastupce.value);
                     d.uvedeni.email.setValue(d, d.montazka.email.value);
                     d.uvedeni.telefon.setValue(d, d.montazka.telefon.value);
                 }

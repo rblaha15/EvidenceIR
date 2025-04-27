@@ -11,7 +11,7 @@ import {
     InputWithSuggestionsWidget,
     MultiCheckboxWidget,
     p,
-    PhotoSelectorWidget,
+    PhotoSelectorWidget, RadioWidget,
     SearchWidget,
     type SeCh,
     TextWidget,
@@ -179,7 +179,7 @@ const pool = (d: Demand) => hp(d) && d.system.wantsPool.value;
 const defaultDemand = (): Demand => ({
     contacts: {
         title: new TitleWidget({ text: `demand.contacts.contacts` }),
-        demandOrigin: new ChooserWidget({ options: origins.keys(), required: true, label: `demand.contacts.demandOrigin` }),
+        demandOrigin: new ChooserWidget({ options: origins.keys(), label: `demand.contacts.demandOrigin` }),
         demandSubject: new MultiCheckboxWidget({
             options: [`demand.contacts.heatPump`, `demand.contacts.fve`], label: `demand.contacts.demandSubject`, required: false,
         }),
@@ -291,10 +291,10 @@ const defaultDemand = (): Demand => ({
     },
     system: {
         title: new TitleWidget({ show: hp, text: `demand.system.system` }),
-        hPType: new ChooserWidget({ show: hp, required: false, label: `heatPumpType`, chosen: `airToWater`, options: [`airToWater`, `groundToWater`] }),
+        hPType: new RadioWidget({ show: hp, required: false, label: `heatPumpType`, chosen: `airToWater`, options: [`airToWater`, `groundToWater`] }),
         hPModel: new ChooserWidget({
-            required: false, label: `heatPumpModel`, show: hp, options: d => d.system.hPType.value == 'airToWater'
-                ? [...products.heatPumpsRTC, ...products.heatPumpsAirToWaterCTC] : products.heatPumpsGroundToWater,
+            required: false, label: `heatPumpModel`, show: hp, options: d => [`iDoNotKnow`, ...d.system.hPType.value == 'airToWater'
+                ? [...products.heatPumpsRTC, ...products.heatPumpsAirToWaterCTC] : products.heatPumpsGroundToWater], chosen: `iDoNotKnow`,
         }),
         indoorUnitType: new ChooserWidget({
             required: false,
@@ -327,9 +327,9 @@ const defaultDemand = (): Demand => ({
             show: d => hp(d) && d.system.waterTankType.value != `demand.system.tankNone`,
         }),
         heatingSystem: new ChooserWidget({
-            required: false, label: `demand.system.heatingSystem`, show: hp, options: [
-                `demand.system.heatingSystem1circuit`, `demand.system.heatingSystem2circuits`, `demand.system.heatingSystem3circuits`,
-                `demand.system.heatingSystemInvertor`, `demand.system.heatingSystemOther`,
+            required: false, label: `demand.system.heatingSystem`, show: hp, chosen: `iDoNotKnow`, options: [
+                `iDoNotKnow`, `demand.system.heatingSystem1circuit`, `demand.system.heatingSystem2circuits`,
+                `demand.system.heatingSystem3circuits`, `demand.system.heatingSystemInvertor`, `demand.system.heatingSystemOther`,
             ],
         }),
         hotWaterCirculation: new CheckboxWidget({ show: hp, required: false, label: `demand.system.hotWaterCirculation` }),
@@ -338,28 +338,28 @@ const defaultDemand = (): Demand => ({
     },
     pool: {
         title: new TitleWidget({ show: pool, text: `demand.pool.pool` }),
-        usagePeriod: new ChooserWidget({
+        usagePeriod: new RadioWidget({
             required: false,
             label: `demand.pool.usagePeriod`,
             chosen: `demand.pool.periodYearlong`,
             options: [`demand.pool.periodYearlong`, `demand.pool.periodSeasonal`],
             show: pool,
         }),
-        placement: new ChooserWidget({
+        placement: new RadioWidget({
             required: false,
             label: `demand.pool.location`,
             chosen: `demand.pool.locationOutdoor`,
             options: [`demand.pool.locationOutdoor`, `demand.pool.locationIndoor`],
             show: pool,
         }),
-        waterType: new ChooserWidget({
+        waterType: new RadioWidget({
             required: false,
             label: `demand.pool.waterType`,
             chosen: `demand.pool.freshType`,
             options: [`demand.pool.freshType`, `demand.pool.saltType`],
             show: pool,
         }),
-        shape: new ChooserWidget({
+        shape: new RadioWidget({
             required: false,
             label: `demand.pool.shape`,
             chosen: `demand.pool.shapeRectangle`, options: [`demand.pool.shapeRectangle`, `demand.pool.shapeOval`, `demand.pool.shapeCircle`],
@@ -378,7 +378,7 @@ const defaultDemand = (): Demand => ({
             show: d => pool(d) && d.pool.shape.value == `demand.pool.shapeCircle`,
         }),
         depth: new InputWidget({ show: pool, required: false, label: `demand.pool.depth`, suffix: `units.m`, type: 'number', inputmode: 'decimal' }),
-        coverage: new ChooserWidget({
+        coverage: new RadioWidget({
             required: false,
             label: `demand.pool.coverage`,
             show: pool,

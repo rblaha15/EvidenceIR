@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
     import type { TranslationReference, Translations } from '$lib/translations';
-    import { CheckboxWithChooserWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
+    import { CheckboxWithChooserWidget, labelAndStar } from '$lib/Widget.svelte.js';
     import type { Action } from 'svelte/action';
     import { onMount } from 'svelte';
 
@@ -48,11 +48,11 @@
                         {/each}
                     </select>
                 {:else}
-                    <input type="text" placeholder={nazevSHvezdou(widget, data, t)} readonly onclick={onClick}
+                    <input type="text" placeholder={labelAndStar(widget, data, t)} readonly onclick={onClick}
                            class="form-control shadow-none input-group-text" role="button"
                            tabindex="-1" />
                 {/if}
-                <label for="">{nazevSHvezdou(widget, data, t)}</label>
+                <label for="">{labelAndStar(widget, data, t)}</label>
             </label>
         </div>
 

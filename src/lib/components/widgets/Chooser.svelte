@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
 	import type { TranslationReference, Translations } from '$lib/translations';
-	import { nazevSHvezdou, type ChooserWidget } from '$lib/Widget.svelte.js';
+	import { labelAndStar, type ChooserWidget } from '$lib/Widget.svelte.js';
 
 	interface Props {
         t: Translations;
@@ -26,7 +26,7 @@
                     <option value={moznost}>{t.get(moznost)}</option>
                 {/each}
             </select>
-            <label for="">{nazevSHvezdou(widget, data, t)}</label>
+            <label for="">{labelAndStar(widget, data, t)}</label>
         </label>
 
         {#if widget.showError(data)}

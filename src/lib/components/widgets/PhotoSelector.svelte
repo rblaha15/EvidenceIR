@@ -27,7 +27,7 @@
 
 <script generics="D" lang="ts">
     import type { Translations } from "$lib/translations";
-    import { nazevSHvezdou, type PhotoSelectorWidget } from "$lib/Widget.svelte";
+    import { labelAndStar, type PhotoSelectorWidget } from "$lib/Widget.svelte";
     import type { ChangeEventHandler } from "svelte/elements";
 
     interface Props {
@@ -67,7 +67,7 @@
 </script>
 
 {#if widget.show(data)}
-    <div>{nazevSHvezdou(widget, data, t)}</div>
+    <div>{labelAndStar(widget, data, t)}</div>
     {#if widget.value.length === 0 || (multiple && widget.value.length < max)}
         <div class="d-flex">
             <button

@@ -1,6 +1,6 @@
 <script generics="D, T" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { nazevSHvezdou, type SearchWidget } from '$lib/Widget.svelte.js';
+    import { labelAndStar, type SearchWidget } from '$lib/Widget.svelte.js';
     import { browser } from '$app/environment';
 
     export const wordsToFilter = (s: string) => s
@@ -58,7 +58,7 @@
             placeholder=""
             type={widget.type(data, t)}
         />
-        <label for="">{nazevSHvezdou(widget, data, t)}</label>
+        <label for="">{labelAndStar(widget, data, t)}</label>
     </label>
 
     {#if !hidden}

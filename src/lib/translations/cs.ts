@@ -165,6 +165,8 @@ export default {
     passwordHasBeenReset: `Heslo resetováno, přihlašte se prosím`,
     yes: 'Ano',
     no: 'Ne',
+    iDoNotKnow: 'Nevím',
+    clearSelection: `Vymazat výběr`,
     commission: 'Zaznamenat uvedení do provozu',
     hpWarranty: `Záruční list tepelného čerpadla`,
     warrantyFileName: `Záruční list.pdf`,

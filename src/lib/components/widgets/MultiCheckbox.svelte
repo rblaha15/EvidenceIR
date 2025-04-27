@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
     import type { TranslationReference, Translations } from '$lib/translations';
-    import { type MultiCheckboxWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
+    import { type MultiCheckboxWidget, labelAndStar } from '$lib/Widget.svelte.js';
 
     interface Props {
         t: Translations;
@@ -21,7 +21,7 @@
 </script>
 
 {#if widget.show(data)}
-    <label class="d-block" for="">{nazevSHvezdou(widget, data, t)}</label>
+    <div>{labelAndStar(widget, data, t)}</div>
     <div class="input-group input-group-grid">
         {#each widget.options(data) as item}
             <button class="input-group-text input-group-input first" onclick={onClick(item)}

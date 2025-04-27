@@ -27,13 +27,15 @@ export const p = createTemplate(
     (plainString: string) => `PLAIN_${plainString}` as `PLAIN_${typeof plainString}`
 );
 
-export const nazevSHvezdou = <D, U>(
-    vec: Required<D, U, boolean>,
+export const STAR = '∗';
+
+export const labelAndStar = <D, U>(
+    widget: Required<D, U, boolean>,
     data: D,
     t: Translations
 ) => {
-    const nazev = t.get(vec.label(data, t));
-    return nazev == '' ? '' : nazev + (!vec.required(data) ? '' : ' ∗');
+    const label = t.get(widget.label(data, t));
+    return label == '' ? '' : label + (!widget.required(data) ? '' : ` ${STAR}`);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

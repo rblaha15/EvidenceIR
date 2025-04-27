@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import type { Action } from 'svelte/action';
     import type { TranslationReference, Translations } from '$lib/translations';
-    import { type DoubleChooserWidget, nazevSHvezdou } from '$lib/Widget.svelte.js';
+    import { type DoubleChooserWidget, labelAndStar } from '$lib/Widget.svelte.js';
 
     interface Props {
         t: Translations;
@@ -42,12 +42,12 @@
                     <option value={moznost}>{t.get(moznost)}</option>
                 {/each}
             </select>
-            <label for="">{nazevSHvezdou(widget, data, t)}</label>
+            <label for="">{labelAndStar(widget, data, t)}</label>
         </label>
         {#if widget.value.first != null && widget.options2(data).length > 0}
             <select
                 class="form-select right"
-                id={nazevSHvezdou(widget, data, t)}
+                id={labelAndStar(widget, data, t)}
                 value={widget.value.second ?? 'notChosen'}
                 disabled={widget.options2(data).length < 2 || widget.lock2(data)}
                 onchange={onChange2}

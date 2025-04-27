@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { nazevSHvezdou, type SwitchWidget } from '$lib/Widget.svelte.js';
+    import { labelAndStar, type SwitchWidget } from '$lib/Widget.svelte.js';
 
     interface Props {
         t: Translations;
@@ -14,7 +14,7 @@
 
 {#if widget.show(data)}
     <div class="d-flex align-items-center mb-3">
-        <label class="me-2" for="">{nazevSHvezdou(widget, data, t)}</label>
+        <div class="me-2">{labelAndStar(widget, data, t)}</div>
         <div class="btn-group" role="group">
             {#each widget.options as moznost, i}
                 <input
