@@ -3,67 +3,46 @@
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import type { Translations } from '$lib/translations';
     import { relUrl } from '$lib/helpers/runes.svelte';
+    import { isIRID } from "$lib/helpers/ir";
 
-    interface Props {
-        t: Translations;
-    }
-
-    let { t }: Props = $props();
+    const { t }: { t: Translations } = $props();
+    type BooleanLike = boolean | null | undefined
+    type s = string
 </script>
 
+{#snippet item({url, label, selected, shown = true}: {url: s, label: s, selected: BooleanLike, shown?: BooleanLike})}
+    {#if shown}
+        <li class="link-item" data-bs-dismiss="offcanvas">
+            <a
+                tabindex="0"
+                class="nav-link ms-md-3"
+                class:ms-3={selected}
+                class:active={selected}
+                aria-current={selected ? 'page' : null}
+                href={relUrl(url)}
+            >{label}</a>
+        </li>
+    {/if}
+{/snippet}
+
 <ul class="navbar-nav">
-    <li class="link-item" data-bs-dismiss="offcanvas">
-        <a
-            tabindex="0"
-            aria-current={page.route.id?.match(/.*\/new($|\?)/) && !page.url.searchParams.has('edit-irid') ? 'page' : null}
-            class="nav-link mt-3 mt-sm-0"
-            class:active={page.route.id?.match(/.*\/new($|\?)/) && !page.url.searchParams.has('edit-irid')}
-            href={relUrl('/new')}>{t.new}</a
-        >
-    </li>
-    {#if $isUserRegulusOrAdmin}
-        <li class="link-item" data-bs-dismiss="offcanvas">
-            <a
-                tabindex="0"
-                class="nav-link ms-sm-3"
-                class:active={page.route.id?.endsWith('/newSP')}
-                aria-current={page.route.id?.endsWith('/newSP') ? 'page' : null}
-                href={relUrl('/newSP')}>Nezávislý servisní protokol</a
-            >
-        </li>
-    {/if}
-    <li class="link-item" data-bs-dismiss="offcanvas">
-        <a
-            tabindex="0"
-            aria-current={page.route.id?.endsWith('/search') ? 'page' : null}
-            class="nav-link ms-sm-3"
-            class:active={page.route.id?.endsWith('/search')}
-            href={relUrl('/search')}>{t.controllerSearch}</a
-        >
-    </li>
-    {#if page.route.id?.includes('/detail') || page.url.searchParams.has('edit-irid')}
-        <li class="link-item" data-bs-dismiss="offcanvas">
-            <a
-                tabindex="0"
-                class="nav-link ms-sm-3 active"
-                aria-current={'page'}
-                href={
-                    page.route.id?.includes('/detail')
-                        ? relUrl(`/detail/${page.data.irid_spid ?? ''}`)
-                        : relUrl(`/detail/${page.url.searchParams.get('edit-irid') ?? ''}`)
-                }
-            >{t.evidenceDetails}</a>
-        </li>
-    {/if}
-    {#if $isUserAdmin}
-        <li class="link-item" data-bs-dismiss="offcanvas">
-            <a
-                tabindex="0"
-                class="nav-link ms-sm-3"
-                class:active={page.route.id?.endsWith('/admin')}
-                aria-current={page.route.id?.endsWith('/admin') ? 'page' : null}
-                href={relUrl('/admin')}>Admin</a
-            >
-        </li>
-    {/if}
+    {@render item({
+        url: '/new', label: t.new,
+        selected: page.route.id?.match(/.*\/new($|\?)/) && !page.url.searchParams.has('edit-irid'),
+    })}
+    {@render item({
+        url: '/newSP', label: 'Nezávislý servisní protokol', shown: $isUserRegulusOrAdmin,
+        selected: page.route.id?.endsWith('/newSP'),
+    })}
+    {@render item({
+        url: '/search', label: t.controllerSearch, selected: page.route.id?.endsWith('/search'),
+    })}
+    {@render item({
+        url: page.route.id?.includes('/detail') ? `/detail/${page.data.irid_spid ?? ''}` : `/detail/${page.url.searchParams.get('edit-irid') ?? ''}`,
+        label: page.data.irid_spid && isIRID(page.data.irid_spid) ? t.evidenceDetails : 'Podrobnosti protokolu',
+        selected: true, shown: page.route.id?.includes('/detail') || page.url.searchParams.has('edit-irid'),
+    })}
+    {@render item({
+        url: '/admin', label: 'Admin', shown: $isUserAdmin, selected: page.route.id?.endsWith('/admin'),
+    })}
 </ul>

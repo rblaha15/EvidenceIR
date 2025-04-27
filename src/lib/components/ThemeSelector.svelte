@@ -31,12 +31,12 @@
 <div class="dropdown">
     <button
         aria-label="Toggle theme"
-        class="btn btn-link nav-link py-2 px-2 dropdown-toggle d-flex align-items-center"
+        class="btn dropdown-toggle d-flex align-items-center"
         data-bs-toggle="dropdown"
     >
-        <i class="bi-{selectedIcon} my-1"></i>
+        <i class="bi-{selectedIcon} m-1"></i>
     </button>
-    <ul class="dropdown-menu dropdown-menu-end">
+    <ul class="dropdown-menu">
         {#each themeSettings.zip(icons) as [theme, icon]}
             <li>
                 <button
