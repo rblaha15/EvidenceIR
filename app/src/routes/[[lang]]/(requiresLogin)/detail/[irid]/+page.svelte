@@ -19,7 +19,7 @@
     import { page } from '$app/state';
     import { solarCollectorCommission, type UvedeniSOL } from '$lib/forms/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
-    import { celyNazevIR, celyNazevSP, isIRID, isSPID } from '$lib/helpers/ir';
+    import { irWholeName, spWholeName, isIRID, isSPID } from '$lib/helpers/ir';
     import { ChooserWidget, InputWidget, p } from '$lib/Widget.svelte.js';
     import type { Raw } from '$lib/forms/Form';
     import { detailUrl, relUrl } from '$lib/helpers/runes.svelte';
@@ -155,7 +155,7 @@
         {/if}
     </h3>
 {:else}
-    <h3>{sp ? celyNazevSP(sp) : celyNazevIR(values.evidence)}</h3>
+    <h3>{sp ? spWholeName(sp) : irWholeName(values.evidence)}</h3>
 {/if}
 {#if deleted}
     <div class="alert alert-success" role="alert">

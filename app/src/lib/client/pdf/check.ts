@@ -2,7 +2,7 @@ import { nazevFirmy } from '$lib/helpers/ares';
 import type { Data } from '$lib/forms/Data';
 import type { Translations } from '$lib/translations';
 import type { GetPdfData } from '$lib/server/pdf';
-import { jmenoUzivatele } from '$lib/helpers/ir';
+import { endUserName } from '$lib/helpers/ir';
 import type { Raw } from '$lib/forms/Form';
 import type { Kontrola } from '$lib/forms/Kontrola.svelte';
 
@@ -25,7 +25,7 @@ const check: GetPdfData = async ({ kontroly: k, evidence: e }, t) => {
     const start = {
         fileName: t.yearlyCheckFileName,
         /*           info */ Text1:
-            `${t.endCustomer}: ${jmenoUzivatele(e.koncovyUzivatel)} – ${e.koncovyUzivatel.telefon} – ${e.koncovyUzivatel.email}
+            `${t.endCustomer}: ${endUserName(e.koncovyUzivatel)} – ${e.koncovyUzivatel.telefon} – ${e.koncovyUzivatel.email}
 ${t.realizationLocation}: ${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}
 ${t.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}
 ` + pumps.map(([model, cislo], i) =>

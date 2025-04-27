@@ -22,7 +22,7 @@ import { companies } from '$lib/helpers/companies';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { nazevSP } from '$lib/helpers/ir';
+import { spName } from '$lib/helpers/ir';
 
 export type UDSP = UserData<UDSP> & GenericDataSP<UDSP>
 
@@ -54,7 +54,7 @@ const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SpareP
 
         const response = await sendEmail({
             ...defaultAddresses(),
-            subject: `Nový servisní protokol: ${nazevSP(raw.zasah)}`,
+            subject: `Nový servisní protokol: ${spName(raw.zasah)}`,
             component: MailProtocol,
             props: { name: raw.zasah.clovek, origin: page.url.origin, irid_spid: extractSPIDFromRawData(raw.zasah) },
         });

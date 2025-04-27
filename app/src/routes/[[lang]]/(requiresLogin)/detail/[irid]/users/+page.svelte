@@ -2,7 +2,7 @@
     import type { PageData } from './$types';
     import { evidenceStore, type IRID, upravitUzivatele } from '$lib/client/firestore';
     import { setTitle } from '$lib/helpers/title.svelte';
-    import { celyNazevIR } from '$lib/helpers/ir';
+    import { irWholeName } from '$lib/helpers/ir';
 
     interface Props {
         data: PageData;
@@ -22,7 +22,7 @@
 {#if !$ir}
     <div class="spinner-border text-danger"></div>
 {:else}
-    <h3>{celyNazevIR($ir.evidence)}</h3>
+    <h3>{irWholeName($ir.evidence)}</h3>
 
     <div class="d-flex align-items-center">
         <label class="form-floating flex-grow-1 me-2">

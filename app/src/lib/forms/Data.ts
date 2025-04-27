@@ -33,7 +33,7 @@ import { relUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { nazevFirmy } from '$lib/helpers/ares';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
-import { nazevIR } from '$lib/helpers/ir';
+import { irName } from '$lib/helpers/ir';
 import { generateXML } from '$lib/createXML';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
 import MailSDaty from '$lib/emails/MailSDaty.svelte';
@@ -224,7 +224,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
 
             const response = await sendEmail({
                 ...defaultAddresses(),
-                subject: `Založení RegulusRoute k ${nazevIR(raw.ir)}`,
+                subject: `Založení RegulusRoute k ${irName(raw.ir)}`,
                 attachments: [{
                     content: generateXML(data, t),
                     contentType: 'application/xml',
@@ -243,8 +243,8 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         const response = doNotSend ? undefined : await sendEmail({
             ...defaultAddresses('blahova@regulus.cz', true),
             subject: edit
-                ? `Úprava evidence regulátoru ${nazevIR(raw.ir)}`
-                : `Nově zaevidovaný regulátor ${nazevIR(raw.ir)}`,
+                ? `Úprava evidence regulátoru ${irName(raw.ir)}`
+                : `Nově zaevidovaný regulátor ${irName(raw.ir)}`,
             component: MailSDaty,
             props: { data, t, user, origin: page.url.origin },
         });

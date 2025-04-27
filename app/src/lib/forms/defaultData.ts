@@ -13,7 +13,7 @@ import {
 import { type Data, type UserData } from './Data';
 import type { Company, Technician } from '$lib/client/realtime';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
-import { formaSpolecnostiJeSpatne, typBOX } from '$lib/helpers/ir';
+import { isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
 import products from '$lib/helpers/products';
 
@@ -43,7 +43,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
         nazev: new InputWidget({ label: `companyName`, show: po, required: po }),
         wrongFormat: new TextWidget({
             text: `wrongCompanyType`, showInXML: false,
-            show: d => !jeFO(d) && formaSpolecnostiJeSpatne(d.koncovyUzivatel.nazev.value),
+            show: d => !jeFO(d) && isCompanyFormInvalid(d.koncovyUzivatel.nazev.value),
         }),
         pobocka: new InputWidget({ label: `establishment`, required: false, show: po }),
         ico: new InputWidget({

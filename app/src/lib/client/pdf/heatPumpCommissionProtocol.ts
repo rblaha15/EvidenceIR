@@ -2,7 +2,7 @@ import { nazevFirmy } from "$lib/helpers/ares";
 import { dateFromISO, todayISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
 import type { GetPdfData } from '$lib/server/pdf';
-import { jmenoUzivatele, typBOX, typIR } from '$lib/helpers/ir';
+import { endUserName, typBOX, irType } from '$lib/helpers/ir';
 
 const heatPumpCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniTC, }, t) => {
     const u = uvedeniTC!
@@ -10,7 +10,7 @@ const heatPumpCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniTC, 
 
     return ({
         fileName: `Protokol uvedení TČ.pdf`,
-/*    koncakJmeno */ Text1: jmenoUzivatele(e.koncovyUzivatel),
+/*    koncakJmeno */ Text1: endUserName(e.koncovyUzivatel),
 /*      koncakTel */ Text2: e.koncovyUzivatel.telefon,
 /*    koncakEmail */ Text3: e.koncovyUzivatel.email,
 /*      instalace */ Text4: `${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,
@@ -39,7 +39,7 @@ const heatPumpCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniTC, 
 /*                */ Text27: u.os.zTv,
 /*                */ Text28: u.os.objemEnOs ? t.suits : t.suitsNot,
 /*                */ Text29: u.os.bazenTc ? t.yes : t.no,
-/*                */ Text30: typIR(e.ir.typ),
+/*                */ Text30: irType(e.ir.typ),
 /*                */ Text31: e.ir.typ.first?.includes('SOREL') ? '—' : e.ir.cislo,
 /*                */ Text32: t.get(u.reg.pripojeniKInternetu!),
 /*                */ Text33: u.reg.pospojeni ? t.yes : t.no,

@@ -8,7 +8,7 @@
     import Search from '$lib/components/widgets/Search.svelte';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { relUrl } from '$lib/helpers/runes.svelte';
-    import { nazevIR, nazevSP, popisIR } from '$lib/helpers/ir';
+    import { irName, spName, irLabel } from '$lib/helpers/ir';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
 
     type Installation = {
@@ -27,8 +27,8 @@
             .map(snapshot => snapshot.data())
             .map(data => <Installation> {
                 irid: extractIRIDFromRawData(data.evidence),
-                irName: nazevIR(data.evidence.ir),
-                label: popisIR(data.evidence)
+                irName: irName(data.evidence.ir),
+                label: irLabel(data.evidence)
             })
             .filter(i => i.irid)
             .toSorted((a, b) => a.irid.localeCompare(b.irid));
@@ -40,8 +40,8 @@
                 .map(snapshot => snapshot.data())
                 .map(data => <PublicServiceProtocol> {
                     spid: extractSPIDFromRawData(data.zasah),
-                    label: popisIR(data),
-                    id: nazevSP(data.zasah),
+                    label: irLabel(data),
+                    id: spName(data.zasah),
                 })
                 .filter(i => i.spid)
                 .toSorted((a, b) => -a.spid.localeCompare(b.spid));
