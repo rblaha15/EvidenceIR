@@ -3,7 +3,7 @@
     import { openDB } from 'idb';
     import { browser } from "$app/environment";
 
-    const db = browser ? await openDB<{
+    const db = browser ? openDB<{
         photos: {
             key: string;
             value: string;
@@ -16,13 +16,13 @@
     }) : undefined
 
     export const addPhoto = (photo: string) =>
-        uuid().also(id => db!.add('photos', photo, id))
-    export const removePhoto = (id: string) =>
-        db!.delete('photos', id)
-    export const removeAllPhotos = () =>
-        db!.clear('photos')
-    export const getPhoto = (id: string) =>
-        db!.get('photos', id)
+        uuid().also(async id => await (await db!).add('photos', photo, id))
+    export const removePhoto = async (id: string) =>
+        await (await db!).delete('photos', id)
+    export const removeAllPhotos = async () =>
+        await (await db!).clear('photos')
+    export const getPhoto = async (id: string) =>
+        await (await db!).get('photos', id)
 </script>
 
 <script generics="D" lang="ts">
