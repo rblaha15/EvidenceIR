@@ -14,7 +14,7 @@ import guide from '$lib/client/pdf/guide';
 import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtocol';
 import solarCollectorCommissionProtocol from '$lib/client/pdf/solarCollectorCommissionProtocol';
 import installationProtocol, { publicInstallationProtocol } from '$lib/client/pdf/installationProtocol';
-import { isIRID, nazevIR } from '$lib/helpers/ir';
+import { isIRID, irName } from '$lib/helpers/ir';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { Raw } from '$lib/forms/Form';
 
@@ -71,7 +71,7 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
     const formData = await getData(data, t);
 
     const prefixFileNameWithIR = !(formData.doNotPrefixFileNameWithIR ?? false);
-    const prefix = prefixFileNameWithIR && isIRID(irid_spid) ? nazevIR((data as IR).evidence.ir) + ' ' : '';
+    const prefix = prefixFileNameWithIR && isIRID(irid_spid) ? irName((data as IR).evidence.ir) + ' ' : '';
     const fileName = prefix + formData.fileName;
 
     for (const fieldName in formData.omit('fileName', 'doNotPrefixFileNameWithIR')) {

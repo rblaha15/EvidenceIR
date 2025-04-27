@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { type Data } from '$lib/forms/Data';
 	import type { Translations } from '$lib/translations';
-    import { nazevIR, popisIR } from '$lib/helpers/ir';
+    import { irName, irLabel } from '$lib/helpers/ir';
 	import type { Raw } from '$lib/forms/Form';
 
 	const typZarizeni = (e: Raw<Data>): string => {
@@ -38,8 +38,8 @@
 {#if !e.ir.typ.first?.includes('SOREL')}
 	<p><b>Výrobní číslo:</b> {e.ir.cislo}</p>
 {/if}
-<p><b>Přihlášení:</b> {nazevIR(e.ir)}</p>
-<p><b>Poznámka:</b> {popisIR(e)}</p>
+<p><b>Přihlášení:</b> {irName(e.ir)}</p>
+<p><b>Poznámka:</b> {irLabel(e)}</p>
 <h3>Zodpovědná osoba:</h3>
 <p>{e.ostatni.zodpovednaOsoba}</p>
 <h3>Adresa:</h3>

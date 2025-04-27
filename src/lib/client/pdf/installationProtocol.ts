@@ -6,7 +6,7 @@ import { cascadeDetails } from '$lib/client/pdf/check';
 import type { TranslationReference } from '$lib/translations';
 import '$lib/extensions';
 import type { GetPdfData } from '$lib/server/pdf';
-import { jmenoUzivatele, nazevIR } from '$lib/helpers/ir';
+import { endUserName, irName } from '$lib/helpers/ir';
 import type { SPID } from '$lib/client/firestore';
 
 const cenik = {
@@ -52,7 +52,7 @@ export const installationProtocol = (i: number): GetPdfData => async ({ evidence
         ...p,
         system: {
             nadpis: undefined as never,
-            popis: `${nazevIR(e.ir)}
+            popis: `${irName(e.ir)}
 ${e.ir.cisloBox ? `BOX: ${e.ir.cisloBox}` : ''}
 ${e.sol?.typ ? `SOL: ${e.sol.typ} – ${e.sol.pocet}x` : ''}
 ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
@@ -80,7 +80,7 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t) => {
         fileName: `SP-${technik}-${datum.replace('/', '_')}-${hodina}.pdf`,
         doNotPrefixFileNameWithIR: true,
         /*             id */ Text1: `${technik} ${datum}-${hodina}`,
-        /*    koncakJmeno */ Text2: jmenoUzivatele(p.koncovyUzivatel),
+        /*    koncakJmeno */ Text2: endUserName(p.koncovyUzivatel),
         /* koncakNarozeni */ Text3: p.koncovyUzivatel.typ == 'company'
             ? p.koncovyUzivatel.ico : p.koncovyUzivatel.narozeni.length == 0 ? null : p.koncovyUzivatel.narozeni,
         /*       bydliste */ Text4: `${p.bydliste.ulice}, ${p.bydliste.psc} ${p.bydliste.obec}`,

@@ -9,7 +9,7 @@ import { nowISO } from '$lib/helpers/date';
 import { makePlain, type TranslationReference } from '$lib/translations';
 import type { ExcelImport } from '$lib/forms/Import';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
-import { nazevSP } from '$lib/helpers/ir';
+import { spName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 
 type NahradniDil<D extends Form<D>> = {
@@ -256,8 +256,8 @@ export const sp = (() => {
             const response = await sendEmail({
                 ...defaultAddresses(),
                 subject: edit
-                    ? `Upravený servisní protokol: ${nazevSP(raw.zasah)}`
-                    : `Nový servisní protokol: ${nazevSP(raw.zasah)}`,
+                    ? `Upravený servisní protokol: ${spName(raw.zasah)}`
+                    : `Nový servisní protokol: ${spName(raw.zasah)}`,
                 component: MailProtocol,
                 props: { name: raw.zasah.clovek, origin: page.url.origin, irid_spid: extractSPIDFromRawData(raw.zasah) },
             });

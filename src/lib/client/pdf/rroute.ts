@@ -1,6 +1,6 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import type { GetPdfData } from '$lib/server/pdf';
-import { jmenoUzivatele, typIR } from '$lib/helpers/ir';
+import { endUserName, irType } from '$lib/helpers/ir';
 
 const rroute: GetPdfData = async ({ evidence: e }, t) => ({
     fileName: t.regulusRouteFileName,
@@ -10,7 +10,7 @@ const rroute: GetPdfData = async ({ evidence: e }, t) => ({
 /*      icoUvadec */ Text4: e.uvedeni.ico,
 /*    firmaUvadec */ Text5: (await nazevFirmy(e.uvedeni.ico, fetch)) ?? null,
 /*    jmenoUvadec */ Text6: e.uvedeni.zastupce,
-/*   jmenoPrimeni */ Text7: jmenoUzivatele(e.koncovyUzivatel),
+/*   jmenoPrimeni */ Text7: endUserName(e.koncovyUzivatel),
 /*       narozeni */ Text8: e.koncovyUzivatel.typ == 'company'
     ? e.koncovyUzivatel.ico : e.koncovyUzivatel.narozeni.length == 0 ? null : e.koncovyUzivatel.narozeni,
 /*       bydliste */ Text9: `${e.bydliste.ulice}, ${e.bydliste.psc} ${e.bydliste.obec}`,
@@ -18,7 +18,7 @@ const rroute: GetPdfData = async ({ evidence: e }, t) => ({
 /*        adresa2 */ Text11: `${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,
 /*          email */ Text12: e.koncovyUzivatel.email,
 /*        telefon */ Text13: e.koncovyUzivatel.telefon,
-/*          typIR */ Text14: typIR(e.ir.typ),
+/*          irType */ Text14: irType(e.ir.typ),
 /*         serCis */ Text15: e.ir.typ.first?.includes('SOREL') ? '—' : e.ir.cislo.split(' ')[0],
 /*        serCis2 */ Text16: e.ir.typ.first?.includes('SOREL') ? '—' : e.ir.cislo.split(' ')[1],
 /*       cisloBOX */ Text17: e.ir.cisloBox,
