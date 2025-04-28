@@ -2,15 +2,15 @@
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
     import PdfLink from './PDFLink.svelte';
-    import { checkAuth, isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { checkAuth, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import {
         evidence,
         extractIRIDFromParts,
         extractIRIDFromRawData,
-        type IR,
+        type IR, type IRID,
         novaEvidence,
-        odstranitEvidenci,
-        publicProtocol
+        odstranitEvidenci, odstranitObecnyServisniProtokol,
+        publicProtocol, vyplnitServisniProtokol
     } from '$lib/client/firestore';
     import { storable } from '$lib/helpers/stores';
     import { heatPumpCommission, type UvedeniTC } from '$lib/forms/UvedeniTC';
@@ -136,6 +136,18 @@
     };
 
     $effect(() => setTitle(spid ? 'Instalační a servisní protokol' : t.evidenceDetails));
+
+    const newIRID = new InputWidget({
+        label: p`IRID (z URL adresy)`
+    })
+    const transfer = async () => {
+        await vyplnitServisniProtokol(newIRID.value as IRID, {
+            zasah: sp.zasah, fakturace: sp.fakturace, ukony: sp.ukony,nahradniDil1: sp.nahradniDil1,
+            nahradniDil2: sp.nahradniDil2, nahradniDil3: sp.nahradniDil3, nahradniDily: sp.nahradniDily
+        })
+        // await odstranitObecnyServisniProtokol(spid!);
+        window.location.replace(relUrl(`/detail/${newIRID.value}`));
+    }
 </script>
 
 {#if type === 'loading'}
@@ -189,6 +201,13 @@
     <a class="btn btn-warning mt-2" href={relUrl('/newSP')} onclick={() => {
         storable<typeof sp>(sp2.storeName).set(sp)
     }}>Vytvořit kopii protokolu</a>
+
+    <hr />
+
+    {#if $isUserAdmin}
+        <Widget widget={newIRID} {t} data={{}} />
+        <button class="btn btn-danger" onclick={transfer}>Převést protokol k IR</button>
+    {/if}
 {/if}
 {#if type === 'loaded' && irid && irid.length !== 6}
     {#if values.evidence.vzdalenyPristup.chce}
@@ -300,9 +319,9 @@
         class="btn btn-warning mt-2"
         href={relUrl(`/new?edit-irid=${irid}`)}
         onclick={(e) => {
-			e.preventDefault();
-			window.location.href = relUrl(`/new?edit-irid=${irid}`);
-		}}>{t.editRegistration}</a
+      e.preventDefault();
+      window.location.href = relUrl(`/new?edit-irid=${irid}`);
+    }}>{t.editRegistration}</a
     >
     <button class="btn btn-danger d-block mt-2"
             data-bs-toggle="modal" data-bs-target="#deleteModal"

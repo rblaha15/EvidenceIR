@@ -180,6 +180,8 @@ export const vyplnitServisniProtokol = async (irid: IRID, protokol: Raw<DataSP>)
 };
 export const vyplnitObecnyServisniProtokol = (protokol: Raw<DataSP2>) =>
     setDoc(spDoc(extractSPIDFromRawData(protokol.zasah)), protokol);
+export const odstranitObecnyServisniProtokol = (spid: SPID) =>
+    deleteDoc(spDoc(spid));
 
 export const upravitServisniProtokol = async (irid: IRID, index: number, protokol: Raw<DataSP>) => {
     const p = (await evidence(irid)).data()!.installationProtocols;
