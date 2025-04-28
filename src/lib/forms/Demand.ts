@@ -689,6 +689,7 @@ const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Technician
         }, [techniciansList, currentUser]],
     ],
     isSendingEmails: true,
+    showSaveAndSendButtonByDefault: true,
 };
 
 export default demand;
