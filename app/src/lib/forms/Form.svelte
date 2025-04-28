@@ -33,6 +33,7 @@
         openTabLink,
         redirectLink,
         showBackButton,
+        showSaveAndSendButtonByDefault,
     } = formInfo;
 
     const storedData = storable<Raw<F>>(storeName);
@@ -153,10 +154,10 @@
         <WidgetComponent bind:widget={list[i]} {t} data={d} />
     {/each}
     <div class="d-inline-flex align-content-center">
-        {#if !result.load}
+        {#if !result.load && (mode === 'edit' && isSendingEmails || !showSaveAndSendButtonByDefault)}
             <button onclick={save(false)} class="mb-auto btn btn-success">{t.save}</button>
         {/if}
-        {#if !result.load && mode === 'edit' && isSendingEmails}
+        {#if !result.load && (mode === 'edit' && isSendingEmails || showSaveAndSendButtonByDefault)}
             <button onclick={save(true)} class="mb-auto btn btn-success ms-2 text-nowrap">{t.saveAndSend}</button>
         {/if}
         {#if result.load}

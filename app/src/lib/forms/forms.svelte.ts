@@ -35,6 +35,7 @@ export type DetachedFormInfo<D, F extends Form<D>, S extends unknown[][] = [], R
     };
     showBackButton?: boolean;
     isSendingEmails?: boolean;
+    showSaveAndSendButtonByDefault?: boolean;
     redirectLink?: (raw: R) => Promise<string>;
     openTabLink?: (raw: R) => Promise<string>;
 }
