@@ -33,7 +33,7 @@ export type DetachedFormInfo<D, F extends Form<D>, S extends unknown[][] = [], R
     importOptions?: Omit<ExcelImport<R>, 'defaultData'> & {
         onImport: (data: D, form: F) => void;
     };
-    showBackButton?: boolean;
+    showBackButton?: (edit: boolean) => boolean;
     isSendingEmails?: boolean;
     showSaveAndSendButtonByDefault?: boolean;
     redirectLink?: (raw: R) => Promise<string>;

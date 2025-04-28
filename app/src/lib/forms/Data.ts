@@ -299,6 +299,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         onImport: () => {},
     },
     isSendingEmails: true,
+    showBackButton: edit => edit,
 };
 
 export default data;

@@ -163,7 +163,7 @@
         {#if result.load}
             <div class="spinner-border text-danger ms-2"></div>
         {/if}
-        {#if showBackButton}
+        {#if showBackButton?.(mode === 'edit') ?? true}
             <button type="button" class="mb-auto btn btn-secondary ms-2" onclick={() => history.back()}>
                 {t.back}
             </button>
