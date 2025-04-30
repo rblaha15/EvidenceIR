@@ -104,6 +104,7 @@ const en: PlainTranslations = {
     pleaseFillInIrType: 'Please, fill in the IR type',
     fillInPassword: 'Please, enter your password.',
     search: 'Search',
+    searching: 'Search',
     controllerSearch: 'Search installations',
     new: 'New registration',
     changeController: 'Change controller serial number',

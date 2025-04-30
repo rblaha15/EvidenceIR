@@ -16,7 +16,6 @@
             <a
                 tabindex="0"
                 class="nav-link ms-md-3"
-                class:ms-3={selected}
                 class:active={selected}
                 aria-current={selected ? 'page' : null}
                 href={relUrl(url)}
@@ -35,7 +34,7 @@
         selected: page.route.id?.endsWith('/newSP'),
     })}
     {@render item({
-        url: '/search', label: t.controllerSearch, selected: page.route.id?.endsWith('/search'),
+        url: '/search', label: t.searching, selected: page.route.id?.endsWith('/search'),
     })}
     {@render item({
         url: page.route.id?.includes('/detail') ? `/detail/${page.data.irid_spid ?? ''}` : `/detail/${page.url.searchParams.get('edit-irid') ?? ''}`,
