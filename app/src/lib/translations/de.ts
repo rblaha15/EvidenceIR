@@ -106,6 +106,7 @@ const de: PlainTranslations = {
     pleaseFillInIrType: `Bitte geben Sie den IR-Typ ein.`,
     fillInPassword: `Bitte geben Sie das Passwort ein.`,
     search: `Suchen`,
+    searching: `Suchen`,
     controllerSearch: `Installation suchen`,
     new: `Neue Registrierung`,
     changeController: `Seriennummer des Reglers ändern`,

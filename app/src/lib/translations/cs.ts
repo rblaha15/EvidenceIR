@@ -121,6 +121,7 @@ export default {
     fillInPassword: `Prosím, zadejte heslo.`,
     search: `Vyhledat`,
     controllerSearch: `Vyhledávání instalací`,
+    searching: `Vyhledávání`,
     protocolSearch: `Vyhledávání servisních protokolů`,
     new: `Nová registrace`,
     changeController: `Změnit sériové číslo regulátoru`,
