@@ -145,7 +145,6 @@
             zasah: sp.zasah, fakturace: sp.fakturace, ukony: sp.ukony,nahradniDil1: sp.nahradniDil1,
             nahradniDil2: sp.nahradniDil2, nahradniDil3: sp.nahradniDil3, nahradniDily: sp.nahradniDily
         })
-        // await odstranitObecnyServisniProtokol(spid!);
         window.location.replace(relUrl(`/detail/${newIRID.value}`));
     }
 </script>
@@ -206,7 +205,11 @@
 
     {#if $isUserAdmin}
         <Widget widget={newIRID} {t} data={{}} />
-        <button class="btn btn-danger" onclick={transfer}>Převést protokol k IR</button>
+        <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR</button>
+
+        <button class="btn btn-danger mt-2 d-block"
+                onclick={() => odstranitObecnyServisniProtokol(spid)}
+        >Odstranit protokol</button>
     {/if}
 {/if}
 {#if type === 'loaded' && irid && irid.length !== 6}
