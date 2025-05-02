@@ -27,6 +27,7 @@
     import { regulusCRN } from '$lib/helpers/ares';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { relUrl } from '$lib/helpers/runes.svelte';
+    import readXlsxFile from 'read-excel-file';
 
     onMount(async () => {
         await startLidiListening();
@@ -117,28 +118,20 @@
             };
         }
     };
-    const poVybraniSpareParts = (
+    const poVybraniSpareParts = async (
         ev: Event & {
             currentTarget: EventTarget & HTMLInputElement;
         }
     ) => {
         const file = ev.currentTarget.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.readAsText(file, 'UTF-8');
-            reader.onload = async (evt) => {
-                const text = evt.target?.result as string | null;
-                newDataSpareParts = (text ?? '')
-                    .split('\n')
-                    .filter((radek) => radek != '')
-                    .map((radek) => radek.split(';'))
-                    .map(([code, name, unitPrice]) => ({
-                        name,
-                        code: Number(code),
-                        unitPrice: Number(unitPrice),
-                    })) as SparePart[];
-            };
-        }
+        if (!file) return;
+        const rows = await readXlsxFile(file);
+        newDataSpareParts = rows.slice(1).map(([code, name, unitPrice]) => ({
+            name,
+            code: Number(code),
+            unitPrice: Number(unitPrice)
+        })) as SparePart[];
+        ev.currentTarget.files = null
     };
 
     const stahnoutPeople = () => {
@@ -430,14 +423,14 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-warning mt-2 ms-md-2 mt-md-0"
                     onclick={() => (newDataPeople = [])}
                 >
                     Zrušit změny
                 </button>
                 <button
                     type="button"
-                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-warning mt-2 ms-md-2 mt-md-0"
                     onclick={() => document.getElementById('file-people')?.click()}
                 >
                     Vybrat jiný soubor
@@ -517,14 +510,14 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-warning mt-2 ms-md-2 mt-md-0"
                     onclick={() => (newDataCompanies = [])}
                 >
                     Zrušit změny
                 </button>
                 <button
                     type="button"
-                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-warning mt-2 ms-md-2 mt-md-0"
                     onclick={() => document.getElementById('file-companies')?.click()}
                 >
                     Vybrat jiný soubor
@@ -595,14 +588,14 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-warning mt-2 ms-md-2 mt-md-0"
                     onclick={() => (newDataTechnicians = [])}
                 >
                     Zrušit změny
                 </button>
                 <button
                     type="button"
-                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-warning mt-2 ms-md-2 mt-md-0"
                     onclick={() => document.getElementById('file-technicians')?.click()}
                 >
                     Vybrat jiný soubor
@@ -647,9 +640,8 @@
     >
         <h2>Seznam náhradních dílů</h2>
         <p class="mt-3 mb-0">
-            Vložte .csv soubor oddělený středníky (;), kde v prvním sloupci je číslo, v druhém sloupci název a ve
-            třetím spoupci jednotková cena náhradního dílu: <br />
-            Př.: Jan Novák;jan.novak@regulus.cz;JN <br />
+            Vložte .xlsx soubor s tabulkou náhradních dílů, která obsahuje záhlaví (1. řádek) a v prvním sloupci má číslo, v druhém sloupci název a ve
+            třetím spoupci jednotkovou cenu ND. <br />
             Všechna pole jsou povinná
         </p>
 
@@ -673,14 +665,14 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-warning mt-2 ms-md-2 mt-md-0"
                     onclick={() => (newDataSpareParts = [])}
                 >
                     Zrušit změny
                 </button>
                 <button
                     type="button"
-                    class="btn btn-info mt-2 ms-md-2 mt-md-0"
+                    class="btn btn-warning mt-2 ms-md-2 mt-md-0"
                     onclick={() => document.getElementById('file-spareParts')?.click()}
                 >
                     Vybrat jiný soubor
@@ -709,7 +701,7 @@
         </div>
 
         <input
-            accept="text/csv"
+            accept=".xls,.xlsx,.xlsm,.xlsb"
             id="file-spareParts"
             onchange={poVybraniSpareParts}
             style="display: none;"
