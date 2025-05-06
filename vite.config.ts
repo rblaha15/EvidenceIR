@@ -9,6 +9,10 @@ const config: UserConfig = {
 	define: {
 		appVersion: JSON.stringify(pkg.version),
 	},
+	server: {
+		port: 5001,
+		strictPort: true,
+	},
 };
 
 export default config;
