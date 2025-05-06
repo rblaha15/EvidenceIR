@@ -223,7 +223,13 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
                 ],
             }), show: d => d.uvedeni.ico.value == regulusCRN.toString(),
             required: d => d.uvedeni.ico.value == regulusCRN.toString(),
-            hideInRawData: true,
+            hideInRawData: true, onValueSet: (d, technician) => {
+                if (technician) {
+                    d.uvedeni.email.setValue(d, technician.email ?? '');
+                    d.uvedeni.telefon.setValue(d, technician.phone ?? '');
+                    d.uvedeni.zastupce.setValue(d, technician.name ?? '');
+                }
+            },
         }),
         zastupce: new InputWidget({
             label: `representativeName`,
