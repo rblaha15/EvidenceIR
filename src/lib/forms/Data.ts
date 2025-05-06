@@ -273,6 +273,13 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
 
         data.ir.cislo.lock = () => edit;
         data.ir.typ.lock1 = () => edit;
+
+        if (edit) {
+            data.uvedeni.regulus.required = () => false
+            data.uvedeni.zastupce.show = () => true
+            data.uvedeni.email.show = d => !d.uvedeni.jakoMontazka.value
+            data.uvedeni.telefon.show = d => !d.uvedeni.jakoMontazka.value
+        }
     },
     storeEffects: [
         [(_, data, [$technicians]) => {
