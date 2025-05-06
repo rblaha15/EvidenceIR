@@ -259,7 +259,7 @@ export const sp = (() => {
                     ? `Upravený servisní protokol: ${spName(raw.zasah)}`
                     : `Nový servisní protokol: ${spName(raw.zasah)}`,
                 component: MailProtocol,
-                props: { name: raw.zasah.clovek, origin: page.url.origin, irid_spid: extractSPIDFromRawData(raw.zasah) },
+                props: { name: raw.zasah.clovek, origin: page.url.origin, irid_spid: irid },
             });
 
             if (response!.ok) return true;
