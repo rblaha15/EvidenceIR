@@ -3,6 +3,7 @@
 	import type { Translations } from '$lib/translations';
     import { irName, irLabel } from '$lib/helpers/ir';
 	import type { Raw } from '$lib/forms/Form';
+	import { extractIRIDFromParts } from '$lib/client/firestore';
 
 	const typZarizeni = (e: Raw<Data>): string => {
 		if (e.ir.typ.first!.includes('BOX')) return 'CP-2972';
