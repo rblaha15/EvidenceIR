@@ -1,8 +1,9 @@
 import type { Company, Person, SparePart, Technician } from '$lib/client/realtime';
-import { checkAdmin, checkToken, createUser, getUsersByEmail, removeUsers } from '$lib/server/auth';
+import { checkAdmin, checkToken, createUser, getUserByEmail, getUsersByEmail, removeUsers } from '$lib/server/auth';
 import { people, removePerson, setCompanies, setPersonDetails, setSpareParts, setTechnicians } from '$lib/server/realtime';
 import type { RequestHandler } from './$types';
 import { error } from '@sveltejs/kit';
+import { UserRecord } from 'firebase-admin/auth';
 
 export const POST: RequestHandler = async ({ request, url }) => {
     const t = url.searchParams.get('token');
@@ -31,11 +32,15 @@ export const POST: RequestHandler = async ({ request, url }) => {
         await removeUsers(usersToDelete.map(u => u.uid));
 
         const usersToChange = [
-            ...await Promise.all(toAdd.map(email => {
+            ...await Promise.all(toAdd.map(email => new Promise<UserRecord>((resolve, reject) => {
                 console.log(`Creating ${email}`);
-                return createUser({ email, disabled: true });
-            })),
-            ...(await getUsersByEmail(toChange)).flatMap(r => r.users),
+                createUser({ email, disabled: true }).then(resolve).catch(e => {
+                    if (typeof e == 'object' && e && 'code' in e && e.code == 'auth/email-already-exists')
+                        getUserByEmail(email).then(resolve).catch(reject);
+                    else reject(e);
+                });
+            }))),
+            ...(await getUsersByEmail(toChange)).flatMap(r => r.users)
         ];
 
         await Promise.all(usersToChange.map(u => {

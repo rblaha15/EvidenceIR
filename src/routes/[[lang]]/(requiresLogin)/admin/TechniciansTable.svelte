@@ -29,7 +29,6 @@
             <th>Email</th>
             <th>Telefonní číslo</th>
             <th>Iniciály do SP</th>
-            <th>Číslo KO</th>
         </tr>
         </thead>
         <tbody>
@@ -39,7 +38,6 @@
                 <td>{technician.email}</td>
                 <td>{technician.phone}</td>
                 <td>{technician.initials}</td>
-                <td>{technician.koNumber}</td>
             </tr>
         {/each}
         </tbody>

@@ -37,6 +37,10 @@
     });
 
     let loading = $state(false);
+    let error = $state(false);
+    $effect(() => {
+        if (loading) error = false;
+    });
 
     const poVybraniPeople = (
         ev: Event & {
@@ -52,18 +56,20 @@
                 newDataPeople = (text ?? '')
                     .split('\n')
                     .filter((radek) => radek != '')
-                    .map((radek) => radek.split(';').filter((vec) => vec != ''))
-                    .map(([email, montazky, uvadeci, osoba]) => ({
+                    .map((radek) => radek.split(';'))
+                    .map(([email, montazky, uvadeci, osoba, koNumber]) => ({
                         email,
                         assembly: montazky.split('#').filter((vec) => vec != ''),
                         commissioning: uvadeci.split('#').filter((vec) => vec != ''),
-                        responsible: osoba
+                        responsible: osoba,
+                        koNumber: koNumber ? koNumber : undefined
                     }))
-                    .map(({ assembly, commissioning, email, responsible }) => ({
+                    .map(({ assembly, commissioning, email, responsible, koNumber }) => ({
                         email,
-                        assemblyCompanies: Object.fromEntries(assembly.map((crn) => [crn, crn])),
-                        commissioningCompanies: Object.fromEntries(commissioning.map((crn) => [crn, crn])),
-                        responsiblePerson: responsible
+                        assemblyCompanies: Object.fromEntries(assembly.map((crn) => [crn, crn])) ?? {},
+                        commissioningCompanies: Object.fromEntries(commissioning.map((crn) => [crn, crn])) ?? {},
+                        responsiblePerson: responsible,
+                        koNumber
                     })) as Person[];
             };
         }
@@ -108,12 +114,11 @@
                     .split('\n')
                     .filter((radek) => radek != '')
                     .map((radek) => radek.split(';').map((vec) => (vec != '' ? vec : undefined)))
-                    .map(([name, email, phone, initials, koNumber]) => ({
+                    .map(([name, email, phone, initials]) => ({
                         name,
                         email,
                         phone,
-                        initials,
-                        koNumber,
+                        initials
                     })) as Technician[];
             };
         }
@@ -131,13 +136,13 @@
             code: Number(code),
             unitPrice: Number(unitPrice)
         })) as SparePart[];
-        ev.currentTarget.files = null
+        ev.currentTarget.files = null;
     };
 
     const stahnoutPeople = () => {
         download(new File([oldDataPeople.map(
-            ({ email, assemblyCompanies, commissioningCompanies, responsiblePerson }) =>
-                `${email};${Object.values(assemblyCompanies).join('#')};${Object.values(commissioningCompanies).join('#')};${responsiblePerson ?? ''}`.trim()
+            ({ email, assemblyCompanies, commissioningCompanies, responsiblePerson, koNumber }) =>
+                `${email};${Object.values(assemblyCompanies).join('#')};${Object.values(commissioningCompanies).join('#')};${responsiblePerson ?? ''};${koNumber ?? ''}`.trim()
         ).join('\n')], 'lidi.csv'), 'lidi.csv', 'text/csv');
     };
 
@@ -146,14 +151,15 @@
 
         const token = await getToken();
 
-        await fetch(`/api/aktualizovat?type=lidi&token=${token}`, {
+        const response = await fetch(`/api/aktualizovat?type=lidi&token=${token}`, {
             method: 'POST',
             body: JSON.stringify({
                 people: newDataPeople
             })
         });
         loading = false;
-        newDataPeople = [];
+        if (response.ok) newDataPeople = [];
+        else error = true;
     };
 
     const stahnoutCompanies = () => {
@@ -167,19 +173,20 @@
 
         const token = await getToken();
 
-        await fetch(`/api/aktualizovat?type=firmy&token=${token}`, {
+        const response = await fetch(`/api/aktualizovat?type=firmy&token=${token}`, {
             method: 'POST',
             body: JSON.stringify({
                 companies: newDataCompanies
             })
         });
         loading = false;
-        newDataCompanies = [];
+        if (response.ok) newDataCompanies = [];
+        else error = true;
     };
 
     const stahnoutTechnicians = () => {
-        download(new File([oldDataTechnicians.map(({ name, email, phone, initials, koNumber }) =>
-            `${name};${email};${phone};${initials};${koNumber}`.trim()
+        download(new File([oldDataTechnicians.map(({ name, email, phone, initials }) =>
+            `${name};${email};${phone};${initials}`.trim()
         ).join('\n')], 'technici.csv'), 'technici.csv', 'text/csv');
     };
 
@@ -188,14 +195,15 @@
 
         const token = await getToken();
 
-        await fetch(`/api/aktualizovat?type=technici&token=${token}`, {
+        const response = await fetch(`/api/aktualizovat?type=technici&token=${token}`, {
             method: 'POST',
             body: JSON.stringify({
                 technicians: newDataTechnicians
             })
         });
         loading = false;
-        newDataTechnicians = [];
+        if (response.ok) newDataTechnicians = [];
+        else error = true;
     };
 
     const stahnoutSpareParts = () => {
@@ -209,14 +217,15 @@
 
         const token = await getToken();
 
-        await fetch(`/api/aktualizovat?type=nahradniDily&token=${token}`, {
+        const response = await fetch(`/api/aktualizovat?type=nahradniDily&token=${token}`, {
             method: 'POST',
             body: JSON.stringify({
                 spareParts: newDataSpareParts
             })
         });
         loading = false;
-        newDataSpareParts = [];
+        if (response.ok) newDataSpareParts = [];
+        else error = true;
     };
 
     const sort = (o: Record<string, unknown> | undefined): Record<string, unknown> | undefined => o ? Object.fromEntries(
@@ -224,7 +233,7 @@
 
     const compareByEmail = (p1: Person, p2: Person) => p1.email.localeCompare(p2.email);
     const oldDataPeople = $derived($seznamLidi.toSorted(compareByEmail));
-    let newDataPeople = $state(<Person[]> []);
+    let newDataPeople = $state(<Person[]>[]);
 
     const pEmail = (p: Person) => p.email;
     const pByEmail = (people: Person[], email: string) => people.find(p => p.email === email);
@@ -237,7 +246,7 @@
 
     const compareByCRN = (c1: Company, c2: Company) => c1.crn.localeCompare(c2.crn);
     const oldDataCompanies = $derived($seznamFirmy.toSorted(compareByCRN));
-    let newDataCompanies = $state(<Company[]> []);
+    let newDataCompanies = $state(<Company[]>[]);
 
     const cCRN = (c: Company) => c.crn;
     const cByCRN = (companies: Company[], crn: string) => companies.find(c => c.crn === crn);
@@ -250,7 +259,7 @@
 
     const compareByTEmail = (t1: Technician, t2: Technician) => t1.email.localeCompare(t2.email);
     const oldDataTechnicians = $derived($techniciansList.toSorted(compareByTEmail));
-    let newDataTechnicians = $state(<Technician[]> []);
+    let newDataTechnicians = $state(<Technician[]>[]);
 
     const tEmail = (p: Technician) => p.email;
     const tByEmail = (people: Technician[], email: string) => people.find(p => p.email === email);
@@ -263,7 +272,7 @@
 
     const compareByCode = (t1: SparePart, t2: SparePart) => t1.code - t2.code;
     const oldDataSpareParts = $derived($sparePartsList.toSorted(compareByCode));
-    let newDataSpareParts = $state(<SparePart[]> []);
+    let newDataSpareParts = $state(<SparePart[]>[]);
 
     const code = (p: SparePart) => p.code;
     const byCode = (parts: SparePart[], code: number) => parts.find(p => p.code === code);
@@ -314,7 +323,7 @@
     const addColors = <T>(additions: T[], changes: T[], removals: T[]) => [
         ...addColor(additions, 'success'),
         ...addColor(changes, 'warning'),
-        ...addColor(removals, 'danger'),
+        ...addColor(removals, 'danger')
     ];
 
     setTitle('Admin');
@@ -398,12 +407,15 @@
         <h2>Seznam uživatelů a příslušných firem</h2>
         <p class="mt-3 mb-0">
             Vložte .csv soubor oddělený středníky (;), kde v prvním sloupci je email, v druhém sloupci iča
-            montážních firem oddělená hashy (#), v třetím slopci jsou stejně oddělená iča uvaděčů a ve
-            čtvrtém spoupci jméno odpovědné osoby: <br />
+            montážních firem oddělená hashy (#), v třetím slopci jsou stejně oddělená iča uvaděčů, ve
+            čtvrtém spoupci jméno odpovědné osoby a v pátém sloupci číslo KO zaměstnance: <br />
             Př.: email@example.com;12345678#87654321;14725836#63852741;Jan Novák
         </p>
 
         <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mt-2">
+            {#if error}
+                <span class="text-danger">Něco se nepovedlo</span>
+            {/if}
             {#if loading}
                 <div class="d-flex align-items-center">
                     <span>Odesílání dat</span>
@@ -563,7 +575,7 @@
         <h2>Seznam techniků</h2>
         <p class="mt-3 mb-0">
             Vložte .csv soubor oddělený středníky (;), kde v prvním sloupci je email, v druhém sloupci jméno, ve
-            třetím telefonní číslo, ve čtvrtém spoupci iniciály (do SP) a v pátém číslo KO technika <a href="#companies-{regulusCRN}">Regulusu</a>: <br />
+            třetím telefonní číslo a ve čtvrtém spoupci iniciály (do SP) technika <a href="#companies-{regulusCRN}">Regulusu</a>: <br />
             Př.: Jan Novák;jan.novak@regulus.cz;+420789456123;JN;6417 <br />
             Všechna pole jsou povinná
         </p>
@@ -640,7 +652,8 @@
     >
         <h2>Seznam náhradních dílů</h2>
         <p class="mt-3 mb-0">
-            Vložte .xlsx soubor s tabulkou náhradních dílů, která obsahuje záhlaví (1. řádek) a v prvním sloupci má číslo, v druhém sloupci název a ve
+            Vložte .xlsx soubor s tabulkou náhradních dílů, která obsahuje záhlaví (1. řádek) a v prvním sloupci má číslo, v druhém sloupci
+            název a ve
             třetím spoupci jednotkovou cenu ND. <br />
             Všechna pole jsou povinná
         </p>
