@@ -68,6 +68,8 @@
 {/if}
 <p><b>IČO:</b> {e.montazka.ico}</p>
 <p><b>Zástupce:</b> {e.montazka.zastupce}</p>
+<p><b>Email:</b> {e.montazka.email}</p>
+<p><b>Telefon:</b> {e.montazka.telefon}</p>
 
 <h2>Uvedení do provozu</h2>
 {#if uvadec != null}
@@ -75,6 +77,8 @@
 {/if}
 <p><b>IČO:</b> {e.uvedeni.ico}</p>
 <p><b>Zástupce:</b> {e.uvedeni.zastupce}</p>
+<p><b>Email:</b> {e.uvedeni.email}</p>
+<p><b>Telefon:</b> {e.uvedeni.telefon}</p>
 
 <h2>Poznámka</h2>
 <p>{e.ostatni.poznamka}</p>
