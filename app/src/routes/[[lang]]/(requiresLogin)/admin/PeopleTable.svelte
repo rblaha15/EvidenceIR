@@ -22,7 +22,7 @@
         throw 'No people';
     }
 
-    const showCompanies = (companies: Record<string, string>) => companies.keys()
+    const showCompanies = (companies: Record<string, string>) => (companies?.keys() ?? [])
         .map(c => `<a href="#companies-${c}">${c}</a>`)
         .join(', ');
 </script>
@@ -35,6 +35,7 @@
             <th>Montážní firmy</th>
             <th>Uvaděči</th>
             <th>Zodpovědná osoba</th>
+            <th>Číslo KO</th>
         </tr>
         </thead>
         <tbody>
@@ -47,6 +48,7 @@
                 <td>{@html showCompanies(person.assemblyCompanies)}</td>
                 <td>{@html showCompanies(person.commissioningCompanies)}</td>
                 <td>{person.responsiblePerson}</td>
+                <td>{person.koNumber}</td>
             </tr>
         {/each}
         </tbody>

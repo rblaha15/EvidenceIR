@@ -1,6 +1,6 @@
 <script lang="ts">
-    const { name }: { name: string } = $props();
+    const { email }: { email: string } = $props();
 </script>
 
-<p>Prosím o přípravu nabídky. Děkuji.</p>
-<p>{name}</p>
+<p>Prosím o přípravu nabídky.</p>
+<p>Vyplnil: {email}</p>

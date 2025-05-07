@@ -20,13 +20,13 @@ export type Person = {
 	assemblyCompanies: SelfObject<CRN>;
 	commissioningCompanies: SelfObject<CRN>;
 	responsiblePerson?: string;
+	koNumber?: string;
 };
 export type Technician = {
 	email: string;
 	name: string;
 	phone: string;
 	initials: string;
-	koNumber: string;
 };
 export type SparePart = {
 	name: string;

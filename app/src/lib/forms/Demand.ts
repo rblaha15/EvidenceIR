@@ -17,7 +17,7 @@ import {
     TextWidget,
     TitleWidget
 } from '$lib/Widget.svelte';
-import { type Company, type FriendlyCompanies, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
+import { type Company, type FriendlyCompanies, startLidiListening, type Person, seznamLidi } from '$lib/client/realtime';
 import { browser, dev, version } from '$app/environment';
 import products from '$lib/helpers/products';
 import { languageCodes } from '$lib/languages';
@@ -154,7 +154,7 @@ interface Demand extends Form<Demand> {
         note: InputWidget<Demand>
     };
     other: {
-        representative: SearchWidget<Demand, Technician>
+        representative: SearchWidget<Demand, Person>
         photos: PhotoSelectorWidget<Demand>
     };
 }
@@ -447,11 +447,11 @@ const defaultDemand = (): Demand => ({
         note: new InputWidget({ required: false, label: `note` }),
     },
     other: {
-        representative: new SearchWidget<Demand, Technician>({
+        representative: new SearchWidget<Demand, Person>({
             label: `representative`, items: [], getSearchItem: t => ({
                 pieces: [
-                    { text: p`${t.name}`, width: .4 },
-                    { text: p`${t.koNumber}`, width: .1 },
+                    { text: p`${t.responsiblePerson!}`, width: .4 },
+                    { text: p`${t.koNumber!}`, width: .1 },
                     { text: p`${t.email}`, width: .5 },
                 ],
             }), show: false, required: true,
@@ -631,7 +631,7 @@ Změny ve verzi 2.3 oproti verzi 2.2:
     </poznamka>
 </xml>`;
 
-const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Technician[], User | null]]> = {
+const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Person[], User | null]]> = {
     storeName: 'stored_demand',
     defaultData: defaultDemand,
     saveData: async (raw, _, data, editResult, t) => {
@@ -657,7 +657,7 @@ const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Technician
                     filename: `Fotka ${i + 1}`,
                 })],
             component: MailDemand,
-            props: raw.other.representative!,
+            props: { email: user.email! },
         });
 
         if (response!.ok) {
@@ -672,21 +672,22 @@ const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Technician
     createWidgetData: d => d,
     title: t => t.demand.demandForm,
     onMount: async () => {
-        await startTechniciansListening()
+        await startLidiListening()
     },
     storeEffects: [
         [(_, d, [$companies]) => {
             d.contacts.assemblyCompanySearch.items = () => $companies.assemblyCompanies;
         }, [companies]],
-        [(_, d, [$techniciansList, $currentUser]) => {
-            const me = $techniciansList.find(t => $currentUser?.email == t.email);
-            d.other.representative.items = () => $techniciansList
-                .filter(t => t.email.endsWith('cz'))
-                .toSorted((a, b) => a.name.split(" ").at(-1)!
-                    .localeCompare(b.name.split(" ").at(-1)!));
-            d.other.representative.setValue(d, me ?? d.other.representative.value);
+        [(_, d, [$people, $currentUser]) => {
+            const withKO = $people.filter(p => p.koNumber && p.responsiblePerson)
+            const me = withKO.find(t => $currentUser?.email == t.email);
+            d.other.representative.items = () => withKO
+                .filter(p => p.email.endsWith('cz'))
+                .toSorted((a, b) => a.responsiblePerson!.split(" ").at(-1)!
+                    .localeCompare(b.responsiblePerson!.split(" ").at(-1)!));
+            if (me) d.other.representative.setValue(d, me);
             d.other.representative.show = () => !me;
-        }, [techniciansList, currentUser]],
+        }, [seznamLidi, currentUser]],
     ],
     isSendingEmails: true,
     showSaveAndSendButtonByDefault: true,
