@@ -686,7 +686,6 @@ const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Person[], 
                 .toSorted((a, b) => a.responsiblePerson!.split(" ").at(-1)!
                     .localeCompare(b.responsiblePerson!.split(" ").at(-1)!));
             if (me) d.other.representative.setValue(d, me);
-            d.other.representative.show = () => !me;
         }, [seznamLidi, currentUser]],
     ],
     isSendingEmails: true,
