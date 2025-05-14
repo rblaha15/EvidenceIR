@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount, untrack } from 'svelte';
     import type { PageData } from './$types';
     import PdfLink from './PDFLink.svelte';
     import { checkAuth, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
@@ -109,8 +109,10 @@
 
     $effect(() => {
         if (!values) return;
-        irNumber.setValue({}, values.evidence.ir.cislo);
-        irType.setValue({}, values.evidence.ir.typ.first);
+        untrack(() => {
+            irNumber.setValue({}, values.evidence.ir.cislo);
+            irType.setValue({}, values.evidence.ir.typ.first);
+        })
     });
     $effect(() => {
         if (irType.value == p`SOREL`) {
@@ -132,7 +134,7 @@
         record.evidence.ir.typ.first = newType;
         await novaEvidence(record);
         await odstranitEvidenci(irid!);
-        window.location.replace(relUrl(`/detail/${extractIRIDFromParts(newType!, newNumber)}`));
+        window.location.assign(relUrl(`/detail/${extractIRIDFromParts(newType!, newNumber)}`));
     };
 
     $effect(() => setTitle(spid ? 'Instalační a servisní protokol' : t.evidenceDetails));
