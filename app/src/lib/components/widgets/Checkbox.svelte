@@ -1,6 +1,7 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
     import { type CheckboxWidget, labelAndStar } from '$lib/Widget.svelte.js';
+    import type { MouseEventHandler } from 'svelte/elements';
 
     interface Props {
         t: Translations;
@@ -10,7 +11,8 @@
 
     let { t, widget = $bindable(), data }: Props = $props();
 
-    const onClick = () => {
+    const onClick: MouseEventHandler<HTMLInputElement | HTMLButtonElement> = e => {
+        e.stopPropagation();
         if (!widget.lock(data)) widget.mutateValue(data, v => !v);
     };
 
