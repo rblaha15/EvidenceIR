@@ -1,4 +1,4 @@
-<script generics="D" lang="ts">
+<script generics="D, I1 extends TranslationReference, I2 extends TranslationReference" lang="ts">
     import { onMount } from 'svelte';
     import type { Action } from 'svelte/action';
     import type { TranslationReference, Translations } from '$lib/translations';
@@ -6,7 +6,7 @@
 
     interface Props {
         t: Translations;
-        widget: DoubleChooserWidget<D>;
+        widget: DoubleChooserWidget<D, I1, I2>;
         data: D;
     }
 
@@ -17,13 +17,13 @@
             currentTarget: HTMLSelectElement;
         }
     ) =>
-        widget.mutateValue(data, v => ({ ...v, first: e.currentTarget.value as TranslationReference }));
+        widget.mutateValue(data, v => ({ ...v, first: e.currentTarget.value as I1 }));
     const onChange2 = (
         e: Event & {
             currentTarget: HTMLSelectElement;
         }
     ) =>
-        widget.mutateValue(data, v => ({ ...v, second: e.currentTarget.value as TranslationReference }));
+        widget.mutateValue(data, v => ({ ...v, second: e.currentTarget.value as I2 }));
 
     let mounted = false;
     onMount(() => (mounted = true));

@@ -43,7 +43,7 @@ export interface UvedeniTC extends Form<UDTC> {
     },
     os: {
         nadpis: TitleWidget<UDTC>,
-        tvori: ChooserWidget<UDTC>,
+        tvori: ChooserWidget<UDTC, `radiators` | `underfloorHeating` | `combinationHeating` | `otherHeatingSystem`>,
         popis: InputWidget<UDTC>,
         dzTop: CheckboxWidget<UDTC>,
         typDzTop: InputWidget<UDTC>,
@@ -54,17 +54,17 @@ export interface UvedeniTC extends Form<UDTC> {
     },
     reg: {
         nadpis: TitleWidget<UDTC>,
-        pripojeniKInternetu: ChooserWidget<UDTC>,
+        pripojeniKInternetu: ChooserWidget<UDTC, `connectedViaRegulusRoute` | `connectedWithPublicIpAddress` | `notConnected`>,
         pospojeni: CheckboxWidget<UDTC>,
         spotrebice: CheckboxWidget<UDTC>,
         zalZdroj: CheckboxWidget<UDTC>,
     },
     primar: {
         nadpis: TitleWidget<UDTC>,
-        typ: ChooserWidget<UDTC>,
+        typ: ChooserWidget<UDTC, `groundBoreholes` | `surfaceCollector` | `otherCollector`>,
         popis: InputWidget<UDTC>,
         nemrz: InputWidget<UDTC>
-        nadoba: ChooserWidget<UDTC>,
+        nadoba: ChooserWidget<UDTC, `expansionTankInstalled` | `bufferTankInstalled`>,
         kontrola: CheckboxWidget<UDTC>,
     },
     uvadeni: {
@@ -72,7 +72,7 @@ export interface UvedeniTC extends Form<UDTC> {
         tc: CheckboxWidget<UDTC>,
         reg: CheckboxWidget<UDTC>,
         vlastnik: CheckboxWidget<UDTC>,
-        typZaruky: ChooserWidget<UDTC>,
+        typZaruky: ChooserWidget<UDTC, `no` | `yes`>,
         zaruka: CheckboxWidget<UDTC>,
         date: InputWidget<UDTC>,
     },

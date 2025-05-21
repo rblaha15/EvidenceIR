@@ -1,4 +1,4 @@
-<script generics="D" lang="ts">
+<script generics="D, I extends TranslationReference" lang="ts">
     import type { TranslationReference, Translations } from '$lib/translations';
     import { InputWithChooserWidget, labelAndStar } from '$lib/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
@@ -6,7 +6,7 @@
 
     interface Props {
         t: Translations;
-        widget: InputWithChooserWidget<D>;
+        widget: InputWithChooserWidget<D, I>;
         data: D;
     }
 
@@ -22,7 +22,7 @@
         value?: string;
     };
 
-    const maybeCapitalized = (value: string, widget: InputWithChooserWidget<D>): string =>
+    const maybeCapitalized = (value: string, widget: InputWithChooserWidget<D, I>): string =>
         widget.capitalize(data) ? value.toUpperCase() : value;
 
     let input = $state<HTMLInputElement>();
@@ -72,7 +72,7 @@
             currentTarget: HTMLSelectElement;
         }
     ) => widget.mutateValue(data, v => (
-        { ...v, chosen: e.currentTarget.value as TranslationReference }
+        { ...v, chosen: e.currentTarget.value as I }
     ));
 </script>
 
