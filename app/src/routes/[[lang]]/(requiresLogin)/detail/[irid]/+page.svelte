@@ -86,7 +86,7 @@
         window.location.replace(detailUrl(`?deleted`));
     };
 
-    let change: 'no' | 'input' | 'sending' | 'fail' = $state('no');
+    let change: 'no' | 'input' | 'sending' | 'fail' | 'unchanged' = $state('no');
 
     let irNumber = $state(new InputWidget({
         label: `serialNumber`,
@@ -123,18 +123,26 @@
     const s = $derived(irType.value?.includes('SOREL') ?? false);
 
     const changeController = async () => {
-        irNumber.displayErrorVeto = true;
-        irType.displayErrorVeto = true;
-        if (irNumber.showError(s) || irType.showError(s)) return;
-        const newNumber = irNumber.value;
-        const newType = irType.value;
-        change = 'sending';
-        const record = (await evidence(irid!)).data()!;
-        record.evidence.ir.cislo = newNumber;
-        record.evidence.ir.typ.first = newType;
-        await novaEvidence(record);
-        await odstranitEvidenci(irid!);
-        window.location.assign(relUrl(`/detail/${extractIRIDFromParts(newType!, newNumber)}`));
+        try {
+            irNumber.displayErrorVeto = true;
+            irType.displayErrorVeto = true;
+            if (irNumber.showError(s) || irType.showError(s)) return;
+            const newNumber = irNumber.value;
+            const newType = irType.value;
+            change = 'sending';
+            const record = (await evidence(irid!)).data()!;
+            record.evidence.ir.cislo = newNumber;
+            if (record.evidence.ir.cislo == newNumber) return change = 'unchanged';
+            record.evidence.ir.typ.first = newType;
+            await novaEvidence(record);
+            const newRecord = (await evidence(extractIRIDFromParts(newType!, newNumber))).data();
+            if (!newRecord?.evidence) return change = 'fail';
+            await odstranitEvidenci(irid!);
+            window.location.assign(relUrl(`/detail/${extractIRIDFromParts(newType!, newNumber)}`));
+        } catch (e) {
+            console.log(e);
+            change = 'fail';
+        }
     };
 
     $effect(() => setTitle(spid ? 'Instalační a servisní protokol' : t.evidenceDetails));
@@ -316,6 +324,8 @@
             <span>{t.saving}...</span>
             <div class="spinner-border text-danger ms-2"></div>
         </div>
+    {:else if change === 'unchanged'}
+        <p class="mt-2 text-danger">{t.changeWentWrong}</p>
     {:else if change === 'fail'}
         <p class="mt-2 text-danger">{t.changeWentWrong}</p>
     {/if}
