@@ -5,7 +5,6 @@ import {
     DoubleChooserWidget,
     InputWidget,
     MultiCheckboxWidget,
-    p,
     RadioWidget,
     ScannerWidget,
     SearchWidget,
@@ -22,7 +21,7 @@ import {
     techniciansList
 } from '$lib/client/realtime';
 import type { ExcelImport } from '$lib/forms/Import';
-import { getTranslations, makePlain } from '$lib/translations';
+import { getTranslations, makePlain, p, type P } from '$lib/translations';
 import { type Form, type Raw } from '$lib/forms/Form';
 import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
 import { page } from '$app/state';
@@ -37,11 +36,12 @@ import { irName } from '$lib/helpers/ir';
 import { generateXML } from '$lib/createXML';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
 import MailSDaty from '$lib/emails/MailSDaty.svelte';
+import { type Products } from '$lib/helpers/products';
 
 export interface UserData<D extends UserData<D>> extends Form<D> {
     koncovyUzivatel: {
         nadpis: TitleWidget<D>;
-        typ: RadioWidget<D>;
+        typ: RadioWidget<D, `individual` | `company`>;
         prijmeni: InputWidget<D>;
         jmeno: InputWidget<D>;
         narozeni: InputWidget<D>;
@@ -91,23 +91,23 @@ export interface UserData<D extends UserData<D>> extends Form<D> {
 
 export interface Data extends UserData<Data>, Form<Data> {
     ir: {
-        typ: DoubleChooserWidget<Data>;
+        typ: DoubleChooserWidget<Data, P<'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 14' | 'IR 12' | 'SOREL'>, P<'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6 EP' | 'STDC E' | 'TRS3' | 'TRS4' | 'TRS5'>>;
         cislo: InputWidget<Data>;
         cisloBox: InputWidget<Data>;
         boxType: TextWidget<Data>;
-        chceVyplnitK: MultiCheckboxWidget<Data>;
+        chceVyplnitK: MultiCheckboxWidget<Data, `heatPump` | `solarCollector`>;
     };
     tc: {
         nadpis: TitleWidget<Data>;
         poznamka: TextWidget<Data>;
-        typ: RadioWidget<Data>;
-        model: ChooserWidget<Data>;
+        typ: RadioWidget<Data, `airToWater` | `groundToWater`>;
+        model: ChooserWidget<Data, Products['heatPumps']>;
         cislo: ScannerWidget<Data>;
-        model2: ChooserWidget<Data>;
+        model2: ChooserWidget<Data, `noPump` | Products['heatPumps']>;
         cislo2: ScannerWidget<Data>;
-        model3: ChooserWidget<Data>;
+        model3: ChooserWidget<Data, `noPump` | Products['heatPumps']>;
         cislo3: ScannerWidget<Data>;
-        model4: ChooserWidget<Data>;
+        model4: ChooserWidget<Data, `noPump` | Products['heatPumps']>;
         cislo4: ScannerWidget<Data>;
     };
     sol: {
@@ -118,8 +118,8 @@ export interface Data extends UserData<Data>, Form<Data> {
     vzdalenyPristup: {
         nadpis: TitleWidget<Data>;
         chce: CheckboxWidget<Data>;
-        pristupMa: MultiCheckboxWidget<Data>;
-        plati: RadioWidget<Data>;
+        pristupMa: MultiCheckboxWidget<Data, `endCustomer` | `assemblyCompany` | `commissioningCompany`>;
+        plati: RadioWidget<Data, 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | P<'Později, dle protokolu'>>;
     };
     ostatni: {
         zodpovednaOsoba: InputWidget<Data>;
@@ -160,13 +160,13 @@ const cells: ExcelImport<Raw<Data>>['cells'] = {
             address: [2, 33], transform: v => v == 'Vyberte typ' ? null
                 : v.includes('EcoPart') || v.includes('EcoHeat') ? 'groundToWater' : 'airToWater'
         },
-        model: { address: [2, 33], transform: v => v == 'Vyberte typ' ? null : makePlain(v)! },
+        model: { address: [2, 33], transform: v => v == 'Vyberte typ' ? null : makePlain(v)! as Raw<Data>['tc']['model'] },
         cislo: { address: [6, 33] },
-        model2: { address: [2, 34], transform: v => v == 'Vyberte typ' ? 'noPump' : makePlain(v)! },
+        model2: { address: [2, 34], transform: v => v == 'Vyberte typ' ? 'noPump' : makePlain(v)! as Raw<Data>['tc']['model2'] },
         cislo2: { address: [6, 34] },
-        model3: { address: [2, 35], transform: v => v == 'Vyberte typ' ? 'noPump' : makePlain(v)! },
+        model3: { address: [2, 35], transform: v => v == 'Vyberte typ' ? 'noPump' : makePlain(v)! as Raw<Data>['tc']['model3'] },
         cislo3: { address: [6, 35] },
-        model4: { address: [2, 36], transform: v => v == 'Vyberte typ' ? 'noPump' : makePlain(v)! },
+        model4: { address: [2, 36], transform: v => v == 'Vyberte typ' ? 'noPump' : makePlain(v)! as Raw<Data>['tc']['model4'] },
         cislo4: { address: [6, 36] },
     },
     ir: {
@@ -178,7 +178,7 @@ const cells: ExcelImport<Raw<Data>>['cells'] = {
                 return {
                     first: makePlain(ir?.split(' ')?.toSpliced(-1, 1)?.join(' ')) ?? null,
                     second: makePlain(ir?.split(' ')?.at(-1)) ?? null,
-                };
+                } as Raw<Data>['ir']['typ'];
             }
         },
         cislo: { getData: get => `${get([6, 41])} ${get([7, 41])}` },
@@ -291,10 +291,10 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         }, [companies]],
         [(_, data, [$isUserRegulusOrAdmin]) => {
             data.vzdalenyPristup.plati.options = () => $isUserRegulusOrAdmin
-                ? [p`Později, dle protokolu`, 'doNotInvoice', 'assemblyCompany', 'endCustomer']
+                ? [p('Později, dle protokolu'), 'doNotInvoice', 'assemblyCompany', 'endCustomer']
                 : ['assemblyCompany', 'endCustomer'];
             if ($isUserRegulusOrAdmin && !data.vzdalenyPristup.plati.value)
-                data.vzdalenyPristup.plati.setValue(data, p`Později, dle protokolu`)
+                data.vzdalenyPristup.plati.setValue(data, p('Později, dle protokolu'))
         }, [isUserRegulusOrAdmin]],
         [(_, data, [$responsiblePerson]) => {
             data.ostatni.zodpovednaOsoba.show = () => $responsiblePerson == null;

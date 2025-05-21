@@ -1,10 +1,10 @@
-<script generics="D" lang="ts">
+<script generics="D, I extends TranslationReference" lang="ts">
 	import type { TranslationReference, Translations } from '$lib/translations';
 	import { labelAndStar, type ChooserWidget } from '$lib/Widget.svelte.js';
 
 	interface Props {
         t: Translations;
-        widget: ChooserWidget<D>;
+        widget: ChooserWidget<D, I>;
         data: D;
     }
 
@@ -14,7 +14,7 @@
         e: Event & {
             currentTarget: HTMLSelectElement;
         }
-    ) => (widget.setValue(data, e.currentTarget.value as TranslationReference));
+    ) => (widget.setValue(data, e.currentTarget.value as I));
 </script>
 
 <div class="mb-3">

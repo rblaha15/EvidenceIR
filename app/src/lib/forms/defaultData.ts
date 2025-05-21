@@ -4,7 +4,6 @@ import {
     DoubleChooserWidget,
     InputWidget,
     MultiCheckboxWidget,
-    p,
     RadioWidget, ScannerWidget,
     SearchWidget,
     TextWidget,
@@ -16,6 +15,8 @@ import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
 import products from '$lib/helpers/products';
+import { p, plainArray } from '$lib/translations';
+import type { Raw } from '$lib/forms/Form';
 
 const jeFO = (d: UserData<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserData<never>) => jeFO(d);
@@ -121,8 +122,8 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
         company: new SearchWidget<D, Company, true>({
             label: `searchCompanyInList`, items: [], getSearchItem: i => ({
                 pieces: [
-                    { text: p`${i.crn}`, width: .2 },
-                    { text: p`${i.companyName}`, width: .8 },
+                    { text: p(i.crn), width: .2 },
+                    { text: p(i.companyName), width: .8 },
                 ],
             }), showInXML: false, required: false, hideInRawData: true,
             onValueSet: (d, company) => {
@@ -147,7 +148,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
         chosen: new TextWidget({
             text: async (d, t) => {
                 const company = await nazevFirmy(d.montazka.ico.value);
-                return company ? p`${t.chosenCompany}: ${company}` : '';
+                return company ? p(`${t.chosenCompany}: ${company}`) : '';
             }, showInXML: false,
         }),
         zastupce: new InputWidget({
@@ -184,8 +185,8 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
         company: new SearchWidget<D, Company, true>({
             label: `searchCompanyInList`, items: [], getSearchItem: i => ({
                 pieces: [
-                    { text: p`${i.crn}`, width: .2 },
-                    { text: p`${i.companyName}`, width: .8 },
+                    { text: p(i.crn), width: .2 },
+                    { text: p(i.companyName), width: .8 },
                 ],
             }), show: d => !d.uvedeni.jakoMontazka.value, showInXML: false, required: false, hideInRawData: true,
             onValueSet: (d, company) => {
@@ -211,15 +212,15 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
         chosen: new TextWidget({
             text: async (d, t) => {
                 const company = await nazevFirmy(d.uvedeni.ico.value);
-                return company ? p`${t.chosenCompany}: ${company}` : '';
+                return company ? p(`${t.chosenCompany}: ${company}`) : '';
             }, showInXML: false,
         }),
         regulus: new SearchWidget<D, Technician, true>({
             label: `searchRepresentative`, items: [], showInXML: false, getSearchItem: i => ({
                 pieces: [
-                    { text: p`${i.name}` },
-                    { text: p`${i.email}` },
-                    { text: p`${i.phone}` },
+                    { text: p(i.name) },
+                    { text: p(i.email) },
+                    { text: p(i.phone) },
                 ],
             }), show: d => d.uvedeni.ico.value == regulusCRN.toString(),
             required: d => d.uvedeni.ico.value == regulusCRN.toString(),
@@ -264,15 +265,15 @@ export default (): Data => ({
     ir: {
         typ: new DoubleChooserWidget({
             label: `controllerType`,
-            options1: [p`IR RegulusBOX`, p`IR RegulusHBOX`, p`IR RegulusHBOX K`, p`IR 34`, p`IR 14`, p`IR 12`, p`SOREL`],
+            options1: plainArray(['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL']),
             options2: ({ ir: { typ: { value: { first: f } } } }) => (
-                f == p`IR 12` ? [p`CTC`] : f == p`SOREL` ? [p`SRS1 T`, p`SRS2 TE`, p`SRS3 E`, p`SRS6 EP`, p`STDC E`, p`TRS3`, p`TRS4`, p`TRS5`] : [p`CTC`, p`RTC`]
+                plainArray(f == p('IR 12') ? ['CTC'] : f == p('SOREL') ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5'] : ['CTC', 'RTC'])
             ),
             onValueSet: (d, v) => {
-                if (v.second == p`RTC`) {
+                if (v.second == p('RTC')) {
                     d.tc.typ.setValue(d, 'airToWater');
                 }
-                if (v.first == p`SOREL`) {
+                if (v.first == p('SOREL')) {
                     d.ir.cislo.setValue(d, `${todayISO()} ${time()}`);
                     d.ir.cisloBox.setValue(d, '')
                     d.vzdalenyPristup.chce.setValue(d, false)
@@ -280,8 +281,8 @@ export default (): Data => ({
                 if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
                     d.ir.typ.setValue(d, { ...v, second: null });
                 }
-                if (v.first == p`IR 12`) {
-                    d.ir.typ.setValue(d, { ...v, second: p`CTC` });
+                if (v.first == p('IR 12')) {
+                    d.ir.typ.setValue(d, { ...v, second: p('CTC') });
                 }
             },
         }),
@@ -343,12 +344,12 @@ export default (): Data => ({
             options: [`airToWater`, `groundToWater`],
             required: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
             show: d =>
-                d.ir.typ.value.second == p`CTC` && d.ir.chceVyplnitK.value.includes(`heatPump`)
+                d.ir.typ.value.second == p('CTC') && d.ir.chceVyplnitK.value.includes(`heatPump`)
         }),
         model: new ChooserWidget({
             label: d => (d.tc.model2.value != `noPump` ? `heatPumpModel1` : `heatPumpModel`),
             options: d =>
-                d.ir.typ.value.second == p`RTC`
+                d.ir.typ.value.second == p('RTC')
                     ? products.heatPumpsRTC
                     : d.tc.typ.value == 'airToWater'
                         ? products.heatPumpsAirToWaterCTC
@@ -356,10 +357,10 @@ export default (): Data => ({
             required: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
             show: d =>
                 d.ir.typ.value.second != null &&
-                (d.ir.typ.value.second == p`RTC` || d.tc.typ.value != null) &&
+                (d.ir.typ.value.second == p('RTC') || d.tc.typ.value != null) &&
                 d.ir.chceVyplnitK.value.includes(`heatPump`),
             onValueSet: d => {
-                if (!d.tc.model.options(d).includes(d.tc.model.value ?? '')) {
+                if (!d.tc.model.options(d).includes(d.tc.model.value ?? products.heatPumpsGroundToWater[0])) {
                     d.tc.model.setValue(d, null);
                 }
             }
@@ -371,13 +372,13 @@ export default (): Data => ({
                     : `heatPumpManufactureNumber`,
             onError: `wrongNumberFormat`,
             regex: d =>
-                d.ir.typ.value.second == p`CTC`
+                d.ir.typ.value.second == p('CTC')
                     ? /^\d{4}-\d{4}-\d{4}$/
                     : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
             capitalize: true,
             required: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
             maskOptions: d => ({
-                mask: d.ir.typ.value.second == p`CTC` ? `0000-0000-0000` : `AA0000-AA-0000`,
+                mask: d.ir.typ.value.second == p('CTC') ? `0000-0000-0000` : `AA0000-AA-0000`,
                 definitions: {
                     A: /[A-Za-z]/
                 }
@@ -474,7 +475,7 @@ export default (): Data => ({
         }),
         plati: new RadioWidget({
             label: `whoWillBeInvoiced`,
-            options: ['assemblyCompany', 'endCustomer'],
+            options: ['assemblyCompany', 'endCustomer'] as ReturnType<Data['vzdalenyPristup']['plati']['options']>,
             show: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
             required: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value
         })

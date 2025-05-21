@@ -43,7 +43,7 @@ interface Object {
     ): [keyof T, T[keyof T]][];
 
     keys<T extends PropertyKey>(
-        this: Record<T, unknown>,
+        this: { [_ in T]?: unknown },
     ): T[];
 
     getValues<T>(

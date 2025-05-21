@@ -1,17 +1,17 @@
-<script generics="D" lang="ts">
+<script generics="D, I extends TranslationReference" lang="ts">
 	import type { TranslationReference, Translations } from '$lib/translations';
 	import { labelAndStar, type RadioWidget } from '$lib/Widget.svelte.js';
 
 	interface Props {
 		t: Translations;
-		widget: RadioWidget<D>;
+		widget: RadioWidget<D, I>;
 		data: D;
 	}
 
 	let { t, widget = $bindable(), data }: Props = $props();
 	const value = $derived(widget.bindableValue(data))
 
-	const onClick = (item: TranslationReference | null) => () => {
+	const onClick = (item: I | null) => () => {
 		widget.setValue(data, item);
 	};
 

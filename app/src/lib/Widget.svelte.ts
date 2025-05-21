@@ -14,19 +14,6 @@ type Opts = {
     };
 } | undefined;
 
-const template = (strings: TemplateStringsArray, ...args: string[]) => {
-    return strings.zip(args).flat().slice(0, -1).join('');
-};
-
-export const createTemplate =
-    <U>(edit: (string: string) => U): ((strings: TemplateStringsArray, ...args: string[]) => U) =>
-        (strings: TemplateStringsArray, ...args: string[]) =>
-            edit(template(strings, ...args));
-
-export const p = createTemplate(
-    (plainString: string) => `PLAIN_${plainString}` as `PLAIN_${typeof plainString}`
-);
-
 export const STAR = '∗';
 
 export const labelAndStar = <D, U>(
@@ -79,12 +66,12 @@ export abstract class Widget<D = never, U = any, H extends boolean = boolean> {
 
 export type SearchItemPiece = { readonly text: TR, readonly width?: number };
 export type SearchItem = { readonly pieces: SearchItemPiece[], readonly href?: string };
-export type Pair = { readonly first: TR | null; readonly second: TR | null; };
+export type Pair<I1 extends TR, I2 extends TR> = { readonly first: I1 | null; readonly second: I2 | null; };
 type Sides = readonly [TR, TR];
-export type Arr = readonly TR[];
+export type Arr<I extends TR> = readonly I[];
 export type ChI = { readonly checked: boolean; readonly text: string; };
-export type SeI = { readonly chosen: TR; readonly text: string; };
-export type SeCh = { readonly chosen: TR | null; readonly checked: boolean; };
+export type SeI<I extends TR> = { readonly chosen: I; readonly text: string; };
+export type SeCh<I extends TR> = { readonly chosen: I | null; readonly checked: boolean; };
 export type Files = readonly string[];
 
 type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H };
@@ -96,9 +83,9 @@ type ValueArgs<D, U, H> = {
 type FileArgs<D> = {
     multiple?: GetOrVal<D, boolean>; max?: GetOrVal<D, number>;
 };
-type ChooserArgs<D> = { options: GetOrVal<D, Arr>; chosen?: TR | null; };
-type SecondChooserArgs = { options: Arr; chosen?: TR; text?: string; };
-type DoubleChooserArgs<D> = { options1: GetOrVal<D, Arr>; options2: GetOrVal<D, Arr>; chosen?: Pair; };
+type ChooserArgs<D, I extends TR> = { options: GetOrVal<D, Arr<I>>; chosen?: I | null; };
+type SecondChooserArgs<I extends TR> = { options: Arr<I>; chosen?: I; text?: string; };
+type DoubleChooserArgs<D, I1 extends TR, I2 extends TR> = { options1: GetOrVal<D, Arr<I1>>; options2: GetOrVal<D, Arr<I2>>; chosen?: Pair<I1, I2>; };
 type LockArgs<D> = { lock?: GetOrVal<D, boolean>; };
 type DoubleLockArgs<D> = { lock1?: GetOrVal<D, boolean>; lock2?: GetOrVal<D, boolean>; };
 type SearchArgs<D, T> = {
@@ -112,10 +99,10 @@ type SearchArgs<D, T> = {
     chosen?: null | T;
 };
 type CounterArgs<D> = { chosen: number; min: GetOrVal<D, number>; max: GetOrVal<D, number>; };
-type CountersArgs<D> = { counts: number[]; max: GetOrVal<D, number>; options: GetOrVal<D, Arr> };
+type CountersArgs<D> = { counts: number[]; max: GetOrVal<D, number>; options: GetOrVal<D, Arr<TR>> };
 type CheckArgs = { checked?: boolean; };
 type SwitchArgs<D> = { hasPositivity?: GetOrVal<D, boolean>; options: Sides };
-type MultiChooserArgs<D> = { options: GetOrVal<D, Arr>; chosen?: Arr; max?: GetOrVal<D, number> };
+type MultiChooserArgs<D, I extends TR> = { options: GetOrVal<D, Arr<I>>; chosen?: Arr<I>; max?: GetOrVal<D, number> };
 type Input1Args<D> = {
     regex?: GetOrVal<D, RegExp>;
     capitalize?: GetOrVal<D, boolean>;
@@ -134,7 +121,7 @@ type Input3Args<D> = {
     suffix?: GetOrVal<D, TR | undefined>;
 };
 type SuggestionsArgs<D> = {
-    suggestions: GetOrVal<D, Arr>;
+    suggestions: GetOrVal<D, Arr<TR>>;
 };
 
 type Info<D, U> = Widget<D, U> & { text: Get<D, TR | Promise<TR>>; };
@@ -142,9 +129,9 @@ type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: Get<D, bo
 type File<D> = Widget<D, Files> & { multiple: Get<D, boolean>; max: Get<D, number>; };
 type Lock<D, U> = Widget<D, U> & { lock: Get<D, boolean>; };
 type DoubleLock<D, U> = Widget<D, U> & { lock1: Get<D, boolean>; lock2: Get<D, boolean>; };
-type Chooser<D> = Widget<D, TR | null> & { options: Get<D, Arr>; };
-type SecondChooser<D> = Widget<D, SeI> & { options: Arr; };
-type DoubleChooser<D> = Widget<D, Pair> & { options1: Get<D, Arr>; options2: Get<D, Arr>; };
+type Chooser<D, I extends TR> = Widget<D, I | null> & { options: Get<D, Arr<I>>; };
+type SecondChooser<D, I extends TR> = Widget<D, SeI<I>> & { options: Arr<I>; };
+type DoubleChooser<D, I1 extends TR, I2 extends TR> = Widget<D, Pair<I1, I2>> & { options1: Get<D, Arr<I1>>; options2: Get<D, Arr<I2>>; };
 type Search<D, T> = Widget<D, T | null> & {
     getSearchItem: (item: T) => SearchItem;
     getXmlEntry: () => string;
@@ -155,9 +142,9 @@ type Search<D, T> = Widget<D, T | null> & {
     autocapitalize: Get<D, HTMLInputAttributes['autocapitalize']>;
 };
 type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; };
-type Counters<D> = Widget<D, number[]> & { max: Get<D, number>; options: Get<D, Arr> };
+type Counters<D> = Widget<D, number[]> & { max: Get<D, number>; options: Get<D, Arr<TR>> };
 type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: Get<D, boolean>; };
-type MultiChooser<D> = Widget<D, Arr> & { options: Get<D, Arr>; max: Get<D, number>; };
+type MultiChooser<D, I extends TR> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; };
 type Input1<D, U> = Widget<D, U> & {
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
@@ -176,7 +163,7 @@ type Input3<D> = Widget<D, string> & {
     suffix: Get<D, TR | undefined>;
 }
 type Suggestions<D> = Widget<D, string> & {
-    suggestions: GetOrVal<D, Arr>;
+    suggestions: GetOrVal<D, Arr<TR>>;
 };
 
 const initInfo = function <D, U>(widget: Info<D, U>, args: InfoArgs<D>) {
@@ -197,15 +184,15 @@ const initFile = function <D>(widget: File<D>, args: FileArgs<D>) {
     widget.multiple = toGet(args.multiple ?? false);
     widget.max = toGet(args.max ?? Number.POSITIVE_INFINITY);
 };
-const initChooser = function <D>(widget: Chooser<D>, args: ChooserArgs<D>) {
+const initChooser = function <D, I extends TR>(widget: Chooser<D, I>, args: ChooserArgs<D, I>) {
     widget.options = toGet(args.options);
     widget._value = args.chosen ?? null;
 };
-const initSecondChooser = function <D>(widget: SecondChooser<D>, args: SecondChooserArgs) {
+const initSecondChooser = function <D, I extends TR>(widget: SecondChooser<D, I>, args: SecondChooserArgs<I>) {
     widget.options = args.options;
     widget._value = { chosen: args.chosen ?? args.options[0], text: args.text ?? '' };
 };
-const initDoubleChooser = function <D>(widget: DoubleChooser<D>, args: DoubleChooserArgs<D>) {
+const initDoubleChooser = function <D, I1 extends TR, I2 extends TR>(widget: DoubleChooser<D, I1, I2>, args: DoubleChooserArgs<D, I1, I2>) {
     widget.options1 = toGet(args.options1);
     widget.options2 = toGet(args.options2);
     widget._value = args.chosen ?? { first: null, second: null };
@@ -244,7 +231,7 @@ const initSwitch = function <D>(widget: Switch<D>, args: SwitchArgs<D>) {
 const initCheck = function <D>(widget: Widget<D, boolean>, args: CheckArgs) {
     widget._value = args.checked ?? false;
 };
-const initMultiChooser = function <D>(widget: MultiChooser<D>, args: MultiChooserArgs<D>) {
+const initMultiChooser = function <D, I extends TR>(widget: MultiChooser<D, I>, args: MultiChooserArgs<D, I>) {
     widget._value = args.chosen ?? [];
     widget.max = toGet(args.max ?? Number.MAX_VALUE);
     widget.options = toGet(args.options);
@@ -304,20 +291,20 @@ export class TextWidget<D> extends Widget<D, undefined, true> {
     }
 }
 
-export class ChooserWidget<D, H extends boolean = false> extends Widget<D, TR | null, H> {
+export class ChooserWidget<D, I extends TR, H extends boolean = false> extends Widget<D, I | null, H> {
     label = $state() as Get<D>;
     onError = $state() as Get<D>;
     show = $state() as Get<D, boolean>;
     showTextValue = $state() as Get<D, boolean>;
-    _value = $state() as TR | null;
-    onValueSet = $state() as (data: D, newValue: TR | null) => void;
+    _value = $state() as I | null;
+    onValueSet = $state() as (data: D, newValue: I | null) => void;
     hideInRawData = $state() as H;
     isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
     lock = $state() as Get<D, boolean>;
-    options = $state() as Get<D, Arr>;
+    options = $state() as Get<D, Arr<I>>;
 
-    constructor(args: ValueArgs<D, TR | null, H> & ChooserArgs<D> & LockArgs<D>) {
+    constructor(args: ValueArgs<D, I | null, H> & ChooserArgs<D, I> & LockArgs<D>) {
         super();
         initValue(this, args);
         initChooser(this, args);
@@ -325,19 +312,19 @@ export class ChooserWidget<D, H extends boolean = false> extends Widget<D, TR | 
     }
 }
 
-export class CheckboxWithChooserWidget<D, H extends boolean = false> extends Widget<D, SeCh, H> {
+export class CheckboxWithChooserWidget<D, I extends TR, H extends boolean = false> extends Widget<D, SeCh<I>, H> {
     label = $state() as Get<D>;
     onError = $state() as Get<D>;
     show = $state() as Get<D, boolean>;
     showTextValue = $state() as Get<D, boolean>;
-    _value = $state() as SeCh;
-    onValueSet = $state() as (data: D, newValue: SeCh) => void;
+    _value = $state() as SeCh<I>;
+    onValueSet = $state() as (data: D, newValue: SeCh<I>) => void;
     hideInRawData = $state() as H;
     isError = $state(a => (this.value.chosen == null || !this.value.checked) && this.required(a)) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
-    options = $state() as Get<D, Arr>;
+    options = $state() as Get<D, Arr<I>>;
 
-    constructor(args: ValueArgs<D, SeCh, H> & ChooserArgs<D> & CheckArgs) {
+    constructor(args: ValueArgs<D, SeCh<I>, H> & ChooserArgs<D, I> & CheckArgs) {
         super();
         initValue(this, args);
         this.options = toGet(args.options);
@@ -380,7 +367,7 @@ export class InputWithSuggestionsWidget<D, H extends boolean = false> extends Wi
     hideInRawData = $state() as H;
     isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
-    suggestions = $state() as Get<D, TR[]>;
+    suggestions = $state() as Get<D, Arr<TR>>;
     type = $state() as Get<D, HTMLInputTypeAttribute>;
     enterkeyhint = $state() as Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
@@ -403,13 +390,13 @@ export class InputWithSuggestionsWidget<D, H extends boolean = false> extends Wi
     }
 }
 
-export class DoubleChooserWidget<D, H extends boolean = false> extends Widget<D, Pair, H> {
+export class DoubleChooserWidget<D, I1 extends TR, I2 extends TR, H extends boolean = false> extends Widget<D, Pair<I1, I2>, H> {
     label = $state() as Get<D>;
     onError = $state() as Get<D>;
     show = $state() as Get<D, boolean>;
     showTextValue = $state() as Get<D, boolean>;
-    _value = $state() as Pair;
-    onValueSet = $state() as (data: D, newValue: Pair) => void;
+    _value = $state() as Pair<I1, I2>;
+    onValueSet = $state() as (data: D, newValue: Pair<I1, I2>) => void;
     hideInRawData = $state() as H;
     isError = $state(
         a => (this.value.first == null || this.value.second == null) && this.required(a)
@@ -417,10 +404,10 @@ export class DoubleChooserWidget<D, H extends boolean = false> extends Widget<D,
     required = $state() as Get<D, boolean>;
     lock1 = $state() as Get<D, boolean>;
     lock2 = $state() as Get<D, boolean>;
-    options1 = $state() as Get<D, Arr>;
-    options2 = $state() as Get<D, Arr>;
+    options1 = $state() as Get<D, Arr<I1>>;
+    options2 = $state() as Get<D, Arr<I2>>;
 
-    constructor(args: ValueArgs<D, Pair, H> & DoubleLockArgs<D> & DoubleChooserArgs<D>) {
+    constructor(args: ValueArgs<D, Pair<I1, I2>, H> & DoubleLockArgs<D> & DoubleChooserArgs<D, I1, I2>) {
         super();
         initValue(this, args);
         initDoubleChooser(this, args);
@@ -459,7 +446,7 @@ export class CountersWidget<D, H extends boolean = false> extends Widget<D, numb
     hideInRawData = $state() as H;
     isError = $state(() => false) as Get<D, boolean>;
     max = $state() as Get<D, number>;
-    options = $state() as Get<D, Arr>;
+    options = $state() as Get<D, Arr<TR>>;
 
     constructor(args: ValueArgs<D, number[], H> & CountersArgs<D>) {
         super();
@@ -468,20 +455,20 @@ export class CountersWidget<D, H extends boolean = false> extends Widget<D, numb
     }
 }
 
-export class RadioWidget<D, H extends boolean = false> extends Widget<D, TR | null, H> {
+export class RadioWidget<D, I extends TR, H extends boolean = false> extends Widget<D, I | null, H> {
     label = $state() as Get<D>;
     onError = $state() as Get<D>;
     show = $state() as Get<D, boolean>;
     showTextValue = $state() as Get<D, boolean>;
-    _value = $state() as TR | null;
-    onValueSet = $state() as (data: D, newValue: TR | null) => void;
+    _value = $state() as I | null;
+    onValueSet = $state() as (data: D, newValue: I | null) => void;
     hideInRawData = $state() as H;
     isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
     lock = $state() as Get<D, boolean>;
-    options = $state() as Get<D, Arr>;
+    options = $state() as Get<D, Arr<I>>;
 
-    constructor(args: ValueArgs<D, TR | null, H> & ChooserArgs<D> & LockArgs<D>) {
+    constructor(args: ValueArgs<D, I | null, H> & ChooserArgs<D, I> & LockArgs<D>) {
         super();
         initValue(this, args);
         initChooser(this, args);
@@ -510,20 +497,20 @@ export class SwitchWidget<D, H extends boolean = false> extends Widget<D, boolea
     }
 }
 
-export class MultiCheckboxWidget<D, H extends boolean = false> extends Widget<D, Arr, H> {
+export class MultiCheckboxWidget<D, I extends TR, H extends boolean = false> extends Widget<D, Arr<I>, H> {
     label = $state() as Get<D>;
     onError = $state() as Get<D>;
     show = $state() as Get<D, boolean>;
     showTextValue = $state() as Get<D, boolean>;
-    _value = $state() as Arr;
-    onValueSet = $state() as (data: D, newValue: Arr) => void;
+    _value = $state() as Arr<I>;
+    onValueSet = $state() as (data: D, newValue: Arr<I>) => void;
     hideInRawData = $state() as H;
     isError = $state(a => this.value.length == 0 && this.required(a)) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
-    options = $state() as Get<D, Arr>;
+    options = $state() as Get<D, Arr<I>>;
     max = $state() as Get<D, number>;
 
-    constructor(args: ValueArgs<D, Arr, H> & MultiChooserArgs<D>) {
+    constructor(args: ValueArgs<D, Arr<I>, H> & MultiChooserArgs<D, I>) {
         super();
         initValue(this, args);
         initMultiChooser(this, args);
@@ -596,22 +583,22 @@ export class PhotoSelectorWidget<D, H extends boolean = false> extends Widget<D,
     }
 }
 
-export class InputWithChooserWidget<D, H extends boolean = false> extends Widget<D, SeI, H> {
+export class InputWithChooserWidget<D, I extends TR, H extends boolean = false> extends Widget<D, SeI<I>, H> {
     label = $state() as Get<D>;
     onError = $state() as Get<D>;
-    options = $state() as Arr;
+    options = $state() as Arr<I>;
     show = $state() as Get<D, boolean>;
     showTextValue = $state() as Get<D, boolean>;
     hideInRawData = $state() as H;
-    _value = $state() as SeI;
-    onValueSet = $state() as (data: D, newValue: SeI) => void;
+    _value = $state() as SeI<I>;
+    onValueSet = $state() as (data: D, newValue: SeI<I>) => void;
     isError = $state(
         a => (this.value.text == '' && this.required(a)) || (this.value.text != '' && !this.regex(a).test(this.value.text))
     ) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
     lock = $state() as Get<D, boolean>;
 
-    setValue(data: D, value: SeI) {
+    setValue(data: D, value: SeI<I>) {
         this._value = { ...value, text: value.text.trim() };
         this.onValueSet(data, this._value);
         this.updateMaskValue(this._value.text);
@@ -628,7 +615,7 @@ export class InputWithChooserWidget<D, H extends boolean = false> extends Widget
     capitalize = $state() as Get<D, boolean>;
     textArea = $state() as Get<D, boolean>;
 
-    constructor(args: ValueArgs<D, SeI, H> & LockArgs<D> & Input1Args<D> & Input2Args<D> & Input3Args<D> & SecondChooserArgs) {
+    constructor(args: ValueArgs<D, SeI<I>, H> & LockArgs<D> & Input1Args<D> & Input2Args<D> & Input3Args<D> & SecondChooserArgs<I>) {
         super();
         initValue(this, args);
         initLock(this, args);
