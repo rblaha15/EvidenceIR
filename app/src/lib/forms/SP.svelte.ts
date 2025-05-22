@@ -52,7 +52,7 @@ export interface GenericDataSP<D extends GenericDataSP<D>> extends Form<D> {
     ukony: {
         nadpis: TitleWidget<D>,
         doprava: InputWidget<D>,
-        typPrace: RadioWidget<D, `sp.technicalAssistance` | `sp.assemblyWork`>,
+        typPrace: RadioWidget<D, `sp.assemblyWork` | `sp.technicalAssistance` | `sp.technicalAssistance12`>,
         mnozstviPrace: InputWidget<D>,
         ukony: MultiCheckboxWidget<D, `sp.regulusRoute` | `sp.commissioningTC` | `sp.commissioningSOL` | `yearlyHPCheck` | `sp.yearlySOLCheck` | `sp.extendedWarranty` | `sp.installationApproval`>,
     },
@@ -128,7 +128,7 @@ export const defaultDataSP = <D extends GenericDataSP<D>>(): GenericDataSP<D> =>
     ukony: {
         nadpis: new TitleWidget({ text: p('Vyúčtování') }),
         doprava: new InputWidget({ label: p('Doprava (km)'), type: 'number', onError: `wrongNumberFormat` }),
-        typPrace: new RadioWidget({ label: p('Typ práce'), options: [`sp.technicalAssistance`, `sp.assemblyWork`], required: false }),
+        typPrace: new RadioWidget({ label: p('Typ práce'), options: [`sp.assemblyWork`, `sp.technicalAssistance`, `sp.technicalAssistance12`], required: false }),
         mnozstviPrace: new InputWidget({
             label: p('Počet hodin práce'), type: 'number', onError: `wrongNumberFormat`,
             show: d => d.ukony.typPrace.value != null, required: d => d.ukony.typPrace.value != null
