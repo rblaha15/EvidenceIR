@@ -291,10 +291,10 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         }, [companies]],
         [(_, data, [$isUserRegulusOrAdmin]) => {
             data.vzdalenyPristup.plati.options = () => $isUserRegulusOrAdmin
-                ? ['p.Později, dle protokolu', 'doNotInvoice', 'assemblyCompany', 'endCustomer']
+                ? [p('Později, dle protokolu'), 'doNotInvoice', 'assemblyCompany', 'endCustomer']
                 : ['assemblyCompany', 'endCustomer'];
             if ($isUserRegulusOrAdmin && !data.vzdalenyPristup.plati.value)
-                data.vzdalenyPristup.plati.setValue(data, 'p.Později, dle protokolu')
+                data.vzdalenyPristup.plati.setValue(data, p('Později, dle protokolu'))
         }, [isUserRegulusOrAdmin]],
         [(_, data, [$responsiblePerson]) => {
             data.ostatni.zodpovednaOsoba.show = () => $responsiblePerson == null;
