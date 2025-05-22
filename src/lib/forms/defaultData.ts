@@ -9,13 +9,13 @@ import {
     TextWidget,
     TitleWidget
 } from '../Widget.svelte.js';
-import { type Data, type UserData } from './Data';
+import { type Data, unknownCompany, type UserData } from './Data';
 import type { Company, Technician } from '$lib/client/realtime';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
 import products from '$lib/helpers/products';
-import { p, plainArray } from '$lib/translations';
+import { p, plainArray, type TranslationReference } from '$lib/translations';
 import type { Raw } from '$lib/forms/Form';
 
 const jeFO = (d: UserData<never>) => d.koncovyUzivatel.typ.value == `individual`;
@@ -121,21 +121,21 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
         nadpis: new TitleWidget({ text: `assemblyCompany` }),
         company: new SearchWidget<D, Company, true>({
             label: `searchCompanyInList`, items: [], getSearchItem: i => ({
-                pieces: [
+                pieces: i.crn == unknownCompany.crn ? [
+                    { text: p(i.companyName) },
+                ] : [
                     { text: p(i.crn), width: .2 },
                     { text: p(i.companyName), width: .8 },
                 ],
             }), showInXML: false, required: false, hideInRawData: true,
             onValueSet: (d, company) => {
-                if (company) {
-                    d.montazka.ico.setValue(d, company.crn);
-                    d.montazka.email.setValue(d, company.email ?? '');
-                    d.montazka.telefon.setValue(d, company.phone ?? '');
-                    d.montazka.zastupce.setValue(d, company.representative ?? '');
-                }
+                d.montazka.ico.setValue(d, company?.crn ?? '');
+                d.montazka.email.setValue(d, company?.email ?? '');
+                d.montazka.telefon.setValue(d, company?.phone ?? '');
+                d.montazka.zastupce.setValue(d, company?.representative ?? '');
             }
         }),
-        nebo: new TextWidget({ text: `or`, showInXML: false }),
+        nebo: new TextWidget({ text: `or`, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn }),
         ico: new InputWidget({
             label: `crn`,
             onError: `wrongCRNFormat`,
@@ -144,29 +144,33 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
                 mask: `00000000[00]`
             },
             required: false,
+            show: d => d.montazka.company.value?.crn != unknownCompany.crn,
         }),
         chosen: new TextWidget({
             text: async (d, t) => {
                 const company = await nazevFirmy(d.montazka.ico.value);
                 return company ? p(`${t.chosenCompany}: ${company}`) : '';
-            }, showInXML: false,
+            }, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn,
         }),
         zastupce: new InputWidget({
             label: `representativeName`,
-            autocomplete: `section-assemblyRepr billing name`
+            autocomplete: `section-assemblyRepr billing name`,
+            show: d => d.montazka.company.value?.crn != unknownCompany.crn,
         }),
         email: new InputWidget({
             label: `email`,
             onError: `wrongEmailFormat`,
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
-            autocomplete: `section-assembly billing work email`
+            autocomplete: `section-assembly billing work email`,
+            show: d => d.montazka.company.value?.crn != unknownCompany.crn,
         }),
         telefon: new InputWidget({
             label: `phone`,
             onError: `wrongPhoneFormat`,
             regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
             type: 'tel',
-            autocomplete: `section-assembly billing work tel`
+            autocomplete: `section-assembly billing work tel`,
+            show: d => d.montazka.company.value?.crn != unknownCompany.crn,
         })
     },
     uvedeni: {
@@ -190,12 +194,10 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
                 ],
             }), show: d => !d.uvedeni.jakoMontazka.value, showInXML: false, required: false, hideInRawData: true,
             onValueSet: (d, company) => {
-                if (company) {
-                    d.uvedeni.ico.setValue(d, company.crn);
-                    d.uvedeni.email.setValue(d, company.email ?? '');
-                    d.uvedeni.telefon.setValue(d, company.phone ?? '');
-                    d.uvedeni.zastupce.setValue(d, company.representative ?? '');
-                }
+                d.uvedeni.ico.setValue(d, company?.crn ?? '');
+                d.uvedeni.email.setValue(d, company?.email ?? '');
+                d.uvedeni.telefon.setValue(d, company?.phone ?? '');
+                d.uvedeni.zastupce.setValue(d, company?.representative ?? '');
             }
         }),
         nebo: new TextWidget({ text: `or`, showInXML: false, show: d => !d.uvedeni.jakoMontazka.value }),
