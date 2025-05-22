@@ -129,12 +129,10 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
                 ],
             }), showInXML: false, required: false, hideInRawData: true,
             onValueSet: (d, company) => {
-                if (company) {
-                    d.montazka.ico.setValue(d, company.crn);
-                    d.montazka.email.setValue(d, company.email ?? '');
-                    d.montazka.telefon.setValue(d, company.phone ?? '');
-                    d.montazka.zastupce.setValue(d, company.representative ?? '');
-                }
+                d.montazka.ico.setValue(d, company?.crn ?? '');
+                d.montazka.email.setValue(d, company?.email ?? '');
+                d.montazka.telefon.setValue(d, company?.phone ?? '');
+                d.montazka.zastupce.setValue(d, company?.representative ?? '');
             }
         }),
         nebo: new TextWidget({ text: `or`, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn }),
@@ -196,12 +194,10 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
                 ],
             }), show: d => !d.uvedeni.jakoMontazka.value, showInXML: false, required: false, hideInRawData: true,
             onValueSet: (d, company) => {
-                if (company) {
-                    d.uvedeni.ico.setValue(d, company.crn);
-                    d.uvedeni.email.setValue(d, company.email ?? '');
-                    d.uvedeni.telefon.setValue(d, company.phone ?? '');
-                    d.uvedeni.zastupce.setValue(d, company.representative ?? '');
-                }
+                d.uvedeni.ico.setValue(d, company?.crn ?? '');
+                d.uvedeni.email.setValue(d, company?.email ?? '');
+                d.uvedeni.telefon.setValue(d, company?.phone ?? '');
+                d.uvedeni.zastupce.setValue(d, company?.representative ?? '');
             }
         }),
         nebo: new TextWidget({ text: `or`, showInXML: false, show: d => !d.uvedeni.jakoMontazka.value }),

@@ -43,6 +43,11 @@
         hideRequest = false;
         hidden = false;
     }
+    const onClick = () => {
+        widget.setValue(data, null);
+        hideRequest = false;
+        hidden = true;
+    }
 
     const wide = browser ? window.matchMedia('(min-width: 768px)').matches : false;
 </script>
@@ -52,13 +57,14 @@
         <input
             value={hidden ? widget.value ? ' ' : '' : search}
             oninput={e => search = e.currentTarget.value}
-            class="form-control border ps-3"
+            class="form-control border ps-3 bi"
             class:border-bottom-0={!hidden || widget.value}
             class:rb-0={!hidden}
             placeholder=""
             type={widget.type(data, t)}
         />
         <label for="">{labelAndStar(widget, data, t)}</label>
+        <button class="btn py-1 px-2 m-1" class:d-none={!widget.value} aria-label={t.clearSelection} onclick={onClick}><i class="bi bi-eraser"></i></button>
     </label>
 
     {#if !hidden}
@@ -110,6 +116,12 @@
     <div class="mb-3"></div>
 </div>
 <style>
+    .form-floating > button {
+        position: absolute;
+        right: var(--bs-border-width);
+        top: calc(50% - var(--bs-body-font-size));
+    }
+
     .rb-0 {
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
