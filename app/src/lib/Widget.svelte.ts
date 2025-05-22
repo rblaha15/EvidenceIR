@@ -559,7 +559,17 @@ export class InputWidget<D, H extends boolean = false> extends Widget<D, string,
     }
 }
 
-export class ScannerWidget<D> extends InputWidget<D> {}
+export class ScannerWidget<D, H extends boolean = false> extends InputWidget<D, H> {
+
+    processScannedText = $state() as (text: string, data: D) => string;
+
+    constructor(args: ValueArgs<D, string, H> & LockArgs<D> & Input1Args<D> & Input2Args<D> & Input3Args<D> & {
+        processScannedText?: (text: string, data: D) => string
+    }) {
+        super(args);
+        this.processScannedText = args.processScannedText ?? (t => t)
+    }
+}
 
 export class PhotoSelectorWidget<D, H extends boolean = false> extends Widget<D, Files, H> {
     label = $state() as Get<D>;
