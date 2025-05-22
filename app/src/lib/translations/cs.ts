@@ -253,6 +253,7 @@ export default {
         yearlySOLCheck: `Roční kontrola SOL`,
         technicalAssistance: `Technická pomoc`,
         assemblyWork: `Montážní práce`,
+        technicalAssistance12: `Technická pomoc – 12% DPH`,
     },
     check: {
         kontrolniElektroinstalace: 'Kontrolní elektroinstalace',
