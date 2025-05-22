@@ -8,6 +8,7 @@ import type { Translations } from '$lib/translations';
 import { solarCollectorCommission } from '$lib/forms/UvedeniSOL';
 import { check } from '$lib/forms/Kontrola.svelte';
 import type { ExcelImport } from '$lib/forms/Import';
+import { sp } from '$lib/forms/SP.svelte';
 
 export type FormName = 'sp' | 'heatPumpCommission' | 'solarCollectorCommission' | 'check'
 
@@ -49,13 +50,8 @@ export type FormInfo<D, F extends Form<D>, S extends unknown[][] = [], R extends
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const formInfo: { [F in FormName]: FormInfo<any, any, any, any> } = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    sp: <FormInfo<any, any, any, any>> {},
+    sp,
     heatPumpCommission,
     solarCollectorCommission,
     check,
 };
-
-(async () => {
-    formInfo.sp = (await import('$lib/forms/SP.svelte')).sp;
-})();
