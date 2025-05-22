@@ -1,7 +1,6 @@
 import type { LanguageCode } from '$lib/languages';
-import type { TranslationReference } from '$lib/translations';
+import { p, type TranslationReference } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
-import { p } from '$lib/Widget.svelte.js';
 
 export const toPdfTypeName = (linkName: Pdf) =>
     linkName.split('-')[0] as PdfTypeName;
@@ -34,28 +33,28 @@ export const pdfInfo: PdfInfo = {
     guide: {
         formName: 'guide',
         supportedLanguages: ['cs'],
-        title: p`Návod na přístup do regulátoru IR`,
+        title: p(`Návod na přístup do regulátoru IR`),
     },
     heatPumpCommissionProtocol: {
         formName: 'heatPumpCommissionProtocol',
         supportedLanguages: ['cs', 'de'],
-        title: p`Protokol o uvedení tepelného čerpadla do trvalého provozu`,
+        title: p(`Protokol o uvedení tepelného čerpadla do trvalého provozu`),
     },
     solarCollectorCommissionProtocol: {
         formName: 'solarCollectorCommissionProtocol',
         supportedLanguages: ['cs'],
-        title: p`Protokol o uvedení solárního systému do trvalého provozu`,
+        title: p(`Protokol o uvedení solárního systému do trvalého provozu`),
     },
     installationProtocol: {
         formName: 'installationProtocol',
         supportedLanguages: ['cs'],
-        title: p`Instalační a servisní protokol`,
+        title: p(`Instalační a servisní protokol`),
         requiredRegulus: true,
     },
     publicInstallationProtocol: {
         formName: 'installationProtocol',
         supportedLanguages: ['cs'],
-        title: p`Instalační a servisní protokol`,
+        title: p(`Instalační a servisní protokol`),
         requiredRegulus: true,
     },
 };

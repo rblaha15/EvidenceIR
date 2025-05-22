@@ -32,7 +32,7 @@
 				{ facingMode: 'environment' },
 				undefined,
 				decodedText => {
-					widget.setValue(data, decodedText);
+					widget.setValue(data, widget.processScannedText(decodedText, data));
 					zrusitBtn?.click();
 				},
 				undefined

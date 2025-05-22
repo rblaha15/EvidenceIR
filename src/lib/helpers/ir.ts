@@ -1,5 +1,5 @@
 import type { Pair } from '$lib/Widget.svelte.js';
-import { removePlain } from '$lib/translations';
+import { type P, removePlain } from '$lib/translations';
 import type { Data, UserData } from '$lib/forms/Data';
 import type { Raw } from '$lib/forms/Form';
 import type { IRID, SPID } from '$lib/client/firestore';
@@ -47,7 +47,7 @@ export const spName = (zasah: Raw<GenericDataSP<never>>["zasah"]) => {
  * IR RegulusBOX CTC
  * SRS1 T
  */
-export const irType = (typ: Pair) =>
+export const irType = (typ: Raw<Data>['ir']['typ']) =>
     typ.first?.includes('SOREL')
         ? removePlain(typ.second!)
         : typ.first?.includes('BOX')

@@ -10,7 +10,6 @@ import {
     InputWithChooserWidget,
     InputWithSuggestionsWidget,
     MultiCheckboxWidget,
-    p,
     PhotoSelectorWidget, RadioWidget,
     SearchWidget,
     type SeCh,
@@ -19,9 +18,9 @@ import {
 } from '$lib/Widget.svelte';
 import { type Company, type FriendlyCompanies, startLidiListening, type Person, seznamLidi } from '$lib/client/realtime';
 import { browser, dev, version } from '$app/environment';
-import products from '$lib/helpers/products';
+import products, { type Products } from '$lib/helpers/products';
 import { languageCodes } from '$lib/languages';
-import { getTranslations, type Translations } from '$lib/translations';
+import { getTranslations, type P, p, plainArray, type TranslationReference, type Translations } from '$lib/translations';
 import type { User } from 'firebase/auth';
 import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
 import { get } from 'svelte/store';
@@ -36,8 +35,8 @@ import { getPhoto, removeAllPhotos } from '$lib/components/widgets/PhotoSelector
 interface Demand extends Form<Demand> {
     contacts: {
         title: TitleWidget<Demand>
-        demandOrigin: ChooserWidget<Demand>
-        demandSubject: MultiCheckboxWidget<Demand>
+        demandOrigin: ChooserWidget<Demand, keyof typeof origins>
+        demandSubject: MultiCheckboxWidget<Demand, `demand.contacts.heatPump` | `demand.contacts.fve`>
         surname: InputWidget<Demand>
         name: InputWidget<Demand>
         street: InputWidget<Demand>
@@ -96,49 +95,49 @@ interface Demand extends Form<Demand> {
         heatedVolume: InputWidget<Demand>
         heatingCosts: InputWidget<Demand>
         fuelType: InputWidget<Demand>
-        fuelConsumption: InputWithChooserWidget<Demand>
+        fuelConsumption: InputWithChooserWidget<Demand, `units.q` | `units.m3` | `units.kWh`>
         fuelType2: InputWidget<Demand>
-        fuelConsumption2: InputWithChooserWidget<Demand>
+        fuelConsumption2: InputWithChooserWidget<Demand, `units.q` | `units.m3` | `units.kWh`>
         note: InputWidget<Demand>
     };
     system: {
         title: TitleWidget<Demand>
-        hPType: ChooserWidget<Demand>
-        hPModel: ChooserWidget<Demand>
-        indoorUnitType: ChooserWidget<Demand>
-        thermalStoreType: DoubleChooserWidget<Demand>
+        hPType: ChooserWidget<Demand, `airToWater` | `groundToWater`>
+        hPModel: ChooserWidget<Demand, `iDoNotKnow` | Products['heatPumps']>
+        indoorUnitType: ChooserWidget<Demand, `demand.system.indoorUnitNone` | Products['indoorUnits']>
+        thermalStoreType: DoubleChooserWidget<Demand, 'demand.system.storeNone' | Products['thermalStores1'], Products['thermalStores2']>
         thermalStoreVolume: InputWidget<Demand>
-        waterTankType: ChooserWidget<Demand>
+        waterTankType: ChooserWidget<Demand, `demand.system.tankNone` | Products['waterTanks']>
         waterTankVolume: InputWidget<Demand>
-        heatingSystem: ChooserWidget<Demand>
+        heatingSystem: ChooserWidget<Demand, `iDoNotKnow` | `demand.system.heatingSystem1circuit` | `demand.system.heatingSystem2circuits` | `demand.system.heatingSystem3circuits` | `demand.system.heatingSystemInvertor` | `demand.system.heatingSystemOther`>
         hotWaterCirculation: CheckboxWidget<Demand>
         wantsPool: CheckboxWidget<Demand>
         note: InputWidget<Demand>
     };
     pool: {
         title: TitleWidget<Demand>
-        usagePeriod: ChooserWidget<Demand>
-        placement: ChooserWidget<Demand>
-        waterType: ChooserWidget<Demand>
-        shape: ChooserWidget<Demand>
+        usagePeriod: ChooserWidget<Demand, `demand.pool.periodYearlong` | `demand.pool.periodSeasonal`>
+        placement: ChooserWidget<Demand, `demand.pool.locationOutdoor` | `demand.pool.locationIndoor`>
+        waterType: ChooserWidget<Demand, `demand.pool.freshType` | `demand.pool.saltType`>
+        shape: ChooserWidget<Demand, `demand.pool.shapeRectangle` | `demand.pool.shapeOval` | `demand.pool.shapeCircle`>
         width: InputWidget<Demand>
         length: InputWidget<Demand>
         radius: InputWidget<Demand>
         depth: InputWidget<Demand>
-        coverage: ChooserWidget<Demand>
+        coverage: ChooserWidget<Demand, `demand.pool.coverageNone` | `demand.pool.coverageSolid` | `demand.pool.coveragePolycarbonate` | `demand.pool.coverageOther`>
         desiredTemperature: InputWidget<Demand>
         note: InputWidget<Demand>
     };
     additionalSources: {
         title: TitleWidget<Demand>
         heatingTitle: TitleWidget<Demand>
-        heatingHeatingElementInStore: CheckboxWithChooserWidget<Demand>
-        heatingElectricBoiler: CheckboxWithChooserWidget<Demand>
-        heatingGasBoiler: CheckboxWithChooserWidget<Demand>
-        heatingFireplace: CheckboxWithChooserWidget<Demand>
+        heatingHeatingElementInStore: CheckboxWithChooserWidget<Demand, `demand.additionalSources.existing` | `demand.additionalSources.newNeuter`>
+        heatingElectricBoiler: CheckboxWithChooserWidget<Demand, `demand.additionalSources.existing` | `demand.additionalSources.newMasculine`>
+        heatingGasBoiler: CheckboxWithChooserWidget<Demand, `demand.additionalSources.existing` | `demand.additionalSources.newMasculine`>
+        heatingFireplace: CheckboxWithChooserWidget<Demand, `demand.additionalSources.existing` | `demand.additionalSources.newMasculine`>
         heatingOther: InputWidget<Demand>
         hotWaterTitle: TitleWidget<Demand>
-        hotWaterHeatingElementInStore: CheckboxWithChooserWidget<Demand>
+        hotWaterHeatingElementInStore: CheckboxWithChooserWidget<Demand, `demand.additionalSources.toSocket` | `demand.additionalSources.fromRegulation`>
         hotWaterElectricBoiler: CheckboxWidget<Demand>
         hotWaterGasBoiler: CheckboxWidget<Demand>
         hotWaterFireplace: CheckboxWidget<Demand>
@@ -147,9 +146,9 @@ interface Demand extends Form<Demand> {
     };
     accessories: {
         title: TitleWidget<Demand>
-        hose: CheckboxWithChooserWidget<Demand>
-        heatingCable: CheckboxWithChooserWidget<Demand>
-        wallSupportBracket: CheckboxWithChooserWidget<Demand>
+        hose: CheckboxWithChooserWidget<Demand, P<'300 mm' | '500 mm' | '700 mm' | '1000 mm'>>
+        heatingCable: CheckboxWithChooserWidget<Demand, P<'3,5 m' | '5 m'>>
+        wallSupportBracket: CheckboxWithChooserWidget<Demand, `demand.accessories.onWall` | `demand.accessories.onIsolatedWall`>
         roomUnitsAndSensors: CountersWidget<Demand>
         note: InputWidget<Demand>
     };
@@ -168,7 +167,7 @@ const origins = {
         'demand.contacts.originAssembleres': '_poptávkaMF',
         [`demand.contacts.originDesigner`]: '_poptávkaPROJ',
     }, ...(!dev ? {}
-            : { [p`Zkoušení funkčnosti aplikace, prosím, nepoužívejte tuto možnost v reálných poptávkách`]: '' } as const
+            : { [p('Zkoušení funkčnosti aplikace, prosím, nepoužívejte tuto možnost v reálných poptávkách')]: '' } as const
     )
 } as const;
 
@@ -196,8 +195,8 @@ const defaultDemand = (): Demand => ({
         assemblyCompanySearch: new SearchWidget<Demand, Company, true>({
             label: `searchCompanyInList`, items: [], getSearchItem: i => ({
                 pieces: [
-                    { text: p`${i.crn}`, width: .2 },
-                    { text: p`${i.companyName}`, width: .8 },
+                    { text: p(i.crn), width: .2 },
+                    { text: p(i.companyName), width: .8 },
                 ],
             }), showInXML: false, required: false, hideInRawData: true,
             onValueSet: (d, company) => {
@@ -424,13 +423,13 @@ const defaultDemand = (): Demand => ({
     accessories: {
         title: new TitleWidget({ text: `demand.accessories.accessories` }),
         hose: new CheckboxWithChooserWidget({
-            required: false, label: `demand.accessories.hose`, chosen: p`500 mm`, options: [p`300 mm`, p`500 mm`, p`700 mm`, p`1000 mm`],
+            required: false, label: `demand.accessories.hose`, chosen: p('500 mm'), options: plainArray(['300 mm', '500 mm', '700 mm', '1000 mm']),
         }),
         heatingCable: new CheckboxWithChooserWidget({
             required: false,
             label: `demand.accessories.heatingCable`,
-            chosen: p`3,5 m`,
-            options: [p`3,5 m`, p`5 m`]
+            chosen: p('3,5 m'),
+            options: plainArray(['3,5 m', '5 m']),
         }),
         wallSupportBracket: new CheckboxWithChooserWidget({
             required: false,
@@ -439,7 +438,7 @@ const defaultDemand = (): Demand => ({
             options: [`demand.accessories.onWall`, `demand.accessories.onIsolatedWall`],
         }),
         roomUnitsAndSensors: new CountersWidget({
-            label: `demand.accessories.roomUnitsAndSensors`, options: [p`RC 25`, p`RDC`, p`RS 10`, p`RSW 30 - WiFi`], counts: [0, 0, 0, 0], max: d => ({
+            label: `demand.accessories.roomUnitsAndSensors`, options: plainArray(['RC 25', 'RDC', 'RS 10', 'RSW 30 - WiFi']), counts: [0, 0, 0, 0], max: d => ({
                 'demand.system.heatingSystem1circuit': 1, 'demand.system.heatingSystem2circuits': 2,
                 'demand.system.heatingSystem3circuits': 3, 'demand.system.heatingSystemInvertor': 1,
             }[d.system.heatingSystem.value as string] ?? Number.POSITIVE_INFINITY),
@@ -450,9 +449,9 @@ const defaultDemand = (): Demand => ({
         representative: new SearchWidget<Demand, Person>({
             label: `representative`, items: [], getSearchItem: t => ({
                 pieces: [
-                    { text: p`${t.responsiblePerson!}`, width: .4 },
-                    { text: p`${t.koNumber!}`, width: .1 },
-                    { text: p`${t.email}`, width: .5 },
+                    { text: p(t.responsiblePerson!), width: .4 },
+                    { text: p(t.koNumber!), width: .1 },
+                    { text: p(t.email), width: .5 },
                 ],
             }), show: false, required: true,
         }),
@@ -466,7 +465,7 @@ const fveR = (d: Raw<Demand>) => d.contacts.demandSubject.includes(`demand.conta
 const hpR = (d: Raw<Demand>) => d.contacts.demandSubject.includes(`demand.contacts.heatPump`);
 const poolR = (d: Raw<Demand>) => hpR(d) && d.system.wantsPool;
 
-const seCh = (t: Translations, v: SeCh) => v.checked ? t.get(v.chosen ?? '') : t.no
+const seCh = (t: Translations, v: SeCh<TranslationReference>) => v.checked ? t.get(v.chosen ?? '') : t.no
 
 const xml = (d: Raw<Demand>, user: User, t: Translations, dem: Demand) => `
 <?xml version="1.0" encoding="utf-8"?>

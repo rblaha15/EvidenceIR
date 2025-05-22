@@ -1,7 +1,7 @@
 import { compactOtherSpareData, defaultDataSP, type GenericDataSP, otherPart, updateOtherSpareParts } from '$lib/forms/SP.svelte';
 import type { UserData } from '$lib/forms/Data';
 import { userData } from '$lib/forms/defaultData';
-import { InputWidget, p, TitleWidget } from '$lib/Widget.svelte';
+import { InputWidget, TitleWidget } from '$lib/Widget.svelte';
 import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
 import {
     type FriendlyCompanies,
@@ -23,6 +23,7 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { spName } from '$lib/helpers/ir';
+import { p } from '$lib/translations';
 
 export type UDSP = UserData<UDSP> & GenericDataSP<UDSP>
 
@@ -37,9 +38,9 @@ export interface DataSP2 extends GenericDataSP<UDSP>, UserData<UDSP>, Form<UDSP>
 export const defaultDataSP2 = (): DataSP2 => ({
     ...userData(),
     system: {
-        nadpis: new TitleWidget({ text: p`Instalační a servisní protokol` }),
-        popis: new InputWidget({ label: p`Popis systému`, textArea: true, required: true }),
-        datumUvedeni: new InputWidget({ label: p`Datum uvedení do provozu`, type: 'date', required: false }),
+        nadpis: new TitleWidget({ text: p('Instalační a servisní protokol') }),
+        popis: new InputWidget({ label: p('Popis systému'), textArea: true, required: true }),
+        datumUvedeni: new InputWidget({ label: p('Datum uvedení do provozu'), type: 'date', required: false }),
     },
     ...defaultDataSP(),
 });

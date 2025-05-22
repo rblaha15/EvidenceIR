@@ -1,4 +1,4 @@
-<script generics="D" lang="ts">
+<script generics="D, I extends TranslationReference" lang="ts">
     import type { TranslationReference, Translations } from '$lib/translations';
     import { CheckboxWithChooserWidget, labelAndStar } from '$lib/Widget.svelte.js';
     import type { Action } from 'svelte/action';
@@ -6,7 +6,7 @@
 
     interface Props {
         t: Translations;
-        widget: CheckboxWithChooserWidget<D>;
+        widget: CheckboxWithChooserWidget<D, I>;
         data: D;
     }
 
@@ -17,7 +17,7 @@
             currentTarget: HTMLSelectElement;
         }
     ) => widget.setValue(
-        data, { checked: true, chosen: e.currentTarget.value as TranslationReference },
+        data, { checked: true, chosen: e.currentTarget.value as I },
     );
 
     let mounted = false;

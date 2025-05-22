@@ -10,7 +10,10 @@ import merge from 'lodash.merge';
 
 const translationsMap: PlainTranslationsMap = { cs, en, de, sk };
 
-export const makePlain = <T extends string | undefined | null>(text: T) => text ? `PLAIN_${text}` as const : undefined;
+export type P<S extends string = string> = `PLAIN_${S}`;
+export const makePlain = <T extends string | undefined | null>(text: T) => text ? p(text) : undefined;
+export const p = <T extends string>(s: T): P<T> => `PLAIN_${s}`;
+export const plainArray = <T extends string>(a: T[]) => a.map(p);
 export const removePlain = (ref: string) => ref.slice(6);
 export const isPlain = (ref: TranslationReference | TemplateKey) => ref.startsWith('PLAIN_');
 

@@ -22,8 +22,9 @@ const cenik = {
 } as const;
 
 const kody = {
-    technicalAssistance: 12510,
     assemblyWork: 18261,
+    technicalAssistance: 12510,
+    technicalAssistance12: 20482,
     regulusRoute: 14343,
     installationApproval: 14846,
     extendedWarranty: 14847,
@@ -44,7 +45,7 @@ const poleProUkony = [
 
 const poleProDily = [39, 44, 49];
 
-export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t) => {
+export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, fetch) => {
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : { hasHP: false, isCascade: false, pumps: [] };
     const p = installationProtocols[i];
     return publicInstallationProtocol({
@@ -60,10 +61,10 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
             )) : ''}`,
             datumUvedeni: uvedeniTC?.uvadeni?.date ?? '',
         },
-    }, t);
+    }, t, fetch);
 };
 
-export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t) => {
+export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) => {
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
     const nahradniDily = [p.nahradniDil1, p.nahradniDil2, p.nahradniDil3].slice(0, p.nahradniDily.pocet);
     const cenaDopravy = cenik.transportation * Number(p.ukony.doprava);
@@ -72,9 +73,12 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t) => {
     const cenaDily = nahradniDily.reduce((sum, dil) => sum + Number(dil.dil!.unitPrice) * Number(dil.mnozstvi), 0);
     const cenaOstatni = cenaUkony + cenaDily;
     const celkem = cenaDopravy + cenaPrace + cenaOstatni;
+    const dph = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21
     const datum = p.zasah.datum.split('T')[0].split('-').join('/');
     const hodina = p.zasah.datum.split('T')[1].split(':')[0];
     const technik = p.zasah.inicialy;
+    const response = await fetch(`/signatures/${technik}.jpg`)
+    const signature = response.ok && !response.redirected ? await response.arrayBuffer() : null
 
     return {
         fileName: `SP-${technik}-${datum.replace('/', '_')}-${hodina}.pdf`,
@@ -131,12 +135,13 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t) => {
         /*      praceCena */ Text55: cenaPrace.roundTo(2).toLocaleString('cs') + ' Kč',
         /*    ostatniCena */ Text56: cenaOstatni.roundTo(2).toLocaleString('cs') + ' Kč',
         /*     celkemCena */ Text57: celkem.roundTo(2).toLocaleString('cs') + ' Kč',
-        /*  celkemCenaDPH */ Text58: (celkem * 1.21).roundTo(2).toLocaleString('cs') + ' Kč',
+        /*  celkemCenaDPH */ Text58: (celkem * dph).roundTo(2).toLocaleString('cs') + ' Kč',
         /*                */ Text59: t.get(p.fakturace.hotove),
         /*                */ Text60: p.fakturace.hotove == 'no' ? 'Fakturovat:' : '',
         /*                */ Text61: p.fakturace.hotove == 'no' ? t.get(p.fakturace.komu) : '',
         /*                */ Text62: p.fakturace.hotove == 'no' ? t.get(p.fakturace.jak) : '',
         /*                */ Text63: p.fakturace.komu == 'assemblyCompany' ? p.montazka.zastupce : `${p.koncovyUzivatel.prijmeni} ${p.koncovyUzivatel.jmeno}`,
+        /*  popisTechnika */ Podpis64: signature ? { x: 265, y: 160, page: 0, jpg: signature, maxHeight: 60, } : null,
     };
 };
 export default installationProtocol;

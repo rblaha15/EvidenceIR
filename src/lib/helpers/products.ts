@@ -1,76 +1,85 @@
-import { p } from "$lib/Widget.svelte";
+import { p, plainArray } from '$lib/translations';
 
 const products = {
-    heatPumpsAirToWaterCTC: [
-        p`EcoAir 614M`,
-        p`EcoAir 622M`,
-        p`EcoAir 406`,
-        p`EcoAir 408`,
-        p`EcoAir 410`,
-        p`EcoAir 415`,
-        p`EcoAir 420`,
-    ],
-    heatPumpsRTC: [
-        p`RTC`,
-        p`RTC 6i`,
-        p`RTC 13e`,
-        p`RTC 20e`,
-    ],
-    heatPumpsGroundToWater: [
-        p`EcoPart 612M`,
-        p`EcoPart 616M`,
-        p`EcoPart 406`,
-        p`EcoPart 408`,
-        p`EcoPart 410`,
-        p`EcoPart 412`,
-        p`EcoPart 414`,
-        p`EcoPart 417`,
-        p`EcoPart 435`,
-    ],
-    indoorUnits: [
-        p`RegulusBOX`,
-        p`RegulusHBOX 112`,
-        p`RegulusHBOX 212`,
-        p`RegulusHBOX K 106`,
-    ],
+    heatPumpsAirToWaterCTC: plainArray([
+        'EcoAir 614M',
+        'EcoAir 622M',
+        'EcoAir 406',
+        'EcoAir 408',
+        'EcoAir 410',
+        'EcoAir 415',
+        'EcoAir 420',
+    ]),
+    heatPumpsRTC: plainArray([
+        'RTC',
+        'RTC 6i',
+        'RTC 13e',
+        'RTC 20e',
+    ]),
+    heatPumpsGroundToWater: plainArray([
+        'EcoPart 612M',
+        'EcoPart 616M',
+        'EcoPart 406',
+        'EcoPart 408',
+        'EcoPart 410',
+        'EcoPart 412',
+        'EcoPart 414',
+        'EcoPart 417',
+        'EcoPart 435',
+    ]),
+    indoorUnits: plainArray([
+        'RegulusBOX',
+        'RegulusHBOX 112',
+        'RegulusHBOX 212',
+        'RegulusHBOX K 106',
+    ]),
     thermalStores: {
-        [p`DUO`]: [
-            p`-`,
-            p`P`,
-            p`PR`,
-            p`K`,
-            p`K P`,
-            p`K PR`,
-        ],
-        [p`HSK`]: [
-            p`P`,
-            p`P+`,
-            p`PR`,
-            p`PR+`,
-            p`PV`,
-            p`PB`,
-            p`TV`,
-        ],
-        [p`PS`]: [
-            p`E+`,
-            p`ES+`,
-            p`N+`,
-            p`N25`,
-            p`K+`,
-            p`2F`,
-            p`WF`,
-        ],
-    } as Record<`PLAIN_${string}`, `PLAIN_${string}`[]>,
-    waterTanks: [
-        p`NBC`,
-        p`RGC`,
-        p`RDC`,
-        p`R2DC`,
-        p`R0BC`,
-        p`RBC`,
-        p`RBC HP`,
-        p`R2BC`,
-    ],
+        [p('DUO')]: plainArray([
+            '-',
+            'P',
+            'PR',
+            'K',
+            'K P',
+            'K PR',
+        ]),
+        [p('HSK')]: plainArray([
+            'P',
+            'P+',
+            'PR',
+            'PR+',
+            'PV',
+            'PB',
+            'TV',
+        ]),
+        [p('PS')]: plainArray([
+            'E+',
+            'ES+',
+            'N+',
+            'N25',
+            'K+',
+            '2F',
+            'WF',
+        ]),
+    },
+    waterTanks: plainArray([
+        'NBC',
+        'RGC',
+        'RDC',
+        'R2DC',
+        'R0BC',
+        'RBC',
+        'RBC HP',
+        'R2BC',
+    ]),
 }
 
 export default products;
+
+type AllProducts = typeof products;
+export type Products = {
+    heatPumps: AllProducts['heatPumpsRTC'][number] | AllProducts['heatPumpsAirToWaterCTC'][number] | AllProducts['heatPumpsGroundToWater'][number]
+    indoorUnits: AllProducts['indoorUnits'][number]
+    thermalStores1: keyof AllProducts['thermalStores']
+    thermalStores2: AllProducts['thermalStores'][Products['thermalStores1']][number]
+    waterTanks: AllProducts['waterTanks'][number]
+};
