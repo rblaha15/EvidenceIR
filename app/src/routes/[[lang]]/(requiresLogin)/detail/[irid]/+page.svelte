@@ -116,7 +116,7 @@
         })
     });
     $effect(() => {
-        if (irType.value == 'p.SOREL') {
+        if (irType.value == p('SOREL')) {
             irNumber.setValue({}, todayISO());
         }
     });
@@ -149,7 +149,7 @@
     $effect(() => setTitle(spid ? 'Instalační a servisní protokol' : t.evidenceDetails));
 
     const newIRID = new InputWidget({
-        label: 'p.IRID (z URL adresy)'
+        label: p('IRID (z URL adresy)')
     })
     const transfer = async () => {
         await vyplnitServisniProtokol(newIRID.value as IRID, {
@@ -227,7 +227,7 @@
     {#if values.evidence.vzdalenyPristup.chce}
         <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
     {/if}
-    {#if values.evidence.ir.typ.first !== 'p.SOREL'}
+    {#if values.evidence.ir.typ.first !== p('SOREL')}
         <PdfLink name={t.routeGuide} {t} linkName="guide" {data} />
     {/if}
     {#if values.evidence.ir.chceVyplnitK.includes('heatPump')}

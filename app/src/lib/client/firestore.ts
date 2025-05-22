@@ -89,7 +89,7 @@ export type LegacyIR = {
     installationProtocol?: Raw<DataSP>;
     evidence: Raw<Data> & {
         vzdalenyPristup: {
-            fakturuje: 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | 'p.Později, dle protokolu';
+            fakturuje: TranslationReference;
         };
         ir: {
             cisloBOX: string;

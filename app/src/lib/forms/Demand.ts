@@ -167,7 +167,7 @@ const origins = {
         'demand.contacts.originAssembleres': '_poptávkaMF',
         [`demand.contacts.originDesigner`]: '_poptávkaPROJ',
     }, ...(!dev ? {}
-            : { ['p.Zkoušení funkčnosti aplikace, prosím, nepoužívejte tuto možnost v reálných poptávkách']: '' } as const
+            : { [p('Zkoušení funkčnosti aplikace, prosím, nepoužívejte tuto možnost v reálných poptávkách')]: '' } as const
     )
 } as const;
 
@@ -423,12 +423,12 @@ const defaultDemand = (): Demand => ({
     accessories: {
         title: new TitleWidget({ text: `demand.accessories.accessories` }),
         hose: new CheckboxWithChooserWidget({
-            required: false, label: `demand.accessories.hose`, chosen: 'p.500 mm', options: plainArray(['300 mm', '500 mm', '700 mm', '1000 mm']),
+            required: false, label: `demand.accessories.hose`, chosen: p('500 mm'), options: plainArray(['300 mm', '500 mm', '700 mm', '1000 mm']),
         }),
         heatingCable: new CheckboxWithChooserWidget({
             required: false,
             label: `demand.accessories.heatingCable`,
-            chosen: 'p.3,5 m',
+            chosen: p('3,5 m'),
             options: plainArray(['3,5 m', '5 m']),
         }),
         wallSupportBracket: new CheckboxWithChooserWidget({

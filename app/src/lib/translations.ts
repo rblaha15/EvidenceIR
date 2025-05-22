@@ -10,12 +10,12 @@ import merge from 'lodash.merge';
 
 const translationsMap: PlainTranslationsMap = { cs, en, de, sk };
 
-export type P<S extends string = string> = `p.${S}`;
+export type P<S extends string = string> = `PLAIN_${S}`;
 export const makePlain = <T extends string | undefined | null>(text: T) => text ? p(text) : undefined;
-export const p = <T extends string>(s: T): P<T> => `p.${s}`;
+export const p = <T extends string>(s: T): P<T> => `PLAIN_${s}`;
 export const plainArray = <T extends string>(a: T[]) => a.map(p);
-export const removePlain = (ref: string) => ref.slice(2);
-export const isPlain = (ref: TranslationReference | TemplateKey) => ref.startsWith('p.');
+export const removePlain = (ref: string) => ref.slice(6);
+export const isPlain = (ref: TranslationReference | TemplateKey) => ref.startsWith('PLAIN_');
 
 type Translation = string | Template<(string | number)[]>;
 
@@ -32,7 +32,7 @@ const withGet = (translations: PlainTranslations): Translations => {
         ...withDerived,
         get: ref => ref == null ? null : get(ref),
         refFromTemplate: <T extends (number | string)[]>(ref: TemplateKey, args: TemplateArgs<T>) =>
-            `p.${(get(ref) as Template<T>).parseTemplate(args)}`,
+            `PLAIN_${(get(ref) as Template<T>).parseTemplate(args)}`,
     };
 };
 
@@ -51,7 +51,7 @@ export const allKeys = <(TranslationReference | TemplateKey)[]> Object.recursive
 
 export type TranslationReference = Exclude<
     | RecursiveKeyOf<PlainTranslations & Derived>
-    | `p.${string}`
+    | `PLAIN_${string}`
     | '',
     TemplateKey>;
 
