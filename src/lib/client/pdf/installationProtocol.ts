@@ -22,8 +22,9 @@ const cenik = {
 } as const;
 
 const kody = {
-    technicalAssistance: 12510,
     assemblyWork: 18261,
+    technicalAssistance: 12510,
+    technicalAssistance12: 20482,
     regulusRoute: 14343,
     installationApproval: 14846,
     extendedWarranty: 14847,
@@ -72,6 +73,7 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
     const cenaDily = nahradniDily.reduce((sum, dil) => sum + Number(dil.dil!.unitPrice) * Number(dil.mnozstvi), 0);
     const cenaOstatni = cenaUkony + cenaDily;
     const celkem = cenaDopravy + cenaPrace + cenaOstatni;
+    const dph = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21
     const datum = p.zasah.datum.split('T')[0].split('-').join('/');
     const hodina = p.zasah.datum.split('T')[1].split(':')[0];
     const technik = p.zasah.inicialy;
@@ -133,7 +135,7 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
         /*      praceCena */ Text55: cenaPrace.roundTo(2).toLocaleString('cs') + ' Kč',
         /*    ostatniCena */ Text56: cenaOstatni.roundTo(2).toLocaleString('cs') + ' Kč',
         /*     celkemCena */ Text57: celkem.roundTo(2).toLocaleString('cs') + ' Kč',
-        /*  celkemCenaDPH */ Text58: (celkem * 1.21).roundTo(2).toLocaleString('cs') + ' Kč',
+        /*  celkemCenaDPH */ Text58: (celkem * dph).roundTo(2).toLocaleString('cs') + ' Kč',
         /*                */ Text59: t.get(p.fakturace.hotove),
         /*                */ Text60: p.fakturace.hotove == 'no' ? 'Fakturovat:' : '',
         /*                */ Text61: p.fakturace.hotove == 'no' ? t.get(p.fakturace.komu) : '',
