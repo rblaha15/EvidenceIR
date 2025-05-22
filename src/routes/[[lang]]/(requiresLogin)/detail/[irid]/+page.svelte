@@ -105,7 +105,7 @@
     }));
     let irType = $state(new ChooserWidget({
         label: `controllerType`,
-        options: plainArray(['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOXK', 'IR 34', 'IR 14', 'IR 12', 'SOREL']),
+        options: plainArray(['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL']),
     }));
 
     $effect(() => {
