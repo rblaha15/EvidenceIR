@@ -196,6 +196,14 @@ const cells: ExcelImport<Raw<Data>>['cells'] = {
     },
 };
 
+export const unknownCompany: Company = {
+    companyName: 'Neznámá',
+    email: 'neznama@montazni.fi',
+    crn: '99999999',
+    phone: '+420999999999',
+    representative: 'Neznámý montážník',
+}
+
 const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [boolean], [string | null]]> = {
     storeName: 'stored_data',
     defaultData: newData,
@@ -287,7 +295,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         }, [techniciansList]],
         [(_, data, [$companies]) => {
             data.uvedeni.company.items = () => $companies.commissioningCompanies;
-            data.montazka.company.items = () => $companies.assemblyCompanies;
+            data.montazka.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
         }, [companies]],
         [(_, data, [$isUserRegulusOrAdmin]) => {
             data.vzdalenyPristup.plati.options = () => $isUserRegulusOrAdmin
