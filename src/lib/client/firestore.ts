@@ -23,8 +23,8 @@ import { checkRegulusOrAdmin, currentUser } from './auth';
 import { firestore } from '../../hooks.client';
 import type { UvedeniSOL } from '$lib/forms/UvedeniSOL';
 import type { DataSP, GenericDataSP } from '$lib/forms/SP.svelte';
-import type { TranslationReference } from '$lib/translations';
 import type { DataSP2 } from '$lib/forms/SP2';
+import type { P } from '$lib/translations';
 
 const persistentCacheIndexManager = getPersistentCacheIndexManager(firestore);
 if (persistentCacheIndexManager)
@@ -89,7 +89,7 @@ export type LegacyIR = {
     installationProtocol?: Raw<DataSP>;
     evidence: Raw<Data> & {
         vzdalenyPristup: {
-            fakturuje: TranslationReference;
+            fakturuje: 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | P<'Později, dle protokolu'>;
         };
         ir: {
             cisloBOX: string;
