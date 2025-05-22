@@ -38,9 +38,9 @@ export interface DataSP2 extends GenericDataSP<UDSP>, UserData<UDSP>, Form<UDSP>
 export const defaultDataSP2 = (): DataSP2 => ({
     ...userData(),
     system: {
-        nadpis: new TitleWidget({ text: p('Instalační a servisní protokol') }),
-        popis: new InputWidget({ label: p('Popis systému'), textArea: true, required: true }),
-        datumUvedeni: new InputWidget({ label: p('Datum uvedení do provozu'), type: 'date', required: false }),
+        nadpis: new TitleWidget({ text: 'p.Instalační a servisní protokol' }),
+        popis: new InputWidget({ label: 'p.Popis systému', textArea: true, required: true }),
+        datumUvedeni: new InputWidget({ label: 'p.Datum uvedení do provozu', type: 'date', required: false }),
     },
     ...defaultDataSP(),
 });

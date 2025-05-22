@@ -1,5 +1,4 @@
-import type { Pair } from '$lib/Widget.svelte.js';
-import { type P, removePlain } from '$lib/translations';
+import { removePlain } from '$lib/translations';
 import type { Data, UserData } from '$lib/forms/Data';
 import type { Raw } from '$lib/forms/Form';
 import type { IRID, SPID } from '$lib/client/firestore';

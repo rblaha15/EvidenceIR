@@ -34,7 +34,7 @@ const products = {
         'RegulusHBOX K 106',
     ]),
     thermalStores: {
-        [p('DUO')]: plainArray([
+        'p.DUO': plainArray([
             '-',
             'P',
             'PR',
@@ -42,7 +42,7 @@ const products = {
             'K P',
             'K PR',
         ]),
-        [p('HSK')]: plainArray([
+        'p.HSK': plainArray([
             'P',
             'P+',
             'PR',
@@ -51,7 +51,7 @@ const products = {
             'PB',
             'TV',
         ]),
-        [p('PS')]: plainArray([
+        'p.PS': plainArray([
             'E+',
             'ES+',
             'N+',

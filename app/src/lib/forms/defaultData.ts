@@ -16,7 +16,6 @@ import { isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
 import products from '$lib/helpers/products';
 import { p, plainArray } from '$lib/translations';
-import type { Raw } from '$lib/forms/Form';
 
 const jeFO = (d: UserData<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserData<never>) => jeFO(d);
@@ -267,13 +266,13 @@ export default (): Data => ({
             label: `controllerType`,
             options1: plainArray(['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL']),
             options2: ({ ir: { typ: { value: { first: f } } } }) => (
-                plainArray(f == p('IR 12') ? ['CTC'] : f == p('SOREL') ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5'] : ['CTC', 'RTC'])
+                plainArray(f == 'p.IR 12' ? ['CTC'] : f == 'p.SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5'] : ['CTC', 'RTC'])
             ),
             onValueSet: (d, v) => {
-                if (v.second == p('RTC')) {
+                if (v.second == 'p.RTC') {
                     d.tc.typ.setValue(d, 'airToWater');
                 }
-                if (v.first == p('SOREL')) {
+                if (v.first == 'p.SOREL') {
                     d.ir.cislo.setValue(d, `${todayISO()} ${time()}`);
                     d.ir.cisloBox.setValue(d, '')
                     d.vzdalenyPristup.chce.setValue(d, false)
@@ -281,8 +280,8 @@ export default (): Data => ({
                 if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
                     d.ir.typ.setValue(d, { ...v, second: null });
                 }
-                if (v.first == p('IR 12')) {
-                    d.ir.typ.setValue(d, { ...v, second: p('CTC') });
+                if (v.first == 'p.IR 12') {
+                    d.ir.typ.setValue(d, { ...v, second: 'p.CTC' });
                 }
             },
         }),
@@ -344,12 +343,12 @@ export default (): Data => ({
             options: [`airToWater`, `groundToWater`],
             required: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
             show: d =>
-                d.ir.typ.value.second == p('CTC') && d.ir.chceVyplnitK.value.includes(`heatPump`)
+                d.ir.typ.value.second == 'p.CTC' && d.ir.chceVyplnitK.value.includes(`heatPump`)
         }),
         model: new ChooserWidget({
             label: d => (d.tc.model2.value != `noPump` ? `heatPumpModel1` : `heatPumpModel`),
             options: d =>
-                d.ir.typ.value.second == p('RTC')
+                d.ir.typ.value.second == 'p.RTC'
                     ? products.heatPumpsRTC
                     : d.tc.typ.value == 'airToWater'
                         ? products.heatPumpsAirToWaterCTC
@@ -357,7 +356,7 @@ export default (): Data => ({
             required: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
             show: d =>
                 d.ir.typ.value.second != null &&
-                (d.ir.typ.value.second == p('RTC') || d.tc.typ.value != null) &&
+                (d.ir.typ.value.second == 'p.RTC' || d.tc.typ.value != null) &&
                 d.ir.chceVyplnitK.value.includes(`heatPump`),
             onValueSet: d => {
                 if (!d.tc.model.options(d).includes(d.tc.model.value ?? products.heatPumpsGroundToWater[0])) {
@@ -372,13 +371,13 @@ export default (): Data => ({
                     : `heatPumpManufactureNumber`,
             onError: `wrongNumberFormat`,
             regex: d =>
-                d.ir.typ.value.second == p('CTC')
+                d.ir.typ.value.second == 'p.CTC'
                     ? /^\d{4}-\d{4}-\d{4}$/
                     : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
             capitalize: true,
             required: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
             maskOptions: d => ({
-                mask: d.ir.typ.value.second == p('CTC') ? `0000-0000-0000` : `AA0000-AA-0000`,
+                mask: d.ir.typ.value.second == 'p.CTC' ? `0000-0000-0000` : `AA0000-AA-0000`,
                 definitions: {
                     A: /[A-Za-z]/
                 }
