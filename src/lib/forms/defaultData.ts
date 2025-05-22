@@ -383,7 +383,7 @@ export default (): Data => ({
                 }
             }),
             show: d => d.ir.typ.value.second != null && d.ir.chceVyplnitK.value.includes(`heatPump`),
-            onValueSet: (d, v) => { if (v.length > 14) d.tc.cislo.setValue(d, v.slice(-14)); },
+            processScannedText: t => t.slice(-14),
         }),
         model2: new ChooserWidget({
             label: `heatPumpModel2`,
@@ -400,7 +400,7 @@ export default (): Data => ({
             required: d => d.tc.cislo.show(d) && d.tc.model2.value != `noPump`,
             maskOptions: d => d.tc.cislo.maskOptions(d),
             show: d => d.tc.cislo.show(d) && d.tc.model2.value != `noPump`,
-            onValueSet: (d, v) => { if (v.length > 14) d.tc.cislo2.setValue(d, v.slice(-14)); },
+            processScannedText: t => t.slice(-14),
         }),
         model3: new ChooserWidget({
             label: `heatPumpModel3`,
@@ -417,7 +417,7 @@ export default (): Data => ({
             required: d => d.tc.cislo.show(d) && d.tc.model3.value != `noPump`,
             maskOptions: d => d.tc.cislo.maskOptions(d),
             show: d => d.tc.cislo.show(d) && d.tc.model3.value != `noPump`,
-            onValueSet: (d, v) => { if (v.length > 14) d.tc.cislo3.setValue(d, v.slice(-14)); },
+            processScannedText: t => t.slice(-14),
         }),
         model4: new ChooserWidget({
             label: `heatPumpModel4`,
@@ -434,7 +434,7 @@ export default (): Data => ({
             required: d => d.tc.cislo.show(d) && d.tc.model4.value != `noPump`,
             maskOptions: d => d.tc.cislo.maskOptions(d),
             show: d => d.tc.cislo.show(d) && d.tc.model4.value != `noPump`,
-            onValueSet: (d, v) => { if (v.length > 14) d.tc.cislo4.setValue(d, v.slice(-14)); },
+            processScannedText: t => t.slice(-14),
         })
     },
     sol: {
