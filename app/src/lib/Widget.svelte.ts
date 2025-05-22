@@ -377,7 +377,7 @@ export class InputWithSuggestionsWidget<D, H extends boolean = false> extends Wi
     capitalize = $state() as Get<D, boolean>;
 
     setValue(data: D, value: string) {
-        this._value = value.trim();
+        this._value = value;
         this.onValueSet(data, this._value);
     }
 
@@ -532,7 +532,7 @@ export class InputWidget<D, H extends boolean = false> extends Widget<D, string,
     lock = $state() as Get<D, boolean>;
 
     setValue(data: D, value: string) {
-        this._value = value.trim();
+        this._value = value;
         this.onValueSet(data, this._value);
         this.updateMaskValue(this._value);
     }
@@ -609,7 +609,7 @@ export class InputWithChooserWidget<D, I extends TR, H extends boolean = false> 
     lock = $state() as Get<D, boolean>;
 
     setValue(data: D, value: SeI<I>) {
-        this._value = { ...value, text: value.text.trim() };
+        this._value = value;
         this.onValueSet(data, this._value);
         this.updateMaskValue(this._value.text);
     }
@@ -652,7 +652,7 @@ export class CheckboxWithInputWidget<D, H extends boolean = false> extends Widge
     lock = $state() as Get<D, boolean>;
 
     setValue(data: D, value: ChI) {
-        this._value = { ...value, text: value.text.trim() };
+        this._value = value;
         this.onValueSet(data, this._value);
         this.updateMaskValue(this._value.text);
     }
