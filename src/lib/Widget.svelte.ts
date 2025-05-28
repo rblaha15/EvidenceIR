@@ -1,5 +1,5 @@
 import type { TranslationReference as TR, Translations } from './translations';
-import type { FullAutoFill, HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
+import type { ClassValue, FullAutoFill, HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 
 export type Get<D, U = TR> = TR extends U
     ? (data: D, t: Translations) => U : (data: D) => U;
@@ -76,7 +76,7 @@ export type Files = readonly string[];
 
 type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H };
 type ShowArgs<D> = { show?: GetOrVal<D, boolean>; showInXML?: GetOrVal<D, boolean> };
-type InfoArgs<D> = { text: GetOrVal<D, TR | Promise<TR>> } & ShowArgs<D>;
+type InfoArgs<D> = { text: GetOrVal<D, TR | Promise<TR>>; class?: GetOrVal<D, ClassValue | undefined>; } & ShowArgs<D>;
 type ValueArgs<D, U, H> = {
     label: GetOrVal<D>, onError?: GetOrVal<D>; required?: GetOrVal<D, boolean>; onValueSet?: (data: D, newValue: U) => void
 } & HideArgs<H> & ShowArgs<D>;
@@ -124,7 +124,7 @@ type SuggestionsArgs<D> = {
     suggestions: GetOrVal<D, Arr<TR>>;
 };
 
-type Info<D, U> = Widget<D, U> & { text: Get<D, TR | Promise<TR>>; };
+type Info<D, U> = Widget<D, U> & { text: Get<D, TR | Promise<TR>>; class: Get<D, ClassValue | undefined>; };
 type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: Get<D, boolean>; };
 type File<D> = Widget<D, Files> & { multiple: Get<D, boolean>; max: Get<D, number>; };
 type Lock<D, U> = Widget<D, U> & { lock: Get<D, boolean>; };
@@ -169,6 +169,7 @@ type Suggestions<D> = Widget<D, string> & {
 const initInfo = function <D, U>(widget: Info<D, U>, args: InfoArgs<D>) {
     widget.text = toGet(args.text);
     widget.show = toGet(args.show ?? true);
+    widget.class = toGet(args.class);
     widget.showTextValue = toGet(args.showInXML ?? (data => widget.show(data)));
 };
 const initValue = function <D, U, H extends boolean>(widget: Required<D, U, H>, args: ValueArgs<D, U, H>) {
@@ -267,6 +268,7 @@ export class TitleWidget<D> extends Widget<D, undefined, true> {
     onValueSet = () => {};
     hideInRawData = true as const;
     isError = () => false;
+    class = $state() as Get<D, ClassValue>;
 
     constructor(args: InfoArgs<D>) {
         super();
@@ -284,6 +286,7 @@ export class TextWidget<D> extends Widget<D, undefined, true> {
     onValueSet = () => {};
     hideInRawData = true as const;
     isError = () => false;
+    class = $state() as Get<D, ClassValue>;
 
     constructor(args: InfoArgs<D>) {
         super();
