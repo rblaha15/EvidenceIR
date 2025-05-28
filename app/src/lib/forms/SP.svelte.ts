@@ -16,13 +16,13 @@ import {
     type Technician,
     techniciansList
 } from '$lib/client/realtime';
-import { dataToRawData, type Form, type Raw } from '$lib/forms/Form';
+import { type Form, type Raw } from '$lib/forms/Form';
 import { page } from '$app/state';
 import { upravitServisniProtokol, vyplnitServisniProtokol } from '$lib/client/firestore';
 import { currentUser } from '$lib/client/auth';
 import type { User } from 'firebase/auth';
 import { nowISO } from '$lib/helpers/date';
-import { makePlain, type P, p, plainArray, type TranslationReference } from '$lib/translations';
+import { makePlain, type P, p, plainArray } from '$lib/translations';
 import type { ExcelImport } from '$lib/forms/Import';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { spName } from '$lib/helpers/ir';
@@ -30,10 +30,10 @@ import MailProtocol from '$lib/emails/MailProtocol.svelte';
 
 type NahradniDil<D extends Form<D>> = {
     label: TextWidget<D>,
-    dil: SearchWidget<D, SparePart>,
-    name: InputWidget<D, true>;
-    code: InputWidget<D, true>;
-    unitPrice: InputWidget<D, true>;
+    dil: SearchWidget<D, SparePart, true>,
+    name: InputWidget<D>;
+    code: InputWidget<D>;
+    unitPrice: InputWidget<D>;
     warehouse: InputWidget<D>,
     mnozstvi: InputWidget<D>,
 }
@@ -72,46 +72,45 @@ export interface GenericDataSP<D extends GenericDataSP<D>> extends Form<D> {
     },
 }
 
-export const otherPart = <SparePart>{
-    name: p('Jiné')
-};
-
-const nahradniDil = <D extends Form<D>>(n: 1 | 2 | 3): NahradniDil<D> => {
+const nahradniDil = <D extends GenericDataSP<D>>(n: 1 | 2 | 3): NahradniDil<D> => {
     const show = (d: D) => d.nahradniDily.pocet.value >= n;
     const dil = (d: D) => d[`nahradniDil${n}` as const];
-    const showDetails = (d: D) => show(d) && dil(d).dil.value?.name == otherPart.name;
 
     return ({
         label: new TextWidget({
-            show: show, text: p(`Náhradní díl ${n.toString()}:`)
+            show, text: p(`Náhradní díl ${n}`), class: 'fs-5',
         }),
         dil: new SearchWidget({
-            show: show, required: show,
-            label: p('Položka'), items: [], getSearchItem: (i: SparePart) => i.name == otherPart.name
-                ? ({ pieces: [{ text: i.name as TranslationReference }] as const })
-                : ({
-                    pieces: [
-                        { text: p(i.code.toString()), width: .08 },
-                        { text: p(i.name), width: .8 },
-                        { text: p(i.unitPrice.roundTo(2).toLocaleString('cs') + ' Kč'), width: .12 }
-                    ] as const
-                })
+            required: false, show, hideInRawData: true, label: p('Vyhledat položku'), items: [],
+            onValueSet: (d, part) => {
+                const nd = dil(d);
+                nd.code.setValue(d, part?.code?.let(String) ?? '');
+                nd.name.setValue(d, part?.name ?? '');
+                nd.unitPrice.setValue(d, part?.unitPrice?.let(String) ?? '');
+                nd.dil._value = null;
+            }, getSearchItem: (i: SparePart) => ({
+                pieces: [
+                    { text: p(i.code.toString()), width: .08 },
+                    { text: p(i.name), width: .8 },
+                    { text: p(i.unitPrice.roundTo(2).toLocaleString('cs') + ' Kč'), width: .12 }
+                ] as const
+            }),
         }),
         name: new InputWidget({
-            label: p('Název'), hideInRawData: true, required: showDetails, show: showDetails
+            label: p('Název'), required: show, show,
         }),
         code: new InputWidget({
-            label: p('Kód'), type: 'number', hideInRawData: true, required: showDetails, show: showDetails
+            label: p('Kód'), type: 'number', required: show, show,
         }),
         unitPrice: new InputWidget({
-            label: p('Jednotková cena'), type: 'number', hideInRawData: true, required: showDetails, show: showDetails
+            label: p('Jednotková cena'), type: 'number', required: show, show, suffix: p('Kč'),
         }),
         warehouse: new InputWidget({
             label: p('Sklad'), required: false, show,
         }),
         mnozstvi: new InputWidget({
             label: p('Množství'), type: `number`, onError: `wrongNumberFormat`, text: '1',
-            show: show, required: show
+            required: show, show
         }),
     });
 };
@@ -166,14 +165,10 @@ export const defaultDataSP = <D extends GenericDataSP<D>>(): GenericDataSP<D> =>
 });
 
 const importSparePart = (i: 0 | 1 | 2): ExcelImport<Raw<DataSP>>['cells']['nahradniDil1'] => ({
-    dil: {
-        getData: get => ({
-            name: get([1, 43 + i]),
-            code: Number(get([6, 43 + i])),
-            unitPrice: Number(get([12, 43 + i]))
-        })
-    },
-    mnozstvi: { address: [9, 43 + i] }
+    name: { address: [1, 43 + i] },
+    code: { address: [6, 43 + i] },
+    unitPrice: { address: [12, 43 + i] },
+    mnozstvi: { address: [9, 43 + i] },
 });
 
 const cells: ExcelImport<Raw<DataSP>>['cells'] = {
@@ -229,28 +224,6 @@ const cells: ExcelImport<Raw<DataSP>>['cells'] = {
     }
 };
 
-export const updateOtherSpareParts = <D extends GenericDataSP<D>>(d: D, spareParts: SparePart[] = d.nahradniDil1.dil.items(d)) => {
-    [d.nahradniDil1, d.nahradniDil2, d.nahradniDil3].forEach(nahradniDil => {
-        if (nahradniDil.dil.value && !spareParts.some(p => p.code == nahradniDil.dil.value?.code)) {
-            nahradniDil.name.setValue(d, nahradniDil.dil.value.name);
-            nahradniDil.code.setValue(d, nahradniDil.dil.value.code.toString());
-            nahradniDil.unitPrice.setValue(d, nahradniDil.dil.value.unitPrice?.toString());
-            nahradniDil.dil.setValue(d, otherPart);
-        }
-    });
-};
-
-export const compactOtherSpareData = <D extends GenericDataSP<D>>(data: GenericDataSP<D>, raw: Raw<GenericDataSP<D>>) => {
-    (['nahradniDil1', 'nahradniDil2', 'nahradniDil3'] as const).forEach(dil => {
-        const nahradniDil = raw[dil] as Raw<NahradniDil<D>>;
-        if (nahradniDil.dil?.name == otherPart.name) nahradniDil.dil = {
-            name: data[dil].name.value,
-            code: Number(data[dil].code.value).roundTo(2),
-            unitPrice: Number(data[dil].unitPrice.value).roundTo(2)
-        };
-    });
-};
-
 export const sp = (() => {
     let i = $state() as number;
     const info: import('./forms.svelte').FormInfo<DataSP, DataSP, [[Technician[], User | null], [SparePart[]]]> = {
@@ -267,8 +240,7 @@ export const sp = (() => {
                 return undefined;
             }
         },
-        saveData: async (irid, raw, edit, data, editResult, t, send) => {
-            compactOtherSpareData(data, raw);
+        saveData: async (irid, raw, edit, _, editResult, t, send) => {
             if (edit) await upravitServisniProtokol(irid, i, raw);
             else await vyplnitServisniProtokol(irid, raw);
 
@@ -290,12 +262,7 @@ export const sp = (() => {
                 load: false
             });
         },
-        storeData: data => {
-            const raw = dataToRawData(data);
-            compactOtherSpareData(data, raw);
-            return raw;
-        },
-        createWidgetData: (_, protokol) => protokol,
+        createWidgetData: (_, p) => p,
         title: (_, edit) => edit
             ? `Editace SP`
             : `Instalační a servisní protokol`,
@@ -316,20 +283,19 @@ export const sp = (() => {
                 p.zasah.inicialy.required = () => !ja;
             }, [techniciansList, currentUser]],
             [(_, p, [$sparePartsList]) => {
-                const spareParts = [otherPart, ...$sparePartsList.map(it => ({
+                const spareParts = $sparePartsList.map(it => ({
                     ...it,
                     name: it.name.replace('  ', ' ')
-                }) as SparePart)];
+                }) satisfies SparePart);
                 [p.nahradniDil1, p.nahradniDil2, p.nahradniDil3].forEach(nahradniDil => {
                     nahradniDil.dil.items = () => spareParts;
                 });
-                updateOtherSpareParts(p, spareParts);
             }, [sparePartsList]]
         ],
         importOptions: {
             sheet: 'Protokol',
-            onImport: d => updateOtherSpareParts(d),
-            cells
+            onImport: () => {},
+            cells,
         }
     };
     return info;
