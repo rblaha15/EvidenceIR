@@ -89,12 +89,15 @@ const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SpareP
             f.zasah.inicialy.show = () => !ja;
             f.zasah.inicialy.required = () => !ja;
         }, [techniciansList, currentUser]],
-        [(d, f, [$sparePartsList]) => {
+        [(_, f, [$sparePartsList]) => {
             const spareParts = $sparePartsList.map(it => ({
                 ...it,
                 name: it.name.replace('  ', ' '),
             }) satisfies SparePart);
-            [f.nahradniDil1, f.nahradniDil2, f.nahradniDil3].forEach(nahradniDil => {
+            [
+                f.nahradniDil1, f.nahradniDil2, f.nahradniDil3, f.nahradniDil4,
+                f.nahradniDil5, f.nahradniDil6, f.nahradniDil7, f.nahradniDil8,
+            ].forEach(nahradniDil => {
                 nahradniDil.dil.items = () => spareParts;
             });
         }, [sparePartsList]],

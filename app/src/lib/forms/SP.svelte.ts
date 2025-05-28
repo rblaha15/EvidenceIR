@@ -64,6 +64,11 @@ export interface GenericDataSP<D extends GenericDataSP<D>> extends Form<D> {
     nahradniDil1: NahradniDil<D>,
     nahradniDil2: NahradniDil<D>,
     nahradniDil3: NahradniDil<D>,
+    nahradniDil4: NahradniDil<D>,
+    nahradniDil5: NahradniDil<D>,
+    nahradniDil6: NahradniDil<D>,
+    nahradniDil7: NahradniDil<D>,
+    nahradniDil8: NahradniDil<D>,
     fakturace: {
         nadpis: TitleWidget<D>,
         hotove: ChooserWidget<D, 'yes' | 'no' | 'doNotInvoice'>,
@@ -72,7 +77,7 @@ export interface GenericDataSP<D extends GenericDataSP<D>> extends Form<D> {
     },
 }
 
-const nahradniDil = <D extends GenericDataSP<D>>(n: 1 | 2 | 3): NahradniDil<D> => {
+const nahradniDil = <D extends GenericDataSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8): NahradniDil<D> => {
     const show = (d: D) => d.nahradniDily.pocet.value >= n;
     const dil = (d: D) => d[`nahradniDil${n}` as const];
 
@@ -145,11 +150,16 @@ export const defaultDataSP = <D extends GenericDataSP<D>>(): GenericDataSP<D> =>
     },
     nahradniDily: {
         nadpis: new TitleWidget({ text: p('Použité náhradní díly') }),
-        pocet: new CounterWidget({ label: p('Počet náhradních dílů'), min: 0, max: 3, chosen: 0 })
+        pocet: new CounterWidget({ label: p('Počet náhradních dílů'), min: 0, max: 8, chosen: 0 })
     },
     nahradniDil1: nahradniDil(1),
     nahradniDil2: nahradniDil(2),
     nahradniDil3: nahradniDil(3),
+    nahradniDil4: nahradniDil(4),
+    nahradniDil5: nahradniDil(5),
+    nahradniDil6: nahradniDil(6),
+    nahradniDil7: nahradniDil(7),
+    nahradniDil8: nahradniDil(8),
     fakturace: {
         nadpis: new TitleWidget({ text: p('Fakturace') }),
         hotove: new ChooserWidget({ label: p('Placeno hotově'), options: ['yes', 'no', 'doNotInvoice'] }),
@@ -287,7 +297,10 @@ export const sp = (() => {
                     ...it,
                     name: it.name.replace('  ', ' ')
                 }) satisfies SparePart);
-                [p.nahradniDil1, p.nahradniDil2, p.nahradniDil3].forEach(nahradniDil => {
+                [
+                    p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
+                    p.nahradniDil5, p.nahradniDil6, p.nahradniDil7, p.nahradniDil8,
+                ].forEach(nahradniDil => {
                     nahradniDil.dil.items = () => spareParts;
                 });
             }, [sparePartsList]]
