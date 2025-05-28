@@ -132,10 +132,10 @@
         if (!file) return;
         const rows = await readXlsxFile(file);
         newDataSpareParts = rows.slice(1).map(([code, name, unitPrice]) => ({
-            name,
+            name: String(name),
             code: Number(code),
             unitPrice: Number(unitPrice)
-        })) as SparePart[];
+        })) satisfies SparePart[];
         ev.currentTarget.files = null;
     };
 
