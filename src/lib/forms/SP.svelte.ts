@@ -34,6 +34,7 @@ type NahradniDil<D extends Form<D>> = {
     name: InputWidget<D, true>;
     code: InputWidget<D, true>;
     unitPrice: InputWidget<D, true>;
+    warehouse: InputWidget<D>,
     mnozstvi: InputWidget<D>,
 }
 
@@ -105,10 +106,13 @@ const nahradniDil = <D extends Form<D>>(n: 1 | 2 | 3): NahradniDil<D> => {
         unitPrice: new InputWidget({
             label: p('Jednotková cena'), type: 'number', hideInRawData: true, required: showDetails, show: showDetails
         }),
+        warehouse: new InputWidget({
+            label: p('Sklad'), required: false, show,
+        }),
         mnozstvi: new InputWidget({
             label: p('Množství'), type: `number`, onError: `wrongNumberFormat`, text: '1',
             show: show, required: show
-        })
+        }),
     });
 };
 
