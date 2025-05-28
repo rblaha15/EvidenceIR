@@ -70,7 +70,7 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
     const cenaDopravy = cenik.transportation * Number(p.ukony.doprava);
     const cenaPrace = p.ukony.typPrace ? cenik.work * Number(p.ukony.mnozstviPrace) : 0;
     const cenaUkony = p.ukony.ukony.reduce((sum, typ) => sum + cena(typ), 0);
-    const cenaDily = nahradniDily.reduce((sum, dil) => sum + Number(dil.dil!.unitPrice) * Number(dil.mnozstvi), 0);
+    const cenaDily = nahradniDily.reduce((sum, dil) => sum + Number(dil.unitPrice) * Number(dil.mnozstvi), 0);
     const cenaOstatni = cenaUkony + cenaDily;
     const celkem = cenaDopravy + cenaPrace + cenaOstatni;
     const dph = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21
@@ -126,10 +126,10 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
             [poleProUkony[i].kod, kod(typ).toString()],
         ])].flat()),
         /*   nahradniDily */ ...Object.fromEntries([...nahradniDily.map((dil, i) => [
-            [`Text${poleProDily[i]}`, dil.dil!.name],
-            [`Text${poleProDily[i] + 1}`, dil.dil!.code.toString()],
+            [`Text${poleProDily[i]}`, dil.name],
+            [`Text${poleProDily[i] + 1}`, dil.code.toString()],
             [`Text${poleProDily[i] + 2}`, dil.mnozstvi],
-            [`Text${poleProDily[i] + 4}`, dil.dil!.unitPrice.roundTo(2).toLocaleString('cs') + ' Kč'],
+            [`Text${poleProDily[i] + 4}`, Number(dil.unitPrice).roundTo(2).toLocaleString('cs') + ' Kč'],
         ])].flat()),
         /*    dopravaCena */ Text54: cenaDopravy.roundTo(2).toLocaleString('cs') + ' Kč',
         /*      praceCena */ Text55: cenaPrace.roundTo(2).toLocaleString('cs') + ' Kč',
