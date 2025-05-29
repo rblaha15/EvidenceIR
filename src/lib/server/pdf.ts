@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { PDFDocument, PDFStreamWriter, PDFWriter } from 'pdf-lib';
+import { PDFDocument, PDFDropdown, PDFSignature, PDFStreamWriter, PDFTextField, PDFWriter } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import type { DocumentSnapshot } from 'firebase-admin/firestore';
 import { getTranslations, type Translations } from '$lib/translations';
@@ -14,24 +14,37 @@ import guide from '$lib/client/pdf/guide';
 import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtocol';
 import solarCollectorCommissionProtocol from '$lib/client/pdf/solarCollectorCommissionProtocol';
 import installationProtocol, { publicInstallationProtocol } from '$lib/client/pdf/installationProtocol';
-import { isIRID, irName } from '$lib/helpers/ir';
+import { irName, isIRID } from '$lib/helpers/ir';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { Raw } from '$lib/forms/Form';
 
 type Fetch = typeof fetch;
 
-export type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole'
+type SignatureDefinition = {
+    x: number,
+    y: number,
+    page?: number,
+    jpg: string | Uint8Array | ArrayBuffer,
+    maxHeight?: number,
+    maxWidth?: number,
+};
+
+export type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Podpis'
 export type DataOfID<ID extends IRID | SPID> = ID extends IRID ? IR : Raw<DataSP2>;
-export type GetPdfData<ID extends IRID | SPID = IRID> = (data: DataOfID<ID>, t: Translations) => Promise<{
-    [fieldName in `${PdfFieldType}${number}`]: (fieldName extends `Zaškrtávací pole${number}` ? boolean : string) | null;
+export type GetPdfData<ID extends IRID | SPID = IRID> = (data: DataOfID<ID>, t: Translations, fetch: Fetch) => Promise<{
+    [fieldName in `${PdfFieldType}${number}`]: (
+    fieldName extends `Zaškrtávací pole${number}` ? boolean
+        : fieldName extends `Podpis${number}` ? SignatureDefinition
+            : string
+    ) | null;
 } & {
     fileName: string;
     doNotPrefixFileNameWithIR?: boolean;
 }>;
 export const getPdfData = (
-    link: Pdf,
+    link: Pdf
 ) => {
-    const t = toPdfTypeName(link)
+    const t = toPdfTypeName(link);
     if (t == 'check') return check;
     if (t == 'warranty') return warranty(Number(link.split('-')[1] || '1') - 1);
     if (t == 'rroute') return rroute;
@@ -40,7 +53,7 @@ export const getPdfData = (
     if (t == 'solarCollectorCommissionProtocol') return solarCollectorCommissionProtocol;
     if (t == 'installationProtocol') return installationProtocol(Number(link.split('-')[1]));
     if (t == 'publicInstallationProtocol') return publicInstallationProtocol;
-    throw `Invalid link name: ${t}`
+    throw `Invalid link name: ${t}`;
 };
 
 export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, irid_spid: ID, fetch: Fetch, args: PdfArgs, getData: GetPdfData<ID>) => {
@@ -66,16 +79,17 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
     const pdfDoc = await PDFDocument.load(formPdfBytes);
     pdfDoc.setTitle(t.get(args.title));
 
-    const form = pdfDoc.getForm()
+    const form = pdfDoc.getForm();
+    const fields = form.getFields()
 
-    const formData = await getData(data, t);
+    const formData = await getData(data, t, fetch);
 
     const prefixFileNameWithIR = !(formData.doNotPrefixFileNameWithIR ?? false);
     const prefix = prefixFileNameWithIR && isIRID(irid_spid) ? irName((data as IR).evidence.ir) + ' ' : '';
     const fileName = prefix + formData.fileName;
 
     for (const fieldName in formData.omit('fileName', 'doNotPrefixFileNameWithIR')) {
-        const name = fieldName as `${PdfFieldType}${number}`
+        const name = fieldName as `${PdfFieldType}${number}`;
         const type = name.split(/\d+/)[0] as PdfFieldType;
         if (type == 'Text') {
             const fieldName = name as `Text${number}`;
@@ -101,10 +115,27 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
             if (fieldValue == false) field.uncheck();
             if (fieldValue != null) field.enableReadOnly();
         }
+        if (type == 'Podpis') {
+            const fieldName = name as `Podpis${number}`;
+            const fieldValue = formData[fieldName];
+            if (!fieldValue) continue;
+            const { x, y, page: p, jpg, maxHeight: mh, maxWidth: mw } = fieldValue;
+            const page = pdfDoc.getPages()[p ?? 0];
+            const image = await pdfDoc.embedJpg(jpg);
+            const heightScale = mh ? mh / image.height : 1;
+            const widthScale = mw ? mw / image.width : 1;
+            const scale = Math.min(heightScale, widthScale, 1);
+            const scaled = image.scale(scale);
+            page.drawImage(image, {
+                x,
+                y,
+                width: scaled.width,
+                height: scaled.height
+            });
+        }
     }
 
-    // const fields = form.getFields()
-    // fields.forEachEntry(field => {
+    // fields.forEach(field => {
     //     const type = field.constructor.name
     //     const name = field.getName()
     //     if (field instanceof PDFTextField) {
@@ -125,13 +156,21 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
     const ubuntuFont = await pdfDoc.embedFont(fontBytes);
 
     form.updateFieldAppearances(ubuntuFont);
+    fields.forEach(field => {
+        if (field instanceof PDFSignature) {
+            field.acroField.getWidgets().forEach((_, i) => {
+                field.acroField.removeWidget(i)
+            })
+        }
+    })
+    form.flatten()
 
     await pdfDoc.save();
 
     const {
         useObjectStreams = true,
         addDefaultPage = true,
-        objectsPerTick = 50,
+        objectsPerTick = 50
     } = args.saveOptions ?? {};
 
     if (addDefaultPage && pdfDoc.getPageCount() === 0) pdfDoc.addPage();
@@ -148,8 +187,8 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
         headers: {
             'Content-Type': 'application/pdf',
             'Content-Disposition': 'inline; filename=' + encodedName,
-            'Title': encodedTitle,
+            'Title': encodedTitle
         },
-        status: 200,
+        status: 200
     });
 };

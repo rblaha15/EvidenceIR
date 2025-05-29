@@ -20,12 +20,13 @@
     import { solarCollectorCommission, type UvedeniSOL } from '$lib/forms/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { irWholeName, spWholeName, isIRID, isSPID } from '$lib/helpers/ir';
-    import { ChooserWidget, InputWidget, p } from '$lib/Widget.svelte.js';
+    import { ChooserWidget, InputWidget } from '$lib/Widget.svelte.js';
     import type { Raw } from '$lib/forms/Form';
     import { detailUrl, relUrl } from '$lib/helpers/runes.svelte';
     import Widget from '$lib/components/Widget.svelte';
     import { todayISO } from '$lib/helpers/date';
     import sp2, { type DataSP2 } from '$lib/forms/SP2';
+    import { p, plainArray } from '$lib/translations';
 
     interface Props {
         data: PageData;
@@ -86,7 +87,7 @@
         window.location.replace(detailUrl(`?deleted`));
     };
 
-    let change: 'no' | 'input' | 'sending' | 'fail' = $state('no');
+    let change: 'no' | 'input' | 'sending' | 'fail' | 'unchanged' = $state('no');
 
     let irNumber = $state(new InputWidget({
         label: `serialNumber`,
@@ -104,7 +105,7 @@
     }));
     let irType = $state(new ChooserWidget({
         label: `controllerType`,
-        options: [p`IR RegulusBOX`, p`IR RegulusHBOX`, p`IR RegulusHBOXK`, p`IR 34`, p`IR 14`, p`IR 12`, p`SOREL`],
+        options: plainArray(['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL']),
     }));
 
     $effect(() => {
@@ -115,7 +116,7 @@
         })
     });
     $effect(() => {
-        if (irType.value == p`SOREL`) {
+        if (irType.value == p('SOREL')) {
             irNumber.setValue({}, todayISO());
         }
     });
@@ -123,24 +124,32 @@
     const s = $derived(irType.value?.includes('SOREL') ?? false);
 
     const changeController = async () => {
-        irNumber.displayErrorVeto = true;
-        irType.displayErrorVeto = true;
-        if (irNumber.showError(s) || irType.showError(s)) return;
-        const newNumber = irNumber.value;
-        const newType = irType.value;
-        change = 'sending';
-        const record = (await evidence(irid!)).data()!;
-        record.evidence.ir.cislo = newNumber;
-        record.evidence.ir.typ.first = newType;
-        await novaEvidence(record);
-        await odstranitEvidenci(irid!);
-        window.location.assign(relUrl(`/detail/${extractIRIDFromParts(newType!, newNumber)}`));
+        try {
+            irNumber.displayErrorVeto = true;
+            irType.displayErrorVeto = true;
+            if (irNumber.showError(s) || irType.showError(s)) return;
+            const newNumber = irNumber.value;
+            const newType = irType.value;
+            change = 'sending';
+            const record = (await evidence(irid!)).data()!;
+            record.evidence.ir.cislo = newNumber;
+            if (record.evidence.ir.cislo == newNumber) return change = 'unchanged';
+            record.evidence.ir.typ.first = newType;
+            await novaEvidence(record);
+            const newRecord = (await evidence(extractIRIDFromParts(newType!, newNumber))).data();
+            if (!newRecord?.evidence) return change = 'fail';
+            await odstranitEvidenci(irid!);
+            window.location.assign(relUrl(`/detail/${extractIRIDFromParts(newType!, newNumber)}`));
+        } catch (e) {
+            console.log(e);
+            change = 'fail';
+        }
     };
 
     $effect(() => setTitle(spid ? 'Instalační a servisní protokol' : t.evidenceDetails));
 
     const newIRID = new InputWidget({
-        label: p`IRID (z URL adresy)`
+        label: p('IRID (z URL adresy)')
     })
     const transfer = async () => {
         await vyplnitServisniProtokol(newIRID.value as IRID, {
@@ -218,7 +227,7 @@
     {#if values.evidence.vzdalenyPristup.chce}
         <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
     {/if}
-    {#if values.evidence.ir.typ.first !== p`SOREL`}
+    {#if values.evidence.ir.typ.first !== p('SOREL')}
         <PdfLink name={t.routeGuide} {t} linkName="guide" {data} />
     {/if}
     {#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
@@ -316,6 +325,8 @@
             <span>{t.saving}...</span>
             <div class="spinner-border text-danger ms-2"></div>
         </div>
+    {:else if change === 'unchanged'}
+        <p class="mt-2 text-danger">{t.changeWentWrong}</p>
     {:else if change === 'fail'}
         <p class="mt-2 text-danger">{t.changeWentWrong}</p>
     {/if}

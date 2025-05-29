@@ -6,7 +6,7 @@
     import type { DetachedFormInfo } from '$lib/forms/forms.svelte.js';
     import FormHeader from '$lib/forms/FormHeader.svelte';
     import { onMount, untrack } from 'svelte';
-    import { derived as derivedStore } from 'svelte/store';
+    import { derived as derivedStore, readable } from 'svelte/store';
     import WidgetComponent from '$lib/components/Widget.svelte';
     import { storable } from '$lib/helpers/stores';
     import { page } from '$app/state';
@@ -141,6 +141,7 @@
     };
 
     const isDangerous = $derived(JSON.stringify(dataToRawData(f)) != JSON.stringify(dataToRawData(untrack(defaultData))));
+    const showSaveAndSendButtonByDefaultStore = $derived(typeof showSaveAndSendButtonByDefault == 'boolean' ? readable(showSaveAndSendButtonByDefault) : showSaveAndSendButtonByDefault)
 </script>
 
 {#if mode !== 'loading'}
@@ -154,10 +155,10 @@
         <WidgetComponent bind:widget={list[i]} {t} data={d} />
     {/each}
     <div class="d-inline-flex align-content-center">
-        {#if !result.load && (mode === 'edit' && isSendingEmails || !showSaveAndSendButtonByDefault)}
+        {#if !result.load && (mode === 'edit' && isSendingEmails || !$showSaveAndSendButtonByDefaultStore)}
             <button onclick={save(false)} class="mb-auto btn btn-success">{t.save}</button>
         {/if}
-        {#if !result.load && (mode === 'edit' && isSendingEmails || showSaveAndSendButtonByDefault)}
+        {#if !result.load && (mode === 'edit' && isSendingEmails || $showSaveAndSendButtonByDefaultStore)}
             <button onclick={save(true)} class="mb-auto btn btn-success ms-2 text-nowrap">{t.saveAndSend}</button>
         {/if}
         {#if result.load}

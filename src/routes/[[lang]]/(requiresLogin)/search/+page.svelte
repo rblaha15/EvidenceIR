@@ -2,9 +2,9 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import { extractIRIDFromRawData, extractSPIDFromRawData, getAll, type IRID, publicProtocols, type SPID } from '$lib/client/firestore';
-    import type { Translations } from '$lib/translations';
+    import { p, type Translations } from '$lib/translations';
     import { onMount } from 'svelte';
-    import { p, SearchWidget } from '$lib/Widget.svelte.js';
+    import { SearchWidget } from '$lib/Widget.svelte.js';
     import Search from '$lib/components/widgets/Search.svelte';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { relUrl } from '$lib/helpers/runes.svelte';
@@ -59,8 +59,8 @@
         getSearchItem: i => ({
             href: relUrl(`/detail/${i.irid}`),
             pieces: [
-                { text: p`${i.irName}`, width: .4 },
-                { text: p`${i.label}`, width: .6 },
+                { text: p(i.irName), width: .4 },
+                { text: p(i.label), width: .6 },
             ] as const,
         }),
         onValueSet: (_, i) => {
@@ -76,8 +76,8 @@
         getSearchItem: pt => ({
             href: relUrl(`/detail/${pt.spid}`),
             pieces: [
-                { text: p`${pt.id}`, width: .4 },
-                { text: p`${pt.label}`, width: .6 },
+                { text: p(pt.id), width: .4 },
+                { text: p(pt.label), width: .6 },
             ] as const,
         }),
         onValueSet: (_, i) => {
