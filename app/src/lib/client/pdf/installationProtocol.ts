@@ -55,7 +55,6 @@ const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
 export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, fetch) => {
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : { hasHP: false, isCascade: false, pumps: [] };
     const p = installationProtocols[i];
-    console.log(p)
     return publicInstallationProtocol({
         ...e,
         ...p,
@@ -73,6 +72,7 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
 };
 
 export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) => {
+    console.log(p)
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
     const nahradniDily = [
         p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
