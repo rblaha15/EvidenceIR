@@ -111,7 +111,7 @@ type LegacyND = {
     unitPrice: never;
     warehouse: never;
 };
-type LegacySP = Raw<DataSP> & {
+export type LegacySP = Raw<DataSP> & {
     zasah: {
         doba: string;
         zaruka: never;
@@ -169,7 +169,7 @@ const migrateND = (d: LegacyND) => ({
     unitPrice: String(d.dil?.unitPrice ?? ''),
     warehouse: '',
 }) as Raw<DataSP>['nahradniDil1']
-const migrateSP = (legacy: LegacySP) => legacy['nahradniDil8'] ? legacy : ({
+export const migrateSP = <D extends GenericDataSP<D>>(legacy: LegacySP) => legacy['nahradniDil8'] ? legacy : ({
     ...legacy,
     ukony: {
         ...legacy.ukony,
@@ -183,7 +183,7 @@ const migrateSP = (legacy: LegacySP) => legacy['nahradniDil8'] ? legacy : ({
     nahradniDil6: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
     nahradniDil7: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
     nahradniDil8: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
-}) satisfies Raw<DataSP>;
+}) as Raw<D>;
 
 const newInstallationProtocols: Migration = (legacyIR: LegacyIR & IR) => ({
     ...legacyIR,
@@ -203,7 +203,7 @@ const irCollection = collection(firestore, 'ir').withConverter<IR>({
 });
 const spCollection = collection(firestore, 'sp').withConverter<Raw<DataSP2>>({
     toFirestore: (modelObject: WithFieldValue<Raw<DataSP2>>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<DataSP2>
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => migrateSP(snapshot.data() as LegacySP & Raw<DataSP2>) as Raw<DataSP2>
 });
 const checkCollection = collection(firestore, 'check');
 const irDoc = (irid: IRID) => doc(irCollection, irid);
