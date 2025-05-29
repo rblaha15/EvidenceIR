@@ -53,8 +53,8 @@ export interface GenericDataSP<D extends GenericDataSP<D>> extends Form<D> {
         nadpis: TitleWidget<D>,
         doprava: InputWidget<D>,
         typPrace: RadioWidget<D, `sp.assemblyWork` | `sp.technicalAssistance` | `sp.technicalAssistance12`>,
-        doba: InputWidget<D>,
         ukony: MultiCheckboxWidget<D, `sp.regulusRoute` | `sp.commissioningTC` | `sp.commissioningSOL` | `yearlyHPCheck` | `sp.yearlySOLCheck` | `sp.extendedWarranty` | `sp.installationApproval` | 'sp.withoutCode'>,
+        doba: InputWidget<D>,
     },
     nahradniDily: {
         nadpis: TitleWidget<D>,
@@ -104,7 +104,7 @@ const nahradniDil = <D extends GenericDataSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 
             label: p('Název'), required: show, show,
         }),
         code: new InputWidget({
-            label: p('Kód'), type: 'number', required: show, show,
+            label: p('Kód'), type: 'number', required: false, show,
         }),
         unitPrice: new InputWidget({
             label: p('Jednotková cena'), type: 'number', required: show, show, suffix: p('Kč'),
@@ -132,13 +132,13 @@ export const defaultDataSP = <D extends GenericDataSP<D>>(): GenericDataSP<D> =>
         nadpis: new TitleWidget({ text: p('Vyúčtování') }),
         doprava: new InputWidget({ label: p('Doprava'), type: 'number', onError: `wrongNumberFormat`, suffix: 'units.km' }),
         typPrace: new RadioWidget({ label: p('Typ práce'), options: [`sp.assemblyWork`, `sp.technicalAssistance`, `sp.technicalAssistance12`], required: false }),
-        doba: new InputWidget({ label: d => p(d.ukony.typPrace.value != null ? 'Doba fakturované práce' : 'Doba zásahu'), type: 'number', onError: `wrongNumberFormat`, suffix: 'units.h' }),
         ukony: new MultiCheckboxWidget({
             label: p('Pracovní úkony (max. 3)'), max: 3, required: false, options: [
                 `sp.regulusRoute`, `sp.commissioningTC`, `sp.commissioningSOL`, `yearlyHPCheck`,
                 `sp.yearlySOLCheck`, `sp.extendedWarranty`, `sp.installationApproval`, `sp.withoutCode`,
             ]
-        })
+        }),
+        doba: new InputWidget({ label: d => p(d.ukony.typPrace.value != null ? 'Doba fakturované práce' : 'Doba zásahu'), type: 'number', onError: `wrongNumberFormat`, suffix: 'units.h' }),
     },
     nahradniDily: {
         nadpis: new TitleWidget({ text: p('Použité náhradní díly') }),
