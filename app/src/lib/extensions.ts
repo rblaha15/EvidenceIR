@@ -1,76 +1,78 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // noinspection JSUnusedGlobalSymbols
 
-interface ObjectConstructor {
-    recursiveKeys(o: Record<string, unknown>): string[];
-}
+declare global {
+    interface ObjectConstructor {
+        recursiveKeys(o: Record<string, unknown>): string[];
+    }
 
-interface Object {
-    mapEntries<T extends Record<PropertyKey, unknown>, U extends [PropertyKey, unknown]>(
-        this: T,
-        callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U | undefined
-    ): {
-        [K in U[0]]: U[1];
-    };
+    interface Object {
+        mapEntries<T extends Record<PropertyKey, unknown>, U extends [PropertyKey, unknown]>(
+            this: T,
+            callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U | undefined
+        ): {
+            [K in U[0]]: U[1];
+        };
 
-    mapTo<T extends Record<PropertyKey, unknown>, U>(
-        this: T,
-        callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U
-    ): U[];
+        mapTo<T extends Record<PropertyKey, unknown>, U>(
+            this: T,
+            callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U
+        ): U[];
 
 
-    forEachEntry<T extends Record<PropertyKey, unknown>>(
-        this: T,
-        callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => unknown
-    ): void;
+        forEachEntry<T extends Record<PropertyKey, unknown>>(
+            this: T,
+            callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => unknown
+        ): void;
 
-    mapValues<T extends Record<PropertyKey, unknown>, U>(
-        this: T,
-        callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U
-    ): {
-        [K in keyof T]: U;
-    };
+        mapValues<T extends Record<PropertyKey, unknown>, U>(
+            this: T,
+            callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U
+        ): {
+            [K in keyof T]: U;
+        };
 
-    filterValues<T extends Record<PropertyKey, unknown>>(
-        this: T,
-        predicate: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => boolean
-    ): {
-        [K in keyof T]: T[K] | never;
-    };
+        filterValues<T extends Record<PropertyKey, unknown>>(
+            this: T,
+            predicate: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => boolean
+        ): {
+            [K in keyof T]: T[K] | never;
+        };
 
-    entries<T extends Record<PropertyKey, unknown>>(
-        this: T,
-    ): [keyof T, T[keyof T]][];
+        entries<T extends Record<PropertyKey, unknown>>(
+            this: T,
+        ): [keyof T, T[keyof T]][];
 
-    keys<T extends PropertyKey>(
-        this: { [_ in T]?: unknown },
-    ): T[];
+        keys<T extends PropertyKey>(
+            this: { [_ in T]?: unknown },
+        ): T[];
 
-    getValues<T>(
-        this: Record<PropertyKey, T>,
-    ): T[];
+        getValues<T>(
+            this: Record<PropertyKey, T>,
+        ): T[];
 
-    zip<T extends Record<PropertyKey, unknown>, U extends Record<PropertyKey, unknown>>(
-        this: T,
-        other: U,
-    ): {
-        [K in keyof T | keyof U]: [T[K], U[K]]
-    };
+        zip<T extends Record<PropertyKey, unknown>, U extends Record<PropertyKey, unknown>>(
+            this: T,
+            other: U
+        ): {
+            [K in keyof T | keyof U]: [T[K], U[K]]
+        };
 
-    omit<T extends Record<PropertyKey, unknown>, K extends keyof T>(
-        this: T,
-        ...keys: K[]
-    ): Omit<T, K>;
+        omit<T extends Record<PropertyKey, unknown>, K extends keyof T>(
+            this: T,
+            ...keys: K[]
+        ): Omit<T, K>;
 
-    let<T, U>(
-        this: T,
-        callback: (self: T) => U,
-    ): U;
+        let<T, U>(
+            this: T,
+            callback: (self: T) => U
+        ): U;
 
-    also<T, U>(
-        this: T,
-        callback: (self: T) => U,
-    ): U extends PromiseLike<infer _> ? Promise<T> : T;
+        also<T, U>(
+            this: T,
+            callback: (self: T) => U
+        ): U extends PromiseLike<infer _> ? Promise<T> : T;
+    }
 }
 
 Object.defineProperties(Object.prototype, {
@@ -85,16 +87,16 @@ Object.defineProperties(Object.prototype, {
     zip: { writable: true },
     omit: { writable: true },
     let: { writable: true },
-    also: { writable: true },
+    also: { writable: true }
 });
 
-Object.prototype.entries = <typeof Object.prototype.entries> function() {
+Object.prototype.entries = <typeof Object.prototype.entries>function() {
     return Object.entries(this);
 };
-Object.prototype.getValues = <typeof Object.prototype.getValues> function() {
+Object.prototype.getValues = <typeof Object.prototype.getValues>function() {
     return Object.values(this);
 };
-Object.prototype.keys = <typeof Object.prototype.keys> function() {
+Object.prototype.keys = <typeof Object.prototype.keys>function() {
     return Object.keys(this);
 };
 Object.prototype.mapTo = function <T extends Record<PropertyKey, unknown>, U>(
@@ -139,7 +141,7 @@ Object.prototype.filterValues = function <T extends Record<PropertyKey, unknown>
     ).toRecord() as { [K in keyof T]: T[K] | never; };
 };
 
-Object.prototype.zip = <typeof Object.prototype.zip> function(other) {
+Object.prototype.zip = <typeof Object.prototype.zip>function(other) {
     const keys = [...this.keys(), ...other.keys()];
     return keys.map(key => [key, [this[key], other[key]]] as [PropertyKey, unknown[]]).toRecord();
 };
@@ -158,138 +160,145 @@ Object.recursiveKeys = (o: Record<string, unknown>): string[] =>
             : [key]
     ).flat();
 
-Object.prototype.let = function<T, U>(
+Object.prototype.let = function <T, U>(
     this: T,
-    callback: (self: T) => U,
+    callback: (self: T) => U
 ): U {
-    return callback(this)
+    return callback(this);
 };
-Object.prototype.also = function<T, U>(
+Object.prototype.also = function <T, U>(
     this: T,
-    callback: (self: T) => U,
+    callback: (self: T) => U
 ): (U extends PromiseLike<infer _> ? Promise<T> : T) {
-    const result = callback(this)
+    const result = callback(this);
     if (typeof result == 'object' && result != null && 'then' in result && result.then instanceof Function)
         return new Promise<T>(resolve => {
-            (result.then as (fn: () => void) => void)(() => resolve(this))
-        }) as U extends PromiseLike<infer _> ? Promise<T> : T
+            (result.then as (fn: () => void) => void)(() => resolve(this));
+        }) as U extends PromiseLike<infer _> ? Promise<T> : T;
     else
         return this as U extends PromiseLike<infer _> ? Promise<T> : T;
 };
 
-
-interface Number {
-    roundTo: (decimalPlaces?: number) => number;
+declare global {
+    interface Number {
+        roundTo: (decimalPlaces?: number) => number;
+    }
 }
 
 Number.prototype.roundTo = function(decimalPlaces = 0) {
     const power = 10 ** decimalPlaces;
     return Math.round(this as number * power) / power;
 };
+declare global {
+    interface Array<T> {
+        zip<T, U>(
+            this: T[] | readonly T[],
+            other: U[] | readonly U[]
+        ): [T, U][];
 
-interface Array<T> {
-    zip<T, U>(
-        this: T[] | readonly T[],
-        other: U[] | readonly U[],
-    ): [T, U][];
+        mapNotUndefined<T, U>(
+            this: T[],
+            callback: (value: T, index: number, array: T[]) => U | undefined
+        ): U[];
 
-    mapNotUndefined<T, U>(
-        this: T[],
-        callback: (value: T, index: number, array: T[]) => U | undefined
-    ): U[];
+        filterNotUndefined<T>(
+            this: (T | undefined)[],
+        ): T[];
 
-    filterNotUndefined<T>(
-        this: (T | undefined)[],
-    ): T[];
+        toRecord<K extends PropertyKey, V>(
+            this: (readonly [K, V])[] | readonly (readonly [K, V])[],
+        ): {
+            [Key in K]: V
+        };
 
-    toRecord<K extends PropertyKey, V>(
-        this: [K, V][] | readonly [K, V][],
-    ): {
-        [Key in K]: V
-    };
+        distinctBy<T, K>(
+            this: T[] | readonly T[],
+            key: (item: T, index: number, array: T[]) => K,
+            options?: { reversed?: boolean }
+        ): T[];
 
-    distinctBy<T, K>(
-        this: T[] | readonly T[],
-        key: (item: T, index: number, array: T[]) => K,
-        options?: { reversed?: boolean },
-    ): T[];
+        awaitAll<T>(
+            this: Iterable<T | PromiseLike<T>>,
+        ): Promise<Awaited<T>[]>;
 
-    awaitAll<T>(
-        this: Iterable<T | PromiseLike<T>>,
-    ): Promise<Awaited<T>[]>;
+        window<T>(
+            this: T[],
+            size: number,
+            step?: number,
+            partialWindows?: boolean
+        ): T[][];
 
-    window<T>(
-        this: T[],
-        size: number,
-        step?: number,
-        partialWindows?: boolean,
-    ): T[][];
+        chunk<T>(
+            this: T[],
+            size: number
+        ): T[][];
 
-    chunk<T>(
-        this: T[],
-        size: number,
-    ): T[][];
+        with<T extends unknown[]>(
+            this: T,
+            index: number,
+            value: T[keyof T]
+        ): T;
 
-    with<T extends unknown[]>(
-        this: T,
-        index: number,
-        value: T[keyof T],
-    ): T;
+        toggle<T>(
+            this: T[],
+            value: T
+        ): T[];
 
-    toggle<T>(
-        this: T[],
-        value: T,
-    ): T[];
+        sumBy<T>(
+            this: T[],
+            callback: (value: T, index: number, array: T[]) => number,
+        ): number;
+    }
+
+    interface ReadonlyArray<T> {
+        zip<T, U>(
+            this: T[] | readonly T[],
+            other: U[] | readonly U[]
+        ): [T, U][];
+
+        toRecord<K extends PropertyKey, V>(
+            this: [K, V][] | readonly [K, V][],
+        ): {
+            [Key in K]: V
+        };
+
+        distinctBy<T, K>(
+            this: T[] | readonly T[],
+            key: (item: T, index: number, array: T[]) => K,
+            options?: { reversed?: boolean }
+        ): T[];
+
+        toggle<T>(
+            this: T[] | readonly T[],
+            value: T
+        ): T[];
+    }
 }
 
-interface ReadonlyArray<T> {
-    zip<T, U>(
-        this: T[] | readonly T[],
-        other: U[] | readonly U[],
-    ): [T, U][];
-
-    toRecord<K extends PropertyKey, V>(
-        this: [K, V][] | readonly [K, V][],
-    ): {
-        [Key in K]: V
-    };
-
-    distinctBy<T, K>(
-        this: T[] | readonly T[],
-        key: (item: T, index: number, array: T[]) => K,
-        options?: { reversed?: boolean },
-    ): T[];
-
-    toggle<T>(
-        this: T[] | readonly T[],
-        value: T,
-    ): T[];
-}
-
-Array.prototype.zip = <typeof Array.prototype.zip> function(other) {
+Array.prototype.zip = <typeof Array.prototype.zip>function(other) {
     return this.map((item, index) => [item, other[index]]);
 };
 
-Array.prototype.mapNotUndefined = <typeof Array.prototype.mapNotUndefined> function(callback) {
+Array.prototype.mapNotUndefined = <typeof Array.prototype.mapNotUndefined>function(callback) {
     return this.map(callback).filterNotUndefined();
 };
 
-Array.prototype.filterNotUndefined = <typeof Array.prototype.filterNotUndefined> function() {
+Array.prototype.filterNotUndefined = <typeof Array.prototype.filterNotUndefined>function() {
     return this.filter(it => it != undefined);
 };
 
-Array.prototype.toRecord = <typeof Array.prototype.toRecord> function() {
+Array.prototype.toRecord = <typeof Array.prototype.toRecord>function() {
     return Object.fromEntries(this);
 };
 
-Array.prototype.awaitAll = <typeof Array.prototype.awaitAll> function() {
+Array.prototype.awaitAll = <typeof Array.prototype.awaitAll>function() {
     return Promise.all(this);
 };
 
 Array.prototype.distinctBy = function <T, K>(
     this: T[],
     key: (value: T, index: number, array: T[]) => K,
-    { reversed = false }: { reversed?: boolean } = {},
+    { reversed = false }: { reversed?: boolean } = {}
 ) {
     const maybeReverse = <T>(array: T[]) => reversed ? array.toReversed() : array;
 
@@ -305,11 +314,11 @@ Array.prototype.distinctBy = function <T, K>(
     ]);
 };
 
-Array.prototype.window = function<T>(
+Array.prototype.window = function <T>(
     this: T[],
     size: number,
     step: number = 1,
-    partialWindows: boolean = false,
+    partialWindows: boolean = false
 ): T[][] {
     if (size <= 0 || step <= 0) throw new RangeError('Size and step bust be positive');
 
@@ -327,26 +336,47 @@ Array.prototype.window = function<T>(
     return result;
 };
 
-Array.prototype.chunk = function<T>(
+Array.prototype.chunk = function <T>(
     this: T[],
-    size: number,
+    size: number
 ): T[][] {
     return this.window(size, size, true);
 };
 
-Array.prototype.with = function<T extends unknown[]>(
+Array.prototype.with = function <T extends unknown[]>(
     this: T,
     index: number,
-    value: T[keyof T],
+    value: T[keyof T]
 ): T {
     const copy = [...this];
     copy[index] = value;
     return copy as T;
 };
 
-Array.prototype.toggle = function<T>(
+Array.prototype.toggle = function <T>(
     this: T[],
-    value: T,
+    value: T
 ): T[] {
-    return this.includes(value) ? this.toSpliced(this.indexOf(value), 1) : [...this, value]
+    return this.includes(value) ? this.toSpliced(this.indexOf(value), 1) : [...this, value];
 };
+
+Array.prototype.sumBy = <typeof Array.prototype.sumBy>function(callback) {
+    return this.reduce((sum, v, i, a) => sum + callback(v, i, a), 0);
+};
+
+// TLM
+
+export function range(startInclusive: number, endExclusive: number): number[];
+export function range(endExclusive: number): number[];
+export function range(p0: number, p1?: number): number[] {
+    const start = p1 == undefined ? 0 : p0;
+    const end = p1 == undefined ? p0 : p1;
+    return newArray(end - start, i => start + i);
+}
+
+export const arrayOf = <T>(size: number, value: T) => newArray(size, () => value);
+export const newArray = <T>(size: number, filler: (index: number) => T) =>
+    Array.from(Array(size), (_, i) => filler(i));
+
+export const newString = (count: number, filler: (index: number) => string) => newArray(count, filler).join('');
+export const stringOf = (count: number, value: string) => arrayOf(count, value).join('');

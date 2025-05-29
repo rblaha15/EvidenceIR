@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { PDFDocument, PDFSignature, PDFStreamWriter, PDFWriter } from 'pdf-lib';
+import { PDFDocument, PDFDropdown, PDFSignature, PDFStreamWriter, PDFTextField, PDFWriter } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import type { DocumentSnapshot } from 'firebase-admin/firestore';
 import { getTranslations, type Translations } from '$lib/translations';
@@ -80,6 +80,7 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
     pdfDoc.setTitle(t.get(args.title));
 
     const form = pdfDoc.getForm();
+    const fields = form.getFields()
 
     const formData = await getData(data, t, fetch);
 
@@ -134,7 +135,6 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
         }
     }
 
-    // const fields = form.getFields()
     // fields.forEach(field => {
     //     const type = field.constructor.name
     //     const name = field.getName()
@@ -156,7 +156,6 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
     const ubuntuFont = await pdfDoc.embedFont(fontBytes);
 
     form.updateFieldAppearances(ubuntuFont);
-    const fields = form.getFields()
     fields.forEach(field => {
         if (field instanceof PDFSignature) {
             field.acroField.getWidgets().forEach((_, i) => {

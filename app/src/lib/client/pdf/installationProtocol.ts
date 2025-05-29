@@ -3,7 +3,6 @@
 import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
-import type { TranslationReference } from '$lib/translations';
 import '$lib/extensions';
 import type { GetPdfData } from '$lib/server/pdf';
 import { endUserName, irName } from '$lib/helpers/ir';
@@ -19,7 +18,9 @@ const cenik = {
     commissioningSOL: 1652.89,
     yearlyHPCheck: 2479.34,
     yearlySOLCheck: 1239.67,
+    withoutCode: 0,
 } as const;
+type C = keyof typeof cenik
 
 const kody = {
     assemblyWork: 18261,
@@ -32,10 +33,14 @@ const kody = {
     commissioningSOL: 9785,
     yearlyHPCheck: 9787,
     yearlySOLCheck: 9782,
+    withoutCode: 0,
 } as const;
+type K = keyof typeof kody
 
-const cena = (subject: TranslationReference | null) => cenik[subject!.split('.').at(-1) as keyof typeof cenik];
-const kod = (subject: TranslationReference | null) => kody[subject!.split('.').at(-1) as keyof typeof kody];
+type A<S extends string> = S | `${string}.${S}` | null
+
+const cena = (subject: A<C>) => cenik[subject!.split('.').at(-1) as C];
+const kod = (subject: A<K>) => kody[subject!.split('.').at(-1) as K];
 
 const poleProUkony = [
     { typ: 'Kombinované pole33', kod: 'Text26', cena: 'Text36' },
@@ -43,11 +48,14 @@ const poleProUkony = [
     { typ: 'Kombinované pole35', kod: 'Text28', cena: 'Text38' },
 ];
 
-const poleProDily = [39, 44, 49];
+const poleProDilyS = 44;
+const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
+    .map((k, i) => [k, poleProDilyS + i * 8] as const).toRecord();
 
 export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, fetch) => {
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : { hasHP: false, isCascade: false, pumps: [] };
     const p = installationProtocols[i];
+    console.log(p)
     return publicInstallationProtocol({
         ...e,
         ...p,
@@ -66,11 +74,14 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
 
 export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) => {
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
-    const nahradniDily = [p.nahradniDil1, p.nahradniDil2, p.nahradniDil3].slice(0, p.nahradniDily.pocet);
+    const nahradniDily = [
+        p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
+        p.nahradniDil5, p.nahradniDil6, p.nahradniDil7, p.nahradniDil8,
+    ].slice(0, p.nahradniDily.pocet);
     const cenaDopravy = cenik.transportation * Number(p.ukony.doprava);
-    const cenaPrace = p.ukony.typPrace ? cenik.work * Number(p.ukony.mnozstviPrace) : 0;
-    const cenaUkony = p.ukony.ukony.reduce((sum, typ) => sum + cena(typ), 0);
-    const cenaDily = nahradniDily.reduce((sum, dil) => sum + Number(dil.unitPrice) * Number(dil.mnozstvi), 0);
+    const cenaPrace = p.ukony.typPrace ? cenik.work * Number(p.ukony.doba) : 0;
+    const cenaUkony = p.ukony.ukony.sumBy(typ => cena(typ));
+    const cenaDily = nahradniDily.sumBy(dil => Number(dil.unitPrice) * Number(dil.mnozstvi));
     const cenaOstatni = cenaUkony + cenaDily;
     const celkem = cenaDopravy + cenaPrace + cenaOstatni;
     const dph = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21
@@ -84,7 +95,9 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
         fileName: `SP-${technik}-${datum.replace('/', '_')}-${hodina}.pdf`,
         doNotPrefixFileNameWithIR: true,
         /*             id */ Text1: `${technik} ${datum}-${hodina}`,
+        /*    koncakNazev */ Text29: p.koncovyUzivatel.typ == 'company' ? `${t.companyName}:` : `${t.surname} a ${t.name.toLowerCase()}:`,
         /*    koncakJmeno */ Text2: endUserName(p.koncovyUzivatel),
+        /*      koncakICO */ Text30: p.koncovyUzivatel.typ == 'company' ? t.crn : t.birthday,
         /* koncakNarozeni */ Text3: p.koncovyUzivatel.typ == 'company'
             ? p.koncovyUzivatel.ico : p.koncovyUzivatel.narozeni.length == 0 ? null : p.koncovyUzivatel.narozeni,
         /*       bydliste */ Text4: `${p.bydliste.ulice}, ${p.bydliste.psc} ${p.bydliste.obec}`,
@@ -100,48 +113,42 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
         /*   popisSystemu */ Text14: p.system.popis,
         /*          datum */ Text15: dateFromISO(p.zasah.datum),
         /*   datumUvedeni */ Text16: p.system.datumUvedeni ? dateFromISO(p.system.datumUvedeni) : null,
-        /*        technik */ Text17: p.zasah.clovek,
-        /*     dobaZasahu */ Text18: p.zasah.doba + ' h',
-        /*           druh */ 'Zaškrtávací pole26': p.zasah.druh.includes(`commissioning`),
-        /*           druh */ 'Zaškrtávací pole27': p.zasah.druh.includes(`sp.yearlyCheck`),
-        /*           druh */ 'Zaškrtávací pole28': p.zasah.druh.includes(`sp.warrantyRepair`),
-        /*           druh */ 'Zaškrtávací pole29': p.zasah.druh.includes(`sp.postWarrantyRepair`),
-        /*           druh */ 'Zaškrtávací pole30': p.zasah.druh.includes(`sp.installationApproval`),
-        /*           druh */ 'Zaškrtávací pole31': p.zasah.druh.includes(`sp.otherType`),
+        /*        technik */ Text17: p.zasah.clovek.split(' ').toReversed().join(' '),
+        /*           druh */ 'Zaškrtávací pole28': p.zasah.zaruka == `sp.warrantyCommon`,
+        /*           druh */ 'Zaškrtávací pole29': p.zasah.zaruka == `sp.warrantyExtended`,
         /*         zavada */ Text19: p.zasah.nahlasenaZavada,
         /*     dobaZasahu */ Text20: p.zasah.popis,
-        /*     doprava-km */ Text21: p.ukony.doprava,
+        /*     doprava-km */ Text21: p.ukony.doprava + ' km',
         /*  doprava-kc/km */ Text22: cenik.transportation.roundTo(2).toLocaleString('cs') + ' Kč',
-        /*       praceTyp */ 'Kombinované pole32': t.get(p.ukony.typPrace) ?? ' ',
-        /*       praceKod */ Text25: p.ukony.typPrace ? kod(p.ukony.typPrace).toString() : '',
-        /*  praceMnozstvi */ Text23: p.ukony.typPrace ? p.ukony.mnozstviPrace : '',
+        /*       praceTyp */ 'Kombinované pole32': t.get(p.ukony.typPrace) ?? 'Zásah',
+        /*       praceKod */ Text25: p.ukony.typPrace ? kod(p.ukony.typPrace).toString().let(k => k == '0' ? '' : k) : '',
+        /*  praceMnozstvi */ Text23: p.ukony.doba + ' h',
         /*     prace-kc/h */ Text24: p.ukony.typPrace ? cenik.work.roundTo(2).toLocaleString('cs') + ' Kč' : '',
-        /*       zamykani */ ...Object.fromEntries([...[26, 27, 28], ...Array.from({ length: 18 }, (_, i) => i + 36)].map(i => [`Text${i}`, ''])),
-        /*       zamykani */ 'Kombinované pole33': ' ',
-        /*       zamykani */ 'Kombinované pole34': ' ',
-        /*       zamykani */ 'Kombinované pole35': ' ',
-        /*          ukony */ ...Object.fromEntries([...p.ukony.ukony.map((typ, i) => [
+        /*       zamykani */ ...poleProUkony.map(p => [p.typ, ' '] as const).toRecord(),
+        /*          ukony */ ...p.ukony.ukony.map((typ, i) => [
             [poleProUkony[i].typ, t.get(typ)],
             [poleProUkony[i].cena, cena(typ).roundTo(2).toLocaleString('cs') + ' Kč'],
             [poleProUkony[i].kod, kod(typ).toString()],
-        ])].flat()),
-        /*   nahradniDily */ ...Object.fromEntries([...nahradniDily.map((dil, i) => [
-            [`Text${poleProDily[i]}`, dil.name],
-            [`Text${poleProDily[i] + 1}`, dil.code.toString()],
-            [`Text${poleProDily[i] + 2}`, dil.mnozstvi],
-            [`Text${poleProDily[i] + 4}`, Number(dil.unitPrice).roundTo(2).toLocaleString('cs') + ' Kč'],
-        ])].flat()),
-        /*    dopravaCena */ Text54: cenaDopravy.roundTo(2).toLocaleString('cs') + ' Kč',
-        /*      praceCena */ Text55: cenaPrace.roundTo(2).toLocaleString('cs') + ' Kč',
-        /*    ostatniCena */ Text56: cenaOstatni.roundTo(2).toLocaleString('cs') + ' Kč',
-        /*     celkemCena */ Text57: celkem.roundTo(2).toLocaleString('cs') + ' Kč',
-        /*  celkemCenaDPH */ Text58: (celkem * dph).roundTo(2).toLocaleString('cs') + ' Kč',
-        /*                */ Text59: t.get(p.fakturace.hotove),
-        /*                */ Text60: p.fakturace.hotove == 'no' ? 'Fakturovat:' : '',
-        /*                */ Text61: p.fakturace.hotove == 'no' ? t.get(p.fakturace.komu) : '',
-        /*                */ Text62: p.fakturace.hotove == 'no' ? t.get(p.fakturace.jak) : '',
-        /*                */ Text63: p.fakturace.komu == 'assemblyCompany' ? p.montazka.zastupce : `${p.koncovyUzivatel.prijmeni} ${p.koncovyUzivatel.jmeno}`,
-        /*  popisTechnika */ Podpis64: signature ? { x: 265, y: 160, page: 0, jpg: signature, maxHeight: 60, } : null,
+        ] as const).flat().toRecord(),
+        /*   nahradniDily */ ...nahradniDily.map((dil, i) => [
+            [`Text${poleProDily.nazev + i}`, dil.name],
+            [`Text${poleProDily.kod + i}`, dil.code],
+            [`Text${poleProDily.mnozstvi + i}`, dil.mnozstvi + ' ks'],
+            [`Text${poleProDily.sklad + i}`, dil.warehouse],
+            [`Text${poleProDily.cena + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString('cs') + ' Kč'],
+        ] as const).flat().toRecord(),
+        /*    dopravaCena */ Text31: cenaDopravy.roundTo(2).toLocaleString('cs') + ' Kč',
+        /*      praceCena */ Text32: cenaPrace.roundTo(2).toLocaleString('cs') + ' Kč',
+        /*    ostatniCena */ Text33: cenaOstatni.roundTo(2).toLocaleString('cs') + ' Kč',
+        /*     celkemCena */ Text34: celkem.roundTo(2).toLocaleString('cs') + ' Kč',
+        /*            DPH */ Text18: `${dph * 100 - 100} %`,
+        /*  celkemCenaDPH */ Text35: (celkem * dph).roundTo(2).toLocaleString('cs') + ' Kč',
+        /*                */ Text39: t.get(p.fakturace.hotove),
+        /*                */ Text40: p.fakturace.hotove == 'no' ? 'Fakturovat:' : '',
+        /*                */ Text41: p.fakturace.hotove == 'no' ? t.get(p.fakturace.komu) : '',
+        /*                */ Text42: p.fakturace.hotove == 'no' ? t.get(p.fakturace.jak) : '',
+        /*                */ Text43: p.fakturace.komu == 'assemblyCompany' ? p.montazka.zastupce : endUserName(p.koncovyUzivatel),
+        /*  popisTechnika */ Podpis64: signature ? { x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60, } : null,
     };
 };
 export default installationProtocol;
