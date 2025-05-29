@@ -23,7 +23,7 @@ export type Result = { text: string, red: boolean, load: boolean };
 export type DetachedFormInfo<D, F extends Form<D>, S extends unknown[][] = [], R extends Raw<F> = Raw<F>> = {
     storeName: string;
     defaultData: () => F;
-    saveData: (raw: R, edit: boolean, data: F, editResult: (result: Result) => void, t: Translations, send: boolean) => Promise<boolean | void>;
+    saveData: (raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean) => Promise<boolean | void>;
     storeData?: (data: F) => R;
     createWidgetData: (data: F) => D;
     title: (t: Translations, edit: boolean) => string;
@@ -36,14 +36,14 @@ export type DetachedFormInfo<D, F extends Form<D>, S extends unknown[][] = [], R
     };
     showBackButton?: (edit: boolean) => boolean;
     isSendingEmails?: boolean;
-    showSaveAndSendButtonByDefault?: boolean;
+    showSaveAndSendButtonByDefault?: boolean | Readable<boolean>;
     redirectLink?: (raw: R) => Promise<string>;
     openTabLink?: (raw: R) => Promise<string>;
 }
 
 export type FormInfo<D, F extends Form<D>, S extends unknown[][] = [], R extends Raw<F> = Raw<F>> = {
     pdfLink: () => Pdf;
-    saveData: (irid: IRID, ...args: Parameters<DetachedFormInfo<D, F, S, R>['saveData']>) => Promise<boolean | void>;
+    saveData: (irid: IRID, raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, evidence: Raw<Data>) => Promise<boolean | void>;
     createWidgetData: (evidence: Raw<Data>, data: F) => D;
     getEditData?: ((ir: IR) => R | undefined) | undefined;
 } & Omit<DetachedFormInfo<D, F, S, R>, 'saveData' | 'createWidgetData' | 'getEditData' | 'redirect' | 'showBackButton'>
