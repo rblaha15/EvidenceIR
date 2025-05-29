@@ -1,10 +1,10 @@
-<script generics="D" lang="ts">
+<script generics="D, I extends TranslationReference" lang="ts">
     import type { TranslationReference, Translations } from '$lib/translations';
     import { type MultiCheckboxWidget, labelAndStar } from '$lib/Widget.svelte.js';
 
     interface Props {
         t: Translations;
-        widget: MultiCheckboxWidget<D>;
+        widget: MultiCheckboxWidget<D, I>;
         data: D;
     }
 
@@ -13,7 +13,7 @@
     const pocet = $derived(widget.value.length);
     const value = $derived(widget.bindableValue(data));
 
-    const onClick = (item: TranslationReference) => () => {
+    const onClick = (item: I) => () => {
         widget.mutateValue(data, v => v.toggle(item));
     };
 
@@ -33,6 +33,7 @@
             </button>
             <button onclick={onClick(item)} class="input-group-text last"
                     tabindex="-1" id="label-{uid}-{item}"
+                    disabled={!widget.value.includes(item) && pocet >= widget.max(data)}
             >{t.get(item)}</button>
         {/each}
     </div>
