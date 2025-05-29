@@ -25,6 +25,7 @@ import type { UvedeniSOL } from '$lib/forms/UvedeniSOL';
 import type { DataSP, GenericDataSP } from '$lib/forms/SP.svelte';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { P } from '$lib/translations';
+import type { SparePart } from '$lib/client/realtime';
 
 const persistentCacheIndexManager = getPersistentCacheIndexManager(firestore);
 if (persistentCacheIndexManager)
@@ -86,7 +87,8 @@ export type IR = {
 
 export type LegacyIR = {
     uvedeni?: Raw<UvedeniTC>;
-    installationProtocol?: Raw<DataSP>;
+    installationProtocol?: LegacySP;
+    installationProtocols: LegacySP[];
     evidence: Raw<Data> & {
         vzdalenyPristup: {
             fakturuje: 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | P<'Později, dle protokolu'>;
@@ -100,6 +102,32 @@ export type LegacyIR = {
             typZaruky: null | string
         };
     };
+};
+
+type LegacyND = {
+    dil: SparePart;
+    name: never;
+    code: never;
+    unitPrice: never;
+    warehouse: never;
+};
+type LegacySP = Raw<DataSP> & {
+    zasah: {
+        doba: string;
+        zaruka: never;
+    };
+    ukony: {
+        mnozstviPrace: string;
+        doba: never;
+    };
+    nahradniDil1: Raw<DataSP>['nahradniDil1'] & LegacyND;
+    nahradniDil2: Raw<DataSP>['nahradniDil1'] & LegacyND;
+    nahradniDil3: Raw<DataSP>['nahradniDil1'] & LegacyND;
+    nahradniDil4: never,
+    nahradniDil5: never,
+    nahradniDil6: never,
+    nahradniDil7: never,
+    nahradniDil8: never,
 };
 
 const changeHPWarranty: Migration = (legacyIR: LegacyIR & IR): LegacyIR & IR => {
@@ -125,25 +153,57 @@ const addUserType: Migration = (legacyIR: LegacyIR & IR) => {
     return legacyIR;
 };
 const removeUvedeni: Migration = (legacyIR: LegacyIR & IR) =>
-    legacyIR.uvedeni ? <LegacyIR & IR> { uvedeniTC: legacyIR.uvedeni, ...legacyIR, uvedeni: undefined } : legacyIR;
+    legacyIR.uvedeni ? <LegacyIR & IR>{ uvedeniTC: legacyIR.uvedeni, ...legacyIR, uvedeni: undefined } : legacyIR;
 const removeInstallationProtocol: Migration = (legacyIR: LegacyIR & IR) =>
-    legacyIR.installationProtocol ? { ...legacyIR, installationProtocols: [legacyIR.installationProtocol], installationProtocol: undefined } : legacyIR;
+    legacyIR.installationProtocol ? {
+        ...legacyIR,
+        installationProtocols: [legacyIR.installationProtocol],
+        installationProtocol: undefined
+    } : legacyIR;
 const addInstallationProtocols: Migration = (legacyIR: LegacyIR & IR) =>
     !legacyIR.installationProtocols ? { ...legacyIR, installationProtocols: [] } : legacyIR;
+const migrateND = (d: LegacyND) => ({
+    ...d,
+    name: d.dil?.name ?? '',
+    code: String(d.dil?.code ?? ''),
+    unitPrice: String(d.dil?.unitPrice ?? ''),
+    warehouse: '',
+}) as Raw<DataSP>['nahradniDil1']
+const migrateSP = (legacy: LegacySP) => legacy['nahradniDil8'] ? legacy : ({
+    ...legacy,
+    ukony: {
+        ...legacy.ukony,
+        doba: legacy.ukony.mnozstviPrace || legacy.zasah.doba,
+    },
+    nahradniDil1: migrateND(legacy.nahradniDil1),
+    nahradniDil2: migrateND(legacy.nahradniDil2),
+    nahradniDil3: migrateND(legacy.nahradniDil3),
+    nahradniDil4: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
+    nahradniDil5: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
+    nahradniDil6: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
+    nahradniDil7: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
+    nahradniDil8: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
+}) satisfies Raw<DataSP>;
+
+const newInstallationProtocols: Migration = (legacyIR: LegacyIR & IR) => ({
+    ...legacyIR,
+    installationProtocols: legacyIR.installationProtocols.map(l => migrateSP(l) as LegacySP)
+});
 
 type Migration = (legacyIR: LegacyIR & IR) => LegacyIR & IR;
 
 export const modernizeIR = (legacyIR: LegacyIR & IR): IR =>
-    [removeInstallationProtocol, removeUvedeni, addUserType, changeBOX, changeFaktutruje, changeHPWarranty, addInstallationProtocols]
+    // -------->>>>>>
+    [removeInstallationProtocol, removeUvedeni, addUserType, changeBOX, changeFaktutruje, changeHPWarranty, addInstallationProtocols, newInstallationProtocols]
         .reduce((data, migration) => migration(data), legacyIR);
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => modernizeIR(snapshot.data() as IR & LegacyIR),
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => modernizeIR(snapshot.data() as IR & LegacyIR)
 });
 const spCollection = collection(firestore, 'sp').withConverter<Raw<DataSP2>>({
     toFirestore: (modelObject: WithFieldValue<Raw<DataSP2>>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<DataSP2>,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<DataSP2>
 });
 const checkCollection = collection(firestore, 'check');
 const irDoc = (irid: IRID) => doc(irCollection, irid);
@@ -213,3 +273,4 @@ export const getAll = async () => {
 export const publicProtocols = () => getDocs(spCollection);
 export const publicProtocol = (spid: SPID) =>
     getDoc(spDoc(spid));
+

@@ -33,6 +33,7 @@
             </button>
             <button onclick={onClick(item)} class="input-group-text last"
                     tabindex="-1" id="label-{uid}-{item}"
+                    disabled={!widget.value.includes(item) && pocet >= widget.max(data)}
             >{t.get(item)}</button>
         {/each}
     </div>
