@@ -3,6 +3,12 @@ import { type IR, pridatKontrolu } from '$lib/client/firestore';
 import { TitleWidget, InputWidget, CheckboxWidget } from '$lib/Widget.svelte.js';
 import { dataToRawData, type Form, type Raw } from '$lib/forms/Form';
 import { todayISO } from '$lib/helpers/date';
+import { defaultAddresses, sendEmail } from '$lib/client/email';
+import { irName } from '$lib/helpers/ir';
+import MailProtocol from '$lib/emails/MailProtocol.svelte';
+import { page } from '$app/state';
+import { derived, get } from 'svelte/store';
+import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 
 export type Rok = number
 
@@ -175,7 +181,27 @@ export const check = (() => {
                 return data;
             } else return undefined;
         },
-        saveData: (irid, raw) => pridatKontrolu(irid, rok, raw),
+        saveData: async (irid, raw, _1, _2, editResult, t, _3, e) => {
+            await pridatKontrolu(irid, rok, raw)
+            if (await checkRegulusOrAdmin()) return
+
+            const user = get(currentUser)!;
+            const response = await sendEmail({
+                ...defaultAddresses(),
+                subject: `Vyplněna nová roční kontrola TČ k ${irName(e.ir)}`,
+                component: MailProtocol,
+                props: { name: user.email!, origin: page.url.origin, irid_spid: irid },
+            });
+
+            if (response!.ok) return;
+            editResult({
+                text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
+                red: true,
+                load: false
+            });
+            return false
+        },
+        showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
         createWidgetData: () => rok,
         title: t => t.yearlyHPCheck,
         subtitle: t => `${t.year}: ${rok.toString() ?? '…'}`,

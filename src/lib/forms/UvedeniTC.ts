@@ -3,6 +3,12 @@ import { uvestTCDoProvozu } from '$lib/client/firestore';
 import type { FormInfo } from './forms.svelte';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { Data } from './Data';
+import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
+import { derived, get } from 'svelte/store';
+import { defaultAddresses, sendEmail } from '$lib/client/email';
+import { irName } from '$lib/helpers/ir';
+import MailProtocol from '$lib/emails/MailProtocol.svelte';
+import { page } from '$app/state';
 
 export type UDTC = {
     uvedeni: UvedeniTC,
@@ -206,7 +212,27 @@ export const heatPumpCommission: FormInfo<UDTC, UvedeniTC> = ({
     storeName: 'stored_heat_pump_commission',
     defaultData: defaultUvedeniTC,
     pdfLink: () => 'heatPumpCommissionProtocol',
-    saveData: (irid, raw) => uvestTCDoProvozu(irid, raw),
+    saveData: async (irid, raw, _1, _2, editResult, t, _3, e) => {
+        await uvestTCDoProvozu(irid, raw);
+        if (await checkRegulusOrAdmin()) return
+
+        const user = get(currentUser)!;
+        const response = await sendEmail({
+            ...defaultAddresses(),
+            subject: `Vyplněno nové uvedení TČ do provozu k ${irName(e.ir)}`,
+            component: MailProtocol,
+            props: { name: user.email!, origin: page.url.origin, irid_spid: irid },
+        });
+
+        if (response!.ok) return;
+        editResult({
+            text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
+            red: true,
+            load: false
+        });
+        return false
+    },
+    showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence }),
     title: t => t.commissioning,
 });

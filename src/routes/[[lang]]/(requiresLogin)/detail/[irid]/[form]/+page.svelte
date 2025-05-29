@@ -36,7 +36,7 @@
             } else return undefined;
         },
         saveData: async (raw, edit, data, editResult, t, send) => {
-            const result = await saveData(irid, raw, edit, data, editResult, t, send);
+            const result = await saveData(irid, raw, edit, data, editResult, t, send, evidence);
             return result != false
         },
         redirectLink: async () => detailUrl(),
