@@ -20,15 +20,16 @@
     let search = $state(widget.value ? t.get(widget.getSearchItem(widget.value).pieces[0].text) : '');
 
     const all = $derived(widget.items(data));
-    let filtered = $derived(
-        all?.filter((item) =>
+    let filtered = $derived.by(() => {
+        all; search;
+        return all?.filter((item) =>
             wordsToFilter(search).every(
                 filter => widget.getSearchItem(item).pieces.some(piece =>
                     wordsToFilter(t.get(piece.text)).some(word => word.includes(filter))
                 )
             )
-        ) ?? []
-    );
+        ) ?? [];
+    });
     let hidden = $state(true);
     let hideRequest = $state(false);
     const hide = () => {
