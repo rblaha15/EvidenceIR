@@ -10,7 +10,7 @@ export const db = getFirestore(app!);
 
 const irCollection = db.collection('ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => modernizeIR(snapshot.data() as IR & LegacyIR),
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => modernizeIR(snapshot.data().also(console.dir) as IR & LegacyIR),
 });
 
 const spCollection = db.collection('sp').withConverter<Raw<DataSP2>>({

@@ -45,8 +45,7 @@ export interface GenericDataSP<D extends GenericDataSP<D>> extends Form<D> {
         datum: InputWidget<D>,
         clovek: InputWidget<D>,
         inicialy: InputWidget<D>,
-        doba: InputWidget<D>,
-        druh: MultiCheckboxWidget<D, `commissioning` | `sp.yearlyCheck` | `sp.warrantyRepair` | `sp.postWarrantyRepair` | `sp.installationApproval` | `sp.otherType`>,
+        zaruka: RadioWidget<D, `sp.warrantyCommon` | `sp.warrantyExtended`>,
         nahlasenaZavada: InputWidget<D>,
         popis: InputWidget<D>,
     },
@@ -54,8 +53,8 @@ export interface GenericDataSP<D extends GenericDataSP<D>> extends Form<D> {
         nadpis: TitleWidget<D>,
         doprava: InputWidget<D>,
         typPrace: RadioWidget<D, `sp.assemblyWork` | `sp.technicalAssistance` | `sp.technicalAssistance12`>,
-        mnozstviPrace: InputWidget<D>,
-        ukony: MultiCheckboxWidget<D, `sp.regulusRoute` | `sp.commissioningTC` | `sp.commissioningSOL` | `yearlyHPCheck` | `sp.yearlySOLCheck` | `sp.extendedWarranty` | `sp.installationApproval`>,
+        doba: InputWidget<D>,
+        ukony: MultiCheckboxWidget<D, `sp.regulusRoute` | `sp.commissioningTC` | `sp.commissioningSOL` | `yearlyHPCheck` | `sp.yearlySOLCheck` | `sp.extendedWarranty` | `sp.installationApproval` | 'sp.withoutCode'>,
     },
     nahradniDily: {
         nadpis: TitleWidget<D>,
@@ -125,26 +124,19 @@ export const defaultDataSP = <D extends GenericDataSP<D>>(): GenericDataSP<D> =>
         datum: new InputWidget({ label: p('Datum a čas zásahu'), type: 'datetime-local' }),
         clovek: new InputWidget({ label: p('Jméno technika'), show: false, required: false }),
         inicialy: new InputWidget({ label: p('Iniciály technika (do ID SP)'), show: false, required: false }),
-        doba: new InputWidget({ label: p('Celková doba zásahu (hodin)'), type: 'number', onError: `wrongNumberFormat` }),
-        druh: new MultiCheckboxWidget({
-            label: p('Druh zásahu'),
-            options: [`commissioning`, `sp.yearlyCheck`, `sp.warrantyRepair`, `sp.postWarrantyRepair`, `sp.installationApproval`, `sp.otherType`]
-        }),
+        zaruka: new RadioWidget({ label: p('Záruka'), options: [`sp.warrantyCommon`, `sp.warrantyExtended`], required: false }),
         nahlasenaZavada: new InputWidget({ label: p('Nahlášená závada'), required: false }),
         popis: new InputWidget({ label: p('Popis zásahu'), required: false, textArea: true })
     },
     ukony: {
         nadpis: new TitleWidget({ text: p('Vyúčtování') }),
-        doprava: new InputWidget({ label: p('Doprava (km)'), type: 'number', onError: `wrongNumberFormat` }),
+        doprava: new InputWidget({ label: p('Doprava'), type: 'number', onError: `wrongNumberFormat`, suffix: 'units.km' }),
         typPrace: new RadioWidget({ label: p('Typ práce'), options: [`sp.assemblyWork`, `sp.technicalAssistance`, `sp.technicalAssistance12`], required: false }),
-        mnozstviPrace: new InputWidget({
-            label: p('Počet hodin práce'), type: 'number', onError: `wrongNumberFormat`,
-            show: d => d.ukony.typPrace.value != null, required: d => d.ukony.typPrace.value != null
-        }),
+        doba: new InputWidget({ label: d => p(d.ukony.typPrace.value != null ? 'Doba fakturované práce' : 'Doba zásahu'), type: 'number', onError: `wrongNumberFormat`, suffix: 'units.h' }),
         ukony: new MultiCheckboxWidget({
             label: p('Pracovní úkony (max. 3)'), max: 3, required: false, options: [
                 `sp.regulusRoute`, `sp.commissioningTC`, `sp.commissioningSOL`, `yearlyHPCheck`,
-                `sp.yearlySOLCheck`, `sp.extendedWarranty`, `sp.installationApproval`
+                `sp.yearlySOLCheck`, `sp.extendedWarranty`, `sp.installationApproval`, `sp.withoutCode`,
             ]
         })
     },
@@ -188,24 +180,13 @@ const cells: ExcelImport<Raw<DataSP>>['cells'] = {
             transform: v => v.split('-')[0].split('/').map(n => n.padStart(2, '0')).join('-') + 'T' + v.split('-')[1] + ':00'
         },
         clovek: { address: [11, 21] },
-        doba: { address: [16, 21] },
-        druh: {
-            getData: get => ([
-                ['commissioning', get([6, 23])],
-                [`sp.yearlyCheck`, get([6, 25])],
-                [`sp.warrantyRepair`, get([13, 23])],
-                [`sp.postWarrantyRepair`, get([13, 25])],
-                [`sp.installationApproval`, get([20, 23])],
-                [`sp.otherType`, get([20, 25])]
-            ] as const).filter(([, i]) => i as unknown as boolean).map(([n]) => n)
-        },
         inicialy: { address: [13, 1] },
         popis: { address: [1, 30] },
         nahlasenaZavada: { address: [5, 28] }
     },
     ukony: {
         doprava: { address: [9, 38] },
-        mnozstviPrace: { address: [9, 39] },
+        doba: { address: [9, 39] },
         typPrace: { address: [1, 39], transform: v => v.includes('pomoc') ? `sp.technicalAssistance` : 'sp.assemblyWork' },
         ukony: {
             getData: get => [get([1, 40]), get([1, 41]), get([1, 42])]
