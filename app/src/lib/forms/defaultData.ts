@@ -15,8 +15,7 @@ import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
 import products from '$lib/helpers/products';
-import { p, plainArray, type TranslationReference } from '$lib/translations';
-import type { Raw } from '$lib/forms/Form';
+import { p, plainArray } from '$lib/translations';
 
 const jeFO = (d: UserData<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserData<never>) => jeFO(d);
@@ -386,7 +385,7 @@ export default (): Data => ({
                 }
             }),
             show: d => d.ir.typ.value.second != null && d.ir.chceVyplnitK.value.includes(`heatPump`),
-            processScannedText: t => t.slice(-14),
+            processScannedText: t => t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
         }),
         model2: new ChooserWidget({
             label: `heatPumpModel2`,
