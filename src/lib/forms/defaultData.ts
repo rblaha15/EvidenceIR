@@ -1,20 +1,21 @@
 import {
     CheckboxWidget,
-    ChooserWidget,
+    ChooserWidget, CounterWidget,
     DoubleChooserWidget,
     InputWidget,
     MultiCheckboxWidget,
-    RadioWidget, ScannerWidget,
+    RadioWidget,
+    ScannerWidget,
     SearchWidget,
     TextWidget,
-    TitleWidget
+    TitleWidget,
 } from '../Widget.svelte.js';
 import { type Data, unknownCompany, type UserData } from './Data';
 import type { Company, Technician } from '$lib/client/realtime';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
-import products from '$lib/helpers/products';
+import products, { type Products } from '$lib/helpers/products';
 import { p, plainArray } from '$lib/translations';
 
 const jeFO = (d: UserData<never>) => d.koncovyUzivatel.typ.value == `individual`;
@@ -26,14 +27,14 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
         nadpis: new TitleWidget({ text: `endUser` }),
         typ: new RadioWidget({
             label: ``, chosen: `individual`, showInXML: false,
-            options: [`individual`, `company`]
+            options: [`individual`, `company`],
         }),
         prijmeni: new InputWidget({
             label: `surname`, autocomplete: `section-user billing family-name`, show: fo, required: fo,
         }),
         jmeno: new InputWidget({
             label: `name`, show: fo, required: fo,
-            autocomplete: `section-user billing given-name`
+            autocomplete: `section-user billing given-name`,
         }),
         narozeni: new InputWidget({
             label: `birthday`, onError: `wrongDateFormat`,
@@ -49,7 +50,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
         ico: new InputWidget({
             label: `crn`, onError: `wrongCRNFormat`,
             regex: /^\d{8}(\d{2})?$/, required: po, show: po,
-            maskOptions: { mask: `00000000[00]` }
+            maskOptions: { mask: `00000000[00]` },
         }),
         telefon: new InputWidget({
             label: `phone`, onError: `wrongPhoneFormat`,
@@ -59,14 +60,14 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
         email: new InputWidget({
             label: `email`, onError: `wrongEmailFormat`,
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
-            type: `email`, autocomplete: `section-user billing mobile email`
-        })
+            type: `email`, autocomplete: `section-user billing mobile email`,
+        }),
     },
     bydliste: {
         nadpis: new TitleWidget({ text: d => jeFO(d) ? `residence` : `headquarters` }),
         ulice: new InputWidget({
             label: `street`,
-            autocomplete: `section-user billing street-address`
+            autocomplete: `section-user billing street-address`,
         }),
         obec: new InputWidget({ label: `town`, autocomplete: `section-user billing address-level2` }),
         psc: new InputWidget({
@@ -74,10 +75,10 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
             onError: `wrongZIPFormat`,
             regex: /^\d{3} \d{2}$/,
             maskOptions: {
-                mask: `000 00`
+                mask: `000 00`,
             },
-            autocomplete: `section-user billing home postal-code`
-        })
+            autocomplete: `section-user billing home postal-code`,
+        }),
     },
     mistoRealizace: {
         nadpis: new TitleWidget({ text: `realizationLocation` }),
@@ -90,31 +91,31 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
                     d.mistoRealizace.psc.setValue(d, d.bydliste.psc.value);
                     d.mistoRealizace.ulice.setValue(d, d.bydliste.ulice.value);
                 }
-            }
+            },
         }),
         ulice: new InputWidget({
             label: `street`,
             required: false,
             autocomplete: `section-realization shipping address-level2`,
-            show: d => !d.mistoRealizace.jakoBydliste.value
+            show: d => !d.mistoRealizace.jakoBydliste.value,
         }),
         obec: new InputWidget({
             label: `town`,
             autocomplete: `section-realization shipping address-level1`,
             show: d => !d.mistoRealizace.jakoBydliste.value,
-            required: d => !d.mistoRealizace.jakoBydliste.value
+            required: d => !d.mistoRealizace.jakoBydliste.value,
         }),
         psc: new InputWidget({
             label: `zip`,
             onError: `wrongZIPFormat`,
             regex: /^\d{3} \d{2}$/,
             maskOptions: {
-                mask: `000 00`
+                mask: `000 00`,
             },
             autocomplete: `section-realization shipping postal-code`,
             show: d => !d.mistoRealizace.jakoBydliste.value,
-            required: d => !d.mistoRealizace.jakoBydliste.value
-        })
+            required: d => !d.mistoRealizace.jakoBydliste.value,
+        }),
     },
     montazka: {
         nadpis: new TitleWidget({ text: `assemblyCompany` }),
@@ -132,7 +133,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
                 d.montazka.email.setValue(d, company?.email ?? '');
                 d.montazka.telefon.setValue(d, company?.phone ?? '');
                 d.montazka.zastupce.setValue(d, company?.representative ?? '');
-            }
+            },
         }),
         nebo: new TextWidget({ text: `or`, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn }),
         ico: new InputWidget({
@@ -140,7 +141,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
             onError: `wrongCRNFormat`,
             regex: /^\d{8}(\d{2})?$/,
             maskOptions: {
-                mask: `00000000[00]`
+                mask: `00000000[00]`,
             },
             required: false,
             show: d => d.montazka.company.value?.crn != unknownCompany.crn,
@@ -170,7 +171,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
             type: 'tel',
             autocomplete: `section-assembly billing work tel`,
             show: d => d.montazka.company.value?.crn != unknownCompany.crn,
-        })
+        }),
     },
     uvedeni: {
         nadpis: new TitleWidget({ text: `commissioning` }),
@@ -183,7 +184,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
                     d.uvedeni.email.setValue(d, d.montazka.email.value);
                     d.uvedeni.telefon.setValue(d, d.montazka.telefon.value);
                 }
-            }
+            },
         }),
         company: new SearchWidget<D, Company, true>({
             label: `searchCompanyInList`, items: [], getSearchItem: i => ({
@@ -197,7 +198,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
                 d.uvedeni.email.setValue(d, company?.email ?? '');
                 d.uvedeni.telefon.setValue(d, company?.phone ?? '');
                 d.uvedeni.zastupce.setValue(d, company?.representative ?? '');
-            }
+            },
         }),
         nebo: new TextWidget({ text: `or`, showInXML: false, show: d => !d.uvedeni.jakoMontazka.value }),
         ico: new InputWidget({
@@ -205,10 +206,10 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
             onError: `wrongCRNFormat`,
             regex: /^\d{8}(\d{2})?$/,
             maskOptions: {
-                mask: `00000000[00]`
+                mask: `00000000[00]`,
             },
             show: d => !d.uvedeni.jakoMontazka.value,
-            required: d => !d.uvedeni.jakoMontazka.value
+            required: d => !d.uvedeni.jakoMontazka.value,
         }),
         chosen: new TextWidget({
             text: async (d, t) => {
@@ -247,7 +248,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
             showInXML: true,
             show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
             required: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
-            autocomplete: `section-commissioning billing work email`
+            autocomplete: `section-commissioning billing work email`,
         }),
         telefon: new InputWidget({
             label: `phone`,
@@ -257,9 +258,58 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
             showInXML: true,
             show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
             required: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
-            autocomplete: `section-assembly billing work tel`
-        })
+            autocomplete: `section-assembly billing work tel`,
+        }),
     },
+});
+
+
+const heatPump = <const I extends 1 | 2 | 3 | 4>(i: I) => ({
+    [`model${i == 1 ? '' : i}`]: new ChooserWidget<Data, Products['heatPumps']>({
+        label: d => d.tc.pocet.value == 1 ? `heatPumpModel` : `heatPumpModel${i}`,
+        options: d =>
+            d.ir.typ.value.second == p('RTC')
+                ? products.heatPumpsRTC
+                : d.tc.typ.value == 'airToWater'
+                    ? products.heatPumpsAirToWaterCTC
+                    : products.heatPumpsGroundToWater,
+        required: d => d.ir.chceVyplnitK.value.includes(`heatPump`) && i <= d.tc.pocet.value,
+        show: d =>
+            d.ir.typ.value.second != null &&
+            (d.ir.typ.value.second == p('RTC') || d.tc.typ.value != null) &&
+            d.ir.chceVyplnitK.value.includes(`heatPump`) &&
+            i <= d.tc.pocet.value,
+        onValueSet: d => {
+            if (!d.tc.model.options(d).includes(d.tc.model.value ?? products.heatPumpsGroundToWater[0])) {
+                d.tc.model.setValue(d, null);
+            }
+        },
+    }),
+    [`model${i == 1 ? '' : i}`]: new ScannerWidget<Data>({
+        label: d => d.tc.pocet.value == 1 ? `heatPumpManufactureNumber` : `heatPumpManufactureNumber${i}`,
+        onError: `wrongNumberFormat`,
+        regex: d =>
+            d.ir.typ.value.second == p('CTC')
+                ? /^\d{4}-\d{4}-\d{4}$/
+                : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
+        capitalize: true,
+        required: d => d.ir.chceVyplnitK.value.includes(`heatPump`) && i <= d.tc.pocet.value,
+        maskOptions: d => ({
+            mask: d.ir.typ.value.second == p('CTC') ? `0000-0000-0000` : `AA0000-AA-0000`,
+            definitions: {
+                A: /[A-Za-z]/,
+            },
+        }),
+        show: d => d.ir.chceVyplnitK.value.includes(`heatPump`) && i <= d.tc.pocet.value,
+        processScannedText: t => t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
+    }),
+}) as I extends 1 ? {
+    model: ChooserWidget<Data, Products['heatPumps']>;
+    cislo: ScannerWidget<Data>;
+} : ({
+    [K in `model${I}`]: ChooserWidget<Data, Products['heatPumps']>;
+} & {
+    [K in `cislo${I}`]: ScannerWidget<Data>;
 });
 
 export default (): Data => ({
@@ -276,8 +326,8 @@ export default (): Data => ({
                 }
                 if (v.first == p('SOREL')) {
                     d.ir.cislo.setValue(d, `${todayISO()} ${time()}`);
-                    d.ir.cisloBox.setValue(d, '')
-                    d.vzdalenyPristup.chce.setValue(d, false)
+                    d.ir.cisloBox.setValue(d, '');
+                    d.vzdalenyPristup.chce.setValue(d, false);
                 }
                 if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
                     d.ir.typ.setValue(d, { ...v, second: null });
@@ -296,8 +346,8 @@ export default (): Data => ({
                 mask: d.ir.typ.value.first?.includes('SOREL') ? `0000-00-00T00:00` : `A1 0000`,
                 definitions: {
                     A: /[A-Za-z]/,
-                    '1': /[1-9ONDond]/
-                }
+                    '1': /[1-9ONDond]/,
+                },
             }),
             show: d => !d.ir.typ.value.first?.includes('SOREL'),
         }),
@@ -312,11 +362,11 @@ export default (): Data => ({
                     ? `00000-0-0000-000`
                     : `0000000-0000000`,
                 definitions: {
-                    'S': /[0-9-]/
+                    'S': /[0-9-]/,
                 },
             }),
             show: d => d.ir.typ.value.first?.includes(`BOX`) ?? false,
-            required: d => d.ir.typ.value.first?.includes(`BOX`) ?? false
+            required: d => d.ir.typ.value.first?.includes(`BOX`) ?? false,
         }),
         boxType: new TextWidget({
             text: (d, t) => t.refFromTemplate('recognised', [typBOX(d.ir.cisloBox.value) ?? '']), showInXML: false,
@@ -327,134 +377,48 @@ export default (): Data => ({
             options: d => d.ir.typ.value.first?.includes(`SOREL`)
                 ? [`solarCollector`]
                 : [`heatPump`, `solarCollector`],
-            required: false, showInXML: false
-        })
+            required: false, showInXML: false,
+        }),
     },
     tc: {
         nadpis: new TitleWidget({
-            text: d => (d.tc.model2.value != `noPump` ? `heatPumps` : `heatPump`),
-            show: d => d.ir.chceVyplnitK.value.includes(`heatPump`)
+            text: d => (d.tc.pocet.value > 1 ? `heatPumps` : `heatPump`),
+            show: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
         }),
         poznamka: new TextWidget({
             text: `pleaseFillInIrType`, showInXML: false,
             show: d =>
-                d.ir.typ.value.second == null && d.ir.chceVyplnitK.value.includes(`heatPump`)
+                d.ir.typ.value.second == null && d.ir.chceVyplnitK.value.includes(`heatPump`),
         }),
         typ: new RadioWidget({
-            label: d => (d.tc.model2.value != `noPump` ? `heatPumpsType` : `heatPumpType`),
+            label: d => (d.tc.pocet.value > 1 ? `heatPumpsType` : `heatPumpType`),
             options: [`airToWater`, `groundToWater`],
             required: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
             show: d =>
-                d.ir.typ.value.second == p('CTC') && d.ir.chceVyplnitK.value.includes(`heatPump`)
+                d.ir.typ.value.second == p('CTC') && d.ir.chceVyplnitK.value.includes(`heatPump`),
         }),
-        model: new ChooserWidget({
-            label: d => (d.tc.model2.value != `noPump` ? `heatPumpModel1` : `heatPumpModel`),
-            options: d =>
-                d.ir.typ.value.second == p('RTC')
-                    ? products.heatPumpsRTC
-                    : d.tc.typ.value == 'airToWater'
-                        ? products.heatPumpsAirToWaterCTC
-                        : products.heatPumpsGroundToWater,
-            required: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
-            show: d =>
-                d.ir.typ.value.second != null &&
-                (d.ir.typ.value.second == p('RTC') || d.tc.typ.value != null) &&
-                d.ir.chceVyplnitK.value.includes(`heatPump`),
-            onValueSet: d => {
-                if (!d.tc.model.options(d).includes(d.tc.model.value ?? products.heatPumpsGroundToWater[0])) {
-                    d.tc.model.setValue(d, null);
-                }
-            }
-        }),
-        cislo: new ScannerWidget({
-            label: d =>
-                d.tc.model2.value != `noPump`
-                    ? `heatPumpManufactureNumber1`
-                    : `heatPumpManufactureNumber`,
-            onError: `wrongNumberFormat`,
-            regex: d =>
-                d.ir.typ.value.second == p('CTC')
-                    ? /^\d{4}-\d{4}-\d{4}$/
-                    : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
-            capitalize: true,
-            required: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
-            maskOptions: d => ({
-                mask: d.ir.typ.value.second == p('CTC') ? `0000-0000-0000` : `AA0000-AA-0000`,
-                definitions: {
-                    A: /[A-Za-z]/
-                }
-            }),
-            show: d => d.ir.typ.value.second != null && d.ir.chceVyplnitK.value.includes(`heatPump`),
-            processScannedText: t => t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
-        }),
-        model2: new ChooserWidget({
-            label: `heatPumpModel2`,
-            options: d => [`noPump`, ...d.tc.model.options(d)],
-            required: false,
-            chosen: `noPump`,
-            show: d => d.tc.model.show(d) && d.tc.model.value != null
-        }),
-        cislo2: new ScannerWidget({
-            label: `heatPumpManufactureNumber2`,
-            onError: `wrongNumberFormat`,
-            regex: d => d.tc.cislo.regex(d),
-            capitalize: true,
-            required: d => d.tc.cislo.show(d) && d.tc.model2.value != `noPump`,
-            maskOptions: d => d.tc.cislo.maskOptions(d),
-            show: d => d.tc.cislo.show(d) && d.tc.model2.value != `noPump`,
-            processScannedText: t => t.slice(-14),
-        }),
-        model3: new ChooserWidget({
-            label: `heatPumpModel3`,
-            options: d => [`noPump`, ...d.tc.model.options(d)],
-            required: false,
-            chosen: `noPump`,
-            show: d => d.tc.model.show(d) && d.tc.model2.value != `noPump`
-        }),
-        cislo3: new ScannerWidget({
-            label: `heatPumpManufactureNumber3`,
-            onError: `wrongNumberFormat`,
-            regex: d => d.tc.cislo.regex(d),
-            capitalize: true,
-            required: d => d.tc.cislo.show(d) && d.tc.model3.value != `noPump`,
-            maskOptions: d => d.tc.cislo.maskOptions(d),
-            show: d => d.tc.cislo.show(d) && d.tc.model3.value != `noPump`,
-            processScannedText: t => t.slice(-14),
-        }),
-        model4: new ChooserWidget({
-            label: `heatPumpModel4`,
-            options: d => [`noPump`, ...d.tc.model.options(d)],
-            required: false,
-            chosen: `noPump`,
-            show: d => d.tc.model.show(d) && d.tc.model3.value != `noPump`,
-        }),
-        cislo4: new ScannerWidget({
-            label: `heatPumpManufactureNumber4`,
-            onError: `wrongNumberFormat`,
-            regex: d => d.tc.cislo.regex(d),
-            capitalize: true,
-            required: d => d.tc.cislo.show(d) && d.tc.model4.value != `noPump`,
-            maskOptions: d => d.tc.cislo.maskOptions(d),
-            show: d => d.tc.cislo.show(d) && d.tc.model4.value != `noPump`,
-            processScannedText: t => t.slice(-14),
-        })
+        pocet: new CounterWidget({ label: 'hpCount', min: 1, max: 4, chosen: 1, hideInRawData: true }),
+        ...heatPump(1),
+        ...heatPump(2),
+        ...heatPump(3),
+        ...heatPump(4),
     },
     sol: {
         title: new TitleWidget({
             text: `solarCollector`,
-            show: d => d.ir.chceVyplnitK.value.includes(`solarCollector`)
+            show: d => d.ir.chceVyplnitK.value.includes(`solarCollector`),
         }),
         typ: new InputWidget({
             label: `solarCollectorType`,
             required: d => d.ir.chceVyplnitK.value.includes(`solarCollector`),
-            show: d => d.ir.chceVyplnitK.value.includes(`solarCollector`)
+            show: d => d.ir.chceVyplnitK.value.includes(`solarCollector`),
         }),
         pocet: new InputWidget({
             label: `solarCollectorCount`,
             type: `number`,
             required: d => d.ir.chceVyplnitK.value.includes(`solarCollector`),
-            show: d => d.ir.chceVyplnitK.value.includes(`solarCollector`)
-        })
+            show: d => d.ir.chceVyplnitK.value.includes(`solarCollector`),
+        }),
     },
     ...userData(),
     vzdalenyPristup: {
@@ -463,29 +427,29 @@ export default (): Data => ({
             label: `doYouWantRemoteAccess`, required: false, show: d => !d.ir.typ.value.first?.includes('SOREL'),
             onValueSet: (d, v) => {
                 if (!v) {
-                    d.vzdalenyPristup.pristupMa.setValue(d, [])
-                    d.vzdalenyPristup.plati.setValue(d, null)
+                    d.vzdalenyPristup.pristupMa.setValue(d, []);
+                    d.vzdalenyPristup.plati.setValue(d, null);
                 }
-            }
+            },
         }),
         pristupMa: new MultiCheckboxWidget({
             label: `whoHasAccess`,
             options: [`endCustomer`, `assemblyCompany`, `commissioningCompany`],
             show: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
-            required: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value
+            required: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
         }),
         plati: new RadioWidget({
             label: `whoWillBeInvoiced`,
             options: ['assemblyCompany', 'endCustomer'] as ReturnType<Data['vzdalenyPristup']['plati']['options']>,
             show: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
-            required: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value
-        })
+            required: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
+        }),
     },
     ostatni: {
         zodpovednaOsoba: new InputWidget({
             label: `responsiblePerson`,
-            autocomplete: `section-resp billing name`
+            autocomplete: `section-resp billing name`,
         }),
-        poznamka: new InputWidget({ label: `note`, required: false })
-    }
+        poznamka: new InputWidget({ label: `note`, required: false }),
+    },
 });

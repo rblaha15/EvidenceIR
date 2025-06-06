@@ -1,7 +1,7 @@
 import defaultData from './defaultData';
 import {
     CheckboxWidget,
-    ChooserWidget,
+    ChooserWidget, CounterWidget,
     DoubleChooserWidget,
     InputWidget,
     MultiCheckboxWidget,
@@ -101,13 +101,14 @@ export interface Data extends UserData<Data>, Form<Data> {
         nadpis: TitleWidget<Data>;
         poznamka: TextWidget<Data>;
         typ: RadioWidget<Data, `airToWater` | `groundToWater`>;
+        pocet: CounterWidget<Data, true>;
         model: ChooserWidget<Data, Products['heatPumps']>;
         cislo: ScannerWidget<Data>;
-        model2: ChooserWidget<Data, `noPump` | Products['heatPumps']>;
+        model2: ChooserWidget<Data, Products['heatPumps']>;
         cislo2: ScannerWidget<Data>;
-        model3: ChooserWidget<Data, `noPump` | Products['heatPumps']>;
+        model3: ChooserWidget<Data, Products['heatPumps']>;
         cislo3: ScannerWidget<Data>;
-        model4: ChooserWidget<Data, `noPump` | Products['heatPumps']>;
+        model4: ChooserWidget<Data, Products['heatPumps']>;
         cislo4: ScannerWidget<Data>;
     };
     sol: {
@@ -162,11 +163,11 @@ const cells: ExcelImport<Raw<Data>>['cells'] = {
         },
         model: { address: [2, 33], transform: v => v == 'Vyberte typ' ? null : makePlain(v)! as Raw<Data>['tc']['model'] },
         cislo: { address: [6, 33] },
-        model2: { address: [2, 34], transform: v => v == 'Vyberte typ' ? 'noPump' : makePlain(v)! as Raw<Data>['tc']['model2'] },
+        model2: { address: [2, 34], transform: v => v == 'Vyberte typ' ? null : makePlain(v)! as Raw<Data>['tc']['model2'] },
         cislo2: { address: [6, 34] },
-        model3: { address: [2, 35], transform: v => v == 'Vyberte typ' ? 'noPump' : makePlain(v)! as Raw<Data>['tc']['model3'] },
+        model3: { address: [2, 35], transform: v => v == 'Vyberte typ' ? null : makePlain(v)! as Raw<Data>['tc']['model3'] },
         cislo3: { address: [6, 35] },
-        model4: { address: [2, 36], transform: v => v == 'Vyberte typ' ? 'noPump' : makePlain(v)! as Raw<Data>['tc']['model4'] },
+        model4: { address: [2, 36], transform: v => v == 'Vyberte typ' ? null : makePlain(v)! as Raw<Data>['tc']['model4'] },
         cislo4: { address: [6, 36] },
     },
     ir: {

@@ -25,6 +25,7 @@ const de: PlainTranslations = {
     heatPumpsType: `Typ der Wärmepumpen`,
     airToWater: `Luft/Wasser`,
     groundToWater: `Erdreich/Wasser`,
+    hpCount: 'Wärmepumpen Anzahl',
     heatPumpModelNr: t`${0}Wärmepumpenmodell`,
     heatPumpManufactureNumberNr: t`Fertigungsnummer der ${0}Wärmepumpe`,
     first: `erste`,

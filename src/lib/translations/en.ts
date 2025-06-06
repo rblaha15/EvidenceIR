@@ -18,6 +18,7 @@ const en: PlainTranslations = {
     heatPumpsType: 'Type of heat pumps',
     airToWater: 'Air-to-Water',
     groundToWater: 'Ground-to-Water',
+    hpCount: 'Heat pump count',
     heatPumpModelNr: t`${0}heat pump model`,
     heatPumpManufactureNumberNr: t`${0}heat pump manufacture number`,
     first: `first`,

@@ -16,6 +16,7 @@ export default {
     heatPumpsType: `Typ tepelných čerpadel`,
     airToWater: `vzduch/voda`,
     groundToWater: `země/voda`,
+    hpCount: 'Počet tepelných čerpadel',
     heatPumpModelNr: t`Model ${0}tepelného čerpadla`,
     noPump: `Žádný`,
     first: `prvního`,
