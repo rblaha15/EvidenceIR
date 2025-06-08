@@ -12,7 +12,7 @@ import {
     setDoc,
     updateDoc,
     where,
-    type WithFieldValue
+    type WithFieldValue,
 } from 'firebase/firestore';
 import type { Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
@@ -26,6 +26,7 @@ import type { DataSP, GenericDataSP } from '$lib/forms/SP.svelte';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { P } from '$lib/translations';
 import type { SparePart } from '$lib/client/realtime';
+import type { Products } from '$lib/helpers/products';
 
 const persistentCacheIndexManager = getPersistentCacheIndexManager(firestore);
 if (persistentCacheIndexManager)
@@ -68,18 +69,14 @@ export const extractSPIDFromRawData = (zasah: Raw<GenericDataSP<never>['zasah']>
     return `${technik}-${datum}-${hodina}`;
 };
 
-export const IRNumberFromIRID = (irid: IRID): string =>
-    irid.slice(1, 3) + ' ' + irid.slice(3, 7);
-
 export type IR = {
     evidence: Raw<Data>;
     uvedeniTC?: Raw<UvedeniTC>;
     uvedeniSOL?: Raw<UvedeniSOL>;
-    kontroly: {
-        1?: Raw<Kontrola>;
-        2?: Raw<Kontrola>;
-        3?: Raw<Kontrola>;
-        4?: Raw<Kontrola>;
+    kontrolyTC: {
+        [P in 1 | 2 | 3 | 4]?: {
+            [R in 1 | 2 | 3 | 4]?: Raw<Kontrola>;
+        }
     };
     users: string[];
     installationProtocols: Raw<DataSP>[];
@@ -89,7 +86,7 @@ export type LegacyIR = {
     uvedeni?: Raw<UvedeniTC>;
     installationProtocol?: LegacySP;
     installationProtocols: LegacySP[];
-    evidence: Raw<Data> & {
+    evidence: {
         vzdalenyPristup: {
             fakturuje: 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | P<'Později, dle protokolu'>;
         };
@@ -101,6 +98,9 @@ export type LegacyIR = {
         uvadeni: {
             typZaruky: null | string
         };
+    };
+    kontroly?: {
+        [R in 1 | 2 | 3 | 4]?: Raw<Kontrola>;
     };
 };
 
@@ -158,7 +158,7 @@ const removeInstallationProtocol: Migration = (legacyIR: LegacyIR & IR) =>
     legacyIR.installationProtocol ? {
         ...legacyIR,
         installationProtocols: [legacyIR.installationProtocol],
-        installationProtocol: undefined
+        installationProtocol: undefined,
     } : legacyIR;
 const addInstallationProtocols: Migration = (legacyIR: LegacyIR & IR) =>
     !legacyIR.installationProtocols ? { ...legacyIR, installationProtocols: [] } : legacyIR;
@@ -168,7 +168,7 @@ const migrateND = (d: LegacyND) => ({
     code: String(d.dil?.code ?? ''),
     unitPrice: String(d.dil?.unitPrice ?? ''),
     warehouse: '',
-}) as Raw<DataSP>['nahradniDil1']
+}) as Raw<DataSP>['nahradniDil1'];
 export const migrateSP = <D extends GenericDataSP<D>>(legacy: LegacySP) => legacy['nahradniDil8'] ? legacy : ({
     ...legacy,
     ukony: {
@@ -187,23 +187,36 @@ export const migrateSP = <D extends GenericDataSP<D>>(legacy: LegacySP) => legac
 
 const newInstallationProtocols: Migration = (legacyIR: LegacyIR & IR) => ({
     ...legacyIR,
-    installationProtocols: legacyIR.installationProtocols.map(l => migrateSP(l) as LegacySP)
+    installationProtocols: legacyIR.installationProtocols.map(l => migrateSP(l) as LegacySP),
 });
+const removeNoPump: Migration = (legacyIR: LegacyIR & IR) => {
+    if (legacyIR.evidence.tc.model2 as 'noPump' == 'noPump') legacyIR.evidence.tc.model2 = null;
+    if (legacyIR.evidence.tc.model3 as 'noPump' == 'noPump') legacyIR.evidence.tc.model3 = null;
+    if (legacyIR.evidence.tc.model4 as 'noPump' == 'noPump') legacyIR.evidence.tc.model4 = null;
+    return legacyIR;
+};
+const addPumpSpecificYearlyChecks: Migration = legacyIR => legacyIR.kontroly ? {
+    ...legacyIR,
+    kontrolyTC: {
+        1: legacyIR.kontroly,
+    },
+    kontroly: undefined,
+} : legacyIR;
 
 type Migration = (legacyIR: LegacyIR & IR) => LegacyIR & IR;
 
 export const modernizeIR = (legacyIR: LegacyIR & IR): IR =>
     // -------->>>>>>
-    [removeInstallationProtocol, removeUvedeni, addUserType, changeBOX, changeFaktutruje, changeHPWarranty, addInstallationProtocols, newInstallationProtocols]
+    [removeInstallationProtocol, removeUvedeni, addUserType, changeBOX, changeFaktutruje, changeHPWarranty, addInstallationProtocols, newInstallationProtocols, removeNoPump, addPumpSpecificYearlyChecks]
         .reduce((data, migration) => migration(data), legacyIR);
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => modernizeIR(snapshot.data() as IR & LegacyIR)
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => modernizeIR(snapshot.data() as IR & LegacyIR),
 });
 const spCollection = collection(firestore, 'sp').withConverter<Raw<DataSP2>>({
     toFirestore: (modelObject: WithFieldValue<Raw<DataSP2>>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => migrateSP(snapshot.data() as LegacySP & Raw<DataSP2>) as Raw<DataSP2>
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => migrateSP(snapshot.data() as LegacySP & Raw<DataSP2>) as Raw<DataSP2>,
 });
 const checkCollection = collection(firestore, 'check');
 const irDoc = (irid: IRID) => doc(irCollection, irid);
@@ -235,7 +248,7 @@ export const vyplnitServisniProtokol = async (irid: IRID, protokol: Raw<DataSP>)
     const p = (await evidence(irid)).data()!.installationProtocols ?? [];
     await updateDoc(
         irDoc(irid), `installationProtocols`,
-        [...p, protokol]
+        [...p, protokol],
     );
 };
 export const vyplnitObecnyServisniProtokol = (protokol: Raw<DataSP2>) =>

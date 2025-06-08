@@ -7,19 +7,19 @@ import type { Raw } from '$lib/forms/Form';
 import type { Kontrola } from '$lib/forms/Kontrola.svelte';
 
 export const cascadeDetails = (e: Raw<Data>, t: Translations) => ({
-    isCascade: (e.tc.model2 ?? 'noPump') != 'noPump',
+    isCascade: !!e.tc.model2,
     pumps: [
         [e.tc.model!, e.tc.cislo] as const,
         [e.tc.model2!, e.tc.cislo2] as const,
         [e.tc.model3!, e.tc.cislo3] as const,
         [e.tc.model4!, e.tc.cislo4] as const
     ]
-        .filter(([m]) => (m ?? 'noPump') != 'noPump')
+        .filter(([m]) => m)
         .map(([m, c]) => [t.get(m), c] as const)
 });
 
-const check: GetPdfData = async ({ kontroly: k, evidence: e }, t) => {
-    const kontroly = k as Record<number, Raw<Kontrola>>;
+const check = (i: 1 | 2 | 3 | 4): GetPdfData => async ({ kontrolyTC, evidence: e }, t) => {
+    const kontroly = kontrolyTC[i] as Record<number, Raw<Kontrola>>;
     const montazka = await nazevFirmy(e.montazka.ico);
     const { isCascade, pumps } = cascadeDetails(e, t);
     const start = {
@@ -29,7 +29,7 @@ const check: GetPdfData = async ({ kontroly: k, evidence: e }, t) => {
 ${t.realizationLocation}: ${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}
 ${t.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}
 ` + pumps.map(([model, cislo], i) =>
-                t.pumpDetails.parseTemplate({ n: isCascade ? `${i + 1}` : '', model, cislo })
+                t.pumpDetails({ n: isCascade ? `${i + 1}` : '', model, cislo })
             ).join('; '),
         /*       poznamky */ Text141: kontroly.mapTo((_, k) => k.poznamky.poznamka).join('\n')
     };

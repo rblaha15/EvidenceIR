@@ -64,7 +64,7 @@ export const installationProtocol = (i: number): GetPdfData => async ({ evidence
 ${e.ir.cisloBox ? `BOX: ${e.ir.cisloBox}` : ''}
 ${e.sol?.typ ? `SOL: ${e.sol.typ} – ${e.sol.pocet}x` : ''}
 ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
-                t.pumpDetails.parseTemplate({ n: isCascade ? `${i + 1}` : '', model, cislo })
+                t.pumpDetails({ n: isCascade ? `${i + 1}` : '', model, cislo })
             )) : ''}`,
             datumUvedeni: uvedeniTC?.uvadeni?.date ?? '',
         },

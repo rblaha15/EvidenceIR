@@ -215,7 +215,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         if (!edit && irid && getIsOnline() && await existuje(irid)) {
             editResult({
                 red: true, load: false,
-                text: t.irExistsHtml.parseTemplate({ link: relUrl(`/detail/${irid}`) }),
+                text: t.irExistsHtml({ link: relUrl(`/detail/${irid}`) }),
             });
             return;
         }
@@ -223,7 +223,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         const user = get(currentUser)!;
 
         if (edit) await upravitEvidenci(raw);
-        else await novaEvidence({ evidence: raw, kontroly: {}, users: [user.email!], installationProtocols: [] });
+        else await novaEvidence({ evidence: raw, kontrolyTC: {}, users: [user.email!], installationProtocols: [] });
 
         const doNotSend = edit && !send;
 
@@ -261,7 +261,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
 
         if (doNotSend || response!.ok) return true;
         else editResult({
-            text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false,
         });

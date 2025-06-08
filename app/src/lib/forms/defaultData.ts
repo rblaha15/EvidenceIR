@@ -397,7 +397,14 @@ export default (): Data => ({
             show: d =>
                 d.ir.typ.value.second == p('CTC') && d.ir.chceVyplnitK.value.includes(`heatPump`),
         }),
-        pocet: new CounterWidget({ label: 'hpCount', min: 1, max: 4, chosen: 1, hideInRawData: true }),
+        pocet: new CounterWidget({
+            label: 'hpCount', min: 1, max: 4, chosen: 1, hideInRawData: true,
+            onValueSet: (d, p) => {
+                (['', '2', '3', '4'] as const).slice(p).forEach(i =>
+                    d.tc[`model${i}`].setValue(d, null)
+                );
+            }
+        }),
         ...heatPump(1),
         ...heatPump(2),
         ...heatPump(3),
