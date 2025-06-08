@@ -6,7 +6,7 @@ export const toPdfTypeName = (linkName: Pdf) =>
     linkName.split('-')[0] as PdfTypeName;
 
 export type Pdf =
-    | 'check' | `warranty-${'' | 2 | 3 | 4}` | 'rroute' | 'guide' | `publicInstallationProtocol`
+    | `check-${1 | 2 | 3 | 4}` | `warranty-${'' | 2 | 3 | 4}` | 'rroute' | 'guide' | `publicInstallationProtocol`
     | 'heatPumpCommissionProtocol' | 'solarCollectorCommissionProtocol' | `installationProtocol-${number}`;
 type PdfTypeName = {
     [P in Pdf]: P extends `${infer S}-${string}` ? S : P;

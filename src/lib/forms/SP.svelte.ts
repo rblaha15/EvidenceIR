@@ -53,7 +53,7 @@ export interface GenericDataSP<D extends GenericDataSP<D>> extends Form<D> {
         nadpis: TitleWidget<D>,
         doprava: InputWidget<D>,
         typPrace: RadioWidget<D, `sp.assemblyWork` | `sp.technicalAssistance` | `sp.technicalAssistance12`>,
-        ukony: MultiCheckboxWidget<D, `sp.regulusRoute` | `sp.commissioningTC` | `sp.commissioningSOL` | `yearlyHPCheck` | `sp.yearlySOLCheck` | `sp.extendedWarranty` | `sp.installationApproval` | 'sp.withoutCode'>,
+        ukony: MultiCheckboxWidget<D, `sp.regulusRoute` | `sp.commissioningTC` | `sp.commissioningSOL` | `sp.yearlyHPCheck` | `sp.yearlySOLCheck` | `sp.extendedWarranty` | `sp.installationApproval` | 'sp.withoutCode'>,
         doba: InputWidget<D>,
     },
     nahradniDily: {
@@ -134,7 +134,7 @@ export const defaultDataSP = <D extends GenericDataSP<D>>(): GenericDataSP<D> =>
         typPrace: new RadioWidget({ label: p('Typ práce'), options: [`sp.assemblyWork`, `sp.technicalAssistance`, `sp.technicalAssistance12`], required: false }),
         ukony: new MultiCheckboxWidget({
             label: p('Pracovní úkony (max. 3)'), max: 3, required: false, options: [
-                `sp.regulusRoute`, `sp.commissioningTC`, `sp.commissioningSOL`, `yearlyHPCheck`,
+                `sp.regulusRoute`, `sp.commissioningTC`, `sp.commissioningSOL`, `sp.yearlyHPCheck`,
                 `sp.yearlySOLCheck`, `sp.extendedWarranty`, `sp.installationApproval`, `sp.withoutCode`,
             ]
         }),
@@ -195,7 +195,7 @@ const cells: ExcelImport<Raw<DataSP>>['cells'] = {
                     ['Route', `sp.regulusRoute`] as const,
                     ['Uvedení TČ', `sp.commissioningTC`] as const,
                     ['Uvedení SOL', `sp.commissioningSOL`] as const,
-                    ['kontrola TČ', `yearlyHPCheck`] as const,
+                    ['kontrola TČ', `sp.yearlyHPCheck`] as const,
                     ['kontrola SOL', `sp.yearlySOLCheck`] as const,
                     ['Záruka', `sp.extendedWarranty`] as const,
                     ['instalace', `sp.installationApproval`] as const
@@ -248,7 +248,7 @@ export const sp = (() => {
 
             if (response!.ok) return true;
             else editResult({
-                text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
+                text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
                 red: true,
                 load: false
             });
