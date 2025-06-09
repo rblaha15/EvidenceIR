@@ -120,7 +120,7 @@ export const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL> = ({
 
         if (response!.ok) return;
         editResult({
-            text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false
         });

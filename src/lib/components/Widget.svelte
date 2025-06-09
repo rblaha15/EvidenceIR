@@ -45,9 +45,13 @@
 </script>
 
 {#if widget instanceof TitleWidget && widget.show(data)}
-    {#await widget.text(data, t) then text}<h2 class={widget.class(data, t)}>{t.get(text)}</h2>{/await}
+    {#await widget.text(data, t) then text}
+        {#if text}<h2 class={[widget.class(data, t), 'm-0']}>{t.get(text)}</h2>{/if}
+    {/await}
 {:else if widget instanceof TextWidget && widget.show(data)}
-    {#await widget.text(data, t) then text}<p class={widget.class(data, t)}>{t.get(text)}</p>{/await}
+    {#await widget.text(data, t) then text}
+        {#if text}<p class={[widget.class(data, t), 'm-0']}>{t.get(text)}</p>{/if}
+    {/await}
 {:else if widget instanceof ScannerWidget && widget.show(data)}
     <Scanner bind:widget {t} {data} />
 {:else if widget instanceof InputWidget && widget.show(data)}

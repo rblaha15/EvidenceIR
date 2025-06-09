@@ -663,7 +663,7 @@ const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Person[], 
             await removeAllPhotos()
             return true;
         } else editResult({
-            text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false
         });
