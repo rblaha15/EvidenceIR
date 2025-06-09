@@ -20,7 +20,7 @@
     const uid = $props.id();
 </script>
 
-{#if widget.show(data)}
+<div class="d-flex gap-1 flex-column">
     <div>{labelAndStar(widget, data, t)}</div>
     <div class="input-group input-group-grid">
         {#each widget.options(data) as item}
@@ -39,8 +39,6 @@
     </div>
 
     {#if widget.showError(data)}
-        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
+        <span class="text-danger">{t.get(widget.onError(data, t))}</span>
     {/if}
-
-    <div class="mb-3"></div>
-{/if}
+</div>

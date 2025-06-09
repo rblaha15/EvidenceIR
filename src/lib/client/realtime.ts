@@ -77,7 +77,7 @@ const _friendlyCompanies = async (user: User | null): Promise<FriendlyCompanies>
 	const { child } = await import('firebase/database');
 	if (await checkRegulusOrAdmin()) {
 		const vsechnyFirmy = await getWithCache<{ [crn: CRN]: Company }>(firmyRef);
-		return FriendlyCompanies(Object.values(vsechnyFirmy!));
+		return FriendlyCompanies(vsechnyFirmy?.getValues() ?? []);
 	}
 	const ja = await getWithCache<Person>(child(lidiRef, user.uid));
 	if (!ja || ja.email !== user.email) {

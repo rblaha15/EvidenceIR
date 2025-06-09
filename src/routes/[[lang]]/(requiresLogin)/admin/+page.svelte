@@ -283,8 +283,8 @@
     const removalsSpareParts = $derived(oldDataSpareParts.filter(p => !newEmailsSpareParts.includes(p.code)));
     const additionsSpareParts = $derived(newDataSpareParts.filter(p => !oldEmailsSpareParts.includes(p.code)));
 
-    const parseSelf = (template: Template<(string | number)[]>) => template.parseTemplate(
-        Object.fromEntries(template[1].map(it => [it, `{${it}}`] as const))
+    const parseSelf = <T extends (number | string)[]>(template: Template<T>) => template(
+        template.keys.associateWith<T[number], string>(it => `{${it}}`)
     );
 
     onMount(async () => {

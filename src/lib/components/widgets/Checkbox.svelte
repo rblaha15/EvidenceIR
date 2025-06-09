@@ -19,7 +19,7 @@
     const uid = $props.id();
 </script>
 
-{#if widget.show(data)}
+<div class="d-flex gap-1 flex-column">
     <div class="input-group">
         <button class="input-group-text input-group-input" onclick={onClick}
                 aria-labelledby="label-{uid}" tabindex="-1" disabled={widget.lock(data)}
@@ -33,8 +33,6 @@
     </div>
 
     {#if widget.showError(data)}
-        <p class="text-danger mt-1">{t.get(widget.onError(data, t))}</p>
+        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
     {/if}
-
-    <div class="mb-3"></div>
-{/if}
+</div>

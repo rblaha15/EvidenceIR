@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { PDFDocument, PDFDropdown, PDFSignature, PDFStreamWriter, PDFTextField, PDFWriter } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFRef, PDFSignature, PDFStreamWriter, PDFWriter } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import type { DocumentSnapshot } from 'firebase-admin/firestore';
 import { getTranslations, type Translations } from '$lib/translations';
@@ -43,9 +43,9 @@ export type GetPdfData<ID extends IRID | SPID = IRID> = (data: DataOfID<ID>, t: 
 }>;
 export const getPdfData = (
     link: Pdf
-) => {
+): GetPdfData<IRID | SPID> => {
     const t = toPdfTypeName(link);
-    if (t == 'check') return check;
+    if (t == 'check') return check(Number(link.split('-')[1]) as 1 | 2 | 3 | 4);
     if (t == 'warranty') return warranty(Number(link.split('-')[1] || '1') - 1);
     if (t == 'rroute') return rroute;
     if (t == 'guide') return guide;
@@ -158,9 +158,10 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
     form.updateFieldAppearances(ubuntuFont);
     fields.forEach(field => {
         if (field instanceof PDFSignature) {
-            field.acroField.getWidgets().forEach((_, i) => {
-                field.acroField.removeWidget(i)
+            field.acroField.getWidgets().forEach((w, i) => {
+                w.ensureAP().set(PDFName.of('N'), PDFRef.of(0))
             })
+            form.removeField(field)
         }
     })
     form.flatten()

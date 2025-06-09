@@ -57,7 +57,7 @@ const heatPumpCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniTC, 
 /*                */ Text45: t.get(u.uvadeni.typZaruky!),
 /*                */ Text46: u.uvadeni.typZaruky?.includes('extendedWarranty') ?? false ? u.uvadeni.zaruka ? t.yes : t.no : '—',
 /*                */ Text47: !isCascade ? '' : t.cascade + '\n' + pumps.map(([model, cislo], i) =>
-    t.pumpDetails.parseTemplate({ n: `${i + 1}`, model, cislo })
+    t.pumpDetails({ n: `${i + 1}`, model, cislo })
 ).join('\n'),
     });
 };
