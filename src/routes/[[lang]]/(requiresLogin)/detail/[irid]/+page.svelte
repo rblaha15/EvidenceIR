@@ -168,7 +168,7 @@
 {#if type === 'loading'}
     <div class="spinner-border text-danger"></div>
 {:else if type !== 'loaded'}
-    <h3>
+    <h3 class="m-0">
         {#if !irid}
             {spid?.replace('-', ' ').replace('-', '/').replace('-', '/')}
         {:else if irid.length === 6}
@@ -182,7 +182,7 @@
         {/if}
     </h3>
 {:else}
-    <h3>{sp ? spWholeName(sp) : irWholeName(values.evidence)}</h3>
+    <h3 class="m-0">{sp ? spWholeName(sp) : irWholeName(values.evidence)}</h3>
 {/if}
 {#if deleted}
     <div class="alert alert-success" role="alert">
@@ -199,8 +199,8 @@
     </div>
 {/if}
 {#if type !== 'loaded' && type !== 'loading'}
-    <p class="mt-3">{t.sorrySomethingWentWrong}</p>
-    <p>
+    <div>{t.sorrySomethingWentWrong}</div>
+    <div>
         {#if type === 'noAccess' && irid}
             {t.linkInvalid}
         {:else if type === 'noAccess' && spid}
@@ -208,188 +208,194 @@
         {:else if type === 'offline'}
             {t.offline}
         {/if}
-    </p>
+    </div>
 {/if}
 {#if type === 'loaded' && spid}
-    <PdfLink {data} {t} linkName="publicInstallationProtocol" hideLanguageSelector={true} />
+    <div class="d-flex flex-column gap-1 align-items-sm-start">
+        <PdfLink {data} {t} linkName="publicInstallationProtocol" hideLanguageSelector={true} />
 
-    <a class="btn btn-warning mt-2" href={relUrl('/newSP')} onclick={() => {
-        storable<typeof sp>(sp2.storeName).set(sp)
-    }}>Vytvořit kopii protokolu</a>
-
-    <hr />
+        <a class="btn btn-warning" href={relUrl('/newSP')} onclick={() => {
+            storable<typeof sp>(sp2.storeName).set(sp)
+        }}>Vytvořit kopii protokolu</a>
+    </div>
 
     {#if $isUserAdmin}
-        <Widget widget={newIRID} {t} data={{}} />
-        <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR</button>
+<!--        <hr />-->
+        <div class="d-flex flex-column gap-1 align-items-sm-start">
+            <Widget widget={newIRID} {t} data={{}} />
+            <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR</button>
 
-        <button class="btn btn-danger mt-2 d-block"
-                onclick={() => odstranitObecnyServisniProtokol(spid)}
-        >Odstranit protokol
-        </button>
+            <button class="btn btn-danger d-block"
+                    onclick={() => odstranitObecnyServisniProtokol(spid)}
+            >Odstranit protokol
+            </button>
+        </div>
     {/if}
 {/if}
 {#if type === 'loaded' && irid && irid.length !== 6}
-    {#if values.evidence.vzdalenyPristup.chce}
-        <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
-    {/if}
-    {#if values.evidence.ir.typ.first !== p('SOREL')}
-        <PdfLink name={t.routeGuide} {t} linkName="guide" {data} />
-    {/if}
-    {#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
-        {#if values.evidence.tc.model2}
-            <PdfLink name={t.warranty1} {t} linkName="warranty-" {data} />
-            <PdfLink name={t.warranty2} {t} linkName="warranty-2" {data} />
-        {:else}
-            <PdfLink name={t.warranty} {t} linkName="warranty-" {data} />
+    <div class="d-flex flex-column gap-1">
+        {#if values.evidence.vzdalenyPristup.chce}
+            <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
         {/if}
-        {#if values.evidence.tc.model3}
-            <PdfLink name={t.warranty3} {t} linkName="warranty-3" {data} />
+        {#if values.evidence.ir.typ.first !== p('SOREL')}
+            <PdfLink name={t.routeGuide} {t} linkName="guide" {data} />
         {/if}
-        {#if values.evidence.tc.model4}
-            <PdfLink name={t.warranty4} {t} linkName="warranty-4" {data} />
-        {/if}
-        <PdfLink
-            enabled={values.uvedeniTC !== undefined}
-            name={t.heatPumpCommissionProtocol}
-            {t}
-            linkName="heatPumpCommissionProtocol"
-            {data}
-        >
-            {#if !values.uvedeniTC}
-                <a
-                    tabindex="0"
-                    class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
-                    href={detailUrl('/heatPumpCommission')}
-                >{t.commission}</a
-                >
+        {#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
+            {#if values.evidence.tc.model2}
+                <PdfLink name={t.warranty1} {t} linkName="warranty-" {data} />
+                <PdfLink name={t.warranty2} {t} linkName="warranty-2" {data} />
+            {:else}
+                <PdfLink name={t.warranty} {t} linkName="warranty-" {data} />
             {/if}
-        </PdfLink>
-        <PdfLink name={!values.evidence.tc.model2 ? t.filledYearlyCheck : t.filledYearlyCheck1} {t}
-                 linkName="check-1" {data} enabled={values.kontrolyTC[1]?.[1] !== undefined}>
-            <a
-                tabindex="0" href={detailUrl('/check?tc=1')}
-                class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
-            >{!values.evidence.tc.model2 ? t.doYearlyCheck : t.doYearlyCheck1}</a>
-        </PdfLink>
-        {#if values.evidence.tc.model2}
-            <PdfLink name={t.filledYearlyCheck2} {t}
-                     linkName="check-2" {data} enabled={values.kontrolyTC[2]?.[1] !== undefined}>
-                <a
-                    tabindex="0" href={detailUrl('/check?tc=2')}
-                    class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
-                >{t.doYearlyCheck2}</a>
-            </PdfLink>
-        {/if}
-        {#if values.evidence.tc.model3}
-            <PdfLink name={t.filledYearlyCheck3} {t}
-                     linkName="check-3" {data} enabled={values.kontrolyTC[3]?.[1] !== undefined}>
-                <a
-                    tabindex="0" href={detailUrl('/check?tc=3')}
-                    class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
-                >{t.doYearlyCheck3}</a>
-            </PdfLink>
-        {/if}
-        {#if values.evidence.tc.model4}
-            <PdfLink name={t.filledYearlyCheck4} {t}
-                     linkName="check-4" {data} enabled={values.kontrolyTC[4]?.[1] !== undefined}>
-                <a
-                    tabindex="0" href={detailUrl('/check?tc=4')}
-                    class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
-                >{t.doYearlyCheck4}</a>
-            </PdfLink>
-        {/if}
-    {/if}
-    {#if values.evidence.ir.chceVyplnitK.includes('solarCollector')}
-        <PdfLink
-            enabled={values.uvedeniSOL !== undefined}
-            name={t.solarCollectorCommissionProtocol}
-            {t}
-            linkName="solarCollectorCommissionProtocol"
-            {data}
-        >
-            {#if !values.uvedeniSOL}
-                <a
-                    tabindex="0"
-                    class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
-                    href={detailUrl('/solarCollectorCommission')}
-                >{t.commission}</a>
+            {#if values.evidence.tc.model3}
+                <PdfLink name={t.warranty3} {t} linkName="warranty-3" {data} />
             {/if}
-        </PdfLink>
-    {/if}
-    {#if $isUserRegulusOrAdmin}
-        <hr />
-        <h4 class="mt-2">Protokoly servisního zásahu</h4>
-        {#each values.installationProtocols as p, i}
-            {@const datum = p.zasah.datum.split('T')[0].split('-').join('/')}
-            {@const hodina = p.zasah.datum.split('T')[1].split(':')[0]}
-            {@const technik = p.zasah.inicialy}
-            <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true}>
-                <a
-                    tabindex="0"
-                    class="btn btn-info d-block mt-2 mt-sm-0 ms-sm-2"
-                    href={detailUrl(`/sp/?edit=${i}`)}
-                >Upravit protokol
-                </a>
+            {#if values.evidence.tc.model4}
+                <PdfLink name={t.warranty4} {t} linkName="warranty-4" {data} />
+            {/if}
+            <PdfLink
+                enabled={values.uvedeniTC !== undefined}
+                name={t.heatPumpCommissionProtocol}
+                {t}
+                linkName="heatPumpCommissionProtocol"
+                {data}
+            >
+                {#if !values.uvedeniTC}
+                    <a
+                        tabindex="0"
+                        class="btn btn-info d-block"
+                        href={detailUrl('/heatPumpCommission')}
+                    >{t.commission}</a>
+                {/if}
             </PdfLink>
-        {/each}
-        <a class="btn btn-info mt-2" tabindex="0" href={detailUrl('/sp')}>Vyplnit {values.installationProtocols.length ? 'další ' : ''}
-            protokol</a>
-    {/if}
-    <hr />
+            <PdfLink name={!values.evidence.tc.model2 ? t.filledYearlyCheck : t.filledYearlyCheck1} {t}
+                     linkName="check-1" {data} enabled={values.kontrolyTC[1]?.[1] !== undefined}>
+                <a
+                    tabindex="0" href={detailUrl('/check?tc=1')}
+                    class="btn btn-info d-block"
+                >{!values.evidence.tc.model2 ? t.doYearlyCheck : t.doYearlyCheck1}</a>
+            </PdfLink>
+            {#if values.evidence.tc.model2}
+                <PdfLink name={t.filledYearlyCheck2} {t}
+                         linkName="check-2" {data} enabled={values.kontrolyTC[2]?.[1] !== undefined}>
+                    <a
+                        tabindex="0" href={detailUrl('/check?tc=2')}
+                        class="btn btn-info d-block"
+                    >{t.doYearlyCheck2}</a>
+                </PdfLink>
+            {/if}
+            {#if values.evidence.tc.model3}
+                <PdfLink name={t.filledYearlyCheck3} {t}
+                         linkName="check-3" {data} enabled={values.kontrolyTC[3]?.[1] !== undefined}>
+                    <a
+                        tabindex="0" href={detailUrl('/check?tc=3')}
+                        class="btn btn-info d-block"
+                    >{t.doYearlyCheck3}</a>
+                </PdfLink>
+            {/if}
+            {#if values.evidence.tc.model4}
+                <PdfLink name={t.filledYearlyCheck4} {t}
+                         linkName="check-4" {data} enabled={values.kontrolyTC[4]?.[1] !== undefined}>
+                    <a
+                        tabindex="0" href={detailUrl('/check?tc=4')}
+                        class="btn btn-info d-block"
+                    >{t.doYearlyCheck4}</a>
+                </PdfLink>
+            {/if}
+        {/if}
+        {#if values.evidence.ir.chceVyplnitK.includes('solarCollector')}
+            <PdfLink
+                enabled={values.uvedeniSOL !== undefined}
+                name={t.solarCollectorCommissionProtocol}
+                {t}
+                linkName="solarCollectorCommissionProtocol"
+                {data}
+            >
+                {#if !values.uvedeniSOL}
+                    <a
+                        tabindex="0"
+                        class="btn btn-info d-block"
+                        href={detailUrl('/solarCollectorCommission')}
+                    >{t.commission}</a>
+                {/if}
+            </PdfLink>
+        {/if}
+    </div>
     {#if $isUserRegulusOrAdmin}
-        <a tabindex="0" class="btn btn-info mt-2" href={detailUrl('/users')}>
-            Uživatelé s přístupem k této evidenci
-        </a>
+        <h4 class="m-0">Protokoly servisního zásahu</h4>
+        <div class="d-flex flex-column gap-1 align-items-sm-start">
+            {#each values.installationProtocols as p, i}
+                {@const datum = p.zasah.datum.split('T')[0].split('-').join('/')}
+                {@const hodina = p.zasah.datum.split('T')[1].split(':')[0]}
+                {@const technik = p.zasah.inicialy}
+                <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true}>
+                    <a
+                        tabindex="0"
+                        class="btn btn-info d-block"
+                        href={detailUrl(`/sp/?edit=${i}`)}
+                    >Upravit protokol
+                    </a>
+                </PdfLink>
+            {/each}
+            <a class="btn btn-info" tabindex="0" href={detailUrl('/sp')}>Vyplnit {values.installationProtocols.length ? 'další ' : ''}
+                protokol</a>
+        </div>
     {/if}
-    {#if change === 'no'}
-        <button class="btn btn-warning d-block mt-2" onclick={() => (change = 'input')}
-        >{t.changeController}</button>
-    {:else if change === 'input'}
-        <div class="mt-2">
-            <Widget bind:widget={irNumber} data={s} {t} />
-            <Widget bind:widget={irType} data={s} {t} />
-            <div class="btn-group">
-                <button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
-                <button class="btn btn-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>
+    <div class="d-flex flex-column gap-1 align-items-sm-start">
+        {#if $isUserRegulusOrAdmin}
+            <a tabindex="0" class="btn btn-info" href={detailUrl('/users')}>
+                Uživatelé s přístupem k této evidenci
+            </a>
+        {/if}
+        {#if change === 'no'}
+            <button class="btn btn-warning d-block" onclick={() => (change = 'input')}
+            >{t.changeController}</button>
+        {:else if change === 'input'}
+            <div class="">
+                <Widget bind:widget={irNumber} data={s} {t} />
+                <Widget bind:widget={irType} data={s} {t} />
+                <div class="btn-group">
+                    <button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
+                    <button class="btn btn-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>
+                </div>
             </div>
-        </div>
-    {:else if change === 'sending'}
-        <div class="d-flex align-items-center mt-2">
-            <span>{t.saving}...</span>
-            <div class="spinner-border text-danger ms-2"></div>
-        </div>
-    {:else if change === 'unchanged'}
-        <p class="mt-2 text-danger">{t.changeWentWrong}</p>
-    {:else if change === 'fail'}
-        <p class="mt-2 text-danger">{t.changeWentWrong}</p>
-    {/if}
-    <a
-        tabindex="0"
-        class="btn btn-warning mt-2"
-        href={relUrl(`/new?edit-irid=${irid}`)}
-        onclick={(e) => {
-      e.preventDefault();
-      window.location.href = relUrl(`/new?edit-irid=${irid}`);
-    }}>{t.editRegistration}</a
-    >
-    <button class="btn btn-danger d-block mt-2"
-            data-bs-toggle="modal" data-bs-target="#deleteModal"
-    >{t.deleteThisEvidence}</button>
+        {:else if change === 'sending'}
+            <div class="d-flex align-items-center">
+                <span>{t.saving}...</span>
+                <div class="spinner-border text-danger"></div>
+            </div>
+        {:else if change === 'unchanged'}
+            <p class="text-danger">{t.changeWentWrong}</p>
+        {:else if change === 'fail'}
+            <p class="text-danger">{t.changeWentWrong}</p>
+        {/if}
+        <a
+            tabindex="0"
+            class="btn btn-warning"
+            href={relUrl(`/new?edit-irid=${irid}`)}
+            onclick={(e) => {
+              e.preventDefault();
+              window.location.href = relUrl(`/new?edit-irid=${irid}`);
+            }}>{t.editRegistration}</a
+        >
+        <button class="btn btn-danger d-block"
+                data-bs-toggle="modal" data-bs-target="#deleteModal"
+        >{t.deleteThisEvidence}</button>
 
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="deleteModalLabel">Odstranit</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Opravdu chcete odstranit evidenci instalace?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Zrušit</button>
-                    <button type="button" class="btn btn-danger" onclick={remove}>Odstranit</button>
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="deleteModalLabel">Odstranit</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Opravdu chcete odstranit evidenci instalace?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Zrušit</button>
+                        <button type="button" class="btn btn-danger" onclick={remove}>Odstranit</button>
+                    </div>
                 </div>
             </div>
         </div>
