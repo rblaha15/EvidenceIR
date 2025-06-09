@@ -32,7 +32,7 @@
     };
 </script>
 
-{#if widget.show(data)}
+<div class="d-flex gap-1 flex-column">
     <div class="input-group">
         <label class="form-floating d-block left">
             <select class="form-select" value={widget.value.first ?? 'notChosen'}
@@ -61,10 +61,9 @@
         {/if}
     </div>
     {#if widget.showError(data)}
-        <p class="text-danger mt-1">{t.get(widget.onError(data, t))}</p>
+        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
     {/if}
-    <div class="mb-3"></div>
-{/if}
+</div>
 
 <style>
     .left {

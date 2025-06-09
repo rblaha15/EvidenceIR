@@ -8,7 +8,7 @@
     import Search from '$lib/components/widgets/Search.svelte';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { relUrl } from '$lib/helpers/runes.svelte';
-    import { irName, spName, irLabel } from '$lib/helpers/ir';
+    import { irLabel, irName, spName } from '$lib/helpers/ir';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
 
     type Installation = {
@@ -25,10 +25,10 @@
         const installationsSnapshot = await getAll();
         const installations = installationsSnapshot.docs
             .map(snapshot => snapshot.data())
-            .map(data => <Installation> {
+            .map(data => <Installation>{
                 irid: extractIRIDFromRawData(data.evidence),
                 irName: irName(data.evidence.ir),
-                label: irLabel(data.evidence)
+                label: irLabel(data.evidence),
             })
             .filter(i => i.irid)
             .toSorted((a, b) => a.irid.localeCompare(b.irid));
@@ -38,7 +38,7 @@
             const protocolsSnapshot = await publicProtocols();
             const protocols = protocolsSnapshot.docs
                 .map(snapshot => snapshot.data())
-                .map(data => <PublicServiceProtocol> {
+                .map(data => <PublicServiceProtocol>{
                     spid: extractSPIDFromRawData(data.zasah),
                     label: irLabel(data),
                     id: spName(data.zasah),
@@ -65,7 +65,7 @@
         }),
         onValueSet: (_, i) => {
             if (i) goto(relUrl(`/detail/${i.irid}`));
-        }
+        },
     }));
 
     let w2 = $state(new SearchWidget({
@@ -82,7 +82,7 @@
         }),
         onValueSet: (_, i) => {
             if (i) goto(relUrl(`/detail/${i.spid}`));
-        }
+        },
     }));
 
     setTitle(t.controllerSearch);
@@ -95,7 +95,7 @@
 />
 
 {#if $isUserRegulusOrAdmin}
-    <h1>{t.protocolSearch}</h1>
+    <h1 class="m-0">{t.protocolSearch}</h1>
 
     <Search
         data={undefined}

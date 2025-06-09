@@ -13,7 +13,7 @@
     const uid = $props.id();
 </script>
 
-{#if widget.show(data)}
+<div class="d-flex gap-1 flex-column">
     <div class="input-group flex-nowrap" style="width: min-content">
         <span class="input-group-text" style="width: max-content" id="label-{uid}">{t.get(widget.label(data, t))}</span>
         <button class="btn btn-outline-primary" onclick={() => widget.mutateValue(data, v => v - 1)}
@@ -28,6 +28,4 @@
     {#if widget.showError(data)}
         <span class="text-danger help-block">{t.get(widget.onError(data, t))}</span>
     {/if}
-
-    <div class="mb-3"></div>
-{/if}
+</div>

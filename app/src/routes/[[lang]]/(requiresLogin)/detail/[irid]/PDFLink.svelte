@@ -38,8 +38,8 @@
     const token = $isOnline ? getToken() : get(lastToken);
 </script>
 
-<div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center mt-2">
-    {#if name}<span class="me-sm-2 mb-2 mb-sm-0">{name}</span>{/if}
+<div class="d-flex flex-column flex-sm-row align-items-sm-center gap-1 gap-sm-3">
+    {#if name}<span class="">{name}</span>{/if}
 
     {#await token then token}
         {#if !token}
@@ -58,8 +58,7 @@
                 {#if !hideLanguageSelector}
                     <button
                         disabled={!enabled || pdf.supportedLanguages.length === 1}
-                        class="btn btn-outline-secondary"
-                        class:dropdown-toggle={pdf.supportedLanguages.length > 1}
+                        class="btn btn-outline-secondary flex-grow-0 dropdown-toggle"
                         data-bs-toggle="dropdown"
                     >
                         <span>{defaultLanguage.toUpperCase()}</span>

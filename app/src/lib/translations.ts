@@ -32,7 +32,7 @@ const withGet = (translations: PlainTranslations): Translations => {
         ...withDerived,
         get: ref => ref == null ? null : get(ref),
         refFromTemplate: <T extends (number | string)[]>(ref: TemplateKey, args: TemplateArgs<T>) =>
-            `PLAIN_${(get(ref) as Template<T>).parseTemplate(args)}`,
+            `PLAIN_${(get(ref) as Template<T>)(args)}`,
     };
 };
 

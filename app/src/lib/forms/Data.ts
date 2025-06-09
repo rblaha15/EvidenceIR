@@ -2,6 +2,7 @@ import defaultData from './defaultData';
 import {
     CheckboxWidget,
     ChooserWidget,
+    CounterWidget,
     DoubleChooserWidget,
     InputWidget,
     MultiCheckboxWidget,
@@ -9,7 +10,7 @@ import {
     ScannerWidget,
     SearchWidget,
     TextWidget,
-    TitleWidget
+    TitleWidget,
 } from '../Widget.svelte.js';
 import {
     type Company,
@@ -18,7 +19,7 @@ import {
     responsiblePerson,
     startTechniciansListening,
     type Technician,
-    techniciansList
+    techniciansList,
 } from '$lib/client/realtime';
 import type { ExcelImport } from '$lib/forms/Import';
 import { getTranslations, makePlain, p, type P } from '$lib/translations';
@@ -101,13 +102,14 @@ export interface Data extends UserData<Data>, Form<Data> {
         nadpis: TitleWidget<Data>;
         poznamka: TextWidget<Data>;
         typ: RadioWidget<Data, `airToWater` | `groundToWater`>;
+        pocet: CounterWidget<Data, true>;
         model: ChooserWidget<Data, Products['heatPumps']>;
         cislo: ScannerWidget<Data>;
-        model2: ChooserWidget<Data, `noPump` | Products['heatPumps']>;
+        model2: ChooserWidget<Data, Products['heatPumps']>;
         cislo2: ScannerWidget<Data>;
-        model3: ChooserWidget<Data, `noPump` | Products['heatPumps']>;
+        model3: ChooserWidget<Data, Products['heatPumps']>;
         cislo3: ScannerWidget<Data>;
-        model4: ChooserWidget<Data, `noPump` | Products['heatPumps']>;
+        model4: ChooserWidget<Data, Products['heatPumps']>;
         cislo4: ScannerWidget<Data>;
     };
     sol: {
@@ -158,15 +160,15 @@ const cells: ExcelImport<Raw<Data>>['cells'] = {
     tc: {
         typ: {
             address: [2, 33], transform: v => v == 'Vyberte typ' ? null
-                : v.includes('EcoPart') || v.includes('EcoHeat') ? 'groundToWater' : 'airToWater'
+                : v.includes('EcoPart') || v.includes('EcoHeat') ? 'groundToWater' : 'airToWater',
         },
         model: { address: [2, 33], transform: v => v == 'Vyberte typ' ? null : makePlain(v)! as Raw<Data>['tc']['model'] },
         cislo: { address: [6, 33] },
-        model2: { address: [2, 34], transform: v => v == 'Vyberte typ' ? 'noPump' : makePlain(v)! as Raw<Data>['tc']['model2'] },
+        model2: { address: [2, 34], transform: v => v == 'Vyberte typ' ? null : makePlain(v)! as Raw<Data>['tc']['model2'] },
         cislo2: { address: [6, 34] },
-        model3: { address: [2, 35], transform: v => v == 'Vyberte typ' ? 'noPump' : makePlain(v)! as Raw<Data>['tc']['model3'] },
+        model3: { address: [2, 35], transform: v => v == 'Vyberte typ' ? null : makePlain(v)! as Raw<Data>['tc']['model3'] },
         cislo3: { address: [6, 35] },
-        model4: { address: [2, 36], transform: v => v == 'Vyberte typ' ? 'noPump' : makePlain(v)! as Raw<Data>['tc']['model4'] },
+        model4: { address: [2, 36], transform: v => v == 'Vyberte typ' ? null : makePlain(v)! as Raw<Data>['tc']['model4'] },
         cislo4: { address: [6, 36] },
     },
     ir: {
@@ -179,7 +181,7 @@ const cells: ExcelImport<Raw<Data>>['cells'] = {
                     first: makePlain(ir?.split(' ')?.toSpliced(-1, 1)?.join(' ')) ?? null,
                     second: makePlain(ir?.split(' ')?.at(-1)) ?? null,
                 } as Raw<Data>['ir']['typ'];
-            }
+            },
         },
         cislo: { getData: get => `${get([6, 41])} ${get([7, 41])}` },
         cisloBox: { address: [6, 39] },
@@ -187,7 +189,7 @@ const cells: ExcelImport<Raw<Data>>['cells'] = {
             getData: get => [
                 ...(get([2, 33]) != 'Vyberte typ' ? ['heatPump' as const] : []),
                 ...(get([2, 40]) != 'Vyberte typ' ? ['solarCollector' as const] : []),
-            ]
+            ],
         },
     },
     sol: {
@@ -202,7 +204,7 @@ export const unknownCompany: Company = {
     crn: '99999999',
     phone: '+420999999999',
     representative: 'Neznámý montážník',
-}
+};
 
 const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [boolean], [string | null]]> = {
     storeName: 'stored_data',
@@ -213,7 +215,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         if (!edit && irid && getIsOnline() && await existuje(irid)) {
             editResult({
                 red: true, load: false,
-                text: t.irExistsHtml.parseTemplate({ link: relUrl(`/detail/${irid}`) }),
+                text: t.irExistsHtml({ link: relUrl(`/detail/${irid}`) }),
             });
             return;
         }
@@ -221,7 +223,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         const user = get(currentUser)!;
 
         if (edit) await upravitEvidenci(raw);
-        else await novaEvidence({ evidence: raw, kontroly: {}, users: [user.email!], installationProtocols: [] });
+        else await novaEvidence({ evidence: raw, kontrolyTC: {}, users: [user.email!], installationProtocols: [] });
 
         const doNotSend = edit && !send;
 
@@ -236,7 +238,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
                 attachments: [{
                     content: generateXML(data, t),
                     contentType: 'application/xml',
-                    filename: `Evidence ${irid}.xml`
+                    filename: `Evidence ${irid}.xml`,
                 }],
                 pdf: {
                     link: `/cs/detail/${irid}/pdf/rroute`,
@@ -257,11 +259,11 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
             props: { data, t, user, origin: page.url.origin },
         });
 
-        if (doNotSend || response!.ok) return true
+        if (doNotSend || response!.ok) return true;
         else editResult({
-            text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
-            load: false
+            load: false,
         });
     },
     redirectLink: async raw => relUrl(`/detail/${extractIRIDFromRawData(raw)}`),
@@ -283,11 +285,14 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         data.ir.typ.lock1 = () => edit;
 
         if (edit) {
-            data.uvedeni.regulus.required = () => false
-            data.uvedeni.zastupce.show = () => true
-            data.uvedeni.email.show = d => !d.uvedeni.jakoMontazka.value
-            data.uvedeni.telefon.show = d => !d.uvedeni.jakoMontazka.value
+            data.uvedeni.regulus.required = () => false;
+            data.uvedeni.zastupce.show = () => true;
+            data.uvedeni.email.show = d => !d.uvedeni.jakoMontazka.value;
+            data.uvedeni.telefon.show = d => !d.uvedeni.jakoMontazka.value;
         }
+
+        const count = (['', '2', '3', '4'] as const).findIndex(i => data.tc[`model${i}`].value == null);
+        data.tc.pocet.setValue(data, count == -1 ? 4 : count == 0 ? 1 : count);
     },
     storeEffects: [
         [(_, data, [$technicians]) => {
@@ -302,7 +307,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
                 ? [p('Později, dle protokolu'), 'doNotInvoice', 'assemblyCompany', 'endCustomer']
                 : ['assemblyCompany', 'endCustomer'];
             if ($isUserRegulusOrAdmin && !data.vzdalenyPristup.plati.value)
-                data.vzdalenyPristup.plati.setValue(data, p('Později, dle protokolu'))
+                data.vzdalenyPristup.plati.setValue(data, p('Později, dle protokolu'));
         }, [isUserRegulusOrAdmin]],
         [(_, data, [$responsiblePerson]) => {
             data.ostatni.zodpovednaOsoba.show = () => $responsiblePerson == null;
@@ -312,7 +317,8 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
     importOptions: {
         cells,
         sheet: 'ZADÁNÍ',
-        onImport: () => {},
+        onImport: () => {
+        },
     },
     isSendingEmails: true,
     showBackButton: edit => edit,
