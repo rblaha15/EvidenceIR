@@ -76,7 +76,7 @@
     ));
 </script>
 
-{#if widget.show(data)}
+<div class="d-flex gap-1 flex-column">
     <div class="input-group">
         <label class="form-floating d-block left">
             {#if widget.textArea(data)}
@@ -143,11 +143,9 @@
     </div>
 
     {#if widget.showError(data)}
-        <span class="text-danger help-block mt-1">{t.get(widget.onError(data, t))}</span>
+        <span class="text-danger help-block">{t.get(widget.onError(data, t))}</span>
     {/if}
-
-    <div class="mb-3"></div>
-{/if}
+</div>
 
 <style>
     .left {

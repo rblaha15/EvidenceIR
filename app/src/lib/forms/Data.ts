@@ -291,7 +291,8 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
             data.uvedeni.telefon.show = d => !d.uvedeni.jakoMontazka.value;
         }
 
-        data.tc.pocet.setValue(data, (['', '2', '3', '4'] as const).findIndex(i => data.tc[`model${i}`] == null) ?? 4);
+        const count = (['', '2', '3', '4'] as const).findIndex(i => data.tc[`model${i}`].value == null);
+        data.tc.pocet.setValue(data, count == -1 ? 4 : count == 0 ? 1 : count);
     },
     storeEffects: [
         [(_, data, [$technicians]) => {

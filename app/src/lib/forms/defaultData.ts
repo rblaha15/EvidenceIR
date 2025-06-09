@@ -265,7 +265,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
 
 
 const heatPump = <const I extends 1 | 2 | 3 | 4>(i: I) => ({
-    [`model${i == 1 ? '' : i}`]: new ChooserWidget<Data, Products['heatPumps']>({
+    [`model${i == 1 ? '' : i as 2 | 3 | 4}`]: new ChooserWidget<Data, Products['heatPumps']>({
         label: d => d.tc.pocet.value == 1 ? `heatPumpModel` : `heatPumpModel${i}`,
         options: d =>
             d.ir.typ.value.second == p('RTC')
@@ -279,13 +279,13 @@ const heatPump = <const I extends 1 | 2 | 3 | 4>(i: I) => ({
             (d.ir.typ.value.second == p('RTC') || d.tc.typ.value != null) &&
             d.ir.chceVyplnitK.value.includes(`heatPump`) &&
             i <= d.tc.pocet.value,
-        onValueSet: d => {
-            if (!d.tc.model.options(d).includes(d.tc.model.value ?? products.heatPumpsGroundToWater[0])) {
-                d.tc.model.setValue(d, null);
+        onValueSet: (d, v) => {
+            if (v != null && !d.tc[`model${i == 1 ? '' : i as 2 | 3 | 4}`].options(d).includes(v)) {
+                d.tc[`model${i == 1 ? '' : i as 2 | 3 | 4}`].setValue(d, null);
             }
         },
     }),
-    [`model${i == 1 ? '' : i}`]: new ScannerWidget<Data>({
+    [`cislo${i == 1 ? '' : i as 2 | 3 | 4}`]: new ScannerWidget<Data>({
         label: d => d.tc.pocet.value == 1 ? `heatPumpManufactureNumber` : `heatPumpManufactureNumber${i}`,
         onError: `wrongNumberFormat`,
         regex: d =>
@@ -300,7 +300,11 @@ const heatPump = <const I extends 1 | 2 | 3 | 4>(i: I) => ({
                 A: /[A-Za-z]/,
             },
         }),
-        show: d => d.ir.chceVyplnitK.value.includes(`heatPump`) && i <= d.tc.pocet.value,
+        show: d =>
+            d.ir.typ.value.second != null &&
+            (d.ir.typ.value.second == p('RTC') || d.tc.typ.value != null) &&
+            d.ir.chceVyplnitK.value.includes(`heatPump`) &&
+            i <= d.tc.pocet.value,
         processScannedText: t => t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
     }),
 }) as I extends 1 ? {
@@ -403,7 +407,10 @@ export default (): Data => ({
                 (['', '2', '3', '4'] as const).slice(p).forEach(i =>
                     d.tc[`model${i}`].setValue(d, null)
                 );
-            }
+            },
+            show: d => d.ir.typ.value.second != null &&
+                (d.ir.typ.value.second == p('RTC') || d.tc.typ.value != null) &&
+                d.ir.chceVyplnitK.value.includes(`heatPump`),
         }),
         ...heatPump(1),
         ...heatPump(2),

@@ -154,22 +154,24 @@
     {#each list as _, i}
         <WidgetComponent bind:widget={list[i]} {t} data={d} />
     {/each}
-    <div class="d-inline-flex align-content-center">
-        {#if !result.load && (mode === 'edit' && isSendingEmails || !$showSaveAndSendButtonByDefaultStore)}
-            <button onclick={save(false)} class="mb-auto btn btn-success">{t.save}</button>
-        {/if}
-        {#if !result.load && (mode === 'edit' && isSendingEmails || $showSaveAndSendButtonByDefaultStore)}
-            <button onclick={save(true)} class="mb-auto btn btn-success ms-2 text-nowrap">{t.saveAndSend}</button>
-        {/if}
-        {#if result.load}
-            <div class="spinner-border text-danger ms-2"></div>
-        {/if}
-        {#if showBackButton?.(mode === 'edit') ?? true}
-            <button type="button" class="mb-auto btn btn-secondary ms-2" onclick={() => history.back()}>
-                {t.back}
-            </button>
-        {/if}
-        <p class:text-danger={result.red} class="ms-2 my-auto">{@html result.text}</p>
+    <div class="d-flex flex-column flex-sm-row align-items-start gap-3">
+        <div class="d-flex gap-3 flex-wrap">
+            {#if !result.load && (mode === 'edit' && isSendingEmails || !$showSaveAndSendButtonByDefaultStore)}
+                <button onclick={save(false)} class="mb-auto btn btn-success">{t.save}</button>
+            {/if}
+            {#if !result.load && (mode === 'edit' && isSendingEmails || $showSaveAndSendButtonByDefaultStore)}
+                <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">{t.saveAndSend}</button>
+            {/if}
+            {#if result.load}
+                <div class="spinner-border text-danger"></div>
+            {/if}
+            {#if showBackButton?.(mode === 'edit') ?? true}
+                <button type="button" class="mb-auto btn btn-secondary" onclick={() => history.back()}>
+                    {t.back}
+                </button>
+            {/if}
+        </div>
+        <p class:text-danger={result.red} class="my-auto">{@html result.text}</p>
     </div>
 {:else}
     <div class="spinner-border text-danger m-2"></div>

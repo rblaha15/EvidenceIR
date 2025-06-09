@@ -48,8 +48,8 @@
 	<div class="spinner-border text-danger m-2"></div>
 {:else}
 	<Navigation {t} />
-	<div class="container my-3">
-		<h1>{$titleSvelte}</h1>
+	<div class="container my-3 d-flex flex-column gap-3">
+		<h1 class="m-0">{$titleSvelte}</h1>
 		{@render children?.()}
 	</div>
 {/if}
