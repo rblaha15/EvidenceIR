@@ -1,7 +1,7 @@
 <script lang="ts" module>
-    import { v4 as uuid } from "uuid";
+    import { v4 as uuid } from 'uuid';
     import { openDB } from 'idb';
-    import { browser } from "$app/environment";
+    import { browser } from '$app/environment';
 
     const db = browser ? openDB<{
         photos: {
@@ -13,22 +13,22 @@
             if (!db.objectStoreNames.contains('photos'))
                 db.createObjectStore('photos');
         },
-    }) : undefined
+    }) : undefined;
 
     export const addPhoto = (photo: string) =>
-        uuid().also(async id => await (await db!).add('photos', photo, id))
+        uuid().also(async id => await (await db!).add('photos', photo, id));
     export const removePhoto = async (id: string) =>
-        await (await db!).delete('photos', id)
+        await (await db!).delete('photos', id);
     export const removeAllPhotos = async () =>
-        await (await db!).clear('photos')
+        await (await db!).clear('photos');
     export const getPhoto = async (id: string) =>
-        await (await db!).get('photos', id)
+        await (await db!).get('photos', id);
 </script>
 
 <script generics="D" lang="ts">
-    import type { Translations } from "$lib/translations";
-    import { labelAndStar, type PhotoSelectorWidget } from "$lib/Widget.svelte";
-    import type { ChangeEventHandler } from "svelte/elements";
+    import type { Translations } from '$lib/translations';
+    import { labelAndStar, type PhotoSelectorWidget } from '$lib/Widget.svelte';
+    import type { ChangeEventHandler } from 'svelte/elements';
 
     interface Props {
         t: Translations;
@@ -38,92 +38,93 @@
 
     let { t, widget = $bindable(), data }: Props = $props();
 
-    let inputSelect = $state<HTMLInputElement>()
-    let inputCapture = $state<HTMLInputElement>()
-    const multiple = $derived(widget.multiple(data))
-    const max = $derived(widget.max(data))
+    let inputSelect = $state<HTMLInputElement>();
+    let inputCapture = $state<HTMLInputElement>();
+    const multiple = $derived(widget.multiple(data));
+    const max = $derived(widget.max(data));
 
     const onchange: ChangeEventHandler<HTMLInputElement> = async e => {
-        const files = e.currentTarget.files
+        const files = e.currentTarget.files;
         if (files) {
             const photoStrings = await [...files].map(file => new Promise<string>((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
-                    if (typeof reader.result != 'string') return reject()
+                    if (typeof reader.result != 'string') return reject();
                     resolve(addPhoto(reader.result));
                 };
                 reader.readAsDataURL(file);
-            })).awaitAll()
+            })).awaitAll();
 
-            widget.mutateValue(data, v => [...v, ...photoStrings].slice(0, max))
-            if (e.currentTarget) e.currentTarget.value = ''
+            widget.mutateValue(data, v => [...v, ...photoStrings].slice(0, max));
+            if (e.currentTarget) e.currentTarget.value = '';
         }
-    }
+    };
 
     const remove = (photoId: string) => async () => {
         await removePhoto(photoId);
-        widget.mutateValue(data, v => v.toggle(photoId))
-    }
+        widget.mutateValue(data, v => v.toggle(photoId));
+    };
 </script>
 
-{#if widget.show(data)}
+<div class="d-flex gap-1 flex-column">
     <div>{labelAndStar(widget, data, t)}</div>
-    {#if widget.value.length === 0 || (multiple && widget.value.length < max)}
-        <div class="d-flex">
-            <button
-                type="button"
-                class="btn btn-outline-primary"
-                onclick={() => inputSelect?.click()}
-            >
-                {multiple ? t.selectPhoto : t.selectPhotos}
-            </button>
-            <button
-                type="button"
-                class="btn btn-outline-primary ms-2"
-                onclick={() => inputCapture?.click()}
-            >
-                {multiple ? t.capturePhoto : t.capturePhotos}
-            </button>
-        </div>
-    {/if}
+    <div class="d-flex gap-3 flex-column">
+        {#if widget.value.length === 0 || (multiple && widget.value.length < max)}
+            <div class="d-flex gap-3">
+                <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    onclick={() => inputSelect?.click()}
+                >
+                    {multiple ? t.selectPhoto : t.selectPhotos}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    onclick={() => inputCapture?.click()}
+                >
+                    {multiple ? t.capturePhoto : t.capturePhotos}
+                </button>
+            </div>
+        {/if}
 
-    {#if widget.value}
-        <ul class="list-group mt-3">
-            {#each widget.value as photoId}
-                <li class="d-flex w-100 align-items-center list-group-item">
-                    {#await getPhoto(photoId) then photo}
-                        <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
-                             src={photo} alt="Fotografie">
-                    {/await}
-                    <button class="btn text-danger ms-3" onclick={remove(photoId)}><i class="my-1 bi-trash"></i> {t.remove}</button>
-                </li>
-            {/each}
-        </ul>
-    {:else}
-        <div class="mt-1">{t.noPhotos}</div>
+        {#if widget.value.length}
+            <ul class="list-group">
+                {#each widget.value as photoId}
+                    <li class="d-flex w-100 align-items-center list-group-item">
+                        {#await getPhoto(photoId) then photo}
+                            <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
+                                 src={photo} alt="Fotografie">
+                        {/await}
+                        <button class="btn text-danger ms-3" onclick={remove(photoId)}><i class="my-1 bi-trash"></i> {t.remove}</button>
+                    </li>
+                {/each}
+            </ul>
+        {/if}
+    </div>
+    {#if !widget.value.length}
+        <div>{t.noPhotos}</div>
     {/if}
 
     {#if widget.showError(data)}
-        <p class="text-danger mt-1">{t.get(widget.onError(data, t))}</p>
+        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
     {/if}
 
-    <div class="mb-3"></div>
-
     <input
         accept="image/*"
-        {multiple}
-        class="d-none"
-        type="file"
         bind:this={inputSelect}
+        class="d-none"
+        {multiple}
         {onchange}
+        type="file"
     />
     <input
         accept="image/*"
-        {multiple}
+        bind:this={inputCapture}
         capture="environment"
         class="d-none"
-        type="file"
-        bind:this={inputCapture}
+        {multiple}
         {onchange}
+        type="file"
     />
-{/if}
+</div>

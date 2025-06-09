@@ -43,9 +43,9 @@ export type GetPdfData<ID extends IRID | SPID = IRID> = (data: DataOfID<ID>, t: 
 }>;
 export const getPdfData = (
     link: Pdf
-) => {
+): GetPdfData<IRID | SPID> => {
     const t = toPdfTypeName(link);
-    if (t == 'check') return check;
+    if (t == 'check') return check(Number(link.split('-')[1]) as 1 | 2 | 3 | 4);
     if (t == 'warranty') return warranty(Number(link.split('-')[1] || '1') - 1);
     if (t == 'rroute') return rroute;
     if (t == 'guide') return guide;

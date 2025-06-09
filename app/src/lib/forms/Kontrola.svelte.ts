@@ -1,7 +1,7 @@
 import type { FormInfo } from '$lib/forms/forms.svelte.js';
-import { type IR, pridatKontrolu } from '$lib/client/firestore';
-import { TitleWidget, InputWidget, CheckboxWidget } from '$lib/Widget.svelte.js';
-import { dataToRawData, type Form, type Raw } from '$lib/forms/Form';
+import { pridatKontrolu } from '$lib/client/firestore';
+import { CheckboxWidget, InputWidget, TitleWidget } from '$lib/Widget.svelte.js';
+import { dataToRawData, type Form } from '$lib/forms/Form';
 import { todayISO } from '$lib/helpers/date';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
@@ -9,6 +9,7 @@ import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import { derived, get } from 'svelte/store';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
+import { browser } from '$app/environment';
 
 export type Rok = number
 
@@ -152,27 +153,24 @@ export const defaultKontrola = (): Kontrola => ({
     },
     poznamky: {
         poznamka: new InputWidget({ label: 'note', required: false }),
-    }
+    },
 });
-
-const posledniKontrola = (ir: IR): number => {
-    const kontroly = ir.kontroly as Record<number, Kontrola | undefined> | undefined;
-    if (kontroly?.[1] == undefined) return 0;
-    return Math.max(...kontroly.keys().map((it) => Number(it)));
-};
 
 export const check = (() => {
     let rok = $state() as number;
+    const tc = $derived(!browser ? 1
+        : page.url.searchParams.get('tc')?.let(Number) ?? 1) as 1 | 2 | 3 | 4;
 
     const info: FormInfo<Rok, Kontrola> = {
         storeName: 'stored_check',
         defaultData: defaultKontrola,
-        pdfLink: () => 'check',
+        pdfLink: () => `check-${tc}`,
         getEditData: ir => {
-            rok = posledniKontrola(ir) + 1;
+            const kontroly = ir.kontrolyTC[tc] ?? {};
+            rok = kontroly?.[1] == undefined ? 1
+                : Math.max(...kontroly.keys().map(Number)) + 1;
             if (rok != 1) {
-                const kontroly = ir.kontroly as Record<number, Raw<Kontrola> | undefined>;
-                const predchoziKontrola = kontroly[rok - 1]!;
+                const predchoziKontrola = kontroly[rok - 1 as 1 | 2 | 3]!;
                 const data = dataToRawData(defaultKontrola());
                 data.poznamky.poznamka = predchoziKontrola.poznamky.poznamka;
                 data.kontrolniUkonyOtopneSoustavy.nastavenyTlakPriUvadeniDoProvozu = predchoziKontrola.kontrolniUkonyOtopneSoustavy.nastavenyTlakPriUvadeniDoProvozu;
@@ -182,8 +180,8 @@ export const check = (() => {
             } else return undefined;
         },
         saveData: async (irid, raw, _1, _2, editResult, t, _3, e) => {
-            await pridatKontrolu(irid, rok, raw)
-            if (await checkRegulusOrAdmin()) return
+            await pridatKontrolu(irid, rok, raw);
+            if (await checkRegulusOrAdmin()) return;
 
             const user = get(currentUser)!;
             const response = await sendEmail({
@@ -195,15 +193,15 @@ export const check = (() => {
 
             if (response!.ok) return;
             editResult({
-                text: t.emailNotSent.parseTemplate({ status: String(response!.status), statusText: response!.statusText }),
+                text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
                 red: true,
-                load: false
+                load: false,
             });
-            return false
+            return false;
         },
         showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
+        title: t => t.yearlyHPCheckNr([`${tc}`]),
         createWidgetData: () => rok,
-        title: t => t.yearlyHPCheck,
         subtitle: t => `${t.year}: ${rok.toString() ?? '…'}`,
         onMount: async (d, k) => {
             if (!k.info.datum.value)

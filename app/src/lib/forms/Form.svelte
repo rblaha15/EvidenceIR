@@ -61,7 +61,7 @@
     let result = $state({
         text: '',
         red: false,
-        load: false
+        load: false,
     });
 
     const list = $derived(f.getValues().flatMap(obj => obj.getValues()));
@@ -70,15 +70,15 @@
     const save = (send: boolean) => async () => {
         try {
             const raw = dataToRawData(f);
-            const errors = list.filter(w => w.isError(d) && w.show(d)).map(w => t.get(w.label(d, t)))
+            const errors = list.filter(w => w.isError(d) && w.show(d)).map(w => t.get(w.label(d, t)));
             if (errors.length > 0) {
                 for (const i in list) {
                     list[i].displayErrorVeto = true;
                 }
                 result = {
                     red: true,
-                    text: t.youHaveAMistake.parseTemplate({ fields: errors.join(', ') }),
-                    load: false
+                    text: t.youHaveAMistake({ fields: errors.join(', ') }),
+                    load: false,
                 };
                 return;
             }
@@ -105,15 +105,15 @@
                             text: 'Povolte prosím otevírání oken v prohlížeči',
                             red: true, load: false,
                         };
-                        return
+                        return;
                     }
                 }
 
                 if (redirectLink) window.location.replace(await redirectLink(raw));
                 if (redirectLink) setTimeout(async () => result = {
-                    text: t.redirectFailedHtml.parseTemplate({ link: page.url.origin + await redirectLink(raw) }),
+                    text: t.redirectFailedHtml({ link: page.url.origin + await redirectLink(raw) }),
                     red: true,
-                    load: false
+                    load: false,
                 }, 5000);
             }
         } catch (e) {
@@ -121,7 +121,7 @@
             result = {
                 red: true,
                 text: t.somethingWentWrongContactUsHtml,
-                load: false
+                load: false,
             };
         }
     };
@@ -141,35 +141,37 @@
     };
 
     const isDangerous = $derived(JSON.stringify(dataToRawData(f)) != JSON.stringify(dataToRawData(untrack(defaultData))));
-    const showSaveAndSendButtonByDefaultStore = $derived(typeof showSaveAndSendButtonByDefault == 'boolean' ? readable(showSaveAndSendButtonByDefault) : showSaveAndSendButtonByDefault)
+    const showSaveAndSendButtonByDefaultStore = $derived(typeof showSaveAndSendButtonByDefault == 'boolean' ? readable(showSaveAndSendButtonByDefault) : showSaveAndSendButtonByDefault);
 </script>
 
+<FormHeader importData={importOptions ? {
+    ...importOptions, onImport, isDangerous, defaultData: () => dataToRawData(defaultData())
+} : undefined} store={storedData} {t} title={title(t, mode === 'edit')} />
 {#if mode !== 'loading'}
-    <FormHeader store={storedData} {t} title={title(t, mode === 'edit')} importData={importOptions ? {
-        ...importOptions, onImport, isDangerous, defaultData: () => dataToRawData(defaultData())
-    } : undefined} />
     {#if subtitle}
         <h3>{subtitle(t, mode === 'edit')}</h3>
     {/if}
     {#each list as _, i}
         <WidgetComponent bind:widget={list[i]} {t} data={d} />
     {/each}
-    <div class="d-inline-flex align-content-center">
-        {#if !result.load && (mode === 'edit' && isSendingEmails || !$showSaveAndSendButtonByDefaultStore)}
-            <button onclick={save(false)} class="mb-auto btn btn-success">{t.save}</button>
-        {/if}
-        {#if !result.load && (mode === 'edit' && isSendingEmails || $showSaveAndSendButtonByDefaultStore)}
-            <button onclick={save(true)} class="mb-auto btn btn-success ms-2 text-nowrap">{t.saveAndSend}</button>
-        {/if}
-        {#if result.load}
-            <div class="spinner-border text-danger ms-2"></div>
-        {/if}
-        {#if showBackButton?.(mode === 'edit') ?? true}
-            <button type="button" class="mb-auto btn btn-secondary ms-2" onclick={() => history.back()}>
-                {t.back}
-            </button>
-        {/if}
-        <p class:text-danger={result.red} class="ms-2 my-auto">{@html result.text}</p>
+    <div class="d-flex flex-column flex-sm-row align-items-start gap-3">
+        <div class="d-flex gap-3 flex-wrap">
+            {#if !result.load && (mode === 'edit' && isSendingEmails || !$showSaveAndSendButtonByDefaultStore)}
+                <button onclick={save(false)} class="mb-auto btn btn-success">{t.save}</button>
+            {/if}
+            {#if !result.load && (mode === 'edit' && isSendingEmails || $showSaveAndSendButtonByDefaultStore)}
+                <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">{t.saveAndSend}</button>
+            {/if}
+            {#if result.load}
+                <div class="spinner-border text-danger"></div>
+            {/if}
+            {#if showBackButton?.(mode === 'edit') ?? true}
+                <button type="button" class="mb-auto btn btn-secondary" onclick={() => history.back()}>
+                    {t.back}
+                </button>
+            {/if}
+        </div>
+        <p class:text-danger={result.red} class="my-auto">{@html result.text}</p>
     </div>
 {:else}
     <div class="spinner-border text-danger m-2"></div>

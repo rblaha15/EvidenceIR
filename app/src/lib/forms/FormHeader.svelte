@@ -41,11 +41,11 @@
     };
 </script>
 
-<div class="d-flex w-100 align-items-center text-nowrap flex-wrap">
-    <span class="me-auto" style="padding: 0.375rem 0.75rem">{STAR} = {t.mandatoryFields}</span>
+<div class="d-flex w-100 align-items-center text-nowrap flex-wrap gap-2">
+    <span class="me-auto">{STAR} = {t.mandatoryFields}</span>
     {#if importData}
         <button
-            class="btn"
+            class="btn btn-outline-secondary"
             data-bs-toggle="modal"
             data-bs-target="#import"
         >
@@ -55,7 +55,7 @@
     {/if}
     {#if showResetButton}
         <button
-            class="btn"
+            class="btn btn-outline-secondary"
             onclick={() => {
                 $store = undefined;
                 window.location.reload();

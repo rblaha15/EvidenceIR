@@ -15,8 +15,8 @@
     const uid = $props.id();
 </script>
 
-{#if widget.show(data)}
-    <label class="d-block" for="">{t.get(widget.label(data, t))}</label>
+<div class="d-flex gap-1 flex-column">
+    <div>{t.get(widget.label(data, t))}</div>
     <div class="input-group input-group-grid" style="--grid-cols: 4">
         {#each widget.options(data) as option, i}
             <button class="btn btn-outline-primary first" onclick={() =>
@@ -28,13 +28,11 @@
                 () => widget.mutateValue(data, v => v.with(i, v[i] + 1))
             } disabled={sum === widget.max(data)}
             ><strong>+</strong></button>
-            <button class="input-group-text last" id="label-{uid}">{t.get(option)}</button>
+            <div class="input-group-text last" id="label-{uid}">{t.get(option)}</div>
         {/each}
     </div>
 
     {#if widget.showError(data)}
         <span class="text-danger help-block">{t.get(widget.onError(data, t))}</span>
     {/if}
-
-    <div class="mb-3"></div>
-{/if}
+</div>

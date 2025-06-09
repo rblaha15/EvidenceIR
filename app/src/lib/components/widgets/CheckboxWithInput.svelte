@@ -74,7 +74,7 @@
     const uid = $props.id();
 </script>
 
-{#if widget.show(data)}
+<div class="d-flex gap-1 flex-column">
     <div class="input-group">
         <button class="input-group-text input-group-input" onclick={onClick} aria-labelledby="label-{uid}" tabindex="-1">
             <input class="form-check-input m-0" type="checkbox" role="button" disabled={widget.lock(data)} bind:checked={widget.value.checked} />
@@ -138,8 +138,6 @@
     </div>
 
     {#if widget.showError(data)}
-        <span class="text-danger help-block mt-1">{t.get(widget.onError(data, t))}</span>
+        <span class="text-danger help-block">{t.get(widget.onError(data, t))}</span>
     {/if}
-
-    <div class="mb-3"></div>
-{/if}
+</div>
