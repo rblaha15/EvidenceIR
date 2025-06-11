@@ -86,11 +86,13 @@
                         class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
                         class:rt-0={i === 0}
                         href={searchItem.href ?? '#'}
+                        class:disabled={searchItem.disabled}
+                        aria-disabled={searchItem.disabled}
                         onclick={(e) => {
-                        e.preventDefault();
-                        widget.setValue(data, item);
-                        hidden = true
-                    }}
+                            e.preventDefault();
+                            widget.setValue(data, item);
+                            hidden = true
+                        }}
                     >
                         {#each searchItem.pieces as piece}
                             <p class="mb-0 w-md-100"
@@ -99,7 +101,7 @@
                         {/each}
                     </a>
                 {:else}
-                    <p class="rt-0 list-group-item mb-0">Nenalezeno</p>
+                    <p class="rt-0 list-group-item-action list-group-item mb-0 disabled">Nenalezeno</p>
                 {/each}
             </div>
         {/if}
