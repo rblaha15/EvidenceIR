@@ -12,7 +12,7 @@
         novaEvidence,
         odstranitEvidenci,
         odstranitObecnyServisniProtokol,
-        publicProtocol,
+        publicProtocol, type SPID,
         vyplnitServisniProtokol,
     } from '$lib/client/firestore';
     import { storable } from '$lib/helpers/stores';
@@ -22,7 +22,7 @@
     import { page } from '$app/state';
     import { solarCollectorCommission, type UvedeniSOL } from '$lib/forms/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
-    import { irWholeName, isIRID, isSPID, spWholeName } from '$lib/helpers/ir';
+    import { irWholeName, isIRID, isSPID, spName, spWholeName } from '$lib/helpers/ir';
     import { ChooserWidget, InputWidget } from '$lib/Widget.svelte.js';
     import type { Raw } from '$lib/forms/Form';
     import { detailUrl, relUrl } from '$lib/helpers/runes.svelte';
@@ -64,7 +64,11 @@
                 }
                 values = snapshot.data();
             } else if (spid) {
-                const snapshot = await publicProtocol(spid);
+                let snapshot = await publicProtocol(spid);
+
+                if (!snapshot || !snapshot.exists()) {
+                    snapshot = await publicProtocol(spid.split('-').slice(0, -1).join('-') as SPID);
+                }
 
                 if (!snapshot || !snapshot.exists()) {
                     type = 'noAccess';
@@ -170,7 +174,7 @@
 {:else if type !== 'loaded'}
     <h3 class="m-0">
         {#if !irid}
-            {spid?.replace('-', ' ').replace('-', '/').replace('-', '/')}
+            {spid?.replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}
         {:else if irid.length === 6}
             {irid.slice(0, 2)}
             {irid.slice(2, 6)}
@@ -325,10 +329,7 @@
         <h4 class="m-0">Protokoly servisního zásahu</h4>
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#each values.installationProtocols as p, i}
-                {@const datum = p.zasah.datum.split('T')[0].split('-').join('/')}
-                {@const hodina = p.zasah.datum.split('T')[1].split(':')[0]}
-                {@const technik = p.zasah.inicialy}
-                <PdfLink name="{technik} {datum}-{hodina}" {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true}>
+                <PdfLink name={spName(p.zasah)} {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true}>
                     <a
                         tabindex="0"
                         class="btn btn-info d-block"

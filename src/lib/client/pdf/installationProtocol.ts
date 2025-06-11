@@ -5,7 +5,7 @@ import { dateFromISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
 import '$lib/extensions';
 import type { GetPdfData } from '$lib/server/pdf';
-import { endUserName, irName } from '$lib/helpers/ir';
+import { endUserName, irName, spName } from '$lib/helpers/ir';
 import type { SPID } from '$lib/client/firestore';
 
 const cenik = {
@@ -85,16 +85,13 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
     const cenaOstatni = cenaUkony + cenaDily;
     const celkem = cenaDopravy + cenaPrace + cenaOstatni;
     const dph = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21
-    const datum = p.zasah.datum.split('T')[0].split('-').join('/');
-    const hodina = p.zasah.datum.split('T')[1].split(':')[0];
-    const technik = p.zasah.inicialy;
-    const response = await fetch(`/signatures/${technik}.jpg`)
+    const response = await fetch(`/signatures/${p.zasah.inicialy}.jpg`)
     const signature = response.ok && !response.redirected ? await response.arrayBuffer() : null
 
     return {
-        fileName: `SP-${technik}-${datum.replace('/', '_')}-${hodina}.pdf`,
+        fileName: `SP-${spName(p.zasah).replaceAll(/\/:/g, '_')}.pdf`,
         doNotPrefixFileNameWithIR: true,
-        /*             id */ Text1: `${technik} ${datum}-${hodina}`,
+        /*             id */ Text1: spName(p.zasah),
         /*    koncakNazev */ Text29: p.koncovyUzivatel.typ == 'company' ? `${t.companyName}:` : `${t.surname} a ${t.name.toLowerCase()}:`,
         /*    koncakJmeno */ Text2: endUserName(p.koncovyUzivatel),
         /*      koncakICO */ Text30: p.koncovyUzivatel.typ == 'company' ? t.crn : t.birthday,
