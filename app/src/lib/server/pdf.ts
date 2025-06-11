@@ -14,7 +14,7 @@ import guide from '$lib/client/pdf/guide';
 import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtocol';
 import solarCollectorCommissionProtocol from '$lib/client/pdf/solarCollectorCommissionProtocol';
 import installationProtocol, { publicInstallationProtocol } from '$lib/client/pdf/installationProtocol';
-import { irName, isIRID } from '$lib/helpers/ir';
+import { irName, isIRID, isSPID } from '$lib/helpers/ir';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { Raw } from '$lib/forms/Form';
 
@@ -60,18 +60,22 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
     let snapshot: DocumentSnapshot<DataOfID<ID> | undefined>;
     try {
         snapshot = await evidence_sp2(irid_spid);
+
+        if (!snapshot.exists && isSPID(irid_spid))
+            snapshot = await evidence_sp2(irid_spid.split('-').slice(0, -1).join('-') as ID);
     } catch (e) {
         console.log(`Nepovedlo se načíst data z firebase ${{ lang, irid_spid }}`);
         error(500, `Nepovedlo se načíst data z firebase ${lang}, ${irid_spid}, ${e}`);
     }
-    const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
-    const t = getTranslations(formLanguage);
 
     if (!snapshot.exists) error(500, 'Nepovedlo se nalézt data ve firebase');
 
     const data = snapshot.data();
 
     if (!data) error(500, 'Nepovedlo se nalézt data ve firebase');
+
+    const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
+    const t = getTranslations(formLanguage);
 
     const formLocation = `/pdf/${args.formName}_${formLanguage}.pdf`;
     const formPdfBytes = await (await fetch(formLocation)).arrayBuffer() ?? error(500, 'Nepovedlo se načíst PDF');
