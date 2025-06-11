@@ -65,7 +65,7 @@ export abstract class Widget<D = never, U = any, H extends boolean = boolean> {
 }
 
 export type SearchItemPiece = { readonly text: TR, readonly width?: number };
-export type SearchItem = { readonly pieces: SearchItemPiece[], readonly href?: string };
+export type SearchItem = { readonly pieces: SearchItemPiece[], readonly href?: string, disabled?: boolean };
 export type Pair<I1 extends TR, I2 extends TR> = { readonly first: I1 | null; readonly second: I2 | null; };
 type Sides = readonly [TR, TR];
 export type Arr<I extends TR> = readonly I[];
