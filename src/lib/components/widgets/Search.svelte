@@ -78,7 +78,7 @@
         </label>
 
         {#if !hidden}
-            <div class="options list-group position-absolute z-3 w-100 overflow-y-auto shadow-lg mb-2">
+            <div class="list-group z-3 w-100 overflow-y-auto shadow-lg mb-2" class:options={!widget.inline(data)}>
                 {#each filtered as item, i}
                     {@const searchItem = widget.getSearchItem(item)}
                     <a
@@ -108,7 +108,7 @@
 
         {#if widget.value && hidden}
             {@const searchItem = widget.getSearchItem(widget.value)}
-            <div class="list-group w-100 position-absolute z-2 selected">
+            <div class="list-group w-100 z-2 selected" class:options={!widget.inline(data)}>
                 <div
                     class="list-group-item-action list-group-item d-flex flex-column flex-md-row align-items-md-center rt-0"
                 >
@@ -169,5 +169,6 @@
 
     .options {
         max-height: 90vh;
+        position: absolute;
     }
 </style>
