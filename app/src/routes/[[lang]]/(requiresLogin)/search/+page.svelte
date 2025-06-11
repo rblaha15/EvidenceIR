@@ -74,6 +74,7 @@
         onValueSet: (_, i) => {
             if (i && i != 'loading') goto(relUrl(`/detail/${i.irid_spid}`));
         },
+        inline: true,
     }));
 
     setTitle(t.controllerSearch);
