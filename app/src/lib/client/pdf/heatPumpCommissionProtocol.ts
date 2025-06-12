@@ -9,7 +9,6 @@ const heatPumpCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniTC, 
     const { isCascade, pumps } = cascadeDetails(e, t);
 
     return ({
-        fileName: `Protokol uvedení TČ.pdf`,
 /*    koncakJmeno */ Text1: endUserName(e.koncovyUzivatel),
 /*      koncakTel */ Text2: e.koncovyUzivatel.telefon,
 /*    koncakEmail */ Text3: e.koncovyUzivatel.email,

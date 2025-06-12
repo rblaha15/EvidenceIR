@@ -7,7 +7,6 @@ import type { Raw } from '$lib/forms/Form';
 const representative = (c: Raw<Data>['montazka' | 'uvedeni']) =>
     `${c.zastupce} – ${c.email}; ${c.telefon}`;
 const rroute: GetPdfData = async ({ evidence: e }, t) => ({
-    fileName: t.regulusRouteFileName,
 /*   icoMontaznik */ Text1: e.montazka.ico,
 /* firmaMontaznik */ Text2: (await nazevFirmy(e.montazka.ico, fetch)) ?? null,
 /* jmenoMontaznik */ Text3: representative(e.montazka),

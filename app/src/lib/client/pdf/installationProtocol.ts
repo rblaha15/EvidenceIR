@@ -59,7 +59,6 @@ export const installationProtocol = (i: number): GetPdfData => async ({ evidence
         ...e,
         ...p,
         system: {
-            nadpis: undefined as never,
             popis: `${irName(e.ir)}
 ${e.ir.cisloBox ? `BOX: ${e.ir.cisloBox}` : ''}
 ${e.sol?.typ ? `SOL: ${e.sol.typ} – ${e.sol.pocet}x` : ''}
@@ -90,8 +89,7 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
     const signature = response.ok && !response.redirected ? await response.arrayBuffer() : null
 
     return {
-        fileName: `SP-${spName(p.zasah).replaceAll(/\/:/g, '_')}.pdf`,
-        doNotPrefixFileNameWithIR: true,
+        fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
         /*             id */ Text1: spName(p.zasah),
         /*    koncakNazev */ Text29: p.koncovyUzivatel.typ == 'company' ? `${t.companyName}:` : `${t.surname} a ${t.name.toLowerCase()}:`,
         /*    koncakJmeno */ Text2: endUserName(p.koncovyUzivatel),
@@ -148,7 +146,7 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
         /*                */ Text42: p.fakturace.hotove == 'no' ? t.get(p.fakturace.jak) : '',
         /*                */ Text43: p.fakturace.komu == 'assemblyCompany' ? p.montazka.zastupce : endUserName(p.koncovyUzivatel),
         /*  popisTechnika */ Podpis64: signature ? { x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60, } : null,
-    };
+    } satisfies Awaited<ReturnType<GetPdfData<SPID>>>;
 };
 export default installationProtocol;
 
