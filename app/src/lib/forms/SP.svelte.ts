@@ -6,15 +6,16 @@ import {
     RadioWidget,
     SearchWidget,
     TextWidget,
-    TitleWidget
+    TitleWidget,
 } from '../Widget.svelte.js';
 import {
+    getIsOnline,
     type SparePart,
     sparePartsList,
     startSparePartsListening,
     startTechniciansListening,
     type Technician,
-    techniciansList
+    techniciansList,
 } from '$lib/client/realtime';
 import { type Form, type Raw } from '$lib/forms/Form';
 import { page } from '$app/state';
@@ -96,8 +97,8 @@ const nahradniDil = <D extends GenericDataSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 
                 pieces: [
                     { text: p(i.code.toString()), width: .08 },
                     { text: p(i.name), width: .8 },
-                    { text: p(i.unitPrice.roundTo(2).toLocaleString('cs') + ' Kč'), width: .12 }
-                ] as const
+                    { text: p(i.unitPrice.roundTo(2).toLocaleString('cs') + ' Kč'), width: .12 },
+                ] as const,
             }),
         }),
         name: new InputWidget({
@@ -114,7 +115,7 @@ const nahradniDil = <D extends GenericDataSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 
         }),
         mnozstvi: new InputWidget({
             label: p('Množství'), type: `number`, onError: `wrongNumberFormat`, text: '1',
-            required: show, show
+            required: show, show,
         }),
     });
 };
@@ -126,23 +127,32 @@ export const defaultDataSP = <D extends GenericDataSP<D>>(): GenericDataSP<D> =>
         inicialy: new InputWidget({ label: p('Iniciály technika (do ID SP)'), show: false, required: false }),
         zaruka: new RadioWidget({ label: p('Záruka'), options: [`sp.warrantyCommon`, `sp.warrantyExtended`], required: false }),
         nahlasenaZavada: new InputWidget({ label: p('Nahlášená závada'), required: false }),
-        popis: new InputWidget({ label: p('Popis zásahu'), required: false, textArea: true })
+        popis: new InputWidget({ label: p('Popis zásahu'), required: false, textArea: true }),
     },
     ukony: {
         nadpis: new TitleWidget({ text: p('Vyúčtování') }),
         doprava: new InputWidget({ label: p('Doprava'), type: 'number', onError: `wrongNumberFormat`, suffix: 'units.km' }),
-        typPrace: new RadioWidget({ label: p('Typ práce'), options: [`sp.assemblyWork`, `sp.technicalAssistance`, `sp.technicalAssistance12`], required: false }),
+        typPrace: new RadioWidget({
+            label: p('Typ práce'),
+            options: [`sp.assemblyWork`, `sp.technicalAssistance`, `sp.technicalAssistance12`],
+            required: false,
+        }),
         ukony: new MultiCheckboxWidget({
             label: p('Pracovní úkony (max. 3)'), max: 3, required: false, options: [
                 `sp.regulusRoute`, `sp.commissioningTC`, `sp.commissioningSOL`, `sp.yearlyHPCheck`,
                 `sp.yearlySOLCheck`, `sp.extendedWarranty`, `sp.installationApproval`, `sp.withoutCode`,
-            ]
+            ],
         }),
-        doba: new InputWidget({ label: d => p(d.ukony.typPrace.value != null ? 'Doba fakturované práce' : 'Doba zásahu'), type: 'number', onError: `wrongNumberFormat`, suffix: 'units.h' }),
+        doba: new InputWidget({
+            label: d => p(d.ukony.typPrace.value != null ? 'Doba fakturované práce' : 'Doba zásahu'),
+            type: 'number',
+            onError: `wrongNumberFormat`,
+            suffix: 'units.h',
+        }),
     },
     nahradniDily: {
         nadpis: new TitleWidget({ text: p('Použité náhradní díly') }),
-        pocet: new CounterWidget({ label: p('Počet náhradních dílů'), min: 0, max: 8, chosen: 0 })
+        pocet: new CounterWidget({ label: p('Počet náhradních dílů'), min: 0, max: 8, chosen: 0 }),
     },
     nahradniDil1: nahradniDil(1),
     nahradniDil2: nahradniDil(2),
@@ -157,13 +167,13 @@ export const defaultDataSP = <D extends GenericDataSP<D>>(): GenericDataSP<D> =>
         hotove: new ChooserWidget({ label: p('Placeno hotově'), options: ['yes', 'no', 'doNotInvoice'] }),
         komu: new RadioWidget({
             label: p('Komu fakturovat'), options: [p('Investor'), `assemblyCompany`],
-            required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no'
+            required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
         }),
         jak: new RadioWidget({
             label: p('Fakturovat'), options: plainArray(['Papírově', 'Elektronicky']),
-            required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no'
-        })
-    }
+            required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
+        }),
+    },
 });
 
 const importSparePart = (i: 0 | 1 | 2): ExcelImport<Raw<DataSP>>['cells']['nahradniDil1'] => ({
@@ -177,12 +187,12 @@ const cells: ExcelImport<Raw<DataSP>>['cells'] = {
     zasah: {
         datum: {
             address: [14, 1],
-            transform: v => v.split('-')[0].split('/').map(n => n.padStart(2, '0')).join('-') + 'T' + v.split('-')[1] + ':00'
+            transform: v => v.split('-')[0].split('/').map(n => n.padStart(2, '0')).join('-') + 'T' + v.split('-')[1] + ':00',
         },
         clovek: { address: [11, 21] },
         inicialy: { address: [13, 1] },
         popis: { address: [1, 30] },
-        nahlasenaZavada: { address: [5, 28] }
+        nahlasenaZavada: { address: [5, 28] },
     },
     ukony: {
         doprava: { address: [9, 38] },
@@ -198,21 +208,21 @@ const cells: ExcelImport<Raw<DataSP>>['cells'] = {
                     ['kontrola TČ', `sp.yearlyHPCheck`] as const,
                     ['kontrola SOL', `sp.yearlySOLCheck`] as const,
                     ['Záruka', `sp.extendedWarranty`] as const,
-                    ['instalace', `sp.installationApproval`] as const
-                ] as const).find(([s]) => u.includes(s))![1])
-        }
+                    ['instalace', `sp.installationApproval`] as const,
+                ] as const).find(([s]) => u.includes(s))![1]),
+        },
     },
     nahradniDil1: importSparePart(0),
     nahradniDil2: importSparePart(1),
     nahradniDil3: importSparePart(2),
     nahradniDily: {
-        pocet: { constant: 1 }
+        pocet: { constant: 1 },
     },
     fakturace: {
         hotove: { address: [18, 43], transform: v => v == 'ANO' ? 'yes' : v == 'NE' ? 'no' : 'doNotInvoice' },
         komu: { address: [18, 45], transform: v => v == 'Odběratel' ? p('Investor') : 'assemblyCompany' },
-        jak: { address: [18, 46], transform: v => makePlain(v[0].toUpperCase() + v.slice(1) as 'Papírově' | 'Elektronicky')! }
-    }
+        jak: { address: [18, 46], transform: v => makePlain(v[0].toUpperCase() + v.slice(1) as 'Papírově' | 'Elektronicky')! },
+    },
 };
 
 export const sp = (() => {
@@ -231,7 +241,14 @@ export const sp = (() => {
                 return undefined;
             }
         },
-        saveData: async (irid, raw, edit, _, editResult, t, send) => {
+        saveData: async (irid, raw, edit, _, editResult, t, send, ir) => {
+            const name = spName(raw.zasah);
+
+            if (!edit && getIsOnline() && ir.installationProtocols.some(p => spName(p.zasah) == name)) {
+                editResult({ text: 'SP již existuje.', red: true, load: false });
+                return false;
+            }
+
             if (edit) await upravitServisniProtokol(irid, i, raw);
             else await vyplnitServisniProtokol(irid, raw);
 
@@ -240,17 +257,17 @@ export const sp = (() => {
             const response = await sendEmail({
                 ...defaultAddresses(),
                 subject: edit
-                    ? `Upravený servisní protokol: ${spName(raw.zasah)}`
-                    : `Nový servisní protokol: ${spName(raw.zasah)}`,
+                    ? `Upravený servisní protokol: ${name}`
+                    : `Nový servisní protokol: ${name}`,
                 component: MailProtocol,
-                props: { name: raw.zasah.clovek, origin: page.url.origin, irid_spid: irid }
+                props: { name: raw.zasah.clovek, origin: page.url.origin, irid_spid: irid },
             });
 
             if (response!.ok) return true;
             else editResult({
                 text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
                 red: true,
-                load: false
+                load: false,
             });
         },
         createWidgetData: (_, p) => p,
@@ -276,7 +293,7 @@ export const sp = (() => {
             [(_, p, [$sparePartsList]) => {
                 const spareParts = $sparePartsList.map(it => ({
                     ...it,
-                    name: it.name.replace('  ', ' ')
+                    name: it.name.replace('  ', ' '),
                 }) satisfies SparePart);
                 [
                     p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
@@ -284,13 +301,14 @@ export const sp = (() => {
                 ].forEach(nahradniDil => {
                     nahradniDil.dil.items = () => spareParts;
                 });
-            }, [sparePartsList]]
+            }, [sparePartsList]],
         ],
         importOptions: {
             sheet: 'Protokol',
-            onImport: () => {},
+            onImport: () => {
+            },
             cells,
-        }
+        },
     };
     return info;
 })();
