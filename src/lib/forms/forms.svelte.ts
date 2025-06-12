@@ -43,7 +43,7 @@ export type DetachedFormInfo<D, F extends Form<D>, S extends unknown[][] = [], R
 
 export type FormInfo<D, F extends Form<D>, S extends unknown[][] = [], R extends Raw<F> = Raw<F>> = {
     pdfLink: () => Pdf;
-    saveData: (irid: IRID, raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, evidence: Raw<Data>) => Promise<boolean | void>;
+    saveData: (irid: IRID, raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, ir: IR) => Promise<boolean | void>;
     createWidgetData: (evidence: Raw<Data>, data: F) => D;
     getEditData?: ((ir: IR) => R | undefined) | undefined;
 } & Omit<DetachedFormInfo<D, F, S, R>, 'saveData' | 'createWidgetData' | 'getEditData' | 'redirect' | 'showBackButton'>

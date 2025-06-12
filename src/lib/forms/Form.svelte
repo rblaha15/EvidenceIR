@@ -68,6 +68,7 @@
     const d = $derived(createWidgetData(f));
 
     const save = (send: boolean) => async () => {
+        // result = { load: true, red: false, text: '' };
         try {
             const raw = dataToRawData(f);
             const errors = list.filter(w => w.isError(d) && w.show(d)).map(w => t.get(w.label(d, t)));
@@ -165,7 +166,7 @@
             {#if result.load}
                 <div class="spinner-border text-danger"></div>
             {/if}
-            {#if showBackButton?.(mode === 'edit') ?? true}
+            {#if !result.load && (showBackButton?.(mode === 'edit') ?? true)}
                 <button type="button" class="mb-auto btn btn-secondary" onclick={() => history.back()}>
                     {t.back}
                 </button>
