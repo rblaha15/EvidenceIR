@@ -1,12 +1,11 @@
 <script generics="D, F extends Form<D>, S extends unknown[][]" lang="ts">
     // noinspection ES6UnusedImports
-    import type { Form, Raw } from '$lib/forms/Form';
+    import type { Form } from '$lib/forms/Form';
     import { type DetachedFormInfo, type FormInfo, formInfo as formInfos, type FormName } from '$lib/forms/forms.svelte';
     import type { PageProps } from './$types';
-    import type { Data } from '$lib/forms/Data';
     import { getToken } from '$lib/client/auth';
     import { detailUrl } from '$lib/helpers/runes.svelte';
-    import { evidence as getEvidence, type IRID } from '$lib/client/firestore';
+    import { evidence as getEvidence, type IR, type IRID } from '$lib/client/firestore';
     import FormComponent from '$lib/forms/Form.svelte';
 
     const { data }: PageProps = $props();
@@ -22,7 +21,7 @@
         getEditData,
     } = formInfo;
 
-    let evidence = $state() as Raw<Data>;
+    let ir = $state() as IR;
 
     const detachedFormInfo: DetachedFormInfo<D, F, S> = $derived({
         ...formInfo,
@@ -30,18 +29,17 @@
         getEditData: async () => {
             const snapshot = await getEvidence(irid);
             if (snapshot.exists()) {
-                const ir = snapshot.data();
-                evidence = ir.evidence;
+                ir = snapshot.data();
                 return getEditData?.(ir);
             } else return undefined;
         },
         saveData: async (raw, edit, data, editResult, t, send) => {
-            const result = await saveData(irid, raw, edit, data, editResult, t, send, evidence);
+            const result = await saveData(irid, raw, edit, data, editResult, t, send, ir);
             return result != false
         },
         redirectLink: async () => detailUrl(),
         openTabLink: async () => detailUrl(`/pdf/${pdfLink()}?token=${await getToken()}`),
-        createWidgetData: data => createWidgetData(evidence, data),
+        createWidgetData: data => createWidgetData(ir.evidence, data),
         showBackButton: () => true,
     });
 </script>
