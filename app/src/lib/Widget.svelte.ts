@@ -216,7 +216,7 @@ const initSearch = function <D, T>(widget: Search<D, T>, args: SearchArgs<D, T>)
     widget.enterkeyhint = toGet(args.enterkeyhint);
     widget.inputmode = toGet(args.inputmode);
     widget.autocapitalize = toGet(args.autocapitalize);
-    widget.inline = toGet(args.inline);
+    widget.inline = toGet(args.inline ?? false);
 };
 const initCounter = function <D>(widget: Counter<D>, args: CounterArgs<D>) {
     widget._value = args.chosen;
