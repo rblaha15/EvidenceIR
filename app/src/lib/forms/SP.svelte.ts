@@ -281,8 +281,8 @@ export const sp = (() => {
                 p.zasah.datum.setValue(d, nowISO());
         },
         storeEffects: [
-            [(_, p, [$techniciansList, $currentUser]) => {
-                const ja = $techniciansList.find(t => $currentUser?.email == t.email);
+            [(_, p, [$techniciansList, $currentUser], edit) => {
+                const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
                 p.zasah.clovek.setValue(p, ja?.name ?? p.zasah.clovek.value);
                 p.zasah.clovek.show = () => !ja;
                 p.zasah.clovek.required = () => !ja;

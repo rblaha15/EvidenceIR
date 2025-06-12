@@ -15,7 +15,7 @@ export type FormName = 'sp' | 'heatPumpCommission' | 'solarCollectorCommission' 
 export type Effect<
     D, F extends Form<D>, S extends unknown[]
 > = [
-    (data: D, form: F, values: S) => void,
+    (data: D, form: F, values: S, edit: boolean) => void,
     { [I in keyof S]: Readable<S[I]> }
 ]
 

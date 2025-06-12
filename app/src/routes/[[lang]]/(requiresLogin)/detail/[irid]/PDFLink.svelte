@@ -16,6 +16,8 @@
         enabled?: boolean;
         hideLanguageSelector?: boolean;
         children?: Snippet;
+        breakpoint?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | '';
+        newLineBreakpoint?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | '';
     }
 
     let {
@@ -25,7 +27,9 @@
         t,
         enabled = true,
         hideLanguageSelector = false,
-        children
+        children,
+        breakpoint = 'sm',
+        newLineBreakpoint = '',
     }: Props = $props();
 
     let pdf = $derived(pdfInfo[toPdfTypeName(linkName)]);
@@ -38,51 +42,54 @@
     const token = $isOnline ? getToken() : get(lastToken);
 </script>
 
-<div class="d-flex flex-column flex-sm-row align-items-sm-center gap-1 gap-sm-3">
-    {#if name}<span class="">{name}</span>{/if}
+<div
+    class="d-flex flex-column flex-{newLineBreakpoint || breakpoint}-row align-items-{newLineBreakpoint || breakpoint}-center gap-1 gap-{newLineBreakpoint || breakpoint}-3">
+    {#if name}<span>{name}</span>{/if}
 
     {#await token then token}
-        {#if !token}
-            <div>{t.offline}</div>
-        {:else if enabled}
-            <div class="btn-group">
-                <a
-                    tabindex={enabled ? 0 : undefined}
-                    type="button"
-                    onclick={() => lastToken.set(token)}
-                    target="_blank"
-                    href="/{defaultLanguage}/detail/{data.irid_spid}/pdf/{linkName}?token={token}"
-                    class:disabled={!enabled}
-                    class="btn btn-info text-nowrap"
-                >{t.openPdf}</a>
-                {#if !hideLanguageSelector}
-                    <button
-                        disabled={!enabled || pdf.supportedLanguages.length === 1}
-                        class="btn btn-outline-secondary flex-grow-0 dropdown-toggle"
-                        data-bs-toggle="dropdown"
-                    >
-                        <span>{defaultLanguage.toUpperCase()}</span>
-                    </button>
-                    {#if pdf.supportedLanguages.length > 1}
-                        <ul class="dropdown-menu">
-                            {#each pdf.supportedLanguages as code}
-                                <li>
-                                    <a
-                                        tabindex="0" target="_blank"
-                                        class="dropdown-item d-flex align-items-center"
-                                        href="/{code}/detail/{data.irid_spid}/pdf/{linkName}?token={token}"
-                                        onclick={() => lastToken.set(token)}
-                                    >
-                                        <span class="fs-6 me-2">{code.toUpperCase()}</span>
-                                        {languageNames[code]}
-                                    </a>
-                                </li>
-                            {/each}
-                        </ul>
+        <div class="d-flex flex-column flex-{breakpoint}-row align-items-{breakpoint}-center gap-1 gap-{breakpoint}-3">
+            {#if !token}
+                <div>{t.offline}</div>
+            {:else if enabled}
+                <div class="btn-group">
+                    <a
+                        tabindex={enabled ? 0 : undefined}
+                        type="button"
+                        onclick={() => lastToken.set(token)}
+                        target="_blank"
+                        href="/{defaultLanguage}/detail/{data.irid_spid}/pdf/{linkName}?token={token}"
+                        class:disabled={!enabled}
+                        class="btn btn-info text-nowrap"
+                    >{t.openPdf}</a>
+                    {#if !hideLanguageSelector}
+                        <button
+                            disabled={!enabled || pdf.supportedLanguages.length === 1}
+                            class="btn btn-outline-secondary flex-grow-0 dropdown-toggle"
+                            data-bs-toggle="dropdown"
+                        >
+                            <span>{defaultLanguage.toUpperCase()}</span>
+                        </button>
+                        {#if pdf.supportedLanguages.length > 1}
+                            <ul class="dropdown-menu">
+                                {#each pdf.supportedLanguages as code}
+                                    <li>
+                                        <a
+                                            tabindex="0" target="_blank"
+                                            class="dropdown-item d-flex align-items-center"
+                                            href="/{code}/detail/{data.irid_spid}/pdf/{linkName}?token={token}"
+                                            onclick={() => lastToken.set(token)}
+                                        >
+                                            <span class="fs-6 me-2">{code.toUpperCase()}</span>
+                                            {languageNames[code]}
+                                        </a>
+                                    </li>
+                                {/each}
+                            </ul>
+                        {/if}
                     {/if}
-                {/if}
-            </div>
-        {/if}
-        {@render children?.()}
+                </div>
+            {/if}
+            {@render children?.()}
+        </div>
     {/await}
 </div>

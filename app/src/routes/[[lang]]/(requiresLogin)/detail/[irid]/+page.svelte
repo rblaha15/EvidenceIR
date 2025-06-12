@@ -2,7 +2,7 @@
     import { onMount, untrack } from 'svelte';
     import type { PageData } from './$types';
     import PdfLink from './PDFLink.svelte';
-    import { checkAuth, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { checkAuth, currentUser, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import {
         evidence,
         extractIRIDFromParts,
@@ -18,7 +18,7 @@
     import { storable } from '$lib/helpers/stores';
     import { heatPumpCommission, type UvedeniTC } from '$lib/forms/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
-    import { getIsOnline, startTechniciansListening } from '$lib/client/realtime';
+    import { getIsOnline, startTechniciansListening, techniciansList } from '$lib/client/realtime';
     import { page } from '$app/state';
     import { solarCollectorCommission, type UvedeniSOL } from '$lib/forms/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
@@ -37,8 +37,8 @@
 
     let { data }: Props = $props();
     const t = data.translations;
-    const irid = isIRID(data.irid_spid) ? data.irid_spid : undefined;
-    const spid = isSPID(data.irid_spid) ? data.irid_spid : undefined;
+    const irid = isIRID(data.irid_spid) ? data.irid_spid as IRID : undefined;
+    const spid = isSPID(data.irid_spid) ? data.irid_spid as SPID : undefined;
 
     const deleted = page.url.searchParams.has('deleted');
     const storedHeatPumpCommission = storable<Raw<UvedeniTC>>(`${heatPumpCommission.storeName}_${irid}`);
@@ -47,22 +47,25 @@
     let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
     let values = $state() as IR;
     let sp = $state() as Raw<DataSP2>;
+    const fetchIRdata = async () => {
+        const snapshot = (await (irid!.length == 6 ? [
+            evidence(`2${irid}`), evidence(`4${irid}`),
+            evidence(`B${irid}`),
+        ] : [evidence(irid!)]).awaitAll()).find(snapshot => snapshot.exists());
+
+        if (!snapshot) {
+            type = 'noAccess';
+            return
+        }
+        values = snapshot.data();
+    };
     onMount(async () => {
         await checkAuth();
         await startTechniciansListening();
 
         try {
             if (irid) {
-                const snapshot = (await (irid.length == 6 ? [
-                    evidence(`2${irid}`), evidence(`4${irid}`),
-                    evidence(`B${irid}`),
-                ] : [evidence(irid)]).awaitAll()).find(snapshot => snapshot.exists());
-
-                if (!snapshot) {
-                    type = 'noAccess';
-                    return;
-                }
-                values = snapshot.data();
+                await fetchIRdata();
             } else if (spid) {
                 let snapshot = await publicProtocol(spid);
 
@@ -167,6 +170,24 @@
         });
         window.location.replace(relUrl(`/detail/${newIRID.value}`));
     };
+    const copySP = (i: number) => async () => {
+        const ja = $techniciansList.find(t => $currentUser?.email == t.email);
+        const p = values.installationProtocols[i];
+        await vyplnitServisniProtokol(irid!, {
+            ...p,
+            fakturace: {
+                hotove: 'doNotInvoice',
+                komu: null,
+                jak: null,
+            },
+            zasah: {
+                ...p.zasah,
+                clovek: ja?.name ?? p.zasah.clovek,
+                inicialy: ja?.initials ?? p.zasah.inicialy,
+            },
+        });
+        await fetchIRdata()
+    };
 </script>
 
 {#if type === 'loading'}
@@ -267,7 +288,7 @@
                 {#if !values.uvedeniTC}
                     <a
                         tabindex="0"
-                        class="btn btn-info d-block"
+                        class="btn btn-primary d-block"
                         href={detailUrl('/heatPumpCommission')}
                     >{t.commission}</a>
                 {/if}
@@ -276,7 +297,7 @@
                      linkName="check-1" {data} enabled={values.kontrolyTC[1]?.[1] !== undefined}>
                 <a
                     tabindex="0" href={detailUrl('/check?tc=1')}
-                    class="btn btn-info d-block"
+                    class="btn btn-primary d-block"
                 >{!values.evidence.tc.model2 ? t.doYearlyCheck : t.doYearlyCheck1}</a>
             </PdfLink>
             {#if values.evidence.tc.model2}
@@ -284,7 +305,7 @@
                          linkName="check-2" {data} enabled={values.kontrolyTC[2]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={detailUrl('/check?tc=2')}
-                        class="btn btn-info d-block"
+                        class="btn btn-primary d-block"
                     >{t.doYearlyCheck2}</a>
                 </PdfLink>
             {/if}
@@ -293,7 +314,7 @@
                          linkName="check-3" {data} enabled={values.kontrolyTC[3]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={detailUrl('/check?tc=3')}
-                        class="btn btn-info d-block"
+                        class="btn btn-primary d-block"
                     >{t.doYearlyCheck3}</a>
                 </PdfLink>
             {/if}
@@ -302,7 +323,7 @@
                          linkName="check-4" {data} enabled={values.kontrolyTC[4]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={detailUrl('/check?tc=4')}
-                        class="btn btn-info d-block"
+                        class="btn btn-primary d-block"
                     >{t.doYearlyCheck4}</a>
                 </PdfLink>
             {/if}
@@ -329,17 +350,40 @@
         <h4 class="m-0">Protokoly servisního zásahu</h4>
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#each values.installationProtocols as p, i}
-                <PdfLink name={spName(p.zasah)} {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true}>
+                <PdfLink name={spName(p.zasah)} {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true} newLineBreakpoint="md">
                     <a
                         tabindex="0"
-                        class="btn btn-info d-block"
+                        class="btn btn-warning d-block"
                         href={detailUrl(`/sp/?edit=${i}`)}
-                    >Upravit protokol
-                    </a>
+                    >Upravit protokol</a>
+                    <button class="btn btn-warning d-block"
+                            data-bs-toggle="modal" data-bs-target="#duplicateModal"
+                    >Duplikovat</button>
                 </PdfLink>
+
+                <div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="duplicateModalLabel">Duplikovat</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Chcete vytvořit kopii pro vykázání servisního zásahu více osob?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ne</button>
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick={copySP(i)}>Ano</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {/each}
-            <a class="btn btn-info" tabindex="0" href={detailUrl('/sp')}>Vyplnit {values.installationProtocols.length ? 'další ' : ''}
-                protokol</a>
+        </div>
+        <div class="d-flex flex-column gap-1 align-items-sm-start">
+            <a class="btn btn-primary" tabindex="0" href={detailUrl('/sp')}>
+                Vyplnit {values.installationProtocols.length ? 'další ' : ''} protokol
+            </a>
         </div>
     {/if}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
