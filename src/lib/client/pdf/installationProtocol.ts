@@ -43,9 +43,9 @@ const cena = (subject: A<C>) => cenik[subject!.split('.').at(-1) as C];
 const kod = (subject: A<K>) => kody[subject!.split('.').at(-1) as K];
 
 const poleProUkony = [
-    { typ: 'Kombinované pole33', kod: 'Text26', cena: 'Text36' },
-    { typ: 'Kombinované pole34', kod: 'Text27', cena: 'Text37' },
-    { typ: 'Kombinované pole35', kod: 'Text28', cena: 'Text38' },
+    { typ: 'Kombinované pole33', kod: 'Text26', cena: 'Text36', mnozstvi: 'Text84' },
+    { typ: 'Kombinované pole34', kod: 'Text27', cena: 'Text37', mnozstvi: 'Text85' },
+    { typ: 'Kombinované pole35', kod: 'Text28', cena: 'Text38', mnozstvi: 'Text86' },
 ];
 
 const poleProDilyS = 44;
@@ -66,6 +66,7 @@ ${e.sol?.typ ? `SOL: ${e.sol.typ} – ${e.sol.pocet}x` : ''}
 ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
                 t.pumpDetails({ n: isCascade ? `${i + 1}` : '', model, cislo })
             )) : ''}`,
+            pocetTC: pumps.length,
             datumUvedeni: uvedeniTC?.uvadeni?.date ?? '',
         },
     }, t, fetch);
@@ -80,7 +81,7 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
     ].slice(0, p.nahradniDily.pocet);
     const cenaDopravy = cenik.transportation * Number(p.ukony.doprava);
     const cenaPrace = p.ukony.typPrace ? cenik.work * Number(p.ukony.doba) : 0;
-    const cenaUkony = p.ukony.ukony.sumBy(typ => cena(typ));
+    const cenaUkony = p.ukony.ukony.sumBy(typ => cena(typ) * (typ == 'sp.commissioningTC' || typ == 'sp.yearlyHPCheck' ? p.system.pocetTC : 1));
     const cenaDily = nahradniDily.sumBy(dil => Number(dil.unitPrice) * Number(dil.mnozstvi));
     const cenaOstatni = cenaUkony + cenaDily;
     const celkem = cenaDopravy + cenaPrace + cenaOstatni;
@@ -126,6 +127,7 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
             [poleProUkony[i].typ, t.get(typ)],
             [poleProUkony[i].cena, cena(typ).roundTo(2).toLocaleString('cs') + ' Kč'],
             [poleProUkony[i].kod, kod(typ).toString()],
+            [poleProUkony[i].mnozstvi, typ == 'sp.commissioningTC' || typ == 'sp.yearlyHPCheck' ? p.system.pocetTC + ' ks' : ''],
         ] as const).flat().toRecord(),
         /*   nahradniDily */ ...nahradniDily.map((dil, i) => [
             [`Text${poleProDily.nazev + i}`, dil.name],
