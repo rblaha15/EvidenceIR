@@ -54,7 +54,7 @@
         await mountEffect?.(d, f, mode == 'edit');
 
         storeEffects?.forEach(([callback, stores]) => {
-            derivedStore(stores, values => values).subscribe(values => callback(d, f, values));
+            derivedStore(stores, values => values).subscribe(values => callback(d, f, values, mode == 'edit'));
         });
     });
 
