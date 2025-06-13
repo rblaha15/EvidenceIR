@@ -84,8 +84,8 @@ const _friendlyCompanies = async (user: User | null): Promise<FriendlyCompanies>
 		return FriendlyCompanies([]);
 	}
 	const dovolenaIca = {
-		assembly: Object.keys(ja.assemblyCompanies) as CRN[],
-		commissioning: Object.keys(ja.commissioningCompanies) as CRN[]
+		assembly: ja.assemblyCompanies?.keys() as CRN[] ?? [],
+		commissioning: ja.commissioningCompanies?.keys() as CRN[] ?? [],
 	};
 	return {
 		assemblyCompanies: await Promise.all(
@@ -131,7 +131,9 @@ export const seznamLidi = writable([] as Person[]);
 export const startLidiListening = async () => {
 	const { onValue } = await import('firebase/database');
 	return onValue(lidiRef, (data) => {
-		seznamLidi.set(Object.values((data.val() as { [uid: string]: Person }) ?? {}));
+		seznamLidi.set((data.val() as { [uid: string]: Person } ?? {}).getValues().map(p => ({
+			...p, assemblyCompanies: p.assemblyCompanies ?? {}, commissioningCompanies: p.commissioningCompanies ?? {},
+		})));
 	});
 };
 
