@@ -8,7 +8,7 @@ export const toPdfTypeName = (linkName: Pdf) =>
 export type Pdf<T extends 'IR' | 'SP' = 'IR' | 'SP'> = {
     IR: `check-${1 | 2 | 3 | 4}` | `warranty-${'' | 2 | 3 | 4}` | 'rroute' | 'guide'
         | 'heatPumpCommissionProtocol' | 'solarCollectorCommissionProtocol' | `installationProtocol-${number}`;
-    SP: `publicInstallationProtocol`;
+    SP: `publicInstallationProtocol` | 'CP';
 }[T]
 
 type PdfTypeName<T extends 'IR' | 'SP' = 'IR' | 'SP'> = {
@@ -78,6 +78,13 @@ export const pdfInfo: PdfInfo = {
         title: p(`Instalační a servisní protokol`),
         fileName: 'SP',
         requiredRegulus: true,
+    },
+    CP: {
+        type: 'SP',
+        formName: 'CP',
+        supportedLanguages: ['cs'],
+        title: '',
+        fileName: '',
     },
 };
 export type PdfArgs<T extends 'IR' | 'SP' = 'IR' | 'SP'> = {

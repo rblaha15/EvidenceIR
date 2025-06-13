@@ -6,6 +6,8 @@ import { cascadeDetails } from '$lib/client/pdf/check';
 import '$lib/extensions';
 import type { GetPdfData } from '$lib/server/pdf';
 import { endUserName, irName, spName } from '$lib/helpers/ir';
+import { extractSPIDFromRawData, type SPID } from '$lib/client/firestore';
+import { pdfInfo } from '$lib/client/pdf';
 
 const cenik = {
     transportation: 9.92,
@@ -51,7 +53,7 @@ const poleProDilyS = 44;
 const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
     .map((k, i) => [k, poleProDilyS + i * 8] as const).toRecord();
 
-export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, fetch, addPage) => {
+export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, fetch, add) => {
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : { hasHP: false, isCascade: false, pumps: [] };
     const p = installationProtocols[i];
     return publicInstallationProtocol({
@@ -67,10 +69,10 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
             pocetTC: pumps.length,
             datumUvedeni: uvedeniTC?.uvadeni?.date ?? '',
         },
-    }, t, fetch, addPage);
+    }, t, fetch, add);
 };
 
-export const publicInstallationProtocol: GetPdfData<'SP'> = async (p, t, fetch) => {
+export const publicInstallationProtocol: GetPdfData<'SP'> = async (p, t, fetch, addPage) => {
     console.log(p)
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
     const nahradniDily = [
@@ -86,6 +88,7 @@ export const publicInstallationProtocol: GetPdfData<'SP'> = async (p, t, fetch) 
     const dph = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21
     const response = await fetch(`/signatures/${p.zasah.inicialy}.jpg`)
     const signature = response.ok && !response.redirected ? await response.arrayBuffer() : null
+    if (dph == 1.12) await addPage('CP', p)
 
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
@@ -150,3 +153,11 @@ export const publicInstallationProtocol: GetPdfData<'SP'> = async (p, t, fetch) 
 export default installationProtocol;
 
 const formatovatCerpadla = (a: string[]) => [a.slice(0, 2).join('; '), a.slice(2, 4).join('; ')].join('\n');
+
+export const pdfCP: GetPdfData<'SP'> = async p => {
+    return ({
+        Text1: `${p.koncovyUzivatel.prijmeni} ${p.koncovyUzivatel.jmeno}`,
+        Text2: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
+        Text3: dateFromISO(p.zasah.datum),
+    });
+}
