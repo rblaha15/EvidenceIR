@@ -47,9 +47,9 @@ declare global {
             this: { [_ in T]?: unknown },
         ): T[];
 
-        getValues<T>(
-            this: Record<PropertyKey, T>,
-        ): T[];
+        getValues<T extends Record<PropertyKey, unknown>>(
+            this: T,
+        ): T[keyof T][];
 
         zip<T extends Record<PropertyKey, unknown>, U extends Record<PropertyKey, unknown>>(
             this: T,
@@ -232,6 +232,12 @@ declare global {
             [Key in K]: V
         };
 
+        associateWithSelf<T extends PropertyKey>(
+            this: T[] | readonly T[],
+        ): {
+            [Key in T]: T
+        };
+
         distinctBy<T, K>(
             this: T[] | readonly T[],
             key: (item: T, index: number, array: T[]) => K,
@@ -325,14 +331,20 @@ Array.prototype.associateBy = function<K extends PropertyKey, V>(
     this: V[],
     keySelector: (value: V, index: number, array: V[]) => K
 ) {
-    return this.map(keySelector).zip(this).toRecord();
+    return this.associate((v, i, a) => [keySelector(v, i, a), v]);
 };
 
 Array.prototype.associateWith = function<K extends PropertyKey, V>(
     this: K[],
     valueSelector: (key: K, index: number, array: K[]) => V
 ) {
-    return this.zip(this.map(valueSelector)).toRecord();
+    return this.associate((k, i, a) => [k, valueSelector(k, i, a)]);
+};
+
+Array.prototype.associateWithSelf = function<T extends PropertyKey>(
+    this: T[],
+) {
+    return this.associate(v => [v, v] as const);
 };
 
 Array.prototype.awaitAll = <typeof Array.prototype.awaitAll>function() {

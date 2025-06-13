@@ -7,7 +7,7 @@
     import { p } from '$lib/translations';
     import Search from '$lib/components/widgets/Search.svelte';
     import { onMount } from 'svelte';
-    import { seznamLidi, startLidiListening } from '$lib/client/realtime';
+    import { usersList, startLidiListening } from '$lib/client/realtime';
 
     interface Props {
         data: PageData;
@@ -34,7 +34,7 @@
     });
 
     $effect(() => {
-        w.items = () => $seznamLidi.map(i => i.email);
+        w.items = () => $usersList.map(i => i.email);
     });
 </script>
 
