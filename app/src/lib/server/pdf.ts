@@ -59,6 +59,7 @@ export const getPdfData = (
     if (t == 'solarCollectorCommissionProtocol') return solarCollectorCommissionProtocol;
     if (t == 'installationProtocol') return installationProtocol(Number(link.split('-')[1]));
     if (t == 'publicInstallationProtocol') return publicInstallationProtocol;
+    if (t == 'CP') return pdfCP;
     throw `Invalid link name: ${t}`;
 };
 
@@ -184,7 +185,13 @@ const generatePdfData = async <T extends 'IR' | 'SP'>(
     };
 };
 
-export const generatePdf = async <T extends 'IR' | 'SP'>(lang: LanguageCode, irid_spid: ID<T>, fetch: Fetch, args: PdfArgs<T>, getData: GetPdfData<T>) => {
+export const generatePdf = async <T extends 'IR' | 'SP'>(
+    lang: LanguageCode,
+    irid_spid: ID<T>,
+    fetch: Fetch,
+    args: PdfArgs<T>,
+    getData: GetPdfData<T>,
+    ) => {
     let snapshot: DocumentSnapshot<DataOfType<T> | undefined>;
     try {
         snapshot = await evidence_sp2(irid_spid);
