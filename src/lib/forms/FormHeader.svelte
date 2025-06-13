@@ -125,7 +125,7 @@
                     {/if}
                 </div>
                 <Widget data={undefined} {t} widget={sheetWidget} />
-                {#if file && importData?.isDangerous}
+                {#if file && importData?.isDangerous && sheetWidget.value}
                     <p class="alert alert-danger">Pozor! Potvrzením přepíšete všechna zatím vyplněná data!</p>
                 {/if}
             </div>
