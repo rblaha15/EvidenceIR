@@ -66,8 +66,8 @@
                     }))
                     .map(({ assembly, commissioning, email, responsible, koNumber }) => ({
                         email,
-                        assemblyCompanies: Object.fromEntries(assembly.map((crn) => [crn, crn])) ?? {},
-                        commissioningCompanies: Object.fromEntries(commissioning.map((crn) => [crn, crn])) ?? {},
+                        assemblyCompanies: assembly.associateWith(crn => crn) ?? {},
+                        commissioningCompanies: commissioning.associateWith(crn => crn) ?? {},
                         responsiblePerson: responsible,
                         koNumber
                     })) as Person[];
@@ -142,7 +142,7 @@
     const stahnoutPeople = () => {
         download(new File([oldDataPeople.map(
             ({ email, assemblyCompanies, commissioningCompanies, responsiblePerson, koNumber }) =>
-                `${email};${Object.values(assemblyCompanies).join('#')};${Object.values(commissioningCompanies).join('#')};${responsiblePerson ?? ''};${koNumber ?? ''}`.trim()
+                `${email};${assemblyCompanies.getValues().join('#')};${commissioningCompanies.getValues().join('#')};${responsiblePerson ?? ''};${koNumber ?? ''}`.trim()
         ).join('\n')], 'lidi.csv'), 'lidi.csv', 'text/csv');
     };
 
@@ -228,8 +228,8 @@
         else error = true;
     };
 
-    const sort = (o: Record<string, unknown> | undefined): Record<string, unknown> | undefined => o ? Object.fromEntries(
-        Object.entries(o).sort(([a], [b]) => a.localeCompare(b))) : undefined;
+    const sort = (o: Record<string, unknown> | undefined): Record<string, unknown> | undefined =>
+        o?.entries()?.sort(([a], [b]) => a.localeCompare(b))?.toRecord();
 
     const compareByEmail = (p1: Person, p2: Person) => p1.email.localeCompare(p2.email);
     const oldDataPeople = $derived($seznamLidi.toSorted(compareByEmail));

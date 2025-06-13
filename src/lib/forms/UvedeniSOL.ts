@@ -106,14 +106,14 @@ export const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL> = ({
     storeName: 'stored_solar_collector_commission',
     defaultData: defaultUvedeniSOL,
     pdfLink: () => 'solarCollectorCommissionProtocol',
-    saveData: async (irid, raw, _1, _2, editResult, t, _3, e) => {
+    saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
         await uvestSOLDoProvozu(irid, raw);
         if (await checkRegulusOrAdmin()) return
 
         const user = get(currentUser)!;
         const response = await sendEmail({
             ...defaultAddresses(),
-            subject: `Vyplněno nové uvedení SOL do provozu k ${irName(e.ir)}`,
+            subject: `Vyplněno nové uvedení SOL do provozu k ${irName(ir.evidence.ir)}`,
             component: MailProtocol,
             props: { name: user.email!, origin: page.url.origin, irid_spid: irid },
         });

@@ -78,7 +78,7 @@
         </label>
 
         {#if !hidden}
-            <div class="options list-group position-absolute z-3 w-100 overflow-y-auto shadow-lg mb-2">
+            <div class="list-group z-3 w-100 overflow-y-auto shadow-lg mb-2" class:options={!widget.inline(data)}>
                 {#each filtered as item, i}
                     {@const searchItem = widget.getSearchItem(item)}
                     <a
@@ -86,11 +86,13 @@
                         class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
                         class:rt-0={i === 0}
                         href={searchItem.href ?? '#'}
+                        class:disabled={searchItem.disabled}
+                        aria-disabled={searchItem.disabled}
                         onclick={(e) => {
-                        e.preventDefault();
-                        widget.setValue(data, item);
-                        hidden = true
-                    }}
+                            e.preventDefault();
+                            widget.setValue(data, item);
+                            hidden = true
+                        }}
                     >
                         {#each searchItem.pieces as piece}
                             <p class="mb-0 w-md-100"
@@ -99,14 +101,14 @@
                         {/each}
                     </a>
                 {:else}
-                    <p class="rt-0 list-group-item mb-0">Nenalezeno</p>
+                    <p class="rt-0 list-group-item-action list-group-item mb-0 disabled">Nenalezeno</p>
                 {/each}
             </div>
         {/if}
 
         {#if widget.value && hidden}
             {@const searchItem = widget.getSearchItem(widget.value)}
-            <div class="list-group w-100 position-absolute z-2 selected">
+            <div class="list-group w-100 z-2 selected" class:options={!widget.inline(data)}>
                 <div
                     class="list-group-item-action list-group-item d-flex flex-column flex-md-row align-items-md-center rt-0"
                 >
@@ -167,5 +169,6 @@
 
     .options {
         max-height: 90vh;
+        position: absolute;
     }
 </style>

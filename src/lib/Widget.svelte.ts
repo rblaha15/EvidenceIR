@@ -65,7 +65,7 @@ export abstract class Widget<D = never, U = any, H extends boolean = boolean> {
 }
 
 export type SearchItemPiece = { readonly text: TR, readonly width?: number };
-export type SearchItem = { readonly pieces: SearchItemPiece[], readonly href?: string };
+export type SearchItem = { readonly pieces: SearchItemPiece[], readonly href?: string, disabled?: boolean };
 export type Pair<I1 extends TR, I2 extends TR> = { readonly first: I1 | null; readonly second: I2 | null; };
 type Sides = readonly [TR, TR];
 export type Arr<I extends TR> = readonly I[];
@@ -91,6 +91,7 @@ type DoubleLockArgs<D> = { lock1?: GetOrVal<D, boolean>; lock2?: GetOrVal<D, boo
 type SearchArgs<D, T> = {
     getSearchItem: (item: T) => SearchItem;
     getXmlEntry?: () => string;
+    inline?: GetOrVal<D, boolean>;
     items: GetOrVal<D, T[]>;
     type?: GetOrVal<D, HTMLInputTypeAttribute>;
     enterkeyhint?: GetOrVal<D, HTMLInputAttributes['enterkeyhint']>;
@@ -135,6 +136,7 @@ type DoubleChooser<D, I1 extends TR, I2 extends TR> = Widget<D, Pair<I1, I2>> & 
 type Search<D, T> = Widget<D, T | null> & {
     getSearchItem: (item: T) => SearchItem;
     getXmlEntry: () => string;
+    inline: Get<D, boolean>;
     items: Get<D, T[]>;
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
@@ -214,6 +216,7 @@ const initSearch = function <D, T>(widget: Search<D, T>, args: SearchArgs<D, T>)
     widget.enterkeyhint = toGet(args.enterkeyhint);
     widget.inputmode = toGet(args.inputmode);
     widget.autocapitalize = toGet(args.autocapitalize);
+    widget.inline = toGet(args.inline ?? false);
 };
 const initCounter = function <D>(widget: Counter<D>, args: CounterArgs<D>) {
     widget._value = args.chosen;
@@ -345,6 +348,7 @@ export class SearchWidget<D, T, H extends boolean = false> extends Widget<D, T |
     hideInRawData = $state() as H;
     isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
+    inline = $state() as Get<D, boolean>;
     getSearchItem = $state() as (item: T) => SearchItem;
     getXmlEntry = $state() as () => string;
     items = $state() as Get<D, T[]>;

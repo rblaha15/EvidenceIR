@@ -1,5 +1,4 @@
-import type { Pair } from '$lib/Widget.svelte.js';
-import { type P, removePlain } from '$lib/translations';
+import { removePlain } from '$lib/translations';
 import type { Data, UserData } from '$lib/forms/Data';
 import type { Raw } from '$lib/forms/Form';
 import type { IRID, SPID } from '$lib/client/firestore';
@@ -38,8 +37,9 @@ export const irName = (ir: Raw<Data>['ir']) => ir.typ.first?.includes('SOREL')
 export const spName = (zasah: Raw<GenericDataSP<never>>["zasah"]) => {
     const datum = zasah.datum.split('T')[0].replaceAll('-', '/');
     const hodina = zasah.datum.split('T')[1].split(':')[0];
+    const minuta = zasah.datum.split('T')[1].split(':')[1];
     const technik = zasah.inicialy;
-    return `${technik} ${datum}-${hodina}`;
+    return `${technik} ${datum}-${hodina}:${minuta}`;
 };
 
 /**

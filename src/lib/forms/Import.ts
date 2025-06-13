@@ -20,6 +20,7 @@ export type ExcelImport<R extends Raw<Form>> = {
     },
     defaultData: () => R,
     sheet: string,
+    sheetFilter?: (sheetName: string) => boolean,
 }
 
 const parseSimpleImport = <U>(i: SimpleImport<U>): ExcelDataTransformation<U> => {

@@ -1,7 +1,7 @@
 import { defaultDataSP, type GenericDataSP } from '$lib/forms/SP.svelte';
 import type { UserData } from '$lib/forms/Data';
 import { userData } from '$lib/forms/defaultData';
-import { InputWidget, TitleWidget } from '$lib/Widget.svelte';
+import { CounterWidget, InputWidget, TitleWidget } from '$lib/Widget.svelte';
 import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
 import {
     type FriendlyCompanies,
@@ -31,6 +31,7 @@ export interface DataSP2 extends GenericDataSP<UDSP>, UserData<UDSP>, Form<UDSP>
     system: {
         nadpis: TitleWidget<UDSP>;
         popis: InputWidget<UDSP>;
+        pocetTC: CounterWidget<UDSP>;
         datumUvedeni: InputWidget<UDSP>;
     };
 }
@@ -40,6 +41,7 @@ export const defaultDataSP2 = (): DataSP2 => ({
     system: {
         nadpis: new TitleWidget({ text: p('Instalační a servisní protokol') }),
         popis: new InputWidget({ label: p('Popis systému'), textArea: true, required: true }),
+        pocetTC: new CounterWidget({ label: p('Počet TČ v instalaci'), min: 0, max: Number.POSITIVE_INFINITY, chosen: 0 }),
         datumUvedeni: new InputWidget({ label: p('Datum uvedení do provozu'), type: 'date', required: false }),
     },
     ...defaultDataSP(),
@@ -74,8 +76,6 @@ const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SpareP
         await startTechniciansListening();
         await startSparePartsListening();
         f.zasah.datum.setValue(d, nowISO());
-        if (!f.system.datumUvedeni.value)
-            f.system.datumUvedeni.setValue(d, todayISO());
     },
     storeEffects: [
         [(d, f, [$techniciansList, $currentUser]) => {
