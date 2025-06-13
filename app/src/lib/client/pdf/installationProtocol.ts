@@ -5,8 +5,9 @@ import { dateFromISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
 import '$lib/extensions';
 import type { GetPdfData } from '$lib/server/pdf';
-import { endUserName, irName } from '$lib/helpers/ir';
-import type { SPID } from '$lib/client/firestore';
+import { endUserName, irName, spName } from '$lib/helpers/ir';
+import { extractSPIDFromRawData, type SPID } from '$lib/client/firestore';
+import { pdfInfo } from '$lib/client/pdf';
 
 const cenik = {
     transportation: 9.92,
@@ -43,35 +44,35 @@ const cena = (subject: A<C>) => cenik[subject!.split('.').at(-1) as C];
 const kod = (subject: A<K>) => kody[subject!.split('.').at(-1) as K];
 
 const poleProUkony = [
-    { typ: 'Kombinované pole33', kod: 'Text26', cena: 'Text36' },
-    { typ: 'Kombinované pole34', kod: 'Text27', cena: 'Text37' },
-    { typ: 'Kombinované pole35', kod: 'Text28', cena: 'Text38' },
+    { typ: 'Kombinované pole33', kod: 'Text26', cena: 'Text36', mnozstvi: 'Text84' },
+    { typ: 'Kombinované pole34', kod: 'Text27', cena: 'Text37', mnozstvi: 'Text85' },
+    { typ: 'Kombinované pole35', kod: 'Text28', cena: 'Text38', mnozstvi: 'Text86' },
 ];
 
 const poleProDilyS = 44;
 const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
     .map((k, i) => [k, poleProDilyS + i * 8] as const).toRecord();
 
-export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, fetch) => {
+export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, fetch, add) => {
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : { hasHP: false, isCascade: false, pumps: [] };
     const p = installationProtocols[i];
     return publicInstallationProtocol({
         ...e,
         ...p,
         system: {
-            nadpis: undefined as never,
             popis: `${irName(e.ir)}
 ${e.ir.cisloBox ? `BOX: ${e.ir.cisloBox}` : ''}
 ${e.sol?.typ ? `SOL: ${e.sol.typ} – ${e.sol.pocet}x` : ''}
 ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
                 t.pumpDetails({ n: isCascade ? `${i + 1}` : '', model, cislo })
             )) : ''}`,
+            pocetTC: pumps.length,
             datumUvedeni: uvedeniTC?.uvadeni?.date ?? '',
         },
-    }, t, fetch);
+    }, t, fetch, add);
 };
 
-export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) => {
+export const publicInstallationProtocol: GetPdfData<'SP'> = async (p, t, fetch, addPage) => {
     console.log(p)
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
     const nahradniDily = [
@@ -80,21 +81,18 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
     ].slice(0, p.nahradniDily.pocet);
     const cenaDopravy = cenik.transportation * Number(p.ukony.doprava);
     const cenaPrace = p.ukony.typPrace ? cenik.work * Number(p.ukony.doba) : 0;
-    const cenaUkony = p.ukony.ukony.sumBy(typ => cena(typ));
+    const cenaUkony = p.ukony.ukony.sumBy(typ => cena(typ) * (typ == 'sp.commissioningTC' || typ == 'sp.yearlyHPCheck' ? p.system.pocetTC : 1));
     const cenaDily = nahradniDily.sumBy(dil => Number(dil.unitPrice) * Number(dil.mnozstvi));
     const cenaOstatni = cenaUkony + cenaDily;
     const celkem = cenaDopravy + cenaPrace + cenaOstatni;
     const dph = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21
-    const datum = p.zasah.datum.split('T')[0].split('-').join('/');
-    const hodina = p.zasah.datum.split('T')[1].split(':')[0];
-    const technik = p.zasah.inicialy;
-    const response = await fetch(`/signatures/${technik}.jpg`)
+    const response = await fetch(`/signatures/${p.zasah.inicialy}.jpg`)
     const signature = response.ok && !response.redirected ? await response.arrayBuffer() : null
+    if (dph == 1.12) await addPage('CP', p)
 
     return {
-        fileName: `SP-${technik}-${datum.replace('/', '_')}-${hodina}.pdf`,
-        doNotPrefixFileNameWithIR: true,
-        /*             id */ Text1: `${technik} ${datum}-${hodina}`,
+        fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
+        /*             id */ Text1: spName(p.zasah),
         /*    koncakNazev */ Text29: p.koncovyUzivatel.typ == 'company' ? `${t.companyName}:` : `${t.surname} a ${t.name.toLowerCase()}:`,
         /*    koncakJmeno */ Text2: endUserName(p.koncovyUzivatel),
         /*      koncakICO */ Text30: p.koncovyUzivatel.typ == 'company' ? t.crn : t.birthday,
@@ -129,6 +127,7 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
             [poleProUkony[i].typ, t.get(typ)],
             [poleProUkony[i].cena, cena(typ).roundTo(2).toLocaleString('cs') + ' Kč'],
             [poleProUkony[i].kod, kod(typ).toString()],
+            [poleProUkony[i].mnozstvi, typ == 'sp.commissioningTC' || typ == 'sp.yearlyHPCheck' ? p.system.pocetTC + ' ks' : ''],
         ] as const).flat().toRecord(),
         /*   nahradniDily */ ...nahradniDily.map((dil, i) => [
             [`Text${poleProDily.nazev + i}`, dil.name],
@@ -141,7 +140,7 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
         /*      praceCena */ Text32: cenaPrace.roundTo(2).toLocaleString('cs') + ' Kč',
         /*    ostatniCena */ Text33: cenaOstatni.roundTo(2).toLocaleString('cs') + ' Kč',
         /*     celkemCena */ Text34: celkem.roundTo(2).toLocaleString('cs') + ' Kč',
-        /*            DPH */ Text18: `${dph * 100 - 100} %`,
+        /*            DPH */ Text18: `${(dph * 100 - 100).toFixed(0)} %`,
         /*  celkemCenaDPH */ Text35: (celkem * dph).roundTo(2).toLocaleString('cs') + ' Kč',
         /*                */ Text39: t.get(p.fakturace.hotove),
         /*                */ Text40: p.fakturace.hotove == 'no' ? 'Fakturovat:' : '',
@@ -149,8 +148,16 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
         /*                */ Text42: p.fakturace.hotove == 'no' ? t.get(p.fakturace.jak) : '',
         /*                */ Text43: p.fakturace.komu == 'assemblyCompany' ? p.montazka.zastupce : endUserName(p.koncovyUzivatel),
         /*  popisTechnika */ Podpis64: signature ? { x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60, } : null,
-    };
+    } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };
 export default installationProtocol;
 
 const formatovatCerpadla = (a: string[]) => [a.slice(0, 2).join('; '), a.slice(2, 4).join('; ')].join('\n');
+
+export const pdfCP: GetPdfData<'SP'> = async p => {
+    return ({
+        Text1: `${p.koncovyUzivatel.prijmeni} ${p.koncovyUzivatel.jmeno}`,
+        Text2: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
+        Text3: dateFromISO(p.zasah.datum),
+    });
+}

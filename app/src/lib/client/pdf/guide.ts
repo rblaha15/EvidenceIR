@@ -3,7 +3,6 @@ import type { GetPdfData } from '$lib/server/pdf';
 import { irWholeName, irName } from '$lib/helpers/ir';
 
 const guide: GetPdfData = async ({ evidence: e }) => ({
-    fileName: `Návod IR.pdf`,
 /*          email */ Text1: e.koncovyUzivatel.email,
 /*        hesloRR */ Text2: `Regulusroute1`,
 /*        hesloIR */ Text3: `uzivatel`,
