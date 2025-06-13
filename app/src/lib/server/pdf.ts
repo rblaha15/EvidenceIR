@@ -14,7 +14,7 @@ import guide from '$lib/client/pdf/guide';
 import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtocol';
 import solarCollectorCommissionProtocol from '$lib/client/pdf/solarCollectorCommissionProtocol';
 import installationProtocol, { publicInstallationProtocol } from '$lib/client/pdf/installationProtocol';
-import { irName, isIRID, isSPID } from '$lib/helpers/ir';
+import { irLabel, irName, isIRID, isSPID, spName } from '$lib/helpers/ir';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { Raw } from '$lib/forms/Form';
 
@@ -38,8 +38,7 @@ export type GetPdfData<ID extends IRID | SPID = IRID> = (data: DataOfID<ID>, t: 
             : string
     ) | null;
 } & {
-    fileName: string;
-    doNotPrefixFileNameWithIR?: boolean;
+    fileNameSuffix?: string;
 }>;
 export const getPdfData = (
     link: Pdf
@@ -88,11 +87,11 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
 
     const formData = await getData(data, t, fetch);
 
-    const prefixFileNameWithIR = !(formData.doNotPrefixFileNameWithIR ?? false);
-    const prefix = prefixFileNameWithIR && isIRID(irid_spid) ? irName((data as IR).evidence.ir) + ' ' : '';
-    const fileName = prefix + formData.fileName;
+    const surname = irLabel(isIRID(irid_spid) ? (data as IR).evidence : data as Raw<DataSP2>).split(' ')[0]
+    const suffix = formData.fileNameSuffix ?? (isIRID(irid_spid) ? (data as IR).evidence.ir.cislo : spName((data as Raw<DataSP2>).zasah));
+    const fileName = `${args.fileName}_${surname} ${suffix}.pdf`;
 
-    for (const fieldName in formData.omit('fileName', 'doNotPrefixFileNameWithIR')) {
+    for (const fieldName in formData.omit('fileNameSuffix')) {
         const name = fieldName as `${PdfFieldType}${number}`;
         const type = name.split(/\d+/)[0] as PdfFieldType;
         if (type == 'Text') {
@@ -162,7 +161,7 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
     form.updateFieldAppearances(ubuntuFont);
     fields.forEach(field => {
         if (field instanceof PDFSignature) {
-            field.acroField.getWidgets().forEach((w, i) => {
+            field.acroField.getWidgets().forEach(w => {
                 w.ensureAP().set(PDFName.of('N'), PDFRef.of(0))
             })
             form.removeField(field)
