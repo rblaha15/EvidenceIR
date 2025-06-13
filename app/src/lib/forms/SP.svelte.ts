@@ -312,6 +312,7 @@ export const sp = (() => {
                 p.zasah.inicialy.show = () => true;
             },
             cells,
+            sheetFilter: n => n.includes('Protokol'),
         },
     };
     return info;
