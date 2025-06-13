@@ -1,11 +1,12 @@
 <script generics="R extends Raw<Form>" lang="ts">
     import type { Writable } from 'svelte/store';
-    import type { Translations } from '$lib/translations';
+    import { type P, p, type Translations } from '$lib/translations';
     import { setTitle } from '$lib/helpers/title.svelte.js';
     import type { Form, Raw } from '$lib/forms/Form';
     import { type ExcelImport, processExcel } from '$lib/forms/Import';
-    import readXlsxFile from 'read-excel-file';
-    import { STAR } from "$lib/Widget.svelte";
+    import readXlsxFile, { readSheetNames } from 'read-excel-file';
+    import { ChooserWidget, STAR } from '$lib/Widget.svelte';
+    import Widget from '$lib/components/Widget.svelte';
 
     interface Props<R extends Raw<Form>> {
         title: string;
@@ -31,11 +32,26 @@
     });
 
     let input: HTMLInputElement;
-    let file: string = $state('');
+    let file = $state<File>();
+    let sheetWidget = $state(new ChooserWidget({
+        options: [] as P[], show: (d): boolean => sheetWidget.options(d).length > 1, label: p('List sešitu'),
+    }));
+
+    $effect(() => {
+        if (file) readSheetNames(file).then(names => {
+            const sheets = names.filter(importData?.sheetFilter ?? (n => n == (importData?.sheet ?? n)));
+            sheetWidget.options = () => sheets.map(p)
+            if (sheets.length == 1)
+                sheetWidget._value = p(sheets[0])
+        }); else {
+            sheetWidget._value = null;
+            sheetWidget.options = () => [];
+        }
+    });
 
     const confirm = async () => {
-        if (!importData || !input.files) return;
-        const rows = await readXlsxFile(input.files[0], importData);
+        if (!importData || !file) return;
+        const rows = await readXlsxFile(file, { ...importData, sheet: t.get(sheetWidget.value!) });
         console.log(rows);
         importData.onImport(processExcel<R>(importData, rows));
     };
@@ -81,14 +97,14 @@
                 ></button>
             </div>
 
-            <div class="modal-body">
-                <p>Nahrajte původní MS Excel sešit s vyplněnými údaji na listu {importData?.sheet}</p>
+            <div class="modal-body gap-3 d-flex flex-column">
+                <p class="m-0">Nahrajte původní MS Excel sešit s vyplněnými údaji na listu {importData?.sheet}</p>
                 <input accept=".xls,.xlsx,.xlsm,.xlsb"
                        bind:this={input}
-                       onchange={() => file = input?.files?.[0]?.name ?? ''}
-                       style="display: none;"
+                       class="d-none"
+                       onchange={() => file = input?.files?.[0]}
                        type="file">
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center gap-3">
                     {#if !file}
                         <button
                             type="button"
@@ -98,18 +114,19 @@
                             Vybrat soubor
                         </button>
                     {:else}
-                        <p class="m-0">{t.chosenFile} {file}</p>
+                        <p class="m-0">{t.chosenFile} {file?.name ?? ''}</p>
                         <button
                             type="button"
-                            class="btn btn-info mt-2 ms-md-2 mt-md-0"
-                            onclick={() => {input.value = ''; file = ''; input?.click()}}
+                            class="btn btn-info"
+                            onclick={() => {input.value = ''; file = undefined; input?.click()}}
                         >
                             Vybrat jiný soubor
                         </button>
                     {/if}
                 </div>
+                <Widget data={undefined} {t} widget={sheetWidget} />
                 {#if file && importData?.isDangerous}
-                    <p class="alert alert-danger mt-2">Pozor! Potvrzením přepíšete všechna zatím vyplněná data!</p>
+                    <p class="alert alert-danger">Pozor! Potvrzením přepíšete všechna zatím vyplněná data!</p>
                 {/if}
             </div>
 
@@ -119,7 +136,7 @@
                     data-bs-dismiss="modal"
                     type="button">{t.cancel}</button
                 >
-                {#if importData && file}
+                {#if importData && file && sheetWidget.value}
                     <button
                         class="btn"
                         class:btn-danger={importData.isDangerous}
