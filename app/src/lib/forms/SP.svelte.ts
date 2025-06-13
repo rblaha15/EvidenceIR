@@ -19,7 +19,7 @@ import {
 } from '$lib/client/realtime';
 import { type Form, type Raw } from '$lib/forms/Form';
 import { page } from '$app/state';
-import { upravitServisniProtokol, vyplnitServisniProtokol } from '$lib/client/firestore';
+import { evidence, upravitServisniProtokol, vyplnitServisniProtokol } from '$lib/client/firestore';
 import { currentUser } from '$lib/client/auth';
 import type { User } from 'firebase/auth';
 import { nowISO } from '$lib/helpers/date';
@@ -28,6 +28,7 @@ import type { ExcelImport } from '$lib/forms/Import';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { spName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
+import { range } from '$lib/extensions';
 
 type NahradniDil<D extends Form<D>> = {
     label: TextWidget<D>,
@@ -123,8 +124,8 @@ const nahradniDil = <D extends GenericDataSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 
 export const defaultDataSP = <D extends GenericDataSP<D>>(): GenericDataSP<D> => ({
     zasah: {
         datum: new InputWidget({ label: p('Datum a čas zásahu'), type: 'datetime-local' }),
-        clovek: new InputWidget({ label: p('Jméno technika'), show: false, required: false }),
-        inicialy: new InputWidget({ label: p('Iniciály technika (do ID SP)'), show: false, required: false }),
+        clovek: new InputWidget({ label: p('Jméno technika'), show: false }),
+        inicialy: new InputWidget({ label: p('Iniciály technika (do ID SP)'), show: false }),
         zaruka: new RadioWidget({ label: p('Záruka'), options: [`sp.warrantyCommon`, `sp.warrantyExtended`], required: false }),
         nahlasenaZavada: new InputWidget({ label: p('Nahlášená závada'), required: false }),
         popis: new InputWidget({ label: p('Popis zásahu'), required: false, textArea: true }),
@@ -176,12 +177,12 @@ export const defaultDataSP = <D extends GenericDataSP<D>>(): GenericDataSP<D> =>
     },
 });
 
-const importSparePart = (i: 0 | 1 | 2): ExcelImport<Raw<DataSP>>['cells']['nahradniDil1'] => ({
+const importSparePart = (i: 0 | 1 | 2) => ({
     name: { address: [1, 43 + i] },
     code: { address: [6, 43 + i] },
     unitPrice: { address: [12, 43 + i] },
     mnozstvi: { address: [9, 43 + i] },
-});
+}) satisfies ExcelImport<Raw<DataSP>>['cells']['nahradniDil1'];
 
 const cells: ExcelImport<Raw<DataSP>>['cells'] = {
     zasah: {
@@ -200,8 +201,7 @@ const cells: ExcelImport<Raw<DataSP>>['cells'] = {
         typPrace: { address: [1, 39], transform: v => v.includes('pomoc') ? `sp.technicalAssistance` : 'sp.assemblyWork' },
         ukony: {
             getData: get => [get([1, 40]), get([1, 41]), get([1, 42])]
-                .filter(it => it != 'Vyberte úkon')
-                .map(u => ([
+                .mapNotUndefined(u => ([
                     ['Route', `sp.regulusRoute`] as const,
                     ['Uvedení TČ', `sp.commissioningTC`] as const,
                     ['Uvedení SOL', `sp.commissioningSOL`] as const,
@@ -209,14 +209,16 @@ const cells: ExcelImport<Raw<DataSP>>['cells'] = {
                     ['kontrola SOL', `sp.yearlySOLCheck`] as const,
                     ['Záruka', `sp.extendedWarranty`] as const,
                     ['instalace', `sp.installationApproval`] as const,
-                ] as const).find(([s]) => u.includes(s))![1]),
+                ] as const).find(([s]) => u.includes(s))?.[1]),
         },
     },
     nahradniDil1: importSparePart(0),
     nahradniDil2: importSparePart(1),
     nahradniDil3: importSparePart(2),
     nahradniDily: {
-        pocet: { constant: 1 },
+        pocet: {
+            getData: get => range(3).filter(i => get(importSparePart(i as 0 | 1 | 2).name.address)).length
+        },
     },
     fakturace: {
         hotove: { address: [18, 43], transform: v => v == 'ANO' ? 'yes' : v == 'NE' ? 'no' : 'doNotInvoice' },
@@ -241,8 +243,10 @@ export const sp = (() => {
                 return undefined;
             }
         },
-        saveData: async (irid, raw, edit, _, editResult, t, send, ir) => {
+        saveData: async (irid, raw, edit, _, editResult, t, send) => {
             const name = spName(raw.zasah);
+
+            const ir = (await evidence(irid)).data()!;
 
             if (!edit && getIsOnline() && ir.installationProtocols.some(p => spName(p.zasah) == name)) {
                 editResult({ text: 'SP již existuje.', red: true, load: false });
@@ -283,12 +287,10 @@ export const sp = (() => {
         storeEffects: [
             [(_, p, [$techniciansList, $currentUser], edit) => {
                 const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
-                p.zasah.clovek.setValue(p, ja?.name ?? p.zasah.clovek.value);
-                p.zasah.clovek.show = () => !ja;
-                p.zasah.clovek.required = () => !ja;
-                p.zasah.inicialy.setValue(p, ja?.initials ?? p.zasah.inicialy.value);
-                p.zasah.inicialy.show = () => !ja;
-                p.zasah.inicialy.required = () => !ja;
+                if (!p.zasah.clovek.value) p.zasah.clovek.setValue(p, ja?.name ?? p.zasah.clovek.value);
+                p.zasah.clovek.show = () => p.zasah.clovek.value != ja?.name;
+                if (!p.zasah.inicialy.value) p.zasah.inicialy.setValue(p, ja?.initials ?? p.zasah.inicialy.value);
+                p.zasah.inicialy.show = () => p.zasah.inicialy.value != ja?.initials;
             }, [techniciansList, currentUser]],
             [(_, p, [$sparePartsList]) => {
                 const spareParts = $sparePartsList.map(it => ({
@@ -305,7 +307,9 @@ export const sp = (() => {
         ],
         importOptions: {
             sheet: 'Protokol',
-            onImport: () => {
+            onImport: (_, p) => {
+                p.zasah.clovek.show = () => true;
+                p.zasah.inicialy.show = () => true;
             },
             cells,
         },
