@@ -12,8 +12,11 @@ export type Raw<Q extends Form | Record<string, Widget> | Widget> =
 export type RawForm<F extends Form> = {
     [K in keyof F]: RawFormPart<F[K]>
 };
+export type HiddenWidgets<P extends Record<string, Widget>> = {
+    [K in keyof P]: P[K] extends Widget<never, unknown, infer H> ? H extends true ? K : never : never;
+}[keyof P];
 export type RawFormPart<P extends Record<string, Widget>> = {
-    [K in keyof P]: RawWidget<P[K]>;
+    [K in keyof Omit<P, HiddenWidgets<P>>]: RawWidget<P[K]>;
 };
 export type RawWidget<W extends Widget> =
     W extends Widget<never, infer T, infer H>
@@ -36,9 +39,9 @@ export const dataToRawData = <F extends Form, R extends Raw<F> = Raw<F>>(data: F
     }) as R;
 };
 
-export const rawDataToData = <F extends Form>(toData: F, rawData: RawForm<F>) => {
+export const rawDataToData = <F extends Form>(toData: F, rawData: Raw<F>) => {
     const d = toData;
-    rawData.forEachEntry((key1, section) =>
+    (rawData as RawForm<F>).forEachEntry((key1, section) =>
         section.forEachEntry((k, value) => {
             const key2 = k as keyof F[keyof F];
             if (!d[key1]) console.log(`${String(key1)} does not exist in target, skipping`);

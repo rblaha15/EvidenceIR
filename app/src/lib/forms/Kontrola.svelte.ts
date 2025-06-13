@@ -179,14 +179,14 @@ export const check = (() => {
                 return data;
             } else return undefined;
         },
-        saveData: async (irid, raw, _1, _2, editResult, t, _3, e) => {
+        saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
             await pridatKontrolu(irid, rok, raw);
             if (await checkRegulusOrAdmin()) return;
 
             const user = get(currentUser)!;
             const response = await sendEmail({
                 ...defaultAddresses(),
-                subject: `Vyplněna nová roční kontrola TČ k ${irName(e.ir)}`,
+                subject: `Vyplněna nová roční kontrola TČ k ${irName(ir.evidence.ir)}`,
                 component: MailProtocol,
                 props: { name: user.email!, origin: page.url.origin, irid_spid: irid },
             });

@@ -42,12 +42,13 @@ if (persistentCacheIndexManager)
 export type IRType = '2' | '4' | '3' | 'B' | 'S';
 /**
  * Zastaralé IR ID: A12345;
- * Moderní IR ID: 4A12345;
- * ID SOREL: S202412312359;
+ * Moderní IR ID:  4A12345;
+ * ID SOREL:       S202412312359;
  */
 export type IRID = `${IRType}${string}`;
 /**
- * RB-2024-12-31-23;
+ * Zastaralé SP ID: RB-2024-12-31-23;
+ * Moderní SP ID:   RB-2024-12-31-23-59;
  */
 export type SPID = `${string}-${string}-${string}`;
 
@@ -65,8 +66,9 @@ export const extractIRIDFromRawData = (evidence: Raw<Data>): IRID =>
 export const extractSPIDFromRawData = (zasah: Raw<GenericDataSP<never>['zasah']>): SPID => {
     const datum = zasah.datum.split('T')[0];
     const hodina = zasah.datum.split('T')[1].split(':')[0];
+    const minuta = zasah.datum.split('T')[1].split(':')[1];
     const technik = zasah.inicialy;
-    return `${technik}-${datum}-${hodina}`;
+    return `${technik}-${datum}-${hodina}-${minuta}`;
 };
 
 export type IR = {
