@@ -1,10 +1,10 @@
 import { error } from '@sveltejs/kit';
-import { PDFDocument, PDFName, PDFRef, PDFSignature, PDFStreamWriter, PDFWriter } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFRef, PDFSignature } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import type { DocumentSnapshot } from 'firebase-admin/firestore';
 import { getTranslations, type Translations } from '$lib/translations';
 import type { LanguageCode } from '$lib/languages';
-import { type Pdf, type PdfArgs, toPdfTypeName } from '$lib/client/pdf';
+import { type Pdf, type PdfArgs, pdfInfo, toPdfTypeName } from '$lib/client/pdf';
 import { evidence_sp2 } from '$lib/server/firestore';
 import { type IR, type IRID, type SPID } from '$lib/client/firestore';
 import check from '$lib/client/pdf/check';
@@ -13,8 +13,8 @@ import rroute from '$lib/client/pdf/rroute';
 import guide from '$lib/client/pdf/guide';
 import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtocol';
 import solarCollectorCommissionProtocol from '$lib/client/pdf/solarCollectorCommissionProtocol';
-import installationProtocol, { publicInstallationProtocol } from '$lib/client/pdf/installationProtocol';
-import { irLabel, irName, isIRID, isSPID, spName } from '$lib/helpers/ir';
+import installationProtocol, { pdfCP, publicInstallationProtocol } from '$lib/client/pdf/installationProtocol';
+import { irLabel, isIRID, isSPID, spName } from '$lib/helpers/ir';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { Raw } from '$lib/forms/Form';
 
@@ -30,8 +30,15 @@ type SignatureDefinition = {
 };
 
 export type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Podpis'
-export type DataOfID<ID extends IRID | SPID> = ID extends IRID ? IR : Raw<DataSP2>;
-export type GetPdfData<ID extends IRID | SPID = IRID> = (data: DataOfID<ID>, t: Translations, fetch: Fetch) => Promise<{
+
+export type ID<T extends 'IR' | 'SP'> = T extends 'IR' ? IRID : SPID;
+export type DataOfType<T extends 'IR' | 'SP'> = T extends 'IR' ? IR : Raw<DataSP2>;
+export type GetPdfData<T extends 'IR' | 'SP' = 'IR'> = (
+    data: DataOfType<T>,
+    t: Translations,
+    fetch: Fetch,
+    addPage: <T extends 'IR' | 'SP'>(args: Pdf<T>, data: DataOfType<T>) => Promise<void>,
+) => Promise<{
     [fieldName in `${PdfFieldType}${number}`]: (
     fieldName extends `Zaškrtávací pole${number}` ? boolean
         : fieldName extends `Podpis${number}` ? SignatureDefinition
@@ -41,8 +48,8 @@ export type GetPdfData<ID extends IRID | SPID = IRID> = (data: DataOfID<ID>, t: 
     fileNameSuffix?: string;
 }>;
 export const getPdfData = (
-    link: Pdf
-): GetPdfData<IRID | SPID> => {
+    link: Pdf,
+): GetPdfData<'IR' | 'SP'> => {
     const t = toPdfTypeName(link);
     if (t == 'check') return check(Number(link.split('-')[1]) as 1 | 2 | 3 | 4);
     if (t == 'warranty') return warranty(Number(link.split('-')[1] || '1') - 1);
@@ -52,27 +59,18 @@ export const getPdfData = (
     if (t == 'solarCollectorCommissionProtocol') return solarCollectorCommissionProtocol;
     if (t == 'installationProtocol') return installationProtocol(Number(link.split('-')[1]));
     if (t == 'publicInstallationProtocol') return publicInstallationProtocol;
+    if (t == 'CP') return pdfCP;
     throw `Invalid link name: ${t}`;
 };
 
-export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, irid_spid: ID, fetch: Fetch, args: PdfArgs, getData: GetPdfData<ID>) => {
-    let snapshot: DocumentSnapshot<DataOfID<ID> | undefined>;
-    try {
-        snapshot = await evidence_sp2(irid_spid);
-
-        if (!snapshot.exists && isSPID(irid_spid))
-            snapshot = await evidence_sp2(irid_spid.split('-').slice(0, -1).join('-') as ID);
-    } catch (e) {
-        console.log(`Nepovedlo se načíst data z firebase ${{ lang, irid_spid }}`);
-        error(500, `Nepovedlo se načíst data z firebase ${lang}, ${irid_spid}, ${e}`);
-    }
-
-    if (!snapshot.exists) error(500, 'Nepovedlo se nalézt data ve firebase');
-
-    const data = snapshot.data();
-
-    if (!data) error(500, 'Nepovedlo se nalézt data ve firebase');
-
+const generatePdfData = async <T extends 'IR' | 'SP'>(
+    args: PdfArgs<T>,
+    lang: LanguageCode,
+    fetch: Fetch,
+    getData: GetPdfData<T>,
+    data: DataOfType<T>,
+) => {
+    console.log('Generate', args)
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
     const t = getTranslations(formLanguage);
 
@@ -83,12 +81,22 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
     pdfDoc.setTitle(t.get(args.title));
 
     const form = pdfDoc.getForm();
-    const fields = form.getFields()
+    const fields = form.getFields();
 
-    const formData = await getData(data, t, fetch);
+    const formData = await getData(data, t, fetch, async (pdfName2, data2) => {
+        const pdfTypeName2 = toPdfTypeName(pdfName2);
+        const pdfArgs2 = pdfInfo[pdfTypeName2];
+        const getData2 = getPdfData(pdfName2);
+        const pdfData2 = await generatePdfData(
+            pdfArgs2, lang, fetch, getData2, data2,
+        )
+        const pdfDoc2 = await PDFDocument.load(pdfData2.pdfBytes)
+        const [newPage] = await pdfDoc.copyPages(pdfDoc2, [0])
+        pdfDoc.addPage(newPage)
+    });
 
-    const surname = irLabel(isIRID(irid_spid) ? (data as IR).evidence : data as Raw<DataSP2>).split(' ')[0]
-    const suffix = formData.fileNameSuffix ?? (isIRID(irid_spid) ? (data as IR).evidence.ir.cislo : spName((data as Raw<DataSP2>).zasah));
+    const surname = irLabel(args.type == 'IR' ? (data as IR).evidence : data as Raw<DataSP2>).split(' ')[0];
+    const suffix = formData.fileNameSuffix ?? (args.type == 'IR' ? (data as IR).evidence.ir.cislo : spName((data as Raw<DataSP2>).zasah));
     const fileName = `${args.fileName}_${surname} ${suffix}.pdf`;
 
     for (const fieldName in formData.omit('fileNameSuffix')) {
@@ -133,24 +141,24 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
                 x,
                 y,
                 width: scaled.width,
-                height: scaled.height
+                height: scaled.height,
             });
         }
     }
 
     // fields.forEach(field => {
-    //     const type = field.constructor.name
-    //     const name = field.getName()
+    //     const type = field.constructor.name;
+    //     const name = field.getName();
     //     if (field instanceof PDFTextField) {
-    //         const f = form.getTextField(name)
-    //         f.setText(name)
+    //         const f = form.getTextField(name);
+    //         f.setText(name);
     //     }
     //     if (field instanceof PDFDropdown) {
-    //         const f = form.getDropdown(name)
-    //         f.select(name)
+    //         const f = form.getDropdown(name);
+    //         f.select(name);
     //     }
-    //     console.log(`${type}: ${name}`)
-    // })
+    //     console.log(`${type}: ${name}`);
+    // });
 
     const url = 'https://pdf-lib.js.org/assets/ubuntu/Ubuntu-R.ttf';
     const fontBytes = await fetch(url).then((res) => res.arrayBuffer());
@@ -162,37 +170,57 @@ export const generatePdf = async <ID extends IRID | SPID>(lang: LanguageCode, ir
     fields.forEach(field => {
         if (field instanceof PDFSignature) {
             field.acroField.getWidgets().forEach(w => {
-                w.ensureAP().set(PDFName.of('N'), PDFRef.of(0))
-            })
-            form.removeField(field)
+                w.ensureAP().set(PDFName.of('N'), PDFRef.of(0));
+            });
+            form.removeField(field);
         }
-    })
-    form.flatten()
+    });
+    form.flatten();
 
-    await pdfDoc.save();
+    const pdfBytes = await pdfDoc.save(args.saveOptions);
+    return {
+        fileName,
+        pdfBytes,
+        title: t.get(args.title),
+    };
+};
 
-    const {
-        useObjectStreams = true,
-        addDefaultPage = true,
-        objectsPerTick = 50
-    } = args.saveOptions ?? {};
+export const generatePdf = async <T extends 'IR' | 'SP'>(
+    lang: LanguageCode,
+    irid_spid: ID<T>,
+    fetch: Fetch,
+    args: PdfArgs<T>,
+    getData: GetPdfData<T>,
+    ) => {
+    let snapshot: DocumentSnapshot<DataOfType<T> | undefined>;
+    try {
+        snapshot = await evidence_sp2(irid_spid);
 
-    if (addDefaultPage && pdfDoc.getPageCount() === 0) pdfDoc.addPage();
+        if (!snapshot.exists && isSPID(irid_spid))
+            snapshot = await evidence_sp2(irid_spid.split('-').slice(0, -1).join('-') as ID<T>);
+    } catch (e) {
+        console.log(`Nepovedlo se načíst data z firebase ${{ lang, irid_spid }}`);
+        error(500, `Nepovedlo se načíst data z firebase ${lang}, ${irid_spid}, ${e}`);
+    }
 
-    await pdfDoc.flush();
+    if (!snapshot.exists) error(500, 'Nepovedlo se nalézt data ve firebase');
 
-    const Writer = useObjectStreams ? PDFStreamWriter : PDFWriter;
-    const pdfBytes = await Writer.forContext(pdfDoc.context, objectsPerTick).serializeToBuffer();
+    const data = snapshot.data();
+
+    if (!data) error(500, 'Nepovedlo se nalézt data ve firebase');
+
+    const { title, fileName, pdfBytes } =
+        await generatePdfData(args, lang, fetch, getData, data);
 
     const encodedName = encodeURIComponent(fileName);
-    const encodedTitle = encodeURIComponent(t.get(args.title));
+    const encodedTitle = encodeURIComponent(title);
 
     return new Response(pdfBytes, {
         headers: {
             'Content-Type': 'application/pdf',
             'Content-Disposition': 'inline; filename=' + encodedName,
-            'Title': encodedTitle
+            'Title': encodedTitle,
         },
-        status: 200
+        status: 200,
     });
 };

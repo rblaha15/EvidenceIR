@@ -6,7 +6,8 @@ import { cascadeDetails } from '$lib/client/pdf/check';
 import '$lib/extensions';
 import type { GetPdfData } from '$lib/server/pdf';
 import { endUserName, irName, spName } from '$lib/helpers/ir';
-import type { SPID } from '$lib/client/firestore';
+import { extractSPIDFromRawData, type SPID } from '$lib/client/firestore';
+import { pdfInfo } from '$lib/client/pdf';
 
 const cenik = {
     transportation: 9.92,
@@ -52,7 +53,7 @@ const poleProDilyS = 44;
 const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
     .map((k, i) => [k, poleProDilyS + i * 8] as const).toRecord();
 
-export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, fetch) => {
+export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, fetch, add) => {
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : { hasHP: false, isCascade: false, pumps: [] };
     const p = installationProtocols[i];
     return publicInstallationProtocol({
@@ -68,10 +69,10 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
             pocetTC: pumps.length,
             datumUvedeni: uvedeniTC?.uvadeni?.date ?? '',
         },
-    }, t, fetch);
+    }, t, fetch, add);
 };
 
-export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) => {
+export const publicInstallationProtocol: GetPdfData<'SP'> = async (p, t, fetch, addPage) => {
     console.log(p)
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
     const nahradniDily = [
@@ -87,6 +88,7 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
     const dph = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21
     const response = await fetch(`/signatures/${p.zasah.inicialy}.jpg`)
     const signature = response.ok && !response.redirected ? await response.arrayBuffer() : null
+    if (dph == 1.12) await addPage('CP', p)
 
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
@@ -138,7 +140,7 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
         /*      praceCena */ Text32: cenaPrace.roundTo(2).toLocaleString('cs') + ' Kč',
         /*    ostatniCena */ Text33: cenaOstatni.roundTo(2).toLocaleString('cs') + ' Kč',
         /*     celkemCena */ Text34: celkem.roundTo(2).toLocaleString('cs') + ' Kč',
-        /*            DPH */ Text18: `${dph * 100 - 100} %`,
+        /*            DPH */ Text18: `${(dph * 100 - 100).toFixed(0)} %`,
         /*  celkemCenaDPH */ Text35: (celkem * dph).roundTo(2).toLocaleString('cs') + ' Kč',
         /*                */ Text39: t.get(p.fakturace.hotove),
         /*                */ Text40: p.fakturace.hotove == 'no' ? 'Fakturovat:' : '',
@@ -146,8 +148,16 @@ export const publicInstallationProtocol: GetPdfData<SPID> = async (p, t, fetch) 
         /*                */ Text42: p.fakturace.hotove == 'no' ? t.get(p.fakturace.jak) : '',
         /*                */ Text43: p.fakturace.komu == 'assemblyCompany' ? p.montazka.zastupce : endUserName(p.koncovyUzivatel),
         /*  popisTechnika */ Podpis64: signature ? { x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60, } : null,
-    } satisfies Awaited<ReturnType<GetPdfData<SPID>>>;
+    } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };
 export default installationProtocol;
 
 const formatovatCerpadla = (a: string[]) => [a.slice(0, 2).join('; '), a.slice(2, 4).join('; ')].join('\n');
+
+export const pdfCP: GetPdfData<'SP'> = async p => {
+    return ({
+        Text1: `${p.koncovyUzivatel.prijmeni} ${p.koncovyUzivatel.jmeno}`,
+        Text2: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
+        Text3: dateFromISO(p.zasah.datum),
+    });
+}
