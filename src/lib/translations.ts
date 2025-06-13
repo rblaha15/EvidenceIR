@@ -32,7 +32,7 @@ const withGet = (translations: PlainTranslations): Translations => {
         ...withDerived,
         get: ref => ref == null ? null : get(ref),
         refFromTemplate: <T extends (number | string)[]>(ref: TemplateKey, args: TemplateArgs<T>) =>
-            `PLAIN_${(get(ref) as Template<T>)(args)}`,
+            p((get(ref) as Template<T>)(args)),
     };
 };
 
@@ -51,7 +51,7 @@ export const allKeys = <(TranslationReference | TemplateKey)[]> Object.recursive
 
 export type TranslationReference = Exclude<
     | RecursiveKeyOf<PlainTranslations & Derived>
-    | `PLAIN_${string}`
+    | P
     | '',
     TemplateKey>;
 
