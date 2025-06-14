@@ -200,7 +200,11 @@ const removeNoPump: Migration = (legacyIR: LegacyIR & IR) => {
 const addPumpSpecificYearlyChecks: Migration = legacyIR => legacyIR.kontroly ? {
     ...legacyIR,
     kontrolyTC: {
-        1: legacyIR.kontroly,
+        ...legacyIR.kontrolyTC,
+        1: {
+            ...legacyIR.kontroly,
+            ...legacyIR.kontrolyTC[1],
+        },
     },
     kontroly: undefined,
 } : legacyIR;
