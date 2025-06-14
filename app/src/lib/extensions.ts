@@ -289,6 +289,34 @@ declare global {
             [Key in K]: V
         };
 
+        associate<T, K extends PropertyKey, V>(
+            this: T[] | readonly T[],
+            transform: (value: T, index: number, array: T[]) => readonly [K, V],
+        ): {
+            [Key in K]: V
+        };
+
+        associateBy<K extends PropertyKey, V>(
+            this: V[] | readonly V[],
+            keySelector: (value: V, index: number, array: V[]) => K
+        ): {
+            [Key in K]: V
+        };
+
+        associateWith<K extends PropertyKey, V>(
+            this: K[] | readonly K[],
+            valueSelector: (key: K, index: number, array: K[]) => V
+        ): {
+            [Key in K]: V
+        };
+
+        associateWithSelf<T extends PropertyKey>(
+            this: T[] | readonly T[],
+        ): {
+            [Key in T]: T
+        };
+
+
         distinctBy<T, K>(
             this: T[] | readonly T[],
             key: (item: T, index: number, array: T[]) => K,
