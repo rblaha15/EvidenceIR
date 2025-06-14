@@ -200,7 +200,11 @@ const removeNoPump: Migration = (legacyIR: LegacyIR & IR) => {
 const addPumpSpecificYearlyChecks: Migration = legacyIR => legacyIR.kontroly ? {
     ...legacyIR,
     kontrolyTC: {
-        1: legacyIR.kontroly,
+        ...legacyIR.kontrolyTC,
+        1: {
+            ...legacyIR.kontroly,
+            ...legacyIR.kontrolyTC[1],
+        },
     },
     kontroly: undefined,
 } : legacyIR;
@@ -243,8 +247,8 @@ export const existuje = async (irid: IRID) => {
     }
 };
 
-export const pridatKontrolu = (irid: IRID, rok: number, kontrola: Raw<Kontrola>) =>
-    updateDoc(irDoc(irid), `kontroly.${rok}`, kontrola);
+export const pridatKontrolu = (irid: IRID, tc: number, rok: number, kontrola: Raw<Kontrola>) =>
+    updateDoc(irDoc(irid), `kontroly.${tc}.${rok}`, kontrola);
 
 export const vyplnitServisniProtokol = async (irid: IRID, protokol: Raw<DataSP>) => {
     const p = (await evidence(irid)).data()!.installationProtocols ?? [];
