@@ -1,7 +1,7 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import type { Data } from '$lib/forms/Data';
 import type { Translations } from '$lib/translations';
-import type { GetPdfData } from '$lib/server/pdf';
+import type { GetPdfData } from '$lib/client/pdfGeneration';
 import { endUserName } from '$lib/helpers/ir';
 import type { Raw } from '$lib/forms/Form';
 import type { Kontrola } from '$lib/forms/Kontrola.svelte';

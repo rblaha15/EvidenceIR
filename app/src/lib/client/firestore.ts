@@ -2,6 +2,7 @@ import {
     collection,
     deleteDoc,
     doc,
+    DocumentSnapshot,
     enablePersistentCacheIndexAutoCreation,
     getDoc,
     getDocs,
@@ -26,7 +27,7 @@ import type { DataSP, GenericDataSP } from '$lib/forms/SP.svelte';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { P } from '$lib/translations';
 import type { SparePart } from '$lib/client/realtime';
-import type { Products } from '$lib/helpers/products';
+import { isIRID } from '$lib/helpers/ir';
 
 const persistentCacheIndexManager = getPersistentCacheIndexManager(firestore);
 if (persistentCacheIndexManager)
@@ -289,3 +290,10 @@ export const publicProtocols = () => getDocs(spCollection);
 export const publicProtocol = (spid: SPID) =>
     getDoc(spDoc(spid));
 
+export type ID<T extends 'IR' | 'SP'> = T extends 'IR' ? IRID : SPID;
+export type DataOfType<T extends 'IR' | 'SP'> = T extends 'IR' ? IR : Raw<DataSP2>;
+export const evidence_sp2 = <T extends 'IR' | 'SP'>(irid_spid: ID<T>) => (
+    isIRID(irid_spid)
+        ? evidence(irid_spid)
+        : publicProtocol(irid_spid)
+) as Promise<DocumentSnapshot<DataOfType<T> | undefined>>;

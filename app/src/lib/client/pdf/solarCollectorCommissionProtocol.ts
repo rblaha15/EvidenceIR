@@ -1,6 +1,6 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
-import type { GetPdfData } from '$lib/server/pdf';
+import type { GetPdfData } from '$lib/client/pdfGeneration';
 import { endUserName } from '$lib/helpers/ir';
 
 const solarCollectorCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniSOL }, t) => {
