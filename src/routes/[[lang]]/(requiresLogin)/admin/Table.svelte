@@ -37,7 +37,7 @@
         </thead>
         <tbody>
         {#each (items ?? []) as item, i}
-            <tr class="table-{colors[i]}" id="{id}-{key(item)}"
+            <tr class="table-{colors?.[i]}" id="{id}-{key(item)}"
                 style:scroll-margin-top={6 + (document.querySelector('nav')?.getBoundingClientRect()?.height ?? 0) + 'px'}
                 class:table-info={page.url.hash.split("-")[1] === key(item)}
             >
