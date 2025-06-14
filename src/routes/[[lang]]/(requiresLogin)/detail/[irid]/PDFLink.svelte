@@ -15,7 +15,6 @@
         hideLanguageSelector?: boolean;
         children?: Snippet;
         breakpoint?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | '';
-        newLineBreakpoint?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | '';
     }
 
     let {
@@ -27,7 +26,6 @@
         hideLanguageSelector = false,
         children,
         breakpoint = 'sm',
-        newLineBreakpoint = '',
     }: Props = $props();
 
     const pdfTypeName = $derived(toPdfTypeName(linkName));
@@ -65,9 +63,9 @@
 </script>
 
 <div
-    class="d-flex flex-column flex-{newLineBreakpoint || breakpoint}-row align-items-{newLineBreakpoint || breakpoint}-center gap-1 gap-{newLineBreakpoint || breakpoint}-3">
+    class="d-flex flex-column flex-{breakpoint}-row align-items-{breakpoint}-center gap-1 gap-{breakpoint}-3">
     {#if name}<span>{name}</span>{/if}
-    <div class="d-flex flex-column flex-{breakpoint}-row align-items-{breakpoint}-center gap-1 gap-{breakpoint}-3">
+    <div class="d-flex align-items-center gap-3 flex-wrap flex-{breakpoint}-nowrap">
         {#if enabled}
             <a aria-hidden="true" target="_blank" class="d-none" href="/" bind:this={anchor}></a>
             <div class="btn-group">

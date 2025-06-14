@@ -49,7 +49,7 @@ const poleProUkony = [
 
 const poleProDilyS = 44;
 const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
-    .map((k, i) => [k, poleProDilyS + i * 8] as const).toRecord();
+    .associateWith((_, i) => poleProDilyS + i * 8);
 
 export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, add) => {
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : { hasHP: false, isCascade: false, pumps: [] };
