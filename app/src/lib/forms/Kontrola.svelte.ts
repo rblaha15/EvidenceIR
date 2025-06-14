@@ -180,7 +180,7 @@ export const check = (() => {
             } else return undefined;
         },
         saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
-            await pridatKontrolu(irid, rok, raw);
+            await pridatKontrolu(irid, tc, rok, raw);
             if (await checkRegulusOrAdmin()) return;
 
             const user = get(currentUser)!;
