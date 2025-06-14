@@ -1,12 +1,10 @@
 <script lang="ts">
     import { languageNames, type Translations } from '$lib/translations';
     import type { PageData } from './$types';
-    import { getToken } from '$lib/client/auth';
     import { type Pdf, pdfInfo, toPdfTypeName } from '$lib/client/pdf';
-    import { storable } from '$lib/helpers/stores';
-    import { isOnline } from '$lib/client/realtime';
-    import { get } from 'svelte/store';
     import type { Snippet } from 'svelte';
+    import { generatePdf, getPdfData } from '$lib/client/pdfGeneration';
+    import type { LanguageCode } from '$lib/languages';
 
     interface Props {
         linkName: Pdf;
@@ -32,64 +30,90 @@
         newLineBreakpoint = '',
     }: Props = $props();
 
-    let pdf = $derived(pdfInfo[toPdfTypeName(linkName)]);
-    let defaultLanguage = $derived(pdf.supportedLanguages.includes(data.languageCode)
+    const pdfTypeName = $derived(toPdfTypeName(linkName));
+    const pdf = $derived(pdfInfo[pdfTypeName]);
+    const defaultLanguage = $derived(pdf.supportedLanguages.includes(data.languageCode)
         ? data.languageCode
         : pdf.supportedLanguages[0]);
 
-    const lastToken = storable<string>(`firebase_token_${data.irid_spid}_${linkName}`);
+    let anchor = $state() as HTMLAnchorElement;
+    let loading = $state(false);
+    let error = $state('');
+    let currentLang = $state('');
 
-    const token = $isOnline ? getToken() : get(lastToken);
+    const openPdf = async (lang: LanguageCode = defaultLanguage) => {
+        loading = true;
+        if (!anchor.href || !anchor.download || currentLang != lang) {
+            error = '';
+            const getData = getPdfData(linkName);
+
+            const { data: pdfData, error: pdfError } = await generatePdf(lang, data.irid_spid, pdf, getData);
+            if (!pdfData) {
+                loading = false;
+                return error = pdfError;
+            }
+
+            anchor.href = URL.createObjectURL(new Blob([pdfData.pdfBytes], {
+                type: 'application/pdf',
+            }));
+            anchor.download = pdfData.fileName;
+        }
+
+        anchor.click();
+        loading = false;
+    };
 </script>
 
 <div
     class="d-flex flex-column flex-{newLineBreakpoint || breakpoint}-row align-items-{newLineBreakpoint || breakpoint}-center gap-1 gap-{newLineBreakpoint || breakpoint}-3">
     {#if name}<span>{name}</span>{/if}
-
-    {#await token then token}
-        <div class="d-flex flex-column flex-{breakpoint}-row align-items-{breakpoint}-center gap-1 gap-{breakpoint}-3">
-            {#if !token}
-                <div>{t.offline}</div>
-            {:else if enabled}
-                <div class="btn-group">
-                    <a
-                        tabindex={enabled ? 0 : undefined}
-                        type="button"
-                        onclick={() => lastToken.set(token)}
-                        target="_blank"
-                        href="/{defaultLanguage}/detail/{data.irid_spid}/pdf/{linkName}?token={token}"
-                        class:disabled={!enabled}
-                        class="btn btn-info text-nowrap"
-                    >{t.openPdf}</a>
-                    {#if !hideLanguageSelector}
-                        <button
-                            disabled={!enabled || pdf.supportedLanguages.length === 1}
-                            class="btn btn-outline-secondary flex-grow-0 dropdown-toggle"
-                            data-bs-toggle="dropdown"
-                        >
-                            <span>{defaultLanguage.toUpperCase()}</span>
-                        </button>
-                        {#if pdf.supportedLanguages.length > 1}
-                            <ul class="dropdown-menu">
-                                {#each pdf.supportedLanguages as code}
-                                    <li>
-                                        <a
-                                            tabindex="0" target="_blank"
-                                            class="dropdown-item d-flex align-items-center"
-                                            href="/{code}/detail/{data.irid_spid}/pdf/{linkName}?token={token}"
-                                            onclick={() => lastToken.set(token)}
-                                        >
-                                            <span class="fs-6 me-2">{code.toUpperCase()}</span>
-                                            {languageNames[code]}
-                                        </a>
-                                    </li>
-                                {/each}
-                            </ul>
-                        {/if}
+    <div class="d-flex flex-column flex-{breakpoint}-row align-items-{breakpoint}-center gap-1 gap-{breakpoint}-3">
+        {#if enabled}
+            <a aria-hidden="true" target="_blank" class="d-none" href="/" bind:this={anchor}></a>
+            <div class="btn-group">
+                <button
+                    tabindex={enabled ? 0 : undefined}
+                    type="button"
+                    onclick={() => openPdf()}
+                    class:disabled={!enabled}
+                    class="btn btn-info text-nowrap"
+                >{t.openPdf}</button>
+                {#if !hideLanguageSelector}
+                    <button
+                        disabled={!enabled || pdf.supportedLanguages.length === 1}
+                        class="btn btn-outline-secondary flex-grow-0 dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                    >
+                        <span>{defaultLanguage.toUpperCase()}</span>
+                    </button>
+                    {#if pdf.supportedLanguages.length > 1}
+                        <ul class="dropdown-menu">
+                            {#each pdf.supportedLanguages as code}
+                                <li>
+                                    <button
+                                        tabindex="0"
+                                        class="dropdown-item d-flex align-items-center"
+                                        onclick={() => openPdf(code)}
+                                    >
+                                        <span class="fs-6 me-2">{code.toUpperCase()}</span>
+                                        {languageNames[code]}
+                                    </button>
+                                </li>
+                            {/each}
+                        </ul>
                     {/if}
-                </div>
+                {/if}
+            </div>
+            {#if loading}
+                <div class="spinner-border text-danger"></div>
             {/if}
-            {@render children?.()}
-        </div>
-    {/await}
+        {/if}
+        {@render children?.()}
+    </div>
 </div>
+
+{#if error}
+    <div class="alert alert-danger">
+        {error}
+    </div>
+{/if}

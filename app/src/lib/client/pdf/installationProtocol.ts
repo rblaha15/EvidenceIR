@@ -4,10 +4,8 @@ import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
 import '$lib/extensions';
-import type { GetPdfData } from '$lib/server/pdf';
+import type { GetPdfData } from '$lib/client/pdfGeneration';
 import { endUserName, irName, spName } from '$lib/helpers/ir';
-import { extractSPIDFromRawData, type SPID } from '$lib/client/firestore';
-import { pdfInfo } from '$lib/client/pdf';
 
 const cenik = {
     transportation: 9.92,
@@ -53,7 +51,7 @@ const poleProDilyS = 44;
 const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
     .map((k, i) => [k, poleProDilyS + i * 8] as const).toRecord();
 
-export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, fetch, add) => {
+export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, add) => {
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : { hasHP: false, isCascade: false, pumps: [] };
     const p = installationProtocols[i];
     return publicInstallationProtocol({
@@ -69,10 +67,10 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
             pocetTC: pumps.length,
             datumUvedeni: uvedeniTC?.uvadeni?.date ?? '',
         },
-    }, t, fetch, add);
+    }, t, add);
 };
 
-export const publicInstallationProtocol: GetPdfData<'SP'> = async (p, t, fetch, addPage) => {
+export const publicInstallationProtocol: GetPdfData<'SP'> = async (p, t, addPage) => {
     console.log(p)
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
     const nahradniDily = [
