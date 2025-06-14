@@ -14,7 +14,7 @@
         type Technician,
         techniciansList,
     } from '$lib/client/realtime';
-    import { type Component, onMount } from 'svelte';
+    import { type Component, onMount, untrack } from 'svelte';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import TranslationsTable from './TranslationsTable.svelte';
@@ -194,12 +194,13 @@
 </script>
 
 <ul class="nav nav-tabs" role="tablist">
-    {#each tabs.entries() as [tab, { title }]}
+    {#each tabs.entries() as [tab, { title }], i}
         <li class="nav-item" role="presentation">
             <button
                 aria-controls="{tab}-tab-pane"
                 aria-selected="false"
                 class="nav-link"
+                class:active={untrack(() => i === 0)}
                 data-bs-target="#{tab}-tab-pane"
                 data-bs-toggle="tab"
                 id="{tab}-tab"
@@ -211,11 +212,13 @@
 </ul>
 
 <div class="tab-content">
-    {#each tabs.entries() as [tab, t]}
+    {#each tabs.entries() as [tab, t], i}
         <div
             aria-labelledby="{tab}-tab"
             class="tab-pane fade"
             id="{tab}-tab-pane"
+            class:active={untrack(() => i === 0)}
+            class:show={untrack(() => i === 0)}
             role="tabpanel"
             tabindex="0"
         >
