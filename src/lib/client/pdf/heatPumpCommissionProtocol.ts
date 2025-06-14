@@ -1,7 +1,7 @@
 import { nazevFirmy } from "$lib/helpers/ares";
 import { dateFromISO, todayISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
-import type { GetPdfData } from '$lib/server/pdf';
+import type { GetPdfData } from '$lib/client/pdfGeneration';
 import { endUserName, typBOX, irType } from '$lib/helpers/ir';
 
 const heatPumpCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniTC, }, t) => {
