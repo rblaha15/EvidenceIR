@@ -1,12 +1,9 @@
-import { error } from '@sveltejs/kit';
 import { PDFDocument, PDFName, PDFRef, PDFSignature } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
-import type { DocumentSnapshot } from 'firebase-admin/firestore';
 import { getTranslations, type Translations } from '$lib/translations';
 import type { LanguageCode } from '$lib/languages';
 import { type Pdf, type PdfArgs, pdfInfo, toPdfTypeName } from '$lib/client/pdf';
-import { evidence_sp2 } from '$lib/server/firestore';
-import { type IR, type IRID, type SPID } from '$lib/client/firestore';
+import { type DataOfType, evidence_sp2, type ID, type IR } from '$lib/client/firestore';
 import check from '$lib/client/pdf/check';
 import warranty from '$lib/client/pdf/warranty';
 import rroute from '$lib/client/pdf/rroute';
@@ -14,11 +11,10 @@ import guide from '$lib/client/pdf/guide';
 import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtocol';
 import solarCollectorCommissionProtocol from '$lib/client/pdf/solarCollectorCommissionProtocol';
 import installationProtocol, { pdfCP, publicInstallationProtocol } from '$lib/client/pdf/installationProtocol';
-import { irLabel, isIRID, isSPID, spName } from '$lib/helpers/ir';
+import { irLabel, spName } from '$lib/helpers/ir';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { Raw } from '$lib/forms/Form';
-
-type Fetch = typeof fetch;
+import type { DocumentSnapshot } from 'firebase/firestore';
 
 type SignatureDefinition = {
     x: number,
@@ -31,12 +27,9 @@ type SignatureDefinition = {
 
 export type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Podpis'
 
-export type ID<T extends 'IR' | 'SP'> = T extends 'IR' ? IRID : SPID;
-export type DataOfType<T extends 'IR' | 'SP'> = T extends 'IR' ? IR : Raw<DataSP2>;
 export type GetPdfData<T extends 'IR' | 'SP' = 'IR'> = (
     data: DataOfType<T>,
     t: Translations,
-    fetch: Fetch,
     addPage: <T extends 'IR' | 'SP'>(args: Pdf<T>, data: DataOfType<T>) => Promise<void>,
 ) => Promise<{
     [fieldName in `${PdfFieldType}${number}`]: (
@@ -66,16 +59,14 @@ export const getPdfData = (
 const generatePdfData = async <T extends 'IR' | 'SP'>(
     args: PdfArgs<T>,
     lang: LanguageCode,
-    fetch: Fetch,
     getData: GetPdfData<T>,
     data: DataOfType<T>,
 ) => {
-    console.log('Generate', args)
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
     const t = getTranslations(formLanguage);
 
     const formLocation = `/pdf/${args.formName}_${formLanguage}.pdf`;
-    const formPdfBytes = await (await fetch(formLocation)).arrayBuffer() ?? error(500, 'Nepovedlo se načíst PDF');
+    const formPdfBytes = await (await fetch(formLocation)).arrayBuffer()
 
     const pdfDoc = await PDFDocument.load(formPdfBytes);
     pdfDoc.setTitle(t.get(args.title));
@@ -83,21 +74,17 @@ const generatePdfData = async <T extends 'IR' | 'SP'>(
     const form = pdfDoc.getForm();
     const fields = form.getFields();
 
-    const formData = await getData(data, t, fetch, async (pdfName2, data2) => {
+    const formData = await getData(data, t, async (pdfName2, data2) => {
         const pdfTypeName2 = toPdfTypeName(pdfName2);
         const pdfArgs2 = pdfInfo[pdfTypeName2];
         const getData2 = getPdfData(pdfName2);
         const pdfData2 = await generatePdfData(
-            pdfArgs2, lang, fetch, getData2, data2,
-        )
-        const pdfDoc2 = await PDFDocument.load(pdfData2.pdfBytes)
-        const [newPage] = await pdfDoc.copyPages(pdfDoc2, [0])
-        pdfDoc.addPage(newPage)
+            pdfArgs2, lang, getData2, data2,
+        );
+        const pdfDoc2 = await PDFDocument.load(pdfData2.pdfBytes);
+        const [newPage] = await pdfDoc.copyPages(pdfDoc2, [0]);
+        pdfDoc.addPage(newPage);
     });
-
-    const surname = irLabel(args.type == 'IR' ? (data as IR).evidence : data as Raw<DataSP2>).split(' ')[0];
-    const suffix = formData.fileNameSuffix ?? (args.type == 'IR' ? (data as IR).evidence.ir.cislo : spName((data as Raw<DataSP2>).zasah));
-    const fileName = `${args.fileName}_${surname} ${suffix}.pdf`;
 
     for (const fieldName in formData.omit('fileNameSuffix')) {
         const name = fieldName as `${PdfFieldType}${number}`;
@@ -178,49 +165,38 @@ const generatePdfData = async <T extends 'IR' | 'SP'>(
     form.flatten();
 
     const pdfBytes = await pdfDoc.save(args.saveOptions);
-    return {
-        fileName,
-        pdfBytes,
-        title: t.get(args.title),
-    };
+
+    const surname = irLabel(args.type == 'IR' ? (data as IR).evidence : data as Raw<DataSP2>).split(' ')[0];
+    const suffix = formData.fileNameSuffix ?? (args.type == 'IR' ? (data as IR).evidence.ir.cislo : spName((data as Raw<DataSP2>).zasah));
+    const fileName = `${args.fileName}_${surname} ${suffix}.pdf`;
+
+    return { fileName, pdfBytes };
 };
 
 export const generatePdf = async <T extends 'IR' | 'SP'>(
     lang: LanguageCode,
     irid_spid: ID<T>,
-    fetch: Fetch,
     args: PdfArgs<T>,
     getData: GetPdfData<T>,
-    ) => {
+) => {
     let snapshot: DocumentSnapshot<DataOfType<T> | undefined>;
     try {
         snapshot = await evidence_sp2(irid_spid);
 
-        if (!snapshot.exists && isSPID(irid_spid))
+        if (!snapshot.exists && args.type == 'SP')
             snapshot = await evidence_sp2(irid_spid.split('-').slice(0, -1).join('-') as ID<T>);
     } catch (e) {
         console.log(`Nepovedlo se načíst data z firebase ${{ lang, irid_spid }}`);
-        error(500, `Nepovedlo se načíst data z firebase ${lang}, ${irid_spid}, ${e}`);
+        return { error: `Nepovedlo se načíst data z firebase ${lang}, ${irid_spid}, ${e}` };
     }
 
-    if (!snapshot.exists) error(500, 'Nepovedlo se nalézt data ve firebase');
+    if (!snapshot.exists) return { error: 'Nepovedlo se nalézt data ve firebase' };
 
     const data = snapshot.data();
 
-    if (!data) error(500, 'Nepovedlo se nalézt data ve firebase');
+    if (!data) return { error: 'Nepovedlo se nalézt data ve firebase' };
 
-    const { title, fileName, pdfBytes } =
-        await generatePdfData(args, lang, fetch, getData, data);
-
-    const encodedName = encodeURIComponent(fileName);
-    const encodedTitle = encodeURIComponent(title);
-
-    return new Response(pdfBytes, {
-        headers: {
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': 'inline; filename=' + encodedName,
-            'Title': encodedTitle,
-        },
-        status: 200,
-    });
+    return {
+        data: await generatePdfData(args, lang, getData, data),
+    };
 };

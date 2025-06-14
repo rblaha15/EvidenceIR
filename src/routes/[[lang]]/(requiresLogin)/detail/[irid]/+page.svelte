@@ -12,7 +12,8 @@
         novaEvidence,
         odstranitEvidenci,
         odstranitObecnyServisniProtokol,
-        publicProtocol, type SPID,
+        publicProtocol,
+        type SPID,
         vyplnitServisniProtokol,
     } from '$lib/client/firestore';
     import { storable } from '$lib/helpers/stores';
@@ -55,7 +56,7 @@
 
         if (!snapshot) {
             type = 'noAccess';
-            return
+            return;
         }
         values = snapshot.data();
     };
@@ -186,7 +187,7 @@
                 inicialy: ja?.initials ?? p.zasah.inicialy,
             },
         });
-        await fetchIRdata()
+        await fetchIRdata();
     };
 </script>
 
@@ -245,7 +246,7 @@
     </div>
 
     {#if $isUserAdmin}
-<!--        <hr />-->
+        <!--        <hr />-->
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             <Widget widget={newIRID} {t} data={{}} />
             <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR</button>
@@ -348,38 +349,39 @@
     </div>
     {#if $isUserRegulusOrAdmin}
         <h4 class="m-0">Protokoly servisního zásahu</h4>
-        <div class="d-flex flex-column gap-1 align-items-sm-start">
-            {#each values.installationProtocols as p, i}
-                <PdfLink name={spName(p.zasah)} {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true} newLineBreakpoint="md">
-                    <a
-                        tabindex="0"
-                        class="btn btn-warning d-block"
-                        href={detailUrl(`/sp/?edit=${i}`)}
-                    >Upravit protokol</a>
-                    <button class="btn btn-warning d-block"
-                            data-bs-toggle="modal" data-bs-target="#duplicateModal"
-                    >Duplikovat</button>
-                </PdfLink>
+        {#if values.installationProtocols.length}
+            <div class="d-flex flex-column gap-1 align-items-sm-start">
+                {#each values.installationProtocols as p, i}
+                    <PdfLink name={spName(p.zasah)} {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true}
+                             breakpoint="md">
+                        <a tabindex="0" class="btn btn-warning d-block" href={detailUrl(`/sp/?edit=${i}`)}>
+                            Upravit protokol
+                        </a>
+                        <button class="btn btn-warning d-block" data-bs-toggle="modal" data-bs-target="#duplicateModal">
+                            Duplikovat
+                        </button>
+                    </PdfLink>
 
-                <div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="duplicateModalLabel">Duplikovat</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                Chcete vytvořit kopii pro vykázání servisního zásahu více osob?
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ne</button>
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick={copySP(i)}>Ano</button>
+                    <div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="duplicateModalLabel">Duplikovat</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Chcete vytvořit kopii pro vykázání servisního zásahu více osob?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ne</button>
+                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick={copySP(i)}>Ano</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            {/each}
-        </div>
+                {/each}
+            </div>
+        {/if}
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             <a class="btn btn-primary" tabindex="0" href={detailUrl('/sp')}>
                 Vyplnit {values.installationProtocols.length ? 'další ' : ''} protokol
