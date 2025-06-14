@@ -3,8 +3,8 @@ import type { Data } from '$lib/forms/Data';
 import type { Translations } from '$lib/translations';
 import type { GetPdfData } from '$lib/server/pdf';
 import { endUserName } from '$lib/helpers/ir';
-import type { Raw } from '$lib/forms/Form';
-import type { Kontrola } from '$lib/forms/Kontrola.svelte';
+import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
+import { defaultKontrola, type Kontrola } from '$lib/forms/Kontrola.svelte';
 
 export const cascadeDetails = (e: Raw<Data>, t: Translations) => ({
     isCascade: !!e.tc.model2,
@@ -32,8 +32,16 @@ ${t.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}
             ).join('; '),
         /*       poznamky */ Text141: kontroly.mapTo((_, k) => k.poznamky.poznamka).join('\n')
     };
-    const veci = kontroly.mapTo((rok, k) => {
-        const array = k.omit('info', 'poznamky').getValues().flatMap(obj => obj.getValues());
+    const veci = kontroly.mapTo((rok, kontrola) => {
+        const k = dataToRawData(rawDataToData(defaultKontrola(), kontrola)) // seřazení informací
+        const k2 = {
+            ...k,
+            kontrolniUkonyOtopneSoustavy:
+                rok == 1 ? k.kontrolniUkonyOtopneSoustavy : k.kontrolniUkonyOtopneSoustavy.omit('nastavenyTlakPriUvadeniDoProvozu', 'nastavenyTlakPriUvadeniDoProvozu2'),
+            kontrolaZasobnikuTv:
+                rok == 1 ? k.kontrolaZasobnikuTv : k.kontrolaZasobnikuTv.omit('nastavenyTlakPriUvadeniDoProvozu'),
+        }
+        const array = k2.omit('info', 'poznamky').getValues().flatMap(obj => obj.getValues());
         const start =
             1 + // Indexujeme od 1
             1 + // Text1
