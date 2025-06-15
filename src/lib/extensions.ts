@@ -72,6 +72,11 @@ declare global {
             this: T,
             callback: (self: T) => U
         ): U extends PromiseLike<infer _> ? Promise<T> : T;
+
+        thenAlso<T extends PromiseLike<unknown>, U>(
+            this: T,
+            callback: (self: Awaited<T>) => U
+        ): T;
     }
 }
 
@@ -87,7 +92,8 @@ Object.defineProperties(Object.prototype, {
     zip: { writable: true },
     omit: { writable: true },
     let: { writable: true },
-    also: { writable: true }
+    also: { writable: true },
+    thenAlso: { writable: true },
 });
 
 Object.prototype.entries = <typeof Object.prototype.entries>function() {
@@ -177,6 +183,14 @@ Object.prototype.also = function <T, U>(
         }) as U extends PromiseLike<infer _> ? Promise<T> : T;
     else
         return this as U extends PromiseLike<infer _> ? Promise<T> : T;
+};
+
+Object.prototype.thenAlso = function <T extends PromiseLike<any>, U>(
+    this: T,
+    callback: (self: Awaited<T>) => U
+): T {
+    this.then(callback);
+    return this;
 };
 
 declare global {

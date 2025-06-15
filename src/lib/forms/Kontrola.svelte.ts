@@ -1,5 +1,4 @@
 import type { FormInfo } from '$lib/forms/forms.svelte.js';
-import { pridatKontrolu } from '$lib/client/firestore';
 import { CheckboxWidget, InputWidget, TitleWidget } from '$lib/Widget.svelte.js';
 import { dataToRawData, type Form } from '$lib/forms/Form';
 import { todayISO } from '$lib/helpers/date';
@@ -10,6 +9,7 @@ import { page } from '$app/state';
 import { derived, get } from 'svelte/store';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { browser } from '$app/environment';
+import db from '$lib/client/data';
 
 export type Rok = number
 
@@ -180,7 +180,7 @@ export const check = (() => {
             } else return undefined;
         },
         saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
-            await pridatKontrolu(irid, tc, rok, raw);
+            await db.addHeatPumpCheck(irid, tc, rok as 1 | 2 | 3 | 4, raw);
             if (await checkRegulusOrAdmin()) return;
 
             const user = get(currentUser)!;
@@ -188,7 +188,7 @@ export const check = (() => {
                 ...defaultAddresses(),
                 subject: `Vyplněna nová roční kontrola TČ k ${irName(ir.evidence.ir)}`,
                 component: MailProtocol,
-                props: { name: user.email!, origin: page.url.origin, irid_spid: irid },
+                props: { name: user.email!, origin: page.url.origin, id: irid },
             });
 
             if (response!.ok) return;

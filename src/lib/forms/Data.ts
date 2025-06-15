@@ -26,18 +26,18 @@ import { getTranslations, makePlain, p, type P } from '$lib/translations';
 import { type Form, type Raw } from '$lib/forms/Form';
 import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
 import { page } from '$app/state';
-import { evidence, existuje, extractIRIDFromRawData, type IRID, novaEvidence, upravitEvidenci } from '$lib/client/firestore';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { companies } from '$lib/helpers/companies';
 import { relUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { nazevFirmy } from '$lib/helpers/ares';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
-import { irName } from '$lib/helpers/ir';
+import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import { generateXML } from '$lib/createXML';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
 import MailSDaty from '$lib/emails/MailSDaty.svelte';
 import { type Products } from '$lib/helpers/products';
+import db from '$lib/client/data';
 
 export interface UserData<D extends UserData<D>> extends Form<D> {
     koncovyUzivatel: {
@@ -212,7 +212,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
     saveData: async (raw, edit, data, editResult, t, send) => {
         const irid = extractIRIDFromRawData(raw);
 
-        if (!edit && irid && getIsOnline() && await existuje(irid)) {
+        if (!edit && irid && getIsOnline() && await db.existsIR(irid)) {
             editResult({
                 red: true, load: false,
                 text: t.irExistsHtml({ link: relUrl(`/detail/${irid}`) }),
@@ -222,8 +222,8 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
 
         const user = get(currentUser)!;
 
-        if (edit) await upravitEvidenci(raw);
-        else await novaEvidence({ evidence: raw, kontrolyTC: {}, users: [user.email!], installationProtocols: [] });
+        if (edit) await db.updateIRRecord(raw);
+        else await db.newIR({ evidence: raw, kontrolyTC: {}, users: [user.email!], installationProtocols: [] });
 
         const doNotSend = edit && !send;
 
@@ -273,10 +273,8 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         const irid = page.url.searchParams.get('edit-irid') as IRID | null;
         if (!irid) return undefined;
 
-        const snapshot = await evidence(irid);
-        if (!(snapshot.exists() && snapshot.data() != undefined)) return undefined;
-
-        return snapshot.data()!.evidence;
+        const ir = await db.getIR(irid);
+        return !ir ? undefined : ir.evidence;
     },
     onMount: async (_, data, edit) => {
         await startTechniciansListening();

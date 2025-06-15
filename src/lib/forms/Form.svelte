@@ -84,10 +84,10 @@
                 return;
             }
 
-            if (!getIsOnline()) {
-                result = { red: true, text: t.offline, load: false };
-                return;
-            }
+            // if (!getIsOnline()) {
+            //     result = { red: true, text: t.offline, load: false };
+            //     return;
+            // }
 
             result = { load: true, red: false, text: t.saving };
             const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send);

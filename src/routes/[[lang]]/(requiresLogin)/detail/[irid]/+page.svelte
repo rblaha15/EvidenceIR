@@ -3,19 +3,6 @@
     import type { PageData } from './$types';
     import PdfLink from './PDFLink.svelte';
     import { checkAuth, currentUser, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
-    import {
-        evidence,
-        extractIRIDFromParts,
-        extractIRIDFromRawData,
-        type IR,
-        type IRID,
-        novaEvidence,
-        odstranitEvidenci,
-        odstranitObecnyServisniProtokol,
-        publicProtocol,
-        type SPID,
-        vyplnitServisniProtokol,
-    } from '$lib/client/firestore';
     import { storable } from '$lib/helpers/stores';
     import { heatPumpCommission, type UvedeniTC } from '$lib/forms/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
@@ -23,7 +10,17 @@
     import { page } from '$app/state';
     import { solarCollectorCommission, type UvedeniSOL } from '$lib/forms/UvedeniSOL';
     import { setTitle } from '$lib/helpers/title.svelte';
-    import { irWholeName, isIRID, isSPID, spName, spWholeName } from '$lib/helpers/ir';
+    import {
+        extractIRIDFromParts,
+        extractIRIDFromRawData,
+        type IRID,
+        irWholeName,
+        isIRID,
+        isSPID,
+        type SPID,
+        spName,
+        spWholeName,
+    } from '$lib/helpers/ir';
     import { ChooserWidget, InputWidget } from '$lib/Widget.svelte.js';
     import type { Raw } from '$lib/forms/Form';
     import { detailUrl, relUrl } from '$lib/helpers/runes.svelte';
@@ -31,6 +28,7 @@
     import { todayISO } from '$lib/helpers/date';
     import sp2, { type DataSP2 } from '$lib/forms/SP2';
     import { p, plainArray } from '$lib/translations';
+    import db, { type IR } from '$lib/client/data';
 
     interface Props {
         data: PageData;
@@ -38,8 +36,8 @@
 
     let { data }: Props = $props();
     const t = data.translations;
-    const irid = isIRID(data.irid_spid) ? data.irid_spid as IRID : undefined;
-    const spid = isSPID(data.irid_spid) ? data.irid_spid as SPID : undefined;
+    const irid = isIRID(data.id) ? data.id : undefined;
+    const spid = isSPID(data.id) ? data.id : undefined;
 
     const deleted = page.url.searchParams.has('deleted');
     const storedHeatPumpCommission = storable<Raw<UvedeniTC>>(`${heatPumpCommission.storeName}_${irid}`);
@@ -49,16 +47,18 @@
     let values = $state() as IR;
     let sp = $state() as Raw<DataSP2>;
     const fetchIRdata = async () => {
-        const snapshot = (await (irid!.length == 6 ? [
-            evidence(`2${irid}`), evidence(`4${irid}`),
-            evidence(`B${irid}`),
-        ] : [evidence(irid!)]).awaitAll()).find(snapshot => snapshot.exists());
+        const _values = (await (irid!.length == 6 ? [
+            db.getIR(`2${irid}`), db.getIR(`4${irid}`),
+            db.getIR(`B${irid}`),
+        ] : [db.getIR(irid!)]).awaitAll()).find(Boolean);
 
-        if (!snapshot) {
+        if (!_values) {
             type = 'noAccess';
-            return;
+            return false;
         }
-        values = snapshot.data();
+
+        values = _values;
+        return true;
     };
     onMount(async () => {
         await checkAuth();
@@ -66,19 +66,19 @@
 
         try {
             if (irid) {
-                await fetchIRdata();
+                if (!await fetchIRdata()) return;
             } else if (spid) {
-                let snapshot = await publicProtocol(spid);
+                let _sp = await db.getIndependentProtocol(spid);
 
-                if (!snapshot || !snapshot.exists()) {
-                    snapshot = await publicProtocol(spid.split('-').slice(0, -1).join('-') as SPID);
+                if (!_sp) {
+                    _sp = await db.getIndependentProtocol(spid.split('-').slice(0, -1).join('-') as SPID);
                 }
 
-                if (!snapshot || !snapshot.exists()) {
+                if (!_sp) {
                     type = 'noAccess';
                     return;
                 }
-                sp = snapshot.data();
+                sp = _sp;
             }
             type = 'loaded';
         } catch (e) {
@@ -94,7 +94,7 @@
     });
 
     const remove = async () => {
-        await odstranitEvidenci(irid!);
+        await db.deleteIR(irid!);
         window.location.replace(detailUrl(`?deleted`));
     };
 
@@ -142,14 +142,14 @@
             const newNumber = irNumber.value;
             const newType = irType.value;
             change = 'sending';
-            const record = (await evidence(irid!)).data()!;
+            const record = (await db.getIR(irid!))!;
             record.evidence.ir.cislo = newNumber;
             if (record.evidence.ir.cislo == newNumber) return change = 'unchanged';
             record.evidence.ir.typ.first = newType;
-            await novaEvidence(record);
-            const newRecord = (await evidence(extractIRIDFromParts(newType!, newNumber))).data();
+            await db.newIR(record);
+            const newRecord = await db.getIR(extractIRIDFromParts(newType!, newNumber));
             if (!newRecord?.evidence) return change = 'fail';
-            await odstranitEvidenci(irid!);
+            await db.deleteIR(irid!);
             window.location.assign(relUrl(`/detail/${extractIRIDFromParts(newType!, newNumber)}`));
         } catch (e) {
             console.log(e);
@@ -163,7 +163,7 @@
         label: p('IRID (z URL adresy)'),
     });
     const transfer = async () => {
-        await vyplnitServisniProtokol(newIRID.value as IRID, {
+        await db.addServiceProtocol(newIRID.value as IRID, {
             zasah: sp.zasah, fakturace: sp.fakturace, ukony: sp.ukony, nahradniDil1: sp.nahradniDil1,
             nahradniDil2: sp.nahradniDil2, nahradniDil3: sp.nahradniDil3, nahradniDil4: sp.nahradniDil4,
             nahradniDil5: sp.nahradniDil5, nahradniDil6: sp.nahradniDil6, nahradniDil7: sp.nahradniDil7,
@@ -174,7 +174,7 @@
     const copySP = (i: number) => async () => {
         const ja = $techniciansList.find(t => $currentUser?.email == t.email);
         const p = values.installationProtocols[i];
-        await vyplnitServisniProtokol(irid!, {
+        await db.addServiceProtocol(irid!, {
             ...p,
             fakturace: {
                 hotove: 'doNotInvoice',
@@ -238,7 +238,7 @@
 {/if}
 {#if type === 'loaded' && spid}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
-        <PdfLink {data} {t} linkName="publicInstallationProtocol" hideLanguageSelector={true} />
+        <PdfLink lang={data.languageCode} id={spid} {t} linkName="publicInstallationProtocol" hideLanguageSelector={true} data={sp} />
 
         <a class="btn btn-warning" href={relUrl('/newSP')} onclick={() => {
             storable<typeof sp>(sp2.storeName).set(sp)
@@ -252,7 +252,7 @@
             <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR</button>
 
             <button class="btn btn-danger d-block"
-                    onclick={() => odstranitObecnyServisniProtokol(spid)}
+                    onclick={() => db.deleteIndependentProtocol(spid)}
             >Odstranit protokol
             </button>
         </div>
@@ -261,30 +261,27 @@
 {#if type === 'loaded' && irid && irid.length !== 6}
     <div class="d-flex flex-column gap-1">
         {#if values.evidence.vzdalenyPristup.chce}
-            <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" {data} />
+            <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" lang={data.languageCode} id={irid} data={values} />
         {/if}
         {#if values.evidence.ir.typ.first !== p('SOREL')}
-            <PdfLink name={t.routeGuide} {t} linkName="guide" {data} />
+            <PdfLink name={t.routeGuide} {t} linkName="guide" lang={data.languageCode} id={irid} data={values} />
         {/if}
         {#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
             {#if values.evidence.tc.model2}
-                <PdfLink name={t.warranty1} {t} linkName="warranty-" {data} />
-                <PdfLink name={t.warranty2} {t} linkName="warranty-2" {data} />
+                <PdfLink name={t.warranty1} {t} linkName="warranty-" lang={data.languageCode} id={irid} data={values} />
+                <PdfLink name={t.warranty2} {t} linkName="warranty-2" lang={data.languageCode} id={irid} data={values} />
             {:else}
-                <PdfLink name={t.warranty} {t} linkName="warranty-" {data} />
+                <PdfLink name={t.warranty} {t} linkName="warranty-" lang={data.languageCode} id={irid} data={values} />
             {/if}
             {#if values.evidence.tc.model3}
-                <PdfLink name={t.warranty3} {t} linkName="warranty-3" {data} />
+                <PdfLink name={t.warranty3} {t} linkName="warranty-3" lang={data.languageCode} id={irid} data={values} />
             {/if}
             {#if values.evidence.tc.model4}
-                <PdfLink name={t.warranty4} {t} linkName="warranty-4" {data} />
+                <PdfLink name={t.warranty4} {t} linkName="warranty-4" lang={data.languageCode} id={irid} data={values} />
             {/if}
             <PdfLink
-                enabled={values.uvedeniTC !== undefined}
-                name={t.heatPumpCommissionProtocol}
-                {t}
-                linkName="heatPumpCommissionProtocol"
-                {data}
+                enabled={values.uvedeniTC !== undefined} name={t.heatPumpCommissionProtocol} {t} linkName="heatPumpCommissionProtocol"
+                lang={data.languageCode} id={irid} data={values}
             >
                 {#if !values.uvedeniTC}
                     <a
@@ -294,16 +291,16 @@
                     >{t.commission}</a>
                 {/if}
             </PdfLink>
-            <PdfLink name={!values.evidence.tc.model2 ? t.filledYearlyCheck : t.filledYearlyCheck1} {t}
-                     linkName="check-1" {data} enabled={values.kontrolyTC[1]?.[1] !== undefined}>
+            <PdfLink name={!values.evidence.tc.model2 ? t.filledYearlyCheck : t.filledYearlyCheck1} {t} linkName="check-1"
+                     lang={data.languageCode} id={irid} data={values} enabled={values.kontrolyTC[1]?.[1] !== undefined}>
                 <a
                     tabindex="0" href={detailUrl('/check?tc=1')}
                     class="btn btn-primary d-block"
                 >{!values.evidence.tc.model2 ? t.doYearlyCheck : t.doYearlyCheck1}</a>
             </PdfLink>
             {#if values.evidence.tc.model2}
-                <PdfLink name={t.filledYearlyCheck2} {t}
-                         linkName="check-2" {data} enabled={values.kontrolyTC[2]?.[1] !== undefined}>
+                <PdfLink name={t.filledYearlyCheck2} {t} linkName="check-2" lang={data.languageCode} id={irid} data={values}
+                         enabled={values.kontrolyTC[2]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={detailUrl('/check?tc=2')}
                         class="btn btn-primary d-block"
@@ -311,8 +308,8 @@
                 </PdfLink>
             {/if}
             {#if values.evidence.tc.model3}
-                <PdfLink name={t.filledYearlyCheck3} {t}
-                         linkName="check-3" {data} enabled={values.kontrolyTC[3]?.[1] !== undefined}>
+                <PdfLink name={t.filledYearlyCheck3} {t} linkName="check-3" lang={data.languageCode} id={irid} data={values}
+                         enabled={values.kontrolyTC[3]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={detailUrl('/check?tc=3')}
                         class="btn btn-primary d-block"
@@ -320,8 +317,8 @@
                 </PdfLink>
             {/if}
             {#if values.evidence.tc.model4}
-                <PdfLink name={t.filledYearlyCheck4} {t}
-                         linkName="check-4" {data} enabled={values.kontrolyTC[4]?.[1] !== undefined}>
+                <PdfLink name={t.filledYearlyCheck4} {t} linkName="check-4" lang={data.languageCode} id={irid} data={values}
+                         enabled={values.kontrolyTC[4]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={detailUrl('/check?tc=4')}
                         class="btn btn-primary d-block"
@@ -335,7 +332,7 @@
                 name={t.solarCollectorCommissionProtocol}
                 {t}
                 linkName="solarCollectorCommissionProtocol"
-                {data}
+                lang={data.languageCode} id={irid} data={values}
             >
                 {#if !values.uvedeniSOL}
                     <a
@@ -352,7 +349,8 @@
         {#if values.installationProtocols.length}
             <div class="d-flex flex-column gap-1 align-items-sm-start">
                 {#each values.installationProtocols as p, i}
-                    <PdfLink name={spName(p.zasah)} {data} {t} linkName="installationProtocol-{i}" hideLanguageSelector={true}
+                    <PdfLink name={spName(p.zasah)} lang={data.languageCode} id={irid} data={values} {t} linkName="installationProtocol-{i}"
+                             hideLanguageSelector={true}
                              breakpoint="md">
                         <a tabindex="0" class="btn btn-warning d-block" href={detailUrl(`/sp/?edit=${i}`)}>
                             Upravit protokol

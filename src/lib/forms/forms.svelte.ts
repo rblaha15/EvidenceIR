@@ -1,4 +1,3 @@
-import { type IR, type IRID } from '$lib/client/firestore';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
 import type { Readable } from 'svelte/store';
@@ -9,6 +8,8 @@ import { solarCollectorCommission } from '$lib/forms/UvedeniSOL';
 import { check } from '$lib/forms/Kontrola.svelte';
 import type { ExcelImport } from '$lib/forms/Import';
 import { sp } from '$lib/forms/SP.svelte';
+import type { IRID } from '$lib/helpers/ir';
+import type { IR } from '$lib/client/data';
 
 export type FormName = 'sp' | 'heatPumpCommission' | 'solarCollectorCommission' | 'check'
 
@@ -46,7 +47,7 @@ export type FormInfo<D, F extends Form<D>, S extends unknown[][] = [], R extends
     saveData: (irid: IRID, raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, ir: IR) => Promise<boolean | void>;
     createWidgetData: (evidence: Raw<Data>, data: F) => D;
     getEditData?: ((ir: IR) => R | undefined) | undefined;
-} & Omit<DetachedFormInfo<D, F, S, R>, 'saveData' | 'createWidgetData' | 'getEditData' | 'redirect' | 'showBackButton'>
+} & Omit<DetachedFormInfo<D, F, S, R>, 'saveData' | 'createWidgetData' | 'getEditData' | 'redirect' | 'showBackButton' | 'openPdf'>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const formInfo: { [F in FormName]: FormInfo<any, any, any, any> } = {

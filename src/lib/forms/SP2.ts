@@ -13,17 +13,17 @@ import {
     techniciansList
 } from '$lib/client/realtime';
 import type { User } from 'firebase/auth';
-import { extractSPIDFromRawData, vyplnitObecnyServisniProtokol } from '$lib/client/firestore';
 import { currentUser } from '$lib/client/auth';
 import { relUrl } from '$lib/helpers/runes.svelte';
 import { type Form } from '$lib/forms/Form';
-import { nowISO, todayISO } from '$lib/helpers/date';
+import { nowISO } from '$lib/helpers/date';
 import { companies } from '$lib/helpers/companies';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { spName } from '$lib/helpers/ir';
+import { extractSPIDFromRawData, spName } from '$lib/helpers/ir';
 import { p } from '$lib/translations';
+import db from '$lib/client/data';
 
 export type UDSP = UserData<UDSP> & GenericDataSP<UDSP>
 
@@ -52,13 +52,13 @@ const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SpareP
     defaultData: defaultDataSP2,
     getEditData: async () => undefined,
     saveData: async (raw, _, __, editResult, t) => {
-        await vyplnitObecnyServisniProtokol(raw);
+        await db.addIndependentServiceProtocol(raw);
 
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: `Nový servisní protokol: ${spName(raw.zasah)}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, origin: page.url.origin, irid_spid: extractSPIDFromRawData(raw.zasah) },
+            props: { name: raw.zasah.clovek, origin: page.url.origin, id: extractSPIDFromRawData(raw.zasah) },
         });
 
         if (response!.ok) return true;
