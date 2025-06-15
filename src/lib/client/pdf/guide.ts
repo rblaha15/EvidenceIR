@@ -1,5 +1,5 @@
 
-import type { GetPdfData } from '$lib/server/pdf';
+import type { GetPdfData } from '$lib/client/pdfGeneration';
 import { irWholeName, irName } from '$lib/helpers/ir';
 
 const guide: GetPdfData = async ({ evidence: e }) => ({

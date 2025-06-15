@@ -1,6 +1,6 @@
 import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { today } from '$lib/helpers/date';
-import type { GetPdfData } from '$lib/server/pdf';
+import type { GetPdfData } from '$lib/client/pdfGeneration';
 
 export default (i: number): GetPdfData => async ({ evidence: e }, t) => {
     const uvedeni = await nazevAdresaFirmy(e.uvedeni.ico, fetch);

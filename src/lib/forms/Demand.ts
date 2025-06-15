@@ -16,7 +16,7 @@ import {
     TextWidget,
     TitleWidget
 } from '$lib/Widget.svelte';
-import { type Company, type FriendlyCompanies, startLidiListening, type Person, seznamLidi } from '$lib/client/realtime';
+import { type Company, type FriendlyCompanies, startLidiListening, type Person, usersList } from '$lib/client/realtime';
 import { browser, dev, version } from '$app/environment';
 import products, { type Products } from '$lib/helpers/products';
 import { languageCodes } from '$lib/languages';
@@ -677,15 +677,15 @@ const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Person[], 
         [(_, d, [$companies]) => {
             d.contacts.assemblyCompanySearch.items = () => $companies.assemblyCompanies;
         }, [companies]],
-        [(_, d, [$people, $currentUser]) => {
-            const withKO = $people.filter(p => p.koNumber && p.responsiblePerson)
+        [(_, d, [$users, $currentUser]) => {
+            const withKO = $users.filter(p => p.koNumber && p.responsiblePerson)
             const me = withKO.find(t => $currentUser?.email == t.email);
             d.other.representative.items = () => withKO
                 .filter(p => p.email.endsWith('cz'))
                 .toSorted((a, b) => a.responsiblePerson!.split(" ").at(-1)!
                     .localeCompare(b.responsiblePerson!.split(" ").at(-1)!));
             if (me) d.other.representative.setValue(d, me);
-        }, [seznamLidi, currentUser]],
+        }, [usersList, currentUser]],
     ],
     isSendingEmails: true,
     showSaveAndSendButtonByDefault: true,
