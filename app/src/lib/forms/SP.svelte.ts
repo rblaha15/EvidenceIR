@@ -19,7 +19,6 @@ import {
 } from '$lib/client/realtime';
 import { type Form, type Raw } from '$lib/forms/Form';
 import { page } from '$app/state';
-import { evidence, upravitServisniProtokol, vyplnitServisniProtokol } from '$lib/client/firestore';
 import { currentUser } from '$lib/client/auth';
 import type { User } from 'firebase/auth';
 import { nowISO } from '$lib/helpers/date';
@@ -29,6 +28,7 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { spName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { range } from '$lib/extensions';
+import db from '$lib/client/data';
 
 type NahradniDil<D extends Form<D>> = {
     label: TextWidget<D>,
@@ -246,15 +246,15 @@ export const sp = (() => {
         saveData: async (irid, raw, edit, _, editResult, t, send) => {
             const name = spName(raw.zasah);
 
-            const ir = (await evidence(irid)).data()!;
+            const ir = (await db.getIR(irid))!;
 
             if (!edit && getIsOnline() && ir.installationProtocols.some(p => spName(p.zasah) == name)) {
                 editResult({ text: 'SP již existuje.', red: true, load: false });
                 return false;
             }
 
-            if (edit) await upravitServisniProtokol(irid, i, raw);
-            else await vyplnitServisniProtokol(irid, raw);
+            if (edit) await db.editServiceProtocol(irid, i, raw);
+            else await db.addServiceProtocol(irid, raw);
 
             if (edit && !send) return true;
 
@@ -264,7 +264,7 @@ export const sp = (() => {
                     ? `Upravený servisní protokol: ${name}`
                     : `Nový servisní protokol: ${name}`,
                 component: MailProtocol,
-                props: { name: raw.zasah.clovek, origin: page.url.origin, irid_spid: irid },
+                props: { name: raw.zasah.clovek, origin: page.url.origin, id: irid },
             });
 
             if (response!.ok) return true;

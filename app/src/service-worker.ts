@@ -12,6 +12,7 @@ const ASSETS = [
 	...build,
 	...files,
 	...prerendered,
+	'https://pdf-lib.js.org/assets/ubuntu/Ubuntu-R.ttf',
 ];
 
 const sw = self as unknown as ServiceWorkerGlobalScope;

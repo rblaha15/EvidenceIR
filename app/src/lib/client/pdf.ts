@@ -2,8 +2,8 @@ import type { LanguageCode } from '$lib/languages';
 import { p, type TranslationReference } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
 
-export const toPdfTypeName = (linkName: Pdf) =>
-    linkName.split('-')[0] as PdfTypeName;
+export const toPdfTypeName = <T extends 'IR' | 'SP'>(linkName: Pdf<T>) =>
+    linkName.split('-')[0] as PdfTypeName<T>;
 
 export type Pdf<T extends 'IR' | 'SP' = 'IR' | 'SP'> = {
     IR: `check-${1 | 2 | 3 | 4}` | `warranty-${'' | 2 | 3 | 4}` | 'rroute' | 'guide'
@@ -20,7 +20,7 @@ export type PdfInfo = {
 } & {
     [P in PdfTypeName<'SP'>]: PdfArgs<'SP'>;
 };
-export const pdfInfo: PdfInfo = {
+export const pdfInfo = <T extends 'IR' | 'SP'>(n: PdfTypeName<T>) => ({
     check: {
         type: 'IR',
         formName: 'check',
@@ -86,7 +86,8 @@ export const pdfInfo: PdfInfo = {
         title: '',
         fileName: '',
     },
-};
+} satisfies PdfInfo)[n] as PdfArgs<T>;
+
 export type PdfArgs<T extends 'IR' | 'SP' = 'IR' | 'SP'> = {
     type: T;
     formName: string;

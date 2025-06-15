@@ -1,13 +1,13 @@
 <script lang="ts">
     import type { PageData } from './$types';
-    import { evidenceStore, type IRID, upravitUzivatele } from '$lib/client/firestore';
     import { setTitle } from '$lib/helpers/title.svelte';
-    import { irWholeName } from '$lib/helpers/ir';
+    import { type IRID, irWholeName } from '$lib/helpers/ir';
     import { SearchWidget } from '$lib/Widget.svelte';
     import { p } from '$lib/translations';
     import Search from '$lib/components/widgets/Search.svelte';
     import { onMount } from 'svelte';
     import { usersList, startLidiListening } from '$lib/client/realtime';
+    import db from '$lib/client/data';
 
     interface Props {
         data: PageData;
@@ -16,8 +16,8 @@
     let { data }: Props = $props();
     const t = data.translations;
 
-    const irid = data.irid_spid as IRID;
-    const ir = evidenceStore(irid);
+    const irid = data.id as IRID;
+    const ir = db.getIRAsStore(irid);
 
     setTitle('Uživatelé s přístupem k evidenci');
 
@@ -50,7 +50,7 @@
             type="submit"
             onclick={() => {
                 if (!w.value) return;
-				upravitUzivatele(irid, [...new Set([...$ir.users, w.value])]);
+				db.updateIRUsers(irid, [...new Set([...$ir.users, w.value])]);
 				w.setValue(undefined, null);
 			}}
         >Přidat uživatele
@@ -63,7 +63,7 @@
                 <button
                     class="btn text-danger"
                     onclick={() => {
-						upravitUzivatele(irid, $ir.users.toSpliced($ir.users.indexOf(user), 1));
+						db.updateIRUsers(irid, $ir.users.toSpliced($ir.users.indexOf(user), 1));
 					}}
                     aria-label="Odstranit"
                 >

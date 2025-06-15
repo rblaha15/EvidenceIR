@@ -71,7 +71,6 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
 };
 
 export const publicInstallationProtocol: GetPdfData<'SP'> = async (p, t, addPage) => {
-    console.log(p)
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
     const nahradniDily = [
         p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,

@@ -3,7 +3,6 @@ import fontkit from '@pdf-lib/fontkit';
 import { getTranslations, type Translations } from '$lib/translations';
 import type { LanguageCode } from '$lib/languages';
 import { type Pdf, type PdfArgs, pdfInfo, toPdfTypeName } from '$lib/client/pdf';
-import { type DataOfType, evidence_sp2, type ID, type IR } from '$lib/client/firestore';
 import check from '$lib/client/pdf/check';
 import warranty from '$lib/client/pdf/warranty';
 import rroute from '$lib/client/pdf/rroute';
@@ -14,7 +13,7 @@ import installationProtocol, { pdfCP, publicInstallationProtocol } from '$lib/cl
 import { irLabel, spName } from '$lib/helpers/ir';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { Raw } from '$lib/forms/Form';
-import type { DocumentSnapshot } from 'firebase/firestore';
+import { type DataOfType, type IR } from './data';
 
 type SignatureDefinition = {
     x: number,
@@ -40,23 +39,24 @@ export type GetPdfData<T extends 'IR' | 'SP' = 'IR'> = (
 } & {
     fileNameSuffix?: string;
 }>;
-export const getPdfData = (
-    link: Pdf,
-): GetPdfData<'IR' | 'SP'> => {
+export const getPdfData = <T extends 'IR' | 'SP'>(
+    link: Pdf<T>,
+): GetPdfData<T> => {
     const t = toPdfTypeName(link);
-    if (t == 'check') return check(Number(link.split('-')[1]) as 1 | 2 | 3 | 4);
-    if (t == 'warranty') return warranty(Number(link.split('-')[1] || '1') - 1);
-    if (t == 'rroute') return rroute;
-    if (t == 'guide') return guide;
-    if (t == 'heatPumpCommissionProtocol') return heatPumpCommissionProtocol;
-    if (t == 'solarCollectorCommissionProtocol') return solarCollectorCommissionProtocol;
-    if (t == 'installationProtocol') return installationProtocol(Number(link.split('-')[1]));
-    if (t == 'publicInstallationProtocol') return publicInstallationProtocol;
-    if (t == 'CP') return pdfCP;
-    throw `Invalid link name: ${t}`;
+    return {
+        check: () => check(Number(link.split('-')[1]) as 1 | 2 | 3 | 4),
+        warranty: () => warranty(Number(link.split('-')[1] || '1') - 1),
+        rroute: () => rroute,
+        guide: () => guide,
+        heatPumpCommissionProtocol: () => heatPumpCommissionProtocol,
+        solarCollectorCommissionProtocol: () => solarCollectorCommissionProtocol,
+        installationProtocol: () => installationProtocol(Number(link.split('-')[1])),
+        publicInstallationProtocol: () => publicInstallationProtocol,
+        CP: () => pdfCP,
+    }[t]() as GetPdfData<T>;
 };
 
-const generatePdfData = async <T extends 'IR' | 'SP'>(
+export const generatePdf = async <T extends 'IR' | 'SP'>(
     args: PdfArgs<T>,
     lang: LanguageCode,
     getData: GetPdfData<T>,
@@ -74,17 +74,18 @@ const generatePdfData = async <T extends 'IR' | 'SP'>(
     const form = pdfDoc.getForm();
     const fields = form.getFields();
 
-    const formData = await getData(data, t, async (pdfName2, data2) => {
+    const addPage = async <T extends 'IR' | 'SP'>(pdfName2: Pdf<T>, data2: DataOfType<T>) => {
         const pdfTypeName2 = toPdfTypeName(pdfName2);
-        const pdfArgs2 = pdfInfo[pdfTypeName2];
+        const pdfArgs2 = pdfInfo(pdfTypeName2);
         const getData2 = getPdfData(pdfName2);
-        const pdfData2 = await generatePdfData(
+        const pdfData2 = await generatePdf<T>(
             pdfArgs2, lang, getData2, data2,
         );
         const pdfDoc2 = await PDFDocument.load(pdfData2.pdfBytes);
         const [newPage] = await pdfDoc.copyPages(pdfDoc2, [0]);
         pdfDoc.addPage(newPage);
-    });
+    };
+    const formData = await getData(data, t, addPage);
 
     for (const fieldName in formData.omit('fileNameSuffix')) {
         const name = fieldName as `${PdfFieldType}${number}`;
@@ -171,32 +172,4 @@ const generatePdfData = async <T extends 'IR' | 'SP'>(
     const fileName = `${args.fileName}_${surname} ${suffix}.pdf`;
 
     return { fileName, pdfBytes };
-};
-
-export const generatePdf = async <T extends 'IR' | 'SP'>(
-    lang: LanguageCode,
-    irid_spid: ID<T>,
-    args: PdfArgs<T>,
-    getData: GetPdfData<T>,
-) => {
-    let snapshot: DocumentSnapshot<DataOfType<T> | undefined>;
-    try {
-        snapshot = await evidence_sp2(irid_spid);
-
-        if (!snapshot.exists && args.type == 'SP')
-            snapshot = await evidence_sp2(irid_spid.split('-').slice(0, -1).join('-') as ID<T>);
-    } catch (e) {
-        console.log(`Nepovedlo se načíst data z firebase ${{ lang, irid_spid }}`);
-        return { error: `Nepovedlo se načíst data z firebase ${lang}, ${irid_spid}, ${e}` };
-    }
-
-    if (!snapshot.exists) return { error: 'Nepovedlo se nalézt data ve firebase' };
-
-    const data = snapshot.data();
-
-    if (!data) return { error: 'Nepovedlo se nalézt data ve firebase' };
-
-    return {
-        data: await generatePdfData(args, lang, getData, data),
-    };
 };

@@ -2,7 +2,6 @@ import { type GetOrVal, TitleWidget, InputWidget, SwitchWidget, ChooserWidget, C
 import { todayISO } from '$lib/helpers/date';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { Data } from '$lib/forms/Data';
-import { uvestSOLDoProvozu } from '$lib/client/firestore';
 import type { FormInfo } from './forms.svelte';
 import { type P, p, plainArray } from '$lib/translations';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
@@ -11,6 +10,7 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
+import db from '$lib/client/data';
 
 export type UDSOL = {
     uvedeni: UvedeniSOL,
@@ -107,7 +107,7 @@ export const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL> = ({
     defaultData: defaultUvedeniSOL,
     pdfLink: () => 'solarCollectorCommissionProtocol',
     saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
-        await uvestSOLDoProvozu(irid, raw);
+        await db.addSolarSystemCommissioningProtocol(irid, raw);
         if (await checkRegulusOrAdmin()) return
 
         const user = get(currentUser)!;
@@ -115,7 +115,7 @@ export const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL> = ({
             ...defaultAddresses(),
             subject: `Vyplněno nové uvedení SOL do provozu k ${irName(ir.evidence.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, origin: page.url.origin, irid_spid: irid },
+            props: { name: user.email!, origin: page.url.origin, id: irid },
         });
 
         if (response!.ok) return;
