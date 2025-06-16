@@ -25,7 +25,6 @@ export type IR = {
 };
 
 export type ID<T extends 'IR' | 'SP' = 'IR' | 'SP'> = { IR: IRID; SP: SPID }[T];
-// export type DataOfType<T extends 'IR' | 'SP'> = { IR: IR, SP: Raw<DataSP2> }[T];
 export type DataOfType<T extends 'IR' | 'SP'> = T extends 'IR' ? IR : Raw<DataSP2>;
 
 export interface Database {

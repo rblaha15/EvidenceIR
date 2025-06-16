@@ -10,7 +10,6 @@ import { currentUser } from '$lib/client/auth';
 import { type LegacyIR, type LegacySP, migrateSP, modernizeIR } from '$lib/client/migrations';
 import { isOnline } from '$lib/client/realtime';
 import { browser } from '$app/environment';
-import { untrack } from 'svelte';
 
 interface DBSchema extends DBS {
     IR: {
@@ -47,7 +46,7 @@ const m = <T extends 'IR' | 'SP'>(type: T) => (v: DOT<T>) => (type === 'IR' ? mI
 const odm = {
     put: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>, value: DataOfType<T>) => {
         const _db2 = await db;
-        await _db2.put(type, value, id);
+        await _db2.put(type, $state.snapshot(value), id);
         if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: value }));
     },
     delete: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>) => {
@@ -71,12 +70,11 @@ const odm = {
         const tx = (await db).transaction(type, 'readwrite');
         const store = tx.objectStore(type);
         const current = (await store.get(id))?.let(m(type)) as DataOfType<T>;
-        console.log(current)
         const updated = update(current);
-        console.log(updated, store, store.put, id)
-        const uw = unwrap(store);
-        const rq = uw.put($state.snapshot(updated), id);
-        await wrap(rq);
+        // const uw = unwrap(store);
+        // const rq = uw.put($state.snapshot(updated), id);
+        // await wrap(rq);
+        await store.put($state.snapshot(updated), id);
         await tx.done;
         if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: updated }));
     },

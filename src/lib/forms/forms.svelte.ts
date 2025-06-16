@@ -45,7 +45,7 @@ export type DetachedFormInfo<D, F extends Form<D>, S extends unknown[][] = [], P
     isSendingEmails?: boolean;
     showSaveAndSendButtonByDefault?: boolean | Readable<boolean>;
     redirectLink?: (raw: R) => Promise<string>;
-    openPdf?: (raw: R) => OpenPdfOptions<P>;
+    openPdf?: (raw: R) => Promise<OpenPdfOptions<P>>;
 }
 
 export type FormInfo<D, F extends Form<D>, S extends unknown[][] = [], P extends Pdf<'IR'> = Pdf<'IR'>, R extends Raw<F> = Raw<F>> = {

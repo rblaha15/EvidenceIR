@@ -15,10 +15,6 @@ export type EmailOptions<Props extends Record<string, unknown>> = {
     bcc?: AddressLike;
     subject: string;
     attachments?: Attachment[];
-    pdf?: {
-        link: string;
-        title: string;
-    };
     component: Component<Props, Record<string, unknown>, '' | keyof Props>;
     props: Props;
 }

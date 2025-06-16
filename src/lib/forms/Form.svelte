@@ -107,7 +107,7 @@
 
                 if (openPdf) {
                     if (!anchor.href || !anchor.download) {
-                        const { link, data, ...parameters } = openPdf(raw);
+                        const { link, data, ...parameters } = await openPdf(raw);
                         const p = parameters as unknown as PdfParameters<P>;
                         const pdfData = await generatePdf(pdfInfo[link], page.data.languageCode, data, ...pdfParamsArray(p))
 
