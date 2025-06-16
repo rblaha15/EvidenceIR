@@ -1,10 +1,10 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import type { Data } from '$lib/forms/Data';
 import type { Translations } from '$lib/translations';
-import type { GetPdfData } from '$lib/client/pdfGeneration';
 import { endUserName } from '$lib/helpers/ir';
 import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
 import { defaultKontrola, type Kontrola } from '$lib/forms/Kontrola.svelte';
+import type { GetPdfData } from '$lib/client/pdf';
 
 export const cascadeDetails = (e: Raw<Data>, t: Translations) => ({
     isCascade: !!e.tc.model2,
@@ -18,8 +18,8 @@ export const cascadeDetails = (e: Raw<Data>, t: Translations) => ({
         .map(([m, c]) => [t.get(m), c] as const)
 });
 
-const check = (i: 1 | 2 | 3 | 4): GetPdfData => async ({ kontrolyTC, evidence: e }, t) => {
-    const kontroly = kontrolyTC[i] as Record<number, Raw<Kontrola>>;
+const check: GetPdfData<'RK'> = async ({ kontrolyTC, evidence: e }, t, _, { pump }) => {
+    const kontroly = kontrolyTC[pump] as Record<number, Raw<Kontrola>>;
     const montazka = await nazevFirmy(e.montazka.ico);
     const { isCascade, pumps } = cascadeDetails(e, t);
     const start = {

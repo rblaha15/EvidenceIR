@@ -229,10 +229,13 @@ const cells: ExcelImport<Raw<DataSP>>['cells'] = {
 
 export const sp = (() => {
     let i = $state() as number;
-    const info: import('./forms.svelte').FormInfo<DataSP, DataSP, [[Technician[], User | null], [SparePart[]]]> = {
+    const info: import('./forms.svelte').FormInfo<DataSP, DataSP, [[Technician[], User | null], [SparePart[]]], 'SP'> = {
         storeName: 'stored_sp',
         defaultData: () => defaultDataSP(),
-        pdfLink: () => `installationProtocol-${i}`,
+        openPdf: () => ({
+            link: 'SP',
+            index: i,
+        }),
         getEditData: ir => {
             const editIndex = page.url.searchParams.get('edit') as string | null;
             if (editIndex) {

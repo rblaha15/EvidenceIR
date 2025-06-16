@@ -102,10 +102,12 @@ const defaultUvedeniSOL = (): UvedeniSOL => ({
     },
 });
 
-export const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL> = ({
+export const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL, [], 'UPS'> = ({
     storeName: 'stored_solar_collector_commission',
     defaultData: defaultUvedeniSOL,
-    pdfLink: () => 'solarCollectorCommissionProtocol',
+    openPdf: () => ({
+        link: 'UPS'
+    }),
     saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
         await db.addSolarSystemCommissioningProtocol(irid, raw);
         if (await checkRegulusOrAdmin()) return

@@ -238,7 +238,7 @@
 {/if}
 {#if type === 'loaded' && spid}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
-        <PdfLink lang={data.languageCode} id={spid} {t} linkName="publicInstallationProtocol" hideLanguageSelector={true} data={sp} />
+        <PdfLink lang={data.languageCode} {t} link="NSP" hideLanguageSelector={true} data={sp} />
 
         <a class="btn btn-warning" href={relUrl('/newSP')} onclick={() => {
             storable<typeof sp>(sp2.storeName).set(sp)
@@ -261,27 +261,27 @@
 {#if type === 'loaded' && irid && irid.length !== 6}
     <div class="d-flex flex-column gap-1">
         {#if values.evidence.vzdalenyPristup.chce}
-            <PdfLink name={t.regulusRouteForm} {t} linkName="rroute" lang={data.languageCode} id={irid} data={values} />
+            <PdfLink name={t.regulusRouteForm} {t} link="RR" lang={data.languageCode} data={values} />
         {/if}
         {#if values.evidence.ir.typ.first !== p('SOREL')}
-            <PdfLink name={t.routeGuide} {t} linkName="guide" lang={data.languageCode} id={irid} data={values} />
+            <PdfLink name={t.routeGuide} {t} link="NN" lang={data.languageCode} data={values} />
         {/if}
         {#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
             {#if values.evidence.tc.model2}
-                <PdfLink name={t.warranty1} {t} linkName="warranty-" lang={data.languageCode} id={irid} data={values} />
-                <PdfLink name={t.warranty2} {t} linkName="warranty-2" lang={data.languageCode} id={irid} data={values} />
+                <PdfLink name={t.warranty1} {t} link="ZL" lang={data.languageCode} data={values} pump={1} />
+                <PdfLink name={t.warranty2} {t} link="ZL" lang={data.languageCode} data={values} pump={2} />
             {:else}
-                <PdfLink name={t.warranty} {t} linkName="warranty-" lang={data.languageCode} id={irid} data={values} />
+                <PdfLink name={t.warranty} {t} link="ZL" lang={data.languageCode} data={values} pump={1} />
             {/if}
             {#if values.evidence.tc.model3}
-                <PdfLink name={t.warranty3} {t} linkName="warranty-3" lang={data.languageCode} id={irid} data={values} />
+                <PdfLink name={t.warranty3} {t} link="ZL" lang={data.languageCode} data={values} pump={3} />
             {/if}
             {#if values.evidence.tc.model4}
-                <PdfLink name={t.warranty4} {t} linkName="warranty-4" lang={data.languageCode} id={irid} data={values} />
+                <PdfLink name={t.warranty4} {t} link="ZL" lang={data.languageCode} data={values} pump={4} />
             {/if}
             <PdfLink
-                enabled={values.uvedeniTC !== undefined} name={t.heatPumpCommissionProtocol} {t} linkName="heatPumpCommissionProtocol"
-                lang={data.languageCode} id={irid} data={values}
+                enabled={values.uvedeniTC !== undefined} name={t.heatPumpCommissionProtocol} {t} link="UPT"
+                lang={data.languageCode} data={values}
             >
                 {#if !values.uvedeniTC}
                     <a
@@ -291,15 +291,15 @@
                     >{t.commission}</a>
                 {/if}
             </PdfLink>
-            <PdfLink name={!values.evidence.tc.model2 ? t.filledYearlyCheck : t.filledYearlyCheck1} {t} linkName="check-1"
-                     lang={data.languageCode} id={irid} data={values} enabled={values.kontrolyTC[1]?.[1] !== undefined}>
+            <PdfLink name={!values.evidence.tc.model2 ? t.filledYearlyCheck : t.filledYearlyCheck1} {t} link="RK" pump={1}
+                     lang={data.languageCode} data={values} enabled={values.kontrolyTC[1]?.[1] !== undefined}>
                 <a
                     tabindex="0" href={detailUrl('/check?tc=1')}
                     class="btn btn-primary d-block"
                 >{!values.evidence.tc.model2 ? t.doYearlyCheck : t.doYearlyCheck1}</a>
             </PdfLink>
             {#if values.evidence.tc.model2}
-                <PdfLink name={t.filledYearlyCheck2} {t} linkName="check-2" lang={data.languageCode} id={irid} data={values}
+                <PdfLink name={t.filledYearlyCheck2} {t} link="RK" lang={data.languageCode} data={values} pump={2}
                          enabled={values.kontrolyTC[2]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={detailUrl('/check?tc=2')}
@@ -308,7 +308,7 @@
                 </PdfLink>
             {/if}
             {#if values.evidence.tc.model3}
-                <PdfLink name={t.filledYearlyCheck3} {t} linkName="check-3" lang={data.languageCode} id={irid} data={values}
+                <PdfLink name={t.filledYearlyCheck3} {t} link="RK" lang={data.languageCode} data={values} pump={3}
                          enabled={values.kontrolyTC[3]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={detailUrl('/check?tc=3')}
@@ -317,7 +317,7 @@
                 </PdfLink>
             {/if}
             {#if values.evidence.tc.model4}
-                <PdfLink name={t.filledYearlyCheck4} {t} linkName="check-4" lang={data.languageCode} id={irid} data={values}
+                <PdfLink name={t.filledYearlyCheck4} {t} link="RK" lang={data.languageCode} data={values} pump={4}
                          enabled={values.kontrolyTC[4]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={detailUrl('/check?tc=4')}
@@ -331,8 +331,8 @@
                 enabled={values.uvedeniSOL !== undefined}
                 name={t.solarCollectorCommissionProtocol}
                 {t}
-                linkName="solarCollectorCommissionProtocol"
-                lang={data.languageCode} id={irid} data={values}
+                link="UPS"
+                lang={data.languageCode} data={values}
             >
                 {#if !values.uvedeniSOL}
                     <a
@@ -349,7 +349,7 @@
         {#if values.installationProtocols.length}
             <div class="d-flex flex-column gap-1 align-items-sm-start">
                 {#each values.installationProtocols as p, i}
-                    <PdfLink name={spName(p.zasah)} lang={data.languageCode} id={irid} data={values} {t} linkName="installationProtocol-{i}"
+                    <PdfLink name={spName(p.zasah)} lang={data.languageCode} data={values} {t} link="SP" index={i}
                              hideLanguageSelector={true}
                              breakpoint="md">
                         <a tabindex="0" class="btn btn-warning d-block" href={detailUrl(`/sp/?edit=${i}`)}>

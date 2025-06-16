@@ -208,10 +208,12 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
     },
 });
 
-export const heatPumpCommission: FormInfo<UDTC, UvedeniTC> = ({
+export const heatPumpCommission: FormInfo<UDTC, UvedeniTC, [], 'UPT'> = ({
     storeName: 'stored_heat_pump_commission',
     defaultData: defaultUvedeniTC,
-    pdfLink: () => 'heatPumpCommissionProtocol',
+    openPdf: () => ({
+        link: 'UPT',
+    }),
     saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
         await db.addHeatPumpCommissioningProtocol(irid, raw);
         if (await checkRegulusOrAdmin()) return
