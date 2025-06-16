@@ -1,15 +1,8 @@
 import { PDFDocument, PDFName, PDFRef, PDFSignature } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
-import { getTranslations, type Translations } from '$lib/translations';
+import { getTranslations } from '$lib/translations';
 import type { LanguageCode } from '$lib/languages';
-import { type Pdf, type PdfArgs, pdfInfo, toPdfTypeName } from '$lib/client/pdf';
-import check from '$lib/client/pdf/check';
-import warranty from '$lib/client/pdf/warranty';
-import rroute from '$lib/client/pdf/rroute';
-import guide from '$lib/client/pdf/guide';
-import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtocol';
-import solarCollectorCommissionProtocol from '$lib/client/pdf/solarCollectorCommissionProtocol';
-import installationProtocol, { pdfCP, publicInstallationProtocol } from '$lib/client/pdf/installationProtocol';
+import { type Pdf, type PdfArgs, pdfInfo, type PdfParameters, type PdfParametersArray, type TypeOfPdf } from '$lib/client/pdf';
 import { irLabel, spName } from '$lib/helpers/ir';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { Raw } from '$lib/forms/Form';
@@ -24,13 +17,9 @@ type SignatureDefinition = {
     maxWidth?: number,
 };
 
-export type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Podpis'
+type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Podpis'
 
-export type GetPdfData<T extends 'IR' | 'SP' = 'IR'> = (
-    data: DataOfType<T>,
-    t: Translations,
-    addPage: <T extends 'IR' | 'SP'>(args: Pdf<T>, data: DataOfType<T>) => Promise<void>,
-) => Promise<{
+export type PdfGenerationData = {
     [fieldName in `${PdfFieldType}${number}`]: (
     fieldName extends `Zaškrtávací pole${number}` ? boolean
         : fieldName extends `Podpis${number}` ? SignatureDefinition
@@ -38,29 +27,13 @@ export type GetPdfData<T extends 'IR' | 'SP' = 'IR'> = (
     ) | null;
 } & {
     fileNameSuffix?: string;
-}>;
-export const getPdfData = <T extends 'IR' | 'SP'>(
-    link: Pdf<T>,
-): GetPdfData<T> => {
-    const t = toPdfTypeName(link);
-    return {
-        check: () => check(Number(link.split('-')[1]) as 1 | 2 | 3 | 4),
-        warranty: () => warranty(Number(link.split('-')[1] || '1') - 1),
-        rroute: () => rroute,
-        guide: () => guide,
-        heatPumpCommissionProtocol: () => heatPumpCommissionProtocol,
-        solarCollectorCommissionProtocol: () => solarCollectorCommissionProtocol,
-        installationProtocol: () => installationProtocol(Number(link.split('-')[1])),
-        publicInstallationProtocol: () => publicInstallationProtocol,
-        CP: () => pdfCP,
-    }[t]() as GetPdfData<T>;
 };
 
-export const generatePdf = async <T extends 'IR' | 'SP'>(
-    args: PdfArgs<T>,
+export const generatePdf = async <P extends Pdf>(
+    args: PdfArgs<P>,
     lang: LanguageCode,
-    getData: GetPdfData<T>,
-    data: DataOfType<T>,
+    data: DataOfType<TypeOfPdf<P>>,
+    ...parameters: PdfParametersArray<P>
 ) => {
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
     const t = getTranslations(formLanguage);
@@ -74,18 +47,20 @@ export const generatePdf = async <T extends 'IR' | 'SP'>(
     const form = pdfDoc.getForm();
     const fields = form.getFields();
 
-    const addPage = async <T extends 'IR' | 'SP'>(pdfName2: Pdf<T>, data2: DataOfType<T>) => {
-        const pdfTypeName2 = toPdfTypeName(pdfName2);
-        const pdfArgs2 = pdfInfo(pdfTypeName2);
-        const getData2 = getPdfData(pdfName2);
-        const pdfData2 = await generatePdf<T>(
-            pdfArgs2, lang, getData2, data2,
+    const addPage = async <P extends Pdf>(
+        pdfName2: P,
+        data2: DataOfType<TypeOfPdf<P>>,
+        ...parameters: PdfParametersArray<NoInfer<P>>
+    ) => {
+        const pdfArgs2 = pdfInfo[pdfName2];
+        const pdfData2 = await generatePdf<P>(
+            pdfArgs2, lang, data2, ...parameters,
         );
         const pdfDoc2 = await PDFDocument.load(pdfData2.pdfBytes);
         const [newPage] = await pdfDoc.copyPages(pdfDoc2, [0]);
         pdfDoc.addPage(newPage);
     };
-    const formData = await getData(data, t, addPage);
+    const formData = await args.getPdfData(data, t, addPage, ...parameters);
 
     for (const fieldName in formData.omit('fileNameSuffix')) {
         const name = fieldName as `${PdfFieldType}${number}`;
@@ -169,7 +144,7 @@ export const generatePdf = async <T extends 'IR' | 'SP'>(
 
     const surname = irLabel(args.type == 'IR' ? (data as IR).evidence : data as Raw<DataSP2>).split(' ')[0];
     const suffix = formData.fileNameSuffix ?? (args.type == 'IR' ? (data as IR).evidence.ir.cislo : spName((data as Raw<DataSP2>).zasah));
-    const fileName = `${args.fileName}_${surname} ${suffix}.pdf`;
+    const fileName = `${args.formName}_${surname} ${suffix}.pdf`;
 
     return { fileName, pdfBytes };
 };

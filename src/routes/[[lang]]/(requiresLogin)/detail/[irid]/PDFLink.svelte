@@ -1,23 +1,12 @@
-<script generics="T extends 'IR' | 'SP'" lang="ts">
+<script generics="P extends Pdf" lang="ts">
     import { languageNames, type Translations } from '$lib/translations';
-    import { type Pdf, pdfInfo, toPdfTypeName } from '$lib/client/pdf';
+    import { type Pdf, pdfInfo, type PdfParameters, pdfParamsArray } from '$lib/client/pdf';
     import type { Snippet } from 'svelte';
-    import { generatePdf, getPdfData } from '$lib/client/pdfGeneration';
+    import { generatePdf } from '$lib/client/pdfGeneration';
     import type { LanguageCode } from '$lib/languages';
-    import type { DataOfType, ID } from '$lib/client/data';
+    import type { OpenPdfOptions } from '$lib/forms/forms.svelte';
 
-    type Props = ({
-        IR: {
-            linkName: Pdf<'IR'>;
-            id: ID<'IR'>;
-            data: DataOfType<'IR'>;
-        };
-        SP: {
-            linkName: Pdf<'SP'>;
-            id: ID<'SP'>;
-            data: DataOfType<'SP'>;
-        };
-    }[T]) & {
+    type Props<P extends Pdf> = OpenPdfOptions<P> & {
         name?: string;
         lang: LanguageCode;
         t: Translations;
@@ -28,9 +17,8 @@
     }
 
     const {
-        linkName,
+        link,
         name,
-        id,
         lang,
         t,
         enabled = true,
@@ -38,10 +26,10 @@
         children,
         breakpoint = 'sm',
         data,
-    }: Props = $props();
+        ...parameters
+    }: Props<P> = $props();
 
-    const pdfTypeName = $derived(toPdfTypeName(linkName));
-    const pdf = $derived(pdfInfo(pdfTypeName));
+    const pdf = $derived(pdfInfo[link]);
     const defaultLanguage = $derived(pdf.supportedLanguages.includes(lang)
         ? lang
         : pdf.supportedLanguages[0]);
@@ -55,9 +43,9 @@
         loading = true;
         if (!anchor.href || !anchor.download || currentLang != lang) {
             error = '';
-            const getData = getPdfData(linkName);
 
-            const pdfData = await generatePdf(pdf, lang, getData, data);
+            const p = parameters as unknown as PdfParameters<P>;
+            const pdfData = await generatePdf(pdf, lang, data, ...pdfParamsArray(p))
 
             anchor.href = URL.createObjectURL(new Blob([pdfData.pdfBytes], {
                 type: 'application/pdf',

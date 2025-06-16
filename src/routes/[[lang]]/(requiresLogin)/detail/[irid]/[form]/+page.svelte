@@ -16,7 +16,7 @@
     const formInfo = formInfos[formName] as FormInfo<D, F, S>;
     const {
         storeName,
-        pdfLink,
+        openPdf,
         saveData,
         createWidgetData,
         getEditData,
@@ -38,7 +38,10 @@
             return result != false
         },
         redirectLink: async () => detailUrl(),
-        openTabLink: async () => detailUrl(`/pdf/${pdfLink()}?token=${await getToken()}`),
+        openPdf: openPdf ? () => ({
+            ...openPdf(),
+            data: ir,
+        }) : undefined,
         createWidgetData: data => createWidgetData(ir.evidence, data),
         showBackButton: () => true,
     });

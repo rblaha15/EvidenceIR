@@ -161,10 +161,15 @@ export const check = (() => {
     const tc = $derived(!browser ? 1
         : page.url.searchParams.get('tc')?.let(Number) ?? 1) as 1 | 2 | 3 | 4;
 
-    const info: FormInfo<Rok, Kontrola> = {
+    const info: FormInfo<Rok, Kontrola, [], 'RK'> = {
         storeName: 'stored_check',
         defaultData: defaultKontrola,
-        pdfLink: () => `check-${tc}`,
+        openPdf: () => ({
+            link: 'RK',
+            parameters: {
+                pump: tc,
+            },
+        }),
         getEditData: ir => {
             const kontroly = ir.kontrolyTC[tc] ?? {};
             rok = kontroly?.[1] == undefined ? 1

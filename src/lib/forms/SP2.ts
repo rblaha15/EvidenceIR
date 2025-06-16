@@ -47,7 +47,7 @@ export const defaultDataSP2 = (): DataSP2 => ({
     ...defaultDataSP(),
 });
 
-const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SparePart[]], [FriendlyCompanies]]> = {
+const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SparePart[]], [FriendlyCompanies]], 'NSP'> = {
     storeName: 'stored_new_SP',
     defaultData: defaultDataSP2,
     getEditData: async () => undefined,
@@ -68,8 +68,11 @@ const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SpareP
             load: false
         });
     },
-    redirectLink: async () => relUrl(),
-    openTabLink: async raw => relUrl(`/detail/${extractSPIDFromRawData(raw.zasah)}`),
+    redirectLink: async raw => relUrl(`/detail/${extractSPIDFromRawData(raw.zasah)}`),
+    openPdf: raw => ({
+        link: 'NSP',
+        data: raw,
+    }),
     createWidgetData: f => f,
     title: () => `Instalační a servisní protokol`,
     onMount: async (d, f) => {

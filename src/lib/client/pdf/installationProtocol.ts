@@ -4,8 +4,8 @@ import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import { cascadeDetails } from '$lib/client/pdf/check';
 import '$lib/extensions';
-import type { GetPdfData } from '$lib/client/pdfGeneration';
 import { endUserName, irName, spName } from '$lib/helpers/ir';
+import type { GetPdfData } from '$lib/client/pdf';
 
 const cenik = {
     transportation: 9.92,
@@ -51,10 +51,14 @@ const poleProDilyS = 44;
 const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
     .associateWith((_, i) => poleProDilyS + i * 8);
 
-export const installationProtocol = (i: number): GetPdfData => async ({ evidence: e, uvedeniTC, installationProtocols }, t, add) => {
-    const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : { hasHP: false, isCascade: false, pumps: [] };
-    const p = installationProtocols[i];
-    return publicInstallationProtocol({
+export const installationProtocol: GetPdfData<'SP'> = async ({ evidence: e, uvedeniTC, installationProtocols }, t, add, { index }) => {
+    const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : {
+        hasHP: false,
+        isCascade: false,
+        pumps: [],
+    };
+    const p = installationProtocols[index];
+    return NSP({
         ...e,
         ...p,
         system: {
@@ -62,7 +66,7 @@ export const installationProtocol = (i: number): GetPdfData => async ({ evidence
 ${e.ir.cisloBox ? `BOX: ${e.ir.cisloBox}` : ''}
 ${e.sol?.typ ? `SOL: ${e.sol.typ} – ${e.sol.pocet}x` : ''}
 ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
-                t.pumpDetails({ n: isCascade ? `${i + 1}` : '', model, cislo })
+                t.pumpDetails({ n: isCascade ? `${i + 1}` : '', model, cislo }),
             )) : ''}`,
             pocetTC: pumps.length,
             datumUvedeni: uvedeniTC?.uvadeni?.date ?? '',
@@ -70,7 +74,7 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
     }, t, add);
 };
 
-export const publicInstallationProtocol: GetPdfData<'SP'> = async (p, t, addPage) => {
+export const NSP: GetPdfData<'NSP'> = async (p, t, addPage) => {
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
     const nahradniDily = [
         p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
@@ -82,10 +86,10 @@ export const publicInstallationProtocol: GetPdfData<'SP'> = async (p, t, addPage
     const cenaDily = nahradniDily.sumBy(dil => Number(dil.unitPrice) * Number(dil.mnozstvi));
     const cenaOstatni = cenaUkony + cenaDily;
     const celkem = cenaDopravy + cenaPrace + cenaOstatni;
-    const dph = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21
-    const response = await fetch(`/signatures/${p.zasah.inicialy}.jpg`)
-    const signature = response.ok && !response.redirected ? await response.arrayBuffer() : null
-    if (dph == 1.12) await addPage('CP', p)
+    const dph = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21;
+    const response = await fetch(`/signatures/${p.zasah.inicialy}.jpg`);
+    const signature = response.ok && !response.redirected ? await response.arrayBuffer() : null;
+    if (dph == 1.12) await addPage('CP', p);
 
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
@@ -144,17 +148,15 @@ export const publicInstallationProtocol: GetPdfData<'SP'> = async (p, t, addPage
         /*                */ Text41: p.fakturace.hotove == 'no' ? t.get(p.fakturace.komu) : '',
         /*                */ Text42: p.fakturace.hotove == 'no' ? t.get(p.fakturace.jak) : '',
         /*                */ Text43: p.fakturace.komu == 'assemblyCompany' ? p.montazka.zastupce : endUserName(p.koncovyUzivatel),
-        /*  popisTechnika */ Podpis64: signature ? { x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60, } : null,
+        /*  popisTechnika */ Podpis64: signature ? { x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 } : null,
     } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };
 export default installationProtocol;
 
 const formatovatCerpadla = (a: string[]) => [a.slice(0, 2).join('; '), a.slice(2, 4).join('; ')].join('\n');
 
-export const pdfCP: GetPdfData<'SP'> = async p => {
-    return ({
-        Text1: `${p.koncovyUzivatel.prijmeni} ${p.koncovyUzivatel.jmeno}`,
-        Text2: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
-        Text3: dateFromISO(p.zasah.datum),
-    });
-}
+export const CP: GetPdfData<'CP'> = async p => ({
+    Text1: `${p.koncovyUzivatel.prijmeni} ${p.koncovyUzivatel.jmeno}`,
+    Text2: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
+    Text3: dateFromISO(p.zasah.datum),
+});
