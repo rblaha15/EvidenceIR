@@ -12,18 +12,6 @@ export const POST: RequestHandler = async ({ url, request, fetch }) => {
     const { message }: { message: EmailMessage } = await request.json();
     console.log(message)
 
-    if (message.pdf) {
-        const pdfResponse = await fetch(`${message.pdf.link}?token=${token}`);
-        message.attachments = [
-            ...message.attachments ?? [],
-            {
-                content: Buffer.from(await pdfResponse.arrayBuffer()),
-                contentType: 'application/pdf',
-                filename: message.pdf.title,
-            },
-        ];
-    }
-
     console.log("Sending!")
     const { response } = await sendEmail(message);
     console.log(response)

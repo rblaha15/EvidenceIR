@@ -3,13 +3,13 @@ import { p, type TranslationReference, type Translations } from '$lib/translatio
 import type { SaveOptions } from 'pdf-lib';
 import type { DataOfType } from '$lib/client/data';
 import type { PdfGenerationData } from '$lib/client/pdfGeneration';
-import RK from '$lib/client/pdf/check';
-import NN from '$lib/client/pdf/guide';
-import ZL from '$lib/client/pdf/warranty';
-import RR from '$lib/client/pdf/rroute';
-import UPT from '$lib/client/pdf/solarCollectorCommissionProtocol';
-import UPS from '$lib/client/pdf/heatPumpCommissionProtocol';
-import SP, { CP, NSP } from '$lib/client/pdf/installationProtocol';
+import RK from '$lib/client/pdf/RK';
+import NN from '$lib/client/pdf/NN';
+import ZL from '$lib/client/pdf/ZL';
+import RR from '$lib/client/pdf/RR';
+import UPT from '$lib/client/pdf/UPT';
+import UPS from '$lib/client/pdf/UPS';
+import SP, { CP, NSP } from '$lib/client/pdf/SP';
 
 type AllPdf = {
     [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP']: 'IR'

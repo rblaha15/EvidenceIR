@@ -234,7 +234,7 @@ export const sp = (() => {
         defaultData: () => defaultDataSP(),
         openPdf: () => ({
             link: 'SP',
-            index: i,
+            index: i.also(console.log),
         }),
         getEditData: ir => {
             const editIndex = page.url.searchParams.get('edit') as string | null;
@@ -242,6 +242,7 @@ export const sp = (() => {
                 i = Number(editIndex);
                 return ir.installationProtocols[i];
             } else {
+                console.log(ir.installationProtocols);
                 i = ir.installationProtocols.length;
                 return undefined;
             }

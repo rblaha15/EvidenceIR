@@ -1,10 +1,10 @@
 import { nazevFirmy } from "$lib/helpers/ares";
 import { dateFromISO, todayISO } from '$lib/helpers/date';
-import { cascadeDetails } from '$lib/client/pdf/check';
-import type { GetPdfData } from '$lib/client/pdfGeneration';
+import { cascadeDetails } from '$lib/client/pdf/RK';
+import type { GetPdfData } from '$lib/client/pdf';
 import { endUserName, typBOX, irType } from '$lib/helpers/ir';
 
-const heatPumpCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniTC, }, t) => {
+const UPS: GetPdfData<'UPS'> = async ({ evidence: e, uvedeniTC, }, t) => {
     const u = uvedeniTC!
     const { isCascade, pumps } = cascadeDetails(e, t);
 
@@ -60,4 +60,4 @@ const heatPumpCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniTC, 
 ).join('\n'),
     });
 };
-export default heatPumpCommissionProtocol
+export default UPS

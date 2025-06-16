@@ -1,5 +1,5 @@
 import { nazevFirmy } from '$lib/helpers/ares';
-import type { GetPdfData } from '$lib/client/pdfGeneration';
+import type { GetPdfData } from '$lib/client/pdf';
 import { endUserName, irType } from '$lib/helpers/ir';
 import type { Data } from '$lib/forms/Data';
 import type { Raw } from '$lib/forms/Form';
@@ -7,7 +7,7 @@ import type { Raw } from '$lib/forms/Form';
 const representative = (c: Raw<Data>['montazka' | 'uvedeni']) =>
     `${c.zastupce} – ${c.email}; ${c.telefon ?? ''}`;
 
-const rroute: GetPdfData = async ({ evidence: e }, t) => ({
+const RR: GetPdfData<'RR'> = async ({ evidence: e }, t) => ({
 /*   icoMontaznik */ Text1: e.montazka.ico,
 /* firmaMontaznik */ Text2: (await nazevFirmy(e.montazka.ico, fetch)) ?? null,
 /* jmenoMontaznik */ Text3: representative(e.montazka),
@@ -35,4 +35,4 @@ const rroute: GetPdfData = async ({ evidence: e }, t) => ({
 /*          datum */ // Text20: '',
 /*         podpis */ // Text21: '',
 });
-export default rroute;
+export default RR;

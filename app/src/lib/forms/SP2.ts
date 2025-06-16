@@ -69,7 +69,7 @@ const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SpareP
         });
     },
     redirectLink: async raw => relUrl(`/detail/${extractSPIDFromRawData(raw.zasah)}`),
-    openPdf: raw => ({
+    openPdf: async raw => ({
         link: 'NSP',
         data: raw,
     }),

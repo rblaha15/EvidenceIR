@@ -38,6 +38,8 @@ import MailRRoute from '$lib/emails/MailRRoute.svelte';
 import MailSDaty from '$lib/emails/MailSDaty.svelte';
 import { type Products } from '$lib/helpers/products';
 import db from '$lib/client/data';
+import { generatePdf } from '$lib/client/pdfGeneration';
+import { pdfInfo } from '$lib/client/pdf';
 
 export interface UserData<D extends UserData<D>> extends Form<D> {
     koncovyUzivatel: {
@@ -222,8 +224,9 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
 
         const user = get(currentUser)!;
 
+        const newIr = { evidence: raw, kontrolyTC: {}, users: [user.email!], installationProtocols: [] };
         if (edit) await db.updateIRRecord(raw);
-        else await db.newIR({ evidence: raw, kontrolyTC: {}, users: [user.email!], installationProtocols: [] });
+        else await db.newIR(newIr);
 
         const doNotSend = edit && !send;
 
@@ -232,6 +235,8 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
             const montazka = (await nazevFirmy(raw.montazka.ico)) ?? null;
             const uvadec = (await nazevFirmy(raw.uvedeni.ico)) ?? null;
 
+            const pdf = await generatePdf(pdfInfo.RR, 'cs', newIr)
+
             const response = await sendEmail({
                 ...defaultAddresses(),
                 subject: `Založení RegulusRoute k ${irName(raw.ir)}`,
@@ -239,11 +244,11 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
                     content: generateXML(data, t),
                     contentType: 'application/xml',
                     filename: `Evidence ${irid}.xml`,
+                }, {
+                content: Buffer.from(pdf.pdfBytes),
+                    contentType: 'application/pdf',
+                    filename: pdf.fileName,
                 }],
-                pdf: {
-                    link: `/cs/detail/${irid}/pdf/rroute`,
-                    title: 'Souhlas RegulusRoute.pdf',
-                },
                 component: MailRRoute,
                 props: { e: raw, montazka, uvadec, t, origin: page.url.origin },
             });

@@ -38,9 +38,9 @@
             return result != false
         },
         redirectLink: async () => detailUrl(),
-        openPdf: openPdf ? () => ({
+        openPdf: openPdf ? async () => ({
             ...openPdf(),
-            data: ir,
+            data: (await db.getIR(irid))!,
         }) : undefined,
         createWidgetData: data => createWidgetData(ir.evidence, data),
         showBackButton: () => true,

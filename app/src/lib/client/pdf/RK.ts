@@ -18,7 +18,7 @@ export const cascadeDetails = (e: Raw<Data>, t: Translations) => ({
         .map(([m, c]) => [t.get(m), c] as const)
 });
 
-const check: GetPdfData<'RK'> = async ({ kontrolyTC, evidence: e }, t, _, { pump }) => {
+const RK: GetPdfData<'RK'> = async ({ kontrolyTC, evidence: e }, t, _, { pump }) => {
     const kontroly = kontrolyTC[pump] as Record<number, Raw<Kontrola>>;
     const montazka = await nazevFirmy(e.montazka.ico);
     const { isCascade, pumps } = cascadeDetails(e, t);
@@ -73,4 +73,4 @@ ${t.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}
         ...veci
     };
 };
-export default check;
+export default RK;
