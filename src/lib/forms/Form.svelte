@@ -1,7 +1,10 @@
-<script generics="D, F extends Form<D>, S extends unknown[][]" lang="ts">
+<script generics="D, F extends Form<D>, S extends unknown[][], P extends Pdf = Pdf" lang="ts">
     // noinspection ES6UnusedImports
     import type { Form } from '$lib/forms/Form';
     import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
+    import type { PdfParameters } from '$lib/client/pdf';
+    // noinspection ES6UnusedImports
+    import { type Pdf, pdfInfo, pdfParamsArray } from '$lib/client/pdf';
     import type { Translations } from '$lib/translations';
     import type { DetachedFormInfo } from '$lib/forms/forms.svelte.js';
     import FormHeader from '$lib/forms/FormHeader.svelte';
@@ -11,12 +14,13 @@
     import { storable } from '$lib/helpers/stores';
     import { page } from '$app/state';
     import { dev } from '$app/environment';
-    import { getIsOnline } from '$lib/client/realtime';
+    import { generatePdf } from '$lib/client/pdfGeneration';
 
     const { t, formInfo }: {
         t: Translations,
-        formInfo: DetachedFormInfo<D, F, S>,
+        formInfo: DetachedFormInfo<D, F, S, P>,
     } = $props();
+
     const {
         storeName,
         defaultData,
@@ -30,7 +34,7 @@
         storeData,
         importOptions,
         isSendingEmails,
-        openTabLink,
+        openPdf,
         redirectLink,
         showBackButton,
         showSaveAndSendButtonByDefault,
@@ -67,6 +71,8 @@
     const list = $derived(f.getValues().flatMap(obj => obj.getValues()));
     const d = $derived(createWidgetData(f));
 
+    let anchor = $state() as HTMLAnchorElement;
+
     const save = (send: boolean) => async () => {
         // result = { load: true, red: false, text: '' };
         try {
@@ -84,10 +90,10 @@
                 return;
             }
 
-            if (!getIsOnline()) {
-                result = { red: true, text: t.offline, load: false };
-                return;
-            }
+            // if (!getIsOnline()) {
+            //     result = { red: true, text: t.offline, load: false };
+            //     return;
+            // }
 
             result = { load: true, red: false, text: t.saving };
             const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send);
@@ -95,19 +101,23 @@
             if (!dev) storedData.set(undefined);
 
             if (success) {
-                result = openTabLink || redirectLink
+                result = openPdf || redirectLink
                     ? { text: t.redirecting, red: false, load: true }
                     : { text: '', red: false, load: false };
 
-                if (openTabLink) {
-                    const newWin = window.open(await openTabLink(raw));
-                    if (!newWin || newWin.closed) {
-                        result = {
-                            text: 'Povolte prosím otevírání oken v prohlížeči',
-                            red: true, load: false,
-                        };
-                        return;
+                if (openPdf) {
+                    if (!anchor.href || !anchor.download) {
+                        const { link, data, ...parameters } = await openPdf(raw);
+                        const p = parameters as unknown as PdfParameters<P>;
+                        const pdfData = await generatePdf(pdfInfo[link], page.data.languageCode, data, ...pdfParamsArray(p))
+
+                        anchor.href = URL.createObjectURL(new Blob([pdfData.pdfBytes], {
+                            type: 'application/pdf',
+                        }));
+                        anchor.download = pdfData.fileName;
                     }
+
+                    anchor.click();
                 }
 
                 if (redirectLink) window.location.replace(await redirectLink(raw));
@@ -174,6 +184,7 @@
         </div>
         <p class:text-danger={result.red} class="my-auto">{@html result.text}</p>
     </div>
+    <a aria-hidden="true" target="_blank" class="d-none" href="/" bind:this={anchor}></a>
 {:else}
     <div class="spinner-border text-danger m-2"></div>
 {/if}

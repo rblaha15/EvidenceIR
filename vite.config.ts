@@ -13,6 +13,9 @@ const config: UserConfig = {
 		port: 5001,
 		strictPort: true,
 	},
+	preview: {
+		port: 4001,
+	},
 };
 
 export default config;

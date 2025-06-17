@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { Data } from '$lib/forms/Data';
-    import { extractIRIDFromParts } from '$lib/client/firestore';
     import type { Translations } from '$lib/translations';
     import {
         CheckboxWidget,
@@ -15,6 +14,7 @@
     } from '$lib/Widget.svelte.js';
     import type { User } from 'firebase/auth';
     import type { Form } from '$lib/forms/Form';
+    import { extractIRIDFromParts } from '$lib/helpers/ir';
 
     interface Props {
         data: Data;
