@@ -7,15 +7,18 @@ export function storable<T>(key: string, defaultValue: T): Writable<T>;
 
 export function storable<T>(key: string, defaultValue?: T) {
     const store = writable<T | undefined>(defaultValue);
-	const user = get(currentUser)?.uid ?? 'anonymous';
-    key = `storable_${user}_${key}`;
 
-    if (browser) {
-        const currentValue = localStorage.getItem(key);
-        if (currentValue != null && currentValue != 'undefined' && currentValue != 'null')
-            store.set(JSON.parse(currentValue));
-        else if (defaultValue != undefined) localStorage.setItem(key, JSON.stringify(defaultValue));
-    }
+    currentUser.subscribe(user => {
+        const uid = user?.uid ?? 'anonymous';
+        key = `storable_${uid}_${key}`;
+
+        if (browser) {
+            const currentValue = localStorage.getItem(key);
+            if (currentValue != null && currentValue != 'undefined' && currentValue != 'null')
+                store.set(JSON.parse(currentValue));
+            else if (defaultValue != undefined) localStorage.setItem(key, JSON.stringify(defaultValue));
+        }
+    });
 
     const _storeable: Writable<T | undefined> = {
         subscribe: store.subscribe,

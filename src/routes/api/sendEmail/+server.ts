@@ -4,7 +4,7 @@ import { error } from '@sveltejs/kit';
 import { sendEmail } from '$lib/server/email';
 import type { EmailMessage } from '$lib/client/email';
 
-export const POST: RequestHandler = async ({ url, request, fetch }) => {
+export const POST: RequestHandler = async ({ url, request }) => {
     const token = url.searchParams.get('token');
 
     if (!(await checkToken(token))) error(401, 'Unauthorized');
