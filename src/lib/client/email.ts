@@ -5,6 +5,8 @@ import { type Component, mount } from 'svelte';
 import { dev } from '$app/environment';
 import { get } from 'svelte/store';
 import type { User } from 'firebase/auth';
+import { addEmailToOfflineQueue } from '$lib/client/offline.svelte';
+import { getIsOnline } from '$lib/client/realtime';
 
 export type AddressLike = Address | string | (Address | string)[];
 export type EmailOptions<Props extends Record<string, unknown>> = {
@@ -15,10 +17,6 @@ export type EmailOptions<Props extends Record<string, unknown>> = {
     bcc?: AddressLike;
     subject: string;
     attachments?: Attachment[];
-    pdf?: {
-        link: string;
-        title: string;
-    };
     component: Component<Props, Record<string, unknown>, '' | keyof Props>;
     props: Props;
 }
@@ -37,13 +35,20 @@ export const sendEmail = async <Props extends Record<string, unknown>>(options: 
         ...options, html, text: htmlToText(html)
     };
 
+    if (!getIsOnline()) {
+        addEmailToOfflineQueue(message);
+        return new Response('OK', {
+            status: 200,
+        });
+    }
+
     const token = await getToken();
     return await fetch(`/api/sendEmail?token=${token}`, {
         method: 'POST',
         body: JSON.stringify({ message }),
         headers: {
-            'content-type': 'application/json'
-        }
+            'content-type': 'application/json',
+        },
     });
 };
 

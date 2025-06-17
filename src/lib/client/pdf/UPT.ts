@@ -1,9 +1,9 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
-import type { GetPdfData } from '$lib/client/pdfGeneration';
+import type { GetPdfData } from '$lib/client/pdf';
 import { endUserName } from '$lib/helpers/ir';
 
-const solarCollectorCommissionProtocol: GetPdfData = async ({ evidence: e, uvedeniSOL }, t) => {
+const UPT: GetPdfData<'UPT'> = async ({ evidence: e, uvedeniSOL }, t) => {
     const u = uvedeniSOL!;
 
     return {
@@ -44,4 +44,4 @@ const solarCollectorCommissionProtocol: GetPdfData = async ({ evidence: e, uvede
 /*                */ Text35: u.uvadeni.vlastnik ? t.yes : t.no,
     };
 };
-export default solarCollectorCommissionProtocol
+export default UPT
