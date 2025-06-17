@@ -1,5 +1,4 @@
 import { type GetOrVal, TitleWidget, InputWidget, SwitchWidget, ChooserWidget, CheckboxWidget } from '../Widget.svelte';
-import { uvestTCDoProvozu } from '$lib/client/firestore';
 import type { FormInfo } from './forms.svelte';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { Data } from './Data';
@@ -9,6 +8,7 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
+import db from '$lib/client/data';
 
 export type UDTC = {
     uvedeni: UvedeniTC,
@@ -208,12 +208,14 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
     },
 });
 
-export const heatPumpCommission: FormInfo<UDTC, UvedeniTC> = ({
+export const heatPumpCommission: FormInfo<UDTC, UvedeniTC, [], 'UPT'> = ({
     storeName: 'stored_heat_pump_commission',
     defaultData: defaultUvedeniTC,
-    pdfLink: () => 'heatPumpCommissionProtocol',
+    openPdf: () => ({
+        link: 'UPT',
+    }),
     saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
-        await uvestTCDoProvozu(irid, raw);
+        await db.addHeatPumpCommissioningProtocol(irid, raw);
         if (await checkRegulusOrAdmin()) return
 
         const user = get(currentUser)!;
@@ -221,7 +223,7 @@ export const heatPumpCommission: FormInfo<UDTC, UvedeniTC> = ({
             ...defaultAddresses(),
             subject: `Vyplněno nové uvedení TČ do provozu k ${irName(ir.evidence.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, origin: page.url.origin, irid_spid: irid },
+            props: { name: user.email!, origin: page.url.origin, id: irid },
         });
 
         if (response!.ok) return;

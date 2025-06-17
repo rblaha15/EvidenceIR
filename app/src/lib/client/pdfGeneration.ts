@@ -1,20 +1,12 @@
 import { PDFDocument, PDFName, PDFRef, PDFSignature } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
-import { getTranslations, type Translations } from '$lib/translations';
+import { getTranslations } from '$lib/translations';
 import type { LanguageCode } from '$lib/languages';
-import { type Pdf, type PdfArgs, pdfInfo, toPdfTypeName } from '$lib/client/pdf';
-import { type DataOfType, evidence_sp2, type ID, type IR } from '$lib/client/firestore';
-import check from '$lib/client/pdf/check';
-import warranty from '$lib/client/pdf/warranty';
-import rroute from '$lib/client/pdf/rroute';
-import guide from '$lib/client/pdf/guide';
-import heatPumpCommissionProtocol from '$lib/client/pdf/heatPumpCommissionProtocol';
-import solarCollectorCommissionProtocol from '$lib/client/pdf/solarCollectorCommissionProtocol';
-import installationProtocol, { pdfCP, publicInstallationProtocol } from '$lib/client/pdf/installationProtocol';
+import { type Pdf, type PdfArgs, pdfInfo, type PdfParameters, type PdfParametersArray, type TypeOfPdf } from '$lib/client/pdf';
 import { irLabel, spName } from '$lib/helpers/ir';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { Raw } from '$lib/forms/Form';
-import type { DocumentSnapshot } from 'firebase/firestore';
+import { type DataOfType, type IR } from './data';
 
 type SignatureDefinition = {
     x: number,
@@ -25,13 +17,9 @@ type SignatureDefinition = {
     maxWidth?: number,
 };
 
-export type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Podpis'
+type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Podpis'
 
-export type GetPdfData<T extends 'IR' | 'SP' = 'IR'> = (
-    data: DataOfType<T>,
-    t: Translations,
-    addPage: <T extends 'IR' | 'SP'>(args: Pdf<T>, data: DataOfType<T>) => Promise<void>,
-) => Promise<{
+export type PdfGenerationData = {
     [fieldName in `${PdfFieldType}${number}`]: (
     fieldName extends `Zaškrtávací pole${number}` ? boolean
         : fieldName extends `Podpis${number}` ? SignatureDefinition
@@ -39,28 +27,13 @@ export type GetPdfData<T extends 'IR' | 'SP' = 'IR'> = (
     ) | null;
 } & {
     fileNameSuffix?: string;
-}>;
-export const getPdfData = (
-    link: Pdf,
-): GetPdfData<'IR' | 'SP'> => {
-    const t = toPdfTypeName(link);
-    if (t == 'check') return check(Number(link.split('-')[1]) as 1 | 2 | 3 | 4);
-    if (t == 'warranty') return warranty(Number(link.split('-')[1] || '1') - 1);
-    if (t == 'rroute') return rroute;
-    if (t == 'guide') return guide;
-    if (t == 'heatPumpCommissionProtocol') return heatPumpCommissionProtocol;
-    if (t == 'solarCollectorCommissionProtocol') return solarCollectorCommissionProtocol;
-    if (t == 'installationProtocol') return installationProtocol(Number(link.split('-')[1]));
-    if (t == 'publicInstallationProtocol') return publicInstallationProtocol;
-    if (t == 'CP') return pdfCP;
-    throw `Invalid link name: ${t}`;
 };
 
-const generatePdfData = async <T extends 'IR' | 'SP'>(
-    args: PdfArgs<T>,
+export const generatePdf = async <P extends Pdf>(
+    args: PdfArgs<P>,
     lang: LanguageCode,
-    getData: GetPdfData<T>,
-    data: DataOfType<T>,
+    data: DataOfType<TypeOfPdf<P>>,
+    ...parameters: PdfParametersArray<P>
 ) => {
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
     const t = getTranslations(formLanguage);
@@ -74,17 +47,20 @@ const generatePdfData = async <T extends 'IR' | 'SP'>(
     const form = pdfDoc.getForm();
     const fields = form.getFields();
 
-    const formData = await getData(data, t, async (pdfName2, data2) => {
-        const pdfTypeName2 = toPdfTypeName(pdfName2);
-        const pdfArgs2 = pdfInfo[pdfTypeName2];
-        const getData2 = getPdfData(pdfName2);
-        const pdfData2 = await generatePdfData(
-            pdfArgs2, lang, getData2, data2,
+    const addPage = async <P extends Pdf>(
+        pdfName2: P,
+        data2: DataOfType<TypeOfPdf<P>>,
+        ...parameters: PdfParametersArray<NoInfer<P>>
+    ) => {
+        const pdfArgs2 = pdfInfo[pdfName2];
+        const pdfData2 = await generatePdf<P>(
+            pdfArgs2, lang, data2, ...parameters,
         );
         const pdfDoc2 = await PDFDocument.load(pdfData2.pdfBytes);
         const [newPage] = await pdfDoc.copyPages(pdfDoc2, [0]);
         pdfDoc.addPage(newPage);
-    });
+    };
+    const formData = await args.getPdfData(data, t, addPage, ...parameters);
 
     for (const fieldName in formData.omit('fileNameSuffix')) {
         const name = fieldName as `${PdfFieldType}${number}`;
@@ -168,35 +144,7 @@ const generatePdfData = async <T extends 'IR' | 'SP'>(
 
     const surname = irLabel(args.type == 'IR' ? (data as IR).evidence : data as Raw<DataSP2>).split(' ')[0];
     const suffix = formData.fileNameSuffix ?? (args.type == 'IR' ? (data as IR).evidence.ir.cislo : spName((data as Raw<DataSP2>).zasah));
-    const fileName = `${args.fileName}_${surname} ${suffix}.pdf`;
+    const fileName = `${args.formName}_${surname} ${suffix}.pdf`;
 
     return { fileName, pdfBytes };
-};
-
-export const generatePdf = async <T extends 'IR' | 'SP'>(
-    lang: LanguageCode,
-    irid_spid: ID<T>,
-    args: PdfArgs<T>,
-    getData: GetPdfData<T>,
-) => {
-    let snapshot: DocumentSnapshot<DataOfType<T> | undefined>;
-    try {
-        snapshot = await evidence_sp2(irid_spid);
-
-        if (!snapshot.exists && args.type == 'SP')
-            snapshot = await evidence_sp2(irid_spid.split('-').slice(0, -1).join('-') as ID<T>);
-    } catch (e) {
-        console.log(`Nepovedlo se načíst data z firebase ${{ lang, irid_spid }}`);
-        return { error: `Nepovedlo se načíst data z firebase ${lang}, ${irid_spid}, ${e}` };
-    }
-
-    if (!snapshot.exists) return { error: 'Nepovedlo se nalézt data ve firebase' };
-
-    const data = snapshot.data();
-
-    if (!data) return { error: 'Nepovedlo se nalézt data ve firebase' };
-
-    return {
-        data: await generatePdfData(args, lang, getData, data),
-    };
 };
