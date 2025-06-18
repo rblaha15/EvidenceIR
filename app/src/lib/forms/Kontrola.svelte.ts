@@ -152,7 +152,9 @@ export const defaultKontrola = (): Kontrola => ({
         nastavenyTlakPriUvadeniDoProvozu: new InputWidget({ label: 'check.nastavenyTlakPriUvadeniDoProvozu', required: false, lock: rok => rok != 1 }),
     },
     poznamky: {
-        poznamka: new InputWidget({ label: 'note', required: false }),
+        poznamka: new InputWidget({
+            label: 'note', required: false
+        }),
     },
 });
 
@@ -166,9 +168,7 @@ export const check = (() => {
         defaultData: defaultKontrola,
         openPdf: () => ({
             link: 'RK',
-            parameters: {
-                pump: tc,
-            },
+            pump: tc,
         }),
         getEditData: ir => {
             const kontroly = ir.kontrolyTC[tc] ?? {};
