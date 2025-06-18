@@ -1,63 +1,47 @@
-import { nazevFirmy } from "$lib/helpers/ares";
-import { dateFromISO, todayISO } from '$lib/helpers/date';
-import { cascadeDetails } from '$lib/client/pdf/RK';
+import { nazevFirmy } from '$lib/helpers/ares';
+import { dateFromISO } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/client/pdf';
-import { endUserName, typBOX, irType } from '$lib/helpers/ir';
+import { endUserName } from '$lib/helpers/ir';
 
-const UPS: GetPdfData<'UPS'> = async ({ evidence: e, uvedeniTC, }, t) => {
-    const u = uvedeniTC!
-    const { isCascade, pumps } = cascadeDetails(e, t);
+const UPS: GetPdfData<'UPS'> = async ({ evidence: e, uvedeniSOL }, t) => {
+    const u = uvedeniSOL!;
 
-    return ({
+    return {
 /*    koncakJmeno */ Text1: endUserName(e.koncovyUzivatel),
 /*      koncakTel */ Text2: e.koncovyUzivatel.telefon,
 /*    koncakEmail */ Text3: e.koncovyUzivatel.email,
 /*      instalace */ Text4: `${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,
-/*       montazka */ Text5: await nazevFirmy(e.montazka.ico) ?? '',
+/*       montazka */ Text5: (await nazevFirmy(e.montazka.ico)) ?? '',
 /*    montazkaICO */ Text6: e.montazka.ico,
 /*    uvadecOsoba */ Text7: e.uvedeni.zastupce,
 /*      uvadecTel */ Text8: e.uvedeni.telefon,
 /*    uvadecEmail */ Text9: e.uvedeni.email,
-/*          datum */ Text10: dateFromISO(u.uvadeni.date ?? todayISO()),
-/*                */ Text11: isCascade ? t.cascadeSee : t.get(e.tc.model!),
-/*                */ Text12: isCascade ? '—' : e.tc.cislo,
-/*                */ Text13: e.ir.typ.first!.includes('BOX') ? typBOX(e.ir.cisloBox) ?? t.get(e.ir.typ.first!).slice(10) + " " + t.get(e.ir.typ.second!) : '—',
-/*                */ Text14: e.ir.typ.first!.includes('BOX') ? e.ir.cisloBox : '—',
-/*                */ Text15: u.tc.jisticTC ? t.suits : t.suitsNot,
-/*                */ Text16: e.ir.typ.first!.includes('BOX') ? u.tc.jisticVJ ? t.suits : t.suitsNot : '—',
-/*                */ Text17: e.tc.typ == 'airToWater' ? u.tc.vzdalenostZdi ? t.suits : t.suitsNot : '—',
-/*                */ Text18: u.os.tcTv ? t.additionalHotWaterSource : t.mainHotWaterSource,
-/*                */ Text19: e.tc.typ == 'airToWater' ? u.tc.kondenzator ? t.yes : t.no : '—',
-/*                */ Text20: u.tc.filtr ? t.yes : t.no,
-/*                */ Text21: u.nadrze.akumulacka,
-/*                */ Text22: u.nadrze.zasobnik,
-/*                */ Text23: u.os.tvori == 'otherHeatingSystem' ? u.os.popis : t.get(u.os.tvori!),
-/*                */ Text24: u.os.dzTop ? t.yes : t.no,
-/*                */ Text25: u.os.dzTop ? u.os.typDzTop : '—',
-/*                */ Text26: u.os.tcTv ? t.yes : t.no,
-/*                */ Text27: u.os.zTv,
-/*                */ Text28: u.os.objemEnOs ? t.suits : t.suitsNot,
-/*                */ Text29: u.os.bazenTc ? t.yes : t.no,
-/*                */ Text30: irType(e.ir.typ),
-/*                */ Text31: e.ir.typ.first?.includes('SOREL') ? '—' : e.ir.cislo,
-/*                */ Text32: t.get(u.reg.pripojeniKInternetu!),
-/*                */ Text33: u.reg.pospojeni ? t.yes : t.no,
-/*                */ Text34: u.reg.spotrebice ? t.yes : t.no,
-/*                */ Text35: e.tc.typ == 'airToWater' ? u.reg.zalZdroj ? t.yes : t.no : '—',
-/*                */ Text36: e.tc.typ == 'groundToWater' ? t.get(u.primar.typ!) : '—',
-/*                */ Text37: e.tc.typ == 'groundToWater' ? u.primar.popis : '—',
-/*                */ Text38: e.tc.typ == 'groundToWater' ? u.primar.typ == `groundBoreholes` ? t.numberAndDepthOfBoreholes : u.primar.typ == `surfaceCollector` ? t.numberAndLengthOfCircuits : t.collectorDescription : '—',
-/*                */ Text39: e.tc.typ == 'groundToWater' ? u.primar.nemrz : '—',
-/*                */ Text40: e.tc.typ == 'groundToWater' ? t.get(u.primar.nadoba!) : '—',
-/*                */ Text41: e.tc.typ == 'groundToWater' ? u.primar.kontrola ? t.yes : t.no : '—',
-/*                */ Text42: u.uvadeni.tc ? t.yes : t.no,
-/*                */ Text43: u.uvadeni.reg ? t.yes : t.no,
-/*                */ Text44: u.uvadeni.vlastnik ? t.yes : t.no,
-/*                */ Text45: t.get(u.uvadeni.typZaruky!),
-/*                */ Text46: u.uvadeni.typZaruky?.includes('extendedWarranty') ?? false ? u.uvadeni.zaruka ? t.yes : t.no : '—',
-/*                */ Text47: !isCascade ? '' : t.cascade + '\n' + pumps.map(([model, cislo], i) =>
-    t.pumpDetails({ n: `${i + 1}`, model, cislo })
-).join('\n'),
-    });
+/*          datum */ Text10: dateFromISO(u.uvadeni.date),
+/*                */ Text11: e.sol.typ,
+/*                */ Text12: e.sol.pocet,
+/*                */ Text13: u.sol.orientace,
+/*                */ Text14: u.sol.sklon,
+/*                */ Text15: u.sol.zasobnik,
+/*                */ Text16: u.sol.akumulacka,
+/*                */ Text17: u.sol.vymenik,
+/*                */ Text18: u.sol.solRegulator,
+/*                */ Text19: u.sol.cerpadloaSkupina,
+/*                */ Text20: u.sol.expanznkaSolarni ? t.yes : t.no,
+/*                */ Text21: u.sol.objem,
+/*                */ Text22: t.get(u.sol.ovzdusneni),
+/*                */ Text23: t.get(u.sol.teplonosnaKapalina),
+/*                */ Text24: u.sol.potrubi,
+/*                */ Text25: u.sol.prumer,
+/*                */ Text26: u.sol.delkyPotrubi,
+/*                */ Text27: u.sol.izolacePotrubi ? t.yes : t.no,
+/*                */ Text28: u.uvadeni.tlakDoba ? t.yes : t.no,
+/*                */ Text29: u.uvadeni.tlakTlak ? t.yes : t.no,
+/*                */ Text30: u.uvadeni.tlakUbytek ? t.yes : t.no,
+/*                */ Text31: u.uvadeni.ovzdusneni ? t.yes : t.no,
+/*                */ Text32: u.uvadeni.blesk ? t.yes : t.no,
+/*                */ Text33: u.uvadeni.podminky ? t.yes : t.no,
+/*                */ Text34: u.uvadeni.regulator ? t.yes : t.no,
+/*                */ Text35: u.uvadeni.vlastnik ? t.yes : t.no,
+    };
 };
 export default UPS

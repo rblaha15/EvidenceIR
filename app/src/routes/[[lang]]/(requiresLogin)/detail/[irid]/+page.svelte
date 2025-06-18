@@ -38,6 +38,7 @@
     const t = data.translations;
     const irid = isIRID(data.id) ? data.id : undefined;
     const spid = isSPID(data.id) ? data.id : undefined;
+    let originalSPID = $state() as SPID;
 
     const deleted = page.url.searchParams.has('deleted');
     const storedHeatPumpCommission = storable<Raw<UvedeniTC>>(`${heatPumpCommission.storeName}_${irid}`);
@@ -71,7 +72,8 @@
                 let _sp = await db.getIndependentProtocol(spid);
 
                 if (!_sp) {
-                    _sp = await db.getIndependentProtocol(spid.split('-').slice(0, -1).join('-') as SPID);
+                    originalSPID = spid.split('-').slice(0, -1).join('-') as SPID;
+                    _sp = await db.getIndependentProtocol(originalSPID);
                 }
 
                 if (!_sp) {
@@ -249,10 +251,12 @@
         <!--        <hr />-->
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             <Widget widget={newIRID} {t} data={{}} />
-            <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR</button>
+            <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR (neodstraní se)</button>
 
-            <button class="btn btn-danger d-block"
-                    onclick={() => db.deleteIndependentProtocol(spid)}
+            <button class="btn btn-danger d-block" onclick={() => {
+                    db.deleteIndependentProtocol(originalSPID);
+                    window.location.replace(detailUrl(`?deleted`));
+                }}
             >Odstranit protokol
             </button>
         </div>

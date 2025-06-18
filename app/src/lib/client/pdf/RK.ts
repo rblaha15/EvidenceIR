@@ -19,6 +19,7 @@ export const cascadeDetails = (e: Raw<Data>, t: Translations) => ({
 });
 
 const RK: GetPdfData<'RK'> = async ({ kontrolyTC, evidence: e }, t, _, { pump }) => {
+    console.log(kontrolyTC)
     const kontroly = kontrolyTC[pump] as Record<number, Raw<Kontrola>>;
     const montazka = await nazevFirmy(e.montazka.ico);
     const { isCascade, pumps } = cascadeDetails(e, t);
