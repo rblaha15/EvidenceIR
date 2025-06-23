@@ -20,15 +20,16 @@
 </script>
 
 <script generics="T extends Record<string, unknown>" lang="ts">
-    import download from 'downloadjs';
     import { getToken } from '$lib/client/auth';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { page } from '$app/state';
     import readXlsxFile from 'read-excel-file';
     import Table from './Table.svelte';
+    import FileSaver from 'file-saver';
+    import writeXlsxFile from 'write-excel-file';
 
     const { id, options }: { id: string, options: TableOptions<T> } = $props();
-    const { fileType, construct, deconstruct, store, fileName, key, instructions } = options;
+    const { fileType, construct, deconstruct, store, fileName, key, instructions, columns } = options;
 
     let input = $state() as HTMLInputElement;
     let file = $state<File>();
@@ -66,14 +67,23 @@
     };
 
     const downloadData = () => {
-        if (fileType != 'csv') return;
-
-        const text = oldData
-            .map(deconstruct)
-            .map(row => row.map(col => col ?? ''))
-            .map(row => row.join(';').trim())
-            .join('\n');
-        download(new File([text], `${fileName}.csv`), `${fileName}.csv`, 'text/csv');
+        if (fileType == 'csv') {
+            const text = oldData
+                .map(deconstruct)
+                .map(row => row.map(col => col ?? ''))
+                .map(row => row.join(';').trim())
+                .join('\n');
+            FileSaver.saveAs(new Blob([text], { type: 'text/csv' }), `${fileName}.csv`);
+        } else {
+            const rows = oldData
+                .map(deconstruct)
+                .map(row => row.map(col => col ?? ''))
+                .map(row => row.map(col => ({ value: col })));
+            const headers = columns.mapTo((_, c) => ({ value: c.header }));
+            writeXlsxFile([headers, ...rows], {
+                fileName: `${fileName}.xlsx`,
+            })
+        }
     };
 
     const confirm = async () => {
@@ -167,11 +177,9 @@
             Vybrat jiný soubor
         </button>
     {/if}
-    {#if fileType === 'csv'}
-        <button class="btn btn-primary" onclick={downloadData}>
-            Stáhnout aktuální data
-        </button>
-    {/if}
+    <button class="btn btn-primary" onclick={downloadData}>
+        Stáhnout aktuální data
+    </button>
 </div>
 
 {#if file && !loading}
@@ -189,7 +197,7 @@
 
 <input
     bind:this={input}
-    accept="text/csv"
+    accept={fileType === 'csv' ? 'text/csv' : '.xls,.xlsx,.xlsm,.xlsb'}
     class="d-none"
     onchange={onFileSelected}
     type="file"

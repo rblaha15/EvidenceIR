@@ -166,7 +166,7 @@
                     code: Number(code ?? 0),
                     unitPrice: Number(unitPrice ?? 0),
                 }),
-                deconstruct: () => [],
+                deconstruct: ({ code, name, unitPrice }) => [String(code), name, String(unitPrice)],
                 key: c => `${c.code}`,
                 instructions: [
                     'Vložte .xlsx soubor s tabulkou náhradních dílů, která obsahuje záhlaví (1. řádek) a v prvním sloupci má číslo, v druhém sloupci název a ve třetím spoupci jednotkovou cenu ND.<br />Všechna pole jsou povinná',
