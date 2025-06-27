@@ -53,7 +53,8 @@ export type FormInfo<D, F extends Form<D>, S extends unknown[][] = [], P extends
     saveData: (irid: IRID, raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, ir: IR) => Promise<boolean | void>;
     createWidgetData: (evidence: Raw<Data>, data: F) => D;
     getEditData?: ((ir: IR) => R | undefined) | undefined;
-} & Omit<DetachedFormInfo<D, F, S, P, R>, 'saveData' | 'createWidgetData' | 'getEditData' | 'redirectLink' | 'showBackButton' | 'openPdf'>
+    onMount?: (data: D, form: F, edit: boolean, ir: IR) => Promise<void> | undefined;
+} & Omit<DetachedFormInfo<D, F, S, P, R>, 'saveData' | 'createWidgetData' | 'getEditData' | 'redirectLink' | 'showBackButton' | 'openPdf' | 'onMount'>
 
 export const formInfo: { [F in FormName]: FormInfo<any, any, any, any, any> } = {
     sp,
