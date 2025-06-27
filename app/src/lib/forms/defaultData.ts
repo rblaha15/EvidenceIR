@@ -163,6 +163,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             autocomplete: `section-assembly billing work email`,
             show: d => d.montazka.company.value?.crn != unknownCompany.crn,
+            required: false,
         }),
         telefon: new InputWidget({
             label: `phone`,
@@ -171,6 +172,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
             type: 'tel',
             autocomplete: `section-assembly billing work tel`,
             show: d => d.montazka.company.value?.crn != unknownCompany.crn,
+            required: false,
         }),
     },
     uvedeni: {
