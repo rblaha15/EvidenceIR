@@ -19,6 +19,7 @@
         saveData,
         createWidgetData,
         getEditData,
+        onMount,
     } = formInfo;
 
     let ir = $state() as IR;
@@ -41,6 +42,7 @@
         openTabLink: async () => detailUrl(`/pdf/${pdfLink()}?token=${await getToken()}`),
         createWidgetData: data => createWidgetData(ir.evidence, data),
         showBackButton: () => true,
+        onMount: (d, f, e) => onMount?.(d, f, e, ir),
     });
 </script>
 

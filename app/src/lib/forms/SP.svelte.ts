@@ -45,6 +45,7 @@ export type DataSP = GenericDataSP<DataSP>
 export interface GenericDataSP<D extends GenericDataSP<D>> extends Form<D> {
     zasah: {
         datum: InputWidget<D>,
+        datumUvedeni: InputWidget<D>;
         clovek: InputWidget<D>,
         inicialy: InputWidget<D>,
         zaruka: RadioWidget<D, `sp.warrantyCommon` | `sp.warrantyExtended`>,
@@ -124,6 +125,7 @@ const nahradniDil = <D extends GenericDataSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 
 export const defaultDataSP = <D extends GenericDataSP<D>>(): GenericDataSP<D> => ({
     zasah: {
         datum: new InputWidget({ label: p('Datum a čas zásahu'), type: 'datetime-local' }),
+        datumUvedeni: new InputWidget({ label: p('Datum uvedení do provozu'), type: 'date', required: false }),
         clovek: new InputWidget({ label: p('Jméno technika'), show: false }),
         inicialy: new InputWidget({ label: p('Iniciály technika (do ID SP)'), show: false }),
         zaruka: new RadioWidget({ label: p('Záruka'), options: [`sp.warrantyCommon`, `sp.warrantyExtended`], required: false }),
@@ -278,11 +280,14 @@ export const sp = (() => {
         title: (_, edit) => edit
             ? `Editace SP`
             : `Instalační a servisní protokol`,
-        onMount: async (d, p) => {
+        onMount: async (d, p, _, ir) => {
             await startTechniciansListening();
             await startSparePartsListening();
             if (!p.zasah.datum.value)
                 p.zasah.datum.setValue(d, nowISO());
+            if (!p.zasah.datumUvedeni.value && ir.uvedeniTC?.uvadeni?.date) {
+                p.zasah.datumUvedeni.setValue(d, ir.uvedeniTC.uvadeni.date);
+            }
         },
         storeEffects: [
             [(_, p, [$techniciansList, $currentUser], edit) => {
