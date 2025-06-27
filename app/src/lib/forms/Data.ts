@@ -273,7 +273,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
     },
     redirectLink: async raw => relUrl(`/detail/${extractIRIDFromRawData(raw)}`),
     createWidgetData: d => d,
-    title: (t, edit) => edit ? t.editation : t.controllerRegistration,
+    title: (t, edit) => edit ? t.editing : t.controllerRegistration,
     getEditData: async () => {
         const irid = page.url.searchParams.get('edit-irid') as IRID | null;
         if (!irid) return undefined;

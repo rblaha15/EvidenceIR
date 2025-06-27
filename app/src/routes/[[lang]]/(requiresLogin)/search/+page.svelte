@@ -76,7 +76,7 @@
     }));
 
     $effect(() => {
-        setTitle($isUserRegulusOrAdmin ? t.controllerSearch + ' a servisních protokolů' : t.controllerSearch);
+        setTitle($isUserRegulusOrAdmin ? t.controllerAndServiceProtocolSearch : t.controllerSearch);
     })
 </script>
 
