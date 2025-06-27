@@ -1,5 +1,5 @@
 import { defaultDataSP, type GenericDataSP } from '$lib/forms/SP.svelte';
-import type { UserData } from '$lib/forms/Data';
+import { unknownCompany, type UserData } from '$lib/forms/Data';
 import { userData } from '$lib/forms/defaultData';
 import { CounterWidget, InputWidget, TitleWidget } from '$lib/Widget.svelte';
 import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
@@ -103,7 +103,7 @@ const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SpareP
         }, [sparePartsList]],
         [(_, f, [$companies]) => {
             f.uvedeni.company.items = () => $companies.commissioningCompanies;
-            f.montazka.company.items = () => $companies.assemblyCompanies;
+            f.montazka.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
         }, [companies]],
     ],
 };
