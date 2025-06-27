@@ -122,9 +122,9 @@ export interface Data extends UserData<Data>, Form<Data> {
         chce: CheckboxWidget<Data>;
         pristupMa: MultiCheckboxWidget<Data, `endCustomer` | `assemblyCompany` | `commissioningCompany`>;
         plati: RadioWidget<Data, 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | P<'Později, dle protokolu'>>;
+        zodpovednaOsoba: InputWidget<Data>;
     };
     ostatni: {
-        zodpovednaOsoba: InputWidget<Data>;
         poznamka: InputWidget<Data>;
     };
 }
@@ -310,8 +310,8 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
                 data.vzdalenyPristup.plati.setValue(data, p('Později, dle protokolu'));
         }, [isUserRegulusOrAdmin]],
         [(_, data, [$responsiblePerson]) => {
-            data.ostatni.zodpovednaOsoba.show = () => $responsiblePerson == null;
-            if ($responsiblePerson != null) data.ostatni.zodpovednaOsoba.setValue(data, $responsiblePerson);
+            data.vzdalenyPristup.zodpovednaOsoba.show = () => $responsiblePerson == null;
+            if ($responsiblePerson != null) data.vzdalenyPristup.zodpovednaOsoba.setValue(data, $responsiblePerson);
         }, [responsiblePerson]],
     ],
     importOptions: {
