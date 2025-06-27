@@ -44,7 +44,7 @@
 				if (e.code == 'auth/network-request-failed') {
 					error = t.checkInternet;
 				} else if (e.code == 'auth/user-not-found' || e.code == 'auth/user-disabled') {
-					error = t.inexistantEmailHtml({ link: signUpLink });
+					error = t.nonexistentEmailHtml({ link: signUpLink });
 				} else if (e.code == 'auth/wrong-password') {
 					error = t.wrongPasswordHtml({ link: resetLink });
 				} else if (e.code == 'auth/missing-password') {
