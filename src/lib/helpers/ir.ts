@@ -1,12 +1,12 @@
 import { removePlain } from '$lib/translations';
 import type { Data, UserData } from '$lib/forms/Data';
 import type { Raw } from '$lib/forms/Form';
-import type { IRID, SPID } from '$lib/client/firestore';
-import type { DataSP2 } from '$lib/forms/SP2';
 import type { GenericDataSP } from '$lib/forms/SP.svelte';
+import type { DataSP2 } from '$lib/forms/SP2';
+import type { ID } from '$lib/client/data';
 
-export const isIRID = (irid_spid: string): irid_spid is IRID => !irid_spid.includes('-');
-export const isSPID = (irid_spid: string): irid_spid is SPID => irid_spid.includes('-');
+export const isIRID = (id: ID): id is ID<'IR'> => !id.includes('-');
+export const isSPID = (id: ID): id is ID<'SP'> => id.includes('-');
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno
@@ -100,3 +100,42 @@ export const typBOX = (cisloBOX: string) => ({
 
 export const endUserName = (k: Raw<Data>['koncovyUzivatel']) =>
     k.typ == 'company' ? k.nazev : `${k.jmeno} ${k.prijmeni}`;
+
+/**
+ * 2: IR 12;
+ * 4: IR 14;
+ * 3: IR 34;
+ * B: BOX/HBOX/HBOXK;
+ * S: SOREL;
+ */
+export type IRType = '2' | '4' | '3' | 'B' | 'S';
+/**
+ * Zastaralé IR ID: A12345;
+ * Moderní IR ID:  4A12345;
+ * ID SOREL:       S202412312359;
+ */
+export type IRID = `${IRType}${string}`;
+/**
+ * Zastaralé SP ID: RB-2024-12-31-23;
+ * Moderní SP ID:   RB-2024-12-31-23-59;
+ */
+export type SPID = `${string}-${string}-${string}`;
+
+const extractIRTypeFromFullIRType = (fullIRType: string): IRType =>
+    (fullIRType.includes('12') ? '2'
+        : fullIRType.includes('14') ? '4'
+            : fullIRType.includes('34') ? '3'
+                : fullIRType.includes('BOX') ? 'B'
+                    : fullIRType.includes('SOREL') ? 'S'
+                        : undefined)!;
+export const extractIRIDFromParts = (fullIRType: string, irNumber: string): IRID =>
+    `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replaceAll(/[ :T-]/g, '')}`;
+export const extractIRIDFromRawData = (evidence: Raw<Data>): IRID =>
+    extractIRIDFromParts(evidence.ir.typ.first!, evidence.ir.cislo);
+export const extractSPIDFromRawData = (zasah: Raw<GenericDataSP<never>['zasah']>): SPID => {
+    const datum = zasah.datum.split('T')[0];
+    const hodina = zasah.datum.split('T')[1].split(':')[0];
+    const minuta = zasah.datum.split('T')[1].split(':')[1];
+    const technik = zasah.inicialy;
+    return `${technik}-${datum}-${hodina}-${minuta}`;
+};

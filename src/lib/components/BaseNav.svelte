@@ -30,15 +30,15 @@
         selected: page.route.id?.match(/.*\/new($|\?)/) && !page.url.searchParams.has('edit-irid'),
     })}
     {@render item({
-        url: '/newSP', label: 'Nezávislý servisní protokol', shown: $isUserRegulusOrAdmin,
+        url: '/newSP', label: t.independentServiceProtocol, shown: $isUserRegulusOrAdmin,
         selected: page.route.id?.endsWith('/newSP'),
     })}
     {@render item({
         url: '/search', label: t.searching, selected: page.route.id?.endsWith('/search'),
     })}
     {@render item({
-        url: page.route.id?.includes('/detail') ? `/detail/${page.data.irid_spid ?? ''}` : `/detail/${page.url.searchParams.get('edit-irid') ?? ''}`,
-        label: page.data.irid_spid && isIRID(page.data.irid_spid) ? t.evidenceDetails : 'Podrobnosti protokolu',
+        url: page.route.id?.includes('/detail') ? `/detail/${page.data.id ?? ''}` : `/detail/${page.url.searchParams.get('edit-irid') ?? ''}`,
+        label: page.data.id && isIRID(page.data.id) ? t.evidenceDetails : t.protocolDetails,
         selected: true, shown: page.route.id?.includes('/detail') || page.url.searchParams.has('edit-irid'),
     })}
     {@render item({

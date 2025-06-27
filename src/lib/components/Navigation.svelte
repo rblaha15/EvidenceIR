@@ -8,8 +8,7 @@
     import BaseNav from './BaseNav.svelte';
     import LanguageSelector from './LanguageSelector.svelte';
     import { relUrl } from '$lib/helpers/runes.svelte';
-    import ThemeSelector from '$lib/components/ThemeSelector.svelte';
-    import Settings from "$lib/components/Settings.svelte";
+    import Settings from '$lib/components/Settings.svelte';
 
     interface Props {
         t: Translations;
@@ -17,14 +16,13 @@
 
     let { t }: Props = $props();
 
-    let prihlasenyEmail = $derived($currentUser?.email ?? '');
-    let osoba = $derived($responsiblePerson ?? t.no_Person);
-    let jePrihlasen = $derived($currentUser != null);
+    let loggedInEmail = $derived($currentUser?.email ?? '');
+    let isLoggedIn = $derived($currentUser != null);
 </script>
 
 <nav class="navbar navbar-expand-md sticky-top gray flex-wrap">
     <div class="container-fluid">
-        {#if jePrihlasen}
+        {#if isLoggedIn}
             <button
                 class="d-md-none me-2 btn nav-link btn-link"
                 data-bs-toggle="offcanvas"
@@ -46,7 +44,7 @@
         {:else}
             <span class="navbar-brand me-auto">{t.appName}</span>
         {/if}
-        {#if jePrihlasen}
+        {#if isLoggedIn}
             <div class="d-flex flex-row ms-auto ms-md-0">
                 <div class="d-none d-md-block ms-3">
                     <button class="btn btn-link nav-link" data-bs-toggle="modal" data-bs-target="#settings" aria-label="Settings">
@@ -58,8 +56,10 @@
                         <i class="bi-person-fill fs-2"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><span class="dropdown-item-text">{t.email}:<br />{prihlasenyEmail}</span></li>
-                        <li><span class="dropdown-item-text">{t.responsiblePerson}:<br />{osoba}</span></li>
+                        <li><span class="dropdown-item-text">{t.email}:<br />{loggedInEmail}</span></li>
+                        {#if $responsiblePerson}
+                            <li><span class="dropdown-item-text">{t.responsiblePerson}:<br />{$responsiblePerson}</span></li>
+                        {/if}
                         <li>
                             <hr class="dropdown-divider" />
                         </li>
@@ -67,7 +67,7 @@
                             <button
                                 onclick={async () => {
 									const { link } = await authentication('getPasswordResetLink', {
-										email: prihlasenyEmail,
+										email: loggedInEmail,
 										lang: page.data.languageCode,
 										redirect:
 											page.url.pathname.slice(page.data.languageCode.length + 1) +
@@ -144,7 +144,7 @@
     <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">{t.settings}</h4>
+                <h4 class="modal-title">{t.settings.title}</h4>
                 <button
                     aria-label={t.close}
                     class="btn-close"

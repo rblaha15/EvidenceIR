@@ -47,9 +47,9 @@ declare global {
             this: { [_ in T]?: unknown },
         ): T[];
 
-        getValues<T>(
-            this: Record<PropertyKey, T>,
-        ): T[];
+        getValues<T extends Record<PropertyKey, unknown>>(
+            this: T,
+        ): T[keyof T][];
 
         zip<T extends Record<PropertyKey, unknown>, U extends Record<PropertyKey, unknown>>(
             this: T,
@@ -72,6 +72,11 @@ declare global {
             this: T,
             callback: (self: T) => U
         ): U extends PromiseLike<infer _> ? Promise<T> : T;
+
+        thenAlso<T extends PromiseLike<unknown>, U>(
+            this: T,
+            callback: (self: Awaited<T>) => U
+        ): T;
     }
 }
 
@@ -87,7 +92,8 @@ Object.defineProperties(Object.prototype, {
     zip: { writable: true },
     omit: { writable: true },
     let: { writable: true },
-    also: { writable: true }
+    also: { writable: true },
+    thenAlso: { writable: true },
 });
 
 Object.prototype.entries = <typeof Object.prototype.entries>function() {
@@ -179,6 +185,14 @@ Object.prototype.also = function <T, U>(
         return this as U extends PromiseLike<infer _> ? Promise<T> : T;
 };
 
+Object.prototype.thenAlso = function <T extends PromiseLike<any>, U>(
+    this: T,
+    callback: (self: Awaited<T>) => U
+): T {
+    this.then(callback);
+    return this;
+};
+
 declare global {
     interface Number {
         roundTo: (decimalPlaces?: number) => number;
@@ -232,6 +246,12 @@ declare global {
             [Key in K]: V
         };
 
+        associateWithSelf<T extends PropertyKey>(
+            this: T[] | readonly T[],
+        ): {
+            [Key in T]: T
+        };
+
         distinctBy<T, K>(
             this: T[] | readonly T[],
             key: (item: T, index: number, array: T[]) => K,
@@ -283,6 +303,34 @@ declare global {
             [Key in K]: V
         };
 
+        associate<T, K extends PropertyKey, V>(
+            this: T[] | readonly T[],
+            transform: (value: T, index: number, array: T[]) => readonly [K, V],
+        ): {
+            [Key in K]: V
+        };
+
+        associateBy<K extends PropertyKey, V>(
+            this: V[] | readonly V[],
+            keySelector: (value: V, index: number, array: V[]) => K
+        ): {
+            [Key in K]: V
+        };
+
+        associateWith<K extends PropertyKey, V>(
+            this: K[] | readonly K[],
+            valueSelector: (key: K, index: number, array: K[]) => V
+        ): {
+            [Key in K]: V
+        };
+
+        associateWithSelf<T extends PropertyKey>(
+            this: T[] | readonly T[],
+        ): {
+            [Key in T]: T
+        };
+
+
         distinctBy<T, K>(
             this: T[] | readonly T[],
             key: (item: T, index: number, array: T[]) => K,
@@ -325,14 +373,20 @@ Array.prototype.associateBy = function<K extends PropertyKey, V>(
     this: V[],
     keySelector: (value: V, index: number, array: V[]) => K
 ) {
-    return this.map(keySelector).zip(this).toRecord();
+    return this.associate((v, i, a) => [keySelector(v, i, a), v]);
 };
 
 Array.prototype.associateWith = function<K extends PropertyKey, V>(
     this: K[],
     valueSelector: (key: K, index: number, array: K[]) => V
 ) {
-    return this.zip(this.map(valueSelector)).toRecord();
+    return this.associate((k, i, a) => [k, valueSelector(k, i, a)]);
+};
+
+Array.prototype.associateWithSelf = function<T extends PropertyKey>(
+    this: T[],
+) {
+    return this.associate(v => [v, v] as const);
 };
 
 Array.prototype.awaitAll = <typeof Array.prototype.awaitAll>function() {

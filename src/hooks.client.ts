@@ -1,7 +1,7 @@
 import { getApps, initializeApp, type FirebaseOptions } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig: FirebaseOptions = {
 	apiKey: 'AIzaSyCKu8Z4wx55DfrZdYtKvrqvwZ2Y6nQvx24',
@@ -16,7 +16,7 @@ const firebaseConfig: FirebaseOptions = {
 
 export const app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig)
 
-export const firestore = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) })
+export const firestore = getFirestore(app)
 
 export const realtime = getDatabase(app);
 
