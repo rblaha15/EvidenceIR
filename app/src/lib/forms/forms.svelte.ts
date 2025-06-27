@@ -46,7 +46,8 @@ export type FormInfo<D, F extends Form<D>, S extends unknown[][] = [], R extends
     saveData: (irid: IRID, raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, ir: IR) => Promise<boolean | void>;
     createWidgetData: (evidence: Raw<Data>, data: F) => D;
     getEditData?: ((ir: IR) => R | undefined) | undefined;
-} & Omit<DetachedFormInfo<D, F, S, R>, 'saveData' | 'createWidgetData' | 'getEditData' | 'redirect' | 'showBackButton'>
+    onMount?: (data: D, form: F, edit: boolean, ir: IR) => Promise<void> | undefined;
+} & Omit<DetachedFormInfo<D, F, S, R>, 'saveData' | 'createWidgetData' | 'getEditData' | 'redirect' | 'showBackButton' | 'onMount'>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const formInfo: { [F in FormName]: FormInfo<any, any, any, any> } = {
