@@ -163,6 +163,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             autocomplete: `section-assembly billing work email`,
             show: d => d.montazka.company.value?.crn != unknownCompany.crn,
+            required: false,
         }),
         telefon: new InputWidget({
             label: `phone`,
@@ -171,6 +172,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
             type: 'tel',
             autocomplete: `section-assembly billing work tel`,
             show: d => d.montazka.company.value?.crn != unknownCompany.crn,
+            required: false,
         }),
     },
     uvedeni: {
@@ -458,12 +460,14 @@ export default (): Data => ({
             show: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
             required: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
         }),
-    },
-    ostatni: {
         zodpovednaOsoba: new InputWidget({
             label: `responsiblePerson`,
             autocomplete: `section-resp billing name`,
+            show: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
+            required: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
         }),
+    },
+    ostatni: {
         poznamka: new InputWidget({ label: `note`, required: false }),
     },
 });
