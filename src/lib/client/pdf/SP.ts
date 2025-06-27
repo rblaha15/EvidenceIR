@@ -51,7 +51,7 @@ const poleProDilyS = 44;
 const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
     .associateWith((_, i) => poleProDilyS + i * 8);
 
-export const SP: GetPdfData<'SP'> = async ({ evidence: e, uvedeniTC, installationProtocols }, t, add, { index }) => {
+export const SP: GetPdfData<'SP'> = async ({ evidence: e, installationProtocols }, t, add, { index }) => {
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : {
         hasHP: false,
         isCascade: false,
@@ -70,7 +70,6 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
                 t.pumpDetails({ n: isCascade ? `${i + 1}` : '', model, cislo }),
             )) : ''}`,
             pocetTC: pumps.length,
-            datumUvedeni: uvedeniTC?.uvadeni?.date ?? '',
         },
     }, t, add);
 };
@@ -113,7 +112,7 @@ export const NSP: GetPdfData<'NSP'> = async (p, t, addPage) => {
         /*      instalace */ Text13: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
         /*   popisSystemu */ Text14: p.system.popis,
         /*          datum */ Text15: dateFromISO(p.zasah.datum),
-        /*   datumUvedeni */ Text16: p.system.datumUvedeni ? dateFromISO(p.system.datumUvedeni) : null,
+        /*   datumUvedeni */ Text16: p.zasah.datumUvedeni ? dateFromISO(p.zasah.datumUvedeni) : null,
         /*        technik */ Text17: p.zasah.clovek.split(' ').toReversed().join(' '),
         /*           druh */ 'Zaškrtávací pole28': p.zasah.zaruka == `sp.warrantyCommon`,
         /*           druh */ 'Zaškrtávací pole29': p.zasah.zaruka == `sp.warrantyExtended`,

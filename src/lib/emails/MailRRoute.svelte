@@ -41,7 +41,7 @@
 <p><b>Přihlášení:</b> {irName(e.ir)}</p>
 <p><b>Poznámka:</b> {irLabel(e)}</p>
 <h3>Zodpovědná osoba:</h3>
-<p>{e.ostatni.zodpovednaOsoba}</p>
+<p>{e.vzdalenyPristup.zodpovednaOsoba}</p>
 <h3>Adresa:</h3>
 <p><b>Město:</b> {e.mistoRealizace.obec}</p>
 <p><b>Ulice:</b> {e.mistoRealizace.ulice}</p>
