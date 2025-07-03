@@ -1,7 +1,7 @@
 import type { ExcelImport } from '$lib/forms/ExcelImport';
 import type { Raw } from '$lib/forms/Form';
 import { range } from '$lib/extensions';
-import { p, p } from '$lib/translations';
+import { p } from '$lib/translations';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 
 const cellsSparePart = (i: 0 | 1 | 2) => ({
