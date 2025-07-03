@@ -8,7 +8,7 @@ import {
     TextWidget,
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
-import { p, plainArray } from '$lib/translations';
+import { p } from '$lib/translations';
 import type { SparePart } from '$lib/client/realtime';
 import type { GenericFormSP, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
 
@@ -106,7 +106,7 @@ export default <D extends GenericFormSP<D>>(): GenericFormSP<D> => ({
             required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
         }),
         jak: new RadioWidget({
-            label: p('Fakturovat'), options: plainArray(['Papírově', 'Elektronicky']),
+            label: p('Fakturovat'), options: p(['Papírově', 'Elektronicky']),
             required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
         }),
     },

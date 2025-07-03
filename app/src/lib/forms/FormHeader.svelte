@@ -40,7 +40,7 @@
     $effect(() => {
         if (file) readSheetNames(file).then(names => {
             const sheets = names.filter(importData?.sheetFilter ?? (n => n == (importData?.sheet ?? n)));
-            sheetWidget.options = () => sheets.map(p)
+            sheetWidget.options = () => p(sheets)
             if (sheets.length == 1)
                 sheetWidget._value = p(sheets[0])
         }); else {

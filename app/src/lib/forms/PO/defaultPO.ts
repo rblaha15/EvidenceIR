@@ -1,5 +1,5 @@
 import { dev } from '$app/environment';
-import { getTranslations, p, plainArray } from '$lib/translations';
+import { getTranslations, p } from '$lib/translations';
 import {
     CheckboxWidget,
     CheckboxWithChooserWidget,
@@ -342,13 +342,13 @@ export default (): FormPO => ({
             required: false,
             label: `demand.accessories.hose`,
             chosen: p('500 mm'),
-            options: plainArray(['300 mm', '500 mm', '700 mm', '1000 mm']),
+            options: p(['300 mm', '500 mm', '700 mm', '1000 mm']),
         }),
         heatingCable: new CheckboxWithChooserWidget({
             required: false,
             label: `demand.accessories.heatingCable`,
             chosen: p('3,5 m'),
-            options: plainArray(['3,5 m', '5 m']),
+            options: p(['3,5 m', '5 m']),
         }),
         wallSupportBracket: new CheckboxWithChooserWidget({
             required: false,
@@ -358,7 +358,7 @@ export default (): FormPO => ({
         }),
         roomUnitsAndSensors: new CountersWidget({
             label: `demand.accessories.roomUnitsAndSensors`,
-            options: plainArray(['RC 25', 'RDC', 'RS 10', 'RSW 30 - WiFi']),
+            options: p(['RC 25', 'RDC', 'RS 10', 'RSW 30 - WiFi']),
             counts: [0, 0, 0, 0],
             max: d => ({
                 'demand.system.heatingSystem1circuit': 1, 'demand.system.heatingSystem2circuits': 2,
