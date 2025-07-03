@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import type { Action } from 'svelte/action';
     import type { TranslationReference, Translations } from '$lib/translations';
-    import { type DoubleChooserWidget, labelAndStar } from '$lib/Widget.svelte.js';
+    import { type DoubleChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
         t: Translations;

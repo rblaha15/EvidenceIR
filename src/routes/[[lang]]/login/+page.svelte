@@ -16,10 +16,10 @@
 
 	let email = $state(browser ? page.url.searchParams.get('email') ?? '' : '');
 	let password = $state('');
-	let redirect = $state('/new');
+	let redirect = $state('/IN');
 	onMount(() => {
 		startTechniciansListening()
-		redirect = page.url.searchParams.get('redirect') ?? '/new'
+		redirect = page.url.searchParams.get('redirect') ?? '/IN'
 	});
 
 	let signUpLink = $derived(relUrl(

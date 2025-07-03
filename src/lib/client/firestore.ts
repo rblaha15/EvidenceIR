@@ -17,20 +17,20 @@ import type { Raw } from '$lib/forms/Form';
 import { get, readonly, writable } from 'svelte/store';
 import { checkRegulusOrAdmin, currentUser } from './auth';
 import { firestore } from '../../hooks.client';
-import type { DataSP2 } from '$lib/forms/SP2';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
 import { type Database, type IR } from '$lib/client/data';
 import { type LegacyIR, type LegacySP, migrateSP, modernizeIR } from './migrations';
 import { offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
 import { Query } from '@firebase/firestore';
+import type { FormNSP } from '$lib/forms/NSP/formNSP';
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
     fromFirestore: (snapshot: QueryDocumentSnapshot) => modernizeIR(snapshot.data() as IR & LegacyIR),
 });
-const spCollection = collection(firestore, 'sp').withConverter<Raw<DataSP2>>({
-    toFirestore: (modelObject: WithFieldValue<Raw<DataSP2>>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => migrateSP(snapshot.data() as LegacySP & Raw<DataSP2>) as Raw<DataSP2>,
+const spCollection = collection(firestore, 'sp').withConverter<Raw<FormNSP>>({
+    toFirestore: (modelObject: WithFieldValue<Raw<FormNSP>>) => modelObject,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => migrateSP(snapshot.data() as LegacySP & Raw<FormNSP>) as Raw<FormNSP>,
 });
 
 const checkCollection = collection(firestore, 'check');

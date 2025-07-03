@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { type InputWidget, labelAndStar } from '$lib/Widget.svelte.js';
+    import { type InputWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount } from 'svelte';
 

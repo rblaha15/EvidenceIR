@@ -1,5 +1,5 @@
 <script generics="D" lang="ts">
-    import { ScannerWidget } from '$lib/Widget.svelte.js';
+    import { ScannerWidget } from '$lib/forms/Widget.svelte.js';
     import { Html5Qrcode } from 'html5-qrcode';
     import { onMount } from 'svelte';
     import Input from '$lib/components/widgets/Input.svelte';

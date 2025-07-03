@@ -2,11 +2,17 @@ import { PDFDocument, PDFName, PDFRef, PDFSignature } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { getTranslations } from '$lib/translations';
 import type { LanguageCode } from '$lib/languages';
-import { type Pdf, type PdfArgs, pdfInfo, type PdfParameters, type PdfParametersArray, type TypeOfPdf } from '$lib/client/pdf';
+import {
+    type DataOfPdf,
+    type Pdf,
+    type PdfArgs,
+    pdfInfo,
+    type PdfParametersArray,
+} from '$lib/client/pdf';
 import { irLabel, spName } from '$lib/helpers/ir';
-import type { DataSP2 } from '$lib/forms/SP2';
 import type { Raw } from '$lib/forms/Form';
-import { type DataOfType, type IR } from './data';
+import { type IR } from './data';
+import type { FormNSP } from '$lib/forms/NSP/formNSP';
 
 type SignatureDefinition = {
     x: number,
@@ -32,13 +38,13 @@ export type PdfGenerationData = {
 export const generatePdf = async <P extends Pdf>(
     args: PdfArgs<P>,
     lang: LanguageCode,
-    data: DataOfType<TypeOfPdf<P>>,
+    data: DataOfPdf<P>,
     ...parameters: PdfParametersArray<P>
 ) => {
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
     const t = getTranslations(formLanguage);
 
-    const formLocation = `/pdf/${args.formName}_${formLanguage}.pdf`;
+    const formLocation = `/pdf/${args.pdfName}_${formLanguage}.pdf`;
     const formPdfBytes = await (await fetch(formLocation)).arrayBuffer()
 
     const pdfDoc = await PDFDocument.load(formPdfBytes);
@@ -49,7 +55,7 @@ export const generatePdf = async <P extends Pdf>(
 
     const addPage = async <P extends Pdf>(
         pdfName2: P,
-        data2: DataOfType<TypeOfPdf<P>>,
+        data2: DataOfPdf<P>,
         ...parameters: PdfParametersArray<NoInfer<P>>
     ) => {
         const pdfArgs2 = pdfInfo[pdfName2];
@@ -142,9 +148,9 @@ export const generatePdf = async <P extends Pdf>(
 
     const pdfBytes = await pdfDoc.save(args.saveOptions);
 
-    const surname = irLabel(args.type == 'IR' ? (data as IR).evidence : data as Raw<DataSP2>).split(' ')[0];
-    const suffix = formData.fileNameSuffix ?? (args.type == 'IR' ? (data as IR).evidence.ir.cislo : spName((data as Raw<DataSP2>).zasah));
-    const fileName = `${args.formName}_${surname} ${suffix}.pdf`;
+    const surname = irLabel(args.type == 'IR' ? (data as IR).evidence : data as Raw<FormNSP>).split(' ')[0];
+    const suffix = formData.fileNameSuffix ?? (args.type == 'IR' ? (data as IR).evidence.ir.cislo : spName((data as Raw<FormNSP>).zasah));
+    const fileName = `${args.pdfName}_${surname} ${suffix}.pdf`;
 
     return { fileName, pdfBytes };
 };

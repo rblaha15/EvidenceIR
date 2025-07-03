@@ -34,9 +34,9 @@
 	let heslo = $state('');
 	let hesloZnovu = $state('');
 
-	let redirect: string = '/new';
+	let redirect: string = '/IN';
 	onMount(() => {
-		redirect = page.url.searchParams.get('redirect') ?? '/new';
+		redirect = page.url.searchParams.get('redirect') ?? '/IN';
 		mode = page.url.searchParams.get('mode') as typeof mode;
 	});
 
