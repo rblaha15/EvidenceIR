@@ -1,7 +1,6 @@
-import { languageCodes } from "$lib/languages";
-import type { EntryGenerator } from "./$types";
+import type { EntryGenerator } from './$types';
+import { langEntryGenerator } from '../../helpers';
 
-export const entries: EntryGenerator = () => [
-	...languageCodes.map((code) => ({ lang: code })),
-	{ lang: '' }
-];
+export const entries: EntryGenerator = langEntryGenerator;
+
+export const prerender = true;

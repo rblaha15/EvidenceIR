@@ -3,6 +3,7 @@
 	import type { Translations } from '$lib/translations';
 	import { irName, irLabel, extractIRIDFromParts } from '$lib/helpers/ir';
 	import type { Raw } from '$lib/forms/Form';
+	import { detailIrUrl } from '$lib/helpers/runes.svelte';
 
 	const typZarizeni = (e: Raw<Data>): string => {
 		if (e.ir.typ.first!.includes('BOX')) return 'CP-2972';
@@ -82,4 +83,4 @@
 <h2>Poznámka</h2>
 <p>{e.ostatni.poznamka}</p>
 
-<p>Odkaz na podrobnosti evidence: <a href={origin + `/detail/${irid}`}>{origin + `/detail/${irid}`}</a></p>
+<p>Odkaz na podrobnosti evidence: <a href={origin + detailIrUrl(irid)}>{origin + detailIrUrl(irid)}</a></p>

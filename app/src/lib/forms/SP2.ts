@@ -2,7 +2,7 @@ import { defaultDataSP, type GenericDataSP } from '$lib/forms/SP.svelte';
 import { unknownCompany, type UserData } from '$lib/forms/Data';
 import { userData } from '$lib/forms/defaultData';
 import { CounterWidget, InputWidget, TitleWidget } from '$lib/Widget.svelte';
-import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
+import type { IndependentFormInfo } from '$lib/forms/forms.svelte';
 import {
     type FriendlyCompanies,
     type SparePart,
@@ -10,11 +10,11 @@ import {
     startSparePartsListening,
     startTechniciansListening,
     type Technician,
-    techniciansList
+    techniciansList,
 } from '$lib/client/realtime';
 import type { User } from 'firebase/auth';
 import { currentUser } from '$lib/client/auth';
-import { relUrl } from '$lib/helpers/runes.svelte';
+import { detailIrUrl, detailSpUrl } from '$lib/helpers/runes.svelte';
 import { type Form } from '$lib/forms/Form';
 import { nowISO } from '$lib/helpers/date';
 import { companies } from '$lib/helpers/companies';
@@ -45,7 +45,8 @@ export const defaultDataSP2 = (): DataSP2 => ({
     ...defaultDataSP(),
 });
 
-const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SparePart[]], [FriendlyCompanies]], 'NSP'> = {
+const sp2: IndependentFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SparePart[]], [FriendlyCompanies]], 'NSP'> = {
+    type: '',
     storeName: 'stored_new_SP',
     defaultData: defaultDataSP2,
     getEditData: async () => undefined,
@@ -56,17 +57,17 @@ const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SpareP
             ...defaultAddresses(),
             subject: `Nový servisní protokol: ${spName(raw.zasah)}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, origin: page.url.origin, id: extractSPIDFromRawData(raw.zasah) },
+            props: { name: raw.zasah.clovek, url: page.url.origin + detailSpUrl(extractSPIDFromRawData(raw.zasah)) },
         });
 
         if (response!.ok) return true;
         else editResult({
             text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
-            load: false
+            load: false,
         });
     },
-    redirectLink: async raw => relUrl(`/detail/${extractSPIDFromRawData(raw.zasah)}`),
+    redirectLink: async raw => detailSpUrl(extractSPIDFromRawData(raw.zasah)),
     openPdf: async raw => ({
         link: 'NSP',
         data: raw,
@@ -107,6 +108,7 @@ const sp2: DetachedFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SpareP
             f.montazka.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
         }, [companies]],
     ],
+    requiredRegulus: true,
 };
 
 export default sp2;

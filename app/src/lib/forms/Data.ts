@@ -24,11 +24,11 @@ import {
 import type { ExcelImport } from '$lib/forms/Import';
 import { getTranslations, makePlain, p, type P } from '$lib/translations';
 import { type Form, type Raw } from '$lib/forms/Form';
-import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
+import type { IndependentFormInfo } from '$lib/forms/forms.svelte';
 import { page } from '$app/state';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { companies } from '$lib/helpers/companies';
-import { relUrl } from '$lib/helpers/runes.svelte';
+import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { nazevFirmy } from '$lib/helpers/ares';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -208,7 +208,8 @@ export const unknownCompany: Company = {
     representative: 'Neznámý montážník',
 };
 
-const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [boolean], [string | null]]> = {
+const data: IndependentFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [boolean], [string | null]]> = {
+    type: '',
     storeName: 'stored_data',
     defaultData: newData,
     saveData: async (raw, edit, data, editResult, t, send) => {
@@ -217,7 +218,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
         if (!edit && irid && getIsOnline() && await db.existsIR(irid)) {
             editResult({
                 red: true, load: false,
-                text: t.irExistsHtml({ link: relUrl(`/detail/${irid}`) }),
+                text: t.irExistsHtml({ link: detailIrUrl(irid) }),
             });
             return;
         }
@@ -235,7 +236,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
             const montazka = (await nazevFirmy(raw.montazka.ico)) ?? null;
             const uvadec = (await nazevFirmy(raw.uvedeni.ico)) ?? null;
 
-            const pdf = await generatePdf(pdfInfo.RR, 'cs', newIr)
+            const pdf = await generatePdf(pdfInfo.RR, 'cs', newIr);
 
             const response = await sendEmail({
                 ...defaultAddresses(),
@@ -245,7 +246,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
                     contentType: 'application/xml',
                     filename: `Evidence ${irid}.xml`,
                 }, {
-                content: Buffer.from(pdf.pdfBytes),
+                    content: Buffer.from(pdf.pdfBytes),
                     contentType: 'application/pdf',
                     filename: pdf.fileName,
                 }],
@@ -271,7 +272,7 @@ const data: DetachedFormInfo<Data, Data, [[Technician[]], [FriendlyCompanies], [
             load: false,
         });
     },
-    redirectLink: async raw => relUrl(`/detail/${extractIRIDFromRawData(raw)}`),
+    redirectLink: async raw => detailIrUrl(extractIRIDFromRawData(raw)),
     createWidgetData: d => d,
     title: (t, edit) => edit ? t.editing : t.controllerRegistration,
     getEditData: async () => {

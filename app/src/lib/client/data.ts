@@ -24,9 +24,6 @@ export type IR = {
     installationProtocols: Raw<DataSP>[];
 };
 
-export type ID<T extends 'IR' | 'SP' = 'IR' | 'SP'> = { IR: IRID; SP: SPID }[T];
-export type DataOfType<T extends 'IR' | 'SP'> = T extends 'IR' ? IR : Raw<DataSP2>;
-
 export interface Database {
     getIR(irid: IRID): Promise<IR | undefined>;
 

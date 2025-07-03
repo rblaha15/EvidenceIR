@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { PageData } from './$types';
-    import { setTitle } from '$lib/helpers/title.svelte';
-    import { type IRID, irWholeName } from '$lib/helpers/ir';
-    import { SearchWidget } from '$lib/Widget.svelte';
+    import { setTitle } from '$lib/helpers/title.svelte.js';
+    import { irWholeName } from '$lib/helpers/ir';
+    import { SearchWidget } from '$lib/Widget.svelte.js';
     import { p } from '$lib/translations';
     import Search from '$lib/components/widgets/Search.svelte';
     import { onMount } from 'svelte';
@@ -16,7 +16,7 @@
     let { data }: Props = $props();
     const t = data.translations;
 
-    const irid = data.id as IRID;
+    const irid = data.irid!;
     const ir = db.getIRAsStore(irid);
 
     setTitle('Uživatelé s přístupem k evidenci');

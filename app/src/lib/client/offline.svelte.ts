@@ -1,5 +1,5 @@
 import { storable } from '$lib/helpers/stores';
-import type { Database, DataOfType, ID, IR } from '$lib/client/data';
+import type { Database, IR } from '$lib/client/data';
 import { derived, get, writable } from 'svelte/store';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { type DBSchema as DBS, type IDBPDatabase, openDB } from 'idb';
@@ -22,7 +22,8 @@ interface DBSchema extends DBS {
     };
 }
 
-type DOT<T extends 'IR' | 'SP'> = DBSchema[T]['value']
+type Data<T extends 'IR' | 'SP'> = DBSchema[T]['value']
+type ID<T extends 'IR' | 'SP'> = DBSchema[T]['key']
 
 const storedIR = writable<Record<IRID, IR>>({}, (set) => {
     (async () => {
@@ -49,10 +50,10 @@ const db = async () => {
 
 const mIR = (i: IR) => modernizeIR(i as LegacyIR & IR);
 const mSP = (s: Raw<DataSP2>) => migrateSP(s as LegacySP & Raw<DataSP2>) as Raw<DataSP2>;
-const m = <T extends 'IR' | 'SP'>(type: T) => (v: DOT<T>) => (type === 'IR' ? mIR(v as IR) : mSP(v as Raw<DataSP2>)) as DOT<T>;
+const m = <T extends 'IR' | 'SP'>(type: T) => (v: Data<T>) => (type === 'IR' ? mIR(v as IR) : mSP(v as Raw<DataSP2>)) as Data<T>;
 
 const odm = {
-    put: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>, value: DataOfType<T>) => {
+    put: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>, value: Data<T>) => {
         const _db2 = await db();
         await _db2.put(type, $state.snapshot(value), id);
         if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: value }));
@@ -65,7 +66,7 @@ const odm = {
         (await (await db()).get(type, id))?.let(m(type)),
     getAll: async <T extends 'IR' | 'SP'>(type: T) =>
         (await (await db()).getAll(type)).map(m(type)),
-    putAll: async <T extends 'IR' | 'SP'>(type: T, values: { [id in ID<T>]: DataOfType<T> }) => {
+    putAll: async <T extends 'IR' | 'SP'>(type: T, values: { [id in ID<T>]: Data<T> }) => {
         await (await db()).transaction(type, 'readwrite').let(async tx => {
             await values.mapTo((id, value) =>
                 tx.objectStore(type).put(value, id),
@@ -74,10 +75,10 @@ const odm = {
         });
         if (type === 'IR') storedIR.update(ir => ({ ...ir, ...values }));
     },
-    update: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>, update: (value: (DataOfType<T> | undefined)) => DataOfType<T>) => {
+    update: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>, update: (value: (Data<T> | undefined)) => Data<T>) => {
         const tx = (await db()).transaction(type, 'readwrite');
         const store = tx.objectStore(type);
-        const current = (await store.get(id))?.let(m(type)) as DataOfType<T>;
+        const current = (await store.get(id))?.let(m(type)) as Data<T>;
         const updated = update(current);
         // const uw = unwrap(store);
         // const rq = uw.put($state.snapshot(updated), id);
@@ -90,7 +91,7 @@ const odm = {
 
 export const offlineDatabaseManager = {
     ...odm,
-    putOrDelete: <T extends 'IR' | 'SP'>(type: T, id: ID<T>, value: DataOfType<T> | undefined) =>
+    putOrDelete: <T extends 'IR' | 'SP'>(type: T, id: ID<T>, value: Data<T> | undefined) =>
         value ? odm.put(type, id, value) : odm.delete(type, id),
 };
 

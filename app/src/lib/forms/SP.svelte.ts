@@ -29,6 +29,7 @@ import { spName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { range } from '$lib/extensions';
 import db from '$lib/client/data';
+import { detailIrUrl } from '$lib/helpers/runes.svelte';
 
 type NahradniDil<D extends Form<D>> = {
     label: TextWidget<D>,
@@ -229,9 +230,10 @@ const cells: ExcelImport<Raw<DataSP>>['cells'] = {
     },
 };
 
-export const sp = (() => {
+const sp = (() => {
     let i = $state() as number;
     const info: import('./forms.svelte').FormInfo<DataSP, DataSP, [[Technician[], User | null], [SparePart[]]], 'SP'> = {
+        type: 'IR',
         storeName: 'stored_sp',
         defaultData: () => defaultDataSP(),
         openPdf: () => ({
@@ -270,7 +272,7 @@ export const sp = (() => {
                     ? `Upravený servisní protokol: ${name}`
                     : `Nový servisní protokol: ${name}`,
                 component: MailProtocol,
-                props: { name: raw.zasah.clovek, origin: page.url.origin, id: irid },
+                props: { name: raw.zasah.clovek, url: page.url.origin + detailIrUrl(irid) },
             });
 
             if (response!.ok) return true;
@@ -323,6 +325,9 @@ export const sp = (() => {
             cells,
             sheetFilter: n => n.includes('Protokol'),
         },
+        requiredRegulus: true,
     };
     return info;
 })();
+
+export default sp;

@@ -11,6 +11,7 @@ import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import db from '$lib/client/data';
+import { detailIrUrl } from '$lib/helpers/runes.svelte';
 
 export type UDSOL = {
     uvedeni: UvedeniSOL,
@@ -102,7 +103,8 @@ const defaultUvedeniSOL = (): UvedeniSOL => ({
     },
 });
 
-export const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL, [], 'UPS'> = ({
+const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL, [], 'UPS'> = ({
+    type: 'IR',
     storeName: 'stored_solar_collector_commission',
     defaultData: defaultUvedeniSOL,
     openPdf: () => ({
@@ -117,7 +119,7 @@ export const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL, [], 'UPS'> = 
             ...defaultAddresses(),
             subject: `Vyplněno nové uvedení SOL do provozu k ${irName(ir.evidence.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, origin: page.url.origin, id: irid },
+            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid) },
         });
 
         if (response!.ok) return;
@@ -132,3 +134,5 @@ export const solarCollectorCommission: FormInfo<UDSOL, UvedeniSOL, [], 'UPS'> = 
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence }),
     title: t => t.commissioning,
 });
+
+export default solarCollectorCommission;
