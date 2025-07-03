@@ -25,7 +25,7 @@
     import Widget from '$lib/components/Widget.svelte';
     import { todayISO } from '$lib/helpers/date';
     import NSP from '$lib/forms/NSP/infoNSP';
-    import { p, plainArray } from '$lib/translations';
+    import { p } from '$lib/translations';
     import db, { type IR } from '$lib/client/data';
     import type { FormNSP } from '$lib/forms/NSP/formNSP';
     import solarCollectorCommission from '$lib/forms/UPS/infoUPS';
@@ -119,7 +119,7 @@
     }));
     let irType = $state(new ChooserWidget({
         label: `controllerType`,
-        options: plainArray(['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL']),
+        options: p(['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL']),
     }));
 
     $effect(() => {
@@ -285,7 +285,7 @@
                 <PdfLink name={t.warranty4} {t} link="ZL" lang={data.languageCode} data={values} pump={4} />
             {/if}
             <PdfLink
-                enabled={values.uvedeniTC !== undefined} name={t.heatPumpCommissionProtocol} {t} link="FormUPT"
+                enabled={values.uvedeniTC !== undefined} name={t.heatPumpCommissionProtocol} {t} link="UPT"
                 lang={data.languageCode} data={values}
             >
                 {#if !values.uvedeniTC}

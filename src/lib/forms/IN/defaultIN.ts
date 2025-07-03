@@ -16,7 +16,7 @@ import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
 import products, { type Products } from '$lib/helpers/products';
-import { p, plainArray } from '$lib/translations';
+import { p } from '$lib/translations';
 
 const jeFO = (d: UserForm<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserForm<never>) => jeFO(d);
@@ -322,9 +322,9 @@ export default (): FormIN => ({
     ir: {
         typ: new DoubleChooserWidget({
             label: `controllerType`,
-            options1: plainArray(['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL']),
+            options1: p(['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL']),
             options2: ({ ir: { typ: { value: { first: f } } } }) => (
-                plainArray(f == p('IR 12') ? ['CTC'] : f == p('SOREL') ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5'] : ['CTC', 'RTC'])
+                p(f == p('IR 12') ? ['CTC'] : f == p('SOREL') ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5'] : ['CTC', 'RTC'])
             ),
             onValueSet: (d, v) => {
                 if (v.second == p('RTC')) {

@@ -1,7 +1,7 @@
 import type { ExcelImport } from '$lib/forms/ExcelImport';
 import type { Raw } from '$lib/forms/Form';
 import { range } from '$lib/extensions';
-import { makePlain, p } from '$lib/translations';
+import { p, p } from '$lib/translations';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 
 const cellsSparePart = (i: 0 | 1 | 2) => ({
@@ -50,6 +50,6 @@ export const cellsSP: ExcelImport<Raw<FormSP>>['cells'] = {
     fakturace: {
         hotove: { address: [18, 43], transform: v => v == 'ANO' ? 'yes' : v == 'NE' ? 'no' : 'doNotInvoice' },
         komu: { address: [18, 45], transform: v => v == 'Odběratel' ? p('Investor') : 'assemblyCompany' },
-        jak: { address: [18, 46], transform: v => makePlain(v[0].toUpperCase() + v.slice(1) as 'Papírově' | 'Elektronicky')! },
+        jak: { address: [18, 46], transform: v => p(v[0].toUpperCase() + v.slice(1) as 'Papírově' | 'Elektronicky')! },
     },
 };

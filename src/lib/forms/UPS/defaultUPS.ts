@@ -1,5 +1,5 @@
 import { CheckboxWidget, ChooserWidget, type GetOrVal, InputWidget, SwitchWidget, TitleWidget } from '$lib/forms/Widget.svelte';
-import { p, plainArray } from '$lib/translations';
+import { p } from '$lib/translations';
 import { todayISO } from '$lib/helpers/date';
 import { type FormUPS } from '$lib/forms/UPS/formUPS';
 
@@ -31,11 +31,11 @@ export default (): FormUPS => ({
         objem: new InputWidget({ label: p('Objem') }),
         ovzdusneni: new ChooserWidget({
             label: p('Pro odvzdušnění nainstalován'),
-            options: plainArray(['odvzdušňovací ventil', 'separátor vzduchu', 'nic']),
+            options: p(['odvzdušňovací ventil', 'separátor vzduchu', 'nic']),
         }),
         teplonosnaKapalina: new ChooserWidget({
             label: p('Typ teplonosné kapaliny'),
-            options: plainArray(['Solarten Super', 'Solarten HT', 'jiná']),
+            options: p(['Solarten Super', 'Solarten HT', 'jiná']),
         }),
         potrubi: new InputWidget({ label: p('Materiál/typ potrubí') }),
         prumer: new InputWidget({ label: p('Průměr') }),
