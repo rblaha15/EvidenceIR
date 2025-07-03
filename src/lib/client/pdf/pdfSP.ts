@@ -2,7 +2,7 @@
 
 import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
-import { cascadeDetails } from '$lib/client/pdf/RK';
+import { cascadeDetails } from '$lib/client/pdf/pdfRK';
 import '$lib/extensions';
 import { endUserName, irName, spName } from '$lib/helpers/ir';
 import type { GetPdfData } from '$lib/client/pdf';
@@ -51,7 +51,7 @@ const poleProDilyS = 44;
 const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
     .associateWith((_, i) => poleProDilyS + i * 8);
 
-export const SP: GetPdfData<'SP'> = async ({ evidence: e, installationProtocols }, t, add, { index }) => {
+export const pdfSP: GetPdfData<'SP'> = async ({ evidence: e, installationProtocols }, t, add, { index }) => {
     const { isCascade, pumps, hasHP } = e.tc.model ? { hasHP: true, ...cascadeDetails(e, t) } : {
         hasHP: false,
         isCascade: false,
@@ -59,7 +59,7 @@ export const SP: GetPdfData<'SP'> = async ({ evidence: e, installationProtocols 
     };
     console.log(installationProtocols, index)
     const p = installationProtocols[index];
-    return NSP({
+    return pdfNSP({
         ...e,
         ...p,
         system: {
@@ -74,7 +74,7 @@ ${hasHP ? formatovatCerpadla(pumps.map(([model, cislo], i) =>
     }, t, add);
 };
 
-export const NSP: GetPdfData<'NSP'> = async (p, t, addPage) => {
+export const pdfNSP: GetPdfData<'NSP'> = async (p, t, addPage) => {
     console.log(p)
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
     const nahradniDily = [
@@ -152,11 +152,11 @@ export const NSP: GetPdfData<'NSP'> = async (p, t, addPage) => {
         /*  popisTechnika */ Podpis64: signature ? { x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 } : null,
     } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };
-export default SP;
+export default pdfSP;
 
 const formatovatCerpadla = (a: string[]) => [a.slice(0, 2).join('; '), a.slice(2, 4).join('; ')].join('\n');
 
-export const CP: GetPdfData<'CP'> = async p => ({
+export const pdfCP: GetPdfData<'CP'> = async p => ({
     Text1: `${p.koncovyUzivatel.prijmeni} ${p.koncovyUzivatel.jmeno}`,
     Text2: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
     Text3: dateFromISO(p.zasah.datum),

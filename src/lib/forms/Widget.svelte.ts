@@ -1,4 +1,4 @@
-import type { TranslationReference as TR, Translations } from './translations';
+import type { TranslationReference as TR, Translations } from '../translations';
 import type { ClassValue, FullAutoFill, HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 
 export type Get<D, U = TR> = TR extends U

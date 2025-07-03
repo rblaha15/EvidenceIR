@@ -1,13 +1,13 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import type { GetPdfData } from '$lib/client/pdf';
 import { endUserName, irType } from '$lib/helpers/ir';
-import type { Data } from '$lib/forms/Data';
+import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 
-const representative = (c: Raw<Data>['montazka' | 'uvedeni']) =>
+const representative = (c: Raw<FormIN>['montazka' | 'uvedeni']) =>
     `${c.zastupce} – ${c.email}; ${c.telefon ?? ''}`;
 
-const RR: GetPdfData<'RR'> = async ({ evidence: e }, t) => ({
+const pdfRR: GetPdfData<'RR'> = async ({ evidence: e }, t) => ({
 /*   icoMontaznik */ Text1: e.montazka.ico,
 /* firmaMontaznik */ Text2: (await nazevFirmy(e.montazka.ico, fetch)) ?? null,
 /* jmenoMontaznik */ Text3: representative(e.montazka),
@@ -35,4 +35,4 @@ const RR: GetPdfData<'RR'> = async ({ evidence: e }, t) => ({
 /*          datum */ // Text20: '',
 /*         podpis */ // Text21: '',
 });
-export default RR;
+export default pdfRR;

@@ -1,12 +1,13 @@
 import { nazevFirmy } from '$lib/helpers/ares';
-import type { Data } from '$lib/forms/Data';
+import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Translations } from '$lib/translations';
 import { endUserName } from '$lib/helpers/ir';
 import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
-import { defaultKontrola, type Kontrola } from '$lib/forms/Kontrola.svelte';
+import { type FormRK } from '$lib/forms/RK/formRK.js';
 import type { GetPdfData } from '$lib/client/pdf';
+import { defaultRK } from '$lib/forms/RK/defaultRK';
 
-export const cascadeDetails = (e: Raw<Data>, t: Translations) => ({
+export const cascadeDetails = (e: Raw<FormIN>, t: Translations) => ({
     isCascade: !!e.tc.model2,
     pumps: [
         [e.tc.model!, e.tc.cislo] as const,
@@ -18,9 +19,9 @@ export const cascadeDetails = (e: Raw<Data>, t: Translations) => ({
         .map(([m, c]) => [t.get(m), c] as const)
 });
 
-const RK: GetPdfData<'RK'> = async ({ kontrolyTC, evidence: e }, t, _, { pump }) => {
+const pdfRK: GetPdfData<'RK'> = async ({ kontrolyTC, evidence: e }, t, _, { pump }) => {
     console.log(kontrolyTC)
-    const kontroly = kontrolyTC[pump] as Record<number, Raw<Kontrola>>;
+    const kontroly = kontrolyTC[pump] as Record<number, Raw<FormRK>>;
     const montazka = await nazevFirmy(e.montazka.ico);
     const { isCascade, pumps } = cascadeDetails(e, t);
     const start = {
@@ -34,7 +35,7 @@ ${t.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}
         /*       poznamky */ Text141: kontroly.mapTo((_, k) => k.poznamky.poznamka).join('\n')
     };
     const veci = kontroly.mapTo((rok, kontrola) => {
-        const k = dataToRawData(rawDataToData(defaultKontrola(), kontrola)) // seřazení informací
+        const k = dataToRawData(rawDataToData(defaultRK(), kontrola)) // seřazení informací
         const k2 = {
             ...k,
             kontrolniUkonyOtopneSoustavy:
@@ -74,4 +75,4 @@ ${t.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}
         ...veci
     };
 };
-export default RK;
+export default pdfRK;

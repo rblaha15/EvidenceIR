@@ -1,6 +1,6 @@
 import type { IRID, SPID } from '$lib/helpers/ir';
 import { languageCodes } from '$lib/languages';
-import { forms } from '$lib/forms/forms.svelte';
+import { forms } from '$lib/forms/forms.js';
 
 export const extractIDs = (url: URL) => ({
     irid: url.searchParams.get('irid') as IRID | null,

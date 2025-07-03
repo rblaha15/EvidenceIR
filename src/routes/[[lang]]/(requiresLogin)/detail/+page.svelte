@@ -4,11 +4,11 @@
     import PdfLink from './PDFLink.svelte';
     import { checkAuth, currentUser, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { storable } from '$lib/helpers/stores';
-    import heatPumpCommission, { type UvedeniTC } from '$lib/forms/UvedeniTC';
+    import { type FormUPT } from '$lib/forms/UPT/formUPT';
     import type { FirebaseError } from 'firebase/app';
     import { getIsOnline, startTechniciansListening, techniciansList } from '$lib/client/realtime';
     import { page } from '$app/state';
-    import solarCollectorCommission, { type UvedeniSOL } from '$lib/forms/UvedeniSOL';
+    import { type FormUPS } from '$lib/forms/UPS/formUPS';
     import { setTitle } from '$lib/helpers/title.svelte.js';
     import {
         extractIRIDFromParts,
@@ -19,14 +19,17 @@
         spName,
         spWholeName,
     } from '$lib/helpers/ir';
-    import { ChooserWidget, InputWidget } from '$lib/Widget.svelte.js';
+    import { ChooserWidget, InputWidget } from '$lib/forms/Widget.svelte.js';
     import type { Raw } from '$lib/forms/Form';
     import { detailIrUrl, iridUrl, relUrl, spidUrl } from '$lib/helpers/runes.svelte.js';
     import Widget from '$lib/components/Widget.svelte';
     import { todayISO } from '$lib/helpers/date';
-    import sp2, { type DataSP2 } from '$lib/forms/SP2';
+    import NSP from '$lib/forms/NSP/infoNSP';
     import { p, plainArray } from '$lib/translations';
     import db, { type IR } from '$lib/client/data';
+    import type { FormNSP } from '$lib/forms/NSP/formNSP';
+    import solarCollectorCommission from '$lib/forms/UPS/infoUPS';
+    import heatPumpCommission from '$lib/forms/UPT/infoUPT';
 
     interface Props {
         data: PageData;
@@ -39,12 +42,12 @@
     let originalSPID = $state() as SPID;
 
     const deleted = page.url.searchParams.has('deleted');
-    const storedHeatPumpCommission = storable<Raw<UvedeniTC>>(`${heatPumpCommission.storeName}_${irid}`);
-    const storedSolarCollectorCommission = storable<Raw<UvedeniSOL>>(`${solarCollectorCommission.storeName}_${irid}`);
+    const storedHeatPumpCommission = storable<Raw<FormUPT>>(`${heatPumpCommission.storeName}_${irid}`);
+    const storedSolarCollectorCommission = storable<Raw<FormUPS>>(`${solarCollectorCommission.storeName}_${irid}`);
 
     let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
     let values = $state() as IR;
-    let sp = $state() as Raw<DataSP2>;
+    let sp = $state() as Raw<FormNSP>;
     const fetchIRdata = async () => {
         const _values = (await (irid!.length == 6 ? [
             db.getIR(`2${irid}`), db.getIR(`4${irid}`),
@@ -241,7 +244,7 @@
         <PdfLink lang={data.languageCode} {t} link="NSP" hideLanguageSelector={true} data={sp} />
 
         <a class="btn btn-warning" href={relUrl('/newSP')} onclick={() => {
-            storable<typeof sp>(sp2.storeName).set(sp)
+            storable<typeof sp>(NSP.storeName).set(sp)
         }}>Vytvořit kopii protokolu</a>
     </div>
 
@@ -282,7 +285,7 @@
                 <PdfLink name={t.warranty4} {t} link="ZL" lang={data.languageCode} data={values} pump={4} />
             {/if}
             <PdfLink
-                enabled={values.uvedeniTC !== undefined} name={t.heatPumpCommissionProtocol} {t} link="UPT"
+                enabled={values.uvedeniTC !== undefined} name={t.heatPumpCommissionProtocol} {t} link="FormUPT"
                 lang={data.languageCode} data={values}
             >
                 {#if !values.uvedeniTC}

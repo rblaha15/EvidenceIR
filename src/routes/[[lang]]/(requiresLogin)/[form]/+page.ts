@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
-import { type FormName, forms, getForm } from '$lib/forms/forms.svelte.js';
+import { type FormName, forms, getForm } from '$lib/forms/forms.js';
 import { checkRegulusOrAdmin } from '$lib/client/auth';
 import { browser } from '$app/environment';
 import { extractIDs, langAndFormEntryGenerator } from '../../helpers';

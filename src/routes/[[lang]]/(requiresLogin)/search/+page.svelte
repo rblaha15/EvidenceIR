@@ -3,7 +3,7 @@
     import { page } from '$app/state';
     import { p, type Translations } from '$lib/translations';
     import { onMount } from 'svelte';
-    import { SearchWidget } from '$lib/Widget.svelte.js';
+    import { SearchWidget } from '$lib/forms/Widget.svelte.js';
     import Search from '$lib/components/widgets/Search.svelte';
     import { setTitle } from '$lib/helpers/title.svelte';
     import { detailIrUrl, detailSpUrl } from '$lib/helpers/runes.svelte';

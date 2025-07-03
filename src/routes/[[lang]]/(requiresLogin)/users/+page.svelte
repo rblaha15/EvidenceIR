@@ -2,7 +2,7 @@
     import type { PageData } from './$types';
     import { setTitle } from '$lib/helpers/title.svelte.js';
     import { irWholeName } from '$lib/helpers/ir';
-    import { SearchWidget } from '$lib/Widget.svelte.js';
+    import { SearchWidget } from '$lib/forms/Widget.svelte.js';
     import { p } from '$lib/translations';
     import Search from '$lib/components/widgets/Search.svelte';
     import { onMount } from 'svelte';

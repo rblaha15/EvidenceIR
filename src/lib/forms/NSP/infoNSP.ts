@@ -1,8 +1,4 @@
-import { defaultDataSP, type GenericDataSP } from '$lib/forms/SP.svelte';
-import { unknownCompany, type UserData } from '$lib/forms/Data';
-import { userData } from '$lib/forms/defaultData';
-import { CounterWidget, InputWidget, TitleWidget } from '$lib/Widget.svelte';
-import type { IndependentFormInfo } from '$lib/forms/forms.svelte';
+import { unknownCompany } from '$lib/forms/IN/formIN';
 import {
     type FriendlyCompanies,
     type SparePart,
@@ -14,41 +10,21 @@ import {
 } from '$lib/client/realtime';
 import type { User } from 'firebase/auth';
 import { currentUser } from '$lib/client/auth';
-import { detailIrUrl, detailSpUrl } from '$lib/helpers/runes.svelte';
-import { type Form } from '$lib/forms/Form';
+import { detailSpUrl } from '$lib/helpers/runes.svelte.js';
 import { nowISO } from '$lib/helpers/date';
 import { companies } from '$lib/helpers/companies';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { extractSPIDFromRawData, spName } from '$lib/helpers/ir';
-import { p } from '$lib/translations';
 import db from '$lib/client/data';
+import { type DataNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
+import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 
-export type UDSP = UserData<UDSP> & GenericDataSP<UDSP>
-
-export interface DataSP2 extends GenericDataSP<UDSP>, UserData<UDSP>, Form<UDSP> {
-    system: {
-        nadpis: TitleWidget<UDSP>;
-        popis: InputWidget<UDSP>;
-        pocetTC: CounterWidget<UDSP>;
-    };
-}
-
-export const defaultDataSP2 = (): DataSP2 => ({
-    ...userData(),
-    system: {
-        nadpis: new TitleWidget({ text: p('Instalační a servisní protokol') }),
-        popis: new InputWidget({ label: p('Popis systému'), textArea: true, required: true }),
-        pocetTC: new CounterWidget({ label: p('Počet TČ v instalaci'), min: 0, max: Number.POSITIVE_INFINITY, chosen: 0 }),
-    },
-    ...defaultDataSP(),
-});
-
-const sp2: IndependentFormInfo<UDSP, DataSP2, [[Technician[], User | null], [SparePart[]], [FriendlyCompanies]], 'NSP'> = {
+const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null], [SparePart[]], [FriendlyCompanies]], 'NSP'> = {
     type: '',
     storeName: 'stored_new_SP',
-    defaultData: defaultDataSP2,
+    defaultData: defaultNSP,
     getEditData: async () => undefined,
     saveData: async (raw, _, __, editResult, t) => {
         await db.addIndependentServiceProtocol(raw);
@@ -111,4 +87,4 @@ const sp2: IndependentFormInfo<UDSP, DataSP2, [[Technician[], User | null], [Spa
     requiredRegulus: true,
 };
 
-export default sp2;
+export default infoNSP;

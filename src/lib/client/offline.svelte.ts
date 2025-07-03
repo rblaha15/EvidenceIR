@@ -4,12 +4,12 @@ import { derived, get, writable } from 'svelte/store';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { type DBSchema as DBS, type IDBPDatabase, openDB } from 'idb';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
-import type { DataSP2 } from '$lib/forms/SP2';
 import type { Raw } from '$lib/forms/Form';
 import { currentUser, getToken } from '$lib/client/auth';
 import { type LegacyIR, type LegacySP, migrateSP, modernizeIR } from '$lib/client/migrations';
 import { isOnline } from '$lib/client/realtime';
 import type { EmailMessage } from '$lib/client/email';
+import type { FormNSP } from '$lib/forms/NSP/formNSP';
 
 interface DBSchema extends DBS {
     IR: {
@@ -18,7 +18,7 @@ interface DBSchema extends DBS {
     };
     SP: {
         key: SPID;
-        value: Raw<DataSP2>;
+        value: Raw<FormNSP>;
     };
 }
 
@@ -49,8 +49,8 @@ const db = async () => {
 };
 
 const mIR = (i: IR) => modernizeIR(i as LegacyIR & IR);
-const mSP = (s: Raw<DataSP2>) => migrateSP(s as LegacySP & Raw<DataSP2>) as Raw<DataSP2>;
-const m = <T extends 'IR' | 'SP'>(type: T) => (v: Data<T>) => (type === 'IR' ? mIR(v as IR) : mSP(v as Raw<DataSP2>)) as Data<T>;
+const mSP = (s: Raw<FormNSP>) => migrateSP(s as LegacySP & Raw<FormNSP>) as Raw<FormNSP>;
+const m = <T extends 'IR' | 'SP'>(type: T) => (v: Data<T>) => (type === 'IR' ? mIR(v as IR) : mSP(v as Raw<FormNSP>)) as Data<T>;
 
 const odm = {
     put: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>, value: Data<T>) => {

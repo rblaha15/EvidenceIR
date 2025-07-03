@@ -3,7 +3,7 @@
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import type { Translations } from '$lib/translations';
     import { detailIrUrl, detailSpUrl, relUrl } from '$lib/helpers/runes.svelte';
-    import { getForm } from '$lib/forms/forms.svelte';
+    import { getForm } from '$lib/forms/forms.js';
 
     const { t }: { t: Translations } = $props();
     type BooleanLike = boolean | null | undefined

@@ -1,6 +1,6 @@
 // noinspection SuspiciousTypeOfGuard
 
-import type { Data } from '$lib/forms/Data';
+import type { FormIN } from '$lib/forms/IN/formIN';
 import {
     DoubleChooserWidget,
     MultiCheckboxWidget,
@@ -12,14 +12,14 @@ import {
     type Widget,
     ChooserWidget,
     CheckboxWidget
-} from '$lib/Widget.svelte.js';
+} from '$lib/forms/Widget.svelte.js';
 import type { Translations } from '$lib/translations';
 import type { Form } from '$lib/forms/Form';
 
 const camelToSnakeCase = (str: string) =>
     str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
-const widgetToXML = (v: Widget<Data>, t: Translations) => {
+const widgetToXML = (v: Widget<FormIN>, t: Translations) => {
     if (v instanceof InputWidget)
         return v.value;
     if (v instanceof DoubleChooserWidget)
@@ -40,7 +40,7 @@ const widgetToXML = (v: Widget<Data>, t: Translations) => {
         return v.getXmlEntry();
     return '';
 };
-export const generateXML = (data: Data, t: Translations) => `
+export const xmlIN = (data: FormIN, t: Translations) => `
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="SEIR.xsl"?>
 
@@ -50,7 +50,7 @@ Verze dokumentu: 1.1
 -->
 
 <evidence>
-${(data as Form<Data>).mapTo((k1, section) =>
+${(data as Form<FormIN>).mapTo((k1, section) =>
     `    <${camelToSnakeCase(k1)}>
 ${section.entries().filter(([, v]) =>
     v.showTextValue(data) && v.value != undefined

@@ -2,7 +2,7 @@ import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { today } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/client/pdf';
 
-const ZL: GetPdfData<'ZL'> = async ({ evidence: e }, t, _, { pump }) => {
+const pdfZL: GetPdfData<'ZL'> = async ({ evidence: e }, t, _, { pump }) => {
     const uvedeni = await nazevAdresaFirmy(e.uvedeni.ico, fetch);
     const montazka = await nazevAdresaFirmy(e.montazka.ico, fetch);
     const cislo = [e.tc.cislo, e.tc.cislo2, e.tc.cislo3, e.tc.cislo4][pump];
@@ -23,4 +23,4 @@ const ZL: GetPdfData<'ZL'> = async ({ evidence: e }, t, _, { pump }) => {
     };
 };
 
-export default ZL;
+export default pdfZL;
