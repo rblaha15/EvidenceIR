@@ -5,7 +5,7 @@ import { endUserName } from '$lib/helpers/ir';
 import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
 import { type FormRK } from '$lib/forms/RK/formRK.js';
 import type { GetPdfData } from '$lib/client/pdf';
-import { defaultRK } from '$lib/forms/RK/defaultRK';
+import defaultRK from '$lib/forms/RK/defaultRK';
 
 export const cascadeDetails = (e: Raw<FormIN>, t: Translations) => ({
     isCascade: !!e.tc.model2,
