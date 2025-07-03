@@ -1,7 +1,7 @@
-import { p, plainArray } from '$lib/translations';
+import { p } from '$lib/translations';
 
 const products = {
-    heatPumpsAirToWaterCTC: plainArray([
+    heatPumpsAirToWaterCTC: p([
         'EcoAir 614M',
         'EcoAir 622M',
         'EcoAir 406',
@@ -10,13 +10,13 @@ const products = {
         'EcoAir 415',
         'EcoAir 420',
     ]),
-    heatPumpsRTC: plainArray([
+    heatPumpsRTC: p([
         'RTC',
         'RTC 6i',
         'RTC 13e',
         'RTC 20e',
     ]),
-    heatPumpsGroundToWater: plainArray([
+    heatPumpsGroundToWater: p([
         'EcoPart 612M',
         'EcoPart 616M',
         'EcoPart 406',
@@ -27,14 +27,14 @@ const products = {
         'EcoPart 417',
         'EcoPart 435',
     ]),
-    indoorUnits: plainArray([
+    indoorUnits: p([
         'RegulusBOX',
         'RegulusHBOX 112',
         'RegulusHBOX 212',
         'RegulusHBOX K 106',
     ]),
     thermalStores: {
-        [p('DUO')]: plainArray([
+        [p('DUO')]: p([
             '-',
             'P',
             'PR',
@@ -42,7 +42,7 @@ const products = {
             'K P',
             'K PR',
         ]),
-        [p('HSK')]: plainArray([
+        [p('HSK')]: p([
             'P',
             'P+',
             'PR',
@@ -51,7 +51,7 @@ const products = {
             'PB',
             'TV',
         ]),
-        [p('PS')]: plainArray([
+        [p('PS')]: p([
             'E+',
             'ES+',
             'N+',
@@ -61,7 +61,7 @@ const products = {
             'WF',
         ]),
     },
-    waterTanks: plainArray([
+    waterTanks: p([
         'NBC',
         'RGC',
         'RDC',

@@ -3,9 +3,9 @@
     import { type P, p, type Translations } from '$lib/translations';
     import { setTitle } from '$lib/helpers/title.svelte.js';
     import type { Form, Raw } from '$lib/forms/Form';
-    import { type ExcelImport, processExcel } from '$lib/forms/Import';
+    import { type ExcelImport, processExcel } from '$lib/forms/ExcelImport';
     import readXlsxFile, { readSheetNames } from 'read-excel-file';
-    import { ChooserWidget, STAR } from '$lib/Widget.svelte';
+    import { ChooserWidget, STAR } from '$lib/forms/Widget.svelte.js';
     import Widget from '$lib/components/Widget.svelte';
 
     interface Props<R extends Raw<Form>> {
@@ -40,7 +40,7 @@
     $effect(() => {
         if (file) readSheetNames(file).then(names => {
             const sheets = names.filter(importData?.sheetFilter ?? (n => n == (importData?.sheet ?? n)));
-            sheetWidget.options = () => sheets.map(p)
+            sheetWidget.options = () => p(sheets)
             if (sheets.length == 1)
                 sheetWidget._value = p(sheets[0])
         }); else {

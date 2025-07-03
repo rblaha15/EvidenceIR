@@ -1,4 +1,9 @@
-<script generics="D, F extends Form<D>, S extends unknown[][], P extends Pdf = Pdf" lang="ts">
+<script generics="
+    D,
+    F extends Form<D>,
+    S extends unknown[][],
+    P extends Pdf = Pdf,
+" lang="ts">
     // noinspection ES6UnusedImports
     import type { Form } from '$lib/forms/Form';
     import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
@@ -6,7 +11,6 @@
     // noinspection ES6UnusedImports
     import { type Pdf, pdfInfo, pdfParamsArray } from '$lib/client/pdf';
     import type { Translations } from '$lib/translations';
-    import type { DetachedFormInfo } from '$lib/forms/forms.svelte.js';
     import FormHeader from '$lib/forms/FormHeader.svelte';
     import { onMount, untrack } from 'svelte';
     import { derived as derivedStore, readable } from 'svelte/store';
@@ -15,10 +19,11 @@
     import { page } from '$app/state';
     import { dev } from '$app/environment';
     import { generatePdf } from '$lib/client/pdfGeneration';
+    import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 
     const { t, formInfo }: {
         t: Translations,
-        formInfo: DetachedFormInfo<D, F, S, P>,
+        formInfo: IndependentFormInfo<D, F, S, P>,
     } = $props();
 
     const {

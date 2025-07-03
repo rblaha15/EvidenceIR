@@ -2,12 +2,19 @@
     import { page } from '$app/state';
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import type { Translations } from '$lib/translations';
-    import { relUrl } from '$lib/helpers/runes.svelte';
-    import { isIRID } from "$lib/helpers/ir";
+    import { detailIrUrl, detailSpUrl, relUrl } from '$lib/helpers/runes.svelte';
+    import { getForm } from '$lib/forms/forms.js';
 
     const { t }: { t: Translations } = $props();
     type BooleanLike = boolean | null | undefined
     type s = string
+
+    const route = $derived(page.route.id)
+    const isForm = $derived(route?.endsWith('[form]') ?? false)
+    const form = $derived(page.params.form)
+    const search = $derived(page.url.searchParams)
+    const formType = $derived(getForm(form)?.type)
+    const isDetailPage = $derived(isForm && formType === 'IR' || route?.endsWith('/detail') || route?.endsWith('/users'))
 </script>
 
 {#snippet item({url, label, selected, shown = true}: {url: s, label: s, selected: BooleanLike, shown?: BooleanLike})}
@@ -26,20 +33,22 @@
 
 <ul class="navbar-nav">
     {@render item({
-        url: '/new', label: t.new,
-        selected: page.route.id?.match(/.*\/new($|\?)/) && !page.url.searchParams.has('edit-irid'),
+        url: '/IN', label: t.new,
+        selected: isForm && form === 'IN' && !search.has('edit-irid'),
     })}
     {@render item({
-        url: '/newSP', label: t.independentServiceProtocol, shown: $isUserRegulusOrAdmin,
-        selected: page.route.id?.endsWith('/newSP'),
+        url: '/NSP', label: t.independentServiceProtocol, shown: $isUserRegulusOrAdmin,
+        selected: isForm && form === 'NSP',
     })}
     {@render item({
-        url: '/search', label: t.searching, selected: page.route.id?.endsWith('/search'),
+        url: '/search', label: t.searching, selected: route?.endsWith('/search'),
     })}
     {@render item({
-        url: page.route.id?.includes('/detail') ? `/detail/${page.data.id ?? ''}` : `/detail/${page.url.searchParams.get('edit-irid') ?? ''}`,
-        label: page.data.id && isIRID(page.data.id) ? t.evidenceDetails : t.protocolDetails,
-        selected: true, shown: page.route.id?.includes('/detail') || page.url.searchParams.has('edit-irid'),
+        url: isDetailPage
+            ? page.data.spid ? detailSpUrl() : detailIrUrl()
+            : detailIrUrl(page.url.searchParams.get('edit-irid')),
+        label: page.data.spid ? t.protocolDetails : t.evidenceDetails,
+        selected: true, shown: isDetailPage || page.url.searchParams.has('edit-irid'),
     })}
     {@render item({
         url: '/admin', label: 'Admin', shown: $isUserAdmin, selected: page.route.id?.endsWith('/admin'),

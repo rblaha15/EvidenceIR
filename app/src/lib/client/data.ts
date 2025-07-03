@@ -1,31 +1,28 @@
 import type { Raw } from '$lib/forms/Form';
-import type { Data } from '$lib/forms/Data';
-import type { Kontrola } from '$lib/forms/Kontrola.svelte';
-import type { UvedeniTC } from '$lib/forms/UvedeniTC';
+import type { FormIN } from '$lib/forms/IN/formIN';
+import type { FormRK } from '$lib/forms/RK/formRK.js';
+import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import { type Readable } from 'svelte/store';
-import type { UvedeniSOL } from '$lib/forms/UvedeniSOL';
-import type { DataSP } from '$lib/forms/SP.svelte';
-import type { DataSP2 } from '$lib/forms/SP2';
+import type { FormUPS } from '$lib/forms/UPS/formUPS';
+import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
 import type { IRID, SPID } from '$lib/helpers/ir';
 import { getIsOnline } from '$lib/client/realtime';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { addToOfflineQueue, offlineDatabase } from '$lib/client/offline.svelte';
+import type { FormNSP } from '$lib/forms/NSP/formNSP';
 
 export type IR = {
-    evidence: Raw<Data>;
-    uvedeniTC?: Raw<UvedeniTC>;
-    uvedeniSOL?: Raw<UvedeniSOL>;
+    evidence: Raw<FormIN>;
+    uvedeniTC?: Raw<FormUPT>;
+    uvedeniSOL?: Raw<FormUPS>;
     kontrolyTC: {
         [P in 1 | 2 | 3 | 4]?: {
-            [R in 1 | 2 | 3 | 4]?: Raw<Kontrola>;
+            [R in 1 | 2 | 3 | 4]?: Raw<FormRK>;
         }
     };
     users: string[];
-    installationProtocols: Raw<DataSP>[];
+    installationProtocols: Raw<FormSP>[];
 };
-
-export type ID<T extends 'IR' | 'SP' = 'IR' | 'SP'> = { IR: IRID; SP: SPID }[T];
-export type DataOfType<T extends 'IR' | 'SP'> = T extends 'IR' ? IR : Raw<DataSP2>;
 
 export interface Database {
     getIR(irid: IRID): Promise<IR | undefined>;
@@ -40,27 +37,27 @@ export interface Database {
 
     existsIR(irid: IRID): Promise<boolean>;
 
-    updateIRRecord(rawData: Raw<Data>): Promise<void>;
+    updateIRRecord(rawData: Raw<FormIN>): Promise<void>;
 
-    addHeatPumpCheck(irid: IRID, pump: 1 | 2 | 3 | 4, year: 1 | 2 | 3 | 4, check: Raw<Kontrola>): Promise<void>;
+    addHeatPumpCheck(irid: IRID, pump: 1 | 2 | 3 | 4, year: 1 | 2 | 3 | 4, check: Raw<FormRK>): Promise<void>;
 
-    addServiceProtocol(irid: IRID, protocol: Raw<DataSP>): Promise<void>;
+    addServiceProtocol(irid: IRID, protocol: Raw<FormSP>): Promise<void>;
 
-    editServiceProtocol(irid: IRID, index: number, protocol: Raw<DataSP>): Promise<void>;
+    editServiceProtocol(irid: IRID, index: number, protocol: Raw<FormSP>): Promise<void>;
 
-    addHeatPumpCommissioningProtocol(irid: IRID, protocol: Raw<UvedeniTC>): Promise<void>;
+    addHeatPumpCommissioningProtocol(irid: IRID, protocol: Raw<FormUPT>): Promise<void>;
 
-    addSolarSystemCommissioningProtocol(irid: IRID, protocol: Raw<UvedeniSOL>): Promise<void>;
+    addSolarSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPS>): Promise<void>;
 
     updateIRUsers(irid: IRID, users: string[]): Promise<void>;
 
-    addIndependentServiceProtocol(protocol: Raw<DataSP2>): Promise<void>;
+    addIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
 
     deleteIndependentProtocol(spid: SPID): Promise<void>;
 
-    getIndependentProtocol(spid: SPID): Promise<Raw<DataSP2> | undefined>;
+    getIndependentProtocol(spid: SPID): Promise<Raw<FormNSP> | undefined>;
 
-    getAllIndependentProtocols(): Promise<Raw<DataSP2>[]>;
+    getAllIndependentProtocols(): Promise<Raw<FormNSP>[]>;
 }
 
 const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>): ReturnType<Database[F]> => {

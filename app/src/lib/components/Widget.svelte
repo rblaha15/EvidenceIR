@@ -17,7 +17,7 @@
         CountersWidget,
         InputWithChooserWidget,
         CheckboxWithInputWidget, PhotoSelectorWidget,
-    } from '$lib/Widget.svelte';
+    } from '$lib/forms/Widget.svelte.js';
     import Input from '$lib/components/widgets/Input.svelte';
     import DoubleChooser from '$lib/components/widgets/DoubleChooser.svelte';
     import Chooser from '$lib/components/widgets/Chooser.svelte';

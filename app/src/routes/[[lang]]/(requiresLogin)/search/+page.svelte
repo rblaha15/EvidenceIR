@@ -3,18 +3,19 @@
     import { page } from '$app/state';
     import { p, type Translations } from '$lib/translations';
     import { onMount } from 'svelte';
-    import { SearchWidget } from '$lib/Widget.svelte.js';
+    import { SearchWidget } from '$lib/forms/Widget.svelte.js';
     import Search from '$lib/components/widgets/Search.svelte';
     import { setTitle } from '$lib/helpers/title.svelte';
-    import { relUrl } from '$lib/helpers/runes.svelte';
-    import { extractIRIDFromRawData, extractSPIDFromRawData, irLabel, irName, spName } from '$lib/helpers/ir';
+    import { detailIrUrl, detailSpUrl } from '$lib/helpers/runes.svelte';
+    import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, irLabel, irName, type SPID, spName } from '$lib/helpers/ir';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
-    import db, { type ID } from '$lib/client/data';
+    import db from '$lib/client/data';
 
     type Installation_PublicServiceProtocol = {
-        id: ID,
+        t: 'IR' | 'SP',
+        id: IRID | SPID,
         label: string,
-        irName_spName: string,
+        name: string,
     }
     type Loading = 'loading'
 
@@ -22,8 +23,9 @@
         const irs = await db.getAllIRs();
         const installations = irs
             .map(ir => ({
+                t: 'IR',
                 id: extractIRIDFromRawData(ir.evidence),
-                irName_spName: irName(ir.evidence.ir),
+                name: irName(ir.evidence.ir),
                 label: irLabel(ir.evidence),
             } satisfies Installation_PublicServiceProtocol))
             .filter(i => i.id)
@@ -36,8 +38,9 @@
             const sps = await db.getAllIndependentProtocols();
             protocols = sps
                 .map(sp => ({
+                    t: 'SP',
                     id: extractSPIDFromRawData(sp.zasah),
-                    irName_spName: spName(sp.zasah),
+                    name: spName(sp.zasah),
                     label: irLabel(sp),
                 } satisfies Installation_PublicServiceProtocol))
                 .filter(i => i.id)
@@ -63,14 +66,14 @@
             ] as const,
             disabled: true,
         } : {
-            href: relUrl(`/detail/${i.id}`),
+            href: (i.t == 'SP' ? detailSpUrl : detailIrUrl)(i.id),
             pieces: [
-                { text: p(i.irName_spName), width: .4 },
+                { text: p(i.name), width: .4 },
                 { text: p(i.label), width: .6 },
             ] as const,
         }),
         onValueSet: (_, i) => {
-            if (i && i != 'loading') goto(relUrl(`/detail/${i.id}`));
+            if (i && i != 'loading') goto((i.t == 'SP' ? detailSpUrl : detailIrUrl)(i.id));
         },
         inline: true,
     }));

@@ -27,7 +27,7 @@
 
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { labelAndStar, type PhotoSelectorWidget } from '$lib/Widget.svelte';
+    import { labelAndStar, type PhotoSelectorWidget } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
 
     interface Props {
