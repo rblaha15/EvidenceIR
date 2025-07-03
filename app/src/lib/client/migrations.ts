@@ -1,13 +1,13 @@
 import type { Raw } from '$lib/forms/Form';
-import type { UvedeniTC } from '$lib/forms/UvedeniTC';
+import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import type { P } from '$lib/translations';
-import type { Kontrola } from '$lib/forms/Kontrola.svelte';
+import type { FormRK } from '$lib/forms/RK/formRK.js';
 import type { SparePart } from '$lib/client/realtime';
-import type { DataSP, GenericDataSP } from '$lib/forms/SP.svelte';
+import type { FormSP, GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
 import type { IR } from '$lib/client/data';
 
 export type LegacyIR = {
-    uvedeni?: Raw<UvedeniTC>;
+    uvedeni?: Raw<FormUPT>;
     installationProtocol?: LegacySP;
     installationProtocols: LegacySP[];
     evidence: {
@@ -18,13 +18,13 @@ export type LegacyIR = {
             cisloBOX: string;
         };
     };
-    uvedeniTC?: Raw<UvedeniTC> & {
+    uvedeniTC?: Raw<FormUPT> & {
         uvadeni: {
             typZaruky: null | string
         };
     };
     kontroly?: {
-        [R in 1 | 2 | 3 | 4]?: Raw<Kontrola>;
+        [R in 1 | 2 | 3 | 4]?: Raw<FormRK>;
     };
 };
 
@@ -35,7 +35,7 @@ type LegacyND = {
     unitPrice: never;
     warehouse: never;
 };
-export type LegacySP = Raw<DataSP> & {
+export type LegacySP = Raw<FormSP> & {
     zasah: {
         doba: string;
         zaruka: never;
@@ -44,9 +44,9 @@ export type LegacySP = Raw<DataSP> & {
         mnozstviPrace: string;
         doba: never;
     };
-    nahradniDil1: Raw<DataSP>['nahradniDil1'] & LegacyND;
-    nahradniDil2: Raw<DataSP>['nahradniDil1'] & LegacyND;
-    nahradniDil3: Raw<DataSP>['nahradniDil1'] & LegacyND;
+    nahradniDil1: Raw<FormSP>['nahradniDil1'] & LegacyND;
+    nahradniDil2: Raw<FormSP>['nahradniDil1'] & LegacyND;
+    nahradniDil3: Raw<FormSP>['nahradniDil1'] & LegacyND;
     nahradniDil4: never,
     nahradniDil5: never,
     nahradniDil6: never,
@@ -92,8 +92,8 @@ const migrateND = (d: LegacyND) => ({
     code: String(d.dil?.code ?? ''),
     unitPrice: String(d.dil?.unitPrice ?? ''),
     warehouse: '',
-}) as Raw<DataSP>['nahradniDil1'];
-export const migrateSP = <D extends GenericDataSP<D>>(legacy: LegacySP) => legacy['nahradniDil8'] ? legacy : ({
+}) as Raw<FormSP>['nahradniDil1'];
+export const migrateSP = <D extends GenericFormSP<D>>(legacy: LegacySP) => legacy['nahradniDil8'] ? legacy : ({
     ...legacy,
     ukony: {
         ...legacy.ukony,
@@ -102,11 +102,11 @@ export const migrateSP = <D extends GenericDataSP<D>>(legacy: LegacySP) => legac
     nahradniDil1: migrateND(legacy.nahradniDil1),
     nahradniDil2: migrateND(legacy.nahradniDil2),
     nahradniDil3: migrateND(legacy.nahradniDil3),
-    nahradniDil4: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
-    nahradniDil5: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
-    nahradniDil6: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
-    nahradniDil7: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
-    nahradniDil8: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<DataSP>['nahradniDil1'],
+    nahradniDil4: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<FormSP>['nahradniDil1'],
+    nahradniDil5: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<FormSP>['nahradniDil1'],
+    nahradniDil6: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<FormSP>['nahradniDil1'],
+    nahradniDil7: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<FormSP>['nahradniDil1'],
+    nahradniDil8: { warehouse: '', code: '', name: '', unitPrice: '', mnozstvi: '1' } as Raw<FormSP>['nahradniDil1'],
 }) as Raw<D>;
 
 const newInstallationProtocols: Migration = (legacyIR: LegacyIR & IR) => ({

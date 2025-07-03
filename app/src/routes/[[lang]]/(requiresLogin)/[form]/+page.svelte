@@ -10,10 +10,11 @@
     // noinspection ES6UnusedImports
     import type { Pdf } from '$lib/client/pdf';
     // noinspection ES6UnusedImports
-    import { type FormInfo, type FormName, getForm, type IndependentFormInfo } from '$lib/forms/forms.svelte.js';
+    import { type FormName, getForm } from '$lib/forms/forms.js';
     import type { PageProps } from './$types';
     import FormComponent from '$lib/forms/Form.svelte';
-    import { removeDependency } from './dependentForm.svelte';
+    import { removeDependency } from '$lib/forms/dependentForm.svelte.js';
+    import type { FormInfo, IndependentFormInfo } from '$lib/forms/FormInfo';
 
     const { data }: PageProps = $props();
     const formName = $derived(data.formName as N);

@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { type CheckboxWidget, labelAndStar } from '$lib/Widget.svelte.js';
+    import { type CheckboxWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import type { MouseEventHandler } from 'svelte/elements';
 
     interface Props {

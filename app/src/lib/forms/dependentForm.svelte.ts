@@ -1,9 +1,9 @@
 import type { Pdf } from '$lib/client/pdf';
-import type { FormInfo, IndependentFormInfo, OpenPdfOptions } from '$lib/forms/forms.svelte';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { IRID } from '$lib/helpers/ir';
 import db, { type IR } from '$lib/client/data';
-import { detailIrUrl } from '$lib/helpers/runes.svelte';
+import { detailIrUrl } from '$lib/helpers/runes.svelte.js';
+import type { FormInfo, IndependentFormInfo, OpenPdfOptions } from '$lib/forms/FormInfo';
 
 export const removeDependency = <
     D,
@@ -12,7 +12,6 @@ export const removeDependency = <
     P extends Pdf<'IR'> = Pdf<'IR'>,
     R extends Raw<F> = Raw<F>,
 >(formInfo: FormInfo<D, F, S, P, R>, irid: IRID): IndependentFormInfo<D, F, S, P, R> => {
-
     const {
         storeName,
         openPdf,

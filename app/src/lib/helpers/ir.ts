@@ -1,21 +1,22 @@
 import { removePlain } from '$lib/translations';
-import type { Data, UserData } from '$lib/forms/Data';
+import type { FormIN, UserForm } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
-import type { GenericDataSP } from '$lib/forms/SP.svelte';
-import type { DataSP2 } from '$lib/forms/SP2';
+import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
+
+import type { FormNSP } from '$lib/forms/NSP/formNSP';
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno
  * IR RegulusBOX CTC R8 2547 : Novák Jan - Brno
  * SRS1 T : Novák Jan - Brno
  */
-export const irWholeName = (evidence: Raw<Data>, includeEstablishment: boolean = true) =>
+export const irWholeName = (evidence: Raw<FormIN>, includeEstablishment: boolean = true) =>
     `${irName(evidence.ir)} : ${irLabel(evidence, includeEstablishment)}`;
 
 /**
  * RB 2024/12/31-23 : Novák Jan - Brno
  */
-export const spWholeName = (sp: Raw<DataSP2>, includeEstablishment: boolean = true) =>
+export const spWholeName = (sp: Raw<FormNSP>, includeEstablishment: boolean = true) =>
     `${spName(sp.zasah)} : ${irLabel(sp, includeEstablishment)}`;
 
 /**
@@ -23,14 +24,14 @@ export const spWholeName = (sp: Raw<DataSP2>, includeEstablishment: boolean = tr
  * IR RegulusBOX CTC R8 2547
  * SRS1 T
  */
-export const irName = (ir: Raw<Data>['ir']) => ir.typ.first?.includes('SOREL')
+export const irName = (ir: Raw<FormIN>['ir']) => ir.typ.first?.includes('SOREL')
     ? irType(ir.typ)
     : `${irType(ir.typ)} ${ir.cislo}`;
 
 /**
  * RB 2024/12/31-23
  */
-export const spName = (zasah: Raw<GenericDataSP<never>>["zasah"]) => {
+export const spName = (zasah: Raw<GenericFormSP<never>>["zasah"]) => {
     const datum = zasah.datum.split('T')[0].replaceAll('-', '/');
     const hodina = zasah.datum.split('T')[1].split(':')[0];
     const minuta = zasah.datum.split('T')[1].split(':')[1];
@@ -43,7 +44,7 @@ export const spName = (zasah: Raw<GenericDataSP<never>>["zasah"]) => {
  * IR RegulusBOX CTC
  * SRS1 T
  */
-export const irType = (typ: Raw<Data>['ir']['typ']) =>
+export const irType = (typ: Raw<FormIN>['ir']['typ']) =>
     typ.first?.includes('SOREL')
         ? removePlain(typ.second!)
         : typ.first?.includes('BOX')
@@ -69,7 +70,7 @@ const s = (s: string) => s ? `(${s}) ` : '';
 /**
  * Novák Jan - Brno
  */
-export const irLabel = <D extends UserData<D>>(evidence: Raw<UserData<D>>, includeEstablishment: boolean = true) => evidence.koncovyUzivatel.typ == `company`
+export const irLabel = <D extends UserForm<D>>(evidence: Raw<UserForm<D>>, includeEstablishment: boolean = true) => evidence.koncovyUzivatel.typ == `company`
     ? `${removeCompanyForm(evidence.koncovyUzivatel.nazev)} ${s(includeEstablishment ? evidence.koncovyUzivatel.pobocka : '')}- ${evidence.mistoRealizace.obec}`
     : `${evidence.koncovyUzivatel.prijmeni} ${evidence.koncovyUzivatel.jmeno} - ${evidence.mistoRealizace.obec}`;
 
@@ -94,7 +95,7 @@ export const typBOX = (cisloBOX: string) => ({
     '20631': 'HBOX K 106 RTC 3/1S EN',
 })[cisloBOX.slice(0, 5)];
 
-export const endUserName = (k: Raw<Data>['koncovyUzivatel']) =>
+export const endUserName = (k: Raw<FormIN>['koncovyUzivatel']) =>
     k.typ == 'company' ? k.nazev : `${k.jmeno} ${k.prijmeni}`;
 
 /**
@@ -126,9 +127,9 @@ const extractIRTypeFromFullIRType = (fullIRType: string): IRType =>
                         : undefined)!;
 export const extractIRIDFromParts = (fullIRType: string, irNumber: string): IRID =>
     `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replaceAll(/[ :T-]/g, '')}`;
-export const extractIRIDFromRawData = (evidence: Raw<Data>): IRID =>
+export const extractIRIDFromRawData = (evidence: Raw<FormIN>): IRID =>
     extractIRIDFromParts(evidence.ir.typ.first!, evidence.ir.cislo);
-export const extractSPIDFromRawData = (zasah: Raw<GenericDataSP<never>['zasah']>): SPID => {
+export const extractSPIDFromRawData = (zasah: Raw<GenericFormSP<never>['zasah']>): SPID => {
     const datum = zasah.datum.split('T')[0];
     const hodina = zasah.datum.split('T')[1].split(':')[0];
     const minuta = zasah.datum.split('T')[1].split(':')[1];

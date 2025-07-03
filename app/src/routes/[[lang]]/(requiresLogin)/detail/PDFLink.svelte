@@ -4,7 +4,8 @@
     import type { Snippet } from 'svelte';
     import { generatePdf } from '$lib/client/pdfGeneration';
     import type { LanguageCode } from '$lib/languages';
-    import type { OpenPdfOptions } from '$lib/forms/forms.svelte';
+
+    import type { OpenPdfOptions } from '$lib/forms/FormInfo';
 
     type Props<P extends Pdf> = OpenPdfOptions<P> & {
         name?: string;

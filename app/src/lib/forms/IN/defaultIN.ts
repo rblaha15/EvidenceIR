@@ -10,7 +10,7 @@ import {
     TextWidget,
     TitleWidget,
 } from '../Widget.svelte.js';
-import { type Data, unknownCompany, type UserData } from './Data';
+import { type FormIN, unknownCompany, type UserForm } from './formIN';
 import type { Company, Technician } from '$lib/client/realtime';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
@@ -18,11 +18,11 @@ import { time, todayISO } from '$lib/helpers/date';
 import products, { type Products } from '$lib/helpers/products';
 import { p, plainArray } from '$lib/translations';
 
-const jeFO = (d: UserData<never>) => d.koncovyUzivatel.typ.value == `individual`;
-const fo = (d: UserData<never>) => jeFO(d);
-const po = (d: UserData<never>) => !jeFO(d);
+const jeFO = (d: UserForm<never>) => d.koncovyUzivatel.typ.value == `individual`;
+const fo = (d: UserForm<never>) => jeFO(d);
+const po = (d: UserForm<never>) => !jeFO(d);
 
-export const userData = <D extends UserData<D>>(): UserData<D> => ({
+export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
     koncovyUzivatel: {
         nadpis: new TitleWidget({ text: `endUser` }),
         typ: new RadioWidget({
@@ -267,7 +267,7 @@ export const userData = <D extends UserData<D>>(): UserData<D> => ({
 
 
 const heatPump = <const I extends 1 | 2 | 3 | 4>(i: I) => ({
-    [`model${i == 1 ? '' : i as 2 | 3 | 4}`]: new ChooserWidget<Data, Products['heatPumps']>({
+    [`model${i == 1 ? '' : i as 2 | 3 | 4}`]: new ChooserWidget<FormIN, Products['heatPumps']>({
         label: d => d.tc.pocet.value == 1 ? `heatPumpModel` : `heatPumpModel${i}`,
         options: d =>
             d.ir.typ.value.second == p('RTC')
@@ -287,7 +287,7 @@ const heatPump = <const I extends 1 | 2 | 3 | 4>(i: I) => ({
             }
         },
     }),
-    [`cislo${i == 1 ? '' : i as 2 | 3 | 4}`]: new ScannerWidget<Data>({
+    [`cislo${i == 1 ? '' : i as 2 | 3 | 4}`]: new ScannerWidget<FormIN>({
         label: d => d.tc.pocet.value == 1 ? `heatPumpManufactureNumber` : `heatPumpManufactureNumber${i}`,
         onError: `wrongNumberFormat`,
         regex: d =>
@@ -310,15 +310,15 @@ const heatPump = <const I extends 1 | 2 | 3 | 4>(i: I) => ({
         processScannedText: t => t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
     }),
 }) as I extends 1 ? {
-    model: ChooserWidget<Data, Products['heatPumps']>;
-    cislo: ScannerWidget<Data>;
+    model: ChooserWidget<FormIN, Products['heatPumps']>;
+    cislo: ScannerWidget<FormIN>;
 } : ({
-    [K in `model${I}`]: ChooserWidget<Data, Products['heatPumps']>;
+    [K in `model${I}`]: ChooserWidget<FormIN, Products['heatPumps']>;
 } & {
-    [K in `cislo${I}`]: ScannerWidget<Data>;
+    [K in `cislo${I}`]: ScannerWidget<FormIN>;
 });
 
-export default (): Data => ({
+export default (): FormIN => ({
     ir: {
         typ: new DoubleChooserWidget({
             label: `controllerType`,
@@ -456,7 +456,7 @@ export default (): Data => ({
         }),
         plati: new RadioWidget({
             label: `whoWillBeInvoiced`,
-            options: ['assemblyCompany', 'endCustomer'] as ReturnType<Data['vzdalenyPristup']['plati']['options']>,
+            options: ['assemblyCompany', 'endCustomer'] as ReturnType<FormIN['vzdalenyPristup']['plati']['options']>,
             show: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
             required: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
         }),

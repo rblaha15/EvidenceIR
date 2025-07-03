@@ -1,17 +1,11 @@
+import type { DataOfPdf, Pdf, PdfParameters } from '$lib/client/pdf';
 import type { Form, Raw } from '$lib/forms/Form';
-import data, { type Data } from '$lib/forms/Data';
-import type { Readable } from 'svelte/store';
-import heatPumpCommission from '$lib/forms/UvedeniTC';
-import type { Pdf, PdfParameters, DataOfPdf } from '$lib/client/pdf';
 import type { Translations } from '$lib/translations';
-import solarCollectorCommission from '$lib/forms/UvedeniSOL';
-import check from '$lib/forms/Kontrola.svelte';
-import type { ExcelImport } from '$lib/forms/Import';
-import sp from '$lib/forms/SP.svelte';
+import type { ExcelImport } from '$lib/forms/ExcelImport';
+import type { Readable } from 'svelte/store';
 import type { IRID } from '$lib/helpers/ir';
 import type { IR } from '$lib/client/data';
-import demand from '$lib/forms/Demand';
-import sp2 from '$lib/forms/SP2';
+import type { FormIN } from '$lib/forms/IN/formIN';
 
 export type Effect<
     D, F extends Form<D>, S extends unknown[]
@@ -66,45 +60,10 @@ export type FormInfo<
     type: 'IR';
     openPdf?: () => Omit<OpenPdfOptions<P>, 'data'>;
     saveData: (irid: IRID, raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, ir: IR) => Promise<boolean | void>;
-    createWidgetData: (evidence: Raw<Data>, data: F) => D;
+    createWidgetData: (evidence: Raw<FormIN>, data: F) => D;
     getEditData?: ((ir: IR) => R | undefined) | undefined;
     onMount?: (data: D, form: F, edit: boolean, ir: IR) => Promise<void> | undefined;
 } & Omit<
     IndependentFormInfo<D, F, S, P, R>,
     'type' | 'saveData' | 'createWidgetData' | 'getEditData' | 'redirectLink' | 'showBackButton' | 'openPdf' | 'onMount'
 >
-
-const all = {
-    SP: sp,
-    UPT: heatPumpCommission,
-    UPS: solarCollectorCommission,
-    RK: check,
-    PO: demand,
-    NSP: sp2,
-    IN: data,
-};
-type All = typeof all;
-
-export const forms = all.keys();
-export type FormName = keyof All;
-
-type AllFormInfo<
-    N extends FormName,
-    D,
-    F extends Form<D>,
-    S extends unknown[][] = [],
-    P extends Pdf = Pdf,
-    R extends Raw<F> = Raw<F>,
-> = {
-    IR: P extends Pdf<'IR'> ? FormInfo<D, F, S, P, R> : never;
-    '': IndependentFormInfo<D, F, S, P, R>;
-}[All[N]['type']];
-
-export const getForm = <
-    N extends FormName,
-    D,
-    F extends Form<D>,
-    S extends unknown[][] = [],
-    P extends Pdf = Pdf,
-    R extends Raw<F> = Raw<F>,
->(name: N | string) => all[name as N] as unknown as AllFormInfo<N, D, F, S, P, R>;

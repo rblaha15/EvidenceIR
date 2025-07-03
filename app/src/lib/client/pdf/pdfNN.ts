@@ -1,8 +1,8 @@
 
-import type { GetPdfData } from '$lib/client/pdfGeneration';
+import type { GetPdfData } from '$lib/client/pdf';
 import { irWholeName, irName } from '$lib/helpers/ir';
 
-const NN: GetPdfData = async ({ evidence: e }) => ({
+const pdfNN: GetPdfData<'NN'> = async ({ evidence: e }) => ({
 /*          email */ Text1: e.koncovyUzivatel.email,
 /*        hesloRR */ Text2: `Regulusroute1`,
 /*        hesloIR */ Text3: `uzivatel`,
@@ -15,4 +15,4 @@ const NN: GetPdfData = async ({ evidence: e }) => ({
 /*       PLCjmeno */ Text10: irWholeName(e, false),
 /*        hesloIR */ Text11: `uzivatel`,
 });
-export default NN
+export default pdfNN

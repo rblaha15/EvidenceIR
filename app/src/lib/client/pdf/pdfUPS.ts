@@ -3,7 +3,7 @@ import { dateFromISO } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/client/pdf';
 import { endUserName } from '$lib/helpers/ir';
 
-const UPS: GetPdfData<'UPS'> = async ({ evidence: e, uvedeniSOL }, t) => {
+const pdfUPS: GetPdfData<'UPS'> = async ({ evidence: e, uvedeniSOL }, t) => {
     const u = uvedeniSOL!;
 
     return {
@@ -44,4 +44,4 @@ const UPS: GetPdfData<'UPS'> = async ({ evidence: e, uvedeniSOL }, t) => {
 /*                */ Text35: u.uvadeni.vlastnik ? t.yes : t.no,
     };
 };
-export default UPS
+export default pdfUPS

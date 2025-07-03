@@ -1,10 +1,10 @@
 import { nazevFirmy } from "$lib/helpers/ares";
 import { dateFromISO, todayISO } from '$lib/helpers/date';
-import { cascadeDetails } from '$lib/client/pdf/RK';
+import { cascadeDetails } from '$lib/client/pdf/pdfRK';
 import type { GetPdfData } from '$lib/client/pdf';
 import { endUserName, typBOX, irType } from '$lib/helpers/ir';
 
-const UPT: GetPdfData<'UPT'> = async ({ evidence: e, uvedeniTC, }, t) => {
+const pdfUPT: GetPdfData<'UPT'> = async ({ evidence: e, uvedeniTC, }, t) => {
     const u = uvedeniTC!
     const { isCascade, pumps } = cascadeDetails(e, t);
 
@@ -60,4 +60,4 @@ const UPT: GetPdfData<'UPT'> = async ({ evidence: e, uvedeniTC, }, t) => {
 ).join('\n'),
     });
 };
-export default UPT
+export default pdfUPT
