@@ -9,6 +9,7 @@ import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import db from '$lib/client/data';
+import { detailIrUrl } from '$lib/helpers/runes.svelte';
 
 export type UDTC = {
     uvedeni: UvedeniTC,
@@ -208,7 +209,8 @@ export const defaultUvedeniTC = (): UvedeniTC => ({
     },
 });
 
-export const heatPumpCommission: FormInfo<UDTC, UvedeniTC, [], 'UPT'> = ({
+const heatPumpCommission: FormInfo<UDTC, UvedeniTC, [], 'UPT'> = ({
+    type: 'IR',
     storeName: 'stored_heat_pump_commission',
     defaultData: defaultUvedeniTC,
     openPdf: () => ({
@@ -223,7 +225,7 @@ export const heatPumpCommission: FormInfo<UDTC, UvedeniTC, [], 'UPT'> = ({
             ...defaultAddresses(),
             subject: `Vyplněno nové uvedení TČ do provozu k ${irName(ir.evidence.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, origin: page.url.origin, id: irid },
+            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid) },
         });
 
         if (response!.ok) return;
@@ -238,3 +240,5 @@ export const heatPumpCommission: FormInfo<UDTC, UvedeniTC, [], 'UPT'> = ({
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence }),
     title: t => t.commissioning,
 });
+
+export default heatPumpCommission;

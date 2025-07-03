@@ -22,7 +22,7 @@ import products, { type Products } from '$lib/helpers/products';
 import { languageCodes } from '$lib/languages';
 import { getTranslations, type P, p, plainArray, type TranslationReference, type Translations } from '$lib/translations';
 import type { User } from 'firebase/auth';
-import type { DetachedFormInfo } from '$lib/forms/forms.svelte';
+import type { IndependentFormInfo } from '$lib/forms/forms.svelte';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -630,7 +630,8 @@ Změny ve verzi 2.3 oproti verzi 2.2:
     </poznamka>
 </xml>`;
 
-const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Person[], User | null]]> = {
+const demand: IndependentFormInfo<Demand, Demand, [[FriendlyCompanies], [Person[], User | null]]> = {
+    type: '',
     storeName: 'stored_demand',
     defaultData: defaultDemand,
     saveData: async (raw, _, data, editResult, t) => {
@@ -689,6 +690,7 @@ const demand: DetachedFormInfo<Demand, Demand, [[FriendlyCompanies], [Person[], 
     ],
     isSendingEmails: true,
     showSaveAndSendButtonByDefault: true,
+    requiredRegulus: true,
 };
 
 export default demand;

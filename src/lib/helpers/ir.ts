@@ -3,10 +3,6 @@ import type { Data, UserData } from '$lib/forms/Data';
 import type { Raw } from '$lib/forms/Form';
 import type { GenericDataSP } from '$lib/forms/SP.svelte';
 import type { DataSP2 } from '$lib/forms/SP2';
-import type { ID } from '$lib/client/data';
-
-export const isIRID = (id: ID): id is ID<'IR'> => !id.includes('-');
-export const isSPID = (id: ID): id is ID<'SP'> => id.includes('-');
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno

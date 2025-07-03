@@ -1,7 +1,7 @@
 {
 	"short_name": "SEIR",
 	"name": "SEIR - Evidence regulátorů IR",
-	"start_url": "/new",
+	"start_url": "/IN",
 	"icons": [
 		{
 			"src": "windows11/SmallTile.scale-100.png",

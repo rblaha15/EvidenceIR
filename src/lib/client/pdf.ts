@@ -1,7 +1,7 @@
 import type { LanguageCode } from '$lib/languages';
 import { p, type TranslationReference, type Translations } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
-import type { DataOfType } from '$lib/client/data';
+import type { IR } from '$lib/client/data';
 import type { PdfGenerationData } from '$lib/client/pdfGeneration';
 import RK from '$lib/client/pdf/RK';
 import NN from '$lib/client/pdf/NN';
@@ -10,6 +10,8 @@ import RR from '$lib/client/pdf/RR';
 import UPT from '$lib/client/pdf/UPT';
 import UPS from '$lib/client/pdf/UPS';
 import SP, { CP, NSP } from '$lib/client/pdf/SP';
+import type { Raw } from '$lib/forms/Form';
+import type { DataSP2 } from '$lib/forms/SP2';
 
 type AllPdf = {
     [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP']: 'IR'
@@ -93,14 +95,15 @@ export type Pdf<T extends 'IR' | 'SP' = 'IR' | 'SP'> = {
     [P in keyof AllPdf]: AllPdf[P] extends T ? P : never
 }[keyof AllPdf];
 
-export type TypeOfPdf<P extends Pdf> = AllPdf[P];
+type TypeOfPdf<P extends Pdf> = AllPdf[P];
+export type DataOfPdf<P extends Pdf> = TypeOfPdf<P> extends 'IR' ? IR : Raw<DataSP2>;
 
 export type GetPdfData<P extends Pdf> = (
-    data: DataOfType<TypeOfPdf<P>>,
+    data: DataOfPdf<P>,
     t: Translations,
     addPage: <P extends Pdf>(
         pdfLink: P,
-        data: DataOfType<TypeOfPdf<P>>,
+        data: DataOfPdf<P>,
         ...parameters: PdfParametersArray<P>
     ) => Promise<void>,
     ...parameters: PdfParametersArray<P>

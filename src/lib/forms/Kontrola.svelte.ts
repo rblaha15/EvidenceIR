@@ -10,6 +10,7 @@ import { derived, get } from 'svelte/store';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { browser } from '$app/environment';
 import db from '$lib/client/data';
+import { detailIrUrl } from '$lib/helpers/runes.svelte';
 
 export type Rok = number
 
@@ -158,12 +159,13 @@ export const defaultKontrola = (): Kontrola => ({
     },
 });
 
-export const check = (() => {
+const check = (() => {
     let rok = $state() as number;
     const tc = $derived(!browser ? 1
         : page.url.searchParams.get('tc')?.let(Number) ?? 1) as 1 | 2 | 3 | 4;
 
     const info: FormInfo<Rok, Kontrola, [], 'RK'> = {
+        type: 'IR',
         storeName: 'stored_check',
         defaultData: defaultKontrola,
         openPdf: () => ({
@@ -193,7 +195,7 @@ export const check = (() => {
                 ...defaultAddresses(),
                 subject: `Vyplněna nová roční kontrola TČ k ${irName(ir.evidence.ir)}`,
                 component: MailProtocol,
-                props: { name: user.email!, origin: page.url.origin, id: irid },
+                props: { name: user.email!, url: page.url.origin + detailIrUrl(irid) },
             });
 
             if (response!.ok) return;
@@ -215,3 +217,5 @@ export const check = (() => {
     };
     return info;
 })();
+
+export default check;

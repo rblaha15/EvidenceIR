@@ -2,11 +2,17 @@ import { PDFDocument, PDFName, PDFRef, PDFSignature } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { getTranslations } from '$lib/translations';
 import type { LanguageCode } from '$lib/languages';
-import { type Pdf, type PdfArgs, pdfInfo, type PdfParameters, type PdfParametersArray, type TypeOfPdf } from '$lib/client/pdf';
+import {
+    type DataOfPdf,
+    type Pdf,
+    type PdfArgs,
+    pdfInfo,
+    type PdfParametersArray,
+} from '$lib/client/pdf';
 import { irLabel, spName } from '$lib/helpers/ir';
 import type { DataSP2 } from '$lib/forms/SP2';
 import type { Raw } from '$lib/forms/Form';
-import { type DataOfType, type IR } from './data';
+import { type IR } from './data';
 
 type SignatureDefinition = {
     x: number,
@@ -32,7 +38,7 @@ export type PdfGenerationData = {
 export const generatePdf = async <P extends Pdf>(
     args: PdfArgs<P>,
     lang: LanguageCode,
-    data: DataOfType<TypeOfPdf<P>>,
+    data: DataOfPdf<P>,
     ...parameters: PdfParametersArray<P>
 ) => {
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
@@ -49,7 +55,7 @@ export const generatePdf = async <P extends Pdf>(
 
     const addPage = async <P extends Pdf>(
         pdfName2: P,
-        data2: DataOfType<TypeOfPdf<P>>,
+        data2: DataOfPdf<P>,
         ...parameters: PdfParametersArray<NoInfer<P>>
     ) => {
         const pdfArgs2 = pdfInfo[pdfName2];

@@ -15,6 +15,7 @@
     import type { User } from 'firebase/auth';
     import type { Form } from '$lib/forms/Form';
     import { extractIRIDFromParts } from '$lib/helpers/ir';
+    import { detailIrUrl } from '$lib/helpers/runes.svelte';
 
     interface Props {
         data: Data;
@@ -35,7 +36,7 @@
     const irid = extractIRIDFromParts(data.ir.typ.value.first!, data.ir.cislo.value);
 </script>
 
-<p>Odkaz na podrobnosti evidence: <a href={origin + `/detail/${irid}`}>{origin + `/detail/${irid}`}</a></p>
+<p>Odkaz na podrobnosti evidence: <a href={origin + detailIrUrl(irid)}>{origin + detailIrUrl(irid)}</a></p>
 
 {#each list as vec}
     {#if vec instanceof TitleWidget && vec.showTextValue(data)}

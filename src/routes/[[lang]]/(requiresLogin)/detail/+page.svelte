@@ -4,26 +4,24 @@
     import PdfLink from './PDFLink.svelte';
     import { checkAuth, currentUser, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { storable } from '$lib/helpers/stores';
-    import { heatPumpCommission, type UvedeniTC } from '$lib/forms/UvedeniTC';
+    import heatPumpCommission, { type UvedeniTC } from '$lib/forms/UvedeniTC';
     import type { FirebaseError } from 'firebase/app';
     import { getIsOnline, startTechniciansListening, techniciansList } from '$lib/client/realtime';
     import { page } from '$app/state';
-    import { solarCollectorCommission, type UvedeniSOL } from '$lib/forms/UvedeniSOL';
-    import { setTitle } from '$lib/helpers/title.svelte';
+    import solarCollectorCommission, { type UvedeniSOL } from '$lib/forms/UvedeniSOL';
+    import { setTitle } from '$lib/helpers/title.svelte.js';
     import {
         extractIRIDFromParts,
         extractIRIDFromRawData,
         type IRID,
         irWholeName,
-        isIRID,
-        isSPID,
         type SPID,
         spName,
         spWholeName,
     } from '$lib/helpers/ir';
     import { ChooserWidget, InputWidget } from '$lib/Widget.svelte.js';
     import type { Raw } from '$lib/forms/Form';
-    import { detailUrl, relUrl } from '$lib/helpers/runes.svelte';
+    import { detailIrUrl, iridUrl, relUrl, spidUrl } from '$lib/helpers/runes.svelte.js';
     import Widget from '$lib/components/Widget.svelte';
     import { todayISO } from '$lib/helpers/date';
     import sp2, { type DataSP2 } from '$lib/forms/SP2';
@@ -36,8 +34,8 @@
 
     let { data }: Props = $props();
     const t = data.translations;
-    const irid = isIRID(data.id) ? data.id : undefined;
-    const spid = isSPID(data.id) ? data.id : undefined;
+    const irid = data.irid;
+    const spid = data.spid;
     let originalSPID = $state() as SPID;
 
     const deleted = page.url.searchParams.has('deleted');
@@ -97,7 +95,7 @@
 
     const remove = async () => {
         await db.deleteIR(irid!);
-        window.location.replace(detailUrl(`?deleted`));
+        window.location.replace(iridUrl(`/detail?deleted`));
     };
 
     let change: 'no' | 'input' | 'sending' | 'fail' | 'unchanged' = $state('no');
@@ -152,7 +150,7 @@
             const newRecord = await db.getIR(extractIRIDFromParts(newType!, newNumber));
             if (!newRecord?.evidence) return change = 'fail';
             await db.deleteIR(irid!);
-            window.location.assign(relUrl(`/detail/${extractIRIDFromParts(newType!, newNumber)}`));
+            window.location.assign(detailIrUrl(extractIRIDFromParts(newType!, newNumber)));
         } catch (e) {
             console.log(e);
             change = 'fail';
@@ -171,7 +169,7 @@
             nahradniDil5: sp.nahradniDil5, nahradniDil6: sp.nahradniDil6, nahradniDil7: sp.nahradniDil7,
             nahradniDil8: sp.nahradniDil8, nahradniDily: sp.nahradniDily,
         });
-        window.location.replace(relUrl(`/detail/${newIRID.value}`));
+        window.location.replace(detailIrUrl(newIRID.value));
     };
     const copySP = (i: number) => async () => {
         const ja = $techniciansList.find(t => $currentUser?.email == t.email);
@@ -221,7 +219,7 @@
     <div class="alert alert-warning" role="alert">
         Pozor! Toto je zastaralý odkaz.
         {#if values}
-            {@const url = `/detail/${extractIRIDFromRawData(values.evidence)}`}
+            {@const url = detailIrUrl(extractIRIDFromRawData(values.evidence))}
             Prosím, používejte <a target="_blank" href={url}>{page.url.origin + url}</a>
         {/if}
     </div>
@@ -255,7 +253,7 @@
 
             <button class="btn btn-danger d-block" onclick={() => {
                     db.deleteIndependentProtocol(originalSPID);
-                    window.location.replace(detailUrl(`?deleted`));
+                    window.location.replace(spidUrl(`/detail?deleted`));
                 }}
             >Odstranit protokol
             </button>
@@ -291,14 +289,14 @@
                     <a
                         tabindex="0"
                         class="btn btn-primary d-block"
-                        href={detailUrl('/heatPumpCommission')}
+                        href={iridUrl('/UTC')}
                     >{t.commission}</a>
                 {/if}
             </PdfLink>
             <PdfLink name={!values.evidence.tc.model2 ? t.filledYearlyCheck : t.filledYearlyCheck1} {t} link="RK" pump={1}
                      lang={data.languageCode} data={values} enabled={values.kontrolyTC[1]?.[1] !== undefined}>
                 <a
-                    tabindex="0" href={detailUrl('/check?tc=1')}
+                    tabindex="0" href={iridUrl('/RK?tc=1')}
                     class="btn btn-primary d-block"
                 >{!values.evidence.tc.model2 ? t.doYearlyCheck : t.doYearlyCheck1}</a>
             </PdfLink>
@@ -306,7 +304,7 @@
                 <PdfLink name={t.filledYearlyCheck2} {t} link="RK" lang={data.languageCode} data={values} pump={2}
                          enabled={values.kontrolyTC[2]?.[1] !== undefined}>
                     <a
-                        tabindex="0" href={detailUrl('/check?tc=2')}
+                        tabindex="0" href={iridUrl('/RK?tc=2')}
                         class="btn btn-primary d-block"
                     >{t.doYearlyCheck2}</a>
                 </PdfLink>
@@ -315,7 +313,7 @@
                 <PdfLink name={t.filledYearlyCheck3} {t} link="RK" lang={data.languageCode} data={values} pump={3}
                          enabled={values.kontrolyTC[3]?.[1] !== undefined}>
                     <a
-                        tabindex="0" href={detailUrl('/check?tc=3')}
+                        tabindex="0" href={iridUrl('/RK?tc=3')}
                         class="btn btn-primary d-block"
                     >{t.doYearlyCheck3}</a>
                 </PdfLink>
@@ -324,7 +322,7 @@
                 <PdfLink name={t.filledYearlyCheck4} {t} link="RK" lang={data.languageCode} data={values} pump={4}
                          enabled={values.kontrolyTC[4]?.[1] !== undefined}>
                     <a
-                        tabindex="0" href={detailUrl('/check?tc=4')}
+                        tabindex="0" href={iridUrl('/RK?tc=4')}
                         class="btn btn-primary d-block"
                     >{t.doYearlyCheck4}</a>
                 </PdfLink>
@@ -342,7 +340,7 @@
                     <a
                         tabindex="0"
                         class="btn btn-info d-block"
-                        href={detailUrl('/solarCollectorCommission')}
+                        href={iridUrl('/UPS')}
                     >{t.commission}</a>
                 {/if}
             </PdfLink>
@@ -356,7 +354,7 @@
                     <PdfLink name={spName(p.zasah)} lang={data.languageCode} data={values} {t} link="SP" index={i}
                              hideLanguageSelector={true}
                              breakpoint="md">
-                        <a tabindex="0" class="btn btn-warning d-block" href={detailUrl(`/sp/?edit=${i}`)}>
+                        <a tabindex="0" class="btn btn-warning d-block" href={iridUrl(`/SP/?edit=${i}`)}>
                             Upravit protokol
                         </a>
                         <button class="btn btn-warning d-block" data-bs-toggle="modal" data-bs-target="#duplicateModal">
@@ -385,14 +383,14 @@
             </div>
         {/if}
         <div class="d-flex flex-column gap-1 align-items-sm-start">
-            <a class="btn btn-primary" tabindex="0" href={detailUrl('/sp')}>
+            <a class="btn btn-primary" tabindex="0" href={iridUrl('/SP')}>
                 Vyplnit {values.installationProtocols.length ? 'další ' : ''} protokol
             </a>
         </div>
     {/if}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         {#if $isUserRegulusOrAdmin}
-            <a tabindex="0" class="btn btn-info" href={detailUrl('/users')}>
+            <a tabindex="0" class="btn btn-info" href={iridUrl('/users')}>
                 Uživatelé s přístupem k této evidenci
             </a>
         {/if}
@@ -421,10 +419,10 @@
         <a
             tabindex="0"
             class="btn btn-warning"
-            href={relUrl(`/new?edit-irid=${irid}`)}
+            href={relUrl(`/IN?edit-irid=${irid}`)}
             onclick={(e) => {
               e.preventDefault();
-              window.location.href = relUrl(`/new?edit-irid=${irid}`);
+              window.location.href = relUrl(`/IN?edit-irid=${irid}`);
             }}>{t.editRegistration}</a
         >
         <button class="btn btn-danger d-block"
