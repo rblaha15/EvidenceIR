@@ -381,8 +381,8 @@ export default (): FormIN => ({
         chceVyplnitK: new MultiCheckboxWidget({
             label: `whatToAddInfoTo`,
             options: d => d.ir.typ.value.first?.includes(`SOREL`)
-                ? [`solarCollector`]
-                : [`heatPump`, `solarCollector`],
+                ? [`solarCollector`, `ventilation`]
+                : [`heatPump`, `solarCollector`, `ventilation`],
             required: false, showInXML: false,
         }),
     },
@@ -435,6 +435,14 @@ export default (): FormIN => ({
             required: d => d.ir.chceVyplnitK.value.includes(`solarCollector`),
             show: d => d.ir.chceVyplnitK.value.includes(`solarCollector`),
         }),
+    },
+    vetrani: {
+        title: new TitleWidget({ text: `ventilation`, show: d => d.ir.chceVyplnitK.value.includes(`ventilation`) }),
+        typ: new InputWidget({
+            label: `recoveryVentilationUnitType`,
+            required: d => d.ir.chceVyplnitK.value.includes(`ventilation`),
+            show: d => d.ir.chceVyplnitK.value.includes(`ventilation`),
+        })
     },
     ...userData(),
     vzdalenyPristup: {

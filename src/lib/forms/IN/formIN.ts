@@ -73,7 +73,7 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         cislo: InputWidget<FormIN>;
         cisloBox: InputWidget<FormIN>;
         boxType: TextWidget<FormIN>;
-        chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector`>;
+        chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `ventilation`>;
     };
     tc: {
         nadpis: TitleWidget<FormIN>;
@@ -93,6 +93,10 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         title: TitleWidget<FormIN>;
         typ: InputWidget<FormIN>;
         pocet: InputWidget<FormIN>;
+    };
+    vetrani: {
+        title: TitleWidget<FormIN>;
+        typ: InputWidget<FormIN>;
     };
     vzdalenyPristup: {
         nadpis: TitleWidget<FormIN>;
