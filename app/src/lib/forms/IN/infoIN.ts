@@ -17,7 +17,7 @@ import { nazevFirmy } from '$lib/helpers/ares';
 import { generatePdf } from '$lib/client/pdfGeneration';
 import { pdfInfo } from '$lib/client/pdf';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
-import { xmlIN } from '$lib/forms/createXML';
+import { xmlIN } from '$lib/forms/IN/xmlIN';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
 import { page } from '$app/state';
 import MailSDaty from '$lib/emails/MailSDaty.svelte';
