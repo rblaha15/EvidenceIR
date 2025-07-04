@@ -126,6 +126,8 @@ export default {
     solarSystem: `Solární systém`,
     solarCollectorType: `Typ solárního kolektoru`,
     solarCollectorCount: `Počet solárních kolektorů`,
+    ventilation: `Větrání s rekuperací tepla`,
+    recoveryVentilationUnitType: `Typ rekuperační jednotky`,
     pleaseFillInIrType: `Prosím, vyplňte typ IR.`,
     fillInPassword: `Prosím, zadejte heslo.`,
     independentServiceProtocol: `Nezávislý servisní protokol`,
