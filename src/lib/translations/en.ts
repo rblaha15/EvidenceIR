@@ -113,6 +113,8 @@ const en: PlainTranslations = {
     whatToAddInfoTo: 'What would you like to add more detailed information to?',
     heatPump: 'Heat pump',
     heatPumps: 'Heat pumps',
+    ventilation: `Heat Recovery Ventilation`,
+    recoveryVentilationUnitType: `Recovery ventilation unit type`,
     pleaseFillInIrType: 'Please, fill in the IR type',
     fillInPassword: 'Please, enter your password.',
     independentServiceProtocol: `Independent service protocol`,

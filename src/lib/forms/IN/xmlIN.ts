@@ -1,5 +1,3 @@
-// noinspection SuspiciousTypeOfGuard
-
 import type { FormIN } from '$lib/forms/IN/formIN';
 import {
     DoubleChooserWidget,
@@ -46,7 +44,7 @@ export const xmlIN = (data: FormIN, t: Translations) => `
 
 <!-- 
 Tento soubor byl vygenerován automaticky aplikací Regulus SEIR
-Verze dokumentu: 1.1
+Verze dokumentu: 1.2
 -->
 
 <evidence>
