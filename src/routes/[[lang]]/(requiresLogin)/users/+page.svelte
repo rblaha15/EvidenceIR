@@ -38,9 +38,7 @@
     });
 </script>
 
-{#if !$ir}
-    <div class="spinner-border text-danger"></div>
-{:else}
+{#if $ir}
     <h3 class="m-0">{irWholeName($ir.evidence)}</h3>
 
     <div class="d-flex align-items-center gap-3">

@@ -6,6 +6,8 @@
     import type { LanguageCode } from '$lib/languages';
 
     import type { OpenPdfOptions } from '$lib/forms/FormInfo';
+    import FileSaver from 'file-saver';
+    import { endLoading, progress, startLoading, withLoading } from '$lib/helpers/title.svelte';
 
     type Props<P extends Pdf> = OpenPdfOptions<P> & {
         name?: string;
@@ -35,28 +37,14 @@
         ? lang
         : pdf.supportedLanguages[0]);
 
-    let anchor = $state() as HTMLAnchorElement;
-    let loading = $state(false);
-    let error = $state('');
-    let currentLang = $state('');
+    const openPdf = withLoading(async (lang: LanguageCode = defaultLanguage) => {
+        const p = parameters as unknown as PdfParameters<P>;
+        const pdfData = await generatePdf(pdf, lang, data, ...pdfParamsArray(p))
 
-    const openPdf = async (lang: LanguageCode = defaultLanguage) => {
-        loading = true;
-        if (!anchor.href || !anchor.download || currentLang != lang) {
-            error = '';
-
-            const p = parameters as unknown as PdfParameters<P>;
-            const pdfData = await generatePdf(pdf, lang, data, ...pdfParamsArray(p))
-
-            anchor.href = URL.createObjectURL(new Blob([pdfData.pdfBytes], {
-                type: 'application/pdf',
-            }));
-            anchor.download = pdfData.fileName;
-        }
-
-        anchor.click();
-        loading = false;
-    };
+        FileSaver.saveAs(new Blob([pdfData.pdfBytes], {
+            type: 'application/pdf',
+        }), pdfData.fileName);
+    });
 </script>
 
 <div
@@ -64,7 +52,6 @@
     {#if name}<span>{name}</span>{/if}
     <div class="d-flex align-items-center gap-3 flex-wrap flex-{breakpoint}-nowrap">
         {#if enabled}
-            <a aria-hidden="true" target="_blank" class="d-none" href="/" bind:this={anchor}></a>
             <div class="btn-group">
                 <button
                     tabindex={enabled ? 0 : undefined}
@@ -99,16 +86,7 @@
                     {/if}
                 {/if}
             </div>
-            {#if loading}
-                <div class="spinner-border text-danger"></div>
-            {/if}
         {/if}
         {@render children?.()}
     </div>
 </div>
-
-{#if error}
-    <div class="alert alert-danger">
-        {error}
-    </div>
-{/if}

@@ -9,7 +9,7 @@
     import { getIsOnline, startTechniciansListening, techniciansList } from '$lib/client/realtime';
     import { page } from '$app/state';
     import { type FormUPS } from '$lib/forms/UPS/formUPS';
-    import { setTitle } from '$lib/helpers/title.svelte.js';
+    import { setTitle, withLoading } from '$lib/helpers/title.svelte.js';
     import {
         extractIRIDFromParts,
         extractIRIDFromRawData,
@@ -62,7 +62,7 @@
         values = _values;
         return true;
     };
-    onMount(async () => {
+    onMount(withLoading(async () => {
         await checkAuth();
         await startTechniciansListening();
 
@@ -94,7 +94,7 @@
             storedHeatPumpCommission.set(undefined);
         if ($storedSolarCollectorCommission != undefined && values.uvedeniSOL != undefined)
             storedSolarCollectorCommission.set(undefined);
-    });
+    }));
 
     const remove = async () => {
         await db.deleteIR(irid!);
@@ -194,9 +194,9 @@
     };
 </script>
 
-{#if type === 'loading'}
-    <div class="spinner-border text-danger"></div>
-{:else if type !== 'loaded'}
+{#if type === 'loaded'}
+    <h3 class="m-0">{sp ? spWholeName(sp) : irWholeName(values.evidence)}</h3>
+{:else if type !== 'loading'}
     <h3 class="m-0">
         {#if !irid}
             {spid?.replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}
@@ -210,8 +210,6 @@
             SOREL
         {/if}
     </h3>
-{:else}
-    <h3 class="m-0">{sp ? spWholeName(sp) : irWholeName(values.evidence)}</h3>
 {/if}
 {#if deleted}
     <div class="alert alert-success" role="alert">
