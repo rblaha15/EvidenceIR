@@ -20,7 +20,7 @@
     let isLoggedIn = $derived($currentUser != null);
 </script>
 
-<nav class="navbar navbar-expand-md sticky-top gray flex-wrap">
+<nav class="navbar navbar-expand-md gray flex-wrap">
     <div class="container-fluid">
         {#if isLoggedIn}
             <button

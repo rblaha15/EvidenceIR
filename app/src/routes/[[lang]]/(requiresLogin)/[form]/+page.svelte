@@ -15,6 +15,7 @@
     import FormComponent from '$lib/forms/Form.svelte';
     import { removeDependency } from '$lib/forms/dependentForm.svelte.js';
     import type { FormInfo, IndependentFormInfo } from '$lib/forms/FormInfo';
+    import { page } from '$app/state';
 
     const { data }: PageProps = $props();
     const formName = $derived(data.formName as N);
@@ -28,6 +29,7 @@
             : removeDependency(formInfo as FormInfo<D, F, S>, irid!),
     ) as IndependentFormInfo<D, F, S, P>;
 </script>
-{#key formName + irid}
+
+{#key page.url}
     <FormComponent formInfo={independentFormInfo} {t} />
 {/key}

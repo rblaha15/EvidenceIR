@@ -25,7 +25,7 @@
                 class="nav-link ms-md-3"
                 class:active={selected}
                 aria-current={selected ? 'page' : null}
-                href={relUrl(url)}
+                href={url}
             >{label}</a>
         </li>
     {/if}
@@ -33,15 +33,15 @@
 
 <ul class="navbar-nav">
     {@render item({
-        url: '/IN', label: t.new,
+        url: relUrl('/IN'), label: t.new,
         selected: isForm && form === 'IN' && !search.has('edit-irid'),
     })}
     {@render item({
-        url: '/NSP', label: t.independentServiceProtocol, shown: $isUserRegulusOrAdmin,
+        url: relUrl('/NSP'), label: t.independentServiceProtocol, shown: $isUserRegulusOrAdmin,
         selected: isForm && form === 'NSP',
     })}
     {@render item({
-        url: '/search', label: t.searching, selected: route?.endsWith('/search'),
+        url: relUrl('/search'), label: t.searching, selected: route?.endsWith('/search'),
     })}
     {@render item({
         url: isDetailPage
@@ -51,6 +51,6 @@
         selected: true, shown: isDetailPage || page.url.searchParams.has('edit-irid'),
     })}
     {@render item({
-        url: '/admin', label: 'Admin', shown: $isUserAdmin, selected: page.route.id?.endsWith('/admin'),
+        url: relUrl('/admin'), label: 'Admin', shown: $isUserAdmin, selected: page.route.id?.endsWith('/admin'),
     })}
 </ul>

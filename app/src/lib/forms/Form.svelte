@@ -20,6 +20,8 @@
     import { dev } from '$app/environment';
     import { generatePdf } from '$lib/client/pdfGeneration';
     import type { IndependentFormInfo } from '$lib/forms/FormInfo';
+    import FileSaver from 'file-saver';
+    import { runLoading, withLoading } from '$lib/helpers/title.svelte';
 
     const { t, formInfo }: {
         t: Translations,
@@ -50,15 +52,17 @@
 
     let f: F = $state(defaultData());
     onMount(async () => {
-        const editData = await getEditData?.();
-        if (editData) {
-            f = rawDataToData(f, editData);
-            mode = 'edit';
-        } else {
-            if ($storedData != null)
-                f = rawDataToData(f, $storedData);
-            mode = 'create';
-        }
+        await runLoading(async () => {
+            const editData = await getEditData?.();
+            if (editData) {
+                f = rawDataToData(f, editData);
+                mode = 'edit';
+            } else {
+                if ($storedData != null)
+                    f = rawDataToData(f, $storedData);
+                mode = 'create';
+            }
+        })
 
         await mountEffect?.(d, f, mode == 'edit');
 
@@ -76,10 +80,7 @@
     const list = $derived(f.getValues().flatMap(obj => obj.getValues()));
     const d = $derived(createWidgetData(f));
 
-    let anchor = $state() as HTMLAnchorElement;
-
     const save = (send: boolean) => async () => {
-        // result = { load: true, red: false, text: '' };
         try {
             const raw = dataToRawData(f);
             const errors = list.filter(w => w.isError(d) && w.show(d)).map(w => t.get(w.label(d, t)));
@@ -95,11 +96,6 @@
                 return;
             }
 
-            // if (!getIsOnline()) {
-            //     result = { red: true, text: t.offline, load: false };
-            //     return;
-            // }
-
             result = { load: true, red: false, text: t.saving };
             const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send);
 
@@ -111,18 +107,13 @@
                     : { text: '', red: false, load: false };
 
                 if (openPdf) {
-                    if (!anchor.href || !anchor.download) {
-                        const { link, data, ...parameters } = await openPdf(raw);
-                        const p = parameters as unknown as PdfParameters<P>;
-                        const pdfData = await generatePdf(pdfInfo[link], page.data.languageCode, data, ...pdfParamsArray(p))
+                    const { link, data, ...parameters } = await openPdf(raw);
+                    const p = parameters as unknown as PdfParameters<P>;
+                    const pdfData = await generatePdf(pdfInfo[link], page.data.languageCode, data, ...pdfParamsArray(p))
 
-                        anchor.href = URL.createObjectURL(new Blob([pdfData.pdfBytes], {
-                            type: 'application/pdf',
-                        }));
-                        anchor.download = pdfData.fileName;
-                    }
-
-                    anchor.click();
+                    FileSaver.saveAs(new Blob([pdfData.pdfBytes], {
+                        type: 'application/pdf',
+                    }), pdfData.fileName);
                 }
 
                 if (redirectLink) window.location.replace(await redirectLink(raw));
@@ -160,10 +151,11 @@
     const showSaveAndSendButtonByDefaultStore = $derived(typeof showSaveAndSendButtonByDefault == 'boolean' ? readable(showSaveAndSendButtonByDefault) : showSaveAndSendButtonByDefault);
 </script>
 
-<FormHeader importData={importOptions ? {
-    ...importOptions, onImport, isDangerous, defaultData: () => dataToRawData(defaultData())
-} : undefined} store={storedData} {t} title={title(t, mode === 'edit')} />
 {#if mode !== 'loading'}
+    <FormHeader importData={importOptions ? {
+        ...importOptions, onImport, isDangerous, defaultData: () => dataToRawData(defaultData())
+    } : undefined} store={storedData} {t} title={title(t, mode === 'edit')} />
+
     {#if subtitle}
         <h3>{subtitle(t, mode === 'edit')}</h3>
     {/if}
@@ -189,7 +181,4 @@
         </div>
         <p class:text-danger={result.red} class="my-auto">{@html result.text}</p>
     </div>
-    <a aria-hidden="true" target="_blank" class="d-none" href="/" bind:this={anchor}></a>
-{:else}
-    <div class="spinner-border text-danger m-2"></div>
 {/if}
