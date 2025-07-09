@@ -8,9 +8,10 @@ import SP from '$lib/forms/SP/infoSP.svelte';
 import type { FormInfo, IndependentFormInfo } from '$lib/forms/FormInfo';
 import UPS from '$lib/forms/UPS/infoUPS';
 import UPT from '$lib/forms/UPT/infoUPT';
+import OSP from '$lib/forms/OSP/infoOSP';
 
 const all = {
-    SP, UPT, UPS, RK, PO, NSP, IN,
+    SP, UPT, UPS, RK, PO, NSP, IN, OSP,
 };
 type All = typeof all;
 

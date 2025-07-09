@@ -6,8 +6,8 @@ import { currentUser } from '$lib/client/auth';
 import { getTranslations } from '$lib/translations';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
-import { xml } from '$lib/forms/PO/xmlPO';
-import { getPhoto, removeAllPhotos } from '$lib/components/widgets/PhotoSelector.svelte';
+import xml from '$lib/forms/PO/xmlPO';
+import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import type { Attachment } from 'nodemailer/lib/mailer';
 import MailDemand from '$lib/emails/MailDemand.svelte';
 import { companies } from '$lib/helpers/companies';
@@ -25,6 +25,10 @@ const infoPO: IndependentFormInfo<FormPO, FormPO, [[FriendlyCompanies], [Person[
         const surname = raw.contacts.surname;
 
         const cs = getTranslations('cs');
+
+        const photoIds = raw.other.photos
+            .map(photo => photo.uuid);
+
         const response = await sendEmail({
             ...defaultAddresses(page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz', true),
             subject: `Poptávka z aplikace – OSOBA: ${name} ${surname}`,
@@ -32,8 +36,8 @@ const infoPO: IndependentFormInfo<FormPO, FormPO, [[FriendlyCompanies], [Person[
                 content: xml(raw, user, cs, data),
                 contentType: 'application/xml',
                 filename: `Dotazník ${name} ${surname}.xml`,
-            }, ...(await raw.other.photos
-                .map(photoId => getPhoto(photoId))
+            }, ...(await photoIds
+                .map(id => getFile(id))
                 .awaitAll())
                 .filterNotUndefined()
                 .map((photo, i) => <Attachment>{
@@ -45,9 +49,10 @@ const infoPO: IndependentFormInfo<FormPO, FormPO, [[FriendlyCompanies], [Person[
         });
 
         if (response!.ok) {
-            await removeAllPhotos();
+            await photoIds.map(removeFile).awaitAll()
             return true;
-        } else editResult({
+        }
+        else editResult({
             text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false,

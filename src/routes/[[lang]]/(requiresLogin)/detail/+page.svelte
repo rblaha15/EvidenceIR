@@ -1,27 +1,25 @@
 <script lang="ts">
     import { onMount, untrack } from 'svelte';
     import type { PageData } from './$types';
-    import PdfLink from './PDFLink.svelte';
-    import { checkAuth, currentUser, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
+    import PDFLink from './PDFLink.svelte';
+    import { checkAuth, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { storable } from '$lib/helpers/stores';
     import { type FormUPT } from '$lib/forms/UPT/formUPT';
     import type { FirebaseError } from 'firebase/app';
-    import { getIsOnline, startTechniciansListening, techniciansList } from '$lib/client/realtime';
+    import { getIsOnline, startTechniciansListening } from '$lib/client/realtime';
     import { page } from '$app/state';
     import { type FormUPS } from '$lib/forms/UPS/formUPS';
     import { setTitle, withLoading } from '$lib/helpers/title.svelte.js';
     import {
         extractIRIDFromParts,
-        extractIRIDFromRawData,
         type IRID,
         irWholeName,
         type SPID,
-        spName,
         spWholeName,
     } from '$lib/helpers/ir';
     import { ChooserWidget, InputWidget } from '$lib/forms/Widget.svelte.js';
     import type { Raw } from '$lib/forms/Form';
-    import { detailIrUrl, iridUrl, relUrl, spidUrl } from '$lib/helpers/runes.svelte.js';
+    import { detailIrUrl, detailSpUrl, iridUrl, relUrl, spidUrl } from '$lib/helpers/runes.svelte.js';
     import Widget from '$lib/components/Widget.svelte';
     import { todayISO } from '$lib/helpers/date';
     import NSP from '$lib/forms/NSP/infoNSP';
@@ -30,6 +28,7 @@
     import type { FormNSP } from '$lib/forms/NSP/formNSP';
     import solarCollectorCommission from '$lib/forms/UPS/infoUPS';
     import heatPumpCommission from '$lib/forms/UPT/infoUPT';
+    import ServiceProtocols from './ServiceProtocols.svelte';
 
     interface Props {
         data: PageData;
@@ -49,10 +48,7 @@
     let values = $state() as IR;
     let sp = $state() as Raw<FormNSP>;
     const fetchIRdata = async () => {
-        const _values = (await (irid!.length == 6 ? [
-            db.getIR(`2${irid}`), db.getIR(`4${irid}`),
-            db.getIR(`B${irid}`),
-        ] : [db.getIR(irid!)]).awaitAll()).find(Boolean);
+        const _values = await db.getIR(irid!);
 
         if (!_values) {
             type = 'noAccess';
@@ -174,24 +170,6 @@
         });
         window.location.replace(detailIrUrl(newIRID.value));
     };
-    const copySP = (i: number) => async () => {
-        const ja = $techniciansList.find(t => $currentUser?.email == t.email);
-        const p = values.installationProtocols[i];
-        await db.addServiceProtocol(irid!, {
-            ...p,
-            fakturace: {
-                hotove: 'doNotInvoice',
-                komu: null,
-                jak: null,
-            },
-            zasah: {
-                ...p.zasah,
-                clovek: ja?.name ?? p.zasah.clovek,
-                inicialy: ja?.initials ?? p.zasah.inicialy,
-            },
-        });
-        await fetchIRdata();
-    };
 </script>
 
 {#if type === 'loaded'}
@@ -200,9 +178,6 @@
     <h3 class="m-0">
         {#if !irid}
             {spid?.replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}
-        {:else if irid.length === 6}
-            {irid.slice(0, 2)}
-            {irid.slice(2, 6)}
         {:else if irid.length === 7}
             {irid.slice(1, 3)}
             {irid.slice(3, 7)}
@@ -214,15 +189,6 @@
 {#if deleted}
     <div class="alert alert-success" role="alert">
         {t.successfullyDeleted}
-    </div>
-{/if}
-{#if irid && irid.length === 6}
-    <div class="alert alert-warning" role="alert">
-        Pozor! Toto je zastaralý odkaz.
-        {#if values}
-            {@const url = detailIrUrl(extractIRIDFromRawData(values.evidence))}
-            Prosím, používejte <a target="_blank" href={url}>{page.url.origin + url}</a>
-        {/if}
     </div>
 {/if}
 {#if type !== 'loaded' && type !== 'loading'}
@@ -239,11 +205,15 @@
 {/if}
 {#if type === 'loaded' && spid}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
-        <PdfLink lang={data.languageCode} {t} link="NSP" hideLanguageSelector={true} data={sp} />
+        <PDFLink lang={data.languageCode} {t} link="NSP" hideLanguageSelector={true} data={sp} />
 
-        <a class="btn btn-warning" href={relUrl('/newSP')} onclick={() => {
+        <a class="btn btn-warning" href={relUrl('/NSP')} onclick={() => {
             storable<typeof sp>(NSP.storeName).set(sp)
         }}>Vytvořit kopii protokolu</a>
+
+        <a class="btn btn-primary" href={relUrl(`/OSP?redirect=${detailSpUrl()}`)} tabindex="0">
+            Odeslat podepsaný protokol
+        </a>
     </div>
 
     {#if $isUserAdmin}
@@ -264,25 +234,25 @@
 {#if type === 'loaded' && irid && irid.length !== 6}
     <div class="d-flex flex-column gap-1">
         {#if values.evidence.vzdalenyPristup.chce}
-            <PdfLink name={t.regulusRouteForm} {t} link="RR" lang={data.languageCode} data={values} />
+            <PDFLink name={t.regulusRouteForm} {t} link="RR" lang={data.languageCode} data={values} />
         {/if}
         {#if values.evidence.ir.typ.first !== p('SOREL')}
-            <PdfLink name={t.routeGuide} {t} link="NN" lang={data.languageCode} data={values} />
+            <PDFLink name={t.routeGuide} {t} link="NN" lang={data.languageCode} data={values} />
         {/if}
         {#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
             {#if values.evidence.tc.model2}
-                <PdfLink name={t.warranty1} {t} link="ZL" lang={data.languageCode} data={values} pump={1} />
-                <PdfLink name={t.warranty2} {t} link="ZL" lang={data.languageCode} data={values} pump={2} />
+                <PDFLink name={t.warranty1} {t} link="ZL" lang={data.languageCode} data={values} pump={1} />
+                <PDFLink name={t.warranty2} {t} link="ZL" lang={data.languageCode} data={values} pump={2} />
             {:else}
-                <PdfLink name={t.warranty} {t} link="ZL" lang={data.languageCode} data={values} pump={1} />
+                <PDFLink name={t.warranty} {t} link="ZL" lang={data.languageCode} data={values} pump={1} />
             {/if}
             {#if values.evidence.tc.model3}
-                <PdfLink name={t.warranty3} {t} link="ZL" lang={data.languageCode} data={values} pump={3} />
+                <PDFLink name={t.warranty3} {t} link="ZL" lang={data.languageCode} data={values} pump={3} />
             {/if}
             {#if values.evidence.tc.model4}
-                <PdfLink name={t.warranty4} {t} link="ZL" lang={data.languageCode} data={values} pump={4} />
+                <PDFLink name={t.warranty4} {t} link="ZL" lang={data.languageCode} data={values} pump={4} />
             {/if}
-            <PdfLink
+            <PDFLink
                 enabled={values.uvedeniTC !== undefined} name={t.heatPumpCommissionProtocol} {t} link="UPT"
                 lang={data.languageCode} data={values}
             >
@@ -293,44 +263,44 @@
                         href={iridUrl('/UTC')}
                     >{t.commission}</a>
                 {/if}
-            </PdfLink>
-            <PdfLink name={!values.evidence.tc.model2 ? t.filledYearlyCheck : t.filledYearlyCheck1} {t} link="RK" pump={1}
+            </PDFLink>
+            <PDFLink name={!values.evidence.tc.model2 ? t.filledYearlyCheck : t.filledYearlyCheck1} {t} link="RK" pump={1}
                      lang={data.languageCode} data={values} enabled={values.kontrolyTC[1]?.[1] !== undefined}>
                 <a
                     tabindex="0" href={iridUrl('/RK?tc=1')}
                     class="btn btn-primary d-block"
                 >{!values.evidence.tc.model2 ? t.doYearlyCheck : t.doYearlyCheck1}</a>
-            </PdfLink>
+            </PDFLink>
             {#if values.evidence.tc.model2}
-                <PdfLink name={t.filledYearlyCheck2} {t} link="RK" lang={data.languageCode} data={values} pump={2}
+                <PDFLink name={t.filledYearlyCheck2} {t} link="RK" lang={data.languageCode} data={values} pump={2}
                          enabled={values.kontrolyTC[2]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={iridUrl('/RK?tc=2')}
                         class="btn btn-primary d-block"
                     >{t.doYearlyCheck2}</a>
-                </PdfLink>
+                </PDFLink>
             {/if}
             {#if values.evidence.tc.model3}
-                <PdfLink name={t.filledYearlyCheck3} {t} link="RK" lang={data.languageCode} data={values} pump={3}
+                <PDFLink name={t.filledYearlyCheck3} {t} link="RK" lang={data.languageCode} data={values} pump={3}
                          enabled={values.kontrolyTC[3]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={iridUrl('/RK?tc=3')}
                         class="btn btn-primary d-block"
                     >{t.doYearlyCheck3}</a>
-                </PdfLink>
+                </PDFLink>
             {/if}
             {#if values.evidence.tc.model4}
-                <PdfLink name={t.filledYearlyCheck4} {t} link="RK" lang={data.languageCode} data={values} pump={4}
+                <PDFLink name={t.filledYearlyCheck4} {t} link="RK" lang={data.languageCode} data={values} pump={4}
                          enabled={values.kontrolyTC[4]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={iridUrl('/RK?tc=4')}
                         class="btn btn-primary d-block"
                     >{t.doYearlyCheck4}</a>
-                </PdfLink>
+                </PDFLink>
             {/if}
         {/if}
         {#if values.evidence.ir.chceVyplnitK.includes('solarCollector')}
-            <PdfLink
+            <PDFLink
                 enabled={values.uvedeniSOL !== undefined}
                 name={t.solarCollectorCommissionProtocol}
                 {t}
@@ -344,50 +314,11 @@
                         href={iridUrl('/UPS')}
                     >{t.commission}</a>
                 {/if}
-            </PdfLink>
+            </PDFLink>
         {/if}
     </div>
     {#if $isUserRegulusOrAdmin}
-        <h4 class="m-0">Protokoly servisního zásahu</h4>
-        {#if values.installationProtocols.length}
-            <div class="d-flex flex-column gap-1 align-items-sm-start">
-                {#each values.installationProtocols as p, i}
-                    <PdfLink name={spName(p.zasah)} lang={data.languageCode} data={values} {t} link="SP" index={i}
-                             hideLanguageSelector={true}
-                             breakpoint="md">
-                        <a tabindex="0" class="btn btn-warning d-block" href={iridUrl(`/SP/?edit=${i}`)}>
-                            Upravit protokol
-                        </a>
-                        <button class="btn btn-warning d-block" data-bs-toggle="modal" data-bs-target="#duplicateModal">
-                            Duplikovat
-                        </button>
-                    </PdfLink>
-
-                    <div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="duplicateModalLabel">Duplikovat</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    Chcete vytvořit kopii pro vykázání servisního zásahu více osob?
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ne</button>
-                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick={copySP(i)}>Ano</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {/each}
-            </div>
-        {/if}
-        <div class="d-flex flex-column gap-1 align-items-sm-start">
-            <a class="btn btn-primary" tabindex="0" href={iridUrl('/SP')}>
-                Vyplnit {values.installationProtocols.length ? 'další ' : ''} protokol
-            </a>
-        </div>
+        <ServiceProtocols {values} {t} lang={data.languageCode} {irid} />
     {/if}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         {#if $isUserRegulusOrAdmin}
