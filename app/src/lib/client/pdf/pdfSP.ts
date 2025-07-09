@@ -95,7 +95,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async (p, t, addPage) => {
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
         /*             id */ Text1: spName(p.zasah),
-        /*    koncakNazev */ Text29: p.koncovyUzivatel.typ == 'company' ? `${t.companyName}:` : `${t.surname} a ${t.name.toLowerCase()}:`,
+        /*    koncakNazev */ Text29: p.koncovyUzivatel.typ == 'company' ? `${t.companyName}:` : `${t.name} a ${t.surname.toLowerCase()}:`,
         /*    koncakJmeno */ Text2: endUserName(p.koncovyUzivatel),
         /*      koncakICO */ Text30: p.koncovyUzivatel.typ == 'company' ? t.crn : t.birthday,
         /* koncakNarozeni */ Text3: p.koncovyUzivatel.typ == 'company'
