@@ -16,7 +16,9 @@
         InputWithSuggestionsWidget,
         CountersWidget,
         InputWithChooserWidget,
-        CheckboxWithInputWidget, PhotoSelectorWidget,
+        CheckboxWithInputWidget,
+        PhotoSelectorWidget,
+        FileWidget,
     } from '$lib/forms/Widget.svelte.js';
     import Input from '$lib/components/widgets/Input.svelte';
     import DoubleChooser from '$lib/components/widgets/DoubleChooser.svelte';
@@ -34,6 +36,7 @@
     import InputWithChooser from '$lib/components/widgets/InputWithChooser.svelte'
     import CheckboxWithInput from '$lib/components/widgets/CheckboxWithInput.svelte'
     import PhotoSelector from "$lib/components/widgets/PhotoSelector.svelte";
+    import File from "$lib/components/widgets/File.svelte";
 
     interface Props {
         t: Translations;
@@ -82,6 +85,8 @@
     <CheckboxWithInput {t} bind:widget={widget} {data} />
 {:else if widget instanceof SearchWidget && widget.show(data)}
     <Search {t} bind:widget={widget} {data} />
+{:else if widget instanceof FileWidget && widget.show(data)}
+    <File {t} bind:widget={widget} {data} />
 {:else if widget instanceof PhotoSelectorWidget && widget.show(data)}
     <PhotoSelector {t} bind:widget={widget} {data} />
 {/if}

@@ -7,7 +7,9 @@ import type { FormNSP } from '$lib/forms/NSP/formNSP';
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno
+ *
  * IR RegulusBOX CTC R8 2547 : Novák Jan - Brno
+ *
  * SRS1 T : Novák Jan - Brno
  */
 export const irWholeName = (evidence: Raw<FormIN>, includeEstablishment: boolean = true) =>
@@ -21,7 +23,9 @@ export const spWholeName = (sp: Raw<FormNSP>, includeEstablishment: boolean = tr
 
 /**
  * IR14CTC R8 2547
+ *
  * IR RegulusBOX CTC R8 2547
+ *
  * SRS1 T
  */
 export const irName = (ir: Raw<FormIN>['ir']) => ir.typ.first?.includes('SOREL')
@@ -41,7 +45,9 @@ export const spName = (zasah: Raw<GenericFormSP<never>>["zasah"]) => {
 
 /**
  * IR14CTC
+ *
  * IR RegulusBOX CTC
+ *
  * SRS1 T
  */
 export const irType = (typ: Raw<FormIN>['ir']['typ']) =>
@@ -100,20 +106,27 @@ export const endUserName = (k: Raw<FormIN>['koncovyUzivatel']) =>
 
 /**
  * 2: IR 12;
+ *
  * 4: IR 14;
+ *
  * 3: IR 34;
+ *
  * B: BOX/HBOX/HBOXK;
+ *
  * S: SOREL;
  */
 export type IRType = '2' | '4' | '3' | 'B' | 'S';
 /**
  * Zastaralé IR ID: A12345;
+ *
  * Moderní IR ID:  4A12345;
+ *
  * ID SOREL:       S202412312359;
  */
 export type IRID = `${IRType}${string}`;
 /**
  * Zastaralé SP ID: RB-2024-12-31-23;
+ *
  * Moderní SP ID:   RB-2024-12-31-23-59;
  */
 export type SPID = `${string}-${string}-${string}`;
