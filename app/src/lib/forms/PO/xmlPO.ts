@@ -11,7 +11,7 @@ const pool = (d: Raw<FormPO>) => hp(d) && d.system.wantsPool;
 
 const seCh = (t: Translations, v: SeCh<TranslationReference>) => v.checked ? t.get(v.chosen ?? '') : t.no;
 
-export const xml = (d: Raw<FormPO>, user: User, t: Translations, dem: FormPO) => `
+export default (d: Raw<FormPO>, user: User, t: Translations, dem: FormPO) => `
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="dotaznik_app.xsl"?>
 

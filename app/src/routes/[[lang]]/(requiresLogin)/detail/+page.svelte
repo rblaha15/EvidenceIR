@@ -19,7 +19,7 @@
     } from '$lib/helpers/ir';
     import { ChooserWidget, InputWidget } from '$lib/forms/Widget.svelte.js';
     import type { Raw } from '$lib/forms/Form';
-    import { detailIrUrl, iridUrl, relUrl, spidUrl } from '$lib/helpers/runes.svelte.js';
+    import { detailIrUrl, detailSpUrl, iridUrl, relUrl, spidUrl } from '$lib/helpers/runes.svelte.js';
     import Widget from '$lib/components/Widget.svelte';
     import { todayISO } from '$lib/helpers/date';
     import NSP from '$lib/forms/NSP/infoNSP';
@@ -207,9 +207,13 @@
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         <PDFLink lang={data.languageCode} {t} link="NSP" hideLanguageSelector={true} data={sp} />
 
-        <a class="btn btn-warning" href={relUrl('/newSP')} onclick={() => {
+        <a class="btn btn-warning" href={relUrl('/NSP')} onclick={() => {
             storable<typeof sp>(NSP.storeName).set(sp)
         }}>Vytvořit kopii protokolu</a>
+
+        <a class="btn btn-primary" href={relUrl(`/OSP?redirect=${detailSpUrl()}`)} tabindex="0">
+            Odeslat podepsaný protokol
+        </a>
     </div>
 
     {#if $isUserAdmin}

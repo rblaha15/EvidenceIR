@@ -3,7 +3,7 @@
     import db, { type IR } from '$lib/client/data';
     import type { LanguageCode } from '$lib/languages';
     import type { Translations } from '$lib/translations';
-    import { iridUrl } from '$lib/helpers/runes.svelte';
+    import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte';
     import PDFLink from './PDFLink.svelte';
     import { techniciansList } from '$lib/client/realtime';
     import { currentUser } from '$lib/client/auth';
@@ -73,8 +73,11 @@
     </div>
 {/if}
 
-<div class="d-flex flex-column gap-1 align-items-sm-start">
+<div class="d-flex align-items-center gap-3 flex-wrap flex-sm-nowrap">
     <a class="btn btn-primary" href={iridUrl('/SP')} tabindex="0">
         Vyplnit {values.installationProtocols.length ? 'další ' : ''} protokol
+    </a>
+    <a class="btn btn-primary" href={relUrl(`/OSP?redirect=${detailIrUrl()}`)} tabindex="0">
+        Odeslat podepsaný protokol
     </a>
 </div>

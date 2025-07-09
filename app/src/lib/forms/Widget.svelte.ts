@@ -72,7 +72,7 @@ export type Arr<I extends TR> = readonly I[];
 export type ChI = { readonly checked: boolean; readonly text: string; };
 export type SeI<I extends TR> = { readonly chosen: I; readonly text: string; };
 export type SeCh<I extends TR> = { readonly chosen: I | null; readonly checked: boolean; };
-export type Files = readonly string[];
+export type Files = readonly { fileName: string, uuid: string }[];
 
 type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H };
 type ShowArgs<D> = { show?: GetOrVal<D, boolean>; showInXML?: GetOrVal<D, boolean> };
@@ -81,7 +81,7 @@ type ValueArgs<D, U, H> = {
     label: GetOrVal<D>, onError?: GetOrVal<D>; required?: GetOrVal<D, boolean>; onValueSet?: (data: D, newValue: U) => void
 } & HideArgs<H> & ShowArgs<D>;
 type FileArgs<D> = {
-    multiple?: GetOrVal<D, boolean>; max?: GetOrVal<D, number>;
+    multiple?: GetOrVal<D, boolean>; max?: GetOrVal<D, number>; accept?: GetOrVal<D, string>;
 };
 type ChooserArgs<D, I extends TR> = { options: GetOrVal<D, Arr<I>>; chosen?: I | null; };
 type SecondChooserArgs<I extends TR> = { options: Arr<I>; chosen?: I; text?: string; };
@@ -127,7 +127,7 @@ type SuggestionsArgs<D> = {
 
 type Info<D, U> = Widget<D, U> & { text: Get<D, TR | Promise<TR>>; class: Get<D, ClassValue | undefined>; };
 type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: Get<D, boolean>; };
-type File<D> = Widget<D, Files> & { multiple: Get<D, boolean>; max: Get<D, number>; };
+type File<D> = Widget<D, Files> & { multiple: Get<D, boolean>; max: Get<D, number>; accept: Get<D, string>; };
 type Lock<D, U> = Widget<D, U> & { lock: Get<D, boolean>; };
 type DoubleLock<D, U> = Widget<D, U> & { lock1: Get<D, boolean>; lock2: Get<D, boolean>; };
 type Chooser<D, I extends TR> = Widget<D, I | null> & { options: Get<D, Arr<I>>; };
@@ -183,9 +183,10 @@ const initValue = function <D, U, H extends boolean>(widget: Required<D, U, H>, 
     widget.required = toGet(args.required ?? true);
     widget.onValueSet = args.onValueSet ?? (() => {});
 };
-const initFile = function <D>(widget: File<D>, args: FileArgs<D>) {
+const initFile = function <D>(widget: File<D>, args: FileArgs<D>, defaultAccept: string = '*') {
     widget.multiple = toGet(args.multiple ?? false);
     widget.max = toGet(args.max ?? Number.POSITIVE_INFINITY);
+    widget.accept = toGet(args.accept ?? defaultAccept);
 };
 const initChooser = function <D, I extends TR>(widget: Chooser<D, I>, args: ChooserArgs<D, I>) {
     widget.options = toGet(args.options);
@@ -578,6 +579,29 @@ export class ScannerWidget<D, H extends boolean = false> extends InputWidget<D, 
     }
 }
 
+export class FileWidget<D, H extends boolean = false> extends Widget<D, Files, H> {
+    label = $state() as Get<D>;
+    onError = $state() as Get<D>;
+    show = $state() as Get<D, boolean>;
+    showTextValue = () => false;
+    hideInRawData = $state() as H;
+    _value = $state<Files>([]);
+    onValueSet = $state() as (data: D, newValue: Files) => void;
+    isError = $state(a => (this.value.length == 0) && this.required(a)) as Get<D, boolean>;
+    required = $state() as Get<D, boolean>;
+    lock = $state() as Get<D, boolean>;
+    accept = $state() as Get<D, string>;
+    multiple = $state() as Get<D, boolean>;
+    max = $state() as Get<D, number>;
+
+    constructor(args: ValueArgs<D, Files, H> & FileArgs<D> & LockArgs<D>) {
+        super();
+        initValue(this, args);
+        initFile(this, args);
+        initLock(this, args);
+    }
+}
+
 export class PhotoSelectorWidget<D, H extends boolean = false> extends Widget<D, Files, H> {
     label = $state() as Get<D>;
     onError = $state() as Get<D>;
@@ -589,13 +613,14 @@ export class PhotoSelectorWidget<D, H extends boolean = false> extends Widget<D,
     isError = $state(a => (this.value.length == 0) && this.required(a)) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
     lock = $state() as Get<D, boolean>;
+    accept = $state() as Get<D, string>;
     multiple = $state() as Get<D, boolean>;
     max = $state() as Get<D, number>;
 
     constructor(args: ValueArgs<D, Files, H> & FileArgs<D> & LockArgs<D>) {
         super();
         initValue(this, args);
-        initFile(this, args);
+        initFile(this, args, 'image/*');
         initLock(this, args);
     }
 }
