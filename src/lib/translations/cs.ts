@@ -525,5 +525,8 @@ export default {
     capturePhoto: 'Vyfotit fotku',
     capturePhotos: 'Vyfotit fotky',
     noPhotos: 'Zatím jste nepřidali žádné fotky',
+    selectFile: 'Vybrat soubor',
+    selectFiles: 'Vybrat soubory',
+    noFiles: 'Zatím jste nepřidali žádné soubory',
     remove: 'Odstranit',
 };
