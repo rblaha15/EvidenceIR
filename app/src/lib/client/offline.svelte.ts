@@ -183,6 +183,10 @@ export const offlineDatabase: Database = {
         ir!.uvedeniSOL = protocol;
         return ir!;
     }),
+    addPhotovoltaicSystemCommissioningProtocol: async (irid, protocol) => odm.update('IR', irid, ir => {
+        ir!.uvedeniFVE = protocol;
+        return ir!;
+    }),
     updateIRUsers: async (irid, users) => odm.update('IR', irid, ir => {
         ir!.users = users;
         return ir!;
