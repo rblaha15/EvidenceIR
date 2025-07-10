@@ -260,7 +260,7 @@
                     <a
                         tabindex="0"
                         class="btn btn-primary d-block"
-                        href={iridUrl('/UTC')}
+                        href={iridUrl('/UPT')}
                     >{t.commission}</a>
                 {/if}
             </PDFLink>

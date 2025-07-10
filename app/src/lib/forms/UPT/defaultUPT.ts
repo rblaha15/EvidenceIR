@@ -63,7 +63,10 @@ export default (): FormUPT => ({
                 label: d => d.uvedeni.os.tcTv.value ? `additionalHotWaterSource` : `mainHotWaterSource`,
                 required: d => !d.uvedeni.os.tcTv.value,
             }),
-        objemEnOs: newSuitsWidget({ label: `volumeOfExpansionTank` }),
+        objemEnOs: newSuitsWidget({ label: `volumeOfExpansionTankOfHeatingSystem` }),
+        tlakEnOs: new InputWidget({ label: `pressureOfExpansionTankOfHeatingSystem` }),
+        tlakOs: new InputWidget({ label: `pressureOfHeatingSystem` }),
+        tlakEnTv: new InputWidget({ label: `pressureOfExpansionTankForWater` }),
         bazenTc: new CheckboxWidget({ required: false, label: `isPoolHeatingManagedByHeatPump` }),
     },
     reg: {
