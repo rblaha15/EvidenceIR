@@ -211,7 +211,7 @@
             storable<typeof sp>(NSP.storeName).set(sp)
         }}>Vytvořit kopii protokolu</a>
 
-        <a class="btn btn-primary" href={relUrl(`/OSP?redirect=${detailSpUrl()}`)} tabindex="0">
+        <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${sp.koncovyUzivatel.email}`)} tabindex="0">
             Odeslat podepsaný protokol
         </a>
     </div>
@@ -338,6 +338,9 @@
         <ServiceProtocols {values} {t} lang={data.languageCode} {irid} />
     {/if}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
+        <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${values.evidence.koncovyUzivatel.email}`)} tabindex="0">
+            Odeslat podepsané dokumenty
+        </a>
         {#if $isUserRegulusOrAdmin}
             <a tabindex="0" class="btn btn-info" href={iridUrl('/users')}>
                 Uživatelé s přístupem k této evidenci

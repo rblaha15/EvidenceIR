@@ -1,28 +1,29 @@
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
-import type { FormOSP } from '$lib/forms/OSP/formOSP';
-import defaultOSP from './defaultOSP';
+import type { FormOD } from '$lib/forms/OD/formOD';
+import defaultOD from './defaultOD';
 import { page } from '$app/state';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
 import { cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import MailSignedProtocol from '$lib/emails/MailSignedProtocol.svelte';
-import { startTechniciansListening, techniciansList } from '$lib/client/realtime';
+import { dev } from '$app/environment';
 
-const infoOSP: IndependentFormInfo<void, FormOSP> = {
+const infoOD: IndependentFormInfo<FormOD, FormOD> = {
     type: '',
-    storeName: 'stored_service_protocol_to_send',
-    defaultData: defaultOSP,
-    onMount: async () => {
-        await startTechniciansListening()
+    storeName: 'stored_documents_to_send',
+    defaultData: defaultOD,
+    onMount: (d, f) => {
+        f.all.userEmail.setValue(d, page.url.searchParams.get('user') ?? '')
     },
     saveData: async (raw, _1, _2, editResult, t) => {
         const user = get(currentUser)!;
 
         const response = await sendEmail({
-            ...defaultAddresses(cervenka, true),
-            subject: `Podepsaný servisní protokol`,
-            attachments: (await [...raw.all.file, ...raw.all.photos]
+            ...defaultAddresses(),
+            cc: dev ? undefined : raw.all.userEmail ? [user, raw.all.userEmail] : user,
+            subject: `Podepsané dokumenty`,
+            attachments: (await [...raw.all.documents, ...raw.all.photos]
                 .map(async file => ({
                     filename: file.fileName,
                     path: await getFile(file.uuid),
@@ -34,7 +35,7 @@ const infoOSP: IndependentFormInfo<void, FormOSP> = {
         });
 
         if (response!.ok) {
-            await [...raw.all.file, ...raw.all.photos].map(photo => photo.uuid)
+            await [...raw.all.documents, ...raw.all.photos].map(photo => photo.uuid)
                 .map(removeFile).awaitAll()
             return true;
         }
@@ -45,11 +46,11 @@ const infoOSP: IndependentFormInfo<void, FormOSP> = {
         });
     },
     showSaveAndSendButtonByDefault: true,
-    createWidgetData: () => {},
-    title: _ => 'Odeslat podepsaný servisní protokol',
+    createWidgetData: f => f,
+    title: _ => 'Odeslat podepsané dokumenty',
     isSendingEmails: true,
     requiredRegulus: true,
     redirectLink: async _ => (page.url.searchParams.get('redirect') ?? '/IN')
 };
 
-export default infoOSP;
+export default infoOD;
