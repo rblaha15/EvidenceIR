@@ -51,14 +51,14 @@
                     class="btn btn-outline-primary"
                     onclick={() => inputSelect?.click()}
                 >
-                    {multiple ? t.selectPhoto : t.selectPhotos}
+                    {multiple ? t.selectPhotos : t.selectPhoto}
                 </button>
                 <button
                     type="button"
                     class="btn btn-outline-primary"
                     onclick={() => inputCapture?.click()}
                 >
-                    {multiple ? t.capturePhotos : t.capturePhoto}
+                    {t.capturePhoto}
                 </button>
             </div>
         {/if}

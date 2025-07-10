@@ -77,7 +77,4 @@
     <a class="btn btn-primary" href={iridUrl('/SP')} tabindex="0">
         Vyplnit {values.installationProtocols.length ? 'další ' : ''} protokol
     </a>
-    <a class="btn btn-primary" href={relUrl(`/OSP?redirect=${detailIrUrl()}`)} tabindex="0">
-        Odeslat podepsaný protokol
-    </a>
 </div>

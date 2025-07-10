@@ -9,10 +9,10 @@ import type { FormInfo, IndependentFormInfo } from '$lib/forms/FormInfo';
 import UPS from '$lib/forms/UPS/infoUPS';
 import UPT from '$lib/forms/UPT/infoUPT';
 import UPF from '$lib/forms/UPF/infoUPF';
-import OSP from '$lib/forms/OSP/infoOSP';
+import OD from '$lib/forms/OD/infoOD';
 
 const all = {
-    SP, UPT, UPS, RK, PO, NSP, IN, OSP, UPF,
+    SP, UPT, UPS, RK, PO, NSP, IN, OD, UPF,
 };
 type All = typeof all;
 
