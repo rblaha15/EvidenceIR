@@ -22,6 +22,16 @@ const jeFO = (d: UserForm<never>) => d.koncovyUzivatel.typ.value == `individual`
 const fo = (d: UserForm<never>) => jeFO(d);
 const po = (d: UserForm<never>) => !jeFO(d);
 
+const tc = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`heatPump`);
+const sol = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`solarCollector`);
+const vre = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`ventilation`);
+const fve = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`photovoltaicPowerPlant`);
+const other = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`otherDevice`);
+
+const ctc = (d: FormIN) => d.ir.typ.value.second == p('CTC')
+const rtc = (d: FormIN) => d.ir.typ.value.second == p('RTC')
+const subType = (d: FormIN) => d.ir.typ.value.second != null
+
 export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
     koncovyUzivatel: {
         nadpis: new TitleWidget({ text: `endUser` }),
@@ -270,16 +280,16 @@ const heatPump = <const I extends 1 | 2 | 3 | 4>(i: I) => ({
     [`model${i == 1 ? '' : i as 2 | 3 | 4}`]: new ChooserWidget<FormIN, Products['heatPumps']>({
         label: d => d.tc.pocet.value == 1 ? `heatPumpModel` : `heatPumpModel${i}`,
         options: d =>
-            d.ir.typ.value.second == p('RTC')
+            rtc(d)
                 ? products.heatPumpsRTC
                 : d.tc.typ.value == 'airToWater'
                     ? products.heatPumpsAirToWaterCTC
                     : products.heatPumpsGroundToWater,
-        required: d => d.ir.chceVyplnitK.value.includes(`heatPump`) && i <= d.tc.pocet.value,
+        required: d => tc(d) && i <= d.tc.pocet.value,
         show: d =>
-            d.ir.typ.value.second != null &&
-            (d.ir.typ.value.second == p('RTC') || d.tc.typ.value != null) &&
-            d.ir.chceVyplnitK.value.includes(`heatPump`) &&
+            subType(d) &&
+            (rtc(d) || d.tc.typ.value != null) &&
+            tc(d) &&
             i <= d.tc.pocet.value,
         onValueSet: (d, v) => {
             if (v != null && !d.tc[`model${i == 1 ? '' : i as 2 | 3 | 4}`].options(d).includes(v)) {
@@ -290,22 +300,21 @@ const heatPump = <const I extends 1 | 2 | 3 | 4>(i: I) => ({
     [`cislo${i == 1 ? '' : i as 2 | 3 | 4}`]: new ScannerWidget<FormIN>({
         label: d => d.tc.pocet.value == 1 ? `heatPumpManufactureNumber` : `heatPumpManufactureNumber${i}`,
         onError: `wrongNumberFormat`,
-        regex: d =>
-            d.ir.typ.value.second == p('CTC')
-                ? /^\d{4}-\d{4}-\d{4}$/
-                : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
+        regex: d => ctc(d)
+            ? /^\d{4}-\d{4}-\d{4}$/
+            : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
         capitalize: true,
-        required: d => d.ir.chceVyplnitK.value.includes(`heatPump`) && i <= d.tc.pocet.value,
+        required: d => tc(d) && i <= d.tc.pocet.value,
         maskOptions: d => ({
-            mask: d.ir.typ.value.second == p('CTC') ? `0000-0000-0000` : `AA0000-AA-0000`,
+            mask: ctc(d) ? `0000-0000-0000` : `AA0000-AA-0000`,
             definitions: {
                 A: /[A-Za-z]/,
             },
         }),
         show: d =>
-            d.ir.typ.value.second != null &&
-            (d.ir.typ.value.second == p('RTC') || d.tc.typ.value != null) &&
-            d.ir.chceVyplnitK.value.includes(`heatPump`) &&
+            subType(d) &&
+            (rtc(d) || d.tc.typ.value != null) &&
+            tc(d) &&
             i <= d.tc.pocet.value,
         processScannedText: t => t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
     }),
@@ -381,27 +390,24 @@ export default (): FormIN => ({
         chceVyplnitK: new MultiCheckboxWidget({
             label: `whatToAddInfoTo`,
             options: d => d.ir.typ.value.first?.includes(`SOREL`)
-                ? [`solarCollector`, `ventilation`]
-                : [`heatPump`, `solarCollector`, `ventilation`],
+                ? [`solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'otherDevice']
+                : [`heatPump`, `solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'otherDevice'],
             required: false, showInXML: false,
         }),
     },
     tc: {
         nadpis: new TitleWidget({
             text: d => (d.tc.pocet.value > 1 ? `heatPumps` : `heatPump`),
-            show: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
+            show: tc,
         }),
         poznamka: new TextWidget({
             text: `pleaseFillInIrType`, showInXML: false,
-            show: d =>
-                d.ir.typ.value.second == null && d.ir.chceVyplnitK.value.includes(`heatPump`),
+            show: d => !subType(d) && tc(d),
         }),
         typ: new RadioWidget({
             label: d => (d.tc.pocet.value > 1 ? `heatPumpsType` : `heatPumpType`),
-            options: [`airToWater`, `groundToWater`],
-            required: d => d.ir.chceVyplnitK.value.includes(`heatPump`),
-            show: d =>
-                d.ir.typ.value.second == p('CTC') && d.ir.chceVyplnitK.value.includes(`heatPump`),
+            options: [`airToWater`, `groundToWater`], required: tc,
+            show: d => ctc(d) && tc(d),
         }),
         pocet: new CounterWidget({
             label: 'hpCount', min: 1, max: 4, chosen: 1, hideInRawData: true,
@@ -410,9 +416,9 @@ export default (): FormIN => ({
                     d.tc[`model${i}`].setValue(d, null)
                 );
             },
-            show: d => d.ir.typ.value.second != null &&
-                (d.ir.typ.value.second == p('RTC') || d.tc.typ.value != null) &&
-                d.ir.chceVyplnitK.value.includes(`heatPump`),
+            show: d => subType(d) &&
+                (rtc(d) || d.tc.typ.value != null) &&
+                tc(d),
         }),
         ...heatPump(1),
         ...heatPump(2),
@@ -421,28 +427,65 @@ export default (): FormIN => ({
     },
     sol: {
         title: new TitleWidget({
-            text: `solarCollector`,
-            show: d => d.ir.chceVyplnitK.value.includes(`solarCollector`),
+            text: `solarCollector`, show: sol,
         }),
         typ: new InputWidget({
-            label: `solarCollectorType`,
-            required: d => d.ir.chceVyplnitK.value.includes(`solarCollector`),
-            show: d => d.ir.chceVyplnitK.value.includes(`solarCollector`),
+            label: `solarCollectorType`, required: sol, show: sol,
         }),
         pocet: new InputWidget({
-            label: `solarCollectorCount`,
-            type: `number`,
-            required: d => d.ir.chceVyplnitK.value.includes(`solarCollector`),
-            show: d => d.ir.chceVyplnitK.value.includes(`solarCollector`),
+            label: `solarCollectorCount`, type: `number`, required: sol, show: sol,
         }),
     },
     vetrani: {
-        title: new TitleWidget({ text: `ventilation`, show: d => d.ir.chceVyplnitK.value.includes(`ventilation`) }),
+        title: new TitleWidget({ text: `ventilation`, show: vre }),
         typ: new InputWidget({
             label: `recoveryVentilationUnitType`,
-            required: d => d.ir.chceVyplnitK.value.includes(`ventilation`),
-            show: d => d.ir.chceVyplnitK.value.includes(`ventilation`),
+            required: vre, show: vre,
         })
+    },
+    fve: {
+        title: new TitleWidget({
+            text: p('Fotovoltaický systém'),
+            show: fve,
+        }),
+        typ: new ChooserWidget({
+            label: p('Typ panelů'), options: p(['DG-450-B']), chosen: p('DG-450-B'),
+            required: fve, show: fve, lock: true,
+        }),
+        pocet: new InputWidget({
+            label: p('Počet panelů'), type: `number`, required: fve, show: fve,
+        }),
+        typStridace: new InputWidget({
+            label: p('Typ střídače'), required: fve, show: fve,
+        }),
+        cisloStridace: new InputWidget({
+            label: p('Výrobní číslo střídače'), required: fve, show: fve,
+        }),
+        akumulaceDoBaterii: new CheckboxWidget({
+            label: p('Akumulace do baterií'), required: false, show: fve,
+        }),
+        typBaterii: new InputWidget({
+            label: p('Typ baterií'),
+            required: d => fve(d) && d.fve.akumulaceDoBaterii.value,
+            show: d => fve(d) && d.fve.akumulaceDoBaterii.value,
+        }),
+        kapacitaBaterii: new InputWidget({
+            label: p('Celková kapacita baterií'), type: 'number', suffix: 'units.kWh',
+            required: d => fve(d) && d.fve.akumulaceDoBaterii.value,
+            show: d => fve(d) && d.fve.akumulaceDoBaterii.value,
+        }),
+        wallbox: new CheckboxWidget({
+            label: p('Dobíjecí stanice – wallbox'), required: false, show: fve,
+        }),
+    },
+    jine: {
+        title: new TitleWidget({
+            text: p('Jiné zařízení'),
+            show: other,
+        }),
+        popis: new InputWidget({
+            label: p('Popis'), required: other, show: other,
+        }),
     },
     ...userData(),
     vzdalenyPristup: {

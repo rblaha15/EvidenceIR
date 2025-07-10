@@ -124,6 +124,10 @@ export const firestoreDatabase: Database = {
         await updateDoc(irDoc(irid), `uvedeniSOL`, protocol);
         await odm.update('IR', irid, ir => ({ ...ir!, uvedeniSOL: protocol }));
     },
+    addPhotovoltaicSystemCommissioningProtocol: async (irid, protocol) => {
+        await updateDoc(irDoc(irid), `uvedeniFVE`, protocol);
+        await odm.update('IR', irid, ir => ({ ...ir!, uvedeniFVE: protocol }));
+    },
     updateIRUsers: async (irid, users) => {
         await updateDoc(irDoc(irid), `users`, users);
         await odm.update('IR', irid, ir => ({ ...ir!, users: users }));

@@ -174,5 +174,9 @@ const en: PlainTranslations = {
         light: 'Light',
         auto: 'Auto',
     },
+    units: {
+        ...cs.units,
+        MWhPerYear: 'MWh/year',
+    },
 }
 export default en

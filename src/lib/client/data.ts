@@ -10,11 +10,13 @@ import { getIsOnline } from '$lib/client/realtime';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { addToOfflineQueue, offlineDatabase } from '$lib/client/offline.svelte';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import type { FormUPF } from '$lib/forms/UPF/formUPF';
 
 export type IR = {
     evidence: Raw<FormIN>;
     uvedeniTC?: Raw<FormUPT>;
     uvedeniSOL?: Raw<FormUPS>;
+    uvedeniFVE?: Raw<FormUPF>;
     kontrolyTC: {
         [P in 1 | 2 | 3 | 4]?: {
             [R in 1 | 2 | 3 | 4]?: Raw<FormRK>;
@@ -49,6 +51,8 @@ export interface Database {
 
     addSolarSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPS>): Promise<void>;
 
+    addPhotovoltaicSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPF>): Promise<void>;
+
     updateIRUsers(irid: IRID, users: string[]): Promise<void>;
 
     addIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
@@ -69,8 +73,9 @@ const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>
 
 const functions = [
     'getIR', 'getAllIRs', 'getIRAsStore', 'newIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck', 'addServiceProtocol',
-    'editServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol', 'updateIRUsers',
-    'addIndependentServiceProtocol', 'deleteIndependentProtocol', 'getIndependentProtocol', 'getAllIndependentProtocols',
+    'editServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
+    'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'addIndependentServiceProtocol', 'deleteIndependentProtocol',
+    'getIndependentProtocol', 'getAllIndependentProtocols',
 ] as const;
 
 const db: Database = functions.associateWith(name =>
