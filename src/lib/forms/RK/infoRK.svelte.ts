@@ -30,15 +30,7 @@ const infoRK = (() => {
             const kontroly = ir.kontrolyTC[tc] ?? {};
             rok = kontroly?.[1] == undefined ? 1
                 : Math.max(...kontroly.keys().map(Number)) + 1;
-            if (rok != 1) {
-                const predchoziKontrola = kontroly[rok - 1 as 1 | 2 | 3]!;
-                const data = dataToRawData(defaultRK());
-                data.poznamky.poznamka = predchoziKontrola.poznamky.poznamka;
-                data.kontrolniUkonyOtopneSoustavy.nastavenyTlakPriUvadeniDoProvozu = predchoziKontrola.kontrolniUkonyOtopneSoustavy.nastavenyTlakPriUvadeniDoProvozu;
-                data.kontrolniUkonyOtopneSoustavy.nastavenyTlakPriUvadeniDoProvozu2 = predchoziKontrola.kontrolniUkonyOtopneSoustavy.nastavenyTlakPriUvadeniDoProvozu2;
-                data.kontrolaZasobnikuTv.nastavenyTlakPriUvadeniDoProvozu = predchoziKontrola.kontrolaZasobnikuTv.nastavenyTlakPriUvadeniDoProvozu;
-                return data;
-            } else return undefined;
+            return undefined;
         },
         saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
             await db.addHeatPumpCheck(irid, tc, rok as 1 | 2 | 3 | 4, raw);
@@ -62,7 +54,7 @@ const infoRK = (() => {
         },
         showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
         title: t => t.yearlyHPCheckNr([`${tc}`]),
-        createWidgetData: () => rok,
+        createWidgetData: () => {},
         subtitle: t => `${t.year}: ${rok.toString() ?? '…'}`,
         onMount: async (d, k) => {
             if (!k.info.datum.value)

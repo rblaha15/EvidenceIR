@@ -71,18 +71,8 @@ export default (): FormRK => ({
             label: 'check.kontrolaTlakuVExpanzniNadobeOtopneSoustavy',
             required: false,
         }),
-        nastavenyTlakPriUvadeniDoProvozu: new InputWidget({
-            label: 'check.nastavenyTlakPriUvadeniDoProvozu',
-            required: false,
-            lock: rok => rok != 1,
-        }),
         pripadneProvedteKontroluTlakuVOtopneSoustave: new CheckboxWidget(
             { label: 'check.pripadneProvedteKontroluTlakuVOtopneSoustave', required: false }),
-        nastavenyTlakPriUvadeniDoProvozu2: new InputWidget({
-            label: 'check.nastavenyTlakPriUvadeniDoProvozu',
-            required: false,
-            lock: rok => rok != 1,
-        }),
     },
     kontrolaZasobnikuTv: {
         nadpis: new TitleWidget({ text: 'check.kontrolaZasobnikuTv' }),
@@ -91,11 +81,6 @@ export default (): FormRK => ({
         pripadneProvedteKontroluTlakuVEnTepleVody: new CheckboxWidget({
             label: 'check.pripadneProvedteKontroluTlakuVEnTepleVody',
             required: false,
-        }),
-        nastavenyTlakPriUvadeniDoProvozu: new InputWidget({
-            label: 'check.nastavenyTlakPriUvadeniDoProvozu',
-            required: false,
-            lock: rok => rok != 1,
         }),
     },
     poznamky: {

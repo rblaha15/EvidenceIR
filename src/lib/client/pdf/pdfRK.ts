@@ -19,7 +19,7 @@ export const cascadeDetails = (e: Raw<FormIN>, t: Translations) => ({
         .map(([m, c]) => [t.get(m), c] as const)
 });
 
-const pdfRK: GetPdfData<'RK'> = async ({ kontrolyTC, evidence: e }, t, _, { pump }) => {
+const pdfRK: GetPdfData<'RK'> = async ({ kontrolyTC, evidence: e, uvedeniTC: u }, t, _, { pump }) => {
     console.log(kontrolyTC)
     const kontroly = kontrolyTC[pump] as Record<number, Raw<FormRK>>;
     const montazka = await nazevFirmy(e.montazka.ico);
@@ -32,31 +32,29 @@ ${t.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}
 ` + pumps.map(([model, cislo], i) =>
                 t.pumpDetails({ n: isCascade ? `${i + 1}` : '', model, cislo })
             ).join('; '),
-        /*       poznamky */ Text141: kontroly.mapTo((_, k) => k.poznamky.poznamka).join('\n')
+        /*           tlak */ Text36: u?.os?.tlakEnOs ?? null,
+        /*           tlak */ Text37: u?.os?.tlakOs ?? null,
+        /*           tlak */ Text38: u?.os?.tlakEnTv ?? null,
+        /*       poznamky */ Text141: kontroly
+            .mapValues((_, k) => k.poznamky.poznamka)
+            .filterValues((_, p) => Boolean(p))
+            .mapTo((r, p) => `Rok ${r}: ${p}`)
+            .join('\n'),
     };
     const veci = kontroly.mapTo((rok, kontrola) => {
         const k = dataToRawData(rawDataToData(defaultRK(), kontrola)) // seřazení informací
-        const k2 = {
-            ...k,
-            kontrolniUkonyOtopneSoustavy:
-                rok == 1 ? k.kontrolniUkonyOtopneSoustavy : k.kontrolniUkonyOtopneSoustavy.omit('nastavenyTlakPriUvadeniDoProvozu', 'nastavenyTlakPriUvadeniDoProvozu2'),
-            kontrolaZasobnikuTv:
-                rok == 1 ? k.kontrolaZasobnikuTv : k.kontrolaZasobnikuTv.omit('nastavenyTlakPriUvadeniDoProvozu'),
-        }
-        const array = k2.omit('info', 'poznamky').getValues().flatMap(obj => obj.getValues());
+        const array = k.omit('info', 'poznamky').getValues().flatMap(obj => obj.getValues());
         const start =
             1 + // Indexujeme od 1
             1 + // Text1
-            (Number(rok) - 1) * array.length + // widgets v každém roce
+            (Number(rok) - 1) * array.length + // widgety v každém roce
             (rok == 1 ? 0 : 3); // tlaky v roce 1
 
         return array.map((v, i) => [
-            `Text${i + start}`,
-            typeof v == 'boolean'
-                ? v ? t.yes : t.no
-                : v
+            `Text${i + start}`, typeof v == 'boolean' ? v ? t.yes : t.no : v
         ] as [`Text${number}`, string]);
     }).flat().toRecord();
+
     const metadata = kontroly.mapTo((rok, k) => {
         const veci = k.info;
         const start =
@@ -72,7 +70,7 @@ ${t.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}
     return {
         ...start,
         ...metadata,
-        ...veci
+        ...veci,
     };
 };
 export default pdfRK;
