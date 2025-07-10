@@ -10,12 +10,13 @@ import RR from '$lib/client/pdf/pdfRR';
 import UPT from '$lib/client/pdf/pdfUPT';
 import UPS from '$lib/client/pdf/pdfUPS';
 import SP, { pdfCP as CP, pdfNSP as NSP } from '$lib/client/pdf/pdfSP';
+import UPF from '$lib/client/pdf/pdfUPF';
 import type { Raw } from '$lib/forms/Form';
 
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 
 type AllPdf = {
-    [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP']: 'IR'
+    [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP' | 'UPF']: 'IR'
 } & {
     [P in 'NSP' | 'CP']: 'SP'
 }
@@ -85,6 +86,13 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs'],
         title: '',
         getPdfData: CP,
+    },
+    UPF: {
+        type: 'IR',
+        pdfName: 'UPF',
+        supportedLanguages: ['cs'],
+        title: p(`Protokol o uvedení fotovoltaického systému do trvalého provozu`),
+        getPdfData: UPF,
     },
 };
 

@@ -316,6 +316,23 @@
                 {/if}
             </PDFLink>
         {/if}
+        {#if values.evidence.ir.chceVyplnitK.includes('photovoltaicPowerPlant')}
+            <PDFLink
+                enabled={values.uvedeniFVE !== undefined}
+                name={t.photovoltaicSystemCommissionProtocol}
+                {t}
+                link="UPF"
+                lang={data.languageCode} data={values}
+            >
+                {#if !values.uvedeniFVE}
+                    <a
+                        tabindex="0"
+                        class="btn btn-info d-block"
+                        href={iridUrl('/UPF')}
+                    >{t.commission}</a>
+                {/if}
+            </PDFLink>
+        {/if}
     </div>
     {#if $isUserRegulusOrAdmin}
         <ServiceProtocols {values} {t} lang={data.languageCode} {irid} />
