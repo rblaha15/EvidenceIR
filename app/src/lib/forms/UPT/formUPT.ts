@@ -30,6 +30,9 @@ export interface FormUPT extends Form<DataUPT> {
         tcTv: CheckboxWidget<DataUPT>,
         zTv: InputWidget<DataUPT>,
         objemEnOs: SwitchWidget<DataUPT>,
+        tlakEnOs: InputWidget<DataUPT>,
+        tlakOs: InputWidget<DataUPT>,
+        tlakEnTv: InputWidget<DataUPT>,
         bazenTc: CheckboxWidget<DataUPT>,
     },
     reg: {
