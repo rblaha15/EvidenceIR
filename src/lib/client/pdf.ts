@@ -24,7 +24,7 @@ export const pdfInfo: PdfInfo = {
     RK: {
         type: 'IR',
         pdfName: 'RK',
-        supportedLanguages: ['cs', 'de'],
+        supportedLanguages: ['cs'],
         title: `yearlyCheckTitle`,
         getPdfData: RK,
     },

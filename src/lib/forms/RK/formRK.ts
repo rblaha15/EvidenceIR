@@ -1,7 +1,7 @@
 import { CheckboxWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
 import { type Form } from '$lib/forms/Form';
 
-export type DataRK = number
+export type DataRK = void
 
 export interface FormRK extends Form<DataRK> {
     info: {
@@ -49,16 +49,13 @@ export interface FormRK extends Form<DataRK> {
         kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych: CheckboxWidget<DataRK>,
         kontrolaTesnostiOtopneSoustavy: CheckboxWidget<DataRK>,
         kontrolaTlakuVExpanzniNadobeOtopneSoustavy: CheckboxWidget<DataRK>,
-        nastavenyTlakPriUvadeniDoProvozu: InputWidget<DataRK>
         pripadneProvedteKontroluTlakuVOtopneSoustave: CheckboxWidget<DataRK>,
-        nastavenyTlakPriUvadeniDoProvozu2: InputWidget<DataRK>
     },
     kontrolaZasobnikuTv: {
         nadpis: TitleWidget<DataRK>,
         kontrolaMgAnodyVZasobnikuPripVymena: CheckboxWidget<DataRK>,
         kontrolaPojistovacihoVentilu: CheckboxWidget<DataRK>,
         pripadneProvedteKontroluTlakuVEnTepleVody: CheckboxWidget<DataRK>,
-        nastavenyTlakPriUvadeniDoProvozu: InputWidget<DataRK>
     },
     poznamky: {
         poznamka: InputWidget<DataRK>,
