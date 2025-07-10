@@ -73,7 +73,7 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         cislo: InputWidget<FormIN>;
         cisloBox: InputWidget<FormIN>;
         boxType: TextWidget<FormIN>;
-        chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `ventilation`>;
+        chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `ventilation` | 'photovoltaicPowerPlant' | 'otherDevice'>;
     };
     tc: {
         nadpis: TitleWidget<FormIN>;
@@ -97,6 +97,21 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     vetrani: {
         title: TitleWidget<FormIN>;
         typ: InputWidget<FormIN>;
+    };
+    fve: {
+        title: TitleWidget<FormIN>;
+        typ: ChooserWidget<FormIN, P<'DG-450-B'>>;
+        pocet: InputWidget<FormIN>;
+        typStridace: InputWidget<FormIN>;
+        cisloStridace: InputWidget<FormIN>;
+        akumulaceDoBaterii: CheckboxWidget<FormIN>;
+        typBaterii: InputWidget<FormIN>;
+        kapacitaBaterii: InputWidget<FormIN>;
+        wallbox: CheckboxWidget<FormIN>;
+    };
+    jine: {
+        title: TitleWidget<FormIN>;
+        popis: InputWidget<FormIN>;
     };
     vzdalenyPristup: {
         nadpis: TitleWidget<FormIN>;
