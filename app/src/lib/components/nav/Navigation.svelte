@@ -1,23 +1,16 @@
 <script lang="ts">
-    import { browser } from '$app/environment';
-    import { page } from '$app/state';
-    import { currentUser, logOut } from '$lib/client/auth';
-    import authentication from '$lib/client/authentication';
-    import { isOnline, responsiblePerson } from '$lib/client/realtime';
+    import { currentUser } from '$lib/client/auth';
+    import { isOnline } from '$lib/client/realtime';
     import type { Translations } from '$lib/translations';
     import BaseNav from './BaseNav.svelte';
     import LanguageSelector from './LanguageSelector.svelte';
-    import { relUrl } from '$lib/helpers/runes.svelte';
-    import Settings from '$lib/components/Settings.svelte';
+    import Settings from '$lib/components/nav/Settings.svelte';
+    import UserDropdown from '$lib/components/nav/UserDropdown.svelte';
+    import LoggedOutButtons from '$lib/components/nav/LoggedOutButtons.svelte';
 
-    interface Props {
-        t: Translations;
-    }
+    const { t }: { t: Translations } = $props();
 
-    let { t }: Props = $props();
-
-    let loggedInEmail = $derived($currentUser?.email ?? '');
-    let isLoggedIn = $derived($currentUser != null);
+    const isLoggedIn = $derived($currentUser != null);
 </script>
 
 <nav class="navbar navbar-expand-md gray flex-wrap">
@@ -51,45 +44,7 @@
                         <i class="bi-gear-fill fs-2"></i>
                     </button>
                 </div>
-                <div class="dropdown ms-3">
-                    <button class="btn btn-link nav-link" data-bs-toggle="dropdown" aria-label="User">
-                        <i class="bi-person-fill fs-2"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><span class="dropdown-item-text">{t.email}:<br />{loggedInEmail}</span></li>
-                        {#if $responsiblePerson}
-                            <li><span class="dropdown-item-text">{t.responsiblePerson}:<br />{$responsiblePerson}</span></li>
-                        {/if}
-                        <li>
-                            <hr class="dropdown-divider" />
-                        </li>
-                        <li>
-                            <button
-                                onclick={async () => {
-									const { link } = await authentication('getPasswordResetLink', {
-										email: loggedInEmail,
-										lang: page.data.languageCode,
-										redirect:
-											page.url.pathname.slice(page.data.languageCode.length + 1) +
-											page.url.search,
-										mode: 'edit'
-									});
-									window.location.replace(link);
-								}}
-                                class="dropdown-item text-warning">{t.changePassword}</button
-                            >
-                        </li>
-                        <li>
-                            <button
-                                class="dropdown-item text-danger"
-                                onclick={() => {
-									logOut();
-									window.location.reload();
-								}}>{t.toLogOut}</button
-                            >
-                        </li>
-                    </ul>
-                </div>
+                <UserDropdown {t} />
             </div>
             <div class="w-100"></div>
             <div class="d-none d-md-inline me-auto">
@@ -115,26 +70,7 @@
                 <LanguageSelector />
             </div>
             <div class="d-flex flex-row">
-                {#if !page.route.id?.endsWith('login')}
-                    <a
-                        href={browser
-							? relUrl(
-									`/login?redirect=${page.url.searchParams.get('redirect') ?? page.url.pathname.slice(page.data.languageCode.length + 1) + page.url.search}`
-								)
-							: ''}
-                        class="btn btn-info ms-2">{t.toLogIn}</a
-                    >
-                {/if}
-                {#if !page.route.id?.endsWith('signup')}
-                    <a
-                        href={browser
-							? relUrl(
-									`/signup?redirect=${page.url.searchParams.get('redirect') ?? page.url.pathname.slice(page.data.languageCode.length + 1) + page.url.search}`
-								)
-							: ''}
-                        class="btn btn-success ms-2">{t.toSignUp}</a
-                    >
-                {/if}
+                <LoggedOutButtons {t} />
             </div>
         {/if}
     </div>

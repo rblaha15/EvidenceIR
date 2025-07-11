@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { storableState } from '$lib/helpers/runes.svelte';
+    import { storableState } from '$lib/helpers/runes.svelte.js';
     import type { Translations } from '$lib/translations';
 
     const { t }: { t: Translations } = $props();
