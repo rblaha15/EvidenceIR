@@ -12,7 +12,7 @@
     import { setTitle, withLoading } from '$lib/helpers/title.svelte.js';
     import {
         extractIRIDFromParts,
-        type IRID,
+        type IRID, irNumberFromIRID,
         irWholeName,
         type SPID,
         spWholeName,
@@ -145,7 +145,7 @@
             record.evidence.ir.cislo = newNumber;
             if (record.evidence.ir.cislo == newNumber) return change = 'unchanged';
             record.evidence.ir.typ.first = newType;
-            await db.newIR(record);
+            await db.addIR(record);
             const newRecord = await db.getIR(extractIRIDFromParts(newType!, newNumber));
             if (!newRecord?.evidence) return change = 'fail';
             await db.deleteIR(irid!);
@@ -178,11 +178,8 @@
     <h3 class="m-0">
         {#if !irid}
             {spid?.replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}
-        {:else if irid.length === 7}
-            {irid.slice(1, 3)}
-            {irid.slice(3, 7)}
-        {:else if irid.length === 9}
-            SOREL
+        {:else}
+            {irNumberFromIRID(irid)}
         {/if}
     </h3>
 {/if}
