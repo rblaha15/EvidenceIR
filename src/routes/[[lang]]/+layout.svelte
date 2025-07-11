@@ -2,7 +2,7 @@
     import { dev } from '$app/environment';
     import { page } from '$app/state';
     import { checkAuth } from '$lib/client/auth';
-    import Navigation from '$lib/components/Navigation.svelte';
+    import Navigation from '$lib/components/nav/Navigation.svelte';
     import { preferredLanguage } from '$lib/languages';
     import { onMount, type Snippet } from 'svelte';
     import { progress, title } from '$lib/helpers/title.svelte';

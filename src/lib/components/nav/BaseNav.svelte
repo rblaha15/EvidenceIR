@@ -2,7 +2,7 @@
     import { page } from '$app/state';
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import type { Translations } from '$lib/translations';
-    import { detailIrUrl, detailSpUrl, relUrl } from '$lib/helpers/runes.svelte';
+    import { detailIrUrl, detailSpUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { getForm } from '$lib/forms/forms.js';
 
     const { t }: { t: Translations } = $props();
