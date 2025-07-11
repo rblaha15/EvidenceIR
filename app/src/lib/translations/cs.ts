@@ -275,6 +275,7 @@ export default {
         warrantyCommon: `Běžná`,
         commissioningTC: `Uvedení TČ do provozu`,
         commissioningSOL: `Uvedení SOL do provozu`,
+        commissioningFVE: `Uvedení FVE do provozu`,
         withoutCode: `Obchodní činnost`,
         yearlySOLCheck: `Roční kontrola SOL`,
         technicalAssistance: `Technická pomoc`,
