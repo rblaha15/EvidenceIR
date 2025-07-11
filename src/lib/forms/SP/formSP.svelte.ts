@@ -38,7 +38,7 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
         nadpis: TitleWidget<D>,
         doprava: InputWidget<D>,
         typPrace: RadioWidget<D, `sp.assemblyWork` | `sp.technicalAssistance` | `sp.technicalAssistance12`>,
-        ukony: MultiCheckboxWidget<D, `sp.regulusRoute` | `sp.commissioningTC` | `sp.commissioningSOL` | `sp.yearlyHPCheck` | `sp.yearlySOLCheck` | `sp.extendedWarranty` | `sp.installationApproval` | 'sp.withoutCode'>,
+        ukony: MultiCheckboxWidget<D, `sp.regulusRoute` | `sp.commissioningTC` | `sp.commissioningSOL` | `sp.commissioningFVE` | `sp.yearlyHPCheck` | `sp.yearlySOLCheck` | `sp.extendedWarranty` | `sp.installationApproval` | 'sp.withoutCode'>,
         doba: InputWidget<D>,
     },
     nahradniDily: {

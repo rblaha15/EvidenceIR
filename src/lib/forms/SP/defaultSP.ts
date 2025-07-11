@@ -75,7 +75,7 @@ export default <D extends GenericFormSP<D>>(): GenericFormSP<D> => ({
         }),
         ukony: new MultiCheckboxWidget({
             label: p('Pracovní úkony (max. 3)'), max: 3, required: false, options: [
-                `sp.regulusRoute`, `sp.commissioningTC`, `sp.commissioningSOL`, `sp.yearlyHPCheck`,
+                `sp.regulusRoute`, `sp.commissioningTC`, `sp.commissioningSOL`, `sp.commissioningFVE`, `sp.yearlyHPCheck`,
                 `sp.yearlySOLCheck`, `sp.extendedWarranty`, `sp.installationApproval`, `sp.withoutCode`,
             ],
         }),
