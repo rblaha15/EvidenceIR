@@ -1,14 +1,10 @@
-import { storable } from '$lib/helpers/stores';
 import type { Database, IR } from '$lib/client/data';
 import { derived, get, writable } from 'svelte/store';
-import { firestoreDatabase } from '$lib/client/firestore';
 import { type DBSchema as DBS, type IDBPDatabase, openDB } from 'idb';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
 import type { Raw } from '$lib/forms/Form';
-import { currentUser, getToken } from '$lib/client/auth';
+import { currentUser } from '$lib/client/auth';
 import { type LegacyIR, type LegacySP, migrateSP, modernizeIR } from '$lib/client/migrations';
-import { isOnline } from '$lib/client/realtime';
-import type { EmailMessage } from '$lib/client/email';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 
 interface DBSchema extends DBS {
@@ -44,7 +40,7 @@ const newDb = (uid: string) => openDB<DBSchema>(`offlineData_${uid}`, 1, {
 
 const db = async () => {
     const uid = get(currentUser)?.uid ?? 'anonymous';
-    console.log(uid)
+    console.log(uid);
     return dbMap[uid] || (dbMap[uid] = await newDb(uid));
 };
 
@@ -95,67 +91,11 @@ export const offlineDatabaseManager = {
         value ? odm.put(type, id, value) : odm.delete(type, id),
 };
 
-type DoWhenOnline<F extends keyof Database = keyof Database> = {
-    type: 'database'
-    functionName: F;
-    args: Parameters<Database[F]>;
-} | {
-    type: 'email',
-    message: EmailMessage,
-};
-
-const doWhenOnlineQueue = storable<DoWhenOnline[]>('doWhenOnlineQueue', []);
-
-export const addToOfflineQueue = <F extends keyof Database = keyof Database>(
-    functionName: F,
-    args: Parameters<Database[F]>,
-) => {
-    console.log('Adding', functionName, 'with args', ...args, 'to the offline queue');
-    doWhenOnlineQueue.update(q => [...q, { functionName, args, type: 'database' }]);
-};
-
-export const addEmailToOfflineQueue = (message: EmailMessage) => {
-    console.log('Adding email', message, 'to the offline queue');
-    doWhenOnlineQueue.update(q => [...q, { message, type: 'email' }]);
-};
-
-const processOfflineQueue = async () => {
-    const current = get(doWhenOnlineQueue);
-    await current.map(async dwo => {
-        if (dwo.type === 'email') {
-            const { message } = dwo;
-            console.log('Sending email', message, 'from the offline queue');
-            const token = await getToken();
-            await fetch(`/api/sendEmail?token=${token}`, {
-                method: 'POST',
-                body: JSON.stringify({ message }),
-                headers: {
-                    'content-type': 'application/json',
-                },
-            });
-        } else {
-            const { args, functionName } = dwo;
-            console.log('Executing', functionName, 'with args', ...args, 'from the offline queue');
-            const func = firestoreDatabase[functionName];
-            // @ts-expect-error Whyyy?
-            func(...args);
-        }
-    }).awaitAll();
-
-    doWhenOnlineQueue.update(q => q.slice(current.length));
-    const after = get(doWhenOnlineQueue);
-    if (after.length) await processOfflineQueue();
-};
-
-isOnline.subscribe(async online => {
-    if (online) await processOfflineQueue();
-});
-
 export const offlineDatabase: Database = {
     getIR: async irid => await odm.get('IR', irid),
     getAllIRs: () => odm.getAll('IR'),
     getIRAsStore: irid => derived(storedIR, irs => irs[irid]),
-    newIR: ir => odm.put('IR', extractIRIDFromRawData(ir.evidence), ir),
+    addIR: ir => odm.put('IR', extractIRIDFromRawData(ir.evidence), ir),
     deleteIR: irid => odm.delete('IR', irid),
     existsIR: async irid => irid in get(storedIR),
     updateIRRecord: rawData => {

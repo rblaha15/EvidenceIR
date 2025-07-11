@@ -7,6 +7,7 @@
     import Settings from '$lib/components/nav/Settings.svelte';
     import UserDropdown from '$lib/components/nav/UserDropdown.svelte';
     import LoggedOutButtons from '$lib/components/nav/LoggedOutButtons.svelte';
+    import { readableQueue } from '$lib/client/offlineQueue';
 
     const { t }: { t: Translations } = $props();
 
@@ -39,8 +40,17 @@
         {/if}
         {#if isLoggedIn}
             <div class="d-flex flex-row ms-auto ms-md-0">
+                {#if $readableQueue.length}
+                    <div class="ms-3">
+                        <button aria-label="Offline queue" class="btn btn-link nav-link text-warning-emphasis" data-bs-target="#queue"
+                                data-bs-toggle="modal">
+                            <i class="bi-wifi-off fs-2"></i>
+                            <i class="bi-database-fill-exclamation fs-2" style="margin-left: -.5rem"></i>
+                        </button>
+                    </div>
+                {/if}
                 <div class="d-none d-md-block ms-3">
-                    <button class="btn btn-link nav-link" data-bs-toggle="modal" data-bs-target="#settings" aria-label="Settings">
+                    <button aria-label="Settings" class="btn btn-link nav-link" data-bs-target="#settings" data-bs-toggle="modal">
                         <i class="bi-gear-fill fs-2"></i>
                     </button>
                 </div>
@@ -75,32 +85,6 @@
         {/if}
     </div>
 </nav>
-
-<div class="modal" id="settings">
-    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">{t.settings.title}</h4>
-                <button
-                    aria-label={t.close}
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                ></button>
-            </div>
-
-            <div class="modal-body">
-                <Settings {t} />
-            </div>
-
-            <div class="modal-footer">
-                <button
-                    class="btn btn-primary"
-                    data-bs-dismiss="modal"
-                >{t.close}</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <style global>
     .navbar {
