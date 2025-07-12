@@ -1,6 +1,6 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { CountersWidget } from '$lib/Widget.svelte.js';
+    import { CountersWidget } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
         t: Translations;

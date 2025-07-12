@@ -1,9 +1,16 @@
-<script generics="D, F extends Form<D>, S extends unknown[][]" lang="ts">
+<script generics="
+    D,
+    F extends Form<D>,
+    S extends unknown[][],
+    P extends Pdf = Pdf,
+" lang="ts">
     // noinspection ES6UnusedImports
     import type { Form } from '$lib/forms/Form';
     import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
+    import type { PdfParameters } from '$lib/client/pdf';
+    // noinspection ES6UnusedImports
+    import { type Pdf, pdfInfo, pdfParamsArray } from '$lib/client/pdf';
     import type { Translations } from '$lib/translations';
-    import type { DetachedFormInfo } from '$lib/forms/forms.svelte.js';
     import FormHeader from '$lib/forms/FormHeader.svelte';
     import { onMount, untrack } from 'svelte';
     import { derived as derivedStore, readable } from 'svelte/store';
@@ -11,12 +18,16 @@
     import { storable } from '$lib/helpers/stores';
     import { page } from '$app/state';
     import { dev } from '$app/environment';
-    import { getIsOnline } from '$lib/client/realtime';
+    import { generatePdf } from '$lib/client/pdfGeneration';
+    import type { IndependentFormInfo } from '$lib/forms/FormInfo';
+    import FileSaver from 'file-saver';
+    import { runLoading, withLoading } from '$lib/helpers/title.svelte';
 
     const { t, formInfo }: {
         t: Translations,
-        formInfo: DetachedFormInfo<D, F, S>,
+        formInfo: IndependentFormInfo<D, F, S, P>,
     } = $props();
+
     const {
         storeName,
         defaultData,
@@ -30,7 +41,7 @@
         storeData,
         importOptions,
         isSendingEmails,
-        openTabLink,
+        openPdf,
         redirectLink,
         showBackButton,
         showSaveAndSendButtonByDefault,
@@ -41,15 +52,17 @@
 
     let f: F = $state(defaultData());
     onMount(async () => {
-        const editData = await getEditData?.();
-        if (editData) {
-            f = rawDataToData(f, editData);
-            mode = 'edit';
-        } else {
-            if ($storedData != null)
-                f = rawDataToData(f, $storedData);
-            mode = 'create';
-        }
+        await runLoading(async () => {
+            const editData = await getEditData?.();
+            if (editData) {
+                f = rawDataToData(f, editData);
+                mode = 'edit';
+            } else {
+                if ($storedData != null)
+                    f = rawDataToData(f, $storedData);
+                mode = 'create';
+            }
+        })
 
         await mountEffect?.(d, f, mode == 'edit');
 
@@ -68,7 +81,6 @@
     const d = $derived(createWidgetData(f));
 
     const save = (send: boolean) => async () => {
-        // result = { load: true, red: false, text: '' };
         try {
             const raw = dataToRawData(f);
             const errors = list.filter(w => w.isError(d) && w.show(d)).map(w => t.get(w.label(d, t)));
@@ -84,30 +96,24 @@
                 return;
             }
 
-            if (!getIsOnline()) {
-                result = { red: true, text: t.offline, load: false };
-                return;
-            }
-
             result = { load: true, red: false, text: t.saving };
             const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send);
 
             if (!dev) storedData.set(undefined);
 
             if (success) {
-                result = openTabLink || redirectLink
+                result = openPdf || redirectLink
                     ? { text: t.redirecting, red: false, load: true }
                     : { text: '', red: false, load: false };
 
-                if (openTabLink) {
-                    const newWin = window.open(await openTabLink(raw));
-                    if (!newWin || newWin.closed) {
-                        result = {
-                            text: 'Povolte prosím otevírání oken v prohlížeči',
-                            red: true, load: false,
-                        };
-                        return;
-                    }
+                if (openPdf) {
+                    const { link, data, ...parameters } = await openPdf(raw);
+                    const p = parameters as unknown as PdfParameters<P>;
+                    const pdfData = await generatePdf(pdfInfo[link], page.data.languageCode, data, ...pdfParamsArray(p))
+
+                    FileSaver.saveAs(new Blob([pdfData.pdfBytes], {
+                        type: 'application/pdf',
+                    }), pdfData.fileName);
                 }
 
                 if (redirectLink) window.location.replace(await redirectLink(raw));
@@ -145,10 +151,11 @@
     const showSaveAndSendButtonByDefaultStore = $derived(typeof showSaveAndSendButtonByDefault == 'boolean' ? readable(showSaveAndSendButtonByDefault) : showSaveAndSendButtonByDefault);
 </script>
 
-<FormHeader importData={importOptions ? {
-    ...importOptions, onImport, isDangerous, defaultData: () => dataToRawData(defaultData())
-} : undefined} store={storedData} {t} title={title(t, mode === 'edit')} />
 {#if mode !== 'loading'}
+    <FormHeader importData={importOptions ? {
+        ...importOptions, onImport, isDangerous, defaultData: () => dataToRawData(defaultData())
+    } : undefined} store={storedData} {t} title={title(t, mode === 'edit')} />
+
     {#if subtitle}
         <h3>{subtitle(t, mode === 'edit')}</h3>
     {/if}
@@ -174,6 +181,4 @@
         </div>
         <p class:text-danger={result.red} class="my-auto">{@html result.text}</p>
     </div>
-{:else}
-    <div class="spinner-border text-danger m-2"></div>
 {/if}

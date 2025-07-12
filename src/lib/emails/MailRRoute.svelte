@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { type Data } from '$lib/forms/Data';
+	import { type FormIN } from '$lib/forms/IN/formIN';
 	import type { Translations } from '$lib/translations';
-    import { irName, irLabel } from '$lib/helpers/ir';
+	import { irName, irLabel, extractIRIDFromParts } from '$lib/helpers/ir';
 	import type { Raw } from '$lib/forms/Form';
-	import { extractIRIDFromParts } from '$lib/client/firestore';
+	import { detailIrUrl } from '$lib/helpers/runes.svelte';
 
-	const typZarizeni = (e: Raw<Data>): string => {
+	const typZarizeni = (e: Raw<FormIN>): string => {
 		if (e.ir.typ.first!.includes('BOX')) return 'CP-2972';
 		if (e.ir.typ.first!.includes('12')) return 'CP-1054';
 		if (e.ir.typ.first!.includes('14')) return 'CP-2007';
@@ -14,7 +14,7 @@
 	};
 
 	interface Props {
-		e: Raw<Data>;
+		e: Raw<FormIN>;
 		t: Translations;
 		montazka: string | null;
 		uvadec: string | null;
@@ -83,4 +83,4 @@
 <h2>Poznámka</h2>
 <p>{e.ostatni.poznamka}</p>
 
-<p>Odkaz na podrobnosti evidence: <a href={origin + `/detail/${irid}`}>{origin + `/detail/${irid}`}</a></p>
+<p>Odkaz na podrobnosti evidence: <a href={origin + detailIrUrl(irid)}>{origin + detailIrUrl(irid)}</a></p>

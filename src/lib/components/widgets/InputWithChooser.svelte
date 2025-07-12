@@ -1,6 +1,6 @@
 <script generics="D, I extends TranslationReference" lang="ts">
     import type { TranslationReference, Translations } from '$lib/translations';
-    import { InputWithChooserWidget, labelAndStar } from '$lib/Widget.svelte.js';
+    import { InputWithChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount } from 'svelte';
 

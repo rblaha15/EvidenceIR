@@ -12,8 +12,8 @@
 
 	const t: Translations = page.data.translations;
 
-	let redirect: string = '/new';
-	onMount(() => (redirect = page.url.searchParams.get('redirect') ?? '/new'));
+	let redirect: string = '/IN';
+	onMount(() => (redirect = page.url.searchParams.get('redirect') ?? '/IN'));
 
 	let error: string | null = $state(null);
 

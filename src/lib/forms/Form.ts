@@ -1,4 +1,4 @@
-import { Widget } from '$lib/Widget.svelte.js';
+import { Widget } from '$lib/forms/Widget.svelte.js';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 

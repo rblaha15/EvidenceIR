@@ -11,9 +11,16 @@ import merge from 'lodash.merge';
 const translationsMap: PlainTranslationsMap = { cs, en, de, sk };
 
 export type P<S extends string = string> = `PLAIN_${S}`;
-export const makePlain = <T extends string | undefined | null>(text: T) => text ? p(text) : undefined;
-export const p = <T extends string>(s: T): P<T> => `PLAIN_${s}`;
-export const plainArray = <T extends string>(a: T[]) => a.map(p);
+
+export function p<T extends string | undefined | null>(text: T): T extends string ? P<T> : T;
+export function p<T extends string>(s: T): P<T>;
+export function p<T extends string>(a: T[]): P<T>[];
+export function p<T extends string | undefined | null>(arg: T | T[]) {
+    return Array.isArray(arg)
+        ? arg.map(s => `PLAIN_${s}`)
+        : arg ? `PLAIN_${arg}` : undefined;
+}
+
 export const removePlain = (ref: string) => ref.slice(6);
 export const isPlain = (ref: TranslationReference | TemplateKey) => ref.startsWith('PLAIN_');
 
@@ -26,9 +33,9 @@ const withGet = (translations: PlainTranslations): Translations => {
         : isPlain(ref) ? removePlain(ref) : ((ref
             .split('.')
             .reduce<Record<string, unknown> | Translation>((acc, key) =>
-                (acc as Record<string, Translation | Record<string, unknown>>)[key], withDerived
+                (acc as Record<string, Translation | Record<string, unknown>>)[key], withDerived,
             ) as Translation) ?? ref);
-    return <Translations> {
+    return <Translations>{
         ...withDerived,
         get: ref => ref == null ? null : get(ref),
         refFromTemplate: <T extends (number | string)[]>(ref: TemplateKey, args: TemplateArgs<T>) =>
@@ -43,11 +50,11 @@ export type Translations = AddParsing<PlainTranslations> & {
     get: <T extends TranslationReference | TemplateKey | null>(ref: T) => T extends null ? null : T extends TemplateKey ? Template<(string | number)[]> : string;
     refFromTemplate: <K extends TemplateKey>(
         ref: K,
-        args: TemplateArgs<AtRecursiveKey<PlainTranslations, K> extends STemplate<infer T> ? T : never>
+        args: TemplateArgs<AtRecursiveKey<PlainTranslations, K> extends STemplate<infer T> ? T : never>,
     ) => TranslationReference
 } & Derived;
 
-export const allKeys = <(TranslationReference | TemplateKey)[]> Object.recursiveKeys(cs);
+export const allKeys = <(TranslationReference | TemplateKey)[]>Object.recursiveKeys(cs);
 
 export type TranslationReference = Exclude<
     | RecursiveKeyOf<PlainTranslations & Derived>
@@ -69,7 +76,7 @@ export const languageNames: LanguageNames = {
     cs: 'čeština',
     en: 'English',
     sk: 'slovenčina',
-    de: 'Deutsch'
+    de: 'Deutsch',
 };
 
 type RecursiveKeyOf<T extends Record<string, unknown>> = T extends string

@@ -1,6 +1,6 @@
 <script generics="D, T" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { labelAndStar, type SearchWidget } from '$lib/Widget.svelte.js';
+    import { labelAndStar, type SearchWidget } from '$lib/forms/Widget.svelte.js';
     import { browser } from '$app/environment';
     import type { ClassValue } from 'svelte/elements';
 

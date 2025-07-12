@@ -1,6 +1,6 @@
 <script generics="D, I extends TranslationReference" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { labelAndStar, type RadioWidget } from '$lib/Widget.svelte.js';
+    import { labelAndStar, type RadioWidget } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
         t: Translations;
