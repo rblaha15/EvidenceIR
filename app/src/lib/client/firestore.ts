@@ -73,7 +73,7 @@ export const firestoreDatabase: Database = {
     },
     getIRAsStore: irid => getAsStore(irDoc(irid))
         .also(r => r.subscribe(v => odm.putOrDelete('IR', irid, v))),
-    newIR: async ir => {
+    addIR: async ir => {
         const irid = extractIRIDFromRawData(ir.evidence);
         await setDoc(irDoc(irid), ir);
         await odm.put('IR', irid, ir);

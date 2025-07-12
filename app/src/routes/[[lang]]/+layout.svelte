@@ -2,10 +2,12 @@
     import { dev } from '$app/environment';
     import { page } from '$app/state';
     import { checkAuth } from '$lib/client/auth';
-    import Navigation from '$lib/components/Navigation.svelte';
+    import Navigation from '$lib/components/nav/Navigation.svelte';
     import { preferredLanguage } from '$lib/languages';
     import { onMount, type Snippet } from 'svelte';
     import { progress, title } from '$lib/helpers/title.svelte';
+    import SettingsModal from '$lib/components/nav/SettingsModal.svelte';
+    import QueueModal from '$lib/components/nav/QueueModal.svelte';
 
     interface Props {
         children?: Snippet;
@@ -48,6 +50,8 @@
 {#if nacita}
     <div class="spinner-border text-danger m-2"></div>
 {:else}
+    <QueueModal {t} />
+    <SettingsModal {t} />
     <div class="sticky-top">
         <Navigation {t} />
         <div class="progress rounded-0" role="progressbar"

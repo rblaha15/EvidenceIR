@@ -1,0 +1,27 @@
+name: Release Drafter
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  update_release_draft:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get version
+        run: |
+          NEW_VERSION=$(grep '"version"' package.json | sed -E 's/.*"version": *"([^"]+)".*/\1/')
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+      - uses: release-drafter/release-drafter@v6
+        with:
+          disable-autolabeler: true
+          version: ${{ env.NEW_VERSION }}
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

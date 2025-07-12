@@ -32,6 +32,9 @@ export const irName = (ir: Raw<FormIN>['ir']) => ir.typ.first?.includes('SOREL')
     ? irType(ir.typ)
     : `${irType(ir.typ)} ${ir.cislo}`;
 
+export const irNumberFromIRID = (irid: IRID) =>
+    irid.startsWith('S') ? 'SOREL' : `${irid.slice(1, 3)} ${irid.slice(3, 7)}`;
+
 /**
  * RB 2024/12/31-23
  */

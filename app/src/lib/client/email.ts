@@ -5,9 +5,13 @@ import { type Component, mount } from 'svelte';
 import { dev } from '$app/environment';
 import { get } from 'svelte/store';
 import type { User } from 'firebase/auth';
-import { addEmailToOfflineQueue } from '$lib/client/offline.svelte';
 import { getIsOnline } from '$lib/client/realtime';
+import { addEmailToOfflineQueue } from '$lib/client/offlineQueue';
+import type { Readable } from 'node:stream';
 
+export type AttachmentLike = Omit<Attachment, 'content'> & {
+    content?: Uint8Array<ArrayBufferLike> | string | Buffer<ArrayBufferLike> | Readable | undefined,
+};
 export type AddressLike = Address | string | (Address | string)[];
 export type EmailOptions<Props extends Record<string, unknown>> = {
     from: Address | string;
@@ -16,7 +20,7 @@ export type EmailOptions<Props extends Record<string, unknown>> = {
     cc?: AddressLike;
     bcc?: AddressLike;
     subject: string;
-    attachments?: Attachment[];
+    attachments?: AttachmentLike[];
     component: Component<Props, Record<string, unknown>, '' | keyof Props>;
     props: Props;
 }

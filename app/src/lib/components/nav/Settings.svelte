@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Translations } from '$lib/translations';
-    import ThemeSelector from '$lib/components/ThemeSelector.svelte';
-    import LanguageSelector from '$lib/components/LanguageSelector.svelte';
+    import ThemeSelector from '$lib/components/nav/ThemeSelector.svelte';
+    import LanguageSelector from '$lib/components/nav/LanguageSelector.svelte';
     import { removeAllFiles } from '$lib/components/widgets/File.svelte';
     import { browser, dev, version } from '$app/environment';
 
