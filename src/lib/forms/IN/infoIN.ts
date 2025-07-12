@@ -25,6 +25,7 @@ import { companies } from '$lib/helpers/companies';
 import { cellsIN } from '$lib/forms/IN/cellsIN';
 import { type FormIN, unknownCompany } from '$lib/forms/IN/formIN';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
+import MailXML from '$lib/emails/MailXML.svelte';
 
 const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyCompanies], [boolean], [string | null]]> = {
     type: '',
@@ -49,46 +50,59 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
 
         const doNotSend = edit && !send;
 
-        if (raw.vzdalenyPristup.chce && !doNotSend) {
-            const t = getTranslations('cs');
-            const montazka = (await nazevFirmy(raw.montazka.ico)) ?? null;
-            const uvadec = (await nazevFirmy(raw.uvedeni.ico)) ?? null;
+        if (doNotSend) return true;
 
-            const pdf = await generatePdf(pdfInfo.RR, 'cs', newIr);
+        const cs = getTranslations('cs');
+        const montazka = (await nazevFirmy(raw.montazka.ico)) ?? null;
+        const uvadec = (await nazevFirmy(raw.uvedeni.ico)) ?? null;
 
-            const response = await sendEmail({
-                ...defaultAddresses(),
-                subject: `Založení RegulusRoute k ${irName(raw.ir)}`,
-                attachments: [{
-                    content: xmlIN(data, t),
-                    contentType: 'application/xml',
-                    filename: `Evidence ${irid}.xml`,
-                }, {
-                    content: pdf.pdfBytes,
-                    contentType: 'application/pdf',
-                    filename: pdf.fileName,
-                }],
-                component: MailRRoute,
-                props: { e: raw, montazka, uvadec, t, origin: page.url.origin },
-            });
-            console.log(response);
-        }
+        const pdf = await generatePdf(pdfInfo.RR, 'cs', newIr);
 
-        const response = doNotSend ? undefined : await sendEmail({
+        const response1 = raw.vzdalenyPristup.chce ? await sendEmail({
+            ...defaultAddresses(),
+            subject: `Založení RegulusRoute k ${irName(raw.ir)}`,
+            attachments: [{
+                content: xmlIN(data, cs),
+                contentType: 'application/xml',
+                filename: `Evidence ${irid}.xml`,
+            }, {
+                content: pdf.pdfBytes,
+                contentType: 'application/pdf',
+                filename: pdf.fileName,
+            }],
+            component: MailRRoute,
+            props: { e: raw, montazka, uvadec, t: cs, origin: page.url.origin },
+        }) : await sendEmail({
+            ...defaultAddresses(),
+            subject: edit
+                ? `Úprava evidence regulátoru ${irName(raw.ir)}`
+                : `Založení evidence regulátoru ${irName(raw.ir)}`,
+            attachments: [{
+                content: xmlIN(data, cs),
+                contentType: 'application/xml',
+                filename: `Evidence ${irid}.xml`,
+            }],
+            component: MailXML,
+            props: { e: raw, origin: page.url.origin },
+        });
+
+        const response2 = await sendEmail({
             ...defaultAddresses('blahova@regulus.cz', true),
             subject: edit
                 ? `Úprava evidence regulátoru ${irName(raw.ir)}`
                 : `Nově zaevidovaný regulátor ${irName(raw.ir)}`,
             component: MailSDaty,
-            props: { data, t, user, origin: page.url.origin },
+            props: { data, t: cs, user, origin: page.url.origin },
         });
+        console.log(response2)
 
-        if (doNotSend || response!.ok) return true;
-        else editResult({
-            text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+        if (!response1.ok) editResult({
+            text: t.emailNotSent({ status: String(response1!.status), statusText: response1!.statusText }),
             red: true,
             load: false,
         });
+
+        return true
     },
     redirectLink: async raw => detailIrUrl(extractIRIDFromRawData(raw)),
     createWidgetData: d => d,
