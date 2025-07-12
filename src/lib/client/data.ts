@@ -8,9 +8,10 @@ import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
 import type { IRID, SPID } from '$lib/helpers/ir';
 import { getIsOnline } from '$lib/client/realtime';
 import { firestoreDatabase } from '$lib/client/firestore';
-import { addToOfflineQueue, offlineDatabase } from '$lib/client/offline.svelte';
+import { offlineDatabase } from '$lib/client/offline.svelte';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
+import { addToOfflineQueue } from '$lib/client/offlineQueue';
 
 export type IR = {
     evidence: Raw<FormIN>;
@@ -26,6 +27,16 @@ export type IR = {
     installationProtocols: Raw<FormSP>[];
 };
 
+/**
+ * Supported actions:
+ * - get
+ * - getAll
+ * - exists
+ *
+ * - add
+ * - delete
+ * - update
+ */
 export interface Database {
     getIR(irid: IRID): Promise<IR | undefined>;
 
@@ -33,7 +44,7 @@ export interface Database {
 
     getIRAsStore(irid: IRID): Readable<IR | undefined>;
 
-    newIR(ir: IR): Promise<void>;
+    addIR(ir: IR): Promise<void>;
 
     deleteIR(irid: IRID): Promise<void>;
 
@@ -72,7 +83,7 @@ const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>
 };
 
 const functions = [
-    'getIR', 'getAllIRs', 'getIRAsStore', 'newIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck', 'addServiceProtocol',
+    'getIR', 'getAllIRs', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck', 'addServiceProtocol',
     'editServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
     'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'addIndependentServiceProtocol', 'deleteIndependentProtocol',
     'getIndependentProtocol', 'getAllIndependentProtocols',

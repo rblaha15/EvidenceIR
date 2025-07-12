@@ -1,0 +1,22 @@
+name-template: '$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+tag-prefix: 'v'
+categories:
+  - title: 'Novinky 🎉'
+    labels:
+      - 'enhancement'
+  - title: 'Opravy chyb 🪲'
+    labels:
+      - 'bug'
+  - title: 'Ostatní změny'
+category-template: '### $TITLE'
+change-template: '- $TITLE'
+no-changes-template: 'Žádné změny'
+exclude-labels: 'ignore-for-release'
+version-resolver:
+template: |
+  ## Změny
+
+  $CHANGES
+
+  Full Changelog: https://github.com/rblaha15/EvidenceIR/compare/$PREVIOUS_TAG...$RESOLVED_VERSION

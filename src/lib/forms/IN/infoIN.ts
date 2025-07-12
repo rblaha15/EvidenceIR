@@ -45,7 +45,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
 
         const newIr = { evidence: raw, kontrolyTC: {}, users: [user.email!], installationProtocols: [] };
         if (edit) await db.updateIRRecord(raw);
-        else await db.newIR(newIr);
+        else await db.addIR(newIr);
 
         const doNotSend = edit && !send;
 
@@ -64,7 +64,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
                     contentType: 'application/xml',
                     filename: `Evidence ${irid}.xml`,
                 }, {
-                    content: Buffer.from(pdf.pdfBytes),
+                    content: pdf.pdfBytes,
                     contentType: 'application/pdf',
                     filename: pdf.fileName,
                 }],
