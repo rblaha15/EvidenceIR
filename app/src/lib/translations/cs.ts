@@ -71,7 +71,7 @@ export default {
         appInfo: `Informace o aplikaci`,
         appVersion: t`Verze aplikace: ${'version'} (${'build'}) (${'type'})`,
         clearBrowserData: `Vyčistit data z prohlížeče`,
-        clearDataInfo: `Data stránky v prohlížeči obsahují vaše uživatelská nastavení, stránky uložené do offline režimu a všechny rozepsané formuláře. Neodstraní se žádná data, která již byla uložena a odeslána na server. Nebudete odhlášeni ze svého účtu.`,
+        clearDataInfo: `Data stránky v prohlížeči obsahují vaše uživatelská nastavení, stránky uložené do offline režimu, offline frontu neodeslaných dat a všechny rozepsané formuláře. Neodstraní se žádná data, která již byla uložena a odeslána na server. Nebudete odhlášeni ze svého účtu.`,
     },
     password: `Heslo`,
     confirmPassword: `Potvrdit heslo`,
