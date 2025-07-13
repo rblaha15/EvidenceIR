@@ -111,7 +111,7 @@ export type GetPdfData<P extends Pdf> = (
     data: DataOfPdf<P>,
     t: Translations,
     addPage: <P extends Pdf>(
-        pdfLink: P,
+        pdfArgs: PdfArgs<P>,
         data: DataOfPdf<P>,
         ...parameters: PdfParametersArray<P>
     ) => Promise<void>,

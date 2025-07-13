@@ -54,11 +54,10 @@ export const generatePdf = async <P extends Pdf>(
     const fields = form.getFields();
 
     const addPage = async <P extends Pdf>(
-        pdfName2: P,
+        pdfArgs2: PdfArgs<P>,
         data2: DataOfPdf<P>,
         ...parameters: PdfParametersArray<NoInfer<P>>
     ) => {
-        const pdfArgs2 = pdfInfo[pdfName2];
         const pdfData2 = await generatePdf<P>(
             pdfArgs2, lang, data2, ...parameters,
         );
