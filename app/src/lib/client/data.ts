@@ -7,12 +7,12 @@ import type { FormUPS } from '$lib/forms/UPS/formUPS';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
 import type { IRID, SPID } from '$lib/helpers/ir';
 import { getIsOnline } from '$lib/client/realtime';
-import { firestoreDatabase } from '$lib/client/firestore';
 import { offlineDatabase } from '$lib/client/offline.svelte';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
 import { addToOfflineQueue } from '$lib/client/offlineQueue';
 import type { TC } from '$lib/forms/IN/defaultIN';
+import { firestoreDatabase } from '$lib/client/firestore';
 
 export type Year = 1 | 2 | 3 | 4;
 
@@ -31,11 +31,13 @@ export type IR = {
 };
 
 /**
- * Supported actions:
+ * Supported read actions:
  * - get
  * - getAll
+ * - get*AsStore
  * - exists
  *
+ * Supported write actions:
  * - add
  * - delete
  * - update
@@ -79,10 +81,15 @@ export interface Database {
 }
 
 const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>): ReturnType<Database[F]> => {
-    const db = getIsOnline() ? firestoreDatabase : offlineDatabase;
-    if (!getIsOnline()) addToOfflineQueue(name, args)
-    // @ts-expect-error Whyyy?
-    return db[name](...args);
+    console.log('Querying', name, 'with args', ...args);
+    // @ts-expect-error TS doesn't know it's a tuple
+    const result = offlineDatabase[name](...args) as ReturnType<Database[F]>;
+
+    // @ts-expect-error TS doesn't know it's a tuple
+    if (getIsOnline()) firestoreDatabase[name](...args);
+    else addToOfflineQueue(name, args);
+
+    return result;
 };
 
 const functions = [
@@ -92,8 +99,15 @@ const functions = [
     'getIndependentProtocol', 'getAllIndependentProtocols',
 ] as const;
 
+export type WriteFunction = {
+    [F in keyof Database]: F extends `add${string}` ? F : F extends `update${string}` ? F : F extends `delete${string}` ? F : never;
+}[keyof Database];
+
+export const isWriteFunction = (name: keyof Database): name is WriteFunction =>
+    ['add', 'update', 'delete'].some(prefix => name.startsWith(prefix));
+
 const db: Database = functions.associateWith(name =>
-    (...args: Parameters<Database[typeof name]>) => decide(name, args)
+    (...args: Parameters<Database[typeof name]>) => decide(name, args),
 ) as {
     [F in typeof functions[number]]: Database[F];
 };

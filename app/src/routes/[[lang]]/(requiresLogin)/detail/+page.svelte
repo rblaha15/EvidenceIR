@@ -285,7 +285,7 @@
                 {#if !values.uvedeniSOL}
                     <a
                         tabindex="0"
-                        class="btn btn-info d-block"
+                        class="btn btn-primary d-block"
                         href={iridUrl('/UPS')}
                     >{t.commission}</a>
                 {/if}
@@ -302,7 +302,7 @@
                 {#if !values.uvedeniFVE}
                     <a
                         tabindex="0"
-                        class="btn btn-info d-block"
+                        class="btn btn-primary d-block"
                         href={iridUrl('/UPF')}
                     >{t.commission}</a>
                 {/if}
