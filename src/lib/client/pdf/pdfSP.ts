@@ -53,6 +53,15 @@ const poleProDilyS = 44;
 const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
     .associateWith((_, i) => poleProDilyS + i * 8);
 
+const multilineLineLength = 70
+const multilineMaxLength = multilineLineLength * 4
+const inlineMaxLength = 55
+
+const multilineTooLong = (text: string) => text.split('\n').sumBy(line =>
+    Math.ceil(line.length / multilineLineLength) * multilineLineLength
+) > multilineMaxLength;
+const inlineTooLong = (text: string) => text.length > inlineMaxLength;
+
 export const pdfSP: GetPdfData<'SP'> = async ({ evidence: e, installationProtocols }, t, add, { index }) => {
     const pumps = e.tc.model ? cascadePumps(e, t) : [];
     const p = installationProtocols[index];
@@ -61,11 +70,12 @@ export const pdfSP: GetPdfData<'SP'> = async ({ evidence: e, installationProtoco
         ...p,
         system: {
             popis:
-                `${irName(e.ir)}` +
-                `${e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : ''}` +
-                `${e.sol?.typ ? `; SOL: ${e.sol.typ} – ${e.sol.pocet}x` : ''}` +
-                `${e.fve?.pocet ? `; FVE: ${t.get(e.fve.typ)} – ${e.fve.pocet}x` : ''}` +
-                `${e.jine?.popis ? `; Jiné zařízení: ${e.jine.popis}` : ''}` +
+                irName(e.ir) +
+                (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +
+                (e.sol?.typ ? `\nSOL: ${e.sol.typ} – ${e.sol.pocet}x` : '') +
+                (e.fve?.pocet ? `\nFVE: ${t.get(e.fve.typ)} – ${e.fve.pocet}x` : '') +
+                (e.fve?.akumulaceDoBaterii ? `; baterie: ${e.fve.typBaterii} – ${e.fve.kapacitaBaterii} kWh` : '') +
+                (e.jine?.popis ? `\nJiné zařízení: ${e.jine.popis}` : '') +
                 (e.tc.model ? '\n' + formatovatCerpadla(pumps.map(t.pumpDetails)) : ''),
             pocetTC: pumps.length,
         },
@@ -93,6 +103,13 @@ export const pdfNSP: GetPdfData<'NSP'> = async (p, t, addPage) => {
         response = new Response(null, { status: 400 });
     }
     const signature = response.ok && !response.redirected ? await response.arrayBuffer() : null;
+
+    const system = p.system.popis;
+    const zavada = p.zasah.nahlasenaZavada;
+    const zasah = p.zasah.popis;
+    if (multilineTooLong(system) || inlineTooLong(zavada) || multilineTooLong(zasah))
+        await addPage(pdfInfo.PS, p);
+
     if (dph == 1.12) await addPage(pdfInfo.CP, p);
 
     return {
@@ -113,14 +130,14 @@ export const pdfNSP: GetPdfData<'NSP'> = async (p, t, addPage) => {
         Text11: p.montazka.telefon,
         Text12: p.montazka.email,
         Text13: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
-        Text14: p.system.popis,
+        Text14: multilineTooLong(system) ? 'Viz druhá strana' : system,
         Text15: dateFromISO(p.zasah.datum),
         Text16: p.zasah.datumUvedeni ? dateFromISO(p.zasah.datumUvedeni) : null,
-        Text17: p.zasah.clovek.split(' ').toReversed().join(' '),
+        Text17: p.zasah.clovek,
         'Zaškrtávací pole28': p.zasah.zaruka == `sp.warrantyCommon`,
         'Zaškrtávací pole29': p.zasah.zaruka == `sp.warrantyExtended`,
-        Text19: p.zasah.nahlasenaZavada,
-        Text20: p.zasah.popis,
+        Text19: inlineTooLong(zavada) ? 'Viz druhá strana' : zavada,
+        Text20: multilineTooLong(zasah) ? 'Viz druhá strana' : zasah,
         Text21: p.ukony.doprava + ' km',
         Text22: cenik.transportation.roundTo(2).toLocaleString('cs') + ' Kč',
         'Kombinované pole32': t.get(p.ukony.typPrace) ?? 'Zásah',
@@ -164,3 +181,16 @@ export const pdfCP: GetPdfData<'CP'> = async p => ({
     Text2: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
     Text3: dateFromISO(p.zasah.datum),
 });
+
+export const pdfPS: GetPdfData<'PS'> = async p => {
+    const system = p.system.popis
+    const zavada = p.zasah.nahlasenaZavada
+    const zasah = p.zasah.popis
+    return {
+        Text1: [
+            multilineTooLong(system) ? 'Popis systému:\n' + system : '',
+            inlineTooLong(zavada) ? 'Nahlášená závada: ' + zavada : '',
+            multilineTooLong(zasah) ? 'Popis zásahu:\n' + zasah : '',
+        ].filter(Boolean).join('\n\n'),
+    };
+};
