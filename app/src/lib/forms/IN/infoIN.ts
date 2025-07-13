@@ -12,7 +12,7 @@ import db from '$lib/client/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
-import { getTranslations, p } from '$lib/translations';
+import { getTranslations, p, type Translations } from '$lib/translations';
 import { nazevFirmy } from '$lib/helpers/ares';
 import { generatePdf } from '$lib/client/pdfGeneration';
 import { pdfInfo } from '$lib/client/pdf';
@@ -26,6 +26,7 @@ import { cellsIN } from '$lib/forms/IN/cellsIN';
 import { type FormIN, unknownCompany } from '$lib/forms/IN/formIN';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import MailXML from '$lib/emails/MailXML.svelte';
+import type { Raw } from '$lib/forms/Form';
 
 const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyCompanies], [boolean], [string | null]]> = {
     type: '',
@@ -160,3 +161,16 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
     showBackButton: edit => edit,
 };
 export default infoIN;
+
+export const cascadePumps = (e: Raw<FormIN>, t: Translations) =>
+    (['', '2', '3', '4' /*'5', '6', '7', '8', '9', '10'*/] as const)
+        .map(n => ({
+            model: e.tc[`model${n}`],
+            cislo: e.tc[`cislo${n}`],
+        }))
+        .filter(tc => tc.model)
+        .map((tc, i) => ({
+            model: t.get(tc.model)!,
+            cislo: tc.cislo,
+            n: e.tc.model2 ? `${i + 1}` : '',
+        }));
