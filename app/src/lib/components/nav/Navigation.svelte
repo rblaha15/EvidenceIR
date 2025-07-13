@@ -8,6 +8,8 @@
     import UserDropdown from '$lib/components/nav/UserDropdown.svelte';
     import LoggedOutButtons from '$lib/components/nav/LoggedOutButtons.svelte';
     import { readableQueue } from '$lib/client/offlineQueue';
+    import QueueModal from '$lib/components/nav/QueueModal.svelte';
+    import SettingsModal from '$lib/components/nav/SettingsModal.svelte';
 
     const { t }: { t: Translations } = $props();
 
@@ -85,6 +87,9 @@
         {/if}
     </div>
 </nav>
+
+<QueueModal {t} />
+<SettingsModal {t} />
 
 <style global>
     .navbar {
