@@ -16,7 +16,7 @@ import { companies } from '$lib/helpers/companies';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { extractSPIDFromRawData, spName } from '$lib/helpers/ir';
+import { extractSPIDFromRawData, type IRID, type SPID, spName } from '$lib/helpers/ir';
 import db from '$lib/client/data';
 import { type DataNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
@@ -55,6 +55,13 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         await startSparePartsListening();
         f.zasah.datum.setValue(d, nowISO());
     },
+    getViewData: async () => {
+        const spid = page.url.searchParams.get('view-spid') as SPID | null;
+        if (!spid) return undefined;
+
+        const sp = await db.getIndependentProtocol(spid);
+        return !sp ? undefined : sp;
+    },
     storeEffects: [
         [(d, f, [$techniciansList, $currentUser]) => {
             f.uvedeni.regulus.items = () => $techniciansList.filter(t => t.email.endsWith('cz'));
@@ -85,6 +92,7 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         }, [companies]],
     ],
     requiredRegulus: true,
+    hideBackButton: edit => !edit,
 };
 
 export default infoNSP;

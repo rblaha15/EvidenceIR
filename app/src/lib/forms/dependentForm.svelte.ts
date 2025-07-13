@@ -18,6 +18,7 @@ export const removeDependency = <
         saveData,
         createWidgetData,
         getEditData,
+        getViewData,
         onMount,
     } = formInfo;
 
@@ -33,6 +34,12 @@ export const removeDependency = <
             ir = _ir;
             return getEditData?.(ir);
         },
+        getViewData: async () => {
+            const _ir = await db.getIR(irid!);
+            if (!_ir) return undefined;
+            ir = _ir;
+            return getViewData?.(ir);
+        },
         saveData: async (raw, edit, data, editResult, t, send) => {
             const result = await saveData(irid!, raw, edit, data, editResult, t, send, ir);
             return result != false;
@@ -43,7 +50,7 @@ export const removeDependency = <
             data: (await db.getIR(irid))!,
         } as OpenPdfOptions<P>) : undefined,
         createWidgetData: data => createWidgetData(ir.evidence, data),
-        showBackButton: () => true,
-        onMount: (d, f, e) => onMount?.(d, f, e, ir),
+        hideBackButton: () => false,
+        onMount: (d, f, m) => onMount?.(d, f, m, ir),
     };
 };

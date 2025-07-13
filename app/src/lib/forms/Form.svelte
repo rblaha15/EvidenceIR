@@ -21,7 +21,8 @@
     import { generatePdf } from '$lib/client/pdfGeneration';
     import type { IndependentFormInfo } from '$lib/forms/FormInfo';
     import FileSaver from 'file-saver';
-    import { runLoading, withLoading } from '$lib/helpers/title.svelte';
+    import { runLoading } from '$lib/helpers/title.svelte';
+    import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
 
     const { t, formInfo }: {
         t: Translations,
@@ -37,34 +38,39 @@
         onMount: mountEffect,
         storeEffects,
         getEditData,
+        getViewData,
         subtitle,
         storeData,
         importOptions,
         isSendingEmails,
         openPdf,
         redirectLink,
-        showBackButton,
+        hideBackButton,
         showSaveAndSendButtonByDefault,
     } = formInfo;
 
     const storedData = storable<Raw<F>>(storeName);
-    let mode: 'create' | 'edit' | 'loading' = $state('loading');
+    let mode: 'create' | 'edit' | 'loading' | 'view' = $state('loading');
 
     let f: F = $state(defaultData());
     onMount(async () => {
         await runLoading(async () => {
+            const viewData = await getViewData?.();
             const editData = await getEditData?.();
-            if (editData) {
+            if (viewData) {
+                f = rawDataToData(f, viewData);
+                mode = 'view';
+            } else if (editData) {
                 f = rawDataToData(f, editData);
                 mode = 'edit';
-            } else {
-                if ($storedData != null)
-                    f = rawDataToData(f, $storedData);
+            } else if ($storedData) {
+                f = rawDataToData(f, $storedData);
                 mode = 'create';
-            }
-        })
+            } else
+                mode = 'create';
+        });
 
-        await mountEffect?.(d, f, mode == 'edit');
+        await mountEffect?.(d, f, mode as 'create' | 'edit' | 'view');
 
         storeEffects?.forEach(([callback, stores]) => {
             derivedStore(stores, values => values).subscribe(values => callback(d, f, values, mode == 'edit'));
@@ -109,7 +115,7 @@
                 if (openPdf) {
                     const { link, data, ...parameters } = await openPdf(raw);
                     const p = parameters as unknown as PdfParameters<P>;
-                    const pdfData = await generatePdf(pdfInfo[link], page.data.languageCode, data, ...pdfParamsArray(p))
+                    const pdfData = await generatePdf(pdfInfo[link], page.data.languageCode, data, ...pdfParamsArray(p));
 
                     FileSaver.saveAs(new Blob([pdfData.pdfBytes], {
                         type: 'application/pdf',
@@ -134,7 +140,7 @@
     };
 
     $effect(() => {
-        if (mode != 'loading' && mode != 'edit') {
+        if (mode == 'create') {
             storedData.set((storeData ?? dataToRawData)(f));
         }
     });
@@ -152,31 +158,38 @@
 </script>
 
 {#if mode !== 'loading'}
-    <FormHeader importData={importOptions ? {
+    <FormHeader readonly={mode === 'view'} importData={importOptions ? {
         ...importOptions, onImport, isDangerous, defaultData: () => dataToRawData(defaultData())
-    } : undefined} store={storedData} {t} title={title(t, mode === 'edit')} />
+    } : undefined} store={storedData} {t} title={title(t, mode)}
+    showBackButton={mode === 'view' || !hideBackButton?.(mode === 'edit')} />
 
     {#if subtitle}
         <h3>{subtitle(t, mode === 'edit')}</h3>
     {/if}
     {#each list as _, i}
-        <WidgetComponent bind:widget={list[i]} {t} data={d} />
+        {#if mode === 'view'}
+            <ReadonlyWidget widget={list[i]} {t} data={d} />
+        {:else}
+            <WidgetComponent bind:widget={list[i]} {t} data={d} />
+        {/if}
     {/each}
     <div class="d-flex flex-column flex-sm-row align-items-start gap-3">
         <div class="d-flex gap-3 flex-wrap">
-            {#if !result.load && (mode === 'edit' && isSendingEmails || !$showSaveAndSendButtonByDefaultStore)}
-                <button onclick={save(false)} class="mb-auto btn btn-success">{t.save}</button>
-            {/if}
-            {#if !result.load && (mode === 'edit' && isSendingEmails || $showSaveAndSendButtonByDefaultStore)}
-                <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">{t.saveAndSend}</button>
-            {/if}
-            {#if result.load}
-                <div class="spinner-border text-danger"></div>
-            {/if}
-            {#if !result.load && (showBackButton?.(mode === 'edit') ?? true)}
-                <button type="button" class="mb-auto btn btn-secondary" onclick={() => history.back()}>
-                    {t.back}
-                </button>
+            {#if mode !== 'view'}
+                {#if !result.load && (mode === 'edit' && isSendingEmails || !$showSaveAndSendButtonByDefaultStore)}
+                    <button onclick={save(false)} class="mb-auto btn btn-success">{t.save}</button>
+                {/if}
+                {#if !result.load && (mode === 'edit' && isSendingEmails || $showSaveAndSendButtonByDefaultStore)}
+                    <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">{t.saveAndSend}</button>
+                {/if}
+                {#if result.load}
+                    <div class="spinner-border text-danger"></div>
+                {/if}
+                {#if !result.load && !hideBackButton?.(mode === 'edit')}
+                    <button type="button" class="mb-auto btn btn-secondary" onclick={() => history.back()}>
+                        {t.back}
+                    </button>
+                {/if}
             {/if}
         </div>
         <p class:text-danger={result.red} class="my-auto">{@html result.text}</p>

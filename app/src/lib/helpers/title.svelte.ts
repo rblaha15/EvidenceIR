@@ -1,8 +1,13 @@
 import { readonly, writable } from 'svelte/store';
 
-export const setTitle = (title: string) => t.set(title);
 const t = writable('SEIR');
+const bb = writable(false);
+export const setTitle = (title: string, backButton: boolean = false) => {
+    t.set(title);
+    bb.set(backButton);
+}
 export const title = readonly(t);
+export const backButton = readonly(bb);
 
 export const startLoading = () => p.set('load');
 export const endLoading = () => {

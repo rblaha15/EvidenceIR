@@ -183,6 +183,8 @@ export default {
     redirectFailedHtml: t`Přesměrování se nezdařilo. Prosím, přejděte na tuto adresu: <a href="${'link'}">${'link'}</a>`,
     irExistsHtml: t`Tento regulátor je již zaevidovaný (<a href="${'link'}">detail</a>)`,
     editRegistration: `Upravit údaje o instalaci`,
+    viewInfo: `Zobrazit vyplněné údaje`,
+    sendDocuments: `Odeslat podepsané dokumenty`,
     requiresLogIn: `Tato stránka vyžaduje přihlášení.`,
     emptyForm: `Vymazat data`,
     importData: `Importovat data`,

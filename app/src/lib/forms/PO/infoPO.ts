@@ -80,5 +80,6 @@ const infoPO: IndependentFormInfo<FormPO, FormPO, [[FriendlyCompanies], [Person[
     isSendingEmails: true,
     showSaveAndSendButtonByDefault: true,
     requiredRegulus: true,
+    hideBackButton: _ => true,
 };
 export default infoPO;

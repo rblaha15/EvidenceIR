@@ -36,8 +36,14 @@ const infoSP = (() => {
             if (editIndex) {
                 i = Number(editIndex);
                 return ir.installationProtocols[i];
+            }
+        },
+        getViewData: ir => {
+            const viewIndex = page.url.searchParams.get('view') as string | null;
+            if (viewIndex) {
+                i = Number(viewIndex);
+                return ir.installationProtocols[i];
             } else {
-                console.log(ir.installationProtocols);
                 i = ir.installationProtocols.length;
                 return undefined;
             }
@@ -74,7 +80,7 @@ const infoSP = (() => {
             });
         },
         createWidgetData: (_, p) => p,
-        title: (_, edit) => edit
+        title: (_, mode) => mode == 'edit'
             ? `Editace SP`
             : `Instalační a servisní protokol`,
         onMount: async (d, p, _, ir) => {

@@ -5,9 +5,10 @@
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import { preferredLanguage } from '$lib/languages';
     import { onMount, type Snippet } from 'svelte';
-    import { progress, title } from '$lib/helpers/title.svelte';
+    import { backButton, progress, title } from '$lib/helpers/title.svelte';
     import SettingsModal from '$lib/components/nav/SettingsModal.svelte';
     import QueueModal from '$lib/components/nav/QueueModal.svelte';
+    import type { Translations } from '$lib/translations';
 
     interface Props {
         children?: Snippet;
@@ -15,7 +16,7 @@
 
     let { children }: Props = $props();
 
-    const t = page.data.translations;
+    const t = page.data.translations as Translations;
 
     let nacita = $state(true);
     onMount(async () => {
@@ -42,6 +43,12 @@
       @use '../../lib/components/input-groups.css';
 
       @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+      @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wdth,wght@0,75..100,300..800;1,75..100,300..800&display=swap');
+
+      :root {
+        --bs-font-sans-serif: 'Open Sans', sans-serif;
+
+      }
     </style>
 
     <title>{dev ? '(dev) ' : ''}SEIR :: {$title}</title>
@@ -65,7 +72,15 @@
         </div>
     </div>
     <div class="container my-2 d-flex flex-column gap-3">
-        <h1 class="m-0">{$title}</h1>
+        <h1 class="m-0 d-flex align-items-center gap-3">
+            {#if $backButton}
+                <button type="button" class="btn btn-link text-body p-0" aria-label={t.back} onclick={() => history.back()}
+                        style="margin: -2rem 0">
+                    <i class="bi-arrow-left fs-1"></i>
+                </button>
+            {/if}
+            {$title}
+        </h1>
         {@render children?.()}
     </div>
 {/if}

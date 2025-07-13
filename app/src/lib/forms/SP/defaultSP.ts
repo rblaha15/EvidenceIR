@@ -34,7 +34,7 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
                     { text: p(i.name), width: .8 },
                     { text: p(i.unitPrice.roundTo(2).toLocaleString('cs') + ' Kč'), width: .12 },
                 ] as const,
-            }),
+            }), showInXML: false,
         }),
         name: new InputWidget({
             label: p('Název'), required: show, show,
@@ -60,7 +60,7 @@ export default <D extends GenericFormSP<D>>(): GenericFormSP<D> => ({
         datum: new InputWidget({ label: p('Datum a čas zásahu'), type: 'datetime-local' }),
         datumUvedeni: new InputWidget({ label: p('Datum uvedení do provozu'), type: 'date', required: false }),
         clovek: new InputWidget({ label: p('Jméno technika'), show: false }),
-        inicialy: new InputWidget({ label: p('Iniciály technika (do ID SP)'), show: false }),
+        inicialy: new InputWidget({ label: p('Iniciály technika (do ID SP)'), show: false, showInXML: false }),
         zaruka: new RadioWidget({ label: p('Záruka'), options: [`sp.warrantyCommon`, `sp.warrantyExtended`], required: false }),
         nahlasenaZavada: new InputWidget({ label: p('Nahlášená závada'), required: false }),
         popis: new InputWidget({ label: p('Popis zásahu'), required: false, textArea: true }),
