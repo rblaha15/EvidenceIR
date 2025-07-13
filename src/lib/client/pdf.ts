@@ -14,6 +14,7 @@ import UPF from '$lib/client/pdf/pdfUPF';
 import type { Raw } from '$lib/forms/Form';
 
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import type { TC } from '$lib/forms/IN/defaultIN';
 
 type AllPdf = {
     [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP' | 'UPF']: 'IR'
@@ -131,10 +132,10 @@ export type PdfArgs<P extends Pdf> = {
 
 type PdfParams = {
     RK: {
-        pump: 1 | 2 | 3 | 4,
+        pump: TC,
     },
     ZL: {
-        pump: 1 | 2 | 3 | 4,
+        pump: TC,
     },
     SP: {
         index: number,
