@@ -6,13 +6,13 @@ import {
     type Technician,
     techniciansList,
 } from '$lib/client/realtime';
-import defaultIN from '$lib/forms/IN/defaultIN';
+import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import db from '$lib/client/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
-import { getTranslations, p } from '$lib/translations';
+import { getTranslations, p, type Translations } from '$lib/translations';
 import { nazevFirmy } from '$lib/helpers/ares';
 import { generatePdf } from '$lib/client/pdfGeneration';
 import { pdfInfo } from '$lib/client/pdf';
@@ -26,6 +26,7 @@ import { cellsIN } from '$lib/forms/IN/cellsIN';
 import { type FormIN, unknownCompany } from '$lib/forms/IN/formIN';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import MailXML from '$lib/emails/MailXML.svelte';
+import { dataToRawData, type Raw } from '$lib/forms/Form';
 
 const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyCompanies], [boolean], [string | null]]> = {
     type: '',
@@ -127,8 +128,8 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
             data.uvedeni.telefon.show = d => !d.uvedeni.jakoMontazka.value;
         }
 
-        const count = (['', '2', '3', '4'] as const).findIndex(i => data.tc[`model${i}`].value == null);
-        data.tc.pocet.setValue(data, count == -1 ? 4 : count == 0 ? 1 : count);
+        const count = cascadePumps(dataToRawData(data), getTranslations('cs')).length;
+        data.tc.pocet.setValue(data, count == 0 ? 1 : count);
     },
     storeEffects: [
         [(_, data, [$technicians]) => {
@@ -160,3 +161,17 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
     showBackButton: edit => edit,
 };
 export default infoIN;
+
+export const cascadePumps = (e: Raw<FormIN>, t: Translations) =>
+    TCNumbers
+        .map(n => ({
+            model: e.tc[`model${n}`],
+            cislo: e.tc[`cislo${n}`],
+        }))
+        .filter(tc => tc.cislo?.length && tc.model)
+        .map((tc, i) => ({
+            model: t.get(tc.model)!,
+            cislo: tc.cislo,
+            n: e.tc.model2 ? `${i + 1}` as `${TC}` : '' as const,
+            N: i + 1 as TC,
+        }));

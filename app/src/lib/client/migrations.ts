@@ -4,7 +4,7 @@ import type { P } from '$lib/translations';
 import type { FormRK } from '$lib/forms/RK/formRK.js';
 import type { SparePart } from '$lib/client/realtime';
 import type { FormSP, GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
-import type { IR } from '$lib/client/data';
+import type { IR, Year } from '$lib/client/data';
 
 export type LegacyIR = {
     uvedeni?: Raw<FormUPT>;
@@ -24,7 +24,7 @@ export type LegacyIR = {
         };
     };
     kontroly?: {
-        [R in 1 | 2 | 3 | 4]?: Raw<FormRK>;
+        [R in Year]?: Raw<FormRK>;
     };
 };
 

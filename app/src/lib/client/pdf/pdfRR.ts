@@ -3,6 +3,8 @@ import type { GetPdfData } from '$lib/client/pdf';
 import { endUserName, irType } from '$lib/helpers/ir';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
+import { TCNumbers } from '$lib/forms/IN/defaultIN';
+import { cascadePumps } from '$lib/forms/IN/infoIN';
 
 const representative = (c: Raw<FormIN>['montazka' | 'uvedeni']) =>
     `${c.zastupce} – ${c.email}; ${c.telefon ?? ''}`;
@@ -26,10 +28,8 @@ const pdfRR: GetPdfData<'RR'> = async ({ evidence: e }, t) => ({
 /*         serCis */ Text15: e.ir.typ.first?.includes('SOREL') ? '—' : e.ir.cislo.split(' ')[0],
 /*        serCis2 */ Text16: e.ir.typ.first?.includes('SOREL') ? '—' : e.ir.cislo.split(' ')[1],
 /*       cisloBOX */ Text17: e.ir.cisloBox,
-/*        cisloTC */ Text18: (['', '2', '3', '4'] as const)
-        .map(n => [e.tc[`model${n}`], e.tc[`cislo${n}`]] as const)
-        .filter(([m, c]) => (c?.length ?? 0) != 0 && m != null)
-        .map(([m, c]) => `${c} (${t.get(m)})`)
+/*        cisloTC */ Text18: cascadePumps(e, t)
+        .map(tc => `${tc.cislo} (${tc.model})`)
         .join(', '),
 /*       zaplatim */ Text22: e.vzdalenyPristup.plati == 'endCustomer' ? t.agreeWIthRRPrice : '',
 /*          datum */ // Text20: '',

@@ -11,6 +11,7 @@ import merge from 'lodash.merge';
 const translationsMap: PlainTranslationsMap = { cs, en, de, sk };
 
 export type P<S extends string = string> = `PLAIN_${S}`;
+export type RemovePlain<S extends P = P> = S extends `PLAIN_${infer O}` ? O : never;
 
 export function p<T extends string | undefined | null>(text: T): T extends string ? P<T> : T;
 export function p<T extends string>(s: T): P<T>;
@@ -21,8 +22,8 @@ export function p<T extends string | undefined | null>(arg: T | T[]) {
         : arg ? `PLAIN_${arg}` : undefined;
 }
 
-export const removePlain = (ref: string) => ref.slice(6);
-export const isPlain = (ref: TranslationReference | TemplateKey) => ref.startsWith('PLAIN_');
+export const removePlain = <T extends P>(ref: T) => ref.slice(6) as RemovePlain<T>;
+export const isPlain = (ref: TranslationReference | TemplateKey): ref is P => ref.startsWith('PLAIN_');
 
 type Translation = string | Template<(string | number)[]>;
 
@@ -47,7 +48,7 @@ export type PlainTranslations = typeof cs;
 
 type TemplateKey = RecursiveKeyOf<Templates<PlainTranslations>>;
 export type Translations = AddParsing<PlainTranslations> & {
-    get: <T extends TranslationReference | TemplateKey | null>(ref: T) => T extends null ? null : T extends TemplateKey ? Template<(string | number)[]> : string;
+    get: <T extends TranslationReference | TemplateKey | null>(ref: T) => T extends null ? null : T extends TemplateKey ? Template<(string | number)[]> : T extends P ? RemovePlain<T> : string;
     refFromTemplate: <K extends TemplateKey>(
         ref: K,
         args: TemplateArgs<AtRecursiveKey<PlainTranslations, K> extends STemplate<infer T> ? T : never>,
