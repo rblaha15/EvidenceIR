@@ -107,7 +107,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
     },
     redirectLink: async raw => detailIrUrl(extractIRIDFromRawData(raw)),
     createWidgetData: d => d,
-    title: (t, edit) => edit ? t.editing : t.controllerRegistration,
+    title: (t, mode) => mode == 'edit' ? t.editing : mode == 'view' ? t.evidenceDetails : t.controllerRegistration,
     getEditData: async () => {
         const irid = page.url.searchParams.get('edit-irid') as IRID | null;
         if (!irid) return undefined;
@@ -115,13 +115,20 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
         const ir = await db.getIR(irid);
         return !ir ? undefined : ir.evidence;
     },
-    onMount: async (_, data, edit) => {
+    getViewData: async () => {
+        const irid = page.url.searchParams.get('view-irid') as IRID | null;
+        if (!irid) return undefined;
+
+        const ir = await db.getIR(irid);
+        return !ir ? undefined : ir.evidence;
+    },
+    onMount: async (_, data, mode) => {
         await startTechniciansListening();
 
-        data.ir.cislo.lock = () => edit;
-        data.ir.typ.lock1 = () => edit;
+        data.ir.cislo.lock = () => mode == 'edit';
+        data.ir.typ.lock1 = () => mode == 'edit';
 
-        if (edit) {
+        if (mode != 'create') {
             data.uvedeni.regulus.required = () => false;
             data.uvedeni.zastupce.show = () => true;
             data.uvedeni.email.show = d => !d.uvedeni.jakoMontazka.value;
@@ -158,7 +165,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
         },
     },
     isSendingEmails: true,
-    showBackButton: edit => edit,
+    hideBackButton: edit => !edit,
 };
 export default infoIN;
 

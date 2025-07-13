@@ -63,10 +63,10 @@ export const SENDER: Address = {
     address: 'aplikace.regulus@gmail.com',
 };
 
-const userAddress = (user: User): AddressLike => ({
+export const userAddress = (user: User) => ({
     address: user.email!,
     name: user.displayName ?? '',
-});
+}) satisfies AddressLike;
 
 export const defaultAddresses = (recipient: AddressLike = cervenka, sendCopy: boolean = false) => {
     const user = userAddress(get(currentUser)!);

@@ -10,26 +10,28 @@
 
     interface Props<R extends Raw<Form>> {
         title: string;
-        showResetButton?: boolean;
+        hideResetButton?: boolean;
+        showBackButton?: boolean;
         importData?: ExcelImport<R> & {
             onImport: (data: R) => void;
             isDangerous: boolean;
         };
         store: Writable<unknown | undefined>;
         t: Translations;
+        readonly?: boolean;
     }
 
     let {
         title,
         store,
         importData = undefined,
-        showResetButton = true,
+        hideResetButton = false,
+        showBackButton = false,
         t,
+        readonly,
     }: Props<R> = $props();
 
-    $effect(() => {
-        setTitle(title);
-    });
+    $effect(() => setTitle(title, showBackButton));
 
     let input: HTMLInputElement;
     let file = $state<File>();
@@ -40,9 +42,9 @@
     $effect(() => {
         if (file) readSheetNames(file).then(names => {
             const sheets = names.filter(importData?.sheetFilter ?? (n => n == (importData?.sheet ?? n)));
-            sheetWidget.options = () => p(sheets)
+            sheetWidget.options = () => p(sheets);
             if (sheets.length == 1)
-                sheetWidget._value = p(sheets[0])
+                sheetWidget._value = p(sheets[0]);
         }); else {
             sheetWidget._value = null;
             sheetWidget.options = () => [];
@@ -57,31 +59,33 @@
     };
 </script>
 
-<div class="d-flex w-100 align-items-center text-nowrap flex-wrap gap-2">
-    <span class="me-auto">{STAR} = {t.mandatoryFields}</span>
-    {#if importData}
-        <button
-            class="btn btn-outline-secondary"
-            data-bs-toggle="modal"
-            data-bs-target="#import"
-        >
-            <i class="my-1 bi-upload"></i>
-            <span class="ms-2">{t.importData}</span>
-        </button>
-    {/if}
-    {#if showResetButton}
-        <button
-            class="btn btn-outline-secondary"
-            onclick={() => {
+{#if !readonly}
+    <div class="d-flex w-100 align-items-center text-nowrap flex-wrap gap-2">
+        <span class="me-auto">{STAR} = {t.mandatoryFields}</span>
+        {#if importData}
+            <button
+                class="btn btn-outline-secondary"
+                data-bs-toggle="modal"
+                data-bs-target="#import"
+            >
+                <i class="my-1 bi-upload"></i>
+                <span class="ms-2">{t.importData}</span>
+            </button>
+        {/if}
+        {#if !hideResetButton}
+            <button
+                class="btn btn-outline-secondary"
+                onclick={() => {
                 $store = undefined;
                 window.location.reload();
             }}
-        >
-            <i class="my-1 bi-arrow-clockwise"></i>
-            <span class="ms-2">{t.emptyForm}</span>
-        </button>
-    {/if}
-</div>
+            >
+                <i class="my-1 bi-arrow-clockwise"></i>
+                <span class="ms-2">{t.emptyForm}</span>
+            </button>
+        {/if}
+    </div>
+{/if}
 
 <div class="modal" id="import">
     <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
