@@ -12,6 +12,9 @@ import { offlineDatabase } from '$lib/client/offline.svelte';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
 import { addToOfflineQueue } from '$lib/client/offlineQueue';
+import type { TC } from '$lib/forms/IN/defaultIN';
+
+export type Year = 1 | 2 | 3 | 4;
 
 export type IR = {
     evidence: Raw<FormIN>;
@@ -19,8 +22,8 @@ export type IR = {
     uvedeniSOL?: Raw<FormUPS>;
     uvedeniFVE?: Raw<FormUPF>;
     kontrolyTC: {
-        [P in 1 | 2 | 3 | 4]?: {
-            [R in 1 | 2 | 3 | 4]?: Raw<FormRK>;
+        [P in TC]?: {
+            [R in Year]?: Raw<FormRK>;
         }
     };
     users: string[];
@@ -52,7 +55,7 @@ export interface Database {
 
     updateIRRecord(rawData: Raw<FormIN>): Promise<void>;
 
-    addHeatPumpCheck(irid: IRID, pump: 1 | 2 | 3 | 4, year: 1 | 2 | 3 | 4, check: Raw<FormRK>): Promise<void>;
+    addHeatPumpCheck(irid: IRID, pump: TC, year: Year, check: Raw<FormRK>): Promise<void>;
 
     addServiceProtocol(irid: IRID, protocol: Raw<FormSP>): Promise<void>;
 

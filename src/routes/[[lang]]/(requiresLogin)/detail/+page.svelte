@@ -10,13 +10,7 @@
     import { page } from '$app/state';
     import { type FormUPS } from '$lib/forms/UPS/formUPS';
     import { setTitle, withLoading } from '$lib/helpers/title.svelte.js';
-    import {
-        extractIRIDFromParts,
-        type IRID, irNumberFromIRID,
-        irWholeName,
-        type SPID,
-        spWholeName,
-    } from '$lib/helpers/ir';
+    import { extractIRIDFromParts, type IRID, irNumberFromIRID, irWholeName, type SPID, spWholeName } from '$lib/helpers/ir';
     import { ChooserWidget, InputWidget } from '$lib/forms/Widget.svelte.js';
     import type { Raw } from '$lib/forms/Form';
     import { detailIrUrl, detailSpUrl, iridUrl, relUrl, spidUrl } from '$lib/helpers/runes.svelte.js';
@@ -29,6 +23,7 @@
     import solarCollectorCommission from '$lib/forms/UPS/infoUPS';
     import heatPumpCommission from '$lib/forms/UPT/infoUPT';
     import ServiceProtocols from './ServiceProtocols.svelte';
+    import { cascadePumps } from '$lib/forms/IN/infoIN';
 
     interface Props {
         data: PageData;
@@ -237,18 +232,9 @@
             <PDFLink name={t.routeGuide} {t} link="NN" lang={data.languageCode} data={values} />
         {/if}
         {#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
-            {#if values.evidence.tc.model2}
-                <PDFLink name={t.warranty1} {t} link="ZL" lang={data.languageCode} data={values} pump={1} />
-                <PDFLink name={t.warranty2} {t} link="ZL" lang={data.languageCode} data={values} pump={2} />
-            {:else}
-                <PDFLink name={t.warranty} {t} link="ZL" lang={data.languageCode} data={values} pump={1} />
-            {/if}
-            {#if values.evidence.tc.model3}
-                <PDFLink name={t.warranty3} {t} link="ZL" lang={data.languageCode} data={values} pump={3} />
-            {/if}
-            {#if values.evidence.tc.model4}
-                <PDFLink name={t.warranty4} {t} link="ZL" lang={data.languageCode} data={values} pump={4} />
-            {/if}
+            {#each cascadePumps(values.evidence, t) as tc}
+                <PDFLink name={t.warrantyNr(tc)} {t} link="ZL" lang={data.languageCode} data={values} pump={tc.N} />
+            {/each}
             <PDFLink
                 enabled={values.uvedeniTC !== undefined} name={t.heatPumpCommissionProtocol} {t} link="UPT"
                 lang={data.languageCode} data={values}
@@ -261,40 +247,15 @@
                     >{t.commission}</a>
                 {/if}
             </PDFLink>
-            <PDFLink name={!values.evidence.tc.model2 ? t.filledYearlyCheck : t.filledYearlyCheck1} {t} link="RK" pump={1}
-                     lang={data.languageCode} data={values} enabled={values.kontrolyTC[1]?.[1] !== undefined}>
-                <a
-                    tabindex="0" href={iridUrl('/RK?tc=1')}
-                    class="btn btn-primary d-block"
-                >{!values.evidence.tc.model2 ? t.doYearlyCheck : t.doYearlyCheck1}</a>
-            </PDFLink>
-            {#if values.evidence.tc.model2}
-                <PDFLink name={t.filledYearlyCheck2} {t} link="RK" lang={data.languageCode} data={values} pump={2}
-                         enabled={values.kontrolyTC[2]?.[1] !== undefined}>
+            {#each cascadePumps(values.evidence, t) as tc}
+                <PDFLink name={t.filledYearlyCheckNr(tc)} {t} link="RK" lang={data.languageCode} data={values} pump={tc.N}
+                         enabled={values.kontrolyTC[tc.N]?.[1] !== undefined}>
                     <a
-                        tabindex="0" href={iridUrl('/RK?tc=2')}
+                        tabindex="0" href={iridUrl(`/RK?tc=${tc.N}`)}
                         class="btn btn-primary d-block"
-                    >{t.doYearlyCheck2}</a>
+                    >{t.doYearlyCheckNr(tc)}</a>
                 </PDFLink>
-            {/if}
-            {#if values.evidence.tc.model3}
-                <PDFLink name={t.filledYearlyCheck3} {t} link="RK" lang={data.languageCode} data={values} pump={3}
-                         enabled={values.kontrolyTC[3]?.[1] !== undefined}>
-                    <a
-                        tabindex="0" href={iridUrl('/RK?tc=3')}
-                        class="btn btn-primary d-block"
-                    >{t.doYearlyCheck3}</a>
-                </PDFLink>
-            {/if}
-            {#if values.evidence.tc.model4}
-                <PDFLink name={t.filledYearlyCheck4} {t} link="RK" lang={data.languageCode} data={values} pump={4}
-                         enabled={values.kontrolyTC[4]?.[1] !== undefined}>
-                    <a
-                        tabindex="0" href={iridUrl('/RK?tc=4')}
-                        class="btn btn-primary d-block"
-                    >{t.doYearlyCheck4}</a>
-                </PDFLink>
-            {/if}
+            {/each}
         {/if}
         {#if values.evidence.ir.chceVyplnitK.includes('solarCollector')}
             <PDFLink
@@ -335,7 +296,8 @@
         <ServiceProtocols {values} {t} lang={data.languageCode} {irid} />
     {/if}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
-        <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${values.evidence.koncovyUzivatel.email}`)} tabindex="0">
+        <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${values.evidence.koncovyUzivatel.email}`)}
+           tabindex="0">
             Odeslat podepsané dokumenty
         </a>
         {#if $isUserRegulusOrAdmin}
