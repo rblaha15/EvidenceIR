@@ -81,15 +81,13 @@ export interface Database {
 }
 
 const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>): ReturnType<Database[F]> => {
-    console.log('Querying', name, 'with args', ...args);
-    // @ts-expect-error TS doesn't know it's a tuple
-    const result = offlineDatabase[name](...args) as ReturnType<Database[F]>;
+    console.log('Executing', name, 'with args', ...args);
+
+    const db = getIsOnline() ? firestoreDatabase : offlineDatabase;
+    if (!getIsOnline()) addToOfflineQueue(name, args);
 
     // @ts-expect-error TS doesn't know it's a tuple
-    if (getIsOnline()) firestoreDatabase[name](...args);
-    else addToOfflineQueue(name, args);
-
-    return result;
+    return db[name](...args);
 };
 
 const functions = [
