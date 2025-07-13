@@ -61,6 +61,7 @@
             if (irid) {
                 if (!await fetchIRdata()) return;
             } else if (spid) {
+                originalSPID = spid
                 let _sp = await db.getIndependentProtocol(spid);
 
                 if (!_sp) {
@@ -151,7 +152,7 @@
         }
     };
 
-    $effect(() => setTitle(spid ? 'Instalační a servisní protokol' : t.evidenceDetails));
+    $effect(() => setTitle(spid ? 'Instalační a servisní protokol' : t.evidenceDetails, true));
 
     const newIRID = new InputWidget({
         label: p('IRID (z URL adresy)'),
@@ -197,15 +198,21 @@
 {/if}
 {#if type === 'loaded' && spid}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
+        <a class="btn btn-primary" tabindex="0"
+           href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${sp.koncovyUzivatel.email}`)}>
+            {t.sendDocuments}
+        </a>
+
+        <a class="btn btn-primary" tabindex="0"
+           href={relUrl(`/NSP?view-spid=${originalSPID}`)}>
+            {t.viewInfo}
+        </a>
+
         <PDFLink lang={data.languageCode} {t} link="NSP" hideLanguageSelector={true} data={sp} />
 
         <a class="btn btn-warning" href={relUrl('/NSP')} onclick={() => {
             storable<typeof sp>(NSP.storeName).set(sp)
         }}>Vytvořit kopii protokolu</a>
-
-        <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${sp.koncovyUzivatel.email}`)} tabindex="0">
-            Odeslat podepsaný protokol
-        </a>
     </div>
 
     {#if $isUserAdmin}
@@ -215,15 +222,25 @@
             <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR (neodstraní se)</button>
 
             <button class="btn btn-danger d-block" onclick={() => {
-                    db.deleteIndependentProtocol(originalSPID);
-                    window.location.replace(spidUrl(`/detail?deleted`));
-                }}
+                db.deleteIndependentProtocol(originalSPID);
+                window.location.replace(spidUrl(`/detail?deleted`));
+            }}
             >Odstranit protokol
             </button>
         </div>
     {/if}
 {/if}
 {#if type === 'loaded' && irid && irid.length !== 6}
+    <div class="d-flex flex-column gap-1 align-items-sm-start">
+        <a class="btn btn-primary" tabindex="0"
+           href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${values.evidence.koncovyUzivatel.email}`)}>
+            {t.sendDocuments}
+        </a>
+        <a class="btn btn-primary" tabindex="0"
+           href={relUrl(`/IN?view-irid=${irid}`)}>
+            {t.viewInfo}
+        </a>
+    </div>
     <div class="d-flex flex-column gap-1">
         {#if values.evidence.vzdalenyPristup.chce}
             <PDFLink name={t.regulusRouteForm} {t} link="RR" lang={data.languageCode} data={values} />
@@ -296,10 +313,6 @@
         <ServiceProtocols {values} {t} lang={data.languageCode} {irid} />
     {/if}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
-        <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${values.evidence.koncovyUzivatel.email}`)}
-           tabindex="0">
-            Odeslat podepsané dokumenty
-        </a>
         {#if $isUserRegulusOrAdmin}
             <a tabindex="0" class="btn btn-info" href={iridUrl('/users')}>
                 Uživatelé s přístupem k této evidenci
@@ -327,15 +340,10 @@
         {:else if change === 'fail'}
             <p class="text-danger">{t.changeWentWrong}</p>
         {/if}
-        <a
-            tabindex="0"
-            class="btn btn-warning"
-            href={relUrl(`/IN?edit-irid=${irid}`)}
-            onclick={(e) => {
-              e.preventDefault();
-              window.location.href = relUrl(`/IN?edit-irid=${irid}`);
-            }}>{t.editRegistration}</a
-        >
+        <a class="btn btn-warning" tabindex="0"
+           href={relUrl(`/IN?edit-irid=${irid}`)}>
+            {t.editRegistration}
+        </a>
         <button class="btn btn-danger d-block"
                 data-bs-toggle="modal" data-bs-target="#deleteModal"
         >{t.deleteThisEvidence}</button>

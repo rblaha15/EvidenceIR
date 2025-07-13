@@ -4,7 +4,7 @@ import defaultOD from './defaultOD';
 import { page } from '$app/state';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
-import { cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
+import { cervenka, defaultAddresses, sendEmail, userAddress } from '$lib/client/email';
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import MailSignedProtocol from '$lib/emails/MailSignedProtocol.svelte';
 import { dev } from '$app/environment';
@@ -13,11 +13,11 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
     type: '',
     storeName: 'stored_documents_to_send',
     defaultData: defaultOD,
-    onMount: (d, f) => {
+    onMount: async (d, f) => {
         f.all.userEmail.setValue(d, page.url.searchParams.get('user') ?? '')
     },
     saveData: async (raw, _1, _2, editResult, t) => {
-        const user = get(currentUser)!;
+        const user = userAddress(get(currentUser)!);
 
         const response = await sendEmail({
             ...defaultAddresses(),
@@ -31,7 +31,7 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
                 .awaitAll())
                 .mapNotUndefined(file => file.path ? file : undefined),
             component: MailSignedProtocol,
-            props: { email: user.email!, name: user?.displayName?.split(' ')?.[0], note: raw.all.note },
+            props: { email: user.address!, name: (user.name || undefined)?.split(' ')?.[0], note: raw.all.note },
         });
 
         if (response!.ok) {
