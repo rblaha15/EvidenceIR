@@ -1,5 +1,5 @@
 import type { EmailMessage } from '$lib/client/email';
-import type { Database } from '$lib/client/data';
+import { type Database, isWriteFunction, type WriteFunction } from '$lib/client/data';
 import { derived, get } from 'svelte/store';
 import { storable } from '$lib/helpers/stores';
 import { getToken } from '$lib/client/auth';
@@ -52,7 +52,7 @@ export const processOfflineQueue = async () => {
             const { args, functionName } = dwo;
             console.log('Executing', functionName, 'with args', ...args, 'from the offline queue');
             const func = firestoreDatabase[functionName];
-            // @ts-expect-error Whyyy?
+            // @ts-expect-error TS doesn't know it's a tuple
             func(...args);
         }
     }).awaitAll();
@@ -66,18 +66,14 @@ isOnline.subscribe(async online => {
     if (online) await processOfflineQueue();
 });
 
-type ImportantFunctions = {
-    [F in keyof Database]: F extends `add${string}` ? F : F extends `update${string}` ? F : F extends `delete${string}` ? F : never;
-}[keyof Database];
-
 const importantItemsInOfflineQueue = derived(doWhenOnlineQueue, q =>
     q.filter(dwo =>
-        dwo.type === 'email' || ['add', 'delete', 'update'].some(action => dwo.functionName.startsWith(action)),
-    ) as DoWhenOnline<ImportantFunctions>[],
+        dwo.type === 'email' || isWriteFunction(dwo.functionName),
+    ) as DoWhenOnline<WriteFunction>[],
 );
 
 const functions: {
-    [F in ImportantFunctions]: (...args: Parameters<Database[F]>) => string
+    [F in WriteFunction]: (...args: Parameters<Database[F]>) => string
 } = {
     addIR: ir => `Zaevidován nový regulátor (${irWholeName(ir.evidence)})`,
     deleteIR: irid => `Odstraněna evidence IR ${irNumberFromIRID(irid)}`,
@@ -93,7 +89,7 @@ const functions: {
     deleteIndependentProtocol: spid => `Odstraněn nezávislý servisní protokol ${spid}`,
 };
 
-const readableFunction = <F extends ImportantFunctions>(dwo: DoWhenOnlineDatabase<F>) => functions[dwo.functionName](...dwo.args);
+const readableFunction = <F extends WriteFunction>(dwo: DoWhenOnlineDatabase<F>) => functions[dwo.functionName](...dwo.args);
 
 export const readableQueue = derived(importantItemsInOfflineQueue, q =>
     q.map(dwo => dwo.type == 'email'

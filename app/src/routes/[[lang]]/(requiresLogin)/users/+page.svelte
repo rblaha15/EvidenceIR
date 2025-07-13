@@ -19,7 +19,7 @@
     const irid = data.irid!;
     const ir = db.getIRAsStore(irid);
 
-    setTitle('Uživatelé s přístupem k evidenci');
+    setTitle('Uživatelé s přístupem k evidenci', true);
 
     let w = $state(new SearchWidget({
         label: 'email', type: 'email', items: [] as string[], getSearchItem: i => ({

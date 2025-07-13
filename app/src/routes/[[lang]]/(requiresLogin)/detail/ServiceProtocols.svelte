@@ -44,12 +44,11 @@
             <PDFLink name={spName(p.zasah)} {lang} data={values} {t} link="SP" index={i}
                      hideLanguageSelector={true}
                      breakpoint="md">
-                <a tabindex="0" class="btn btn-warning d-block" href={iridUrl(`/SP/?edit=${i}`)}>
-                    Upravit protokol
-                </a>
-                <button class="btn btn-warning d-block" data-bs-toggle="modal" data-bs-target="#duplicateModal">
-                    Duplikovat
-                </button>
+                {#snippet dropdown()}
+                    <li><a class="dropdown-item text-primary" href={iridUrl(`/SP/?view=${i}`)}>{t.viewInfo}</a></li>
+                    <li><a class="dropdown-item text-warning" href={iridUrl(`/SP/?edit=${i}`)}>Upravit protokol</a></li>
+                    <li><button class="dropdown-item text-warning" data-bs-toggle="modal" data-bs-target="#duplicateModal">Duplikovat</button></li>
+                {/snippet}
             </PDFLink>
 
             <div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">

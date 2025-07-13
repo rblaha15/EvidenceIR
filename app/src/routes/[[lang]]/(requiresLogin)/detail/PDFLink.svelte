@@ -16,6 +16,7 @@
         enabled?: boolean;
         hideLanguageSelector?: boolean;
         children?: Snippet;
+        dropdown?: Snippet;
         breakpoint?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | '';
     }
 
@@ -27,6 +28,7 @@
         enabled = true,
         hideLanguageSelector = false,
         children,
+        dropdown,
         breakpoint = 'sm',
         data,
         ...parameters
@@ -84,6 +86,14 @@
                             {/each}
                         </ul>
                     {/if}
+                {/if}
+                {#if dropdown}
+                    <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        {@render dropdown?.()}
+                    </ul>
                 {/if}
             </div>
         {/if}

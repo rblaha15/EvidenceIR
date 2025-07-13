@@ -17,6 +17,10 @@ export type LegacyIR = {
         ir: {
             cisloBOX: string;
         };
+        sol: {
+            type?: string,
+            count?: string,
+        }
     };
     uvedeniTC?: Raw<FormUPT> & {
         uvadeni: {
@@ -127,9 +131,18 @@ const addPumpSpecificYearlyChecks: Migration = legacyIR => legacyIR.kontroly ? {
     kontroly: undefined,
 } : legacyIR;
 
+const changeSol: Migration = (legacyIR: LegacyIR & IR) => {
+    if (!legacyIR.evidence.sol || !legacyIR.evidence.sol.type || !legacyIR.evidence.sol.count) return legacyIR;
+    legacyIR.evidence.sol.typ = legacyIR.evidence.sol.type;
+    legacyIR.evidence.sol.type = undefined;
+    legacyIR.evidence.sol.pocet = legacyIR.evidence.sol.count;
+    legacyIR.evidence.sol.count = undefined;
+    return legacyIR;
+};
+
 type Migration = (legacyIR: LegacyIR & IR) => LegacyIR & IR;
 
 export const modernizeIR = (legacyIR: LegacyIR & IR): IR =>
     // -------->>>>>>
-    [removeInstallationProtocol, removeUvedeni, addUserType, changeBOX, changeFaktutruje, changeHPWarranty, addInstallationProtocols, newInstallationProtocols, removeNoPump, addPumpSpecificYearlyChecks]
+    [removeInstallationProtocol, removeUvedeni, addUserType, changeBOX, changeFaktutruje, changeHPWarranty, addInstallationProtocols, newInstallationProtocols, removeNoPump, addPumpSpecificYearlyChecks, changeSol]
         .reduce((data, migration) => migration(data), legacyIR);

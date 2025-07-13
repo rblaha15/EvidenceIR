@@ -34,15 +34,16 @@ export type IndependentFormInfo<
     saveData: (raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean) => Promise<boolean | void>;
     storeData?: (data: F) => R;
     createWidgetData: (data: F) => D;
-    title: (t: Translations, edit: boolean) => string;
+    title: (t: Translations, mode: 'create' | 'edit' | 'view') => string;
     subtitle?: ((t: Translations, edit: boolean) => string) | undefined;
     getEditData?: (() => Promise<R | undefined>) | undefined;
-    onMount?: (data: D, form: F, edit: boolean) => Promise<void> | undefined;
+    getViewData?: (() => Promise<R | undefined>) | undefined;
+    onMount?: (data: D, form: F, mode: 'create' | 'edit' | 'view') => Promise<void> | undefined;
     storeEffects?: { [I in keyof S]: Effect<D, F, S[I]> } | undefined;
     importOptions?: Omit<ExcelImport<R>, 'defaultData'> & {
         onImport: (data: D, form: F) => void;
     };
-    showBackButton?: (edit: boolean) => boolean;
+    hideBackButton?: (edit: boolean) => boolean;
     isSendingEmails?: boolean;
     showSaveAndSendButtonByDefault?: boolean | Readable<boolean>;
     redirectLink?: (raw: R) => Promise<string>;
@@ -62,8 +63,9 @@ export type FormInfo<
     saveData: (irid: IRID, raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, ir: IR) => Promise<boolean | void>;
     createWidgetData: (evidence: Raw<FormIN>, data: F) => D;
     getEditData?: ((ir: IR) => R | undefined) | undefined;
-    onMount?: (data: D, form: F, edit: boolean, ir: IR) => Promise<void> | undefined;
+    getViewData?: ((ir: IR) => R | undefined) | undefined;
+    onMount?: (data: D, form: F, mode: 'create' | 'edit' | 'view', ir: IR) => Promise<void> | undefined;
 } & Omit<
     IndependentFormInfo<D, F, S, P, R>,
-    'type' | 'saveData' | 'createWidgetData' | 'getEditData' | 'redirectLink' | 'showBackButton' | 'openPdf' | 'onMount'
+    'type' | 'saveData' | 'createWidgetData' | 'getEditData' | 'getViewData' | 'redirectLink' | 'hideBackButton' | 'openPdf' | 'onMount'
 >
