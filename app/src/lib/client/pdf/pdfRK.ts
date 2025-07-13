@@ -10,13 +10,13 @@ const pdfRK: GetPdfData<'RK'> = async ({ kontrolyTC, evidence: e, uvedeniTC: u }
     console.log(kontrolyTC);
     const kontroly = kontrolyTC[pump] as Record<number, Raw<FormRK>>;
     const montazka = await nazevFirmy(e.montazka.ico);
-    const pumps = cascadePumps(e, t);
+    const pumpInfo = cascadePumps(e, t)[pump - 1];
     const start = {
         Text1:
             `${t.endCustomer}: ${endUserName(e.koncovyUzivatel)} – ${e.koncovyUzivatel.telefon} – ${e.koncovyUzivatel.email}\n` +
             `${t.realizationLocation}: ${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}\n` +
             `${t.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}\n` +
-            pumps.map(t.pumpDetails).join('; '),
+            t.pumpDetails(pumpInfo),
         Text36: u?.os?.tlakEnOs ?? null,
         Text37: u?.os?.tlakOs ?? null,
         Text38: u?.os?.tlakEnTv ?? null,

@@ -276,8 +276,12 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
 });
 
 
-const heatPump = <const I extends 1 | 2 | 3 | 4>(i: I) => ({
-    [`model${i == 1 ? '' : i as 2 | 3 | 4}`]: new ChooserWidget<FormIN, Products['heatPumps']>({
+type B = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export type TC = 1 | B;
+export const TCNumbers = ['', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
+
+const heatPump = <const I extends TC>(i: I) => ({
+    [`model${i == 1 ? '' : i as B}`]: new ChooserWidget<FormIN, Products['heatPumps']>({
         label: d => d.tc.pocet.value == 1 ? `heatPumpModel` : `heatPumpModel${i}`,
         options: d =>
             rtc(d)
@@ -292,12 +296,12 @@ const heatPump = <const I extends 1 | 2 | 3 | 4>(i: I) => ({
             tc(d) &&
             i <= d.tc.pocet.value,
         onValueSet: (d, v) => {
-            if (v != null && !d.tc[`model${i == 1 ? '' : i as 2 | 3 | 4}`].options(d).includes(v)) {
-                d.tc[`model${i == 1 ? '' : i as 2 | 3 | 4}`].setValue(d, null);
+            if (v != null && !d.tc[`model${i == 1 ? '' : i as B}`].options(d).includes(v)) {
+                d.tc[`model${i == 1 ? '' : i as B}`].setValue(d, null);
             }
         },
     }),
-    [`cislo${i == 1 ? '' : i as 2 | 3 | 4}`]: new ScannerWidget<FormIN>({
+    [`cislo${i == 1 ? '' : i as B}`]: new ScannerWidget<FormIN>({
         label: d => d.tc.pocet.value == 1 ? `heatPumpManufactureNumber` : `heatPumpManufactureNumber${i}`,
         onError: `wrongNumberFormat`,
         regex: d => ctc(d)
@@ -410,9 +414,9 @@ export default (): FormIN => ({
             show: d => ctc(d) && tc(d),
         }),
         pocet: new CounterWidget({
-            label: 'hpCount', min: 1, max: 4, chosen: 1, hideInRawData: true,
+            label: 'hpCount', min: 1, max: 10, chosen: 1, hideInRawData: true,
             onValueSet: (d, p) => {
-                (['', '2', '3', '4'] as const).slice(p).forEach(i =>
+                TCNumbers.slice(p).forEach(i =>
                     d.tc[`model${i}`].setValue(d, null)
                 );
             },
@@ -424,6 +428,12 @@ export default (): FormIN => ({
         ...heatPump(2),
         ...heatPump(3),
         ...heatPump(4),
+        ...heatPump(5),
+        ...heatPump(6),
+        ...heatPump(7),
+        ...heatPump(8),
+        ...heatPump(9),
+        ...heatPump(10),
     },
     sol: {
         title: new TitleWidget({

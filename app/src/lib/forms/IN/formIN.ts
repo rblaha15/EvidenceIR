@@ -88,6 +88,18 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         cislo3: ScannerWidget<FormIN>;
         model4: ChooserWidget<FormIN, Products['heatPumps']>;
         cislo4: ScannerWidget<FormIN>;
+        model5: ChooserWidget<FormIN, Products['heatPumps']>;
+        cislo5: ScannerWidget<FormIN>;
+        model6: ChooserWidget<FormIN, Products['heatPumps']>;
+        cislo6: ScannerWidget<FormIN>;
+        model7: ChooserWidget<FormIN, Products['heatPumps']>;
+        cislo7: ScannerWidget<FormIN>;
+        model8: ChooserWidget<FormIN, Products['heatPumps']>;
+        cislo8: ScannerWidget<FormIN>;
+        model9: ChooserWidget<FormIN, Products['heatPumps']>;
+        cislo9: ScannerWidget<FormIN>;
+        model10: ChooserWidget<FormIN, Products['heatPumps']>;
+        cislo10: ScannerWidget<FormIN>;
     };
     sol: {
         title: TitleWidget<FormIN>;

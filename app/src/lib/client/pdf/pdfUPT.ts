@@ -6,8 +6,9 @@ import { cascadePumps } from '$lib/forms/IN/infoIN';
 
 const pdfUPT: GetPdfData<'UPT'> = async ({ evidence: e, uvedeniTC }, t) => {
     const u = uvedeniTC!;
-    const { isCascade, pumps } = cascadePumps(e, t);
+    const pumps = cascadePumps(e, t);
 
+    const isCascade = Boolean(e.tc.model2);
     return ({
         Text1: endUserName(e.koncovyUzivatel),
         Text2: e.koncovyUzivatel.telefon,
@@ -55,9 +56,9 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ evidence: e, uvedeniTC }, t) => {
         Text44: u.uvadeni.vlastnik ? t.yes : t.no,
         Text45: t.get(u.uvadeni.typZaruky!),
         Text46: u.uvadeni.typZaruky?.includes('extendedWarranty') ?? false ? u.uvadeni.zaruka ? t.yes : t.no : '—',
-        Text47: !isCascade ? '' : t.cascade + '\n' + pumps.map(([model, cislo], i) =>
-            t.pumpDetails({ n: `${i + 1}`, model, cislo }),
-        ).chunk(3).map(g => g.join('; ')).join('\n'),
+        Text47: !isCascade ? '' : t.cascade + '\n' + pumps
+            .map(t.pumpDetails).chunk(3)
+            .map(g => g.join('; ')).join('\n'),
     });
 };
 export default pdfUPT;

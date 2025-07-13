@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import { page } from '$app/state';
 import { dataToRawData } from '$lib/forms/Form';
-import db from '$lib/client/data';
+import db, { type Year } from '$lib/client/data';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -12,11 +12,12 @@ import { todayISO } from '$lib/helpers/date';
 import { type DataRK, type FormRK } from '$lib/forms/RK/formRK.js';
 import defaultRK from '$lib/forms/RK/defaultRK';
 import type { FormInfo } from '$lib/forms/FormInfo';
+import type { TC } from '$lib/forms/IN/defaultIN';
 
 const infoRK = (() => {
     let rok = $state() as number;
     const tc = $derived(!browser ? 1
-        : page.url.searchParams.get('tc')?.let(Number) ?? 1) as 1 | 2 | 3 | 4;
+        : page.url.searchParams.get('tc')?.let(Number) ?? 1) as TC;
 
     const info: FormInfo<DataRK, FormRK, [], 'RK'> = {
         type: 'IR',
@@ -33,7 +34,7 @@ const infoRK = (() => {
             return undefined;
         },
         saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
-            await db.addHeatPumpCheck(irid, tc, rok as 1 | 2 | 3 | 4, raw);
+            await db.addHeatPumpCheck(irid, tc, rok as Year, raw);
             if (await checkRegulusOrAdmin()) return;
 
             const user = get(currentUser)!;
