@@ -13,7 +13,8 @@ import type { FormNSP } from '$lib/forms/NSP/formNSP';
  * SRS1 T : Novák Jan - Brno
  */
 export const irWholeName = (evidence: Raw<FormIN>, includeEstablishment: boolean = true) =>
-    `${irName(evidence.ir)} : ${irLabel(evidence, includeEstablishment)}`;
+    evidence.ir.typ.first == 'irFVE' ? irLabel(evidence, includeEstablishment)
+        : `${irName(evidence.ir)} : ${irLabel(evidence, includeEstablishment)}`;
 
 /**
  * RB 2024/12/31-23 : Novák Jan - Brno
@@ -28,14 +29,16 @@ export const spWholeName = (sp: Raw<FormNSP>, includeEstablishment: boolean = tr
  *
  * SRS1 T
  */
-export const irName = (ir: Raw<FormIN>['ir']) => ir.typ.first == p('SOREL')
-    ? irType(ir.typ)
-    : `${irType(ir.typ)} ${ir.cislo}`;
+export const irName = (ir: Raw<FormIN>['ir']) => ir.typ.first == 'irFVE' ? 'FVE'
+    : ir.typ.first == p('SOREL')
+        ? irType(ir.typ)
+        : `${irType(ir.typ)} ${ir.cislo}`;
 
 export const irNumberFromIRID = (irid: IRID) =>
     irid.startsWith('S') ? 'SOREL'
-        : !isMacIRID(irid) ? `${irid.slice(1, 3)} ${irid.slice(3, 7)}`
-            : `00:0A:0${irid[6]}:${irid[7] + irid[8]}:${irid[9] + irid[10]}:${irid[11] + irid[12]}`;
+        : irid.startsWith('F') ? 'FVE'
+            : !isMacIRID(irid) ? `${irid.slice(1, 3)} ${irid.slice(3, 7)}`
+                : `00:0A:0${irid[6]}:${irid[7] + irid[8]}:${irid[9] + irid[10]}:${irid[11] + irid[12]}`;
 
 /**
  * RB 2024/12/31-23
@@ -56,11 +59,12 @@ export const spName = (zasah: Raw<GenericFormSP<never>>['zasah']) => {
  * SRS1 T
  */
 export const irType = (typ: Raw<FormIN>['ir']['typ']) =>
-    typ.first == p('SOREL')
-        ? removePlain(typ.second!)
-        : typ.first?.includes('BOX')
-            ? `${removePlain(typ.first!).split(' ').slice(0, 2).join(' ')} ${removePlain(typ.second!)}`
-            : `${removePlain(typ.first!).replaceAll(' ', '')}${removePlain(typ.second!)}`;
+    typ.first == 'irFVE' ? ''
+        : typ.first == p('SOREL')
+            ? removePlain(typ.second!)
+            : typ.first?.includes('BOX')
+                ? `${removePlain(typ.first!).split(' ').slice(0, 2).join(' ')} ${removePlain(typ.second!)}`
+                : `${removePlain(typ.first!).replaceAll(' ', '')}${removePlain(typ.second!)}`;
 
 const companyForms = [
     's.r.o.', 'spol. s r.o.', 'a.s.', 'k.s.', 'v.o.s.',
@@ -119,14 +123,16 @@ export const endUserName = (k: Raw<FormIN>['koncovyUzivatel']) =>
  * B: BOX/HBOX/HBOXK;
  *
  * S: SOREL;
+ *
+ * F: FVE;
  */
-export type IRType = '2' | '4' | '3' | 'B' | 'S';
+export type IRType = '2' | '4' | '3' | 'B' | 'S' | 'F';
 /**
- * MAC IR: 2000A06FFFFFF (13);
+ * MAC IR:        2000A1406FFFF (13);
  *
- * Moderní IR ID:  4A12345 (7);
+ * Moderní IR ID: 4A12345 (7);
  *
- * ID SOREL:       S202412312359 (13);
+ * ID SOREL/FVE:  S202412312359 (13);
  */
 export type IRID = `${IRType}${string}`;
 /**
@@ -136,8 +142,8 @@ export type IRID = `${IRType}${string}`;
  */
 export type SPID = `${string}-${string}-${string}`;
 
-export const isMacIRID = (irid: IRID) => irid.startsWith('2000A0');
-export const isMacAddress = (irNumber: string) => irNumber.startsWith('00:0A:0');
+export const isMacIRID = (irid: IRID) => irid.startsWith('2000A140');
+export const isMacAddress = (irNumber: string) => irNumber.startsWith('00:0A:14:0');
 
 const extractIRTypeFromFullIRType = (fullIRType: string): IRType =>
     (fullIRType.includes('12') ? '2'
@@ -145,7 +151,8 @@ const extractIRTypeFromFullIRType = (fullIRType: string): IRType =>
             : fullIRType.includes('34') ? '3'
                 : fullIRType.includes('BOX') ? 'B'
                     : fullIRType.includes('SOREL') ? 'S'
-                        : undefined)!;
+                        : fullIRType == 'irFVE' ? 'F'
+                            : undefined)!;
 export const extractIRIDFromParts = (fullIRType: string, irNumber: string): IRID =>
     `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replaceAll(/[ :T-]/g, '')}`;
 export const extractIRIDFromRawData = (evidence: Raw<FormIN>): IRID =>

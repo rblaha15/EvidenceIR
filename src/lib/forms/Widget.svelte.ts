@@ -407,7 +407,7 @@ export class DoubleChooserWidget<D, I1 extends TR, I2 extends TR, H extends bool
     onValueSet = $state() as (data: D, newValue: Pair<I1, I2>) => void;
     hideInRawData = $state() as H;
     isError = $state(
-        a => (this.value.first == null || this.value.second == null) && this.required(a)
+        a => (this.value.first == null || (this.value.second == null && this.options2(a).length)) && this.required(a)
     ) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
     lock1 = $state() as Get<D, boolean>;
@@ -515,13 +515,15 @@ export class MultiCheckboxWidget<D, I extends TR, H extends boolean = false> ext
     hideInRawData = $state() as H;
     isError = $state(a => this.value.length == 0 && this.required(a)) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
+    lock = $state() as Get<D, boolean>;
     options = $state() as Get<D, Arr<I>>;
     max = $state() as Get<D, number>;
 
-    constructor(args: ValueArgs<D, Arr<I>, H> & MultiChooserArgs<D, I>) {
+    constructor(args: ValueArgs<D, Arr<I>, H> & MultiChooserArgs<D, I> & LockArgs<D>) {
         super();
         initValue(this, args);
         initMultiChooser(this, args);
+        initLock(this, args);
     }
 }
 

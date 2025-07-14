@@ -51,7 +51,7 @@ const pdfUPF: GetPdfData<'UPF'> = async ({ evidence: e, uvedeniFVE, }, t) => {
         Text26: u.connection.yearlyEnergyConsumption,
         'Kombinované pole7': u.connection.accumulationToWater ? 'Ano' : 'Ne',
         Text27: u.connection.waterVolume,
-        'Kombinované pole8': u.connection.irCooperation ? 'Ano' : 'Ne',
+        'Kombinované pole8': e.fve.spolupraceIR ? 'Ano' : 'Ne',
         Text29: u.connection.otherSmartControl,
         'Kombinované pole9': u.connection.energySharing ? 'Ano' : 'Ne',
     });
