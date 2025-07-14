@@ -39,7 +39,6 @@ export interface FormUPF extends Form<FormUPF> {
         yearlyEnergyConsumption: InputWidget<FormUPF>,
         accumulationToWater: CheckboxWidget<FormUPF>,
         waterVolume: InputWidget<FormUPF>,
-        irCooperation: CheckboxWidget<FormUPF>,
         otherSmartControl: InputWidget<FormUPF>,
         energySharing: CheckboxWidget<FormUPF>,
     },

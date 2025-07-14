@@ -12,7 +12,7 @@
     import Widget from '$lib/components/Widget.svelte';
     import { time, todayISO } from '$lib/helpers/date';
     import NSP from '$lib/forms/NSP/infoNSP';
-    import { type P, p } from '$lib/translations';
+    import { p } from '$lib/translations';
     import db from '$lib/client/data';
     import ServiceProtocols from './ServiceProtocols.svelte';
     import { cascadePumps } from '$lib/forms/IN/infoIN';
@@ -31,13 +31,14 @@
 
     let change: 'no' | 'input' | 'sending' | 'fail' | 'unchanged' = $state('no');
 
-    type D = { type: ChooserWidget<D, P<IRTypes>>, number: InputWidget<D> };
+    type D = { type: ChooserWidget<D, IRTypes>, number: InputWidget<D> };
 
     const sorel = (d: D) => d.type.value == p('SOREL');
+    const irFVE = (d: D) => d.type.value == 'irFVE';
 
-    let irType = $state(new ChooserWidget<D, P<IRTypes>>({
+    let irType = $state(new ChooserWidget<D, IRTypes>({
         label: `controllerType`,
-        options: p(['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL']),
+        options: [...p('IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL'), 'irFVE'],
         onValueSet: (d, v) => {
             if (v == p('SOREL')) {
                 d.number.setValue(d, `${todayISO()} ${time()}`);
@@ -47,30 +48,32 @@
     let irNumber = $state(new InputWidget<D>({
         label: `serialNumber`,
         onError: `wrongNumberFormat`,
-        regex: d => sorel(d)
+        regex: d => sorel(d) || irFVE(d)
             ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
             : d.type.value == p('IR 12')
-                ? /[A-Z][1-9OND] [0-9]{4}|00:0A:0[69]:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}/
+                ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:0[69]:[0-9A-F]{2}:[0-9A-F]{2}/
                 : /[A-Z][1-9OND] [0-9]{4}/,
         capitalize: true,
         maskOptions: d => ({
             mask: sorel(d) ? `0000-00-00T00:00` :
-                d.type.value != p('IR 12') ? 'Z1 0000'
+                d.type.value != p('IR 12') ? 'Z9 0000'
                     : d.number.value.length == 0 ? 'X'
                         : d.number.value[0] == '0'
-                            ? 'NN:NA:N6:FF:FF:FF'
-                            : 'Z1 0000',
+                            ? 'NN:NA:14:N6:FF:FF'
+                            : 'Z9 0000',
             definitions: {
                 X: /[0A-Za-z]/,
                 N: /0/,
                 A: /[Aa]/,
                 6: /[69]/,
+                1: /1/,
+                4: /4/,
                 F: /[0-9A-Fa-f]/,
                 Z: /[A-Za-z]/,
-                1: /[1-9ONDond]/,
+                9: /[1-9ONDond]/,
             },
         }),
-        show: d => !sorel(d),
+        show: d => !sorel(d) && !irFVE(d),
     }));
 
     const d = $derived({ number: irNumber, type: irType });
@@ -198,7 +201,7 @@
         {#if ir.evidence.vzdalenyPristup.chce}
             <PDFLink name={t.regulusRouteForm} {t} link="RR" {lang} data={ir} />
         {/if}
-        {#if ir.evidence.ir.typ.first !== p('SOREL')}
+        {#if ir.evidence.ir.typ.first !== p('SOREL') && ir.evidence.ir.typ.first !== 'irFVE'}
             <PDFLink name={t.routeGuide} {t} link="NN" {lang} data={ir} />
         {/if}
         {#if ir.evidence.ir.chceVyplnitK.includes('heatPump')}
