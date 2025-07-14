@@ -18,7 +18,7 @@
             </div>
 
             <div class="modal-body d-flex flex-column gap-3">
-                <div>Jste offline a provedli jste několik změn v datech aplikace. Tyto upravené informace můžete zobrazit a upravovat v aplikaci jako standartně, online, ale NEODEŠLOU se na server dokud aplikaci nezapnete S PŘIPOJENÍM K INTERNETU!</div>
+                <div>Jste offline a provedli jste několik změn v datech aplikace. Tyto upravené informace můžete standartně zobrazit a upravovat v aplikaci, ale NEODEŠLOU se na server, dokud aplikaci nezapnete S PŘIPOJENÍM K INTERNETU!</div>
                 <h5>Provedené, neodeslané změny:</h5>
                 <ol class="list-group list-group-flush list-group-numbered">
                     {#each $readableQueue as dwo}

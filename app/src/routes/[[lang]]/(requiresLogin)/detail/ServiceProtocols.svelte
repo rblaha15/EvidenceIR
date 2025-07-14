@@ -7,6 +7,7 @@
     import PDFLink from './PDFLink.svelte';
     import { techniciansList } from '$lib/client/realtime';
     import { currentUser } from '$lib/client/auth';
+    import { goto, invalidateAll } from '$app/navigation';
 
     const {
         irid, values, lang, t,

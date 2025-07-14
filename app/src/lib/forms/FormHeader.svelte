@@ -1,12 +1,13 @@
 <script generics="R extends Raw<Form>" lang="ts">
     import type { Writable } from 'svelte/store';
     import { type P, p, type Translations } from '$lib/translations';
-    import { setTitle } from '$lib/helpers/title.svelte.js';
+    import { endLoading, setTitle, startLoading } from '$lib/helpers/title.svelte.js';
     import type { Form, Raw } from '$lib/forms/Form';
     import { type ExcelImport, processExcel } from '$lib/forms/ExcelImport';
     import readXlsxFile, { readSheetNames } from 'read-excel-file';
     import { ChooserWidget, STAR } from '$lib/forms/Widget.svelte.js';
     import Widget from '$lib/components/Widget.svelte';
+    import { invalidateAll } from '$app/navigation';
 
     interface Props<R extends Raw<Form>> {
         title: string;
@@ -75,10 +76,12 @@
         {#if !hideResetButton}
             <button
                 class="btn btn-outline-secondary"
-                onclick={() => {
-                $store = undefined;
-                window.location.reload();
-            }}
+                onclick={async () => {
+                    $store = undefined;
+                    startLoading()
+                    await invalidateAll();
+                    endLoading();
+                }}
             >
                 <i class="my-1 bi-arrow-clockwise"></i>
                 <span class="ms-2">{t.emptyForm}</span>

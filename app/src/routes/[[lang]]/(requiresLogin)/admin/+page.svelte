@@ -20,6 +20,8 @@
     import TranslationsTable from './TranslationsTable.svelte';
     import AdminTable, { type TableOptions } from './AdminTable.svelte';
     import { regulusCRN } from '$lib/helpers/ares';
+    import { page } from '$app/state';
+    import { goto } from '$app/navigation';
 
     onMount(async () => {
         await startLidiListening();
@@ -184,8 +186,8 @@
         tabs.keys().forEach(tab => {
             const tabEl = document.querySelector(`#${tab}-tab`)!;
             tabEl.addEventListener('show.bs.tab', () => {
-                if (!location.hash.startsWith('#' + tab))
-                    location.replace(relUrl(`/admin#${tab}`));
+                if (!page.url.hash.startsWith('#' + tab))
+                    goto(relUrl(`/admin#${tab}`), { replaceState: true });
             });
         });
     });

@@ -33,12 +33,14 @@ export const irName = (ir: Raw<FormIN>['ir']) => ir.typ.first == p('SOREL')
     : `${irType(ir.typ)} ${ir.cislo}`;
 
 export const irNumberFromIRID = (irid: IRID) =>
-    irid.startsWith('S') ? 'SOREL' : `${irid.slice(1, 3)} ${irid.slice(3, 7)}`;
+    irid.startsWith('S') ? 'SOREL'
+        : !isMacIRID(irid) ? `${irid.slice(1, 3)} ${irid.slice(3, 7)}`
+            : `00:0A:0${irid[6]}:${irid[7] + irid[8]}:${irid[9] + irid[10]}:${irid[11] + irid[12]}`;
 
 /**
  * RB 2024/12/31-23
  */
-export const spName = (zasah: Raw<GenericFormSP<never>>["zasah"]) => {
+export const spName = (zasah: Raw<GenericFormSP<never>>['zasah']) => {
     const datum = zasah.datum.split('T')[0].replaceAll('-', '/');
     const hodina = zasah.datum.split('T')[1].split(':')[0];
     const minuta = zasah.datum.split('T')[1].split(':')[1];
@@ -61,7 +63,7 @@ export const irType = (typ: Raw<FormIN>['ir']['typ']) =>
             : `${removePlain(typ.first!).replaceAll(' ', '')}${removePlain(typ.second!)}`;
 
 const companyForms = [
-    's.r.o.', 'spol. s r.o.', 'a.s.', 'k.s.', 'v.o.s.'
+    's.r.o.', 'spol. s r.o.', 'a.s.', 'k.s.', 'v.o.s.',
 ];
 const removeCompanyForm = (name: string) => companyForms.reduce((name, typ) => name.replace(typ, '').trimEnd().replace(/,$/, ''), name);
 
@@ -69,9 +71,9 @@ const onlyLetters = (type: string) => type.replaceAll(/[^a-z]/g, '');
 
 export const isCompanyFormInvalid = (company: string) =>
     companyForms.some(type =>
-        onlyLetters(company).endsWith(onlyLetters(type))
+        onlyLetters(company).endsWith(onlyLetters(type)),
     ) && !companyForms.some(type =>
-        company.endsWith(type)
+        company.endsWith(type),
     );
 
 const s = (s: string) => s ? `(${s}) ` : '';
@@ -120,11 +122,11 @@ export const endUserName = (k: Raw<FormIN>['koncovyUzivatel']) =>
  */
 export type IRType = '2' | '4' | '3' | 'B' | 'S';
 /**
- * Zastaralé IR ID: A12345;
+ * MAC IR: 2000A06FFFFFF (13);
  *
- * Moderní IR ID:  4A12345;
+ * Moderní IR ID:  4A12345 (7);
  *
- * ID SOREL:       S202412312359;
+ * ID SOREL:       S202412312359 (13);
  */
 export type IRID = `${IRType}${string}`;
 /**
@@ -133,6 +135,9 @@ export type IRID = `${IRType}${string}`;
  * Moderní SP ID:   RB-2024-12-31-23-59;
  */
 export type SPID = `${string}-${string}-${string}`;
+
+export const isMacIRID = (irid: IRID) => irid.startsWith('2000A0');
+export const isMacAddress = (irNumber: string) => irNumber.startsWith('00:0A:0');
 
 const extractIRTypeFromFullIRType = (fullIRType: string): IRType =>
     (fullIRType.includes('12') ? '2'
