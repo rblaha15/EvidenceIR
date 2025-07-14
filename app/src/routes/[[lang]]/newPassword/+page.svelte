@@ -7,8 +7,9 @@
 	import { changePassword } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import type { PageData } from './$types';
-	import { setTitle } from '$lib/helpers/title.svelte';
+	import { setTitle } from '$lib/helpers/globals.js';
 	import { relUrl } from '$lib/helpers/runes.svelte';
+	import { goto } from '$app/navigation';
 
 	interface Props {
 		data: PageData;
@@ -49,7 +50,7 @@
 			redirect,
 			lang: data.languageCode
 		});
-		window.location.replace(relUrl('/newPassword?mode=resetSent'));
+		await goto(relUrl('/newPassword?mode=resetSent'), { replaceState: true });
 	};
 
 	const resetPassword = async () => {
@@ -64,10 +65,10 @@
 		if (originalMode == 'register') {
 			await authentication('enableUser', { email });
 		}
-		changePassword(oobCode!, heslo)
-			.then(() => {
-				window.location.href = relUrl(`/login?email=${email}&done=${mode}&redirect=${redirect}`);
-			})
+		await changePassword(oobCode!, heslo)
+			.then(() =>
+				goto(relUrl(`/login?email=${email}&done=${mode}&redirect=${redirect}`))
+			)
 			.catch((e) => {
 				console.log(e.code);
 				if (e.code == 'auth/network-request-failed') {

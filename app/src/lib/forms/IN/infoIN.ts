@@ -108,15 +108,15 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
     redirectLink: async raw => detailIrUrl(extractIRIDFromRawData(raw)),
     createWidgetData: d => d,
     title: (t, mode) => mode == 'edit' ? t.editing : mode == 'view' ? t.evidenceDetails : t.controllerRegistration,
-    getEditData: async () => {
-        const irid = page.url.searchParams.get('edit-irid') as IRID | null;
+    getEditData: async url => {
+        const irid = url.searchParams.get('edit-irid') as IRID | null;
         if (!irid) return undefined;
 
         const ir = await db.getIR(irid);
         return !ir ? undefined : ir.evidence;
     },
-    getViewData: async () => {
-        const irid = page.url.searchParams.get('view-irid') as IRID | null;
+    getViewData: async url => {
+        const irid = url.searchParams.get('view-irid') as IRID | null;
         if (!irid) return undefined;
 
         const ir = await db.getIR(irid);

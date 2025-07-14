@@ -1,14 +1,19 @@
 import type { EntryGenerator, PageLoad } from './$types';
-import { checkAdmin, checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
+import { checkAdmin, checkAuth } from '$lib/client/auth';
 import { browser } from '$app/environment';
 import { error } from '@sveltejs/kit';
 import { langEntryGenerator } from '../../helpers';
+import { startFirmyListening, startLidiListening, startSparePartsListening, startTechniciansListening } from '$lib/client/realtime';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
 export const load: PageLoad = async () => {
-    console.log(await checkRegulusOrAdmin());
     if ((!await checkAuth() || !await checkAdmin()) && browser) error(401);
+
+    await startLidiListening();
+    await startFirmyListening();
+    await startTechniciansListening();
+    await startSparePartsListening();
 };
 
 export const prerender = true;

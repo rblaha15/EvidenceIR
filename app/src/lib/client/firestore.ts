@@ -68,7 +68,7 @@ export const firestoreDatabase: Database = {
         const user = get(currentUser);
         return await getSnps(
             await checkRegulusOrAdmin() ? irCollection
-                : query(irCollection, where('users', 'array-contains', user?.email)),
+                : query(irCollection, where('users', 'array-contains', user?.email ?? '')),
         ).thenAlso(v => odm.putAll('IR', v.associateBy(v => extractIRIDFromRawData(v.evidence))));
     },
     getIRAsStore: irid => getAsStore(irDoc(irid))

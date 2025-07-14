@@ -21,12 +21,15 @@
     import { generatePdf } from '$lib/client/pdfGeneration';
     import type { IndependentFormInfo } from '$lib/forms/FormInfo';
     import FileSaver from 'file-saver';
-    import { runLoading } from '$lib/helpers/title.svelte';
+    import { runLoading } from '$lib/helpers/globals.js';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
+    import { goto } from '$app/navigation';
 
-    const { t, formInfo }: {
+    const { t, formInfo, editData, viewData }: {
         t: Translations,
         formInfo: IndependentFormInfo<D, F, S, P>,
+        editData: Raw<F> | undefined,
+        viewData: Raw<F> | undefined,
     } = $props();
 
     const {
@@ -37,8 +40,6 @@
         title,
         onMount: mountEffect,
         storeEffects,
-        getEditData,
-        getViewData,
         subtitle,
         storeData,
         importOptions,
@@ -55,8 +56,6 @@
     let f: F = $state(defaultData());
     onMount(async () => {
         await runLoading(async () => {
-            const viewData = await getViewData?.();
-            const editData = await getEditData?.();
             if (viewData) {
                 f = rawDataToData(f, viewData);
                 mode = 'view';
@@ -113,16 +112,20 @@
                     : { text: '', red: false, load: false };
 
                 if (openPdf) {
-                    const { link, data, ...parameters } = await openPdf(raw);
-                    const p = parameters as unknown as PdfParameters<P>;
-                    const pdfData = await generatePdf(pdfInfo[link], page.data.languageCode, data, ...pdfParamsArray(p));
+                    try {
+                        const { link, data, ...parameters } = await openPdf(raw);
+                        const p = parameters as unknown as PdfParameters<P>;
+                        const pdfData = await generatePdf(pdfInfo[link], page.data.languageCode, data, ...pdfParamsArray(p));
 
-                    FileSaver.saveAs(new Blob([pdfData.pdfBytes], {
-                        type: 'application/pdf',
-                    }), pdfData.fileName);
+                        FileSaver.saveAs(new Blob([pdfData.pdfBytes], {
+                            type: 'application/pdf',
+                        }), pdfData.fileName);
+                    } catch (e) {
+                        console.log(e);
+                    }
                 }
 
-                if (redirectLink) window.location.replace(await redirectLink(raw));
+                if (redirectLink) await goto(await redirectLink(raw), { replaceState: true });
                 if (redirectLink) setTimeout(async () => result = {
                     text: t.redirectFailedHtml({ link: page.url.origin + await redirectLink(raw) }),
                     red: true,

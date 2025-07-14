@@ -1,5 +1,7 @@
 import { browser } from '$app/environment';
 import { page } from '$app/state';
+import type { IRID, SPID } from '$lib/helpers/ir';
+import type { LanguageCode as LC } from '$lib/languages';
 
 class Effect<T> {
     value = $state() as T;
@@ -37,17 +39,17 @@ export const storableState: GetStorableState = <T>(key: string, defaultValue?: T
     return state;
 };
 
-export const relUrl = (url = '', lang = page.data.languageCode) =>
+export const relUrl = (url = '', lang: LC = page.data.languageCode) =>
     `/${lang}${url}`;
-export const iridUrl = (url = '', id = page.data.irid, lang = page.data.languageCode) =>
+export const iridUrl = (url = '', id: IRID = page.data.irid, lang: LC = page.data.languageCode) =>
     new URL(page.url.origin + relUrl(url, lang))
         .also(u => u.searchParams.append('irid', id))
         .let(u => u.pathname + u.search + u.hash);
-export const spidUrl = (url = '', id = page.data.spid, lang = page.data.languageCode) =>
+export const spidUrl = (url = '', id: SPID = page.data.spid, lang: LC = page.data.languageCode) =>
     new URL(page.url.origin + relUrl(url, lang))
         .also(u => u.searchParams.append('spid', id))
         .let(u => u.pathname + u.search + u.hash);
-export const detailIrUrl = (id = page.data.irid, lang = page.data.languageCode) =>
+export const detailIrUrl = (id: IRID = page.data.irid, lang: LC = page.data.languageCode) =>
     iridUrl('/detail', id, lang);
-export const detailSpUrl = (id = page.data.spid, lang = page.data.languageCode) =>
+export const detailSpUrl = (id: SPID = page.data.spid, lang: LC = page.data.languageCode) =>
     spidUrl('/detail', id, lang);
