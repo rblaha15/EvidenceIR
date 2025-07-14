@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 	import authentication from '$lib/client/authentication';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
-	import { setTitle } from '$lib/helpers/title.svelte';
+	import { setTitle } from '$lib/helpers/globals.js';
 	import { goto } from '$app/navigation';
 
 	let odesila = $state(false);

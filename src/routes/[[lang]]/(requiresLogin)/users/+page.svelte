@@ -1,12 +1,11 @@
 <script lang="ts">
     import type { PageData } from './$types';
-    import { setTitle } from '$lib/helpers/title.svelte.js';
+    import { setTitle } from '$lib/helpers/globals.js';
     import { irWholeName } from '$lib/helpers/ir';
     import { SearchWidget } from '$lib/forms/Widget.svelte.js';
     import { p } from '$lib/translations';
     import Search from '$lib/components/widgets/Search.svelte';
-    import { onMount } from 'svelte';
-    import { usersList, startLidiListening } from '$lib/client/realtime';
+    import { usersList } from '$lib/client/realtime';
     import db from '$lib/client/data';
 
     interface Props {
@@ -28,10 +27,6 @@
             ],
         }), required: false,
     }));
-
-    onMount(async () => {
-        await startLidiListening();
-    });
 
     $effect(() => {
         w.items = () => $usersList.map(i => i.email);

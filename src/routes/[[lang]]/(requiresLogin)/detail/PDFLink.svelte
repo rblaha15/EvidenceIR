@@ -7,7 +7,7 @@
 
     import type { OpenPdfOptions } from '$lib/forms/FormInfo';
     import FileSaver from 'file-saver';
-    import { endLoading, progress, startLoading, withLoading } from '$lib/helpers/title.svelte';
+    import { endLoading, progress, startLoading, withLoading } from '$lib/helpers/globals.js';
 
     type Props<P extends Pdf> = OpenPdfOptions<P> & {
         name?: string;

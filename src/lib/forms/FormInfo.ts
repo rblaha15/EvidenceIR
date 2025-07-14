@@ -36,8 +36,8 @@ export type IndependentFormInfo<
     createWidgetData: (data: F) => D;
     title: (t: Translations, mode: 'create' | 'edit' | 'view') => string;
     subtitle?: ((t: Translations, edit: boolean) => string) | undefined;
-    getEditData?: (() => Promise<R | undefined>) | undefined;
-    getViewData?: (() => Promise<R | undefined>) | undefined;
+    getEditData?: ((url: URL) => Promise<R | undefined>) | undefined;
+    getViewData?: ((url: URL) => Promise<R | undefined>) | undefined;
     onMount?: (data: D, form: F, mode: 'create' | 'edit' | 'view') => Promise<void> | undefined;
     storeEffects?: { [I in keyof S]: Effect<D, F, S[I]> } | undefined;
     importOptions?: Omit<ExcelImport<R>, 'defaultData'> & {
@@ -62,8 +62,8 @@ export type FormInfo<
     openPdf?: () => Omit<OpenPdfOptions<P>, 'data'>;
     saveData: (irid: IRID, raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, ir: IR) => Promise<boolean | void>;
     createWidgetData: (evidence: Raw<FormIN>, data: F) => D;
-    getEditData?: ((ir: IR) => R | undefined) | undefined;
-    getViewData?: ((ir: IR) => R | undefined) | undefined;
+    getEditData?: ((ir: IR, url: URL) => R | undefined) | undefined;
+    getViewData?: ((ir: IR, url: URL) => R | undefined) | undefined;
     onMount?: (data: D, form: F, mode: 'create' | 'edit' | 'view', ir: IR) => Promise<void> | undefined;
 } & Omit<
     IndependentFormInfo<D, F, S, P, R>,

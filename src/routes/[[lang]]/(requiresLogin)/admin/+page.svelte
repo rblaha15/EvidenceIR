@@ -15,20 +15,13 @@
         techniciansList,
     } from '$lib/client/realtime';
     import { type Component, onMount, untrack } from 'svelte';
-    import { setTitle } from '$lib/helpers/title.svelte';
+    import { setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import TranslationsTable from './TranslationsTable.svelte';
     import AdminTable, { type TableOptions } from './AdminTable.svelte';
     import { regulusCRN } from '$lib/helpers/ares';
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
-
-    onMount(async () => {
-        await startLidiListening();
-        await startFirmyListening();
-        await startTechniciansListening();
-        await startSparePartsListening();
-    });
 
     interface BaseTabDefinition {
         title: string,

@@ -31,15 +31,15 @@ const infoSP = (() => {
             link: 'SP',
             index: i.also(console.log),
         }),
-        getEditData: ir => {
-            const editIndex = page.url.searchParams.get('edit') as string | null;
+        getEditData: (ir, url) => {
+            const editIndex = url.searchParams.get('edit') as string | null;
             if (editIndex) {
                 i = Number(editIndex);
                 return ir.installationProtocols[i];
             }
         },
-        getViewData: ir => {
-            const viewIndex = page.url.searchParams.get('view') as string | null;
+        getViewData: (ir, url) => {
+            const viewIndex = url.searchParams.get('view') as string | null;
             if (viewIndex) {
                 i = Number(viewIndex);
                 return ir.installationProtocols[i];

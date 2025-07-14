@@ -21,13 +21,15 @@
     import { generatePdf } from '$lib/client/pdfGeneration';
     import type { IndependentFormInfo } from '$lib/forms/FormInfo';
     import FileSaver from 'file-saver';
-    import { runLoading } from '$lib/helpers/title.svelte';
+    import { runLoading } from '$lib/helpers/globals.js';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
     import { goto } from '$app/navigation';
 
-    const { t, formInfo }: {
+    const { t, formInfo, editData, viewData }: {
         t: Translations,
         formInfo: IndependentFormInfo<D, F, S, P>,
+        editData: Raw<F> | undefined,
+        viewData: Raw<F> | undefined,
     } = $props();
 
     const {
@@ -38,8 +40,6 @@
         title,
         onMount: mountEffect,
         storeEffects,
-        getEditData,
-        getViewData,
         subtitle,
         storeData,
         importOptions,
@@ -56,8 +56,6 @@
     let f: F = $state(defaultData());
     onMount(async () => {
         await runLoading(async () => {
-            const viewData = await getViewData?.();
-            const editData = await getEditData?.();
             if (viewData) {
                 f = rawDataToData(f, viewData);
                 mode = 'view';
