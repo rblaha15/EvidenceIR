@@ -19,11 +19,6 @@
         });
         await goto(link, { replaceState: true });
     }
-
-    const signOut = () => {
-        logOut();
-        window.location.reload();
-    }
 </script>
 
 <div class="dropdown ms-3">
@@ -52,7 +47,7 @@
             </button>
         </li>
         <li>
-            <button class="dropdown-item text-danger" onclick={signOut}>
+            <button class="dropdown-item text-danger" onclick={logOut}>
                 {t.toLogOut}
             </button>
         </li>

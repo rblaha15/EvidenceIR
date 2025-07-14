@@ -7,7 +7,7 @@
 	import { changePassword } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import type { PageData } from './$types';
-	import { setTitle } from '$lib/helpers/title.svelte';
+	import { setTitle } from '$lib/helpers/globals.js';
 	import { relUrl } from '$lib/helpers/runes.svelte';
 	import { goto } from '$app/navigation';
 

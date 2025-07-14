@@ -1,94 +1,28 @@
 <script lang="ts">
-    import { onMount, untrack } from 'svelte';
-    import type { PageData } from './$types';
+    import { untrack } from 'svelte';
+    import type { PageProps } from './$types';
     import PDFLink from './PDFLink.svelte';
-    import { checkAuth, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { storable } from '$lib/helpers/stores';
-    import { type FormUPT } from '$lib/forms/UPT/formUPT';
-    import type { FirebaseError } from 'firebase/app';
-    import { getIsOnline, startTechniciansListening } from '$lib/client/realtime';
     import { page } from '$app/state';
-    import { type FormUPS } from '$lib/forms/UPS/formUPS';
-    import { setTitle, withLoading } from '$lib/helpers/title.svelte.js';
-    import { extractIRIDFromParts, type IRID, irNumberFromIRID, irWholeName, type SPID, spWholeName } from '$lib/helpers/ir';
+    import { setTitle } from '$lib/helpers/globals.js';
+    import { extractIRIDFromParts, type IRID, irNumberFromIRID, irWholeName, spWholeName } from '$lib/helpers/ir';
     import { ChooserWidget, InputWidget } from '$lib/forms/Widget.svelte.js';
-    import type { Raw } from '$lib/forms/Form';
     import { detailIrUrl, iridUrl, relUrl, spidUrl } from '$lib/helpers/runes.svelte.js';
     import Widget from '$lib/components/Widget.svelte';
     import { time, todayISO } from '$lib/helpers/date';
     import NSP from '$lib/forms/NSP/infoNSP';
     import { type P, p } from '$lib/translations';
-    import db, { type IR } from '$lib/client/data';
-    import type { FormNSP } from '$lib/forms/NSP/formNSP';
-    import solarCollectorCommission from '$lib/forms/UPS/infoUPS';
-    import heatPumpCommission from '$lib/forms/UPT/infoUPT';
+    import db from '$lib/client/data';
     import ServiceProtocols from './ServiceProtocols.svelte';
     import { cascadePumps } from '$lib/forms/IN/infoIN';
     import type { IRTypes } from '$lib/forms/IN/formIN';
     import { goto } from '$app/navigation';
 
-    interface Props {
-        data: PageData;
-    }
+    let { data }: PageProps = $props();
+    const { irid, spid, ir, sp, success, languageCode: lang, translations: t } = $derived(data)
 
-    let { data }: Props = $props();
-    const t = data.translations;
-    const irid = data.irid;
-    const spid = data.spid;
-    let originalSPID = $state() as SPID;
-
-    const deleted = page.url.searchParams.has('deleted');
-    const storedHeatPumpCommission = storable<Raw<FormUPT>>(`${heatPumpCommission.storeName}_${irid}`);
-    const storedSolarCollectorCommission = storable<Raw<FormUPS>>(`${solarCollectorCommission.storeName}_${irid}`);
-
-    let type: 'loading' | 'loaded' | 'noAccess' | 'offline' = $state('loading');
-    let values = $state() as IR;
-    let sp = $state() as Raw<FormNSP>;
-    const fetchIRdata = async () => {
-        const _values = await db.getIR(irid!);
-
-        if (!_values) {
-            type = 'noAccess';
-            return false;
-        }
-
-        values = _values;
-        return true;
-    };
-    onMount(withLoading(async () => {
-        await checkAuth();
-        await startTechniciansListening();
-
-        try {
-            if (irid) {
-                if (!await fetchIRdata()) return;
-            } else if (spid) {
-                originalSPID = spid;
-                let _sp = await db.getIndependentProtocol(spid);
-
-                if (!_sp) {
-                    originalSPID = spid.split('-').slice(0, -1).join('-') as SPID;
-                    _sp = await db.getIndependentProtocol(originalSPID);
-                }
-
-                if (!_sp) {
-                    type = 'noAccess';
-                    return;
-                }
-                sp = _sp;
-            }
-            type = 'loaded';
-        } catch (e) {
-            console.log((e as FirebaseError).code);
-            if ((e as FirebaseError).code == 'unavailable' && !getIsOnline()) type = 'offline';
-            else type = 'noAccess';
-            return;
-        }
-        if ($storedHeatPumpCommission != undefined && values.uvedeniTC != undefined)
-            storedHeatPumpCommission.set(undefined);
-        if ($storedSolarCollectorCommission != undefined && values.uvedeniSOL != undefined)
-            storedSolarCollectorCommission.set(undefined);
-    }));
+    const deleted = $derived(page.url.searchParams.has('deleted'));
 
     const remove = async () => {
         await db.deleteIR(irid!);
@@ -142,10 +76,10 @@
     const d = $derived({ number: irNumber, type: irType });
 
     $effect(() => {
-        if (!values) return;
+        if (!ir) return;
         untrack(() => {
-            irNumber.setValue(d, values.evidence.ir.cislo);
-            irType.setValue(d, values.evidence.ir.typ.first);
+            irNumber.setValue(d, ir.evidence.ir.cislo);
+            irType.setValue(d, ir.evidence.ir.typ.first);
         });
     });
 
@@ -178,19 +112,20 @@
         label: p('IRID (z URL adresy)'),
     });
     const transfer = async () => {
+        if (!sp) return
         await db.addServiceProtocol(newIRID.value as IRID, {
             zasah: sp.zasah, fakturace: sp.fakturace, ukony: sp.ukony, nahradniDil1: sp.nahradniDil1,
             nahradniDil2: sp.nahradniDil2, nahradniDil3: sp.nahradniDil3, nahradniDil4: sp.nahradniDil4,
             nahradniDil5: sp.nahradniDil5, nahradniDil6: sp.nahradniDil6, nahradniDil7: sp.nahradniDil7,
             nahradniDil8: sp.nahradniDil8, nahradniDily: sp.nahradniDily,
         });
-        await goto(detailIrUrl(newIRID.value), { replaceState: true });
+        await goto(detailIrUrl(newIRID.value as IRID), { replaceState: true });
     };
 </script>
 
-{#if type === 'loaded'}
-    <h3 class="m-0">{sp ? spWholeName(sp) : irWholeName(values.evidence)}</h3>
-{:else if type !== 'loading'}
+{#if success}
+    <h3 class="m-0">{sp ? spWholeName(sp) : ir ? irWholeName(ir.evidence) : ''}</h3>
+{:else}
     <h3 class="m-0">
         {#if !irid}
             {spid?.replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}
@@ -204,19 +139,17 @@
         {t.successfullyDeleted}
     </div>
 {/if}
-{#if type !== 'loaded' && type !== 'loading'}
+{#if !success}
     <div>{t.sorrySomethingWentWrong}</div>
     <div>
-        {#if type === 'noAccess' && irid}
+        {#if irid}
             {t.linkInvalid}
-        {:else if type === 'noAccess' && spid}
+        {:else if spid}
             Buď protokol neexistuje nebo k němu nemáte přístup.
-        {:else if type === 'offline'}
-            {t.offline}
         {/if}
     </div>
 {/if}
-{#if type === 'loaded' && spid}
+{#if success && spid && sp}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         <a class="btn btn-primary" tabindex="0"
            href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${sp.koncovyUzivatel.email}`)}>
@@ -224,11 +157,11 @@
         </a>
 
         <a class="btn btn-primary" tabindex="0"
-           href={relUrl(`/NSP?view-spid=${originalSPID}`)}>
+           href={relUrl(`/NSP?view-spid=${spid}`)}>
             {t.viewInfo}
         </a>
 
-        <PDFLink lang={data.languageCode} {t} link="NSP" hideLanguageSelector={true} data={sp} />
+        <PDFLink {lang} {t} link="NSP" hideLanguageSelector={true} data={sp} />
 
         <a class="btn btn-warning" href={relUrl('/NSP')} onclick={() => {
             storable<typeof sp>(NSP.storeName).set(sp)
@@ -242,7 +175,7 @@
             <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR (neodstraní se)</button>
 
             <button class="btn btn-danger d-block" onclick={() => {
-                db.deleteIndependentProtocol(originalSPID);
+                db.deleteIndependentProtocol(spid);
                 goto(spidUrl(`/detail?deleted`), { replaceState: true });
             }}
             >Odstranit protokol
@@ -250,10 +183,10 @@
         </div>
     {/if}
 {/if}
-{#if type === 'loaded' && irid && irid.length !== 6}
+{#if success && irid && ir}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         <a class="btn btn-primary" tabindex="0"
-           href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${values.evidence.koncovyUzivatel.email}`)}>
+           href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${ir.evidence.koncovyUzivatel.email}`)}>
             {t.sendDocuments}
         </a>
         <a class="btn btn-primary" tabindex="0"
@@ -262,21 +195,21 @@
         </a>
     </div>
     <div class="d-flex flex-column gap-1">
-        {#if values.evidence.vzdalenyPristup.chce}
-            <PDFLink name={t.regulusRouteForm} {t} link="RR" lang={data.languageCode} data={values} />
+        {#if ir.evidence.vzdalenyPristup.chce}
+            <PDFLink name={t.regulusRouteForm} {t} link="RR" {lang} data={ir} />
         {/if}
-        {#if values.evidence.ir.typ.first !== p('SOREL')}
-            <PDFLink name={t.routeGuide} {t} link="NN" lang={data.languageCode} data={values} />
+        {#if ir.evidence.ir.typ.first !== p('SOREL')}
+            <PDFLink name={t.routeGuide} {t} link="NN" {lang} data={ir} />
         {/if}
-        {#if values.evidence.ir.chceVyplnitK.includes('heatPump')}
-            {#each cascadePumps(values.evidence, t) as tc}
-                <PDFLink name={t.warrantyNr(tc)} {t} link="ZL" lang={data.languageCode} data={values} pump={tc.N} />
+        {#if ir.evidence.ir.chceVyplnitK.includes('heatPump')}
+            {#each cascadePumps(ir.evidence, t) as tc}
+                <PDFLink name={t.warrantyNr(tc)} {t} link="ZL" {lang} data={ir} pump={tc.N} />
             {/each}
             <PDFLink
-                enabled={values.uvedeniTC !== undefined} name={t.heatPumpCommissionProtocol} {t} link="UPT"
-                lang={data.languageCode} data={values}
+                enabled={ir.uvedeniTC !== undefined} name={t.heatPumpCommissionProtocol} {t} link="UPT"
+                {lang} data={ir}
             >
-                {#if !values.uvedeniTC}
+                {#if !ir.uvedeniTC}
                     <a
                         tabindex="0"
                         class="btn btn-primary d-block"
@@ -284,9 +217,9 @@
                     >{t.commission}</a>
                 {/if}
             </PDFLink>
-            {#each cascadePumps(values.evidence, t) as tc}
-                <PDFLink name={t.filledYearlyCheckNr(tc)} {t} link="RK" lang={data.languageCode} data={values} pump={tc.N}
-                         enabled={values.kontrolyTC[tc.N]?.[1] !== undefined}>
+            {#each cascadePumps(ir.evidence, t) as tc}
+                <PDFLink name={t.filledYearlyCheckNr(tc)} {t} link="RK" {lang} data={ir} pump={tc.N}
+                         enabled={ir.kontrolyTC[tc.N]?.[1] !== undefined}>
                     <a
                         tabindex="0" href={iridUrl(`/RK?tc=${tc.N}`)}
                         class="btn btn-primary d-block"
@@ -294,15 +227,15 @@
                 </PDFLink>
             {/each}
         {/if}
-        {#if values.evidence.ir.chceVyplnitK.includes('solarCollector')}
+        {#if ir.evidence.ir.chceVyplnitK.includes('solarCollector')}
             <PDFLink
-                enabled={values.uvedeniSOL !== undefined}
+                enabled={ir.uvedeniSOL !== undefined}
                 name={t.solarCollectorCommissionProtocol}
                 {t}
                 link="UPS"
-                lang={data.languageCode} data={values}
+                {lang} data={ir}
             >
-                {#if !values.uvedeniSOL}
+                {#if !ir.uvedeniSOL}
                     <a
                         tabindex="0"
                         class="btn btn-primary d-block"
@@ -311,15 +244,15 @@
                 {/if}
             </PDFLink>
         {/if}
-        {#if values.evidence.ir.chceVyplnitK.includes('photovoltaicPowerPlant')}
+        {#if ir.evidence.ir.chceVyplnitK.includes('photovoltaicPowerPlant')}
             <PDFLink
-                enabled={values.uvedeniFVE !== undefined}
+                enabled={ir.uvedeniFVE !== undefined}
                 name={t.photovoltaicSystemCommissionProtocol}
                 {t}
                 link="UPF"
-                lang={data.languageCode} data={values}
+                {lang} data={ir}
             >
-                {#if !values.uvedeniFVE}
+                {#if !ir.uvedeniFVE}
                     <a
                         tabindex="0"
                         class="btn btn-primary d-block"
@@ -330,7 +263,7 @@
         {/if}
     </div>
     {#if $isUserRegulusOrAdmin}
-        <ServiceProtocols {values} {t} lang={data.languageCode} {irid} />
+        <ServiceProtocols {ir} {t} {lang} {irid} />
     {/if}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         {#if $isUserRegulusOrAdmin}

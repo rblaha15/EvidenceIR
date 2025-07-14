@@ -64,6 +64,7 @@
     <div class="position-relative" onfocusin={show} onfocusout={hide}>
         <label class="form-floating d-block">
             <input
+                autofocus={widget.inline(data)}
                 class="form-control border ps-3 bi"
                 class:border-bottom-0={!hidden || widget.value}
                 class:rb-0={!hidden}

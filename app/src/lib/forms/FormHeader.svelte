@@ -1,7 +1,7 @@
 <script generics="R extends Raw<Form>" lang="ts">
     import type { Writable } from 'svelte/store';
     import { type P, p, type Translations } from '$lib/translations';
-    import { endLoading, setTitle, startLoading } from '$lib/helpers/title.svelte.js';
+    import { endLoading, setTitle, startLoading } from '$lib/helpers/globals.js';
     import type { Form, Raw } from '$lib/forms/Form';
     import { type ExcelImport, processExcel } from '$lib/forms/ExcelImport';
     import readXlsxFile, { readSheetNames } from 'read-excel-file';

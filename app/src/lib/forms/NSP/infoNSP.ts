@@ -25,7 +25,6 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
     type: '',
     storeName: 'stored_new_SP',
     defaultData: defaultNSP,
-    getEditData: async () => undefined,
     saveData: async (raw, _, __, editResult, t) => {
         await db.addIndependentServiceProtocol(raw);
 
@@ -55,8 +54,8 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         await startSparePartsListening();
         f.zasah.datum.setValue(d, nowISO());
     },
-    getViewData: async () => {
-        const spid = page.url.searchParams.get('view-spid') as SPID | null;
+    getViewData: async url => {
+        const spid = url.searchParams.get('view-spid') as SPID | null;
         if (!spid) return undefined;
 
         const sp = await db.getIndependentProtocol(spid);
