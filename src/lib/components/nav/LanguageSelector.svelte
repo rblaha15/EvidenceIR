@@ -2,10 +2,12 @@
 	import { page } from '$app/state';
 	import { languageCodes, setUserPreferredLanguage, type LanguageCode } from '$lib/languages';
 	import { languageNames } from '$lib/translations';
+	import { goto } from '$app/navigation';
 
 	const redirect = (code: LanguageCode) => {
-		window.location.replace(
-			'/' + code + page.url.pathname.slice(page.data.languageCode.length + 1) + page.url.search
+		goto(
+			'/' + code + page.url.pathname.slice(page.data.languageCode.length + 1) + page.url.search,
+			{ replaceState: true },
 		);
 	};
 </script>

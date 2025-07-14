@@ -1,9 +1,8 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import type { GetPdfData } from '$lib/client/pdf';
-import { endUserName, irType } from '$lib/helpers/ir';
+import { endUserName, irType, isMacAddress } from '$lib/helpers/ir';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
-import { TCNumbers } from '$lib/forms/IN/defaultIN';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { p } from '$lib/translations';
 
@@ -26,8 +25,12 @@ const pdfRR: GetPdfData<'RR'> = async ({ evidence: e }, t) => ({
     Text12: e.koncovyUzivatel.email,
     Text13: e.koncovyUzivatel.telefon,
     Text14: irType(e.ir.typ),
-    Text15: e.ir.typ.first == p('SOREL') ? '—' : e.ir.cislo.split(' ')[0],
-    Text16: e.ir.typ.first == p('SOREL') ? '—' : e.ir.cislo.split(' ')[1],
+    Text15: e.ir.typ.first == p('SOREL') ? '—'
+        : isMacAddress(e.ir.cislo) ? e.ir.cislo.slice(0, 6)
+            : e.ir.cislo.split(' ')[0],
+    Text16: e.ir.typ.first == p('SOREL') ? '—'
+        : isMacAddress(e.ir.cislo) ? e.ir.cislo.slice(6)
+            : e.ir.cislo.split(' ')[1],
     Text17: e.ir.cisloBox,
     Text18: cascadePumps(e, t)
         .map(tc => `${tc.cislo} (${tc.model})`)

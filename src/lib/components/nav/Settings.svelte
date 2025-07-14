@@ -14,7 +14,7 @@
     const clearAll = async () => {
         localStorage.clear();
         await removeAllFiles();
-        window.location.reload();
+        location.reload();
     };
 </script>
 

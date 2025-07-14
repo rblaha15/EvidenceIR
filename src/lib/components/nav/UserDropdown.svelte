@@ -4,6 +4,7 @@
     import { currentUser, logOut } from '$lib/client/auth.js';
     import { responsiblePerson } from '$lib/client/realtime';
     import type { Translations } from '$lib/translations';
+    import { goto } from '$app/navigation';
 
     const { t }: { t: Translations } = $props();
 
@@ -16,12 +17,7 @@
             redirect: page.url.pathname.slice(page.data.languageCode.length + 1) + page.url.search,
             mode: 'edit'
         });
-        window.location.replace(link);
-    }
-
-    const signOut = () => {
-        logOut();
-        window.location.reload();
+        await goto(link, { replaceState: true });
     }
 </script>
 
@@ -51,7 +47,7 @@
             </button>
         </li>
         <li>
-            <button class="dropdown-item text-danger" onclick={signOut}>
+            <button class="dropdown-item text-danger" onclick={logOut}>
                 {t.toLogOut}
             </button>
         </li>

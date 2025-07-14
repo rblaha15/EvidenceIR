@@ -7,19 +7,20 @@
     import PDFLink from './PDFLink.svelte';
     import { techniciansList } from '$lib/client/realtime';
     import { currentUser } from '$lib/client/auth';
+    import { goto, invalidateAll } from '$app/navigation';
 
     const {
-        irid, values, lang, t,
+        irid, ir, lang, t,
     }: {
         irid: IRID,
-        values: IR,
+        ir: IR,
         lang: LanguageCode,
         t: Translations,
     } = $props();
 
     const copySP = (i: number) => async () => {
         const ja = $techniciansList.find(t => $currentUser?.email == t.email);
-        const p = values.installationProtocols[i];
+        const p = ir.installationProtocols[i];
         await db.addServiceProtocol(irid!, {
             ...p,
             fakturace: {
@@ -33,15 +34,15 @@
                 inicialy: ja?.initials ?? p.zasah.inicialy,
             },
         });
-        location.reload();
+        await invalidateAll();
     };
 </script>
 
 <h4 class="m-0">Protokoly servisního zásahu</h4>
-{#if values.installationProtocols.length}
+{#if ir.installationProtocols.length}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
-        {#each values.installationProtocols as p, i}
-            <PDFLink name={spName(p.zasah)} {lang} data={values} {t} link="SP" index={i}
+        {#each ir.installationProtocols as p, i}
+            <PDFLink name={spName(p.zasah)} {lang} data={ir} {t} link="SP" index={i}
                      hideLanguageSelector={true}
                      breakpoint="md">
                 {#snippet dropdown()}
@@ -74,6 +75,6 @@
 
 <div class="d-flex align-items-center gap-3 flex-wrap flex-sm-nowrap">
     <a class="btn btn-primary" href={iridUrl('/SP')} tabindex="0">
-        Vyplnit {values.installationProtocols.length ? 'další ' : ''} protokol
+        Vyplnit {ir.installationProtocols.length ? 'další ' : ''} protokol
     </a>
 </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type FormIN } from '$lib/forms/IN/formIN';
-	import type { Translations } from '$lib/translations';
+	import { p, type Translations } from '$lib/translations';
 	import { irName, irLabel, extractIRIDFromParts } from '$lib/helpers/ir';
 	import type { Raw } from '$lib/forms/Form';
 	import { detailIrUrl } from '$lib/helpers/runes.svelte';
