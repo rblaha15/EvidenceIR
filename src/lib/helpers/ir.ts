@@ -1,4 +1,4 @@
-import { removePlain } from '$lib/translations';
+import { p, removePlain } from '$lib/translations';
 import type { FormIN, UserForm } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
@@ -28,7 +28,7 @@ export const spWholeName = (sp: Raw<FormNSP>, includeEstablishment: boolean = tr
  *
  * SRS1 T
  */
-export const irName = (ir: Raw<FormIN>['ir']) => ir.typ.first?.includes('SOREL')
+export const irName = (ir: Raw<FormIN>['ir']) => ir.typ.first == p('SOREL')
     ? irType(ir.typ)
     : `${irType(ir.typ)} ${ir.cislo}`;
 
@@ -54,11 +54,11 @@ export const spName = (zasah: Raw<GenericFormSP<never>>["zasah"]) => {
  * SRS1 T
  */
 export const irType = (typ: Raw<FormIN>['ir']['typ']) =>
-    typ.first?.includes('SOREL')
+    typ.first == p('SOREL')
         ? removePlain(typ.second!)
         : typ.first?.includes('BOX')
-            ? `${removePlain(typ.first!.split(' ').slice(0, 2).join(' '))} ${removePlain(typ.second!)}`
-            : `${removePlain(typ.first!.replaceAll(' ', ''))}${removePlain(typ.second!)}`;
+            ? `${removePlain(typ.first!).split(' ').slice(0, 2).join(' ')} ${removePlain(typ.second!)}`
+            : `${removePlain(typ.first!).replaceAll(' ', '')}${removePlain(typ.second!)}`;
 
 const companyForms = [
     's.r.o.', 'spol. s r.o.', 'a.s.', 'k.s.', 'v.o.s.'

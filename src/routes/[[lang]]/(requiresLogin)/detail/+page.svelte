@@ -127,7 +127,7 @@
         }
     });
 
-    const s = $derived(irType.value?.includes('SOREL') ?? false);
+    const s = $derived(irType.value == p('SOREL') ?? false);
 
     const changeController = async () => {
         try {
