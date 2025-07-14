@@ -13,17 +13,19 @@
     import { extractIRIDFromParts, type IRID, irNumberFromIRID, irWholeName, type SPID, spWholeName } from '$lib/helpers/ir';
     import { ChooserWidget, InputWidget } from '$lib/forms/Widget.svelte.js';
     import type { Raw } from '$lib/forms/Form';
-    import { detailIrUrl, detailSpUrl, iridUrl, relUrl, spidUrl } from '$lib/helpers/runes.svelte.js';
+    import { detailIrUrl, iridUrl, relUrl, spidUrl } from '$lib/helpers/runes.svelte.js';
     import Widget from '$lib/components/Widget.svelte';
-    import { todayISO } from '$lib/helpers/date';
+    import { time, todayISO } from '$lib/helpers/date';
     import NSP from '$lib/forms/NSP/infoNSP';
-    import { p } from '$lib/translations';
+    import { type P, p } from '$lib/translations';
     import db, { type IR } from '$lib/client/data';
     import type { FormNSP } from '$lib/forms/NSP/formNSP';
     import solarCollectorCommission from '$lib/forms/UPS/infoUPS';
     import heatPumpCommission from '$lib/forms/UPT/infoUPT';
     import ServiceProtocols from './ServiceProtocols.svelte';
     import { cascadePumps } from '$lib/forms/IN/infoIN';
+    import type { IRTypes } from '$lib/forms/IN/formIN';
+    import { goto } from '$app/navigation';
 
     interface Props {
         data: PageData;
@@ -61,7 +63,7 @@
             if (irid) {
                 if (!await fetchIRdata()) return;
             } else if (spid) {
-                originalSPID = spid
+                originalSPID = spid;
                 let _sp = await db.getIndependentProtocol(spid);
 
                 if (!_sp) {
@@ -90,50 +92,68 @@
 
     const remove = async () => {
         await db.deleteIR(irid!);
-        window.location.replace(iridUrl(`/detail?deleted`));
+        await goto(iridUrl(`/detail?deleted`), { replaceState: true });
     };
 
     let change: 'no' | 'input' | 'sending' | 'fail' | 'unchanged' = $state('no');
 
-    let irNumber = $state(new InputWidget({
-        label: `serialNumber`,
-        onError: `wrongNumberFormat`,
-        regex: s => s ? /[0-9]{4}-[0-9]{2}-[0-9]{2}/ : /[A-Z][1-9OND] [0-9]{4}/,
-        capitalize: true,
-        maskOptions: s => ({
-            mask: s ? `0000-00-00` : `A1 0000`,
-            definitions: {
-                A: /[A-Za-z]/,
-                '1': /[1-9ONDond]/,
-            },
-        }),
-        show: s => !s,
-    }));
-    let irType = $state(new ChooserWidget({
+    type D = { type: ChooserWidget<D, P<IRTypes>>, number: InputWidget<D> };
+
+    const sorel = (d: D) => d.type.value == p('SOREL');
+
+    let irType = $state(new ChooserWidget<D, P<IRTypes>>({
         label: `controllerType`,
         options: p(['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL']),
+        onValueSet: (d, v) => {
+            if (v == p('SOREL')) {
+                d.number.setValue(d, `${todayISO()} ${time()}`);
+            }
+        },
     }));
+    let irNumber = $state(new InputWidget<D>({
+        label: `serialNumber`,
+        onError: `wrongNumberFormat`,
+        regex: d => sorel(d)
+            ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
+            : d.type.value == p('IR 12')
+                ? /[A-Z][1-9OND] [0-9]{4}|00:0A:0[69]:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}/
+                : /[A-Z][1-9OND] [0-9]{4}/,
+        capitalize: true,
+        maskOptions: d => ({
+            mask: sorel(d) ? `0000-00-00T00:00` :
+                d.type.value != p('IR 12') ? 'Z1 0000'
+                    : d.number.value.length == 0 ? 'X'
+                        : d.number.value[0] == '0'
+                            ? 'NN:NA:N6:FF:FF:FF'
+                            : 'Z1 0000',
+            definitions: {
+                X: /[0A-Za-z]/,
+                N: /0/,
+                A: /[Aa]/,
+                6: /[69]/,
+                F: /[0-9A-Fa-f]/,
+                Z: /[A-Za-z]/,
+                1: /[1-9ONDond]/,
+            },
+        }),
+        show: d => !sorel(d),
+    }));
+
+    const d = $derived({ number: irNumber, type: irType });
 
     $effect(() => {
         if (!values) return;
         untrack(() => {
-            irNumber.setValue({}, values.evidence.ir.cislo);
-            irType.setValue({}, values.evidence.ir.typ.first);
+            irNumber.setValue(d, values.evidence.ir.cislo);
+            irType.setValue(d, values.evidence.ir.typ.first);
         });
     });
-    $effect(() => {
-        if (irType.value == p('SOREL')) {
-            irNumber.setValue({}, todayISO());
-        }
-    });
-
-    const s = $derived(irType.value == p('SOREL') ?? false);
 
     const changeController = async () => {
         try {
             irNumber.displayErrorVeto = true;
             irType.displayErrorVeto = true;
-            if (irNumber.showError(s) || irType.showError(s)) return;
+            if (irNumber.showError(d) || irType.showError(d)) return;
             const newNumber = irNumber.value;
             const newType = irType.value;
             change = 'sending';
@@ -145,7 +165,7 @@
             const newRecord = await db.getIR(extractIRIDFromParts(newType!, newNumber));
             if (!newRecord?.evidence) return change = 'fail';
             await db.deleteIR(irid!);
-            window.location.assign(detailIrUrl(extractIRIDFromParts(newType!, newNumber)));
+            await goto(detailIrUrl(extractIRIDFromParts(newType!, newNumber)), { replaceState: true });
         } catch (e) {
             console.log(e);
             change = 'fail';
@@ -164,7 +184,7 @@
             nahradniDil5: sp.nahradniDil5, nahradniDil6: sp.nahradniDil6, nahradniDil7: sp.nahradniDil7,
             nahradniDil8: sp.nahradniDil8, nahradniDily: sp.nahradniDily,
         });
-        window.location.replace(detailIrUrl(newIRID.value));
+        await goto(detailIrUrl(newIRID.value), { replaceState: true });
     };
 </script>
 
@@ -223,7 +243,7 @@
 
             <button class="btn btn-danger d-block" onclick={() => {
                 db.deleteIndependentProtocol(originalSPID);
-                window.location.replace(spidUrl(`/detail?deleted`));
+                goto(spidUrl(`/detail?deleted`), { replaceState: true });
             }}
             >Odstranit protokol
             </button>
@@ -322,10 +342,10 @@
             <button class="btn btn-warning d-block" onclick={() => (change = 'input')}
             >{t.changeController}</button>
         {:else if change === 'input'}
-            <div class="">
-                <Widget bind:widget={irNumber} data={s} {t} />
-                <Widget bind:widget={irType} data={s} {t} />
-                <div class="btn-group">
+            <div class="d-flex flex-column gap-3 w-100">
+                <Widget bind:widget={irType} data={d} {t} />
+                <Widget bind:widget={irNumber} data={d} {t} />
+                <div class="d-flex gap-3">
                     <button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
                     <button class="btn btn-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>
                 </div>

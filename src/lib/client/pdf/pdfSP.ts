@@ -73,6 +73,7 @@ export const pdfSP: GetPdfData<'SP'> = async ({ evidence: e, installationProtoco
                 irName(e.ir) +
                 (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +
                 (e.sol?.typ ? `\nSOL: ${e.sol.typ} – ${e.sol.pocet}x` : '') +
+                (e.sol?.typ ? `\nREK: ${e.rek.typ}` : '') +
                 (e.fve?.pocet ? `\nFVE: ${t.get(e.fve.typ)} – ${e.fve.pocet}x` : '') +
                 (e.fve?.akumulaceDoBaterii ? `; baterie: ${e.fve.typBaterii} – ${e.fve.kapacitaBaterii} kWh` : '') +
                 (e.jine?.popis ? `\nJiné zařízení: ${e.jine.popis}` : '') +

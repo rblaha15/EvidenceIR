@@ -67,9 +67,12 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
     };
 }
 
+export type IRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 14' | 'IR 12' | 'SOREL';
+export type IRSubTypes = 'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6 EP' | 'STDC E' | 'TRS3' | 'TRS4' | 'TRS5' | 'TRS6 K';
+
 export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     ir: {
-        typ: DoubleChooserWidget<FormIN, P<'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 14' | 'IR 12' | 'SOREL'>, P<'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6 EP' | 'STDC E' | 'TRS3' | 'TRS4' | 'TRS5' | 'TRS6 K'>>;
+        typ: DoubleChooserWidget<FormIN, P<IRTypes>, P<IRSubTypes>>;
         cislo: InputWidget<FormIN>;
         cisloBox: InputWidget<FormIN>;
         boxType: TextWidget<FormIN>;
@@ -106,7 +109,7 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         typ: InputWidget<FormIN>;
         pocet: InputWidget<FormIN>;
     };
-    vetrani: {
+    rek: {
         title: TitleWidget<FormIN>;
         typ: InputWidget<FormIN>;
     };

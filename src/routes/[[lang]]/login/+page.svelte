@@ -9,6 +9,7 @@
 	import { startTechniciansListening, techniciansList } from '$lib/client/realtime';
 	import { get } from 'svelte/store';
 	import { relUrl } from '$lib/helpers/runes.svelte';
+	import { goto } from '$app/navigation';
 
 	const t: Translations = page.data.translations;
 
@@ -31,14 +32,14 @@
 
 	let error: string | null = $state(null);
 
-	function prihlasitSe() {
+	async function prihlasitSe() {
 		error = '';
-		logIn(email, password)
-			.then(c => {
+		await logIn(email, password)
+			.then(c =>
 				setName(get(techniciansList).find(t => t.email == c.user.email)?.name).then(() =>
-					window.location.href = page.url.origin + relUrl(redirect)
+					goto(page.url.origin + relUrl(redirect))
 				)
-			})
+			)
 			.catch(e => {
 				console.log(e.code);
 				if (e.code == 'auth/network-request-failed') {

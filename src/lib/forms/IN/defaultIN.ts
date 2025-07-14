@@ -1,6 +1,7 @@
 import {
     CheckboxWidget,
-    ChooserWidget, CounterWidget,
+    ChooserWidget,
+    CounterWidget,
     DoubleChooserWidget,
     InputWidget,
     MultiCheckboxWidget,
@@ -24,13 +25,13 @@ const po = (d: UserForm<never>) => !jeFO(d);
 
 const tc = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`heatPump`);
 const sol = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`solarCollector`);
-const vre = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`ventilation`);
+const rek = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`ventilation`);
 const fve = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`photovoltaicPowerPlant`);
 const other = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`otherDevice`);
 
-const ctc = (d: FormIN) => d.ir.typ.value.second == p('CTC')
-const rtc = (d: FormIN) => d.ir.typ.value.second == p('RTC')
-const subType = (d: FormIN) => d.ir.typ.value.second != null
+const ctc = (d: FormIN) => d.ir.typ.value.second == p('CTC');
+const rtc = (d: FormIN) => d.ir.typ.value.second == p('RTC');
+const subType = (d: FormIN) => d.ir.typ.value.second != null;
 
 export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
     koncovyUzivatel: {
@@ -353,7 +354,7 @@ export default (): FormIN => ({
                 if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
                     d.ir.typ.setValue(d, { ...v, second: null });
                 }
-                if (v.first == p('IR 12')) {
+                if (v.first == p('IR 12') && v.second != p('CTC')) {
                     d.ir.typ.setValue(d, { ...v, second: p('CTC') });
                 }
             },
@@ -361,13 +362,27 @@ export default (): FormIN => ({
         cislo: new InputWidget({
             label: `serialNumber`,
             onError: `wrongNumberFormat`,
-            regex: d => sorel(d) ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/ : /[A-Z][1-9OND] [0-9]{4}/,
+            regex: d => sorel(d)
+                ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
+                : d.ir.typ.value.first == p('IR 12')
+                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:0[69]:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}/
+                    : /[A-Z][1-9OND] [0-9]{4}/,
             capitalize: true,
             maskOptions: d => ({
-                mask: sorel(d) ? `0000-00-00T00:00` : `A1 0000`,
+                mask: sorel(d) ? `0000-00-00T00:00` :
+                    d.ir.typ.value.first != p('IR 12') ? 'Z1 0000'
+                        : d.ir.cislo.value.length == 0 ? 'X'
+                            : d.ir.cislo.value[0] == '0'
+                                ? 'NN:NA:N6:FF:FF:FF'
+                                : 'Z1 0000',
                 definitions: {
-                    A: /[A-Za-z]/,
-                    '1': /[1-9ONDond]/,
+                    X: /[0A-Za-z]/,
+                    N: /0/,
+                    A: /[Aa]/,
+                    6: /[69]/,
+                    F: /[0-9A-Fa-f]/,
+                    Z: /[A-Za-z]/,
+                    1: /[1-9ONDond]/,
                 },
             }),
             show: d => !sorel(d),
@@ -398,7 +413,33 @@ export default (): FormIN => ({
             options: d => d.ir.typ.value.first?.includes(`SOREL`)
                 ? [`solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'otherDevice']
                 : [`heatPump`, `solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'otherDevice'],
-            required: false, showInXML: false,
+            required: false, showInXML: false, onValueSet: (d, v) => {
+                if (!v.includes('heatPump')) {
+                    d.tc.typ.setValue(d, null)
+                    d.tc.pocet.setValue(d, 0)
+                } else {
+                    d.tc.pocet.setValue(d, 1)
+                }
+                if (!v.includes('solarCollector')) {
+                    d.sol.typ.setValue(d, '')
+                    d.sol.pocet.setValue(d, '')
+                }
+                if (!v.includes('ventilation')) {
+                    d.rek.typ.setValue(d, '')
+                }
+                if (!v.includes('photovoltaicPowerPlant')) {
+                    d.fve.pocet.setValue(d, '')
+                    d.fve.typStridace.setValue(d, '')
+                    d.fve.cisloStridace.setValue(d, '')
+                    d.fve.akumulaceDoBaterii.setValue(d, false)
+                    d.fve.typBaterii.setValue(d, '')
+                    d.fve.kapacitaBaterii.setValue(d, '')
+                    d.fve.wallbox.setValue(d, false)
+                }
+                if (!v.includes('otherDevice')) {
+                    d.jine.popis.setValue(d, '')
+                }
+            },
         }),
     },
     tc: {
@@ -419,7 +460,7 @@ export default (): FormIN => ({
             label: 'hpCount', min: 1, max: 10, chosen: 1, hideInRawData: true,
             onValueSet: (d, p) => {
                 TCNumbers.slice(p).forEach(i =>
-                    d.tc[`model${i}`].setValue(d, null)
+                    d.tc[`model${i}`].setValue(d, null),
                 );
             },
             show: d => subType(d) &&
@@ -448,12 +489,12 @@ export default (): FormIN => ({
             label: `solarCollectorCount`, type: `number`, required: sol, show: sol,
         }),
     },
-    vetrani: {
-        title: new TitleWidget({ text: `ventilation`, show: vre }),
+    rek: {
+        title: new TitleWidget({ text: `ventilation`, show: rek }),
         typ: new InputWidget({
             label: `recoveryVentilationUnitType`,
-            required: vre, show: vre,
-        })
+            required: rek, show: rek,
+        }),
     },
     fve: {
         title: new TitleWidget({

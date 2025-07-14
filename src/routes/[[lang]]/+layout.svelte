@@ -6,9 +6,8 @@
     import { preferredLanguage } from '$lib/languages';
     import { onMount, type Snippet } from 'svelte';
     import { backButton, progress, title } from '$lib/helpers/title.svelte';
-    import SettingsModal from '$lib/components/nav/SettingsModal.svelte';
-    import QueueModal from '$lib/components/nav/QueueModal.svelte';
     import type { Translations } from '$lib/translations';
+    import { goto } from '$app/navigation';
 
     interface Props {
         children?: Snippet;
@@ -27,12 +26,13 @@
         import('bootstrap');
         const currentLangLength = page.params.lang?.length ?? -1;
         if (!page.data.areTranslationsFromRoute)
-            window.location.replace(
+            goto(
                 '/' +
                 preferredLanguage() +
                 page.url.pathname.slice(currentLangLength + 1) +
                 page.url.search +
                 page.url.hash,
+                { replaceState: true },
             );
     });
 </script>
