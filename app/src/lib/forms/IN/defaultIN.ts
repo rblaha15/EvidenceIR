@@ -331,6 +331,8 @@ const heatPump = <const I extends TC>(i: I) => ({
     [K in `cislo${I}`]: ScannerWidget<FormIN>;
 });
 
+const sorel = (d: FormIN) => d.ir.typ.value.first == p('SOREL');
+
 export default (): FormIN => ({
     ir: {
         typ: new DoubleChooserWidget({
@@ -359,16 +361,16 @@ export default (): FormIN => ({
         cislo: new InputWidget({
             label: `serialNumber`,
             onError: `wrongNumberFormat`,
-            regex: d => d.ir.typ.value.first?.includes('SOREL') ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/ : /[A-Z][1-9OND] [0-9]{4}/,
+            regex: d => sorel(d) ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/ : /[A-Z][1-9OND] [0-9]{4}/,
             capitalize: true,
             maskOptions: d => ({
-                mask: d.ir.typ.value.first?.includes('SOREL') ? `0000-00-00T00:00` : `A1 0000`,
+                mask: sorel(d) ? `0000-00-00T00:00` : `A1 0000`,
                 definitions: {
                     A: /[A-Za-z]/,
                     '1': /[1-9ONDond]/,
                 },
             }),
-            show: d => !d.ir.typ.value.first?.includes('SOREL'),
+            show: d => !sorel(d),
         }),
         cisloBox: new InputWidget({
             label: `serialNumberIndoor`,
@@ -499,9 +501,9 @@ export default (): FormIN => ({
     },
     ...userData(),
     vzdalenyPristup: {
-        nadpis: new TitleWidget({ text: `remoteAccess`, show: d => !d.ir.typ.value.first?.includes('SOREL') }),
+        nadpis: new TitleWidget({ text: `remoteAccess`, show: d => !sorel(d) }),
         chce: new CheckboxWidget({
-            label: `doYouWantRemoteAccess`, required: false, show: d => !d.ir.typ.value.first?.includes('SOREL'),
+            label: `doYouWantRemoteAccess`, required: false, show: d => !sorel(d),
             onValueSet: (d, v) => {
                 if (!v) {
                     d.vzdalenyPristup.pristupMa.setValue(d, []);
@@ -512,20 +514,20 @@ export default (): FormIN => ({
         pristupMa: new MultiCheckboxWidget({
             label: `whoHasAccess`,
             options: [`endCustomer`, `assemblyCompany`, `commissioningCompany`],
-            show: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
-            required: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
+            show: d => !sorel(d) && d.vzdalenyPristup.chce.value,
+            required: d => !sorel(d) && d.vzdalenyPristup.chce.value,
         }),
         plati: new RadioWidget({
             label: `whoWillBeInvoiced`,
             options: ['assemblyCompany', 'endCustomer'] as ReturnType<FormIN['vzdalenyPristup']['plati']['options']>,
-            show: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
-            required: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
+            show: d => !sorel(d) && d.vzdalenyPristup.chce.value,
+            required: d => !sorel(d) && d.vzdalenyPristup.chce.value,
         }),
         zodpovednaOsoba: new InputWidget({
             label: `responsiblePerson`,
             autocomplete: `section-resp billing name`,
-            show: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
-            required: d => !d.ir.typ.value.first?.includes('SOREL') && d.vzdalenyPristup.chce.value,
+            show: d => !sorel(d) && d.vzdalenyPristup.chce.value,
+            required: d => !sorel(d) && d.vzdalenyPristup.chce.value,
         }),
     },
     ostatni: {

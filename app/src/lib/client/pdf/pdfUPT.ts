@@ -3,6 +3,7 @@ import { dateFromISO, todayISO } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/client/pdf';
 import { endUserName, irType, typBOX } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
+import { p } from '$lib/translations';
 
 const pdfUPT: GetPdfData<'UPT'> = async ({ evidence: e, uvedeniTC }, t) => {
     const u = uvedeniTC!;
@@ -40,7 +41,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ evidence: e, uvedeniTC }, t) => {
         Text28: u.os.objemEnOs ? t.suits : t.suitsNot,
         Text29: u.os.bazenTc ? t.yes : t.no,
         Text30: irType(e.ir.typ),
-        Text31: e.ir.typ.first?.includes('SOREL') ? '—' : e.ir.cislo,
+        Text31: e.ir.typ.first == p('SOREL') ? '—' : e.ir.cislo,
         Text32: t.get(u.reg.pripojeniKInternetu!),
         Text33: u.reg.pospojeni ? t.yes : t.no,
         Text34: u.reg.spotrebice ? t.yes : t.no,

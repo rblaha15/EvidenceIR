@@ -36,7 +36,7 @@
 
 <h2>Regulátor</h2>
 <p><b>Typ zařízení:</b> {typZarizeni(e)}</p>
-{#if !e.ir.typ.first?.includes('SOREL')}
+{#if e.ir.typ.first !== p('SOREL')}
 	<p><b>Výrobní číslo:</b> {e.ir.cislo}</p>
 {/if}
 <p><b>Přihlášení:</b> {irName(e.ir)}</p>
