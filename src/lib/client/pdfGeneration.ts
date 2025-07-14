@@ -39,7 +39,7 @@ export const generatePdf = async <P extends Pdf>(
     const t = getTranslations(formLanguage);
 
     const formLocation = `/pdf/${args.pdfName}_${formLanguage}.pdf`;
-    const formPdfBytes = await (await fetch(formLocation)).arrayBuffer();
+    const formPdfBytes = await (await fetch(formLocation, { cache: 'reload' })).arrayBuffer();
 
     const pdfDoc = await PDFDocument.load(formPdfBytes);
     pdfDoc.setTitle(t.get(args.title));
