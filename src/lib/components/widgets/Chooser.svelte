@@ -19,7 +19,7 @@
 
 <div class="d-flex gap-1 flex-column">
     <label class="form-floating d-block">
-        <select class="form-select" value={widget.value ?? 'notChosen'} onchange={onChange}>
+        <select class="form-select" value={widget.value ?? 'notChosen'} onchange={onChange} disabled={widget.lock(data)}>
             <option class="d-none" value='notChosen'>{t.notChosen}</option>
             {#each widget.options(data) as moznost}
                 <option value={moznost}>{t.get(moznost)}</option>

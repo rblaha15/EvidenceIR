@@ -67,12 +67,12 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
     };
 }
 
-export type IRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 14' | 'IR 12' | 'SOREL';
-export type IRSubTypes = 'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6 EP' | 'STDC E' | 'TRS3' | 'TRS4' | 'TRS5' | 'TRS6 K';
+export type IRTypes = P<'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 14' | 'IR 12' | 'SOREL'> | 'irFVE';
+export type IRSubTypes = P<'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6 EP' | 'STDC E' | 'TRS3' | 'TRS4' | 'TRS5' | 'TRS6 K'>;
 
 export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     ir: {
-        typ: DoubleChooserWidget<FormIN, P<IRTypes>, P<IRSubTypes>>;
+        typ: DoubleChooserWidget<FormIN, IRTypes, IRSubTypes>;
         cislo: InputWidget<FormIN>;
         cisloBox: InputWidget<FormIN>;
         boxType: TextWidget<FormIN>;
@@ -115,7 +115,7 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     };
     fve: {
         title: TitleWidget<FormIN>;
-        typ: ChooserWidget<FormIN, P<'DG-450-B'>>;
+        typ: ChooserWidget<FormIN, P<'DG-450-B'> | 'fve.otherPanels'>;
         pocet: InputWidget<FormIN>;
         typStridace: InputWidget<FormIN>;
         cisloStridace: InputWidget<FormIN>;
@@ -123,6 +123,7 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         typBaterii: InputWidget<FormIN>;
         kapacitaBaterii: InputWidget<FormIN>;
         wallbox: CheckboxWidget<FormIN>;
+        spolupraceIR: CheckboxWidget<FormIN>,
     };
     jine: {
         title: TitleWidget<FormIN>;

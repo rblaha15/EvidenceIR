@@ -8,5 +8,7 @@
 </script>
 
 {#key page.url}
-    <Form {formInfo} {t} {editData} {viewData} />
+    {#if formInfo}
+        <Form {formInfo} {t} {editData} {viewData} />
+    {/if}
 {/key}

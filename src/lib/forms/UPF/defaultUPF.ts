@@ -58,9 +58,6 @@ export default (): FormUPF => ({
             show: d => d.connection.accumulationToWater.value,
             required: d => d.connection.accumulationToWater.value,
         }),
-        irCooperation: new CheckboxWidget({
-            label: p('Spolupráce s IR'), required: false,
-        }),
         otherSmartControl: new InputWidget({
             label: p('Jiné chytré řízení'), required: false,
         }),

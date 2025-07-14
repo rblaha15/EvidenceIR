@@ -16,10 +16,12 @@ export type RemovePlain<S extends P = P> = S extends `PLAIN_${infer O}` ? O : ne
 export function p<T extends string | undefined | null>(text: T): T extends string ? P<T> : T;
 export function p<T extends string>(s: T): P<T>;
 export function p<T extends string>(a: T[]): P<T>[];
-export function p<T extends string | undefined | null>(arg: T | T[]) {
+export function p<T extends string>(...a: T[]): P<T>[];
+export function p<T extends string | undefined | null>(arg: T | T[], ...other: T[]) {
     return Array.isArray(arg)
         ? arg.map(s => `PLAIN_${s}`)
-        : arg ? `PLAIN_${arg}` : undefined;
+        : other.length ? [arg, ...other].map(s => `PLAIN_${s}`)
+            : arg ? `PLAIN_${arg}` : undefined;
 }
 
 export const removePlain = <T extends P>(ref: T) => ref.slice(6) as RemovePlain<T>;
