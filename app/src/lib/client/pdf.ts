@@ -9,7 +9,7 @@ import ZL from '$lib/client/pdf/pdfZL';
 import RR from '$lib/client/pdf/pdfRR';
 import UPT from '$lib/client/pdf/pdfUPT';
 import UPS from '$lib/client/pdf/pdfUPS';
-import SP, { pdfCP as CP, pdfNSP as NSP } from '$lib/client/pdf/pdfSP';
+import SP, { pdfCP as CP, pdfNSP as NSP, pdfPS as PS } from '$lib/client/pdf/pdfSP';
 import UPF from '$lib/client/pdf/pdfUPF';
 import type { Raw } from '$lib/forms/Form';
 
@@ -19,7 +19,7 @@ import type { TC } from '$lib/forms/IN/defaultIN';
 type AllPdf = {
     [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP' | 'UPF']: 'IR'
 } & {
-    [P in 'NSP' | 'CP']: 'SP'
+    [P in 'NSP' | 'CP' | 'PS']: 'SP'
 }
 
 export const pdfInfo: PdfInfo = {
@@ -87,6 +87,13 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs'],
         title: '',
         getPdfData: CP,
+    },
+    PS: {
+        type: 'SP',
+        pdfName: 'PS',
+        supportedLanguages: ['cs'],
+        title: '',
+        getPdfData: PS,
     },
     UPF: {
         type: 'IR',
