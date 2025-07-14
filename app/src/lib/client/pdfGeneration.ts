@@ -1,4 +1,4 @@
-import { PDFDocument, PDFName, PDFRef, PDFSignature } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { getTranslations } from '$lib/translations';
 import type { LanguageCode } from '$lib/languages';
@@ -50,7 +50,6 @@ export const generatePdf = async <P extends Pdf>(
     pdfDoc.setTitle(t.get(args.title));
 
     const form = pdfDoc.getForm();
-    const fields = form.getFields();
 
     const addPage = async <P extends Pdf>(
         pdfArgs2: PdfArgs<P>,
@@ -113,6 +112,7 @@ export const generatePdf = async <P extends Pdf>(
         }
     }
 
+    // const fields = form.getFields();
     // fields.forEach(field => {
     //     const type = field.constructor.name;
     //     const name = field.getName();
@@ -134,16 +134,6 @@ export const generatePdf = async <P extends Pdf>(
     const ubuntuFont = await pdfDoc.embedFont(fontBytes);
 
     form.updateFieldAppearances(ubuntuFont);
-
-    fields.forEach(field => {
-        if (field instanceof PDFSignature) {
-            field.acroField.getWidgets().forEach(w => {
-                w.ensureAP().set(PDFName.of('N'), PDFRef.of(0));
-            });
-            form.removeField(field);
-        }
-    });
-    form.flatten();
 
     const pdfBytes = await pdfDoc.save(args.saveOptions);
 
