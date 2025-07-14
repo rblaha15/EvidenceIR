@@ -30,6 +30,7 @@ export const load: PageLoad = async ({ params, url }) => {
     const editData = await independentForm.getEditData?.(url);
 
     return {
+        ...id,
         formInfo: independentForm,
         viewData,
         editData,

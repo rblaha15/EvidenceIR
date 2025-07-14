@@ -33,6 +33,11 @@ const ctc = (d: FormIN) => d.ir.typ.value.second == p('CTC');
 const rtc = (d: FormIN) => d.ir.typ.value.second == p('RTC');
 const subType = (d: FormIN) => d.ir.typ.value.second != null;
 
+const sorel = (d: FormIN) => d.ir.typ.value.first == p('SOREL');
+
+const irFVE = (d: FormIN) => d.ir.typ.value.first == 'irFVE';
+const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == p('DG-450-B');
+
 export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
     koncovyUzivatel: {
         nadpis: new TitleWidget({ text: `endUser` }),
@@ -260,7 +265,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             showInXML: true,
             show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
-            required: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
+            required: false,
             autocomplete: `section-commissioning billing work email`,
         }),
         telefon: new InputWidget({
@@ -270,7 +275,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             type: 'tel',
             showInXML: true,
             show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
-            required: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
+            required: false,
             autocomplete: `section-assembly billing work tel`,
         }),
     },
@@ -332,21 +337,22 @@ const heatPump = <const I extends TC>(i: I) => ({
     [K in `cislo${I}`]: ScannerWidget<FormIN>;
 });
 
-const sorel = (d: FormIN) => d.ir.typ.value.first == p('SOREL');
-
 export default (): FormIN => ({
     ir: {
         typ: new DoubleChooserWidget({
             label: `controllerType`,
-            options1: p(['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL']),
+            options1: [...p('IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL'), 'irFVE'],
             options2: ({ ir: { typ: { value: { first: f } } } }) => (
-                p(f == p('IR 12') ? ['CTC'] : f == p('SOREL') ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K'] : ['CTC', 'RTC'])
+                p(f == p('IR 12') ? ['CTC']
+                    : f == p('SOREL') ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
+                        : f == 'irFVE' ? []
+                            : ['CTC', 'RTC'])
             ),
             onValueSet: (d, v) => {
                 if (v.second == p('RTC')) {
                     d.tc.typ.setValue(d, 'airToWater');
                 }
-                if (v.first == p('SOREL')) {
+                if (v.first == p('SOREL') || v.first == 'irFVE') {
                     d.ir.cislo.setValue(d, `${todayISO()} ${time()}`);
                     d.ir.cisloBox.setValue(d, '');
                     d.vzdalenyPristup.chce.setValue(d, false);
@@ -357,35 +363,44 @@ export default (): FormIN => ({
                 if (v.first == p('IR 12') && v.second != p('CTC')) {
                     d.ir.typ.setValue(d, { ...v, second: p('CTC') });
                 }
+                if (v.first == 'irFVE' && v.second) {
+                    d.ir.typ.setValue(d, { ...v, second: null });
+                }
+                if (v.first == 'irFVE') {
+                    d.ir.chceVyplnitK.setValue(d, ['photovoltaicPowerPlant']);
+                    d.fve.typ.setValue(d, p('DG-450-B'));
+                }
             },
         }),
         cislo: new InputWidget({
             label: `serialNumber`,
             onError: `wrongNumberFormat`,
-            regex: d => sorel(d)
+            regex: d => sorel(d) || irFVE(d)
                 ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
                 : d.ir.typ.value.first == p('IR 12')
-                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:0[69]:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}/
+                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:0[69]:[0-9A-F]{2}:[0-9A-F]{2}/
                     : /[A-Z][1-9OND] [0-9]{4}/,
             capitalize: true,
             maskOptions: d => ({
                 mask: sorel(d) ? `0000-00-00T00:00` :
-                    d.ir.typ.value.first != p('IR 12') ? 'Z1 0000'
+                    d.ir.typ.value.first != p('IR 12') ? 'Z9 0000'
                         : d.ir.cislo.value.length == 0 ? 'X'
                             : d.ir.cislo.value[0] == '0'
-                                ? 'NN:NA:N6:FF:FF:FF'
-                                : 'Z1 0000',
+                                ? 'NN:NA:14:N6:FF:FF'
+                                : 'Z9 0000',
                 definitions: {
                     X: /[0A-Za-z]/,
                     N: /0/,
                     A: /[Aa]/,
                     6: /[69]/,
+                    1: /1/,
+                    4: /4/,
                     F: /[0-9A-Fa-f]/,
                     Z: /[A-Za-z]/,
-                    1: /[1-9ONDond]/,
+                    9: /[1-9ONDond]/,
                 },
             }),
-            show: d => !sorel(d),
+            show: d => !sorel(d) && !irFVE(d),
         }),
         cisloBox: new InputWidget({
             label: `serialNumberIndoor`,
@@ -410,34 +425,38 @@ export default (): FormIN => ({
         }),
         chceVyplnitK: new MultiCheckboxWidget({
             label: `whatToAddInfoTo`,
-            options: d => d.ir.typ.value.first?.includes(`SOREL`)
+            options: d => sorel(d)
                 ? [`solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'otherDevice']
-                : [`heatPump`, `solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'otherDevice'],
+                : irFVE(d)
+                    ? ['photovoltaicPowerPlant']
+                    : [`heatPump`, `solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'otherDevice'] as const,
+            lock: irFVE,
             required: false, showInXML: false, onValueSet: (d, v) => {
                 if (!v.includes('heatPump')) {
-                    d.tc.typ.setValue(d, null)
-                    d.tc.pocet.setValue(d, 0)
+                    d.tc.typ.setValue(d, null);
+                    d.tc.pocet.setValue(d, 0);
                 } else {
-                    d.tc.pocet.setValue(d, 1)
+                    d.tc.pocet.setValue(d, 1);
                 }
                 if (!v.includes('solarCollector')) {
-                    d.sol.typ.setValue(d, '')
-                    d.sol.pocet.setValue(d, '')
+                    d.sol.typ.setValue(d, '');
+                    d.sol.pocet.setValue(d, '');
                 }
                 if (!v.includes('ventilation')) {
-                    d.rek.typ.setValue(d, '')
+                    d.rek.typ.setValue(d, '');
                 }
                 if (!v.includes('photovoltaicPowerPlant')) {
-                    d.fve.pocet.setValue(d, '')
-                    d.fve.typStridace.setValue(d, '')
-                    d.fve.cisloStridace.setValue(d, '')
-                    d.fve.akumulaceDoBaterii.setValue(d, false)
-                    d.fve.typBaterii.setValue(d, '')
-                    d.fve.kapacitaBaterii.setValue(d, '')
-                    d.fve.wallbox.setValue(d, false)
+                    d.fve.pocet.setValue(d, '');
+                    d.fve.typStridace.setValue(d, '');
+                    d.fve.cisloStridace.setValue(d, '');
+                    d.fve.akumulaceDoBaterii.setValue(d, false);
+                    d.fve.typBaterii.setValue(d, '');
+                    d.fve.kapacitaBaterii.setValue(d, '');
+                    d.fve.wallbox.setValue(d, false);
+                    d.fve.spolupraceIR.setValue(d, false);
                 }
                 if (!v.includes('otherDevice')) {
-                    d.jine.popis.setValue(d, '')
+                    d.jine.popis.setValue(d, '');
                 }
             },
         }),
@@ -502,33 +521,37 @@ export default (): FormIN => ({
             show: fve,
         }),
         typ: new ChooserWidget({
-            label: p('Typ panelů'), options: p(['DG-450-B']), chosen: p('DG-450-B'),
-            required: fve, show: fve, lock: true,
+            label: p('Typ panelů'), chosen: p('DG-450-B'),
+            required: fve, show: fve, lock: irFVE,
+            options: d => irFVE(d) ? [p('DG-450-B')] : [p('DG-450-B'), 'fve.otherPanels'],
         }),
         pocet: new InputWidget({
-            label: p('Počet panelů'), type: `number`, required: fve, show: fve,
+            label: p('Počet panelů'), type: `number`, required: fveReg, show: fveReg,
         }),
         typStridace: new InputWidget({
-            label: p('Typ střídače'), required: fve, show: fve,
+            label: p('Typ střídače'), required: fveReg, show: fveReg,
         }),
         cisloStridace: new InputWidget({
-            label: p('Výrobní číslo střídače'), required: fve, show: fve,
+            label: p('Výrobní číslo střídače'), required: fveReg, show: fveReg,
         }),
         akumulaceDoBaterii: new CheckboxWidget({
-            label: p('Akumulace do baterií'), required: false, show: fve,
+            label: p('Akumulace do baterií'), required: false, show: fveReg,
         }),
         typBaterii: new InputWidget({
             label: p('Typ baterií'),
-            required: d => fve(d) && d.fve.akumulaceDoBaterii.value,
-            show: d => fve(d) && d.fve.akumulaceDoBaterii.value,
+            required: d => fveReg(d) && d.fve.akumulaceDoBaterii.value,
+            show: d => fveReg(d) && d.fve.akumulaceDoBaterii.value,
         }),
         kapacitaBaterii: new InputWidget({
             label: p('Celková kapacita baterií'), type: 'number', suffix: 'units.kWh',
-            required: d => fve(d) && d.fve.akumulaceDoBaterii.value,
-            show: d => fve(d) && d.fve.akumulaceDoBaterii.value,
+            required: d => fveReg(d) && d.fve.akumulaceDoBaterii.value,
+            show: d => fveReg(d) && d.fve.akumulaceDoBaterii.value,
         }),
         wallbox: new CheckboxWidget({
-            label: p('Dobíjecí stanice – wallbox'), required: false, show: fve,
+            label: p('Dobíjecí stanice – wallbox'), required: false, show: fveReg,
+        }),
+        spolupraceIR: new CheckboxWidget({
+            label: p('Spolupráce s IR'), required: false, show: fve,
         }),
     },
     jine: {
@@ -542,9 +565,9 @@ export default (): FormIN => ({
     },
     ...userData(),
     vzdalenyPristup: {
-        nadpis: new TitleWidget({ text: `remoteAccess`, show: d => !sorel(d) }),
+        nadpis: new TitleWidget({ text: `remoteAccess`, show: d => !sorel(d) && !irFVE(d) }),
         chce: new CheckboxWidget({
-            label: `doYouWantRemoteAccess`, required: false, show: d => !sorel(d),
+            label: `doYouWantRemoteAccess`, required: false, show: d => !sorel(d) && !irFVE(d),
             onValueSet: (d, v) => {
                 if (!v) {
                     d.vzdalenyPristup.pristupMa.setValue(d, []);
@@ -555,20 +578,20 @@ export default (): FormIN => ({
         pristupMa: new MultiCheckboxWidget({
             label: `whoHasAccess`,
             options: [`endCustomer`, `assemblyCompany`, `commissioningCompany`],
-            show: d => !sorel(d) && d.vzdalenyPristup.chce.value,
-            required: d => !sorel(d) && d.vzdalenyPristup.chce.value,
+            show: d => !sorel(d) && !irFVE(d) && d.vzdalenyPristup.chce.value,
+            required: d => !sorel(d) && !irFVE(d) && d.vzdalenyPristup.chce.value,
         }),
         plati: new RadioWidget({
             label: `whoWillBeInvoiced`,
             options: ['assemblyCompany', 'endCustomer'] as ReturnType<FormIN['vzdalenyPristup']['plati']['options']>,
-            show: d => !sorel(d) && d.vzdalenyPristup.chce.value,
-            required: d => !sorel(d) && d.vzdalenyPristup.chce.value,
+            show: d => !sorel(d) && !irFVE(d) && d.vzdalenyPristup.chce.value,
+            required: d => !sorel(d) && !irFVE(d) && d.vzdalenyPristup.chce.value,
         }),
         zodpovednaOsoba: new InputWidget({
             label: `responsiblePerson`,
             autocomplete: `section-resp billing name`,
-            show: d => !sorel(d) && d.vzdalenyPristup.chce.value,
-            required: d => !sorel(d) && d.vzdalenyPristup.chce.value,
+            show: d => !sorel(d) && !irFVE(d) && d.vzdalenyPristup.chce.value,
+            required: d => !sorel(d) && !irFVE(d) && d.vzdalenyPristup.chce.value,
         }),
     },
     ostatni: {

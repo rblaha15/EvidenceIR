@@ -28,7 +28,7 @@
     let mounted = false;
     onMount(() => (mounted = true));
     const Select: Action<HTMLSelectElement> = (e) => {
-        if (mounted) e.showPicker();
+        if (mounted && !e.disabled) e.showPicker();
     };
 </script>
 
