@@ -260,7 +260,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             showInXML: true,
             show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
-            required: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
+            required: false,
             autocomplete: `section-commissioning billing work email`,
         }),
         telefon: new InputWidget({
@@ -270,7 +270,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             type: 'tel',
             showInXML: true,
             show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
-            required: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
+            required: false,
             autocomplete: `section-assembly billing work tel`,
         }),
     },
