@@ -1,55 +1,36 @@
 <script lang="ts">
-	import { dev } from '$app/environment';
-	import { page } from '$app/state';
-	import { checkAuth } from '$lib/client/auth';
-	import Navigation from '$lib/components/Navigation.svelte';
-	import { preferredLanguage } from '$lib/languages';
-	import { onMount, type Snippet } from 'svelte';
-	import { titleSvelte } from '$lib/helpers/title.svelte';
-	interface Props {
-		children?: Snippet;
-	}
+    import type { LayoutData } from './$types';
+    import { onMount, type Snippet } from 'svelte';
+    import MainLayout from './MainLayout.svelte';
 
-	let { children }: Props = $props();
+    interface Props {
+        data: LayoutData;
+        children?: Snippet;
+    }
 
-	const t = page.data.translations;
+    let { children, data }: Props = $props();
 
-	let nacita = $state(true);
-	onMount(async () => {
-		await checkAuth();
-		nacita = false;
-	});
-	onMount(() => {
-		import('bootstrap');
-		const currentLangLength = page.params.lang?.length ?? -1;
-		if (!page.data.areTranslationsFromRoute)
-			window.location.replace(
-				'/' +
-					preferredLanguage() +
-					page.url.pathname.slice(currentLangLength + 1) +
-					page.url.search +
-					page.url.hash
-			);
-	});
+    onMount(() => {
+        import('bootstrap');
+    });
 </script>
 
 <svelte:head>
-	<style lang="scss">
-		@use 'bootstrap/scss/bootstrap';
-		@use '../../lib/components/input-groups.css';
+    <style lang="scss">
+      @use 'bootstrap/scss/bootstrap';
+      @use '../../lib/components/input-groups.css';
 
-		@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
-	</style>
+      @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+      @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wdth,wght@0,75..100,300..800;1,75..100,300..800&display=swap');
 
-	<title>{dev ? '(dev) ' : ''}SEIR :: {$titleSvelte}</title>
+      :root {
+        --bs-font-sans-serif: 'Open Sans', sans-serif;
+      }
+
+      :root, html, body, body > div {
+        height: 100%;
+      }
+    </style>
 </svelte:head>
 
-{#if nacita}
-	<div class="spinner-border text-danger m-2"></div>
-{:else}
-	<Navigation {t} />
-	<div class="container my-3 d-flex flex-column gap-3">
-		<h1 class="m-0">{$titleSvelte}</h1>
-		{@render children?.()}
-	</div>
-{/if}
+<MainLayout {children} {data} />

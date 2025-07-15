@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import type { Action } from 'svelte/action';
     import type { TranslationReference, Translations } from '$lib/translations';
-    import { type DoubleChooserWidget, labelAndStar } from '$lib/Widget.svelte.js';
+    import { type DoubleChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
         t: Translations;
@@ -28,7 +28,7 @@
     let mounted = false;
     onMount(() => (mounted = true));
     const Select: Action<HTMLSelectElement> = (e) => {
-        if (mounted) e.showPicker();
+        if (mounted && !e.disabled) e.showPicker();
     };
 </script>
 

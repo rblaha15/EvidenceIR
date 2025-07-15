@@ -5,7 +5,7 @@ export const languageCodes = ["cs", "en", "de", "sk" ] as const
 
 export const isLanguageCode = (code: unknown): code is LanguageCode => (languageCodes as readonly unknown[]).includes(code)
 
-export const asLanguageCodeOrNull = (code: unknown): LanguageCode | null =>
+export const asLanguageCodeOrNull = (code: unknown) =>
     isLanguageCode(code) ? code : null
 
 export type LanguageCode = typeof languageCodes[number]

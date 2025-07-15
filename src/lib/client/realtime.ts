@@ -126,23 +126,23 @@ export const responsiblePerson = derived(
 	null as string | null
 );
 
-export const seznamLidi = writable([] as Person[]);
+export const usersList = writable([] as Person[]);
 
 export const startLidiListening = async () => {
 	const { onValue } = await import('firebase/database');
 	return onValue(lidiRef, (data) => {
-		seznamLidi.set((data.val() as { [uid: string]: Person } ?? {}).getValues().map(p => ({
+		usersList.set((data.val() as { [uid: string]: Person } ?? {}).getValues().map(p => ({
 			...p, assemblyCompanies: p.assemblyCompanies ?? {}, commissioningCompanies: p.commissioningCompanies ?? {},
 		})));
 	});
 };
 
-export const seznamFirmy = writable([] as Company[]);
+export const companiesList = writable([] as Company[]);
 
 export const startFirmyListening = async () => {
 	const { onValue } = await import('firebase/database');
 	return onValue(firmyRef, (data) => {
-		seznamFirmy.set(Object.values((data.val() as { [crn: CRN]: Company }) ?? {}));
+		companiesList.set((data.val() as { [crn: CRN]: Company } ?? {}).getValues());
 	});
 };
 

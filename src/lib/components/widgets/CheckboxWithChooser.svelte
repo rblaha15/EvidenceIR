@@ -1,6 +1,6 @@
 <script generics="D, I extends TranslationReference" lang="ts">
     import type { TranslationReference, Translations } from '$lib/translations';
-    import { CheckboxWithChooserWidget, labelAndStar } from '$lib/Widget.svelte.js';
+    import { CheckboxWithChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import type { Action } from 'svelte/action';
     import { onMount } from 'svelte';
 

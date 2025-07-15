@@ -1,6 +1,7 @@
 import { EMAIL_PASSWORD_G, EMAIL_USERNAME_G } from "$env/static/private";
 import nodemailer from 'nodemailer';
 import type { EmailMessage } from '$lib/client/email';
+import type { FinalEmailMessage } from '../../routes/api/sendEmail/+server';
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -12,4 +13,4 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-export const sendEmail = (message: EmailMessage) => transporter.sendMail(message);
+export const sendEmail = (message: FinalEmailMessage) => transporter.sendMail(message);

@@ -5,15 +5,16 @@
 	import { onMount } from 'svelte';
 	import authentication from '$lib/client/authentication';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
-	import { setTitle } from '$lib/helpers/title.svelte';
+	import { setTitle } from '$lib/helpers/globals.js';
+	import { goto } from '$app/navigation';
 
 	let odesila = $state(false);
 	let email = $state(browser ? (page.url.searchParams.get('email') ?? '') : '');
 
 	const t: Translations = page.data.translations;
 
-	let redirect: string = '/new';
-	onMount(() => (redirect = page.url.searchParams.get('redirect') ?? '/new'));
+	let redirect: string = '/IN';
+	onMount(() => (redirect = page.url.searchParams.get('redirect') ?? '/IN'));
 
 	let error: string | null = $state(null);
 
@@ -45,7 +46,7 @@
 			redirect,
 			mode: 'register'
 		});
-		window.location.href = link;
+		await goto(link);
 	};
 
 	setTitle(t.signUp)

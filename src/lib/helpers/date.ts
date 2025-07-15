@@ -30,9 +30,17 @@ export function nowISO() {
 
 export function dateFromISO(dateISO: string) {
     const parts = dateISO.split('T')[0].split('-');
-    const dd = parts[2]
-    const mm = parts[1]
-    const yyyy = parts[0]
+    const dd = parts[2];
+    const mm = parts[1];
+    const yyyy = parts[0];
 
     return `${dd}. ${mm}. ${yyyy}`;
+}
+
+export function timeFromISO(timeISO: string) {
+    return timeISO.split('T').at(-1);
+}
+
+export function datetimeFromISO(datetimeISO: string) {
+    return `${dateFromISO(datetimeISO)} ${timeFromISO(datetimeISO)}`;
 }

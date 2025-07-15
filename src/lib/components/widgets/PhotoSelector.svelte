@@ -1,34 +1,8 @@
-<script lang="ts" module>
-    import { v4 as uuid } from 'uuid';
-    import { openDB } from 'idb';
-    import { browser } from '$app/environment';
-
-    const db = browser ? openDB<{
-        photos: {
-            key: string;
-            value: string;
-        };
-    }>('photo-selector', 1, {
-        upgrade: db => {
-            if (!db.objectStoreNames.contains('photos'))
-                db.createObjectStore('photos');
-        },
-    }) : undefined;
-
-    export const addPhoto = (photo: string) =>
-        uuid().also(async id => await (await db!).add('photos', photo, id));
-    export const removePhoto = async (id: string) =>
-        await (await db!).delete('photos', id);
-    export const removeAllPhotos = async () =>
-        await (await db!).clear('photos');
-    export const getPhoto = async (id: string) =>
-        await (await db!).get('photos', id);
-</script>
-
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { labelAndStar, type PhotoSelectorWidget } from '$lib/Widget.svelte';
+    import { type Files, labelAndStar, type PhotoSelectorWidget } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
+    import { getFile, addFile, removeFile } from '$lib/components/widgets/File.svelte';
 
     interface Props {
         t: Translations;
@@ -40,35 +14,36 @@
 
     let inputSelect = $state<HTMLInputElement>();
     let inputCapture = $state<HTMLInputElement>();
+    const accept = $derived(widget.accept(data, t));
     const multiple = $derived(widget.multiple(data));
     const max = $derived(widget.max(data));
 
     const onchange: ChangeEventHandler<HTMLInputElement> = async e => {
-        const files = e.currentTarget.files;
-        if (files) {
-            const photoStrings = await [...files].map(file => new Promise<string>((resolve, reject) => {
+        const selectedFiles = e.currentTarget.files;
+        if (selectedFiles) {
+            const photos = await [...selectedFiles].map(file => new Promise<Files[number]>((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     if (typeof reader.result != 'string') return reject();
-                    resolve(addPhoto(reader.result));
+                    addFile(reader.result).then(uuid => resolve({ fileName: file.name, uuid }));
                 };
                 reader.readAsDataURL(file);
             })).awaitAll();
 
-            widget.mutateValue(data, v => [...v, ...photoStrings].slice(0, max));
+            widget.mutateValue(data, v => [...v, ...photos].slice(0, max));
             if (e.currentTarget) e.currentTarget.value = '';
         }
     };
 
     const remove = (photoId: string) => async () => {
-        await removePhoto(photoId);
-        widget.mutateValue(data, v => v.toggle(photoId));
+        await removeFile(photoId);
+        widget.mutateValue(data, v => v.toSpliced(v.findIndex(f => f.uuid === photoId), 1));
     };
 </script>
 
 <div class="d-flex gap-1 flex-column">
     <div>{labelAndStar(widget, data, t)}</div>
-    <div class="d-flex gap-3 flex-column">
+    <div class="d-flex gap-3 flex-column align-items-start">
         {#if widget.value.length === 0 || (multiple && widget.value.length < max)}
             <div class="d-flex gap-3">
                 <button
@@ -76,42 +51,42 @@
                     class="btn btn-outline-primary"
                     onclick={() => inputSelect?.click()}
                 >
-                    {multiple ? t.selectPhoto : t.selectPhotos}
+                    {multiple ? t.selectPhotos : t.selectPhoto}
                 </button>
                 <button
                     type="button"
                     class="btn btn-outline-primary"
                     onclick={() => inputCapture?.click()}
                 >
-                    {multiple ? t.capturePhoto : t.capturePhotos}
+                    {t.capturePhoto}
                 </button>
             </div>
         {/if}
 
         {#if widget.value.length}
             <ul class="list-group">
-                {#each widget.value as photoId}
-                    <li class="d-flex w-100 align-items-center list-group-item">
-                        {#await getPhoto(photoId) then photo}
+                {#each widget.value as { fileName, uuid }}
+                    <li class="d-flex w-100 align-items-center list-group-item gap-3">
+                        {#await getFile(uuid) then photo}
                             <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
                                  src={photo} alt="Fotografie">
                         {/await}
-                        <button class="btn text-danger ms-3" onclick={remove(photoId)}><i class="my-1 bi-trash"></i> {t.remove}</button>
+                        <div class="d-flex flex-column gap-3 text-center">
+                            <span style="word-break: break-all">{fileName}</span>
+                            <button class="btn text-danger" onclick={remove(uuid)}><i class="my-1 bi-trash"></i> {t.remove}</button>
+                        </div>
                     </li>
                 {/each}
             </ul>
         {/if}
     </div>
-    {#if !widget.value.length}
-        <div>{t.noPhotos}</div>
-    {/if}
 
     {#if widget.showError(data)}
         <p class="text-danger">{t.get(widget.onError(data, t))}</p>
     {/if}
 
     <input
-        accept="image/*"
+        {accept}
         bind:this={inputSelect}
         class="d-none"
         {multiple}
@@ -119,7 +94,7 @@
         type="file"
     />
     <input
-        accept="image/*"
+        {accept}
         bind:this={inputCapture}
         capture="environment"
         class="d-none"

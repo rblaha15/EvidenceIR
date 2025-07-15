@@ -1,6 +1,6 @@
 <script generics="D, I extends TranslationReference" lang="ts">
     import type { TranslationReference, Translations } from '$lib/translations';
-    import { type MultiCheckboxWidget, labelAndStar } from '$lib/Widget.svelte.js';
+    import { type MultiCheckboxWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
         t: Translations;
@@ -25,15 +25,15 @@
     <div class="input-group input-group-grid">
         {#each widget.options(data) as item}
             <button class="input-group-text input-group-input first" onclick={onClick(item)}
-                    disabled={!widget.value.includes(item) && pocet >= widget.max(data)}
+                    disabled={widget.lock(data) || !widget.value.includes(item) && pocet >= widget.max(data)}
                     aria-labelledby="label-{uid}-{item}" tabindex="-1"
             >
                 <input class="form-check-input m-0" type="checkbox" role="button" bind:group={value.value}
-                       disabled={!widget.value.includes(item) && pocet >= widget.max(data)} value={item} />
+                       disabled={widget.lock(data) || !widget.value.includes(item) && pocet >= widget.max(data)} value={item} />
             </button>
             <button onclick={onClick(item)} class="input-group-text last"
                     tabindex="-1" id="label-{uid}-{item}"
-                    disabled={!widget.value.includes(item) && pocet >= widget.max(data)}
+                    disabled={widget.lock(data) || !widget.value.includes(item) && pocet >= widget.max(data)}
             >{t.get(item)}</button>
         {/each}
     </div>
