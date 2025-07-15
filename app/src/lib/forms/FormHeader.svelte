@@ -1,35 +1,38 @@
 <script generics="R extends Raw<Form>" lang="ts">
     import type { Writable } from 'svelte/store';
     import { type P, p, type Translations } from '$lib/translations';
-    import { setTitle } from '$lib/helpers/title.svelte.js';
+    import { endLoading, setTitle, startLoading } from '$lib/helpers/globals.js';
     import type { Form, Raw } from '$lib/forms/Form';
-    import { type ExcelImport, processExcel } from '$lib/forms/Import';
+    import { type ExcelImport, processExcel } from '$lib/forms/ExcelImport';
     import readXlsxFile, { readSheetNames } from 'read-excel-file';
-    import { ChooserWidget, STAR } from '$lib/Widget.svelte';
+    import { ChooserWidget, STAR } from '$lib/forms/Widget.svelte.js';
     import Widget from '$lib/components/Widget.svelte';
+    import { invalidateAll } from '$app/navigation';
 
     interface Props<R extends Raw<Form>> {
         title: string;
-        showResetButton?: boolean;
+        hideResetButton?: boolean;
+        showBackButton?: boolean;
         importData?: ExcelImport<R> & {
             onImport: (data: R) => void;
             isDangerous: boolean;
         };
         store: Writable<unknown | undefined>;
         t: Translations;
+        readonly?: boolean;
     }
 
     let {
         title,
         store,
         importData = undefined,
-        showResetButton = true,
+        hideResetButton = false,
+        showBackButton = false,
         t,
+        readonly,
     }: Props<R> = $props();
 
-    $effect(() => {
-        setTitle(title);
-    });
+    $effect(() => setTitle(title, showBackButton));
 
     let input: HTMLInputElement;
     let file = $state<File>();
@@ -40,9 +43,9 @@
     $effect(() => {
         if (file) readSheetNames(file).then(names => {
             const sheets = names.filter(importData?.sheetFilter ?? (n => n == (importData?.sheet ?? n)));
-            sheetWidget.options = () => sheets.map(p)
+            sheetWidget.options = () => p(sheets);
             if (sheets.length == 1)
-                sheetWidget._value = p(sheets[0])
+                sheetWidget._value = p(sheets[0]);
         }); else {
             sheetWidget._value = null;
             sheetWidget.options = () => [];
@@ -57,31 +60,35 @@
     };
 </script>
 
-<div class="d-flex w-100 align-items-center text-nowrap flex-wrap gap-2">
-    <span class="me-auto">{STAR} = {t.mandatoryFields}</span>
-    {#if importData}
-        <button
-            class="btn btn-outline-secondary"
-            data-bs-toggle="modal"
-            data-bs-target="#import"
-        >
-            <i class="my-1 bi-upload"></i>
-            <span class="ms-2">{t.importData}</span>
-        </button>
-    {/if}
-    {#if showResetButton}
-        <button
-            class="btn btn-outline-secondary"
-            onclick={() => {
-                $store = undefined;
-                window.location.reload();
-            }}
-        >
-            <i class="my-1 bi-arrow-clockwise"></i>
-            <span class="ms-2">{t.emptyForm}</span>
-        </button>
-    {/if}
-</div>
+{#if !readonly}
+    <div class="d-flex w-100 align-items-center text-nowrap flex-wrap gap-2">
+        <span class="me-auto">{STAR} = {t.mandatoryFields}</span>
+        {#if importData}
+            <button
+                class="btn btn-outline-secondary"
+                data-bs-toggle="modal"
+                data-bs-target="#import"
+            >
+                <i class="my-1 bi-upload"></i>
+                <span class="ms-2">{t.importData}</span>
+            </button>
+        {/if}
+        {#if !hideResetButton}
+            <button
+                class="btn btn-outline-secondary"
+                onclick={async () => {
+                    $store = undefined;
+                    startLoading()
+                    await invalidateAll();
+                    endLoading();
+                }}
+            >
+                <i class="my-1 bi-arrow-clockwise"></i>
+                <span class="ms-2">{t.emptyForm}</span>
+            </button>
+        {/if}
+    </div>
+{/if}
 
 <div class="modal" id="import">
     <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">

@@ -5,10 +5,11 @@
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import { type Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
-	import { setTitle } from '$lib/helpers/title.svelte';
+	import { setTitle } from '$lib/helpers/globals.js';
 	import { startTechniciansListening, techniciansList } from '$lib/client/realtime';
 	import { get } from 'svelte/store';
 	import { relUrl } from '$lib/helpers/runes.svelte';
+	import { goto } from '$app/navigation';
 
 	const t: Translations = page.data.translations;
 
@@ -16,10 +17,10 @@
 
 	let email = $state(browser ? page.url.searchParams.get('email') ?? '' : '');
 	let password = $state('');
-	let redirect = $state('/new');
+	let redirect = $state('/IN');
 	onMount(() => {
 		startTechniciansListening()
-		redirect = page.url.searchParams.get('redirect') ?? '/new'
+		redirect = page.url.searchParams.get('redirect') ?? '/IN'
 	});
 
 	let signUpLink = $derived(relUrl(
@@ -31,20 +32,20 @@
 
 	let error: string | null = $state(null);
 
-	function prihlasitSe() {
+	async function prihlasitSe() {
 		error = '';
-		logIn(email, password)
-			.then(c => {
+		await logIn(email, password)
+			.then(c =>
 				setName(get(techniciansList).find(t => t.email == c.user.email)?.name).then(() =>
-					window.location.href = page.url.origin + relUrl(redirect)
+					goto(page.url.origin + relUrl(redirect))
 				)
-			})
+			)
 			.catch(e => {
 				console.log(e.code);
 				if (e.code == 'auth/network-request-failed') {
 					error = t.checkInternet;
 				} else if (e.code == 'auth/user-not-found' || e.code == 'auth/user-disabled') {
-					error = t.inexistantEmailHtml({ link: signUpLink });
+					error = t.nonexistentEmailHtml({ link: signUpLink });
 				} else if (e.code == 'auth/wrong-password') {
 					error = t.wrongPasswordHtml({ link: resetLink });
 				} else if (e.code == 'auth/missing-password') {

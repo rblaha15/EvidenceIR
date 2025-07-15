@@ -7,7 +7,7 @@ import { UserRecord } from 'firebase-admin/auth';
 
 export const POST: RequestHandler = async ({ request, url }) => {
     const t = url.searchParams.get('token');
-    const typ = url.searchParams.get('type') as 'lidi' | 'firmy' | 'technici' | 'nahradniDily' | null;
+    const typ = url.searchParams.get('type') as 'users' | 'companies' | 'technicians' | 'spareParts' | null;
 
     if (!typ) error(400, 'Bad Request');
 
@@ -15,9 +15,9 @@ export const POST: RequestHandler = async ({ request, url }) => {
     if (!token) error(401, 'Unauthorized');
     if (!await checkAdmin(token)) error(401, 'Unauthorized');
 
-    if (typ == 'lidi') {
+    if (typ == 'users') {
         const oldPeople = (await people()).map(p => p.email);
-        const { people: newPeople }: { people: Person[] } = await request.json();
+        const { array: newPeople }: { array: Person[] } = await request.json();
 
         const toRemove = oldPeople.filter(p => !newPeople.some(p2 => p2.email == p));
         const toAdd = newPeople.map(p => p.email).filter(p => !oldPeople.some(p2 => p2 == p));
@@ -48,15 +48,15 @@ export const POST: RequestHandler = async ({ request, url }) => {
             console.log(`Editing ${u.email}: ${JSON.stringify(d)}`);
             return setPersonDetails(u.uid, d);
         }));
-    } else if (typ == 'firmy') {
-        const { companies }: { companies: Company[] } = await request.json();
-        await setCompanies(companies);
-    } else if (typ == 'technici') {
-        const { technicians }: { technicians: Technician[] } = await request.json();
-        await setTechnicians(technicians);
-    } else if (typ == 'nahradniDily') {
-        const { spareParts }: { spareParts: SparePart[] } = await request.json();
-        await setSpareParts(spareParts);
+    } else if (typ == 'companies') {
+        const { array }: { array: Company[] } = await request.json();
+        await setCompanies(array);
+    } else if (typ == 'technicians') {
+        const { array }: { array: Technician[] } = await request.json();
+        await setTechnicians(array);
+    } else if (typ == 'spareParts') {
+        const { array }: { array: SparePart[] } = await request.json();
+        await setSpareParts(array);
     }
 
     return new Response(null, {

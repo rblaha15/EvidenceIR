@@ -1,7 +1,7 @@
 <script lang="ts">
-    export type Props = { name: string, origin: string, irid_spid: string }
-    const { name, origin, irid_spid }: Props = $props();
+    export type Props = { name: string, url: string }
+    const { name, url }: Props = $props();
 </script>
 
-<p>Odkaz: <a href={origin + `/detail/${irid_spid}`}>{origin + `/detail/${irid_spid}`}</a></p>
+<p>Odkaz: <a href={url}>{url}</a></p>
 <p>Autor: {name}</p>

@@ -5,7 +5,13 @@ import { type Component, mount } from 'svelte';
 import { dev } from '$app/environment';
 import { get } from 'svelte/store';
 import type { User } from 'firebase/auth';
+import { getIsOnline } from '$lib/client/realtime';
+import { addEmailToOfflineQueue } from '$lib/client/offlineQueue';
+import type { Readable } from 'node:stream';
 
+export type AttachmentLike = Omit<Attachment, 'content'> & {
+    content?: Uint8Array<ArrayBufferLike> | string | Buffer<ArrayBufferLike> | Readable | undefined,
+};
 export type AddressLike = Address | string | (Address | string)[];
 export type EmailOptions<Props extends Record<string, unknown>> = {
     from: Address | string;
@@ -14,11 +20,7 @@ export type EmailOptions<Props extends Record<string, unknown>> = {
     cc?: AddressLike;
     bcc?: AddressLike;
     subject: string;
-    attachments?: Attachment[];
-    pdf?: {
-        link: string;
-        title: string;
-    };
+    attachments?: AttachmentLike[];
     component: Component<Props, Record<string, unknown>, '' | keyof Props>;
     props: Props;
 }
@@ -37,27 +39,34 @@ export const sendEmail = async <Props extends Record<string, unknown>>(options: 
         ...options, html, text: htmlToText(html)
     };
 
+    if (!getIsOnline()) {
+        addEmailToOfflineQueue(message);
+        return new Response('OK', {
+            status: 200,
+        });
+    }
+
     const token = await getToken();
     return await fetch(`/api/sendEmail?token=${token}`, {
         method: 'POST',
         body: JSON.stringify({ message }),
         headers: {
-            'content-type': 'application/json'
-        }
+            'content-type': 'application/json',
+        },
     });
 };
 
-export const cervenka: AddressLike = ['david.cervenka@regulus.cz', 'jakub.cervenka@regulus.cz']
+export const cervenka = ['david.cervenka@regulus.cz', 'jakub.cervenka@regulus.cz'] satisfies AddressLike
 
 export const SENDER: Address = {
     name: 'Regulus SEIR',
     address: 'aplikace.regulus@gmail.com',
 };
 
-const userAddress = (user: User): AddressLike => ({
+export const userAddress = (user: User) => ({
     address: user.email!,
     name: user.displayName ?? '',
-});
+}) satisfies AddressLike;
 
 export const defaultAddresses = (recipient: AddressLike = cervenka, sendCopy: boolean = false) => {
     const user = userAddress(get(currentUser)!);

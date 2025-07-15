@@ -1,99 +1,155 @@
 import type { LanguageCode } from '$lib/languages';
-import { p, type TranslationReference } from '$lib/translations';
+import { p, type TranslationReference, type Translations } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
+import type { IR } from '$lib/client/data';
+import type { PdfGenerationData } from '$lib/client/pdfGeneration';
+import RK from '$lib/client/pdf/pdfRK';
+import NN from '$lib/client/pdf/pdfNN';
+import ZL from '$lib/client/pdf/pdfZL';
+import RR from '$lib/client/pdf/pdfRR';
+import UPT from '$lib/client/pdf/pdfUPT';
+import UPS from '$lib/client/pdf/pdfUPS';
+import SP, { pdfCP as CP, pdfNSP as NSP, pdfPS as PS } from '$lib/client/pdf/pdfSP';
+import UPF from '$lib/client/pdf/pdfUPF';
+import type { Raw } from '$lib/forms/Form';
 
-export const toPdfTypeName = (linkName: Pdf) =>
-    linkName.split('-')[0] as PdfTypeName;
+import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import type { TC } from '$lib/forms/IN/defaultIN';
 
-export type Pdf<T extends 'IR' | 'SP' = 'IR' | 'SP'> = {
-    IR: `check-${1 | 2 | 3 | 4}` | `warranty-${'' | 2 | 3 | 4}` | 'rroute' | 'guide'
-        | 'heatPumpCommissionProtocol' | 'solarCollectorCommissionProtocol' | `installationProtocol-${number}`;
-    SP: `publicInstallationProtocol` | 'CP';
-}[T]
-
-type PdfTypeName<T extends 'IR' | 'SP' = 'IR' | 'SP'> = {
-    [P in Pdf<T>]: P extends `${infer S}-${string}` ? S : P;
-}[Pdf<T>]
-
-export type PdfInfo = {
-    [P in PdfTypeName<'IR'>]: PdfArgs<'IR'>;
+type AllPdf = {
+    [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP' | 'UPF']: 'IR'
 } & {
-    [P in PdfTypeName<'SP'>]: PdfArgs<'SP'>;
-};
+    [P in 'NSP' | 'CP' | 'PS']: 'SP'
+}
+
 export const pdfInfo: PdfInfo = {
-    check: {
+    RK: {
         type: 'IR',
-        formName: 'check',
-        supportedLanguages: ['cs', 'de'],
+        pdfName: 'RK',
+        supportedLanguages: ['cs'],
         title: `yearlyCheckTitle`,
-        fileName: 'RK',
+        getPdfData: RK,
     },
-    warranty: {
+    ZL: {
         type: 'IR',
-        formName: 'warranty',
+        pdfName: 'ZL',
         supportedLanguages: ['cs', 'de'],
         title: `hpWarranty`,
-        fileName: 'ZL',
+        getPdfData: ZL,
     },
-    rroute: {
+    RR: {
         type: 'IR',
-        formName: 'rroute',
+        pdfName: 'RR',
         supportedLanguages: ['cs', 'de'],
         title: `regulusRouteTitle`,
-        fileName: 'RR',
+        getPdfData: RR,
     },
-    guide: {
+    NN: {
         type: 'IR',
-        formName: 'guide',
+        pdfName: 'NN',
         supportedLanguages: ['cs'],
         title: p(`Návod na přístup do regulátoru IR`),
-        fileName: 'NN',
+        getPdfData: NN,
     },
-    heatPumpCommissionProtocol: {
+    UPT: {
         type: 'IR',
-        formName: 'heatPumpCommissionProtocol',
+        pdfName: 'UPT',
         supportedLanguages: ['cs', 'de'],
         title: p(`Protokol o uvedení tepelného čerpadla do trvalého provozu`),
-        fileName: 'UPT',
+        getPdfData: UPT,
     },
-    solarCollectorCommissionProtocol: {
+    UPS: {
         type: 'IR',
-        formName: 'solarCollectorCommissionProtocol',
+        pdfName: 'UPS',
         supportedLanguages: ['cs'],
         title: p(`Protokol o uvedení solárního systému do trvalého provozu`),
-        fileName: 'UPS',
+        getPdfData: UPS,
     },
-    installationProtocol: {
+    SP: {
         type: 'IR',
-        formName: 'installationProtocol',
+        pdfName: 'SP',
         supportedLanguages: ['cs'],
         title: p(`Instalační a servisní protokol`),
-        fileName: 'SP',
+        getPdfData: SP,
         requiredRegulus: true,
     },
-    publicInstallationProtocol: {
+    NSP: {
         type: 'SP',
-        formName: 'installationProtocol',
+        pdfName: 'SP',
         supportedLanguages: ['cs'],
         title: p(`Instalační a servisní protokol`),
-        fileName: 'SP',
         requiredRegulus: true,
+        getPdfData: NSP,
     },
     CP: {
         type: 'SP',
-        formName: 'CP',
+        pdfName: 'CP',
         supportedLanguages: ['cs'],
         title: '',
-        fileName: '',
+        getPdfData: CP,
+    },
+    PS: {
+        type: 'SP',
+        pdfName: 'PS',
+        supportedLanguages: ['cs'],
+        title: '',
+        getPdfData: PS,
+    },
+    UPF: {
+        type: 'IR',
+        pdfName: 'UPF',
+        supportedLanguages: ['cs'],
+        title: p(`Protokol o uvedení fotovoltaického systému do trvalého provozu`),
+        getPdfData: UPF,
     },
 };
-export type PdfArgs<T extends 'IR' | 'SP' = 'IR' | 'SP'> = {
-    type: T;
-    formName: string;
+
+type PdfInfo = {
+    [P in Pdf]: PdfArgs<P>
+};
+
+export type Pdf<T extends 'IR' | 'SP' = 'IR' | 'SP'> = {
+    [P in keyof AllPdf]: AllPdf[P] extends T ? P : never
+}[keyof AllPdf];
+
+type TypeOfPdf<P extends Pdf> = AllPdf[P];
+export type DataOfPdf<P extends Pdf> = TypeOfPdf<P> extends 'IR' ? IR : Raw<FormNSP>;
+
+export type GetPdfData<P extends Pdf> = (
+    data: DataOfPdf<P>,
+    t: Translations,
+    addPage: <P extends Pdf>(
+        pdfArgs: PdfArgs<P>,
+        data: DataOfPdf<P>,
+        ...parameters: PdfParametersArray<P>
+    ) => Promise<void>,
+    ...parameters: PdfParametersArray<P>
+) => Promise<PdfGenerationData>
+
+export type PdfArgs<P extends Pdf> = {
+    type: TypeOfPdf<P>;
+    pdfName: string;
     supportedLanguages: LanguageCode[];
     title: TranslationReference;
-    fileName: string;
     saveOptions?: SaveOptions;
     requiredAdmin?: boolean;
     requiredRegulus?: boolean;
+    getPdfData: GetPdfData<P>;
 };
+
+type PdfParams = {
+    RK: {
+        pump: TC,
+    },
+    ZL: {
+        pump: TC,
+    },
+    SP: {
+        index: number,
+    },
+};
+export type PdfParameters<P extends Pdf> = P extends keyof PdfParams ? PdfParams[P] : {};
+export type PdfParametersArray<P extends Pdf> = P extends keyof PdfParams ? [PdfParams[P]] : [];
+
+export const pdfParamsArray = <P extends Pdf>(p: PdfParameters<P>) =>
+    (p.keys().length ? [p] : []) as PdfParametersArray<P>

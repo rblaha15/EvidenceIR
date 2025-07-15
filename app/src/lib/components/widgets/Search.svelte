@@ -1,6 +1,6 @@
 <script generics="D, T" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { labelAndStar, type SearchWidget } from '$lib/Widget.svelte.js';
+    import { labelAndStar, type SearchWidget } from '$lib/forms/Widget.svelte.js';
     import { browser } from '$app/environment';
     import type { ClassValue } from 'svelte/elements';
 
@@ -64,6 +64,7 @@
     <div class="position-relative" onfocusin={show} onfocusout={hide}>
         <label class="form-floating d-block">
             <input
+                autofocus={widget.inline(data)}
                 class="form-control border ps-3 bi"
                 class:border-bottom-0={!hidden || widget.value}
                 class:rb-0={!hidden}
