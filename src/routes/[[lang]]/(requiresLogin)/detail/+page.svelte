@@ -93,16 +93,18 @@
             if (irNumber.showError(d) || irType.showError(d)) return;
             const newNumber = irNumber.value;
             const newType = irType.value;
+            const newIRID = extractIRIDFromParts(newType!, newNumber);
+            if (irid! == newIRID) return change = 'unchanged';
             change = 'sending';
             const record = (await db.getIR(irid!))!;
             record.evidence.ir.cislo = newNumber;
-            if (record.evidence.ir.cislo == newNumber) return change = 'unchanged';
             record.evidence.ir.typ.first = newType;
             await db.addIR(record);
-            const newRecord = await db.getIR(extractIRIDFromParts(newType!, newNumber));
+            const newRecord = await db.getIR(newIRID);
             if (!newRecord?.evidence) return change = 'fail';
             await db.deleteIR(irid!);
-            await goto(detailIrUrl(extractIRIDFromParts(newType!, newNumber)), { replaceState: true });
+            await goto(detailIrUrl(newIRID), { replaceState: true, invalidateAll: true });
+            change = 'no';
         } catch (e) {
             console.log(e);
             change = 'fail';
@@ -292,7 +294,7 @@
                 <div class="spinner-border text-danger"></div>
             </div>
         {:else if change === 'unchanged'}
-            <p class="text-danger">{t.changeWentWrong}</p>
+            <p class="text-danger">Tento regulátor již existuje!</p>
         {:else if change === 'fail'}
             <p class="text-danger">{t.changeWentWrong}</p>
         {/if}
