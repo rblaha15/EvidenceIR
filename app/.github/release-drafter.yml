@@ -4,10 +4,10 @@ tag-prefix: 'v'
 categories:
   - title: 'Novinky 🎉'
     labels:
-      - 'enhancement'
+      - 't:enhancement'
   - title: 'Opravy chyb 🪲'
     labels:
-      - 'bug'
+      - 't:bug'
   - title: 'Ostatní změny'
 category-template: '### $TITLE'
 change-template: '- $TITLE'
