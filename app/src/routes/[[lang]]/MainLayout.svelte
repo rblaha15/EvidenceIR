@@ -27,9 +27,6 @@
         afterNavigate(() => {
             endLoading();
         });
-        onNavigate(e => {
-            logEvent(analytics, 'navigation', e)
-        })
     });
 
     onMount(() => {
