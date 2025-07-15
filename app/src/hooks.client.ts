@@ -1,3 +1,4 @@
+import { getAnalytics } from 'firebase/analytics';
 import { getApps, initializeApp, type FirebaseOptions } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
@@ -21,6 +22,8 @@ export const firestore = getFirestore(app)
 export const realtime = getDatabase(app);
 
 export const auth = getAuth(app);
+
+export const analytics = getAnalytics(app);
 
 declare global {
 	/**

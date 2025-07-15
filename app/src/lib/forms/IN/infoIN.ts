@@ -154,8 +154,8 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
                 data.vzdalenyPristup.plati.setValue(data, p('Později, dle protokolu'));
         }, [isUserRegulusOrAdmin]],
         [(_, data, [$responsiblePerson]) => {
-            data.vzdalenyPristup.zodpovednaOsoba.show = () => $responsiblePerson == null;
             if ($responsiblePerson != null) data.vzdalenyPristup.zodpovednaOsoba.setValue(data, $responsiblePerson);
+            if ($responsiblePerson != null) data.vzdalenyPristup.zodpovednaOsoba.show = () => false;
         }, [responsiblePerson]],
     ],
     importOptions: {
