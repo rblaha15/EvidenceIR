@@ -12,8 +12,8 @@ categories:
 category-template: '### $TITLE'
 change-template: '- $TITLE'
 no-changes-template: 'Žádné změny'
-exclude-labels: 'ignore-for-release'
-version-resolver:
+exclude-labels:
+  - 'ignore-for-release'
 template: |
   ## Změny
 
