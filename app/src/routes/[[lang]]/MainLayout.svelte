@@ -4,12 +4,10 @@
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import { onMount, type Snippet } from 'svelte';
     import { backButton, endLoading, progress, startLoading, title } from '$lib/helpers/globals';
-    import { afterNavigate, beforeNavigate, goto, onNavigate } from '$app/navigation';
+    import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { dev } from '$app/environment';
     import { page } from '$app/state';
     import { preferredLanguage } from '$lib/languages';
-    import { logEvent } from "firebase/analytics";
-    import { analytics } from '../../hooks.client';
 
     interface Props {
         data: LayoutData;
