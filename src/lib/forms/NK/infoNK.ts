@@ -1,23 +1,23 @@
 import { type FriendlyCompanies, type Person, startLidiListening, usersList } from '$lib/client/realtime';
 import type { User } from 'firebase/auth';
-import defaultPO from '$lib/forms/PO/defaultPO';
+import defaultNK from '$lib/forms/NK/defaultNK';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
 import { getTranslations } from '$lib/translations';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
-import xml from '$lib/forms/PO/xmlPO';
+import xml from '$lib/forms/NK/xmlNK';
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import type { Attachment } from 'nodemailer/lib/mailer';
 import MailDemand from '$lib/emails/MailDemand.svelte';
 import { companies } from '$lib/helpers/companies';
-import type { FormPO } from '$lib/forms/PO/formPO';
+import type { FormNK } from '$lib/forms/NK/formNK';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 
-const infoPO: IndependentFormInfo<FormPO, FormPO, [[FriendlyCompanies], [Person[], User | null]]> = {
+const infoNK: IndependentFormInfo<FormNK, FormNK, [[FriendlyCompanies], [Person[], User | null]]> = {
     type: '',
     storeName: 'stored_demand',
-    defaultData: defaultPO,
+    defaultData: defaultNK,
     saveData: async (raw, _, data, editResult, t) => {
         const user = get(currentUser)!;
 
@@ -82,4 +82,4 @@ const infoPO: IndependentFormInfo<FormPO, FormPO, [[FriendlyCompanies], [Person[
     requiredRegulus: true,
     hideBackButton: _ => true,
 };
-export default infoPO;
+export default infoNK;
