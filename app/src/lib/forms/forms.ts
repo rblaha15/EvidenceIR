@@ -2,17 +2,17 @@ import type { Form, Raw } from '$lib/forms/Form';
 import type { Pdf } from '$lib/client/pdf';
 import NSP from '$lib/forms/NSP/infoNSP';
 import IN from '$lib/forms/IN/infoIN';
-import PO from '$lib/forms/PO/infoPO';
+import OD from '$lib/forms/OD/infoOD';
 import RK from '$lib/forms/RK/infoRK.svelte';
 import SP from '$lib/forms/SP/infoSP.svelte';
 import type { FormInfo, IndependentFormInfo } from '$lib/forms/FormInfo';
 import UPS from '$lib/forms/UPS/infoUPS';
 import UPT from '$lib/forms/UPT/infoUPT';
 import UPF from '$lib/forms/UPF/infoUPF';
-import OD from '$lib/forms/OD/infoOD';
+import NK from '$lib/forms/NK/infoNK';
 
 const all = {
-    SP, UPT, UPS, RK, PO, NSP, IN, OD, UPF,
+    SP, UPT, UPS, RK, OD, NSP, IN, NK, UPF,
 };
 type All = typeof all;
 

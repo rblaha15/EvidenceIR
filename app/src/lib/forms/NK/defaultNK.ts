@@ -20,7 +20,7 @@ import {
 import type { Company, Person } from '$lib/client/realtime';
 import { languageCodes } from '$lib/languages';
 import products from '$lib/helpers/products';
-import type { FormPO } from './formPO';
+import type { FormNK } from './formNK';
 
 export const origins = {
     ...{
@@ -35,11 +35,11 @@ export const origins = {
     ),
 } as const;
 
-const fve = (d: FormPO) => d.contacts.demandSubject.value.includes(`demand.contacts.fve`);
-const hp = (d: FormPO) => d.contacts.demandSubject.value.includes(`demand.contacts.heatPump`);
-const pool = (d: FormPO) => hp(d) && d.system.wantsPool.value;
+const fve = (d: FormNK) => d.contacts.demandSubject.value.includes(`demand.contacts.fve`);
+const hp = (d: FormNK) => d.contacts.demandSubject.value.includes(`demand.contacts.heatPump`);
+const pool = (d: FormNK) => hp(d) && d.system.wantsPool.value;
 
-export default (): FormPO => ({
+export default (): FormNK => ({
     contacts: {
         title: new TitleWidget({ text: `demand.contacts.contacts` }),
         demandOrigin: new ChooserWidget({ options: origins.keys(), label: `demand.contacts.demandOrigin` }),
@@ -56,7 +56,7 @@ export default (): FormPO => ({
         }),
         phone: new InputWidget({ required: false, label: `demand.contacts.phone`, inputmode: 'tel' }),
         email: new InputWidget({ required: false, label: `demand.contacts.email`, type: 'email', inputmode: 'email' }),
-        assemblyCompanySearch: new SearchWidget<FormPO, Company, true>({
+        assemblyCompanySearch: new SearchWidget<FormNK, Company, true>({
             label: `searchCompanyInList`, items: [], getSearchItem: i => ({
                 pieces: [
                     { text: p(i.crn), width: .2 },
@@ -368,7 +368,7 @@ export default (): FormPO => ({
         note: new InputWidget({ required: false, label: `note` }),
     },
     other: {
-        representative: new SearchWidget<FormPO, Person>({
+        representative: new SearchWidget<FormNK, Person>({
             label: `representative`, items: [], getSearchItem: t => ({
                 pieces: [
                     { text: p(t.responsiblePerson!), width: .4 },
