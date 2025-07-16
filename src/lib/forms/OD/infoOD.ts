@@ -49,7 +49,6 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
     createWidgetData: f => f,
     title: _ => 'Odeslat podepsané dokumenty',
     isSendingEmails: true,
-    requiredRegulus: true,
     redirectLink: async _ => (page.url.searchParams.get('redirect') ?? '/IN')
 };
 
