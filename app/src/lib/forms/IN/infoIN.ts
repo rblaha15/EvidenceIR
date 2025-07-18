@@ -67,7 +67,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
                 contentType: 'application/xml',
                 filename: `Evidence ${irid}.xml`,
             }, {
-                content: pdf.pdfBytes,
+                content: [...pdf.pdfBytes],
                 contentType: 'application/pdf',
                 filename: pdf.fileName,
             }],
