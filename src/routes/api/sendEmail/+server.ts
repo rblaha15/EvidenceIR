@@ -20,7 +20,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
 
     message.attachments?.forEach((a, i) => {
         const c = a.content;
-        if (c && typeof c != 'string' && !(c instanceof Readable)) {
+        if (c && typeof c != 'string' && !(c instanceof Readable) && !('compare' in c)) {
             message.attachments![i].content = Buffer.from(c)
         }
     })

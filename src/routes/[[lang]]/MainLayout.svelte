@@ -16,7 +16,7 @@
 
     let { children, data }: Props = $props();
 
-    const t = data.translations;
+    const t = $derived(data.translations);
 
     onMount(async () => {
         beforeNavigate(() => {
