@@ -10,7 +10,7 @@ import { addEmailToOfflineQueue } from '$lib/client/offlineQueue';
 import type { Readable } from 'node:stream';
 
 export type AttachmentLike = Omit<Attachment, 'content'> & {
-    content?: Uint8Array<ArrayBufferLike> | string | Buffer<ArrayBufferLike> | Readable | undefined,
+    content?: number[] | string | Buffer<ArrayBufferLike> | Readable | undefined,
 };
 export type AddressLike = Address | string | (Address | string)[];
 export type EmailOptions<Props extends Record<string, unknown>> = {
@@ -36,7 +36,7 @@ export const sendEmail = async <Props extends Record<string, unknown>>(options: 
     });
     const html = div.innerHTML;
     const message: EmailMessage = {
-        ...options, html, text: htmlToText(html)
+        ...options.omit('props', 'component'), html, text: htmlToText(html),
     };
 
     if (!getIsOnline()) {
