@@ -3,7 +3,7 @@ import { today } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/client/pdf';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 
-const pdfZL: GetPdfData<'ZL'> = async ({ evidence: e }, t, _, { pump }) => {
+const pdfZL: GetPdfData<'ZL'> = async ({ data: { evidence: e }, t, pump }) => {
     const uvedeni = await nazevAdresaFirmy(e.uvedeni.ico, fetch);
     const montazka = await nazevAdresaFirmy(e.montazka.ico, fetch);
     const { model, cislo } = cascadePumps(e, t)[pump - 1];

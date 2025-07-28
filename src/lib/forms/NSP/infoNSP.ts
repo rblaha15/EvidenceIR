@@ -45,7 +45,8 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
     redirectLink: async raw => detailSpUrl(extractSPIDFromRawData(raw.zasah)),
     openPdf: async raw => ({
         link: 'NSP',
-        data: raw,
+        spid: extractSPIDFromRawData(raw.zasah),
+        lang: 'cs',
     }),
     createWidgetData: f => f,
     title: () => `Instalační a servisní protokol`,

@@ -1,12 +1,15 @@
 import { PDFDocument, PDFName, PDFRef, PDFSignature } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { getTranslations } from '$lib/translations';
-import type { LanguageCode } from '$lib/languages';
-import { type DataOfPdf, type Pdf, type PdfArgs, type PdfParametersArray } from '$lib/client/pdf';
+import {
+    type GeneratePdfOptions,
+    type Pdf,
+} from '$lib/client/pdf';
 import { irLabel, spName } from '$lib/helpers/ir';
 import type { Raw } from '$lib/forms/Form';
 import { type IR } from './data';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import { createFileUrl } from '../../routes/[[lang]]/helpers';
 
 type SignatureDefinition = {
     x: number,
@@ -29,12 +32,23 @@ export type PdfGenerationData = {
     fileNameSuffix?: string;
 };
 
-export const generatePdf = async <P extends Pdf>(
-    args: PdfArgs<P>,
-    lang: LanguageCode,
-    data: DataOfPdf<P>,
-    ...parameters: PdfParametersArray<P>
+export const generatePdfUrl = async <P extends Pdf>(
+    o: GeneratePdfOptions<P>,
 ) => {
+    const pdfData = await generatePdf(o);
+
+    const blob = new Blob([pdfData.pdfBytes], {
+        type: 'application/pdf',
+    });
+    const url = await createFileUrl(blob);
+    return { url, fileName: pdfData.fileName };
+};
+
+export const generatePdf = async <P extends Pdf>(
+    o: GeneratePdfOptions<P>,
+) => {
+    const { args, lang, data } = o
+
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
     const t = getTranslations(formLanguage);
 
@@ -47,19 +61,13 @@ export const generatePdf = async <P extends Pdf>(
     const form = pdfDoc.getForm();
     const fields = form.getFields();
 
-    const addPage = async <P extends Pdf>(
-        pdfArgs2: PdfArgs<P>,
-        data2: DataOfPdf<P>,
-        ...parameters: PdfParametersArray<NoInfer<P>>
-    ) => {
-        const pdfData2 = await generatePdf<P>(
-            pdfArgs2, lang, data2, ...parameters,
-        );
+    const addPage = async <P extends Pdf>(o: GeneratePdfOptions<P>) => {
+        const pdfData2 = await generatePdf<P>(o);
         const pdfDoc2 = await PDFDocument.load(pdfData2.pdfBytes);
         const [newPage] = await pdfDoc.copyPages(pdfDoc2, [0]);
         pdfDoc.addPage(newPage);
     };
-    const formData = await args.getPdfData(data, t, addPage, ...parameters);
+    const formData = await args.getPdfData({ ...o, data, t, addPage });
 
     for (const fieldName in formData.omit('fileNameSuffix')) {
         const name = fieldName as `${PdfFieldType}${number}`;

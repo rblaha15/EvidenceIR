@@ -37,8 +37,7 @@ export const removeDependency = async <
         },
         redirectLink: async () => detailIrUrl(),
         openPdf: openPdf ? async () => ({
-            ...openPdf(),
-            data: (await db.getIR(irid))!,
+            ...openPdf(), irid,
         } as OpenPdfOptions<P>) : undefined,
         createWidgetData: data => createWidgetData(ir.evidence, data),
         hideBackButton: () => false,
