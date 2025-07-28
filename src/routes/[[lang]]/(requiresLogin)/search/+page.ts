@@ -2,8 +2,7 @@ import type { EntryGenerator, PageLoad } from './$types';
 import { langEntryGenerator } from '../../helpers';
 import db from '$lib/client/data';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, irLabel, irName, type SPID, spName } from '$lib/helpers/ir';
-import { checkAuth, checkRegulusOrAdmin, currentUser } from '$lib/client/auth';
-import { get } from 'svelte/store';
+import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { browser } from '$app/environment';
 
 export const entries: EntryGenerator = langEntryGenerator;
@@ -11,8 +10,13 @@ export const entries: EntryGenerator = langEntryGenerator;
 export const prerender = true;
 
 export type Installation_PublicServiceProtocol = {
-    t: 'IR' | 'SP',
-    id: IRID | SPID,
+    t: 'IR',
+    id: IRID,
+    label: string,
+    name: string,
+} | {
+    t: 'SP',
+    id: SPID,
     label: string,
     name: string,
 }

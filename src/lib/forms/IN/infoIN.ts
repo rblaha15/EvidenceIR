@@ -57,7 +57,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
         const montazka = (await nazevFirmy(raw.montazka.ico)) ?? null;
         const uvadec = (await nazevFirmy(raw.uvedeni.ico)) ?? null;
 
-        const pdf = await generatePdf(pdfInfo.RR, 'cs', newIr);
+        const pdf = await generatePdf({ args: pdfInfo.RR, lang: 'cs', data: newIr });
 
         const response1 = raw.vzdalenyPristup.chce ? await sendEmail({
             ...defaultAddresses(),
