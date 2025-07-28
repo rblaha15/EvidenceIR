@@ -1,15 +1,15 @@
 <script generics="P extends Pdf" lang="ts">
     import { languageNames, type Translations } from '$lib/translations';
-    import { type Pdf, pdfInfo, type PdfParameters, pdfParamsArray } from '$lib/client/pdf';
+    import { type DataOfPdf, type OpenPdfOptions, type Pdf, pdfInfo } from '$lib/client/pdf';
     import type { Snippet } from 'svelte';
-    import { generatePdf } from '$lib/client/pdfGeneration';
+    import { generatePdfUrl } from '$lib/client/pdfGeneration';
     import type { LanguageCode } from '$lib/languages';
-
-    import type { OpenPdfOptions } from '$lib/forms/FormInfo';
-    import FileSaver from 'file-saver';
-    import { endLoading, progress, startLoading, withLoading } from '$lib/helpers/globals.js';
+    import { withLoading } from '$lib/helpers/globals.js';
+    import { goto } from '$app/navigation';
+    import { downloadFile, generatePdfPreviewUrl } from '../../helpers';
 
     type Props<P extends Pdf> = OpenPdfOptions<P> & {
+        data: DataOfPdf<P>;
         name?: string;
         lang: LanguageCode;
         t: Translations;
@@ -21,9 +21,7 @@
     }
 
     const {
-        link,
         name,
-        lang,
         t,
         enabled = true,
         hideLanguageSelector = false,
@@ -31,22 +29,26 @@
         dropdown,
         breakpoint = 'sm',
         data,
-        ...parameters
+        ...options
     }: Props<P> = $props();
 
+    const o = $derived(options as unknown as OpenPdfOptions<P>);
+    const { link } = $derived(o);
+    const { lang } = $derived(options);
+
     const pdf = $derived(pdfInfo[link]);
-    const defaultLanguage = $derived(pdf.supportedLanguages.includes(lang)
+    const defaultLanguage = $derived(lang && pdf.supportedLanguages.includes(lang)
         ? lang
         : pdf.supportedLanguages[0]);
 
-    const openPdf = withLoading(async (lang: LanguageCode = defaultLanguage) => {
-        const p = parameters as unknown as PdfParameters<P>;
-        const pdfData = await generatePdf(pdf, lang, data, ...pdfParamsArray(p))
-
-        FileSaver.saveAs(new Blob([pdfData.pdfBytes], {
-            type: 'application/pdf',
-        }), pdfData.fileName);
+    const downloadPdf = withLoading(async (lang: LanguageCode = defaultLanguage) => {
+        const pdfData = await generatePdfUrl({ ...o, args: pdf, lang, data });
+        downloadFile(pdfData.url, pdfData.fileName);
     });
+
+    const previewPdf = withLoading((lang: LanguageCode = defaultLanguage) =>
+        goto(generatePdfPreviewUrl({ ...o, lang }))
+    );
 </script>
 
 <div
@@ -58,10 +60,17 @@
                 <button
                     tabindex={enabled ? 0 : undefined}
                     type="button"
-                    onclick={() => openPdf()}
+                    onclick={() => downloadPdf()}
                     class:disabled={!enabled}
                     class="btn btn-info text-nowrap"
-                >{t.openPdf}</button>
+                >{t.pdf.download}</button>
+                <button
+                    tabindex={enabled ? 0 : undefined}
+                    type="button"
+                    onclick={() => previewPdf()}
+                    class:disabled={!enabled}
+                    class="btn btn-info text-nowrap"
+                >{t.pdf.preview}</button>
                 {#if !hideLanguageSelector}
                     <button
                         disabled={!enabled || pdf.supportedLanguages.length === 1}
@@ -77,7 +86,7 @@
                                     <button
                                         tabindex="0"
                                         class="dropdown-item d-flex align-items-center"
-                                        onclick={() => openPdf(code)}
+                                        onclick={() => downloadPdf(code)}
                                     >
                                         <span class="fs-6 me-2">{code.toUpperCase()}</span>
                                         {languageNames[code]}

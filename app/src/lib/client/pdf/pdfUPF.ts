@@ -6,7 +6,7 @@ import type { GetPdfData } from '$lib/client/pdf';
 import { endUserName } from '$lib/helpers/ir';
 import { range } from '$lib/extensions';
 
-const pdfUPF: GetPdfData<'UPF'> = async ({ evidence: e, uvedeniFVE, }, t) => {
+const pdfUPF: GetPdfData<'UPF'> = async ({ data: { evidence: e, uvedeniFVE, }, t }) => {
     const u = uvedeniFVE!
     const fields = [
         u.filed1, u.filed2, u.filed3, u.filed4

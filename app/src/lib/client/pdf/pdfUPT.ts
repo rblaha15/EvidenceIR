@@ -5,7 +5,7 @@ import { endUserName, irType, typBOX } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { p } from '$lib/translations';
 
-const pdfUPT: GetPdfData<'UPT'> = async ({ evidence: e, uvedeniTC }, t) => {
+const pdfUPT: GetPdfData<'UPT'> = async ({ data: { evidence: e, uvedeniTC }, t }) => {
     const u = uvedeniTC!;
     const pumps = cascadePumps(e, t);
 

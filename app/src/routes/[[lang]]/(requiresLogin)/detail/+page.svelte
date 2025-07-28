@@ -20,7 +20,7 @@
     import { goto } from '$app/navigation';
 
     let { data }: PageProps = $props();
-    const { irid, spid, ir, sp, success, languageCode: lang, translations: t } = $derived(data)
+    const { irid, spid, ir, sp, success, languageCode: lang, translations: t } = $derived(data);
 
     const deleted = $derived(page.url.searchParams.has('deleted'));
 
@@ -117,7 +117,7 @@
         label: p('IRID (z URL adresy)'),
     });
     const transfer = async () => {
-        if (!sp) return
+        if (!sp) return;
         await db.addServiceProtocol(newIRID.value as IRID, {
             zasah: sp.zasah, fakturace: sp.fakturace, ukony: sp.ukony, nahradniDil1: sp.nahradniDil1,
             nahradniDil2: sp.nahradniDil2, nahradniDil3: sp.nahradniDil3, nahradniDil4: sp.nahradniDil4,
@@ -166,7 +166,7 @@
             {t.viewInfo}
         </a>
 
-        <PDFLink {lang} {t} link="NSP" hideLanguageSelector={true} data={sp} />
+        <PDFLink {lang} {t} link="NSP" hideLanguageSelector={true} data={sp} {spid} />
 
         <a class="btn btn-warning" href={relUrl('/NSP')} onclick={() => {
             storable<typeof sp>(NSP.storeName).set(sp)
@@ -201,18 +201,18 @@
     </div>
     <div class="d-flex flex-column gap-1">
         {#if ir.evidence.vzdalenyPristup.chce}
-            <PDFLink name={t.regulusRouteForm} {t} link="RR" {lang} data={ir} />
+            <PDFLink name={t.regulusRouteForm} {t} link="RR" {lang} data={ir} {irid} />
         {/if}
         {#if ir.evidence.ir.typ.first !== p('SOREL') && ir.evidence.ir.typ.first !== 'irFVE'}
-            <PDFLink name={t.routeGuide} {t} link="NN" {lang} data={ir} />
+            <PDFLink name={t.routeGuide} {t} link="NN" {lang} data={ir} {irid} />
         {/if}
         {#if ir.evidence.ir.chceVyplnitK.includes('heatPump')}
             {#each cascadePumps(ir.evidence, t) as tc}
-                <PDFLink name={t.warrantyNr(tc)} {t} link="ZL" {lang} data={ir} pump={tc.N} />
+                <PDFLink name={t.warrantyNr(tc)} {t} link="ZL" {lang} data={ir} pump={tc.N} {irid} />
             {/each}
             <PDFLink
                 enabled={ir.uvedeniTC !== undefined} name={t.heatPumpCommissionProtocol} {t} link="UPT"
-                {lang} data={ir}
+                {lang} data={ir} {irid}
             >
                 {#if !ir.uvedeniTC}
                     <a
@@ -224,11 +224,13 @@
             </PDFLink>
             {#each cascadePumps(ir.evidence, t) as tc}
                 <PDFLink name={t.filledYearlyCheckNr(tc)} {t} link="RK" {lang} data={ir} pump={tc.N}
-                         enabled={ir.kontrolyTC[tc.N]?.[1] !== undefined}>
-                    <a
-                        tabindex="0" href={iridUrl(`/RK?tc=${tc.N}`)}
-                        class="btn btn-primary d-block"
-                    >{t.doYearlyCheckNr(tc)}</a>
+                         enabled={ir.kontrolyTC[tc.N]?.[1] !== undefined} {irid}>
+                    {#if !ir.kontrolyTC[tc.N]?.[4]}
+                        <a
+                            tabindex="0" href={iridUrl(`/RK?tc=${tc.N}`)}
+                            class="btn btn-primary d-block"
+                        >{t.doYearlyCheckNr(tc)}</a>
+                    {/if}
                 </PDFLink>
             {/each}
         {/if}
@@ -238,7 +240,7 @@
                 name={t.solarCollectorCommissionProtocol}
                 {t}
                 link="UPS"
-                {lang} data={ir}
+                {lang} data={ir} {irid}
             >
                 {#if !ir.uvedeniSOL}
                     <a
@@ -255,7 +257,7 @@
                 name={t.photovoltaicSystemCommissionProtocol}
                 {t}
                 link="UPF"
-                {lang} data={ir}
+                {lang} data={ir} {irid}
             >
                 {#if !ir.uvedeniFVE}
                     <a

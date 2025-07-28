@@ -111,7 +111,13 @@ export default {
     copy: `Kopírovat`,
     regulusRouteForm: `Souhlas s RegulusRoute`,
     regulusRouteTitle: `Souhlas se zpřístupněním regulátoru IR službě RegulusRoute`,
-    openPdf: `Otevřít pdf`,
+    pdf: {
+        download: `Stáhnout`,
+        preview: `Náhled`,
+        downloadFile: `Stáhnout dokument`,
+        previewFile: `Náhled dokumentu`,
+        page: t`Strana ${'page'}/${'total'}`
+    },
     changeLang: `Změnit jazyk`,
     deleteThisEvidence: `Odstranit tento záznam evidence`,
     signUp: `Registrace`,

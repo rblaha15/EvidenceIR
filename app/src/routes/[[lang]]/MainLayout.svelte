@@ -27,6 +27,18 @@
         });
     });
 
+    const processGoto = async (url: URL) => {
+        const link = url.searchParams.get('goto');
+        if (!link) return;
+        url.searchParams.delete('goto');
+        await goto(url, { replaceState: true });
+        await goto(link);
+    };
+
+    $effect(() => {
+        processGoto(page.url);
+    })
+
     onMount(() => {
         const currentLangLength = page.params.lang?.length ?? -1;
         if (!page.data.areTranslationsFromRoute)
@@ -60,7 +72,7 @@
                      style="transition: width 5s;"
                 ></div>
             </div>
-            <div class="container my-2 d-flex flex-column gap-3">
+            <div class="container my-2 d-flex flex-column gap-3 h-100">
                 <h1 class="m-0 d-flex align-items-center gap-3">
                     {#if $backButton}
                         <button type="button" class="btn btn-link text-body p-0" aria-label={t.back} onclick={() => history.back()}
