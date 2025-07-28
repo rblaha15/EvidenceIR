@@ -12,9 +12,9 @@ import UPS from '$lib/client/pdf/pdfUPS';
 import SP, { pdfCP as CP, pdfNSP as NSP, pdfPS as PS } from '$lib/client/pdf/pdfSP';
 import UPF from '$lib/client/pdf/pdfUPF';
 import type { Raw } from '$lib/forms/Form';
-
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { TC } from '$lib/forms/IN/defaultIN';
+import type { IRID, SPID } from '$lib/helpers/ir';
 
 type AllPdf = {
     [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP' | 'UPF']: 'IR'
@@ -113,18 +113,25 @@ export type Pdf<T extends 'IR' | 'SP' = 'IR' | 'SP'> = {
 }[keyof AllPdf];
 
 type TypeOfPdf<P extends Pdf> = AllPdf[P];
-export type DataOfPdf<P extends Pdf> = TypeOfPdf<P> extends 'IR' ? IR : Raw<FormNSP>;
+export type DataOfPdf<P extends Pdf> = { IR: IR, SP: Raw<FormNSP> }[TypeOfPdf<P>];
+export type PdfID<P extends Pdf> = { IR: { irid: IRID; spid?: undefined }, SP: { spid: SPID; irid?: undefined } }[TypeOfPdf<P>];
 
-export type GetPdfData<P extends Pdf> = (
+export type OpenPdfOptions<P extends Pdf> = {
+    link: P,
+    lang?: LanguageCode,
+} & PdfID<P> & PdfParameters<P>;
+
+export type GeneratePdfOptions<P extends Pdf> = {
+    args: PdfArgs<P>,
+    lang: LanguageCode,
+    data: DataOfPdf<P>,
+} & PdfParameters<P>;
+
+export type GetPdfData<P extends Pdf> = (o: {
     data: DataOfPdf<P>,
     t: Translations,
-    addPage: <P extends Pdf>(
-        pdfArgs: PdfArgs<P>,
-        data: DataOfPdf<P>,
-        ...parameters: PdfParametersArray<P>
-    ) => Promise<void>,
-    ...parameters: PdfParametersArray<P>
-) => Promise<PdfGenerationData>
+    addPage: <P extends Pdf>(o: GeneratePdfOptions<P>) => Promise<void>,
+} & PdfParameters<P>) => Promise<PdfGenerationData>
 
 export type PdfArgs<P extends Pdf> = {
     type: TypeOfPdf<P>;
@@ -149,7 +156,3 @@ type PdfParams = {
     },
 };
 export type PdfParameters<P extends Pdf> = P extends keyof PdfParams ? PdfParams[P] : {};
-export type PdfParametersArray<P extends Pdf> = P extends keyof PdfParams ? [PdfParams[P]] : [];
-
-export const pdfParamsArray = <P extends Pdf>(p: PdfParameters<P>) =>
-    (p.keys().length ? [p] : []) as PdfParametersArray<P>

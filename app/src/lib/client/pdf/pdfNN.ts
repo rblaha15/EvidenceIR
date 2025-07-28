@@ -2,7 +2,7 @@
 import type { GetPdfData } from '$lib/client/pdf';
 import { irWholeName, irName } from '$lib/helpers/ir';
 
-const pdfNN: GetPdfData<'NN'> = async ({ evidence: e }) => ({
+const pdfNN: GetPdfData<'NN'> = async ({ data: { evidence: e } }) => ({
 /*          email */ Text1: e.koncovyUzivatel.email,
 /*        hesloRR */ Text2: `Regulusroute1`,
 /*        hesloIR */ Text3: `uzivatel`,

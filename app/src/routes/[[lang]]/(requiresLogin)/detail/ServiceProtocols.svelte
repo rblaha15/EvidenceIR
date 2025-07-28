@@ -3,11 +3,11 @@
     import db, { type IR } from '$lib/client/data';
     import type { LanguageCode } from '$lib/languages';
     import type { Translations } from '$lib/translations';
-    import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte';
+    import { iridUrl } from '$lib/helpers/runes.svelte';
     import PDFLink from './PDFLink.svelte';
     import { techniciansList } from '$lib/client/realtime';
     import { currentUser } from '$lib/client/auth';
-    import { goto, invalidateAll } from '$app/navigation';
+    import { invalidateAll } from '$app/navigation';
 
     const {
         irid, ir, lang, t,
@@ -44,7 +44,7 @@
         {#each ir.installationProtocols as p, i}
             <PDFLink name={spName(p.zasah)} {lang} data={ir} {t} link="SP" index={i}
                      hideLanguageSelector={true}
-                     breakpoint="md">
+                     breakpoint="md" {irid}>
                 {#snippet dropdown()}
                     <li><a class="dropdown-item text-primary" href={iridUrl(`/SP/?view=${i}`)}>{t.viewInfo}</a></li>
                     <li><a class="dropdown-item text-warning" href={iridUrl(`/SP/?edit=${i}`)}>Upravit protokol</a></li>

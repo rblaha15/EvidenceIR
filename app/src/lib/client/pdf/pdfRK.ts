@@ -6,7 +6,7 @@ import type { GetPdfData } from '$lib/client/pdf';
 import defaultRK from '$lib/forms/RK/defaultRK';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 
-const pdfRK: GetPdfData<'RK'> = async ({ kontrolyTC, evidence: e, uvedeniTC: u }, t, _, { pump }) => {
+const pdfRK: GetPdfData<'RK'> = async ({ data: { kontrolyTC, evidence: e, uvedeniTC: u }, t, pump }) => {
     console.log(kontrolyTC);
     const kontroly = kontrolyTC[pump] as Record<number, Raw<FormRK>>;
     const montazka = await nazevFirmy(e.montazka.ico);

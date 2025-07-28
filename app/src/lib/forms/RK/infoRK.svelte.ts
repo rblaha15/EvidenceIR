@@ -1,6 +1,4 @@
-import { browser } from '$app/environment';
 import { page } from '$app/state';
-import { dataToRawData } from '$lib/forms/Form';
 import db, { type Year } from '$lib/client/data';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
@@ -16,8 +14,7 @@ import type { TC } from '$lib/forms/IN/defaultIN';
 
 const infoRK = (() => {
     let rok = $state() as number;
-    const tc = $derived(!browser ? 1
-        : page.url.searchParams.get('tc')?.let(Number) ?? 1) as TC;
+    const tc = (url: URL = page.url) => (url.searchParams.get('tc')?.let(Number) ?? 1) as TC;
 
     const info: FormInfo<DataRK, FormRK, [], 'RK'> = {
         type: 'IR',
@@ -25,16 +22,17 @@ const infoRK = (() => {
         defaultData: defaultRK,
         openPdf: () => ({
             link: 'RK',
-            pump: tc,
+            pump: tc(),
         }),
-        getEditData: ir => {
-            const kontroly = ir.kontrolyTC[tc] ?? {};
+        getEditData: (ir, url) => {
+            console.log(ir.kontrolyTC, tc(url));
+            const kontroly = ir.kontrolyTC[tc(url)] ?? {};
             rok = kontroly?.[1] == undefined ? 1
                 : Math.max(...kontroly.keys().map(Number)) + 1;
             return undefined;
         },
         saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
-            await db.addHeatPumpCheck(irid, tc, rok as Year, raw);
+            await db.addHeatPumpCheck(irid, tc(), rok as Year, raw);
             if (await checkRegulusOrAdmin()) return;
 
             const user = get(currentUser)!;
@@ -54,8 +52,9 @@ const infoRK = (() => {
             return false;
         },
         showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
-        title: t => t.yearlyHPCheckNr([`${tc}`]),
-        createWidgetData: () => {},
+        title: t => t.yearlyHPCheckNr([`${tc()}`]),
+        createWidgetData: () => {
+        },
         subtitle: t => `${t.year}: ${rok.toString() ?? '…'}`,
         onMount: async (d, k) => {
             if (!k.info.datum.value)
