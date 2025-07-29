@@ -16,15 +16,14 @@
     import defaultSP from '$lib/forms/SP/defaultSP';
     import type { FormSP } from '$lib/forms/SP/formSP.svelte';
     import { dataToRawData } from '$lib/forms/Form.js';
-    import type { EventHandler } from 'svelte/elements';
 
     const {
         t, sp, spid, lang,
     }: {
         t: Translations, sp: Raw<FormNSP>, spid: SPID, lang: LanguageCode,
-    } = $props()
+    } = $props();
 
-    const protocolGroups: (keyof Raw<FormSP>)[] = defaultSP().keys()
+    const protocolGroups: (keyof Raw<FormSP>)[] = defaultSP().keys();
 
     const newIRID = new InputWidget({
         label: p('IRID (z URL adresy)'),
@@ -39,37 +38,35 @@
         const newSP = {
             ...dataToRawData(defaultNSP()),
             ...sp.omit(...protocolGroups),
-        }
+        };
         storable<typeof sp>(NSP.storeName).set(newSP);
-    }
+    };
 </script>
 
 <div class="d-flex flex-column gap-1 align-items-sm-start">
-        <a class="btn btn-primary" tabindex="0"
-           href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${sp.koncovyUzivatel.email}`)}>
-            {t.sendDocuments}
-        </a>
+    <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${sp.koncovyUzivatel.email}`)} tabindex="0">
+        {t.sendDocuments}
+    </a>
 
-        <a class="btn btn-primary" tabindex="0"
-           href={relUrl(`/NSP?view-spid=${spid}`)}>
-            {t.viewInfo}
-        </a>
+    <a class="btn btn-primary" href={relUrl(`/NSP?view-spid=${spid}`)} tabindex="0">
+        {t.viewInfo}
+    </a>
 
-        <PDFLink {lang} {t} link="NSP" hideLanguageSelector={true} data={sp} {spid} />
+    <PDFLink data={sp} hideLanguageSelector={true} {lang} link="NSP" {spid} {t} />
 
-        <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>Kopírovat inpormace o instalaci do nového protokolu</a>
+    <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>Kopírovat inpormace o instalaci do nového protokolu</a>
+</div>
+
+{#if $isUserAdmin}
+    <div class="d-flex flex-column gap-1 align-items-sm-start">
+        <Widget widget={newIRID} {t} data={{}} />
+        <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR (neodstraní se)</button>
+
+        <button class="btn btn-danger d-block" onclick={() => {
+            db.deleteIndependentProtocol(spid);
+            goto(spidUrl(`/detail?deleted`), { replaceState: true });
+        }}>
+            Odstranit protokol
+        </button>
     </div>
-
-    {#if $isUserAdmin}
-        <div class="d-flex flex-column gap-1 align-items-sm-start">
-            <Widget widget={newIRID} {t} data={{}} />
-            <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR (neodstraní se)</button>
-
-            <button class="btn btn-danger d-block" onclick={() => {
-                db.deleteIndependentProtocol(spid);
-                goto(spidUrl(`/detail?deleted`), { replaceState: true });
-            }}
-            >Odstranit protokol
-            </button>
-        </div>
-    {/if}
+{/if}
