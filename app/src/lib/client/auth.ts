@@ -37,9 +37,11 @@ export const checkAdmin = async () => {
 const _checkRegulus = (user: User) =>
 	user.email?.endsWith('@regulus.cz');
 
+export const checkUserRegulusOrAdmin = (user: User) =>
+	_checkRegulus(user) || _checkAdmin(user);
 export const checkRegulusOrAdmin = async () => {
 	await auth.authStateReady()
-	return await checkAuth() && (_checkRegulus(auth.currentUser!) || _checkAdmin(auth.currentUser!))
+	return await checkAuth() && checkUserRegulusOrAdmin(auth.currentUser!)
 }
 
 export const isUserAdmin = derived(
