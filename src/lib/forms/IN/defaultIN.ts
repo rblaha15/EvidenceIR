@@ -110,19 +110,18 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             },
         }),
         ulice: new InputWidget({
-            label: `street`,
-            required: false,
+            label: `street`, required: false, showInXML: true,
             autocomplete: `section-realization shipping address-level2`,
             show: d => !d.mistoRealizace.jakoBydliste.value,
         }),
         obec: new InputWidget({
-            label: `town`,
+            label: `town`, showInXML: true,
             autocomplete: `section-realization shipping address-level1`,
             show: d => !d.mistoRealizace.jakoBydliste.value,
             required: d => !d.mistoRealizace.jakoBydliste.value,
         }),
         psc: new InputWidget({
-            label: `zip`,
+            label: `zip`, showInXML: true,
             onError: `wrongZIPFormat`,
             regex: /^\d{3} \d{2}$/,
             maskOptions: {
@@ -159,7 +158,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             maskOptions: {
                 mask: `00000000[00]`,
             },
-            required: false,
+            required: false, showInXML: true,
             show: d => d.montazka.company.value?.crn != unknownCompany.crn,
         }),
         chosen: new TextWidget({
@@ -169,7 +168,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             }, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn,
         }),
         zastupce: new InputWidget({
-            label: `representativeName`,
+            label: `representativeName`, showInXML: true,
             autocomplete: `section-assemblyRepr billing name`,
             show: d => d.montazka.company.value?.crn != unknownCompany.crn,
         }),
@@ -179,7 +178,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             autocomplete: `section-assembly billing work email`,
             show: d => d.montazka.company.value?.crn != unknownCompany.crn,
-            required: false,
+            required: false, showInXML: true,
         }),
         telefon: new InputWidget({
             label: `phone`,
@@ -188,7 +187,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             type: 'tel',
             autocomplete: `section-assembly billing work tel`,
             show: d => d.montazka.company.value?.crn != unknownCompany.crn,
-            required: false,
+            required: false, showInXML: true,
         }),
     },
     uvedeni: {
@@ -225,7 +224,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             regex: /^\d{8}(\d{2})?$/,
             maskOptions: {
                 mask: `00000000[00]`,
-            },
+            }, showInXML: true,
             show: d => !d.uvedeni.jakoMontazka.value,
             required: d => !d.uvedeni.jakoMontazka.value,
         }),
