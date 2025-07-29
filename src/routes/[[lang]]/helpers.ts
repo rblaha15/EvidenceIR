@@ -7,6 +7,7 @@ import type { Raw } from '$lib/forms/Form';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { relUrl } from '$lib/helpers/runes.svelte';
 import { page } from '$app/state';
+import { get, readable, type Readable } from 'svelte/store';
 
 export const extractIDs = (url: URL) => ({
     irid: url.searchParams.get('irid') as IRID | null,
@@ -49,6 +50,40 @@ export const getData = async (id: {
 
             if (!sp) return { ...base };
             return { ...base, sp, success: true };
+        }
+    } catch (e) {
+        console.log(e);
+        return base;
+    }
+
+    return base;
+};
+
+export const getDataAsStore = async (id: {
+    irid: IRID | null;
+    spid: SPID | null
+}): Promise<{
+    irid: IRID | null, spid: SPID | null,
+    ir: Readable<IR | undefined>, sp: Readable<Raw<FormNSP> | undefined>,
+}> => {
+    const base = { ...id, ir: readable(undefined), sp: readable(undefined) };
+
+    try {
+        if (id.irid) {
+            const ir = await db.getIRAsStore(id.irid);
+
+            if (!ir) return { ...base };
+            return { ...base, ir };
+        } else if (id.spid) {
+            let sp = await db.getIndependentProtocolAsStore(id.spid);
+
+            if (!get(sp)) {
+                id.spid = id.spid.split('-').slice(0, -1).join('-') as SPID;
+                sp = await db.getIndependentProtocolAsStore(id.spid);
+            }
+
+            if (!sp) return { ...base };
+            return { ...base, sp };
         }
     } catch (e) {
         console.log(e);

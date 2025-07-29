@@ -26,6 +26,11 @@ const storedIR = writable<Record<IRID, IR>>({}, (set) => {
         set((await odm.getAll('IR')).associateBy(ir => extractIRIDFromRawData(ir.evidence)));
     })();
 });
+const storedSP = writable<Record<SPID, Raw<FormNSP>>>({}, (set) => {
+    (async () => {
+        set((await odm.getAll('SP')).associateBy(sp => extractSPIDFromRawData(sp.zasah)));
+    })();
+});
 
 let dbMap: Record<string, IDBPDatabase<DBSchema>> = {};
 
@@ -53,10 +58,12 @@ const odm = {
         const _db2 = await db();
         await _db2.put(type, $state.snapshot(value), id);
         if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: value }));
+        if (type === 'SP') storedSP.update(sp => ({ ...sp, [id]: value }));
     },
     delete: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>) => {
         await (await db()).delete(type, id);
         if (type === 'IR') storedIR.update(ir => ir.omit(id as ID<'IR'>));
+        if (type === 'SP') storedSP.update(sp => sp.omit(id as ID<'SP'>));
     },
     get: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>) =>
         (await (await db()).get(type, id))?.let(m(type)),
@@ -70,6 +77,7 @@ const odm = {
             await tx.done;
         });
         if (type === 'IR') storedIR.update(ir => ({ ...ir, ...values }));
+        if (type === 'SP') storedSP.update(sp => ({ ...sp, ...values }));
     },
     update: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>, update: (value: (Data<T> | undefined)) => Data<T>) => {
         const tx = (await db()).transaction(type, 'readwrite');
@@ -82,6 +90,7 @@ const odm = {
         await store.put($state.snapshot(updated), id);
         await tx.done;
         if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: updated }));
+        if (type === 'SP') storedSP.update(sp => ({ ...sp, [id]: updated }));
     },
 };
 
@@ -92,8 +101,9 @@ export const offlineDatabaseManager = {
 };
 
 export const offlineDatabase: Database = {
-    getIR: async irid => await odm.get('IR', irid),
+    getIR: irid => odm.get('IR', irid),
     getAllIRs: () => odm.getAll('IR'),
+    getAllIRsAsStore: () => derived(storedIR, irs => irs.getValues()),
     getIRAsStore: irid => derived(storedIR, irs => irs[irid]),
     addIR: ir => odm.put('IR', extractIRIDFromRawData(ir.evidence), ir),
     deleteIR: irid => odm.delete('IR', irid),
@@ -111,7 +121,7 @@ export const offlineDatabase: Database = {
         ir!.installationProtocols.push(protocol);
         return ir!;
     }),
-    editServiceProtocol: async (irid, index, protocol) => odm.update('IR', irid, ir => {
+    updateServiceProtocol: async (irid, index, protocol) => odm.update('IR', irid, ir => {
         ir!.installationProtocols[index] = protocol;
         return ir!;
     }),
@@ -134,5 +144,7 @@ export const offlineDatabase: Database = {
     addIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),
     deleteIndependentProtocol: spid => odm.delete('SP', spid),
     getIndependentProtocol: spid => odm.get('SP', spid),
+    getIndependentProtocolAsStore: spid => derived(storedSP, sps => sps[spid]),
     getAllIndependentProtocols: () => odm.getAll('SP'),
+    getAllIndependentProtocolsAsStore: () => derived(storedSP, sps => sps.getValues()),
 };

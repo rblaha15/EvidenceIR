@@ -6,7 +6,7 @@ export const load: Load = ({ params }) => {
     const lang = asLanguageCodeOrNull(params.lang);
     return {
         translations: getTranslations(lang ?? defaultLanguage),
-        areTranslationsFromRoute: lang != null,
+        isLanguageFromUrl: lang != null,
         languageCode: lang ?? defaultLanguage,
     } as const;
 };
