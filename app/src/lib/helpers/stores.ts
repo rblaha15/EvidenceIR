@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { get, writable, type Writable } from 'svelte/store';
+import { derived, get, type Readable, writable, type Writable } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
 
 export function storable<T>(key: string): Writable<T | undefined>;
@@ -43,3 +43,19 @@ export function storable<T>(key: string, defaultValue?: T) {
     };
     return _storeable;
 }
+
+export const flattenStores = <T>(
+    outer: Readable<Readable<T>>,
+): Readable<T> => derived(outer, (inner, set) => inner.subscribe(set));
+
+export const flatDerived = <T, U>(
+    store: Readable<T>,
+    fn: (value: T) => Readable<U>,
+    innerEffect?: (result: U, value: T) => unknown,
+): Readable<U> => derived(store, (value, set) => {
+    const inner = fn(value);
+    return inner.subscribe(result => {
+        set(result);
+        innerEffect?.(result, value);
+    });
+});

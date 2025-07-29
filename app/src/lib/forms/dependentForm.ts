@@ -1,9 +1,9 @@
-import type { Pdf } from '$lib/client/pdf';
+import type { OpenPdfOptions, Pdf } from '$lib/client/pdf';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { IRID } from '$lib/helpers/ir';
 import db from '$lib/client/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte.js';
-import type { FormInfo, IndependentFormInfo, OpenPdfOptions } from '$lib/forms/FormInfo';
+import type { FormInfo, IndependentFormInfo } from '$lib/forms/FormInfo';
 import { error } from '@sveltejs/kit';
 
 export const removeDependency = async <
