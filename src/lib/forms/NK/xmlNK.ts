@@ -3,15 +3,15 @@ import type { TranslationReference, Translations } from '$lib/translations';
 import type { SeCh } from '$lib/forms/Widget.svelte';
 import type { User } from 'firebase/auth';
 import { browser, dev, version } from '$app/environment';
-import type { FormPO } from '$lib/forms/PO/formPO';
+import type { FormNK } from './formNK';
 
-const fve = (d: Raw<FormPO>) => d.contacts.demandSubject.includes(`demand.contacts.fve`);
-const hp = (d: Raw<FormPO>) => d.contacts.demandSubject.includes(`demand.contacts.heatPump`);
-const pool = (d: Raw<FormPO>) => hp(d) && d.system.wantsPool;
+const fve = (d: Raw<FormNK>) => d.contacts.demandSubject.includes(`demand.contacts.fve`);
+const hp = (d: Raw<FormNK>) => d.contacts.demandSubject.includes(`demand.contacts.heatPump`);
+const pool = (d: Raw<FormNK>) => hp(d) && d.system.wantsPool;
 
 const seCh = (t: Translations, v: SeCh<TranslationReference>) => v.checked ? t.get(v.chosen ?? '') : t.no;
 
-export default (d: Raw<FormPO>, user: User, t: Translations, dem: FormPO) => `
+export default (d: Raw<FormNK>, user: User, t: Translations, dem: FormNK) => `
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="dotaznik_app.xsl"?>
 
