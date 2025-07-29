@@ -63,6 +63,11 @@ declare global {
             ...keys: K[]
         ): Omit<T, K>;
 
+        pick<T extends Record<PropertyKey, unknown>, K extends keyof T>(
+            this: T,
+            ...keys: K[]
+        ): Pick<T, K>;
+
         let<T, U>(
             this: T,
             callback: (self: T) => U
@@ -91,6 +96,7 @@ Object.defineProperties(Object.prototype, {
     keys: { writable: true },
     zip: { writable: true },
     omit: { writable: true },
+    pick: { writable: true },
     let: { writable: true },
     also: { writable: true },
     thenAlso: { writable: true },
@@ -157,6 +163,13 @@ Object.prototype.omit = function <T extends Record<PropertyKey, unknown>, K exte
     ...keys: K[]
 ): Omit<T, K> {
     return this.filterValues(key => !(keys as (keyof T)[]).includes(key));
+};
+
+Object.prototype.pick = function <T extends Record<PropertyKey, unknown>, K extends keyof T>(
+    this: T,
+    ...keys: K[]
+): Pick<T, K> {
+    return this.filterValues(key => (keys as (keyof T)[]).includes(key));
 };
 
 Object.recursiveKeys = (o: Record<string, unknown>): string[] =>

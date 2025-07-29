@@ -12,10 +12,7 @@
     const {
         irid, ir, lang, t,
     }: {
-        irid: IRID,
-        ir: IR,
-        lang: LanguageCode,
-        t: Translations,
+        irid: IRID, ir: IR, lang: LanguageCode, t: Translations,
     } = $props();
 
     const copySP = (i: number) => async () => {

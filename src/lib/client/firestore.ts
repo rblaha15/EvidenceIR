@@ -15,7 +15,7 @@ import {
 } from 'firebase/firestore';
 import type { Raw } from '$lib/forms/Form';
 import { get, readonly, writable } from 'svelte/store';
-import { checkRegulusOrAdmin, currentUser } from './auth';
+import { checkRegulusOrAdmin, checkUserRegulusOrAdmin, currentUser } from './auth';
 import { firestore } from '../../hooks.client';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
 import { type Database, type IR } from '$lib/client/data';
@@ -23,6 +23,7 @@ import { type LegacyIR, type LegacySP, migrateSP, modernizeIR } from './migratio
 import { offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
 import { Query } from '@firebase/firestore';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import { flatDerived } from '$lib/helpers/stores';
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
@@ -51,6 +52,12 @@ const getAsStore = <T>(reference: DocumentReference<T>) => {
     onSnapshot(reference, data => currentState.set(data.exists() ? data.data() : undefined));
     return readonly(currentState);
 };
+const getAllAsStore = <T>(reference: Query<T>) => {
+    const currentState = writable<T[]>([]);
+    onSnapshot(reference, snps => currentState.set(snps.docs
+        .mapNotUndefined(snp => snp.exists() ? snp.data() : undefined)));
+    return readonly(currentState);
+};
 const getSnps = async <T>(reference: Query<T>) => {
     try {
         const snp = await getDocs(reference);
@@ -66,11 +73,20 @@ export const firestoreDatabase: Database = {
         .thenAlso(v => odm.putOrDelete('IR', irid, v)),
     getAllIRs: async () => {
         const user = get(currentUser);
-        return await getSnps(
-            await checkRegulusOrAdmin() ? irCollection
-                : query(irCollection, where('users', 'array-contains', user?.email ?? '')),
-        ).thenAlso(v => odm.putAll('IR', v.associateBy(v => extractIRIDFromRawData(v.evidence))));
+        const q = await checkRegulusOrAdmin() ? irCollection
+            : query(irCollection, where('users', 'array-contains', user?.email ?? ''));
+        return await getSnps(q).thenAlso(v =>
+            odm.putAll('IR', v.associateBy(v => extractIRIDFromRawData(v.evidence))),
+        );
     },
+    getAllIRsAsStore: () => flatDerived(currentUser,
+        user => {
+            const q = user && checkUserRegulusOrAdmin(user) ? irCollection
+                : query(irCollection, where('users', 'array-contains', user?.email ?? ''));
+            return getAllAsStore(q);
+        },
+        irs => odm.putAll('IR', irs.associateBy(v => extractIRIDFromRawData(v.evidence))),
+    ),
     getIRAsStore: irid => getAsStore(irDoc(irid))
         .also(r => r.subscribe(v => odm.putOrDelete('IR', irid, v))),
     addIR: async ir => {
@@ -110,7 +126,7 @@ export const firestoreDatabase: Database = {
         await updateDoc(irDoc(irid), `installationProtocols`, ir!.installationProtocols);
         await odm.put('IR', irid, ir!);
     },
-    editServiceProtocol: async (irid, index, protocol) => {
+    updateServiceProtocol: async (irid, index, protocol) => {
         const ir = await getSnp(irDoc(irid));
         ir!.installationProtocols[index] = protocol;
         await updateDoc(irDoc(irid), `installationProtocols`, ir!.installationProtocols);
@@ -143,6 +159,12 @@ export const firestoreDatabase: Database = {
     },
     getIndependentProtocol: spid => getSnp(spDoc(spid))
         .thenAlso(v => odm.putOrDelete('SP', spid, v)),
+    getIndependentProtocolAsStore: spid => getAsStore(spDoc(spid)).also(r =>
+        r.subscribe(v => odm.putOrDelete('SP', spid, v)),
+    ),
     getAllIndependentProtocols: () => getSnps(spCollection)
         .thenAlso(v => odm.putAll('SP', v.associateBy(v => extractSPIDFromRawData(v.zasah)))),
+    getAllIndependentProtocolsAsStore: () => getAllAsStore(spCollection).also(r =>
+        r.subscribe(v => odm.putAll('SP', v.associateBy(v => extractSPIDFromRawData(v.zasah)))),
+    ),
 };

@@ -4,11 +4,12 @@ import { error } from '@sveltejs/kit';
 import { extractIDs, langEntryGenerator } from '../../helpers';
 import type { EntryGenerator, PageLoad } from './$types';
 import { startLidiListening } from '$lib/client/realtime';
+import db from '$lib/client/data';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
 export const load: PageLoad = async ({ url }) => {
-    if (!browser) return { irid: null, spid: null };
+    if (!browser) return { irid: undefined, ir: undefined };
 
     if (browser && !await checkAuth()) error(401);
     if (browser && !await checkRegulusOrAdmin()) error(401);
@@ -18,7 +19,7 @@ export const load: PageLoad = async ({ url }) => {
 
     await startLidiListening()
 
-    return id;
+    return { irid: id.irid, ir: await db.getIRAsStore(id.irid) };
 };
 
 export const prerender = true;

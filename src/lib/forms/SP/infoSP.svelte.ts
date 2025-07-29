@@ -58,7 +58,7 @@ const infoSP = (() => {
                 return false;
             }
 
-            if (edit) await db.editServiceProtocol(irid, i, raw);
+            if (edit) await db.updateServiceProtocol(irid, i, raw);
             else await db.addServiceProtocol(irid, raw);
 
             if (edit && !send) return true;

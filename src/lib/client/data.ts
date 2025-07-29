@@ -6,13 +6,14 @@ import { type Readable } from 'svelte/store';
 import type { FormUPS } from '$lib/forms/UPS/formUPS';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
 import type { IRID, SPID } from '$lib/helpers/ir';
-import { getIsOnline } from '$lib/client/realtime';
+import { getIsOnline, isOnline } from '$lib/client/realtime';
 import { offlineDatabase } from '$lib/client/offline.svelte';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
 import { addToOfflineQueue } from '$lib/client/offlineQueue';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { firestoreDatabase } from '$lib/client/firestore';
+import { flatDerived } from '$lib/helpers/stores';
 
 export type Year = 1 | 2 | 3 | 4;
 
@@ -31,29 +32,44 @@ export type IR = {
 };
 
 /**
- * Supported read actions:
+ * Supported actions:
  * - get
  * - getAll
  * - get*AsStore
+ * - getAll*AsStore
  * - exists
- *
- * Supported write actions:
- * - add
- * - delete
- * - update
  */
-export interface Database {
+export interface ReadDatabase {
     getIR(irid: IRID): Promise<IR | undefined>;
 
     getAllIRs(): Promise<IR[]>;
 
+    getAllIRsAsStore(): Readable<IR[]>;
+
     getIRAsStore(irid: IRID): Readable<IR | undefined>;
 
+    existsIR(irid: IRID): Promise<boolean>;
+
+
+    getIndependentProtocol(spid: SPID): Promise<Raw<FormNSP> | undefined>;
+
+    getIndependentProtocolAsStore(spid: SPID): Readable<Raw<FormNSP> | undefined>;
+
+    getAllIndependentProtocols(): Promise<Raw<FormNSP>[]>;
+
+    getAllIndependentProtocolsAsStore(): Readable<Raw<FormNSP>[]>;
+}
+
+/**
+ * Supported actions:
+ * - add
+ * - delete
+ * - update
+ */
+export interface WriteDatabase {
     addIR(ir: IR): Promise<void>;
 
     deleteIR(irid: IRID): Promise<void>;
-
-    existsIR(irid: IRID): Promise<boolean>;
 
     updateIRRecord(rawData: Raw<FormIN>): Promise<void>;
 
@@ -61,7 +77,7 @@ export interface Database {
 
     addServiceProtocol(irid: IRID, protocol: Raw<FormSP>): Promise<void>;
 
-    editServiceProtocol(irid: IRID, index: number, protocol: Raw<FormSP>): Promise<void>;
+    updateServiceProtocol(irid: IRID, index: number, protocol: Raw<FormSP>): Promise<void>;
 
     addHeatPumpCommissioningProtocol(irid: IRID, protocol: Raw<FormUPT>): Promise<void>;
 
@@ -74,35 +90,53 @@ export interface Database {
     addIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
 
     deleteIndependentProtocol(spid: SPID): Promise<void>;
-
-    getIndependentProtocol(spid: SPID): Promise<Raw<FormNSP> | undefined>;
-
-    getAllIndependentProtocols(): Promise<Raw<FormNSP>[]>;
 }
+
+export interface Database extends ReadDatabase, WriteDatabase {
+}
+
+type GetAsStoreFunctionReturnType = ReturnType<Database[GetAsStoreFunction]> extends Readable<infer T> ? Readable<T> : never;
+const mergedStore = (name: GetAsStoreFunction, args: Parameters<Database[GetAsStoreFunction]>): GetAsStoreFunctionReturnType => flatDerived(
+    isOnline,
+    $isOnline => {
+        const db = $isOnline ? firestoreDatabase : offlineDatabase;
+        // @ts-expect-error TS doesn't know it's a tuple
+        return db[name](...args) as GetAsStoreFunctionReturnType;
+    },
+    (_, $isOnline) =>
+        console.log('Got value from the', name, 'store from the', $isOnline ? 'online' : 'offline', 'database'),
+);
 
 const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>): ReturnType<Database[F]> => {
     console.log('Executing', name, 'with args', ...args);
 
-    const db = getIsOnline() ? firestoreDatabase : offlineDatabase;
-    if (!getIsOnline()) addToOfflineQueue(name, args);
+    if (isGetAsStoreFunction(name)) {
+        return mergedStore(name, args as Parameters<Database[GetAsStoreFunction]>) as ReturnType<Database[F]>;
+    } else {
+        const db = getIsOnline() ? firestoreDatabase : offlineDatabase;
+        if (!getIsOnline()) addToOfflineQueue(name, args);
 
-    // @ts-expect-error TS doesn't know it's a tuple
-    return db[name](...args);
+        // @ts-expect-error TS doesn't know it's a tuple
+        return db[name](...args);
+    }
 };
 
 const functions = [
-    'getIR', 'getAllIRs', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck', 'addServiceProtocol',
-    'editServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
+    'getIR', 'getAllIRs', 'getAllIRsAsStore', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
+    'addServiceProtocol', 'updateServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
     'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'addIndependentServiceProtocol', 'deleteIndependentProtocol',
-    'getIndependentProtocol', 'getAllIndependentProtocols',
-] as const;
+    'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols', 'getAllIndependentProtocolsAsStore',
+] as const satisfies (keyof Database)[];
 
-export type WriteFunction = {
-    [F in keyof Database]: F extends `add${string}` ? F : F extends `update${string}` ? F : F extends `delete${string}` ? F : never;
-}[keyof Database];
-
+export type WriteFunction = keyof WriteDatabase;
 export const isWriteFunction = (name: keyof Database): name is WriteFunction =>
     ['add', 'update', 'delete'].some(prefix => name.startsWith(prefix));
+
+export type GetAsStoreFunction = {
+    [F in keyof ReadDatabase]: F extends `get${string}AsStore` ? F : never;
+}[keyof ReadDatabase];
+export const isGetAsStoreFunction = (name: keyof Database): name is GetAsStoreFunction =>
+    name.endsWith('AsStore');
 
 const db: Database = functions.associateWith(name =>
     (...args: Parameters<Database[typeof name]>) => decide(name, args),

@@ -7,16 +7,24 @@
     import { detailIrUrl, detailSpUrl } from '$lib/helpers/runes.svelte';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
     import type { PageProps } from './$types';
+    import type { Installation_PublicServiceProtocol } from './+page';
 
     const { data }: PageProps = $props()
 
     const t = data.translations;
 
+    const itemsStore = $derived(data.items);
+
+    $effect(() => {
+        const items = $itemsStore;
+        w.items = () => items;
+    })
+
     let w = $state(new SearchWidget({
         type: 'search',
         required: false,
         label: 'search',
-        items: _ => data.items,
+        items: _ => [] as Installation_PublicServiceProtocol[],
         getSearchItem: i => ({
             href: i.t == 'SP' ? detailSpUrl(i.id) : detailIrUrl(i.id),
             pieces: [
