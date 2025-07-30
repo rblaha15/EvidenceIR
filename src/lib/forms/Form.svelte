@@ -7,23 +7,21 @@
     // noinspection ES6UnusedImports
     import type { Form } from '$lib/forms/Form';
     import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
-    import type { PdfParameters } from '$lib/client/pdf';
     // noinspection ES6UnusedImports
-    import { type Pdf, pdfInfo, pdfParamsArray } from '$lib/client/pdf';
+    import { type Pdf } from '$lib/client/pdf';
     import type { Translations } from '$lib/translations';
     import FormHeader from '$lib/forms/FormHeader.svelte';
     import { onMount, untrack } from 'svelte';
     import { derived as derivedStore, readable } from 'svelte/store';
     import WidgetComponent from '$lib/components/Widget.svelte';
     import { storable } from '$lib/helpers/stores';
-    import { page } from '$app/state';
     import { dev } from '$app/environment';
-    import { generatePdf } from '$lib/client/pdfGeneration';
     import type { IndependentFormInfo } from '$lib/forms/FormInfo';
-    import FileSaver from 'file-saver';
     import { runLoading } from '$lib/helpers/globals.js';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
     import { goto } from '$app/navigation';
+    import { generatePdfPreviewUrl } from '../../routes/[[lang]]/helpers';
+    import { relUrl } from '$lib/helpers/runes.svelte';
 
     const { t, formInfo, editData, viewData }: {
         t: Translations,
@@ -112,25 +110,15 @@
                     : { text: '', red: false, load: false };
 
                 if (openPdf) {
-                    try {
-                        const { link, data, ...parameters } = await openPdf(raw);
-                        const p = parameters as unknown as PdfParameters<P>;
-                        const pdfData = await generatePdf(pdfInfo[link], page.data.languageCode, data, ...pdfParamsArray(p));
-
-                        FileSaver.saveAs(new Blob([pdfData.pdfBytes], {
-                            type: 'application/pdf',
-                        }), pdfData.fileName);
-                    } catch (e) {
-                        console.log(e);
-                    }
-                }
-
-                if (redirectLink) await goto(await redirectLink(raw), { replaceState: true });
-                if (redirectLink) setTimeout(async () => result = {
-                    text: t.redirectFailedHtml({ link: page.url.origin + await redirectLink(raw) }),
-                    red: true,
-                    load: false,
-                }, 5000);
+                    const o = await openPdf(raw);
+                    const url = generatePdfPreviewUrl(o);
+                    const gotoUrl = new URL(relUrl('/detail'), url.origin);
+                    url.searchParams.get('irid')?.also(u => gotoUrl.searchParams.set('irid', u));
+                    url.searchParams.get('spid')?.also(u => gotoUrl.searchParams.set('spid', u));
+                    gotoUrl.searchParams.set('goto', url.pathname + url.search);
+                    await goto(gotoUrl, { replaceState: true });
+                } else if (redirectLink)
+                    await goto(await redirectLink(raw), { replaceState: true });
             }
         } catch (e) {
             console.error(e);

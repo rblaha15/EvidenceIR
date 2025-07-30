@@ -5,6 +5,7 @@
     import { detailIrUrl, detailSpUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { getForm } from '$lib/forms/forms.js';
     import type { IRID, SPID } from '$lib/helpers/ir';
+    import { type Pdf, pdfInfo } from '$lib/client/pdf';
 
     const { t }: { t: Translations } = $props();
     type BooleanLike = unknown
@@ -12,10 +13,13 @@
 
     const route = $derived(page.route.id);
     const isForm = $derived(route?.endsWith('[form]') ?? false);
+    const isPdf = $derived(route?.endsWith('[pdf]') ?? false);
     const form = $derived(page.params.form);
+    const pdf = $derived(page.params.pdf);
     const search = $derived(page.url.searchParams);
     const formType = $derived(getForm(form)?.type);
-    const isDetailPage = $derived(isForm && formType === 'IR' || route?.endsWith('/detail') || route?.endsWith('/users'));
+    const pdfType = $derived(pdfInfo[pdf as Pdf]?.type);
+    const isDetailPage = $derived(isForm && formType === 'IR' || route?.endsWith('/detail') || route?.endsWith('/users') || isPdf);
     const externalIRID = $derived(search.get('view-irid') || search.get('edit-irid')) as IRID | undefined;
     const externalSPID = $derived(search.get('view-spid') || search.get('edit-spid')) as SPID | undefined;
 </script>

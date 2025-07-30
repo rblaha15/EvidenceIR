@@ -1,4 +1,4 @@
-import type { DataOfPdf, Pdf, PdfParameters } from '$lib/client/pdf';
+import type { OpenPdfOptions, Pdf } from '$lib/client/pdf';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { Translations } from '$lib/translations';
 import type { ExcelImport } from '$lib/forms/ExcelImport';
@@ -15,11 +15,6 @@ export type Effect<
 ]
 
 export type Result = { text: string, red: boolean, load: boolean };
-
-export type OpenPdfOptions<P extends Pdf> = {
-    link: P,
-    data: DataOfPdf<P>,
-} & PdfParameters<P>;
 
 export type IndependentFormInfo<
     D,
@@ -59,7 +54,7 @@ export type FormInfo<
     R extends Raw<F> = Raw<F>
 > = {
     type: 'IR';
-    openPdf?: () => Omit<OpenPdfOptions<P>, 'data'>;
+    openPdf?: () => Omit<OpenPdfOptions<P>, 'irid'>;
     saveData: (irid: IRID, raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, ir: IR) => Promise<boolean | void>;
     createWidgetData: (evidence: Raw<FormIN>, data: F) => D;
     getEditData?: ((ir: IR, url: URL) => R | undefined) | undefined;

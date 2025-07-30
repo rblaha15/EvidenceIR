@@ -9,7 +9,7 @@ import { p } from '$lib/translations';
 const representative = (c: Raw<FormIN>['montazka' | 'uvedeni']) =>
     `${c.zastupce} – ${c.email}; ${c.telefon ?? ''}`;
 
-const pdfRR: GetPdfData<'RR'> = async ({ evidence: e }, t) => ({
+const pdfRR: GetPdfData<'RR'> = async ({ data: { evidence: e }, t }) => ({
     Text1: e.montazka.ico,
     Text2: (await nazevFirmy(e.montazka.ico, fetch)) ?? null,
     Text3: representative(e.montazka),
