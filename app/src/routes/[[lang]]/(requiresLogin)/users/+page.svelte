@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PageData } from './$types';
+    import type { PageProps } from './$types';
     import { setTitle } from '$lib/helpers/globals.js';
     import { irWholeName } from '$lib/helpers/ir';
     import { SearchWidget } from '$lib/forms/Widget.svelte.js';
@@ -8,15 +8,9 @@
     import { usersList } from '$lib/client/realtime';
     import db from '$lib/client/data';
 
-    interface Props {
-        data: PageData;
-    }
+    const { data }: PageProps = $props();
 
-    let { data }: Props = $props();
-    const t = data.translations;
-
-    const irid = data.irid!;
-    const ir = db.getIRAsStore(irid);
+    const { translations: t, irid, ir } = $derived(data)
 
     setTitle('Uživatelé s přístupem k evidenci', true);
 
@@ -33,7 +27,7 @@
     });
 </script>
 
-{#if $ir}
+{#if $ir && irid}
     <h3 class="m-0">{irWholeName($ir.evidence)}</h3>
 
     <div class="d-flex align-items-center gap-3">

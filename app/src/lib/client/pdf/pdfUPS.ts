@@ -3,7 +3,7 @@ import { dateFromISO } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/client/pdf';
 import { endUserName } from '$lib/helpers/ir';
 
-const pdfUPS: GetPdfData<'UPS'> = async ({ evidence: e, uvedeniSOL }, t) => {
+const pdfUPS: GetPdfData<'UPS'> = async ({ data: { evidence: e, uvedeniSOL }, t }) => {
     const u = uvedeniSOL!;
 
     return {

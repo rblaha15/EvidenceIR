@@ -81,6 +81,7 @@ const functions: {
     addHeatPumpCheck: (irid, pump, year) =>
         `Vytvořena roční kontrola TČ ${pump} pro rok ${year} u IR ${irNumberFromIRID(irid)}`,
     addServiceProtocol: (irid, p) => `Vytvořen servisní protokol ${spName(p.zasah)} u IR ${irNumberFromIRID(irid)}`,
+    updateServiceProtocol: (irid, _, p) => `Upraven servisní protokol ${spName(p.zasah)} u IR ${irNumberFromIRID(irid)}`,
     addHeatPumpCommissioningProtocol: irid => `Vytvořen protokol o uvedení TČ do provozu u IR ${irNumberFromIRID(irid)}`,
     addSolarSystemCommissioningProtocol: irid => `Vytvořen protokol o uvedení SOL do provozu u IR ${irNumberFromIRID(irid)}`,
     addPhotovoltaicSystemCommissioningProtocol: irid => `Vytvořen protokol o uvedení FVE do provozu u IR ${irNumberFromIRID(irid)}`,

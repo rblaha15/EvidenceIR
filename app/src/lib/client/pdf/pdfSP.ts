@@ -53,37 +53,39 @@ const poleProDilyS = 44;
 const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
     .associateWith((_, i) => poleProDilyS + i * 8);
 
-const multilineLineLength = 70
-const multilineMaxLength = multilineLineLength * 4
-const inlineMaxLength = 55
+const multilineLineLength = 70;
+const multilineMaxLength = multilineLineLength * 4;
+const inlineMaxLength = 55;
 
 const multilineTooLong = (text: string) => text.split('\n').sumBy(line =>
-    Math.ceil(line.length / multilineLineLength) * multilineLineLength
+    Math.ceil(line.length / multilineLineLength) * multilineLineLength,
 ) > multilineMaxLength;
 const inlineTooLong = (text: string) => text.length > inlineMaxLength;
 
-export const pdfSP: GetPdfData<'SP'> = async ({ evidence: e, installationProtocols }, t, add, { index }) => {
+export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols }, t, addPage, index }) => {
     const pumps = e.tc.model ? cascadePumps(e, t) : [];
     const p = installationProtocols[index];
     return pdfNSP({
-        ...e,
-        ...p,
-        system: {
-            popis:
-                irName(e.ir) +
-                (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +
-                (e.sol?.typ ? `\nSOL: ${e.sol.typ} – ${e.sol.pocet}x` : '') +
-                (e.rek?.typ ? `\nREK: ${e.rek.typ}` : '') +
-                (e.fve?.pocet ? `\nFVE: ${t.get(e.fve.typ)} – ${e.fve.pocet}x` : '') +
-                (e.fve?.akumulaceDoBaterii ? `; baterie: ${e.fve.typBaterii} – ${e.fve.kapacitaBaterii} kWh` : '') +
-                (e.jine?.popis ? `\nJiné zařízení: ${e.jine.popis}` : '') +
-                (e.tc.model ? '\n' + formatovatCerpadla(pumps.map(t.pumpDetails)) : ''),
-            pocetTC: pumps.length,
-        },
-    }, t, add);
+        data: {
+            ...e,
+            ...p,
+            system: {
+                popis:
+                    irName(e.ir) +
+                    (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +
+                    (e.sol?.typ ? `\nSOL: ${e.sol.typ} – ${e.sol.pocet}x` : '') +
+                    (e.rek?.typ ? `\nREK: ${e.rek.typ}` : '') +
+                    (e.fve?.pocet ? `\nFVE: ${t.get(e.fve.typ)} – ${e.fve.pocet}x` : '') +
+                    (e.fve?.akumulaceDoBaterii ? `; baterie: ${e.fve.typBaterii} – ${e.fve.kapacitaBaterii} kWh` : '') +
+                    (e.jine?.popis ? `\nJiné zařízení: ${e.jine.popis}` : '') +
+                    (e.tc.model ? '\n' + formatovatCerpadla(pumps.map(t.pumpDetails)) : ''),
+                pocetTC: pumps.length,
+            },
+        }, t, addPage,
+    });
 };
 
-export const pdfNSP: GetPdfData<'NSP'> = async (p, t, addPage) => {
+export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addPage }) => {
     console.log(p);
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
     const nahradniDily = [
@@ -97,7 +99,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async (p, t, addPage) => {
     const cenaOstatni = cenaUkony + cenaDily;
     const celkem = cenaDopravy + cenaPrace + cenaOstatni;
     const dph = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21;
-    let response: Response
+    let response: Response;
     try {
         response = await fetch(`/signatures/${p.zasah.inicialy}.jpg`);
     } catch (_: unknown) {
@@ -109,9 +111,9 @@ export const pdfNSP: GetPdfData<'NSP'> = async (p, t, addPage) => {
     const zavada = p.zasah.nahlasenaZavada;
     const zasah = p.zasah.popis;
     if (multilineTooLong(system) || inlineTooLong(zavada) || multilineTooLong(zasah))
-        await addPage(pdfInfo.PS, p);
+        await addPage({ args: pdfInfo.PS, data: p, lang: 'cs' });
 
-    if (dph == 1.12) await addPage(pdfInfo.CP, p);
+    if (dph == 1.12) await addPage({ args: pdfInfo.CP, data: p, lang: 'cs' });
 
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
@@ -177,16 +179,16 @@ export default pdfSP;
 
 const formatovatCerpadla = (a: string[]) => a.join('; ');//[a.slice(0, 2).join('; '), a.slice(2, 4).join('; ')].join('\n');
 
-export const pdfCP: GetPdfData<'CP'> = async p => ({
+export const pdfCP: GetPdfData<'CP'> = async ({ data: p }) => ({
     Text1: `${p.koncovyUzivatel.prijmeni} ${p.koncovyUzivatel.jmeno}`,
     Text2: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
     Text3: dateFromISO(p.zasah.datum),
 });
 
-export const pdfPS: GetPdfData<'PS'> = async p => {
-    const system = p.system.popis
-    const zavada = p.zasah.nahlasenaZavada
-    const zasah = p.zasah.popis
+export const pdfPS: GetPdfData<'PS'> = async ({ data: p }) => {
+    const system = p.system.popis;
+    const zavada = p.zasah.nahlasenaZavada;
+    const zasah = p.zasah.popis;
     return {
         Text1: [
             multilineTooLong(system) ? 'Popis systému:\n' + system : '',
