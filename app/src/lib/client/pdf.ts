@@ -17,9 +17,30 @@ import type { TC } from '$lib/forms/IN/defaultIN';
 import type { IRID, SPID } from '$lib/helpers/ir';
 
 type AllPdf = {
-    [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP' | 'UPF' | 'DT']: 'IR'
-} & {
-    [P in 'NSP' | 'CP' | 'PS']: 'SP'
+    /** Roční kontrola TČ */
+    RK: 'IR'
+    /** Záruční list TČ */
+    ZL: 'IR'
+    /** Souhlas s RegulusRoute */
+    RR: 'IR'
+    /** Návod na přístup do IR  */
+    NN: 'IR'
+    /** Uvedení TČ do provozu */
+    UPT: 'IR'
+    /** Uvedení SOL do provozu */
+    UPS: 'IR'
+    /** Uvedení FVE do provozu */
+    UPF: 'IR'
+    /** Servisní protokol */
+    SP: 'IR'
+    /** Doporučení pro úsporný provoz TČ */
+    DT: 'IR'
+    /** Nezávislý servisní protokol */
+    NSP: 'SP'
+    /** Čestné prohlášení */
+    CP: 'SP'
+    /** Prázdná sránka */
+    PS: 'SP'
 }
 
 export const pdfInfo: PdfInfo = {
