@@ -11,6 +11,7 @@ import UPT from '$lib/client/pdf/pdfUPT';
 import UPS from '$lib/client/pdf/pdfUPS';
 import SP, { pdfCP as CP, pdfNSP as NSP, pdfPS as PS } from '$lib/client/pdf/pdfSP';
 import UPF from '$lib/client/pdf/pdfUPF';
+import FT from '$lib/client/pdf/pdfFT';
 import type { Raw } from '$lib/forms/Form';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { TC } from '$lib/forms/IN/defaultIN';
@@ -41,6 +42,8 @@ type AllPdf = {
     CP: 'SP'
     /** Prázdná sránka */
     PS: 'SP'
+    /** FaceTable */
+    FT: 'IR'
 }
 
 export const pdfInfo: PdfInfo = {
@@ -128,6 +131,13 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'DT',
         supportedLanguages: ['cs'],
         title: '',
+    },
+    FT: {
+        type: 'IR',
+        pdfName: 'FT',
+        supportedLanguages: ['cs'],
+        title: 'ft.title',
+        getPdfData: FT,
     },
 };
 
