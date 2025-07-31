@@ -130,7 +130,8 @@ export type GeneratePdfOptions<P extends Pdf> = {
 export type GetPdfData<P extends Pdf> = (o: {
     data: DataOfPdf<P>,
     t: Translations,
-    addPage: <P extends Pdf>(o: GeneratePdfOptions<P>) => Promise<void>,
+    addDoc: <P extends Pdf>(o: GeneratePdfOptions<P>) => Promise<void>,
+    lang: LanguageCode,
 } & PdfParameters<P>) => Promise<PdfGenerationData>
 
 export type PdfArgs<P extends Pdf> = {
@@ -141,7 +142,7 @@ export type PdfArgs<P extends Pdf> = {
     saveOptions?: SaveOptions;
     requiredAdmin?: boolean;
     requiredRegulus?: boolean;
-    getPdfData: GetPdfData<P>;
+    getPdfData?: GetPdfData<P>;
 };
 
 type PdfParams = {
