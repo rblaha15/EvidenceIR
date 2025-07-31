@@ -144,6 +144,10 @@ export const firestoreDatabase: Database = {
         await updateDoc(irDoc(irid), `uvedeniFVE`, protocol);
         await odm.update('IR', irid, ir => ({ ...ir!, uvedeniFVE: protocol }));
     },
+    addFaceTable: async (irid, faceTable) => {
+        await updateDoc(irDoc(irid), `faceTable`, faceTable);
+        await odm.update('IR', irid, ir => ({ ...ir!, faceTable: faceTable }));
+    },
     updateIRUsers: async (irid, users) => {
         await updateDoc(irDoc(irid), `users`, users);
         await odm.update('IR', irid, ir => ({ ...ir!, users: users }));

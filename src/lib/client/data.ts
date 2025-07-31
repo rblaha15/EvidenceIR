@@ -14,6 +14,7 @@ import { addToOfflineQueue } from '$lib/client/offlineQueue';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { flatDerived } from '$lib/helpers/stores';
+import type { FormFT } from '$lib/forms/FT/formFT';
 
 export type Year = 1 | 2 | 3 | 4;
 
@@ -29,6 +30,7 @@ export type IR = {
     };
     users: string[];
     installationProtocols: Raw<FormSP>[];
+    faceTable?: Raw<FormFT>;
 };
 
 /**
@@ -85,6 +87,8 @@ export interface WriteDatabase {
 
     addPhotovoltaicSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPF>): Promise<void>;
 
+    addFaceTable(irid: IRID, faceTable: Raw<FormFT>): Promise<void>;
+
     updateIRUsers(irid: IRID, users: string[]): Promise<void>;
 
     addIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
@@ -126,6 +130,7 @@ const functions = [
     'addServiceProtocol', 'updateServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
     'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'addIndependentServiceProtocol', 'deleteIndependentProtocol',
     'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols', 'getAllIndependentProtocolsAsStore',
+    'addFaceTable',
 ] as const satisfies (keyof Database)[];
 
 export type WriteFunction = keyof WriteDatabase;

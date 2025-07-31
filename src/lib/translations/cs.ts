@@ -1,6 +1,8 @@
 // noinspection SpellCheckingInspection
 
 import { template as t } from '$lib/helpers/templates';
+import { optionsInputsB, optionsInputsC, optionsOutputsB, optionsOutputsF } from '$lib/forms/FT/portsOptions';
+import '$lib/extensions'
 
 export default {
     controllerRegistration: `Registrace nového regulátoru`,
@@ -566,4 +568,14 @@ export default {
     selectFiles: 'Vybrat soubory',
     noFiles: 'Zatím jste nepřidali žádné soubory',
     remove: 'Odstranit',
+    ft: {
+        title: 'Volitelné vstupy a výstupy regulátoru',
+        setUp: 'Nastavit',
+        inputs: 'Vstupy',
+        outputs: 'Výstupy',
+        moduleUNI: 'Modul UNI',
+        moduleUNI2: 'Modul UNI 2',
+        setBy: 'Nastavil',
+        date: 'Datum',
+    },
 };

@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { checkRegulusOrAdmin } from '$lib/client/auth';
+import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { error } from '@sveltejs/kit';
 import { extractIDs, getData, langAndPdfEntryGenerator } from '../../../helpers';
 import type { EntryGenerator, PageLoad } from './$types';
@@ -14,6 +14,8 @@ export const load: PageLoad = async ({ parent, params, url }) => {
     if (!(pdfName in pdfInfo)) return error(404);
 
     if (!browser) return { url: '', fileName: '', irid: '', spid: '', title: '' };
+
+    await checkAuth()
 
     const pdf = pdfInfo[pdfName] as PdfArgs<Pdf>;
 
