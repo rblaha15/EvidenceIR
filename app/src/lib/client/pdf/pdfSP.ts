@@ -62,7 +62,7 @@ const multilineTooLong = (text: string) => text.split('\n').sumBy(line =>
 ) > multilineMaxLength;
 const inlineTooLong = (text: string) => text.length > inlineMaxLength;
 
-export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols }, t, addPage, index }) => {
+export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols }, t, addDoc, index, lang }) => {
     const pumps = e.tc.model ? cascadePumps(e, t) : [];
     const p = installationProtocols[index];
     return pdfNSP({
@@ -81,11 +81,11 @@ export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installatio
                     (e.tc.model ? '\n' + formatovatCerpadla(pumps.map(t.pumpDetails)) : ''),
                 pocetTC: pumps.length,
             },
-        }, t, addPage,
+        }, t, addDoc, lang,
     });
 };
 
-export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addPage }) => {
+export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
     console.log(p);
     const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
     const nahradniDily = [
@@ -111,9 +111,9 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addPage }) => {
     const zavada = p.zasah.nahlasenaZavada;
     const zasah = p.zasah.popis;
     if (multilineTooLong(system) || inlineTooLong(zavada) || multilineTooLong(zasah))
-        await addPage({ args: pdfInfo.PS, data: p, lang: 'cs' });
+        await addDoc({ args: pdfInfo.PS, data: p, lang: 'cs' });
 
-    if (dph == 1.12) await addPage({ args: pdfInfo.CP, data: p, lang: 'cs' });
+    if (dph == 1.12) await addDoc({ args: pdfInfo.CP, data: p, lang: 'cs' });
 
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),

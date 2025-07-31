@@ -17,7 +17,7 @@ import type { TC } from '$lib/forms/IN/defaultIN';
 import type { IRID, SPID } from '$lib/helpers/ir';
 
 type AllPdf = {
-    [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP' | 'UPF']: 'IR'
+    [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP' | 'UPF' | 'DT']: 'IR'
 } & {
     [P in 'NSP' | 'CP' | 'PS']: 'SP'
 }
@@ -102,6 +102,12 @@ export const pdfInfo: PdfInfo = {
         title: p(`Protokol o uvedení fotovoltaického systému do trvalého provozu`),
         getPdfData: UPF,
     },
+    DT: {
+        type: 'IR',
+        pdfName: 'DT',
+        supportedLanguages: ['cs'],
+        title: '',
+    },
 };
 
 type PdfInfo = {
@@ -130,7 +136,8 @@ export type GeneratePdfOptions<P extends Pdf> = {
 export type GetPdfData<P extends Pdf> = (o: {
     data: DataOfPdf<P>,
     t: Translations,
-    addPage: <P extends Pdf>(o: GeneratePdfOptions<P>) => Promise<void>,
+    addDoc: <P extends Pdf>(o: GeneratePdfOptions<P>) => Promise<void>,
+    lang: LanguageCode,
 } & PdfParameters<P>) => Promise<PdfGenerationData>
 
 export type PdfArgs<P extends Pdf> = {
@@ -141,7 +148,7 @@ export type PdfArgs<P extends Pdf> = {
     saveOptions?: SaveOptions;
     requiredAdmin?: boolean;
     requiredRegulus?: boolean;
-    getPdfData: GetPdfData<P>;
+    getPdfData?: GetPdfData<P>;
 };
 
 type PdfParams = {
