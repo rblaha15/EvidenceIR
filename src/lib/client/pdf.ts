@@ -17,7 +17,7 @@ import type { TC } from '$lib/forms/IN/defaultIN';
 import type { IRID, SPID } from '$lib/helpers/ir';
 
 type AllPdf = {
-    [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP' | 'UPF']: 'IR'
+    [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP' | 'UPF' | 'DT']: 'IR'
 } & {
     [P in 'NSP' | 'CP' | 'PS']: 'SP'
 }
@@ -101,6 +101,12 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs'],
         title: p(`Protokol o uvedení fotovoltaického systému do trvalého provozu`),
         getPdfData: UPF,
+    },
+    DT: {
+        type: 'IR',
+        pdfName: 'DT',
+        supportedLanguages: ['cs'],
+        title: '',
     },
 };
 
