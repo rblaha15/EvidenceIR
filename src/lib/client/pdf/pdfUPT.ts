@@ -1,15 +1,22 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import { dateFromISO, todayISO } from '$lib/helpers/date';
-import type { GetPdfData } from '$lib/client/pdf';
+import { type GetPdfData, pdfInfo } from '$lib/client/pdf';
 import { endUserName, irType, typBOX } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { p } from '$lib/translations';
 
-const pdfUPT: GetPdfData<'UPT'> = async ({ data: { evidence: e, uvedeniTC }, t }) => {
+const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
+    const { evidence: e, uvedeniTC } = data
     const u = uvedeniTC!;
     const pumps = cascadePumps(e, t);
-
     const isCascade = Boolean(e.tc.model2);
+
+    await addDoc({
+        lang: 'cs',
+        args: pdfInfo.DT,
+        data,
+    })
+
     return ({
         Text1: endUserName(e.koncovyUzivatel),
         Text2: e.koncovyUzivatel.telefon,

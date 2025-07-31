@@ -61,13 +61,15 @@ export const generatePdf = async <P extends Pdf>(
     const form = pdfDoc.getForm();
     const fields = form.getFields();
 
-    const addPage = async <P extends Pdf>(o: GeneratePdfOptions<P>) => {
+    const addDoc = async <P extends Pdf>(o: GeneratePdfOptions<P>) => {
         const pdfData2 = await generatePdf<P>(o);
         const pdfDoc2 = await PDFDocument.load(pdfData2.pdfBytes);
-        const [newPage] = await pdfDoc.copyPages(pdfDoc2, [0]);
-        pdfDoc.addPage(newPage);
+        const newPages = await pdfDoc.copyPages(pdfDoc2, pdfDoc2.getPageIndices());
+        newPages.forEach(newPage => {
+            pdfDoc.addPage(newPage);
+        })
     };
-    const formData = await args.getPdfData({ ...o, data, t, addPage });
+    const formData = await args.getPdfData?.({ ...o, t, addDoc, data, lang }) ?? {};
 
     for (const fieldName in formData.omit('fileNameSuffix')) {
         const name = fieldName as `${PdfFieldType}${number}`;
