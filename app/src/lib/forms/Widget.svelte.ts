@@ -87,6 +87,7 @@ type ChooserArgs<D, I extends TR> = { options: GetOrVal<D, Arr<I>>; chosen?: I |
 type SecondChooserArgs<I extends TR> = { options: Arr<I>; chosen?: I; text?: string; };
 type DoubleChooserArgs<D, I1 extends TR, I2 extends TR> = { options1: GetOrVal<D, Arr<I1>>; options2: GetOrVal<D, Arr<I2>>; chosen?: Pair<I1, I2>; };
 type LockArgs<D> = { lock?: GetOrVal<D, boolean>; };
+type CompactArgs<D> = { compact?: GetOrVal<D, boolean>; };
 type DoubleLockArgs<D> = { lock1?: GetOrVal<D, boolean>; lock2?: GetOrVal<D, boolean>; };
 type SearchArgs<D, T> = {
     getSearchItem: (item: T) => SearchItem;
@@ -129,6 +130,7 @@ type Info<D, U> = Widget<D, U> & { text: Get<D, TR | Promise<TR>>; class: Get<D,
 type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: Get<D, boolean>; };
 type File<D> = Widget<D, Files> & { multiple: Get<D, boolean>; max: Get<D, number>; accept: Get<D, string>; };
 type Lock<D, U> = Widget<D, U> & { lock: Get<D, boolean>; };
+type Compact<D, U> = Widget<D, U> & { compact: Get<D, boolean>; };
 type DoubleLock<D, U> = Widget<D, U> & { lock1: Get<D, boolean>; lock2: Get<D, boolean>; };
 type Chooser<D, I extends TR> = Widget<D, I | null> & { options: Get<D, Arr<I>>; };
 type SecondChooser<D, I extends TR> = Widget<D, SeI<I>> & { options: Arr<I>; };
@@ -203,6 +205,9 @@ const initDoubleChooser = function <D, I1 extends TR, I2 extends TR>(widget: Dou
 };
 const initLock = function <D, U>(widget: Lock<D, U>, args: LockArgs<D>) {
     widget.lock = toGet(args.lock ?? false);
+};
+const initCompact = function <D, U>(widget: Compact<D, U>, args: CompactArgs<D>) {
+    widget.compact = toGet(args.compact ?? false);
 };
 const initDoubleLock = function <D, U>(widget: DoubleLock<D, U>, args: DoubleLockArgs<D>) {
     widget.lock1 = toGet(args.lock1 ?? false);
@@ -309,13 +314,15 @@ export class ChooserWidget<D, I extends TR, H extends boolean = false> extends W
     isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
     required = $state() as Get<D, boolean>;
     lock = $state() as Get<D, boolean>;
+    compact = $state() as Get<D, boolean>;
     options = $state() as Get<D, Arr<I>>;
 
-    constructor(args: ValueArgs<D, I | null, H> & ChooserArgs<D, I> & LockArgs<D>) {
+    constructor(args: ValueArgs<D, I | null, H> & ChooserArgs<D, I> & LockArgs<D> & CompactArgs<D>) {
         super();
         initValue(this, args);
         initChooser(this, args);
         initLock(this, args);
+        initCompact(this, args);
     }
 }
 

@@ -10,9 +10,10 @@ import UPS from '$lib/forms/UPS/infoUPS';
 import UPT from '$lib/forms/UPT/infoUPT';
 import UPF from '$lib/forms/UPF/infoUPF';
 import NK from '$lib/forms/NK/infoNK';
+import FT from '$lib/forms/FT/infoFT';
 
 const all = {
-    SP, UPT, UPS, RK, OD, NSP, IN, NK, UPF,
+    SP, UPT, UPS, RK, OD, NSP, IN, NK, UPF, FT,
 };
 type All = typeof all;
 

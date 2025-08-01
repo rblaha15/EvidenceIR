@@ -113,7 +113,7 @@ const infoSP = (() => {
                 });
             }, [sparePartsList]],
         ],
-        importOptions: {
+        excelImport: {
             sheet: 'Protokol',
             onImport: (_, p) => {
                 p.zasah.clovek.show = () => true;

@@ -6,6 +6,7 @@ import type { Readable } from 'svelte/store';
 import type { IRID } from '$lib/helpers/ir';
 import type { IR } from '$lib/client/data';
 import type { FormIN } from '$lib/forms/IN/formIN';
+import type { PdfImport } from '$lib/forms/PdfImport';
 
 export type Effect<
     D, F extends Form<D>, S extends unknown[]
@@ -35,7 +36,10 @@ export type IndependentFormInfo<
     getViewData?: ((url: URL) => Promise<R | undefined>) | undefined;
     onMount?: (data: D, form: F, mode: 'create' | 'edit' | 'view') => Promise<void> | undefined;
     storeEffects?: { [I in keyof S]: Effect<D, F, S[I]> } | undefined;
-    importOptions?: Omit<ExcelImport<R>, 'defaultData'> & {
+    excelImport?: Omit<ExcelImport<R>, 'defaultData'> & {
+        onImport: (data: D, form: F) => void;
+    };
+    pdfImport?: Omit<PdfImport<R>, 'defaultData'> & {
         onImport: (data: D, form: F) => void;
     };
     hideBackButton?: (edit: boolean) => boolean;
