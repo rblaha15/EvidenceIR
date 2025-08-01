@@ -7,7 +7,7 @@
 	const redirect = (code: LanguageCode) => {
 		goto(
 			'/' + code + page.url.pathname.slice(page.data.languageCode.length + 1) + page.url.search,
-			{ replaceState: true },
+			{ replaceState: true, invalidateAll: true },
 		);
 	};
 </script>

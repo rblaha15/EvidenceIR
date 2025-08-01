@@ -10,7 +10,7 @@
         data,
     }: PageProps = $props();
 
-    const t = data.translations
+    const t = $derived(data.translations)
 
     let pageCount = $state(1);
     let pdf = $state<import('pdfjs-dist').PDFDocumentProxy>();

@@ -41,14 +41,14 @@
 
     onMount(() => {
         const currentLangLength = page.params.lang?.length ?? -1;
-        if (!page.data.areTranslationsFromRoute)
+        if (!data.isLanguageFromUrl)
             goto(
                 '/' +
                 preferredLanguage() +
                 page.url.pathname.slice(currentLangLength + 1) +
                 page.url.search +
                 page.url.hash,
-                { replaceState: true },
+                { replaceState: true, invalidateAll: true },
             );
     });
 </script>
