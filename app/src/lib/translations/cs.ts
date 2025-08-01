@@ -1,7 +1,6 @@
 // noinspection SpellCheckingInspection
 
 import { template as t } from '$lib/helpers/templates';
-import { optionsInputsB, optionsInputsC, optionsOutputsB, optionsOutputsF } from '$lib/forms/FT/portsOptions';
 import '$lib/extensions'
 
 export default {

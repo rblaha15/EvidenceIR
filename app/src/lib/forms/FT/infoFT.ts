@@ -4,6 +4,9 @@ import defaultFT from '$lib/forms/FT/defaultFT';
 import type { User } from 'firebase/auth';
 import { currentUser } from '$lib/client/auth';
 import db from '$lib/client/data';
+import type { PdfImport } from '$lib/forms/PdfImport';
+import type { Raw } from '$lib/forms/Form';
+import { fieldsFT } from '$lib/forms/FT/fieldsFT';
 
 const infoFT: FormInfo<DataFT, FormFT, [[User | null]], 'FT'> = {
     type: 'IR',
@@ -20,7 +23,11 @@ const infoFT: FormInfo<DataFT, FormFT, [[User | null]], 'FT'> = {
     storeEffects: [[(data, form, [user]) => {
         if (!form.info.setBy.value)
             form.info.setBy.setValue(data, user?.displayName ?? '')
-    }, [currentUser]]]
+    }, [currentUser]]],
+    pdfImport: {
+        onImport: () => {},
+        fields: fieldsFT,
+    },
 }
 
 export default infoFT

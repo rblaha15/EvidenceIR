@@ -158,11 +158,10 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
             if ($responsiblePerson != null) data.vzdalenyPristup.zodpovednaOsoba.show = () => false;
         }, [responsiblePerson]],
     ],
-    importOptions: {
+    excelImport: {
         cells: cellsIN,
         sheet: 'ZADÁNÍ',
-        onImport: () => {
-        },
+        onImport: () => {},
     },
     isSendingEmails: true,
     hideBackButton: edit => !edit,

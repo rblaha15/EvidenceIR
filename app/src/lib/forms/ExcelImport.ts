@@ -10,12 +10,12 @@ type ExcelSimpleTransformation<U> = string extends U
     : { address: CellAddress, transform: (rawValue: string) => U };
 type ExcelConstant<U> = { constant: U };
 
-export type SimpleImport<U> = ExcelConstant<U> | ExcelSimpleTransformation<U> | ExcelDataTransformation<U>
+export type SimpleExcelImport<U> = ExcelConstant<U> | ExcelSimpleTransformation<U> | ExcelDataTransformation<U>
 
 export type ExcelImport<R extends Raw<Form>> = {
     cells: {
         [K1 in keyof R]?: {
-            [K2 in keyof R[K1]]?: SimpleImport<R[K1][K2]>
+            [K2 in keyof R[K1]]?: SimpleExcelImport<R[K1][K2]>
         }
     },
     defaultData: () => R,
@@ -23,7 +23,7 @@ export type ExcelImport<R extends Raw<Form>> = {
     sheetFilter?: (sheetName: string) => boolean,
 }
 
-const parseSimpleImport = <U>(i: SimpleImport<U>): ExcelDataTransformation<U> => {
+const parseSimpleImport = <U>(i: SimpleExcelImport<U>): ExcelDataTransformation<U> => {
     if ('getData' in i) return i
     if ('constant' in i) return { getData: () => i.constant }
     if ('transform' in i && i.transform) return { getData: get => i.transform!(String(get(i.address))) }
