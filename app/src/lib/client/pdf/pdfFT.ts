@@ -3,9 +3,11 @@
 import type { GetPdfData } from '$lib/client/pdf';
 import { dateFromISO } from '$lib/helpers/date';
 import { endUserName, irType } from '$lib/helpers/ir';
+import { p } from '$lib/translations';
 
 const pdfFT: GetPdfData<'FT'> = async ({ data: { faceTable, evidence: e }, t }) => {
     const f = faceTable!
+    const ctc = e.ir.typ.second == p('CTC')
     return {
         _typ: { type: 'text', value: irType(e.ir.typ) },
         _uživatel: { type: 'text', value: endUserName(e.koncovyUzivatel) },
@@ -16,8 +18,8 @@ const pdfFT: GetPdfData<'FT'> = async ({ data: { faceTable, evidence: e }, t }) 
         'Dropdown1.3': t.get(f.inputsC.C5),
         'Dropdown1.4': t.get(f.inputsC.C6),
         'Dropdown1.5': t.get(f.inputsC.C7),
-        'Dropdown1.6': t.get(f.inputsC.C8),
-        'Dropdown1.7': t.get(f.inputsC.C9),
+        'Dropdown1.6': ctc ? t.get(f.inputsC.C8) : '—',
+        'Dropdown1.7': ctc ? t.get(f.inputsC.C9) : '—',
         'Dropdown1.8.0.0': t.get(f.inputsC.UNI_1),
         'Dropdown1.8.0.1': t.get(f.inputsC.UNI_2),
         'Dropdown1.8.1.0': t.get(f.inputsC.UNI2_1),
@@ -25,7 +27,7 @@ const pdfFT: GetPdfData<'FT'> = async ({ data: { faceTable, evidence: e }, t }) 
         'Dropdown2.0': t.get(f.inputsB.B8),
         'Dropdown2.1': t.get(f.inputsB.B9),
         'Dropdown3.0': t.get(f.outputsF.F2),
-        'Dropdown3.1': t.get(f.outputsF.F3),
+        'Dropdown3.1': ctc ? t.get(f.outputsF.F3) : '—',
         'Dropdown3.2': t.get(f.outputsF.F4),
         'Dropdown3.3': t.get(f.outputsF.F5),
         'Dropdown3.4': t.get(f.outputsF.F6),

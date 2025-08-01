@@ -102,7 +102,7 @@
                 {/if}
             </PDFLink>
         {/if}
-        {#if ir.evidence.ir.typ.first === p('IR 14') && ir.evidence.ir.typ.second === p('CTC')}
+        {#if ir.evidence.ir.typ.first === p('IR 14')}
             <PDFLink name={t.ft.title} {t} link="FT" {lang} data={ir} {irid} enabled={Boolean(ir.faceTable)}>
                 {#if !ir.faceTable}
                     <a

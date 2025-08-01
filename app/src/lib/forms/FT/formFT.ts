@@ -1,9 +1,10 @@
-import type { Form } from '$lib/forms/Form';
+import type { Form, Raw } from '$lib/forms/Form';
 import type { ChooserWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte';
 import type { OptionsInputsB, OptionsInputsC, OptionsOutputsB, OptionsOutputsF } from '$lib/forms/FT/portsOptions';
 import type { P } from '$lib/translations';
+import type { FormIN } from '$lib/forms/IN/formIN';
 
-export type DataFT = void;
+export type DataFT = Raw<FormIN>;
 
 type WidgetInputC = ChooserWidget<DataFT, P<OptionsInputsC>>;
 type WidgetInputB = ChooserWidget<DataFT, P<OptionsInputsB>>;
