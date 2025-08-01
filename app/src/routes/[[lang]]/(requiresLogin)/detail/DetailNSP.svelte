@@ -54,7 +54,7 @@
 
     <PDFLink data={sp} hideLanguageSelector={true} {lang} link="NSP" {spid} {t} />
 
-    <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>Kopírovat inpormace o instalaci do nového protokolu</a>
+    <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>Kopírovat informace o instalaci do nového protokolu</a>
 </div>
 
 {#if $isUserAdmin}
