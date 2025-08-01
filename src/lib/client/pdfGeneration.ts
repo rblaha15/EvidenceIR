@@ -1,36 +1,41 @@
-import { PDFDocument, PDFName, PDFRef, PDFSignature } from 'pdf-lib';
+import { PDFDocument, PDFDropdown, PDFName, PDFRef, PDFSignature, PDFTextField } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { getTranslations } from '$lib/translations';
-import {
-    type GeneratePdfOptions,
-    type Pdf,
-} from '$lib/client/pdf';
+import { type GeneratePdfOptions, type Pdf } from '$lib/client/pdf';
 import { irLabel, spName } from '$lib/helpers/ir';
 import type { Raw } from '$lib/forms/Form';
 import { type IR } from './data';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { createFileUrl } from '../../routes/[[lang]]/helpers';
 
-type SignatureDefinition = {
-    x: number,
-    y: number,
-    page?: number,
-    jpg: string | Uint8Array | ArrayBuffer,
-    maxHeight?: number,
-    maxWidth?: number,
-};
-
-type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Podpis'
+type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Dropdown' | '_'
 
 export type PdfGenerationData = {
-    [fieldName in `${PdfFieldType}${number}`]: (
-    fieldName extends `Zaškrtávací pole${number}` ? boolean
-        : fieldName extends `Podpis${number}` ? SignatureDefinition
-            : string
-    ) | null;
+    [K in `${PdfFieldType}${string}`]: K extends `Text${string}` ? string | null
+        : K extends `Kombinované pole${string}` ? string | null
+            : K extends `Dropdown${string}` ? string | null
+                : K extends `Zaškrtávací pole${string}` ? boolean | null
+                    : K extends `_${string}` ? {
+                        type: 'text',
+                        value: string | null,
+                    } | {
+                        type: 'dropdown',
+                        value: string | null,
+                    } | {
+                        type: 'checkbox',
+                        value: boolean | null,
+                    } : never
 } & {
-    fileNameSuffix?: string;
-};
+    images?: {
+        x: number,
+        y: number,
+        page?: number,
+        jpg: string | Uint8Array | ArrayBuffer,
+        maxHeight?: number,
+        maxWidth?: number,
+    }[],
+    fileNameSuffix?: string,
+}
 
 export const generatePdfUrl = async <P extends Pdf>(
     o: GeneratePdfOptions<P>,
@@ -47,7 +52,7 @@ export const generatePdfUrl = async <P extends Pdf>(
 export const generatePdf = async <P extends Pdf>(
     o: GeneratePdfOptions<P>,
 ) => {
-    const { args, lang, data } = o
+    const { args, lang, data } = o;
 
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
     const t = getTranslations(formLanguage);
@@ -67,56 +72,59 @@ export const generatePdf = async <P extends Pdf>(
         const newPages = await pdfDoc.copyPages(pdfDoc2, pdfDoc2.getPageIndices());
         newPages.forEach(newPage => {
             pdfDoc.addPage(newPage);
-        })
+        });
     };
     const formData = await args.getPdfData?.({ ...o, t, addDoc, data, lang }) ?? {};
 
-    for (const fieldName in formData.omit('fileNameSuffix')) {
-        const name = fieldName as `${PdfFieldType}${number}`;
-        const type = name.split(/\d+/)[0] as PdfFieldType;
-        if (type == 'Text') {
-            const fieldName = name as `Text${number}`;
-            const fieldValue = formData[fieldName];
-            const field = form.getTextField(fieldName);
-            field.setText(fieldValue?.toString() ?? '');
-            field.disableSpellChecking();
-            if (fieldValue != null) field.enableReadOnly();
-        }
-        if (type == 'Kombinované pole') {
-            const fieldName = name as `Kombinované pole${number}`;
-            const fieldValue = formData[fieldName];
-            const field = form.getDropdown(fieldName);
-            field.select(fieldValue ?? '');
-            field.disableSpellChecking();
-            if (fieldValue != null) field.enableReadOnly();
-        }
-        if (type == 'Zaškrtávací pole') {
-            const fieldName = name as `Zaškrtávací pole${number}`;
-            const fieldValue = formData[fieldName];
-            const field = form.getCheckBox(fieldName);
-            if (fieldValue != false) field.check();
-            if (fieldValue == false) field.uncheck();
-            if (fieldValue != null) field.enableReadOnly();
-        }
-        if (type == 'Podpis') {
-            const fieldName = name as `Podpis${number}`;
-            const fieldValue = formData[fieldName];
-            if (!fieldValue) continue;
-            const { x, y, page: p, jpg, maxHeight: mh, maxWidth: mw } = fieldValue;
-            const page = pdfDoc.getPages()[p ?? 0];
-            const image = await pdfDoc.embedJpg(jpg);
-            const heightScale = mh ? mh / image.height : 1;
-            const widthScale = mw ? mw / image.width : 1;
-            const scale = Math.min(heightScale, widthScale, 1);
-            const scaled = image.scale(scale);
-            page.drawImage(image, {
-                x,
-                y,
-                width: scaled.width,
-                height: scaled.height,
-            });
+    const initText = (name: string, value: string | null) => {
+        const field = form.getTextField(name);
+        field.setText(value?.toString() ?? '');
+        field.disableSpellChecking();
+        if (value != null) field.enableReadOnly();
+    };
+    const initDropdown = (name: string, value: string | null) => {
+        const field = form.getDropdown(name);
+        field.select(value ?? '');
+        field.disableSpellChecking();
+        if (value != null) field.enableReadOnly();
+    };
+    const initCheckbox = (name: string, value: boolean | null) => {
+        const field = form.getCheckBox(name);
+        if (value == true) field.check();
+        if (value == false) field.uncheck();
+        if (value != null) field.enableReadOnly();
+    };
+
+    const fieldDefinitions = formData.omit('images', 'fileNameSuffix');
+
+    for (const name in fieldDefinitions) {
+        if (name.startsWith('Text')) initText(name, formData[name as `Text${string}`]);
+        else if (name.startsWith('Kombinované pole')) initDropdown(name, formData[name as `Kombinované pole${string}`]);
+        else if (name.startsWith('Dropdown')) initDropdown(name, formData[name as `Dropdown${string}`]);
+        else if (name.startsWith('Zaškrtávací pole')) initCheckbox(name, formData[name as `Zaškrtávací pole${string}`]);
+        else if (name.startsWith('_'))  {
+            const field = formData[name as `_${string}`];
+            const name2 = name.slice(1);
+            if (field.type == 'text') initText(name2, field.value);
+            if (field.type == 'dropdown') initDropdown(name2, field.value);
+            if (field.type == 'checkbox') initCheckbox(name2, field.value);
         }
     }
+
+    await formData.images?.map(async ({ x, y, page: p, jpg, maxHeight: mh, maxWidth: mw }) => {
+        const page = pdfDoc.getPages()[p ?? 0];
+        const image = await pdfDoc.embedJpg(jpg);
+        const heightScale = mh ? mh / image.height : 1;
+        const widthScale = mw ? mw / image.width : 1;
+        const scale = Math.min(heightScale, widthScale, 1);
+        const scaled = image.scale(scale);
+        page.drawImage(image, {
+            x,
+            y,
+            width: scaled.width,
+            height: scaled.height,
+        });
+    }).awaitAll();
 
     // fields.forEach(field => {
     //     const type = field.constructor.name;
@@ -153,7 +161,7 @@ export const generatePdf = async <P extends Pdf>(
     const pdfBytes = await pdfDoc.save(args.saveOptions);
 
     const surname = irLabel(args.type == 'IR' ? (data as IR).evidence : data as Raw<FormNSP>).split(' ')[0];
-    const suffix = formData.fileNameSuffix ?? (args.type == 'IR' ? (data as IR).evidence.ir.cislo : spName((data as Raw<FormNSP>).zasah));
+    const suffix = formData?.fileNameSuffix ?? (args.type == 'IR' ? (data as IR).evidence.ir.cislo : spName((data as Raw<FormNSP>).zasah));
     const fileName = `${args.pdfName}_${surname} ${suffix}.pdf`;
 
     return { fileName, pdfBytes };

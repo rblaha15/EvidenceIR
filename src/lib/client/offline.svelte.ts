@@ -137,6 +137,10 @@ export const offlineDatabase: Database = {
         ir!.uvedeniFVE = protocol;
         return ir!;
     }),
+    addFaceTable: async (irid, faceTable) => odm.update('IR', irid, ir => {
+        ir!.faceTable = faceTable;
+        return ir!;
+    }),
     updateIRUsers: async (irid, users) => odm.update('IR', irid, ir => {
         ir!.users = users;
         return ir!;

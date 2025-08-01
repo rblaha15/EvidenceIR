@@ -8,12 +8,18 @@
     import { ChooserWidget, STAR } from '$lib/forms/Widget.svelte.js';
     import Widget from '$lib/components/Widget.svelte';
     import { invalidateAll } from '$app/navigation';
+    import { type PdfImport, processPdf } from '$lib/forms/PdfImport';
+    import { PDFDocument } from 'pdf-lib';
 
     interface Props<R extends Raw<Form>> {
         title: string;
         hideResetButton?: boolean;
         showBackButton?: boolean;
-        importData?: ExcelImport<R> & {
+        excelImport?: ExcelImport<R> & {
+            onImport: (data: R) => void;
+            isDangerous: boolean;
+        };
+        pdfImport?: PdfImport<R> & {
             onImport: (data: R) => void;
             isDangerous: boolean;
         };
@@ -25,7 +31,8 @@
     let {
         title,
         store,
-        importData = undefined,
+        excelImport = undefined,
+        pdfImport = undefined,
         hideResetButton = false,
         showBackButton = false,
         t,
@@ -34,15 +41,18 @@
 
     $effect(() => setTitle(title, showBackButton));
 
-    let input: HTMLInputElement;
-    let file = $state<File>();
+    let inputExcel = $state() as HTMLInputElement;
+    let inputPdf = $state() as HTMLInputElement;
+    let fileExcel = $state<File>();
+    let filePdf = $state<File>();
     let sheetWidget = $state(new ChooserWidget({
         options: [] as P[], show: (d): boolean => sheetWidget.options(d).length > 1, label: p('List sešitu'),
     }));
+    let error = $state(false);
 
     $effect(() => {
-        if (file) readSheetNames(file).then(names => {
-            const sheets = names.filter(importData?.sheetFilter ?? (n => n == (importData?.sheet ?? n)));
+        if (fileExcel) readSheetNames(fileExcel).then(names => {
+            const sheets = names.filter(excelImport?.sheetFilter ?? (n => n == (excelImport?.sheet ?? n)));
             sheetWidget.options = () => p(sheets);
             if (sheets.length == 1)
                 sheetWidget._value = p(sheets[0]);
@@ -52,18 +62,35 @@
         }
     });
 
-    const confirm = async () => {
-        if (!importData || !file) return;
-        const rows = await readXlsxFile(file, { ...importData, sheet: t.get(sheetWidget.value!) });
+    const confirmExcel = async () => {
+        error = false;
+        if (!excelImport || !fileExcel) return;
+        const rows = await readXlsxFile(fileExcel, { ...excelImport, sheet: t.get(sheetWidget.value!) });
         console.log(rows);
-        importData.onImport(processExcel<R>(importData, rows));
+        try {
+            excelImport.onImport(processExcel<R>(excelImport, rows));
+        } catch {
+            error = true;
+        }
+    };
+
+    const confirmPdf = async () => {
+        error = false;
+        if (!pdfImport || !filePdf) return;
+        const pdfDoc = await PDFDocument.load(await filePdf.bytes());
+        const form = pdfDoc.getForm();
+        try {
+            pdfImport.onImport(processPdf<R>(pdfImport, form));
+        } catch {
+            error = true;
+        }
     };
 </script>
 
 {#if !readonly}
     <div class="d-flex w-100 align-items-center text-nowrap flex-wrap gap-2">
         <span class="me-auto">{STAR} = {t.mandatoryFields}</span>
-        {#if importData}
+        {#if excelImport || pdfImport}
             <button
                 class="btn btn-outline-secondary"
                 data-bs-toggle="modal"
@@ -105,35 +132,71 @@
             </div>
 
             <div class="modal-body gap-3 d-flex flex-column">
-                <p class="m-0">Nahrajte původní MS Excel sešit s vyplněnými údaji na listu {importData?.sheet}</p>
-                <input accept=".xls,.xlsx,.xlsm,.xlsb"
-                       bind:this={input}
-                       class="d-none"
-                       onchange={() => file = input?.files?.[0]}
-                       type="file">
-                <div class="d-flex align-items-center gap-3">
-                    {#if !file}
-                        <button
-                            type="button"
-                            class="btn btn-primary"
-                            onclick={() => input?.click()}
-                        >
-                            Vybrat soubor
-                        </button>
-                    {:else}
-                        <p class="m-0">{t.chosenFile} {file?.name ?? ''}</p>
-                        <button
-                            type="button"
-                            class="btn btn-info"
-                            onclick={() => {input.value = ''; file = undefined; input?.click()}}
-                        >
-                            Vybrat jiný soubor
-                        </button>
+                {#if excelImport}
+                    <p class="m-0">Nahrajte původní MS Excel sešit s vyplněnými údaji na listu {excelImport.sheet}</p>
+                    <input accept=".xls,.xlsx,.xlsm,.xlsb"
+                           bind:this={inputExcel}
+                           class="d-none"
+                           onchange={() => fileExcel = inputExcel?.files?.[0]}
+                           type="file">
+                    <div class="d-flex align-items-center gap-3">
+                        {#if !fileExcel}
+                            <button
+                                type="button"
+                                class="btn btn-primary"
+                                onclick={() => inputExcel?.click()}
+                            >
+                                Vybrat soubor
+                            </button>
+                        {:else}
+                            <p class="m-0">{t.chosenFile} {fileExcel?.name ?? ''}</p>
+                            <button
+                                type="button"
+                                class="btn btn-info"
+                                onclick={() => {inputExcel.value = ''; fileExcel = undefined; inputExcel?.click()}}
+                            >
+                                Vybrat jiný soubor
+                            </button>
+                        {/if}
+                    </div>
+                    <Widget data={undefined} {t} widget={sheetWidget} />
+                    {#if fileExcel && excelImport.isDangerous && sheetWidget.value}
+                        <p class="alert alert-danger">Pozor! Potvrzením přepíšete všechna zatím vyplněná data!</p>
                     {/if}
-                </div>
-                <Widget data={undefined} {t} widget={sheetWidget} />
-                {#if file && importData?.isDangerous && sheetWidget.value}
-                    <p class="alert alert-danger">Pozor! Potvrzením přepíšete všechna zatím vyplněná data!</p>
+                {/if}
+                {#if pdfImport}
+                    <p class="m-0">Nahrajte PDF dokument s vyplněnými údaji</p>
+                    <input accept="application/pdf"
+                           bind:this={inputPdf}
+                           class="d-none"
+                           onchange={() => filePdf = inputPdf?.files?.[0]}
+                           type="file">
+                    <div class="d-flex align-items-center gap-3">
+                        {#if !filePdf}
+                            <button
+                                type="button"
+                                class="btn btn-primary"
+                                onclick={() => inputPdf?.click()}
+                            >
+                                Vybrat soubor
+                            </button>
+                        {:else}
+                            <p class="m-0">{t.chosenFile} {filePdf?.name ?? ''}</p>
+                            <button
+                                type="button"
+                                class="btn btn-info"
+                                onclick={() => {inputPdf.value = ''; filePdf = undefined; inputPdf?.click()}}
+                            >
+                                Vybrat jiný soubor
+                            </button>
+                        {/if}
+                    </div>
+                    {#if filePdf && pdfImport.isDangerous}
+                        <p class="alert alert-danger">Pozor! Potvrzením přepíšete všechna zatím vyplněná data!</p>
+                    {/if}
+                {/if}
+                {#if error}
+                    <p class="text-error">Něco se nepovedlo...</p>
                 {/if}
             </div>
 
@@ -143,13 +206,23 @@
                     data-bs-dismiss="modal"
                     type="button">{t.cancel}</button
                 >
-                {#if importData && file && sheetWidget.value}
+                {#if excelImport && fileExcel && sheetWidget.value}
                     <button
                         class="btn"
-                        class:btn-danger={importData.isDangerous}
-                        class:btn-success={!importData.isDangerous}
+                        class:btn-danger={excelImport.isDangerous}
+                        class:btn-success={!excelImport.isDangerous}
                         data-bs-dismiss="modal"
-                        onclick={confirm}
+                        onclick={confirmExcel}
+                        type="button">{t.confirm}</button
+                    >
+                {/if}
+                {#if pdfImport && filePdf}
+                    <button
+                        class="btn"
+                        class:btn-danger={pdfImport.isDangerous}
+                        class:btn-success={!pdfImport.isDangerous}
+                        data-bs-dismiss="modal"
+                        onclick={confirmPdf}
                         type="button">{t.confirm}</button
                     >
                 {/if}

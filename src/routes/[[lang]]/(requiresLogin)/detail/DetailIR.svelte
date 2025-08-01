@@ -102,6 +102,17 @@
                 {/if}
             </PDFLink>
         {/if}
+        {#if ir.evidence.ir.typ.first === p('IR 14') && ir.evidence.ir.typ.second === p('CTC')}
+            <PDFLink name={t.ft.title} {t} link="FT" {lang} data={ir} {irid} enabled={Boolean(ir.faceTable)}>
+                {#if !ir.faceTable}
+                    <a
+                        tabindex="0"
+                        class="btn btn-primary d-block"
+                        href={iridUrl('/FT')}
+                    >{t.ft.setUp}</a>
+                {/if}
+            </PDFLink>
+        {/if}
     </div>
     {#if isUserRegulusOrAdmin}
         <ServiceProtocols {ir} {t} {lang} {irid} />

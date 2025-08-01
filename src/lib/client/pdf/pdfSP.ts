@@ -172,7 +172,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         Text41: p.fakturace.hotove == 'no' ? t.get(p.fakturace.komu) : '',
         Text42: p.fakturace.hotove == 'no' ? t.get(p.fakturace.jak) : '',
         Text43: p.fakturace.komu == 'assemblyCompany' ? p.montazka.zastupce : endUserName(p.koncovyUzivatel),
-        Podpis64: signature ? { x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 } : null,
+        images: signature ? [{ x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 }] : [],
     } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };
 export default pdfSP;
