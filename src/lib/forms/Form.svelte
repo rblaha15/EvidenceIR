@@ -5,7 +5,7 @@
     P extends Pdf = Pdf,
 " lang="ts">
     // noinspection ES6UnusedImports
-    import type { Form } from '$lib/forms/Form';
+    import { compareRawData, type Form } from '$lib/forms/Form';
     import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
     // noinspection ES6UnusedImports
     import { type Pdf } from '$lib/client/pdf';
@@ -40,7 +40,8 @@
         storeEffects,
         subtitle,
         storeData,
-        importOptions,
+        excelImport,
+        pdfImport,
         isSendingEmails,
         openPdf,
         redirectLink,
@@ -136,21 +137,31 @@
         }
     });
 
-    const onImport = (newData: Raw<F>) => {
+    const onImportExcel = (newData: Raw<F>) => {
         f = rawDataToData(f, newData);
         for (const i in list) {
             list[i].displayErrorVeto = true;
         }
-        importOptions!.onImport(d, f);
+        excelImport!.onImport(d, f);
     };
 
-    const isDangerous = $derived(JSON.stringify(dataToRawData(f)) != JSON.stringify(dataToRawData(untrack(defaultData))));
+    const onImportPdf = (newData: Raw<F>) => {
+        f = rawDataToData(f, newData);
+        for (const i in list) {
+            list[i].displayErrorVeto = true;
+        }
+        pdfImport!.onImport(d, f);
+    };
+
+    const isDangerous = $derived(compareRawData(dataToRawData(f), dataToRawData(untrack(defaultData))));
     const showSaveAndSendButtonByDefaultStore = $derived(typeof showSaveAndSendButtonByDefault == 'boolean' ? readable(showSaveAndSendButtonByDefault) : showSaveAndSendButtonByDefault);
 </script>
 
 {#if mode !== 'loading'}
-    <FormHeader readonly={mode === 'view'} importData={importOptions ? {
-        ...importOptions, onImport, isDangerous, defaultData: () => dataToRawData(defaultData())
+    <FormHeader readonly={mode === 'view'} excelImport={excelImport ? {
+        ...excelImport, onImport: onImportExcel, isDangerous, defaultData: () => dataToRawData(defaultData())
+    } : undefined} pdfImport={pdfImport ? {
+        ...pdfImport, onImport: onImportPdf, isDangerous, defaultData: () => dataToRawData(defaultData())
     } : undefined} store={storedData} {t} title={title(t, mode)}
     showBackButton={mode === 'view' || !hideBackButton?.(mode === 'edit')} />
 
