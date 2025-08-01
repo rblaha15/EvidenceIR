@@ -11,7 +11,7 @@
 
     const { data }: PageProps = $props()
 
-    const t = data.translations;
+    const t = $derived(data.translations);
 
     const itemsStore = $derived(data.items);
 
