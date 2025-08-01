@@ -6,6 +6,7 @@ import type { EntryGenerator, PageLoad } from './$types';
 import { setTitle } from '$lib/helpers/globals';
 import { type Pdf, type PdfArgs, pdfInfo, type PdfParameters } from '$lib/client/pdf';
 import { generatePdfUrl } from '$lib/client/pdfGeneration';
+import { isLanguageCode } from '$lib/languages';
 
 export const entries: EntryGenerator = langAndPdfEntryGenerator;
 
@@ -35,11 +36,11 @@ export const load: PageLoad = async ({ parent, params, url }) => {
 
     const parameters = [...url.searchParams.entries()].toRecord().mapValues((_, v) => Number(v));
 
-    const pageData = await parent();
-    const t = pageData.translations;
+    const lang = url.searchParams.get('lang')
+    const langProvided = isLanguageCode(lang);
 
-    const language = pageData.isLanguageFromUrl && pdf.supportedLanguages.includes(pageData.languageCode)
-        ? pageData.languageCode
+    const language = langProvided && pdf.supportedLanguages.includes(lang)
+        ? lang
         : pdf.supportedLanguages[0];
 
     const d = await generatePdfUrl({
@@ -48,6 +49,9 @@ export const load: PageLoad = async ({ parent, params, url }) => {
         data: pdf.type == 'IR' ? data.ir! : data.sp!,
         ...(parameters as unknown as PdfParameters<Pdf>)
     });
+
+    const pageData = await parent();
+    const t = pageData.translations;
 
     setTitle(t.pdf.previewFile, true);
 
