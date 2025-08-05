@@ -14,7 +14,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
 
     await addDoc({
         lang: 'cs',
-        args: pdfInfo.DT,
+        args: pdfInfo.TCI,
         data,
     })
 

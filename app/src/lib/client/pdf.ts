@@ -1,5 +1,5 @@
 import type { LanguageCode } from '$lib/languages';
-import { p, type TranslationReference, type Translations } from '$lib/translations';
+import { type TranslationReference, type Translations } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
 import type { IR } from '$lib/client/data';
 import type { PdfGenerationData } from '$lib/client/pdfGeneration';
@@ -35,7 +35,7 @@ type AllPdf = {
     /** Servisní protokol */
     SP: 'IR'
     /** Doporučení pro úsporný provoz TČ */
-    DT: 'IR'
+    TCI: 'IR'
     /** Nezávislý servisní protokol */
     NSP: 'SP'
     /** Čestné prohlášení */
@@ -57,14 +57,14 @@ export const pdfInfo: PdfInfo = {
     ZL: {
         type: 'IR',
         pdfName: 'ZL',
-        supportedLanguages: ['cs', 'de'],
+        supportedLanguages: ['cs'],
         title: `zl.title`,
         getPdfData: ZL,
     },
     RR: {
         type: 'IR',
         pdfName: 'RR',
-        supportedLanguages: ['cs', 'de'],
+        supportedLanguages: ['cs'],
         title: `rr.title`,
         getPdfData: RR,
     },
@@ -78,7 +78,7 @@ export const pdfInfo: PdfInfo = {
     UPT: {
         type: 'IR',
         pdfName: 'UPT',
-        supportedLanguages: ['cs', 'de'],
+        supportedLanguages: ['cs'],
         title: 'tc.title',
         getPdfData: UPT,
     },
@@ -126,9 +126,9 @@ export const pdfInfo: PdfInfo = {
         title: 'fve.title',
         getPdfData: UPF,
     },
-    DT: {
+    TCI: {
         type: 'IR',
-        pdfName: 'DT',
+        pdfName: 'TCI',
         supportedLanguages: ['cs'],
         title: '',
     },
