@@ -1,6 +1,6 @@
 import type { EntryGenerator, PageLoad } from './$types';
 import { langEntryGenerator } from '../../helpers';
-import db from '$lib/client/data';
+import db from '$lib/data';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, irLabel, irName, type SPID, spName } from '$lib/helpers/ir';
 import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { browser } from '$app/environment';

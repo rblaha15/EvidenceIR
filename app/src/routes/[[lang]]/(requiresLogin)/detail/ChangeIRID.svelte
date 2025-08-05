@@ -5,7 +5,7 @@
     import { time, todayISO } from '$lib/helpers/date';
     import { untrack } from 'svelte';
     import { extractIRIDFromParts, type IRID } from '$lib/helpers/ir';
-    import db, { type IR } from '$lib/client/data';
+    import db, { type IR } from '$lib/data';
     import { goto } from '$app/navigation';
     import { detailIrUrl } from '$lib/helpers/runes.svelte';
     import Widget from '$lib/components/Widget.svelte';

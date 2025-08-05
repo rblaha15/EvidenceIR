@@ -1,5 +1,5 @@
 
-import type { GetPdfData } from '$lib/client/pdf';
+import type { GetPdfData } from '$lib/pdf/pdf';
 import { irWholeName, irName } from '$lib/helpers/ir';
 
 const pdfNN: GetPdfData<'NN'> = async ({ data: { evidence: e }, t }) => ({

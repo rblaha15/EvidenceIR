@@ -1,5 +1,5 @@
 import { nazevFirmy } from '$lib/helpers/ares';
-import type { GetPdfData } from '$lib/client/pdf';
+import type { GetPdfData } from '$lib/pdf/pdf';
 import { endUserName, irType, isMacAddress } from '$lib/helpers/ir';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';

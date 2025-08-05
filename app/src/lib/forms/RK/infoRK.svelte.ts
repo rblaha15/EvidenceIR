@@ -1,5 +1,5 @@
 import { page } from '$app/state';
-import db, { type Year } from '$lib/client/data';
+import db, { type Year } from '$lib/data';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';

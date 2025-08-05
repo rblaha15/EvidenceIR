@@ -5,7 +5,7 @@
     import NSP from '$lib/forms/NSP/infoNSP';
     import { isUserAdmin } from '$lib/client/auth';
     import Widget from '$lib/components/Widget.svelte';
-    import db from '$lib/client/data';
+    import db from '$lib/data';
     import { goto } from '$app/navigation';
     import type { LanguageCode } from '$lib/languages';
     import { type Translations } from '$lib/translations';

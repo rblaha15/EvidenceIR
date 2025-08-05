@@ -4,7 +4,7 @@ import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import '$lib/extensions';
 import { endUserName, endUserName2, irName, spName } from '$lib/helpers/ir';
-import { type GetPdfData, pdfInfo } from '$lib/client/pdf';
+import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 
 const prices = {

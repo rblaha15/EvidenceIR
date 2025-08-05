@@ -4,7 +4,7 @@ import { error } from '@sveltejs/kit';
 import { extractIDs, langEntryGenerator } from '../../helpers';
 import type { EntryGenerator, PageLoad } from './$types';
 import { startLidiListening } from '$lib/client/realtime';
-import db from '$lib/client/data';
+import db from '$lib/data';
 
 export const entries: EntryGenerator = langEntryGenerator;
 

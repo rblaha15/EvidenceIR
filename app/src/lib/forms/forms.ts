@@ -1,5 +1,5 @@
 import type { Form, Raw } from '$lib/forms/Form';
-import type { Pdf } from '$lib/client/pdf';
+import type { Pdf } from '$lib/pdf/pdf';
 import NSP from '$lib/forms/NSP/infoNSP';
 import IN from '$lib/forms/IN/infoIN';
 import OD from '$lib/forms/OD/infoOD';

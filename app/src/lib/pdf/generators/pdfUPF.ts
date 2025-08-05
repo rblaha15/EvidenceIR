@@ -2,7 +2,7 @@
 
 import { nazevFirmy } from "$lib/helpers/ares";
 import { dateFromISO, todayISO } from '$lib/helpers/date';
-import type { GetPdfData } from '$lib/client/pdf';
+import type { GetPdfData } from '$lib/pdf/pdf';
 import { endUserName } from '$lib/helpers/ir';
 import { range } from '$lib/extensions';
 

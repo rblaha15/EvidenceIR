@@ -1,8 +1,8 @@
 import type { IRID, SPID } from '$lib/helpers/ir';
 import { languageCodes } from '$lib/languages';
 import { forms } from '$lib/forms/forms.js';
-import { type OpenPdfOptions, type Pdf, pdfInfo } from '$lib/client/pdf';
-import db, { type IR } from '$lib/client/data';
+import { type OpenPdfOptions, type Pdf, pdfInfo } from '$lib/pdf/pdf';
+import db, { type IR } from '$lib/data';
 import type { Raw } from '$lib/forms/Form';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { relUrl } from '$lib/helpers/runes.svelte';

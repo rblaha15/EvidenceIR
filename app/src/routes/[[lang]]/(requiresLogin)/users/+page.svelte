@@ -6,7 +6,7 @@
     import { p } from '$lib/translations';
     import Search from '$lib/components/widgets/Search.svelte';
     import { usersList } from '$lib/client/realtime';
-    import db from '$lib/client/data';
+    import db from '$lib/data';
 
     const { data }: PageProps = $props();
 

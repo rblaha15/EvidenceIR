@@ -18,7 +18,7 @@ import { get, readonly, writable } from 'svelte/store';
 import { checkRegulusOrAdmin, checkUserRegulusOrAdmin, currentUser } from './auth';
 import { firestore } from '../../hooks.client';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
-import { type Database, type IR } from '$lib/client/data';
+import { type Database, type IR } from '$lib/data';
 import { type LegacyIR, type LegacySP, migrateSP, modernizeIR } from './migrations';
 import { offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
 import { Query } from '@firebase/firestore';

@@ -1,6 +1,6 @@
 // noinspection JSNonASCIINames,NonAsciiCharacters
 
-import type { GetPdfData } from '$lib/client/pdf';
+import type { GetPdfData } from '$lib/pdf/pdf';
 import { dateFromISO } from '$lib/helpers/date';
 import { endUserName, irType } from '$lib/helpers/ir';
 import { p } from '$lib/translations';

@@ -8,7 +8,7 @@
     import { compareRawData, type Form } from '$lib/forms/Form';
     import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
     // noinspection ES6UnusedImports
-    import { type Pdf } from '$lib/client/pdf';
+    import { type Pdf } from '$lib/pdf/pdf';
     import type { Translations } from '$lib/translations';
     import FormHeader from '$lib/forms/FormHeader.svelte';
     import { onMount, untrack } from 'svelte';

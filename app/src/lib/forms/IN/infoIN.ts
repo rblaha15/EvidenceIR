@@ -8,14 +8,14 @@ import {
 } from '$lib/client/realtime';
 import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
-import db from '$lib/client/data';
+import db from '$lib/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { getTranslations, p, type Translations } from '$lib/translations';
 import { nazevFirmy } from '$lib/helpers/ares';
-import { generatePdf } from '$lib/client/pdfGeneration';
-import { pdfInfo } from '$lib/client/pdf';
+import { generatePdf } from '$lib/pdf/pdfGeneration';
+import { pdfInfo } from '$lib/pdf/pdf';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { xmlIN } from '$lib/forms/IN/xmlIN';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';

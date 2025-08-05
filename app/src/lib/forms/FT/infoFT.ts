@@ -3,7 +3,7 @@ import type { DataFT, FormFT } from '$lib/forms/FT/formFT';
 import defaultFT from '$lib/forms/FT/defaultFT';
 import type { User } from 'firebase/auth';
 import { currentUser } from '$lib/client/auth';
-import db from '$lib/client/data';
+import db from '$lib/data';
 import type { PdfImport } from '$lib/forms/PdfImport';
 import type { Raw } from '$lib/forms/Form';
 import { fieldsFT } from '$lib/forms/FT/fieldsFT';

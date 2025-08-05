@@ -1,6 +1,6 @@
 import type { FormInfo } from '$lib/forms/FormInfo';
 import defaultUPT from '$lib/forms/UPT/defaultUPT';
-import db from '$lib/client/data';
+import db from '$lib/data';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';

@@ -17,7 +17,7 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { extractSPIDFromRawData, type IRID, type SPID, spName } from '$lib/helpers/ir';
-import db from '$lib/client/data';
+import db from '$lib/data';
 import { type DataNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 

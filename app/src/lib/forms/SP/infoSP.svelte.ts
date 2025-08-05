@@ -10,7 +10,7 @@ import {
 import type { User } from 'firebase/auth';
 import { page } from '$app/state';
 import { spName } from '$lib/helpers/ir';
-import db from '$lib/client/data';
+import db from '$lib/data';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';

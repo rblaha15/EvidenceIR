@@ -4,7 +4,7 @@
     import { type IRID } from '$lib/helpers/ir';
     import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { p, type Translations } from '$lib/translations';
-    import db, { type IR } from '$lib/client/data';
+    import db, { type IR } from '$lib/data';
     import ServiceProtocols from './ServiceProtocols.svelte';
     import { cascadePumps } from '$lib/forms/IN/infoIN';
     import type { LanguageCode } from '$lib/languages';
