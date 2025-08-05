@@ -1,4 +1,4 @@
-import type { Database, IR } from '$lib/client/data';
+import type { Database, IR } from '$lib/data';
 import { derived, get, writable } from 'svelte/store';
 import { type DBSchema as DBS, type IDBPDatabase, openDB } from 'idb';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';

@@ -2,7 +2,7 @@ import { nazevFirmy } from '$lib/helpers/ares';
 import { endUserName } from '$lib/helpers/ir';
 import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
 import { type FormRK } from '$lib/forms/RK/formRK.js';
-import type { GetPdfData } from '$lib/client/pdf';
+import type { GetPdfData } from '$lib/pdf/pdf';
 import defaultRK from '$lib/forms/RK/defaultRK';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 

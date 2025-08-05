@@ -1,6 +1,6 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
-import type { GetPdfData } from '$lib/client/pdf';
+import type { GetPdfData } from '$lib/pdf/pdf';
 import { endUserName } from '$lib/helpers/ir';
 
 const pdfUPS: GetPdfData<'UPS'> = async ({ data: { evidence: e, uvedeniSOL }, t }) => {

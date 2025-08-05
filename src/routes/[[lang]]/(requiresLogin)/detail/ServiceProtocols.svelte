@@ -1,6 +1,6 @@
 <script lang="ts">
     import { type IRID, spName } from '$lib/helpers/ir';
-    import db, { type IR } from '$lib/client/data';
+    import db, { type IR } from '$lib/data';
     import type { LanguageCode } from '$lib/languages';
     import type { Translations } from '$lib/translations';
     import { iridUrl } from '$lib/helpers/runes.svelte';

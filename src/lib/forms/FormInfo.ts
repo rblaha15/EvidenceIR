@@ -1,10 +1,10 @@
-import type { OpenPdfOptions, Pdf } from '$lib/client/pdf';
+import type { OpenPdfOptions, Pdf } from '$lib/pdf/pdf';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { Translations } from '$lib/translations';
 import type { ExcelImport } from '$lib/forms/ExcelImport';
 import type { Readable } from 'svelte/store';
 import type { IRID } from '$lib/helpers/ir';
-import type { IR } from '$lib/client/data';
+import type { IR } from '$lib/data';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { PdfImport } from '$lib/forms/PdfImport';
 

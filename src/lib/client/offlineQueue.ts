@@ -1,5 +1,5 @@
 import type { EmailMessage } from '$lib/client/email';
-import { type Database, isWriteFunction, type WriteFunction } from '$lib/client/data';
+import { type Database, isWriteFunction, type WriteFunction } from '$lib/data';
 import { derived, get } from 'svelte/store';
 import { storable } from '$lib/helpers/stores';
 import { getToken } from '$lib/client/auth';

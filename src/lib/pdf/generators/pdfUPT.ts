@@ -1,6 +1,6 @@
 import { nazevFirmy } from '$lib/helpers/ares';
 import { dateFromISO, todayISO } from '$lib/helpers/date';
-import { type GetPdfData, pdfInfo } from '$lib/client/pdf';
+import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { endUserName, irType, typBOX } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { p } from '$lib/translations';

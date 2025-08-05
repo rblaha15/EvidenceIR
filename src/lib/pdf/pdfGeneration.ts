@@ -1,10 +1,10 @@
 import { PDFDocument, PDFDropdown, PDFName, PDFRef, PDFSignature, PDFTextField } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { getTranslations } from '$lib/translations';
-import { type GeneratePdfOptions, type Pdf } from '$lib/client/pdf';
+import { type GeneratePdfOptions, type Pdf } from '$lib/pdf/pdf';
 import { irLabel, spName } from '$lib/helpers/ir';
 import type { Raw } from '$lib/forms/Form';
-import { type IR } from './data';
+import { type IR } from '../data';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { createFileUrl } from '../../routes/[[lang]]/helpers';
 

@@ -4,8 +4,8 @@ import { error } from '@sveltejs/kit';
 import { extractIDs, getData, langAndPdfEntryGenerator } from '../../../helpers';
 import type { EntryGenerator, PageLoad } from './$types';
 import { setTitle } from '$lib/helpers/globals';
-import { type Pdf, type PdfArgs, pdfInfo, type PdfParameters } from '$lib/client/pdf';
-import { generatePdfUrl } from '$lib/client/pdfGeneration';
+import { type Pdf, type PdfArgs, pdfInfo, type PdfParameters } from '$lib/pdf/pdf';
+import { generatePdfUrl } from '$lib/pdf/pdfGeneration';
 import { isLanguageCode } from '$lib/languages';
 
 export const entries: EntryGenerator = langAndPdfEntryGenerator;

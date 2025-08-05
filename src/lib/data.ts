@@ -7,7 +7,7 @@ import type { FormUPS } from '$lib/forms/UPS/formUPS';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
 import type { IRID, SPID } from '$lib/helpers/ir';
 import { getIsOnline, isOnline } from '$lib/client/realtime';
-import { offlineDatabase } from '$lib/client/offline.svelte';
+import { offlineDatabase } from '$lib/client/offline.svelte.js';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
 import { addToOfflineQueue } from '$lib/client/offlineQueue';
