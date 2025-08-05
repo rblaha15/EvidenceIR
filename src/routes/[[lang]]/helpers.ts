@@ -59,27 +59,27 @@ export const getData = async (id: {
     return base;
 };
 
-export const getDataAsStore = async (id: {
+export const getDataAsStore = (id: {
     irid: IRID | null;
     spid: SPID | null
-}): Promise<{
+}): {
     irid: IRID | null, spid: SPID | null,
     ir: Readable<IR | undefined>, sp: Readable<Raw<FormNSP> | undefined>,
-}> => {
+} => {
     const base = { ...id, ir: readable(undefined), sp: readable(undefined) };
 
     try {
         if (id.irid) {
-            const ir = await db.getIRAsStore(id.irid);
+            const ir = db.getIRAsStore(id.irid);
 
             if (!ir) return { ...base };
             return { ...base, ir };
         } else if (id.spid) {
-            let sp = await db.getIndependentProtocolAsStore(id.spid);
+            let sp = db.getIndependentProtocolAsStore(id.spid);
 
             if (!get(sp)) {
                 id.spid = id.spid.split('-').slice(0, -1).join('-') as SPID;
-                sp = await db.getIndependentProtocolAsStore(id.spid);
+                sp = db.getIndependentProtocolAsStore(id.spid);
             }
 
             if (!sp) return { ...base };

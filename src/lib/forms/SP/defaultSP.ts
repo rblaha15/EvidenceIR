@@ -18,10 +18,10 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
 
     return ({
         label: new TextWidget({
-            show, text: p(`Náhradní díl ${n}`), class: 'fs-5',
+            show, text: (_, t) => t.refFromTemplate('sp.sparePart', { n: `${n}` }), class: 'fs-5',
         }),
         dil: new SearchWidget({
-            required: false, show, hideInRawData: true, label: p('Vyhledat položku'), items: [],
+            required: false, show, hideInRawData: true, label: 'sp.searchItem', items: [],
             onValueSet: (d, part) => {
                 const nd = dil(d);
                 nd.code.setValue(d, part?.code?.let(String) ?? '');
@@ -37,19 +37,19 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
             }), showInXML: false,
         }),
         name: new InputWidget({
-            label: p('Název'), required: show, show,
+            label: 'sp.name', required: show, show,
         }),
         code: new InputWidget({
-            label: p('Kód'), type: 'number', required: false, show,
+            label: 'sp.code', type: 'number', required: false, show,
         }),
         unitPrice: new InputWidget({
-            label: p('Jednotková cena'), type: 'number', required: show, show, suffix: p('Kč'),
+            label: 'sp.unitPrice', type: 'number', required: show, show, suffix: p('Kč'),
         }),
         warehouse: new InputWidget({
-            label: p('Sklad'), required: false, show,
+            label: 'sp.warehouse', required: false, show,
         }),
         mnozstvi: new InputWidget({
-            label: p('Množství'), type: `number`, onError: `wrongNumberFormat`, text: '1',
+            label: 'sp.amount', type: `number`, onError: `wrong.number`, text: '1',
             required: show, show,
         }),
     });
@@ -57,38 +57,38 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
 
 export default <D extends GenericFormSP<D>>(): GenericFormSP<D> => ({
     zasah: {
-        datum: new InputWidget({ label: p('Datum a čas zásahu'), type: 'datetime-local' }),
-        datumUvedeni: new InputWidget({ label: p('Datum uvedení do provozu'), type: 'date', required: false }),
-        clovek: new InputWidget({ label: p('Jméno technika'), show: false }),
-        inicialy: new InputWidget({ label: p('Iniciály technika (do ID SP)'), show: false, showInXML: false }),
-        zaruka: new RadioWidget({ label: p('Záruka'), options: [`sp.warrantyCommon`, `sp.warrantyExtended`], required: false }),
-        nahlasenaZavada: new InputWidget({ label: p('Nahlášená závada'), required: false }),
-        popis: new InputWidget({ label: p('Popis zásahu'), required: false, textArea: true }),
+        datum: new InputWidget({ label: 'sp.interventionDate', type: 'datetime-local' }),
+        datumUvedeni: new InputWidget({ label: 'sp.commissioningDate', type: 'date', required: false }),
+        clovek: new InputWidget({ label: 'sp.technicianName', show: false }),
+        inicialy: new InputWidget({ label: 'sp.technicianInitials', show: false, showInXML: false }),
+        zaruka: new RadioWidget({ label: 'sp.warranty', options: [`sp.warrantyCommon`, `sp.warrantyExtended`], required: false }),
+        nahlasenaZavada: new InputWidget({ label: 'sp.reportedFault', required: false }),
+        popis: new InputWidget({ label: 'sp.interventionDescription', required: false, textArea: true }),
     },
     ukony: {
-        nadpis: new TitleWidget({ text: p('Vyúčtování') }),
-        doprava: new InputWidget({ label: p('Doprava'), type: 'number', onError: `wrongNumberFormat`, suffix: 'units.km' }),
+        nadpis: new TitleWidget({ text: 'sp.billing' }),
+        doprava: new InputWidget({ label: 'sp.transportation', type: 'number', onError: `wrong.number`, suffix: 'units.km' }),
         typPrace: new RadioWidget({
-            label: p('Typ práce'),
+            label: 'sp.workType',
             options: [`sp.assemblyWork`, `sp.technicalAssistance`, `sp.technicalAssistance12`],
             required: false,
         }),
         ukony: new MultiCheckboxWidget({
-            label: p('Pracovní úkony (max. 3)'), max: 3, required: false, options: [
+            label: 'sp.operations', max: 3, required: false, options: [
                 `sp.regulusRoute`, `sp.commissioningTC`, `sp.commissioningSOL`, `sp.commissioningFVE`, `sp.yearlyHPCheck`,
                 `sp.yearlySOLCheck`, `sp.extendedWarranty`, `sp.installationApproval`, `sp.withoutCode`,
             ],
         }),
         doba: new InputWidget({
-            label: d => p(d.ukony.typPrace.value != null ? 'Doba fakturované práce' : 'Doba zásahu'),
+            label: d => d.ukony.typPrace.value != null ? 'sp.billedTime' : 'sp.interventionTime',
             type: 'number',
-            onError: `wrongNumberFormat`,
+            onError: `wrong.number`,
             suffix: 'units.h',
         }),
     },
     nahradniDily: {
-        nadpis: new TitleWidget({ text: p('Použité náhradní díly') }),
-        pocet: new CounterWidget({ label: p('Počet náhradních dílů'), min: 0, max: 8, chosen: 0 }),
+        nadpis: new TitleWidget({ text: 'sp.usedSpareParts' }),
+        pocet: new CounterWidget({ label: 'sp.sparePartCount', min: 0, max: 8, chosen: 0 }),
     },
     nahradniDil1: sparePart(1),
     nahradniDil2: sparePart(2),
@@ -99,14 +99,14 @@ export default <D extends GenericFormSP<D>>(): GenericFormSP<D> => ({
     nahradniDil7: sparePart(7),
     nahradniDil8: sparePart(8),
     fakturace: {
-        nadpis: new TitleWidget({ text: p('Fakturace') }),
-        hotove: new ChooserWidget({ label: p('Placeno hotově'), options: ['yes', 'no', 'doNotInvoice'] }),
+        nadpis: new TitleWidget({ text: 'sp.invoicing' }),
+        hotove: new ChooserWidget({ label: 'sp.paidInCash', options: ['yes', 'no', 'doNotInvoice'] }),
         komu: new RadioWidget({
-            label: p('Komu fakturovat'), options: [p('Investor'), `assemblyCompany`],
+            label: 'sp.whoToInvoice', options: [p('Investor'), `assemblyCompany`],
             required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
         }),
         jak: new RadioWidget({
-            label: p('Fakturovat'), options: p(['Papírově', 'Elektronicky']),
+            label: 'sp.invoice', options: p(['Papírově', 'Elektronicky']),
             required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
         }),
     },

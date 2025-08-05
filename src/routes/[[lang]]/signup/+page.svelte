@@ -1,17 +1,18 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
-	import type { Translations } from '$lib/translations';
+	import type { PageProps } from './$types';
 	import { onMount } from 'svelte';
 	import authentication from '$lib/client/authentication';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import { setTitle } from '$lib/helpers/globals.js';
 	import { goto } from '$app/navigation';
 
-	let odesila = $state(false);
-	let email = $state(browser ? (page.url.searchParams.get('email') ?? '') : '');
+	const { data }: PageProps = $props();
+	const t = $derived(data.translations.auth);
 
-	const t: Translations = page.data.translations;
+	let sending = $state(false);
+	let email = $state(browser ? (page.url.searchParams.get('email') ?? '') : '');
 
 	let redirect: string = '/IN';
 	onMount(() => (redirect = page.url.searchParams.get('redirect') ?? '/IN'));
@@ -19,11 +20,11 @@
 	let error: string | null = $state(null);
 
 	const signUp = async () => {
-		odesila = true;
+		sending = true;
 		error = '';
 		const { enabled } = await authentication('checkEnabled', { email });
 		if (enabled) {
-			odesila = false;
+			sending = false;
 			error = t.emailInUse;
 			return;
 		}
@@ -31,12 +32,12 @@
 			if (email.split('@')[0].includes('.'))
 				await authentication('createUser', { email });
 			else {
-				odesila = false;
-				error = 'Prosím, použijte email se jménem i příjmením';
+				sending = false;
+				error = t.useNameSurnameEmail;
 				return;
 			}
 		} else if (enabled == null) {
-			odesila = false;
+			sending = false;
 			error = t.pleaseUseBusinessEmail;
 			return;
 		}
@@ -49,7 +50,7 @@
 		await goto(link);
 	};
 
-	setTitle(t.signUp)
+	$effect(() => setTitle(t.signUp))
 </script>
 
 <form>
@@ -67,7 +68,7 @@
 		<p class="text-danger mt-3 mb-0">{@html error}</p>
 	{/if}
 	<div class="d-flex align-content-center mt-3">
-		{#if odesila}
+		{#if sending}
 			<div class="spinner-border text-danger m-2"></div>
 		{:else}
 			<button type="submit" class="btn btn-primary me-2" onclick={signUp}>

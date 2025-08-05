@@ -38,6 +38,8 @@
         t,
         readonly,
     }: Props<R> = $props();
+    const tf = $derived(t.form)
+    const tfi = $derived(tf.import)
 
     $effect(() => setTitle(title, showBackButton));
 
@@ -46,7 +48,7 @@
     let fileExcel = $state<File>();
     let filePdf = $state<File>();
     let sheetWidget = $state(new ChooserWidget({
-        options: [] as P[], show: (d): boolean => sheetWidget.options(d).length > 1, label: p('List sešitu'),
+        options: [] as P[], show: (d): boolean => sheetWidget.options(d).length > 1, label: 'form.import.workbookSheet',
     }));
     let error = $state(false);
 
@@ -89,7 +91,7 @@
 
 {#if !readonly}
     <div class="d-flex w-100 align-items-center text-nowrap flex-wrap gap-2">
-        <span class="me-auto">{STAR} = {t.mandatoryFields}</span>
+        <span class="me-auto">{STAR} = {tf.mandatoryFields}</span>
         {#if excelImport || pdfImport}
             <button
                 class="btn btn-outline-secondary"
@@ -97,7 +99,7 @@
                 data-bs-target="#import"
             >
                 <i class="my-1 bi-upload"></i>
-                <span class="ms-2">{t.importData}</span>
+                <span class="ms-2">{tfi.importData}</span>
             </button>
         {/if}
         {#if !hideResetButton}
@@ -111,7 +113,7 @@
                 }}
             >
                 <i class="my-1 bi-arrow-clockwise"></i>
-                <span class="ms-2">{t.emptyForm}</span>
+                <span class="ms-2">{tf.clearForm}</span>
             </button>
         {/if}
     </div>
@@ -121,19 +123,19 @@
     <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">{t.importData}</h4>
+                <h4 class="modal-title">{tfi.importData}</h4>
                 <button
-                    aria-label={t.cancel}
+                    aria-label={tfi.cancel}
                     class="btn-close"
                     data-bs-dismiss="modal"
-                    title={t.cancel}
+                    title={tfi.cancel}
                     type="button"
                 ></button>
             </div>
 
             <div class="modal-body gap-3 d-flex flex-column">
                 {#if excelImport}
-                    <p class="m-0">Nahrajte původní MS Excel sešit s vyplněnými údaji na listu {excelImport.sheet}</p>
+                    <p class="m-0">{tfi.uploadExcel({ sheet: excelImport.sheet })}</p>
                     <input accept=".xls,.xlsx,.xlsm,.xlsb"
                            bind:this={inputExcel}
                            class="d-none"
@@ -146,26 +148,26 @@
                                 class="btn btn-primary"
                                 onclick={() => inputExcel?.click()}
                             >
-                                Vybrat soubor
+                                {tfi.choseFile}
                             </button>
                         {:else}
-                            <p class="m-0">{t.chosenFile} {fileExcel?.name ?? ''}</p>
+                            <p class="m-0">{tfi.chosen_File} {fileExcel?.name ?? ''}</p>
                             <button
                                 type="button"
                                 class="btn btn-info"
                                 onclick={() => {inputExcel.value = ''; fileExcel = undefined; inputExcel?.click()}}
                             >
-                                Vybrat jiný soubor
+                                {tfi.choseDifferentFile}
                             </button>
                         {/if}
                     </div>
                     <Widget data={undefined} {t} widget={sheetWidget} />
                     {#if fileExcel && excelImport.isDangerous && sheetWidget.value}
-                        <p class="alert alert-danger">Pozor! Potvrzením přepíšete všechna zatím vyplněná data!</p>
+                        <p class="alert alert-danger">{tfi.warningDataLoss}</p>
                     {/if}
                 {/if}
                 {#if pdfImport}
-                    <p class="m-0">Nahrajte PDF dokument s vyplněnými údaji</p>
+                    <p class="m-0">{tfi.uploadPdf}</p>
                     <input accept="application/pdf"
                            bind:this={inputPdf}
                            class="d-none"
@@ -178,25 +180,25 @@
                                 class="btn btn-primary"
                                 onclick={() => inputPdf?.click()}
                             >
-                                Vybrat soubor
+                                {tfi.choseFile}
                             </button>
                         {:else}
-                            <p class="m-0">{t.chosenFile} {filePdf?.name ?? ''}</p>
+                            <p class="m-0">{tfi.chosen_File} {filePdf?.name ?? ''}</p>
                             <button
                                 type="button"
                                 class="btn btn-info"
                                 onclick={() => {inputPdf.value = ''; filePdf = undefined; inputPdf?.click()}}
                             >
-                                Vybrat jiný soubor
+                                {tfi.choseDifferentFile}
                             </button>
                         {/if}
                     </div>
                     {#if filePdf && pdfImport.isDangerous}
-                        <p class="alert alert-danger">Pozor! Potvrzením přepíšete všechna zatím vyplněná data!</p>
+                        <p class="alert alert-danger">{tfi.warningDataLoss}</p>
                     {/if}
                 {/if}
                 {#if error}
-                    <p class="text-error">Něco se nepovedlo...</p>
+                    <p class="text-error">{tfi.somethingWentWrong}</p>
                 {/if}
             </div>
 
@@ -204,7 +206,7 @@
                 <button
                     class="btn btn-info"
                     data-bs-dismiss="modal"
-                    type="button">{t.cancel}</button
+                    type="button">{tfi.cancel}</button
                 >
                 {#if excelImport && fileExcel && sheetWidget.value}
                     <button
@@ -213,7 +215,7 @@
                         class:btn-success={!excelImport.isDangerous}
                         data-bs-dismiss="modal"
                         onclick={confirmExcel}
-                        type="button">{t.confirm}</button
+                        type="button">{tfi.confirm}</button
                     >
                 {/if}
                 {#if pdfImport && filePdf}
@@ -223,7 +225,7 @@
                         class:btn-success={!pdfImport.isDangerous}
                         data-bs-dismiss="modal"
                         onclick={confirmPdf}
-                        type="button">{t.confirm}</button
+                        type="button">{tfi.confirm}</button
                     >
                 {/if}
             </div>

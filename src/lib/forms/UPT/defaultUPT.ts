@@ -11,35 +11,35 @@ const newSuitsWidget = <D>(args: {
     chosen: args.chosen ?? false,
     required: args.required ?? false,
     ...args,
-    options: [`suitsNot`, `suits`] as const,
+    options: [`tc.suitsNot`, `tc.suits`] as const,
     hasPositivity: true,
 });
 
 export default (): FormUPT => ({
     tc: {
-        nadpis: new TitleWidget({ text: `heatPump` }),
-        jisticTC: newSuitsWidget({ label: `characteristicsAndSizeOfHeatPumpBreaker` }),
+        nadpis: new TitleWidget({ text: `in.heatPump` }),
+        jisticTC: newSuitsWidget({ label: `tc.characteristicsAndSizeOfHeatPumpBreaker` }),
         jisticVJ: newSuitsWidget({
             show: d => d.evidence.ir.typ.first!.includes('BOX'),
-            label: `characteristicsAndSizeOfIndoorUnitBreaker`,
+            label: `tc.characteristicsAndSizeOfIndoorUnitBreaker`,
         }),
-        vzdalenostZdi: newSuitsWidget({ label: `distanceFromWall`, show: d => d.evidence.tc.typ == `airToWater` }),
+        vzdalenostZdi: newSuitsWidget({ label: `tc.distanceFromWall`, show: d => d.evidence.tc.typ == `airToWater` }),
         kondenzator: new CheckboxWidget({
             required: false,
-            label: `isCompensatorInstalled`,
+            label: `tc.isCompensatorInstalled`,
             show: d => d.evidence.tc.typ == `airToWater`,
         }),
-        filtr: new CheckboxWidget({ required: false, label: `isCirculationPumpFilterInstalled` }),
+        filtr: new CheckboxWidget({ required: false, label: `tc.isCirculationPumpFilterInstalled` }),
     },
     nadrze: {
-        nadpis: new TitleWidget({ text: `tanks` }),
-        akumulacka: new InputWidget({ label: `typeOfAccumulationTank`, required: false }),
-        zasobnik: new InputWidget({ label: `typeOfStorageTank`, required: false }),
+        nadpis: new TitleWidget({ text: `tc.tanks` }),
+        akumulacka: new InputWidget({ label: `tc.typeOfAccumulationTank`, required: false }),
+        zasobnik: new InputWidget({ label: `tc.typeOfStorageTank`, required: false }),
     },
     os: {
-        nadpis: new TitleWidget({ text: `heatingSystem` }),
+        nadpis: new TitleWidget({ text: `tc.heatingSystem` }),
         tvori: new ChooserWidget({
-            label: `heatingSystemConsistsOf`, options: [
+            label: `tc.heatingSystemConsistsOf`, options: [
                 `radiators`,
                 `underfloorHeating`,
                 `combinationHeating`,
@@ -47,52 +47,52 @@ export default (): FormUPT => ({
             ],
         }),
         popis: new InputWidget({
-            label: `heatingSystemDescription`,
+            label: `tc.heatingSystemDescription`,
             show: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
             required: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
         }),
-        dzTop: new CheckboxWidget({ required: false, label: `isAdditionalHeatingSourceConnected` }),
+        dzTop: new CheckboxWidget({ required: false, label: `tc.isAdditionalHeatingSourceConnected` }),
         typDzTop: new InputWidget({
-            label: `typeAndPowerOfAdditionalHeatingSource`,
+            label: `tc.typeAndPowerOfAdditionalHeatingSource`,
             show: d => d.uvedeni.os.dzTop.value,
             required: d => d.uvedeni.os.dzTop.value,
         }),
-        tcTv: new CheckboxWidget({ required: false, label: `doesHeatPumpPrepareHotWater` }),
+        tcTv: new CheckboxWidget({ required: false, label: `tc.doesHeatPumpPrepareHotWater` }),
         zTv: new InputWidget(
             {
-                label: d => d.uvedeni.os.tcTv.value ? `additionalHotWaterSource` : `mainHotWaterSource`,
+                label: d => d.uvedeni.os.tcTv.value ? `tc.additionalHotWaterSource` : `tc.mainHotWaterSource`,
                 required: d => !d.uvedeni.os.tcTv.value,
             }),
-        objemEnOs: newSuitsWidget({ label: `volumeOfExpansionTankOfHeatingSystem` }),
-        tlakEnOs: new InputWidget({ label: `pressureOfExpansionTankOfHeatingSystem` }),
-        tlakOs: new InputWidget({ label: `pressureOfHeatingSystem` }),
-        tlakEnTv: new InputWidget({ label: `pressureOfExpansionTankForWater` }),
-        bazenTc: new CheckboxWidget({ required: false, label: `isPoolHeatingManagedByHeatPump` }),
+        objemEnOs: newSuitsWidget({ label: `tc.volumeOfExpansionTankOfHeatingSystem` }),
+        tlakEnOs: new InputWidget({ label: `tc.pressureOfExpansionTankOfHeatingSystem` }),
+        tlakOs: new InputWidget({ label: `tc.pressureOfHeatingSystem` }),
+        tlakEnTv: new InputWidget({ label: `tc.pressureOfExpansionTankForWater` }),
+        bazenTc: new CheckboxWidget({ required: false, label: `tc.isPoolHeatingManagedByHeatPump` }),
     },
     reg: {
-        nadpis: new TitleWidget({ text: `controlAndElectricalInstallation` }),
+        nadpis: new TitleWidget({ text: `tc.controlAndElectricalInstallation` }),
         pripojeniKInternetu: new ChooserWidget({
-            label: `internetConnection`, options: [
+            label: `tc.internetConnection`, options: [
                 `connectedViaRegulusRoute`,
                 `connectedWithPublicIpAddress`,
                 `notConnected`,
             ],
         }),
-        pospojeni: new CheckboxWidget({ required: false, label: `isElectricalBondingComplete` }),
-        spotrebice: new CheckboxWidget({ required: false, label: `areElectricalDevicesTested` }),
+        pospojeni: new CheckboxWidget({ required: false, label: `tc.isElectricalBondingComplete` }),
+        spotrebice: new CheckboxWidget({ required: false, label: `tc.areElectricalDevicesTested` }),
         zalZdroj: new CheckboxWidget({
             required: false,
-            label: `isBackupPowerSourceInstalled`,
+            label: `tc.isBackupPowerSourceInstalled`,
             show: d => d.evidence.tc.typ == `airToWater`,
         }),
     },
     primar: {
         nadpis: new TitleWidget({
-            text: `primaryCircuit`,
+            text: `tc.primaryCircuit`,
             show: d => d.evidence.tc.typ == 'groundToWater',
         }),
         typ: new ChooserWidget({
-            label: `typeOfPrimaryCircuit`,
+            label: `tc.typeOfPrimaryCircuit`,
             options: [
                 `groundBoreholes`,
                 `surfaceCollector`,
@@ -105,45 +105,45 @@ export default (): FormUPT => ({
             label: d => {
                 switch (d.uvedeni.primar.typ.value) {
                     case (`groundBoreholes`):
-                        return `numberAndDepthOfBoreholes`;
+                        return `tc.numberAndDepthOfBoreholes`;
                     case (`surfaceCollector`):
-                        return `numberAndLengthOfCircuits`;
+                        return `tc.numberAndLengthOfCircuits`;
                     default:
-                        return `collectorDescription`;
+                        return `tc.collectorDescription`;
                 }
             },
             show: d => d.evidence.tc.typ == 'groundToWater',
             required: d => d.evidence.tc.typ == 'groundToWater' && d.uvedeni.primar.typ.value != null,
         }),
         nemrz: new InputWidget({
-            label: `typeOfAntifreezeMixture`,
+            label: `tc.typeOfAntifreezeMixture`,
             show: d => d.evidence.tc.typ == 'groundToWater',
             required: d => d.evidence.tc.typ == 'groundToWater',
         }),
         nadoba: new ChooserWidget({
-            label: `onPrimaryCircuitInstalled`,
+            label: `tc.onPrimaryCircuitInstalled`,
             options: [`expansionTankInstalled`, `bufferTankInstalled`],
             show: d => d.evidence.tc.typ == 'groundToWater',
             required: d => d.evidence.tc.typ == 'groundToWater',
         }),
         kontrola: new CheckboxWidget({
             required: false,
-            label: `wasPrimaryCircuitTested`,
+            label: `tc.wasPrimaryCircuitTested`,
             show: d => d.evidence.tc.typ == 'groundToWater',
         }),
     },
     uvadeni: {
-        nadpis: new TitleWidget({ text: `commissioningSteps` }),
-        tc: new CheckboxWidget({ required: false, label: `wasInstallationAccordingToManual` }),
-        reg: new CheckboxWidget({ required: false, label: `wasControllerSetToParameters` }),
-        vlastnik: new CheckboxWidget({ required: false, label: `wasOwnerFamiliarizedWithFunction` }),
+        nadpis: new TitleWidget({ text: `tc.commissioningSteps` }),
+        tc: new CheckboxWidget({ required: false, label: `tc.wasInstallationAccordingToManual` }),
+        reg: new CheckboxWidget({ required: false, label: `tc.wasControllerSetToParameters` }),
+        vlastnik: new CheckboxWidget({ required: false, label: `tc.wasOwnerFamiliarizedWithFunction` }),
         typZaruky: new ChooserWidget({
-            label: `isExtendedWarrantyDesired`, options: [`no`, `yes`],
+            label: `tc.isExtendedWarrantyDesired`, options: [`no`, `yes`],
         }),
         zaruka: new CheckboxWidget({
-            required: false, label: `isInstallationInWarrantyConditions`,
+            required: false, label: `tc.isInstallationInWarrantyConditions`,
             show: d => d.uvedeni.uvadeni.typZaruky.value == 'yes',
         }),
-        date: new InputWidget({ label: 'dateOfCommission', type: 'date', text: (new Date()).toISOString().split('T')[0] }),
+        date: new InputWidget({ label: 'tc.dateOfCommission', type: 'date', text: (new Date()).toISOString().split('T')[0] }),
     },
 });

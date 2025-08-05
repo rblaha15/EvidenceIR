@@ -10,7 +10,7 @@
         data,
     }: PageProps = $props();
 
-    const t = $derived(data.translations)
+    const t = $derived(data.translations.pdf)
 
     let pageCount = $state(1);
     let pdf = $state<import('pdfjs-dist').PDFDocumentProxy>();
@@ -36,11 +36,11 @@
     {#each range(1, pageCount + 1) as pageNumber}
         <div class="d-flex gap-3 align-items-center flex-wrap-reverse">
             {#if pageCount > 1}
-                <h5 class="m-0">{t.pdf.page({ page: `${pageNumber}`, total: `${pageCount}` })}</h5>
+                <h5 class="m-0">{t.page({ page: `${pageNumber}`, total: `${pageCount}` })}</h5>
             {/if}
             {#if pageNumber === 1}
                 <div class="flex-grow-1"></div>
-                <button class="btn btn-primary" onclick={download}><i class="bi-download me-2"></i>{t.pdf.downloadFile}</button>
+                <button class="btn btn-primary" onclick={download}><i class="bi-download me-2"></i>{t.downloadFile}</button>
             {/if}
         </div>
         <PdfPage {pdf} {pageNumber} />

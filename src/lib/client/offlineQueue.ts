@@ -6,6 +6,8 @@ import { getToken } from '$lib/client/auth';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { irName, irNumberFromIRID, irWholeName, spName, spWholeName } from '$lib/helpers/ir';
 import { isOnline } from './realtime';
+import type { Translations } from '$lib/translations';
+import type { Template, TemplateArgs } from '$lib/helpers/templates';
 
 type DoWhenOnlineDatabase<F extends keyof Database = keyof Database> = {
     type: 'database'
@@ -73,28 +75,29 @@ const importantItemsInOfflineQueue = derived(doWhenOnlineQueue, q =>
 );
 
 const functions: {
-    [F in WriteFunction]: (...args: Parameters<Database[F]>) => string
+    [F in WriteFunction]: (...args: Parameters<Database[F]>) => Parameters<Translations['nav']['offlineQueue']['f'][F]>[0]
 } = {
-    addIR: ir => `Zaevidován nový regulátor (${irWholeName(ir.evidence)})`,
-    deleteIR: irid => `Odstraněna evidence IR ${irNumberFromIRID(irid)}`,
-    updateIRRecord: e => `Upravena data u IR ${irName(e.ir)}`,
-    addHeatPumpCheck: (irid, pump, year) =>
-        `Vytvořena roční kontrola TČ ${pump} pro rok ${year} u IR ${irNumberFromIRID(irid)}`,
-    addServiceProtocol: (irid, p) => `Vytvořen servisní protokol ${spName(p.zasah)} u IR ${irNumberFromIRID(irid)}`,
-    updateServiceProtocol: (irid, _, p) => `Upraven servisní protokol ${spName(p.zasah)} u IR ${irNumberFromIRID(irid)}`,
-    addHeatPumpCommissioningProtocol: irid => `Vytvořen protokol o uvedení TČ do provozu u IR ${irNumberFromIRID(irid)}`,
-    addSolarSystemCommissioningProtocol: irid => `Vytvořen protokol o uvedení SOL do provozu u IR ${irNumberFromIRID(irid)}`,
-    addPhotovoltaicSystemCommissioningProtocol: irid => `Vytvořen protokol o uvedení FVE do provozu u IR ${irNumberFromIRID(irid)}`,
-    updateIRUsers: irid => `Změněn seznam uživatelů s přístupem k ${irNumberFromIRID(irid)}`,
-    addIndependentServiceProtocol: p => `Vytvořen nezávislý servisní protokol ${spWholeName(p)}`,
-    deleteIndependentProtocol: spid => `Odstraněn nezávislý servisní protokol ${spid}`,
+    addIR: ir => ({ ir: irWholeName(ir.evidence) }),
+    deleteIR: irid => ({ ir: irNumberFromIRID(irid) }),
+    updateIRRecord: e => ({ ir: irName(e.ir) }),
+    addHeatPumpCheck: (irid, pump, year) => ({ ir: irNumberFromIRID(irid), pump: `${pump}`, year: `${year}` }),
+    addServiceProtocol: (irid, p) => ({ ir: irNumberFromIRID(irid), sp: spName(p.zasah) }),
+    updateServiceProtocol: (irid, _, p) => ({ ir: irNumberFromIRID(irid), sp: spName(p.zasah) }),
+    addFaceTable: irid => ({ ir: irNumberFromIRID(irid) }),
+    addHeatPumpCommissioningProtocol: irid => ({ ir: irNumberFromIRID(irid) }),
+    addSolarSystemCommissioningProtocol: irid => ({ ir: irNumberFromIRID(irid) }),
+    addPhotovoltaicSystemCommissioningProtocol: irid => ({ ir: irNumberFromIRID(irid) }),
+    updateIRUsers: irid => ({ ir: irNumberFromIRID(irid) }),
+    addIndependentServiceProtocol: p => ({ sp: spWholeName(p) }),
+    deleteIndependentProtocol: spid => ({ spid }),
 };
 
-const readableFunction = <F extends WriteFunction>(dwo: DoWhenOnlineDatabase<F>) => functions[dwo.functionName](...dwo.args);
+const readableFunction = <F extends WriteFunction>(dwo: DoWhenOnlineDatabase<F>) =>
+    (t: Translations) => (t.nav.offlineQueue.f[dwo.functionName as F] as Template<(string | number)[]>)(functions[dwo.functionName](...dwo.args) as TemplateArgs<(string | number)[]>) as string;
 
 export const readableQueue = derived(importantItemsInOfflineQueue, q =>
     q.map(dwo => dwo.type == 'email'
-        ? { type: 'email', subject: 'Neodeslaný email: ' + dwo.message.subject } as const
+        ? { type: 'email', subject: (t: Translations) => t.nav.offlineQueue.unsentEmail(dwo.message) } as const
         : { type: 'database', subject: readableFunction(dwo) } as const,
     ),
 );

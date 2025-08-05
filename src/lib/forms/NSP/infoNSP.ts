@@ -37,7 +37,7 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
 
         if (response!.ok) return true;
         else editResult({
-            text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false,
         });
@@ -49,7 +49,7 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         lang: 'cs',
     }),
     createWidgetData: f => f,
-    title: () => `Instalační a servisní protokol`,
+    title: t => t.sp.title,
     onMount: async (d, f) => {
         await startTechniciansListening();
         await startSparePartsListening();

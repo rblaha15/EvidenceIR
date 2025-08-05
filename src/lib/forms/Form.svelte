@@ -71,7 +71,7 @@
         await mountEffect?.(d, f, mode as 'create' | 'edit' | 'view');
 
         storeEffects?.forEach(([callback, stores]) => {
-            derivedStore(stores, values => values).subscribe(values => callback(d, f, values, mode == 'edit'));
+            derivedStore(stores, values => values).subscribe(values => callback(d, f, values, mode == 'edit', t));
         });
     });
 
@@ -94,20 +94,20 @@
                 }
                 result = {
                     red: true,
-                    text: t.youHaveAMistake({ fields: errors.join(', ') }),
+                    text: t.form.youHaveAMistake({ fields: errors.join(', ') }),
                     load: false,
                 };
                 return;
             }
 
-            result = { load: true, red: false, text: t.saving };
+            result = { load: true, red: false, text: t.form.saving };
             const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send);
 
             if (!dev) storedData.set(undefined);
 
             if (success) {
                 result = openPdf || redirectLink
-                    ? { text: t.redirecting, red: false, load: true }
+                    ? { text: t.form.redirecting, red: false, load: true }
                     : { text: '', red: false, load: false };
 
                 if (openPdf) {
@@ -125,7 +125,7 @@
             console.error(e);
             result = {
                 red: true,
-                text: t.somethingWentWrongContactUsHtml,
+                text: t.form.somethingWentWrongContactUsHtml,
                 load: false,
             };
         }
@@ -179,17 +179,17 @@
         <div class="d-flex gap-3 flex-wrap">
             {#if mode !== 'view'}
                 {#if !result.load && (mode === 'edit' && isSendingEmails || !$showSaveAndSendButtonByDefaultStore)}
-                    <button onclick={save(false)} class="mb-auto btn btn-success">{t.save}</button>
+                    <button onclick={save(false)} class="mb-auto btn btn-success">{t.form.save}</button>
                 {/if}
                 {#if !result.load && (mode === 'edit' && isSendingEmails || $showSaveAndSendButtonByDefaultStore)}
-                    <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">{t.saveAndSend}</button>
+                    <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">{t.form.saveAndSend}</button>
                 {/if}
                 {#if result.load}
                     <div class="spinner-border text-danger"></div>
                 {/if}
                 {#if !result.load && !hideBackButton?.(mode === 'edit')}
                     <button type="button" class="mb-auto btn btn-secondary" onclick={() => history.back()}>
-                        {t.back}
+                        {t.form.back}
                     </button>
                 {/if}
             {/if}

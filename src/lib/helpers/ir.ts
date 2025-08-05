@@ -113,6 +113,9 @@ export const typBOX = (cisloBOX: string) => ({
 export const endUserName = (k: Raw<FormIN>['koncovyUzivatel']) =>
     k.typ == 'company' ? k.nazev : `${k.jmeno} ${k.prijmeni}`;
 
+export const endUserName2 = (k: Raw<FormIN>['koncovyUzivatel']) =>
+    k.typ == 'company' ? k.nazev : `${k.prijmeni} ${k.jmeno}`;
+
 /**
  * 2: IR 12;
  *

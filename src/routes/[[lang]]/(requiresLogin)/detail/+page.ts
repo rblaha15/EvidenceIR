@@ -15,7 +15,7 @@ export const load: PageLoad = async ({ url }) => {
     await checkAuth();
     await startTechniciansListening();
 
-    return await getDataAsStore(id);
+    return getDataAsStore(id);
 };
 
 export const prerender = true;

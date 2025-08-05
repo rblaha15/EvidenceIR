@@ -8,7 +8,7 @@
     import db from '$lib/client/data';
     import { goto } from '$app/navigation';
     import type { LanguageCode } from '$lib/languages';
-    import { p, type Translations } from '$lib/translations';
+    import { type Translations } from '$lib/translations';
     import { defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
     import type { Raw } from '$lib/forms/Form';
     import type { IRID, SPID } from '$lib/helpers/ir';
@@ -17,16 +17,15 @@
     import type { FormSP } from '$lib/forms/SP/formSP.svelte';
     import { dataToRawData } from '$lib/forms/Form.js';
 
-    const {
-        t, sp, spid, lang,
-    }: {
+    const { t, sp, spid, lang }: {
         t: Translations, sp: Raw<FormNSP>, spid: SPID, lang: LanguageCode,
     } = $props();
+    const td = $derived(t.detail);
 
     const protocolGroups: (keyof Raw<FormSP>)[] = defaultSP().keys();
 
     const newIRID = new InputWidget({
-        label: p('IRID (z URL adresy)'),
+        label: 'detail.newIRIDLabel',
     });
     const transfer = async () => {
         if (!sp) return;
@@ -45,28 +44,28 @@
 
 <div class="d-flex flex-column gap-1 align-items-sm-start">
     <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${sp.koncovyUzivatel.email}`)} tabindex="0">
-        {t.sendDocuments}
+        {td.sendDocuments}
     </a>
 
     <a class="btn btn-primary" href={relUrl(`/NSP?view-spid=${spid}`)} tabindex="0">
-        {t.viewInfo}
+        {td.viewFilledData}
     </a>
 
     <PDFLink data={sp} hideLanguageSelector={true} {lang} link="NSP" {spid} {t} />
 
-    <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>Kopírovat informace o instalaci do nového protokolu</a>
+    <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>{td.copyNSP}</a>
 </div>
 
 {#if $isUserAdmin}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         <Widget widget={newIRID} {t} data={{}} />
-        <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR (neodstraní se)</button>
+        <button class="btn btn-danger d-block" onclick={transfer}>{td.transferProtocol}</button>
 
         <button class="btn btn-danger d-block" onclick={() => {
             db.deleteIndependentProtocol(spid);
             goto(spidUrl(`/detail?deleted`), { replaceState: true });
         }}>
-            Odstranit protokol
+            {td.deleteProtocol}
         </button>
     </div>
 {/if}

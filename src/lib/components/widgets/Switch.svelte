@@ -15,7 +15,7 @@
 <div class="d-flex gap-1 flex-column">
     <div class="input-group flex-nowrap" style="width: min-content">
         <span class="input-group-text" style="width: max-content">{t.get(widget.label(data, t))}</span>
-        {#each widget.options as moznost, i}
+        {#each widget.options as option, i}
             <input
                 type="radio"
                 class="btn-check"
@@ -29,7 +29,7 @@
                     : !widget.hasPositivity(data) ? 'btn-secondary'
                     : i === 1 ? 'btn-success' : 'btn-danger'
             ]} for={widget.label(data, t) + Boolean(i)}
-            >{t.get(moznost)}</label>
+            >{t.get(option)}</label>
         {/each}
     </div>
 

@@ -3,89 +3,89 @@ import type { FormRK } from '$lib/forms/RK/formRK.js';
 
 export default (): FormRK => ({
     info: {
-        osoba: new InputWidget({ label: 'performingPerson' }),
-        datum: new InputWidget({ label: 'checkDate', type: 'date' }),
+        osoba: new InputWidget({ label: 'rk.performingPerson' }),
+        datum: new InputWidget({ label: 'rk.checkDate', type: 'date' }),
     },
     kontrolniUkonyTepelnehoCerpadla: {
-        nadpis: new TitleWidget({ text: 'check.kontrolniUkonyTepelnehoCerpadla' }),
-        kontrolaChoduKompresoru: new CheckboxWidget({ label: 'check.kontrolaChoduKompresoru', required: false }),
+        nadpis: new TitleWidget({ text: 'rk.kontrolniUkonyTepelnehoCerpadla' }),
+        kontrolaChoduKompresoru: new CheckboxWidget({ label: 'rk.kontrolaChoduKompresoru', required: false }),
         optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu: new CheckboxWidget(
-            { label: 'check.optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu', required: false }),
-        kontrolaOdvoduKondenzatu: new CheckboxWidget({ label: 'check.kontrolaOdvoduKondenzatu', required: false }),
-        kontrolaUchyceniVentilatoru: new CheckboxWidget({ label: 'check.kontrolaUchyceniVentilatoru', required: false }),
-        vycisteniVzduchovychCestJednotky: new CheckboxWidget({ label: 'check.vycisteniVzduchovychCestJednotky', required: false }),
+            { label: 'rk.optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu', required: false }),
+        kontrolaOdvoduKondenzatu: new CheckboxWidget({ label: 'rk.kontrolaOdvoduKondenzatu', required: false }),
+        kontrolaUchyceniVentilatoru: new CheckboxWidget({ label: 'rk.kontrolaUchyceniVentilatoru', required: false }),
+        vycisteniVzduchovychCestJednotky: new CheckboxWidget({ label: 'rk.vycisteniVzduchovychCestJednotky', required: false }),
         kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem: new CheckboxWidget(
-            { label: 'check.kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem', required: false }),
+            { label: 'rk.kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem', required: false }),
         proveritZdaNicNebraniOptimalniCirkulaciVzduchu: new CheckboxWidget(
-            { label: 'check.proveritZdaNicNebraniOptimalniCirkulaciVzduchu', required: false }),
+            { label: 'rk.proveritZdaNicNebraniOptimalniCirkulaciVzduchu', required: false }),
         kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu: new CheckboxWidget(
-            { label: 'check.kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu', required: false }),
+            { label: 'rk.kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu', required: false }),
         kontrolaElektrickeCastiJednotkyTepelnehoCerpadla: new CheckboxWidget(
-            { label: 'check.kontrolaElektrickeCastiJednotkyTepelnehoCerpadla', required: false }),
+            { label: 'rk.kontrolaElektrickeCastiJednotkyTepelnehoCerpadla', required: false }),
     },
     kontrolniUkonyRegulace: {
-        nadpis: new TitleWidget({ text: 'check.kontrolniUkonyRegulace' }),
+        nadpis: new TitleWidget({ text: 'rk.kontrolniUkonyRegulace' }),
         kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: new CheckboxWidget(
-            { label: 'check.kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin', required: false }),
-        kontrolaNastaveniParametruRegulatoru: new CheckboxWidget({ label: 'check.kontrolaNastaveniParametruRegulatoru', required: false }),
+            { label: 'rk.kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin', required: false }),
+        kontrolaNastaveniParametruRegulatoru: new CheckboxWidget({ label: 'rk.kontrolaNastaveniParametruRegulatoru', required: false }),
         preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni: new CheckboxWidget(
-            { label: 'check.preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni', required: false }),
+            { label: 'rk.preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni', required: false }),
         stavPocitadlaCelkovychProvoznichHodinKompresoru: new InputWidget({
-            label: 'check.stavPocitadlaCelkovychProvoznichHodinKompresoru',
+            label: 'rk.stavPocitadlaCelkovychProvoznichHodinKompresoru',
             required: false,
         }),
         stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace: new InputWidget(
-            { label: 'check.stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace', required: false }),
+            { label: 'rk.stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace', required: false }),
         stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace: new InputWidget(
-            { label: 'check.stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace', required: false }),
+            { label: 'rk.stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace', required: false }),
         stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace: new InputWidget(
-            { label: 'check.stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace', required: false }),
+            { label: 'rk.stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace', required: false }),
         stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje: new InputWidget(
-            { label: 'check.stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje', required: false }),
+            { label: 'rk.stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje', required: false }),
         stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv: new InputWidget(
-            { label: 'check.stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv', required: false }),
+            { label: 'rk.stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv', required: false }),
         prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: new InputWidget(
-            { label: 'check.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly', required: false }),
+            { label: 'rk.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly', required: false }),
         prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly: new InputWidget(
-            { label: 'check.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly', required: false }),
+            { label: 'rk.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly', required: false }),
     },
     kontrolniElektroinstalace: {
-        nadpis: new TitleWidget({ text: 'check.kontrolniElektroinstalace' }),
+        nadpis: new TitleWidget({ text: 'rk.kontrolniElektroinstalace' }),
         kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace: new CheckboxWidget(
-            { label: 'check.kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace', required: false }),
-        kontrolaDotazeniSvorkovychSpoju: new CheckboxWidget({ label: 'check.kontrolaDotazeniSvorkovychSpoju', required: false }),
+            { label: 'rk.kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace', required: false }),
+        kontrolaDotazeniSvorkovychSpoju: new CheckboxWidget({ label: 'rk.kontrolaDotazeniSvorkovychSpoju', required: false }),
         vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni: new CheckboxWidget(
-            { label: 'check.vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni', required: false }),
+            { label: 'rk.vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni', required: false }),
         kontrolaSepnutiDohrevuSepnutiStykacePripadneRele: new CheckboxWidget(
-            { label: 'check.kontrolaSepnutiDohrevuSepnutiStykacePripadneRele', required: false }),
+            { label: 'rk.kontrolaSepnutiDohrevuSepnutiStykacePripadneRele', required: false }),
     },
     kontrolniUkonyOtopneSoustavy: {
-        nadpis: new TitleWidget({ text: 'check.kontrolniUkonyOtopneSoustavy' }),
-        kontrolaFunkceObehovychCerpadel: new CheckboxWidget({ label: 'check.kontrolaFunkceObehovychCerpadel', required: false }),
-        vycisteniFiltruObehovychCerpadel: new CheckboxWidget({ label: 'check.vycisteniFiltruObehovychCerpadel', required: false }),
-        odvzdusneniZdrojeTc: new CheckboxWidget({ label: 'check.odvzdusneniZdrojeTc', required: false }),
+        nadpis: new TitleWidget({ text: 'rk.kontrolniUkonyOtopneSoustavy' }),
+        kontrolaFunkceObehovychCerpadel: new CheckboxWidget({ label: 'rk.kontrolaFunkceObehovychCerpadel', required: false }),
+        vycisteniFiltruObehovychCerpadel: new CheckboxWidget({ label: 'rk.vycisteniFiltruObehovychCerpadel', required: false }),
+        odvzdusneniZdrojeTc: new CheckboxWidget({ label: 'rk.odvzdusneniZdrojeTc', required: false }),
         kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych: new CheckboxWidget(
-            { label: 'check.kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych', required: false }),
-        kontrolaTesnostiOtopneSoustavy: new CheckboxWidget({ label: 'check.kontrolaTesnostiOtopneSoustavy', required: false }),
+            { label: 'rk.kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych', required: false }),
+        kontrolaTesnostiOtopneSoustavy: new CheckboxWidget({ label: 'rk.kontrolaTesnostiOtopneSoustavy', required: false }),
         kontrolaTlakuVExpanzniNadobeOtopneSoustavy: new CheckboxWidget({
-            label: 'check.kontrolaTlakuVExpanzniNadobeOtopneSoustavy',
+            label: 'rk.kontrolaTlakuVExpanzniNadobeOtopneSoustavy',
             required: false,
         }),
         pripadneProvedteKontroluTlakuVOtopneSoustave: new CheckboxWidget(
-            { label: 'check.pripadneProvedteKontroluTlakuVOtopneSoustave', required: false }),
+            { label: 'rk.pripadneProvedteKontroluTlakuVOtopneSoustave', required: false }),
     },
     kontrolaZasobnikuTv: {
-        nadpis: new TitleWidget({ text: 'check.kontrolaZasobnikuTv' }),
-        kontrolaMgAnodyVZasobnikuPripVymena: new CheckboxWidget({ label: 'check.kontrolaMgAnodyVZasobnikuPripVymena', required: false }),
-        kontrolaPojistovacihoVentilu: new CheckboxWidget({ label: 'check.kontrolaPojistovacihoVentilu', required: false }),
+        nadpis: new TitleWidget({ text: 'rk.kontrolaZasobnikuTv' }),
+        kontrolaMgAnodyVZasobnikuPripVymena: new CheckboxWidget({ label: 'rk.kontrolaMgAnodyVZasobnikuPripVymena', required: false }),
+        kontrolaPojistovacihoVentilu: new CheckboxWidget({ label: 'rk.kontrolaPojistovacihoVentilu', required: false }),
         pripadneProvedteKontroluTlakuVEnTepleVody: new CheckboxWidget({
-            label: 'check.pripadneProvedteKontroluTlakuVEnTepleVody',
+            label: 'rk.pripadneProvedteKontroluTlakuVEnTepleVody',
             required: false,
         }),
     },
     poznamky: {
         poznamka: new InputWidget({
-            label: 'note', required: false,
+            label: 'rk.note', required: false,
         }),
     },
 });

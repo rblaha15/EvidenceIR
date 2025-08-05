@@ -10,11 +10,10 @@
     import { detailIrUrl } from '$lib/helpers/runes.svelte';
     import Widget from '$lib/components/Widget.svelte';
 
-    const {
-        t, ir, irid,
-    }: {
+    const { t, ir, irid }: {
         t: Translations, ir: IR, irid: IRID,
     } = $props()
+    const td = $derived(t.detail);
 
     let change: 'no' | 'input' | 'sending' | 'fail' | 'unchanged' = $state('no');
 
@@ -24,7 +23,7 @@
     const irFVE = (d: D) => d.type.value == 'irFVE';
 
     let irType = $state(new ChooserWidget<D, IRTypes>({
-        label: `controllerType`,
+        label: `in.controllerType`,
         options: [...p('IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL'), 'irFVE'],
         onValueSet: (d, v) => {
             if (v == p('SOREL')) {
@@ -33,8 +32,8 @@
         },
     }));
     let irNumber = $state(new InputWidget<D>({
-        label: `serialNumber`,
-        onError: `wrongNumberFormat`,
+        label: `in.serialNumber`,
+        onError: `wrong.number`,
         regex: d => sorel(d) || irFVE(d)
             ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
             : d.type.value == p('IR 12')
@@ -101,23 +100,23 @@
 
 {#if change === 'no'}
     <button class="btn btn-warning d-block" onclick={() => (change = 'input')}
-    >{t.changeController}</button>
+    >{td.changeController}</button>
 {:else if change === 'input'}
     <div class="d-flex flex-column gap-3 w-100">
         <Widget bind:widget={irType} data={d} {t} />
         <Widget bind:widget={irNumber} data={d} {t} />
         <div class="d-flex gap-3">
-            <button class="btn btn-danger" onclick={changeController}>{t.confirm}</button>
-            <button class="btn btn-secondary" onclick={() => (change = 'no')}>{t.cancel}</button>
+            <button class="btn btn-danger" onclick={changeController}>{td.confirm}</button>
+            <button class="btn btn-secondary" onclick={() => (change = 'no')}>{td.cancel}</button>
         </div>
     </div>
 {:else if change === 'sending'}
     <div class="d-flex align-items-center">
-        <span>{t.saving}...</span>
+        <span>{td.saving}</span>
         <div class="spinner-border text-danger"></div>
     </div>
 {:else if change === 'unchanged'}
     <p class="text-danger">Tento regulátor již existuje!</p>
 {:else if change === 'fail'}
-    <p class="text-danger">{t.changeWentWrong}</p>
+    <p class="text-danger">{td.changeWentWrong}</p>
 {/if}

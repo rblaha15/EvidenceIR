@@ -14,5 +14,5 @@
 {#if $currentUser}
 	{@render children?.()}
 {:else}
-    <p>{data.translations.requiresLogIn}</p>
+    <p>{data.translations.auth.requiresLogIn}</p>
 {/if}

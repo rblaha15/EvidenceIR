@@ -118,7 +118,7 @@
                 />
             {/if}
             <label for="">{labelAndStar(widget, data, t)}</label>
-            <button class="btn py-1 px-2 m-1" class:d-none={!widget.value || widget.type(data, t) !== 'date' || widget.required(data)} aria-label={t.clearSelection} onclick={onClick}><i class="bi bi-eraser"></i></button>
+            <button class="btn py-1 px-2 m-1" class:d-none={!widget.value || widget.type(data, t) !== 'date' || widget.required(data)} aria-label={t.widget.clearSelection} onclick={onClick}><i class="bi bi-eraser"></i></button>
         </label>
         {#if widget.suffix(data, t)}
             <span class="input-group-text">{t.get(widget.suffix(data, t) ?? '')}</span>

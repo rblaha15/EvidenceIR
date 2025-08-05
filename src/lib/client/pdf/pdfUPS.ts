@@ -5,6 +5,7 @@ import { endUserName } from '$lib/helpers/ir';
 
 const pdfUPS: GetPdfData<'UPS'> = async ({ data: { evidence: e, uvedeniSOL }, t }) => {
     const u = uvedeniSOL!;
+    const tu = t.sol
 
     return {
 /*    koncakJmeno */ Text1: endUserName(e.koncovyUzivatel),
@@ -26,22 +27,22 @@ const pdfUPS: GetPdfData<'UPS'> = async ({ data: { evidence: e, uvedeniSOL }, t 
 /*                */ Text17: u.sol.vymenik,
 /*                */ Text18: u.sol.solRegulator,
 /*                */ Text19: u.sol.cerpadloaSkupina,
-/*                */ Text20: u.sol.expanznkaSolarni ? t.yes : t.no,
+/*                */ Text20: u.sol.expanznkaSolarni ? tu.yes : tu.no,
 /*                */ Text21: u.sol.objem,
 /*                */ Text22: t.get(u.sol.ovzdusneni),
 /*                */ Text23: t.get(u.sol.teplonosnaKapalina),
 /*                */ Text24: u.sol.potrubi,
 /*                */ Text25: u.sol.prumer,
 /*                */ Text26: u.sol.delkyPotrubi,
-/*                */ Text27: u.sol.izolacePotrubi ? t.yes : t.no,
-/*                */ Text28: u.uvadeni.tlakDoba ? t.yes : t.no,
-/*                */ Text29: u.uvadeni.tlakTlak ? t.yes : t.no,
-/*                */ Text30: u.uvadeni.tlakUbytek ? t.yes : t.no,
-/*                */ Text31: u.uvadeni.ovzdusneni ? t.yes : t.no,
-/*                */ Text32: u.uvadeni.blesk ? t.yes : t.no,
-/*                */ Text33: u.uvadeni.podminky ? t.yes : t.no,
-/*                */ Text34: u.uvadeni.regulator ? t.yes : t.no,
-/*                */ Text35: u.uvadeni.vlastnik ? t.yes : t.no,
+/*                */ Text27: u.sol.izolacePotrubi ? tu.yes : tu.no,
+/*                */ Text28: u.uvadeni.tlakDoba ? tu.yes : tu.no,
+/*                */ Text29: u.uvadeni.tlakTlak ? tu.yes : tu.no,
+/*                */ Text30: u.uvadeni.tlakUbytek ? tu.yes : tu.no,
+/*                */ Text31: u.uvadeni.ovzdusneni ? tu.yes : tu.no,
+/*                */ Text32: u.uvadeni.blesk ? tu.yes : tu.no,
+/*                */ Text33: u.uvadeni.podminky ? tu.yes : tu.no,
+/*                */ Text34: u.uvadeni.regulator ? tu.yes : tu.no,
+/*                */ Text35: u.uvadeni.vlastnik ? tu.yes : tu.no,
     };
 };
 export default pdfUPS

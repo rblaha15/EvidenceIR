@@ -8,22 +8,23 @@ import { cascadePumps } from '$lib/forms/IN/infoIN';
 
 const pdfRK: GetPdfData<'RK'> = async ({ data: { kontrolyTC, evidence: e, uvedeniTC: u }, t, pump }) => {
     console.log(kontrolyTC);
+    const tk = t.rk;
     const kontroly = kontrolyTC[pump] as Record<number, Raw<FormRK>>;
     const montazka = await nazevFirmy(e.montazka.ico);
     const pumpInfo = cascadePumps(e, t)[pump - 1];
     const start = {
         Text1:
-            `${t.endCustomer}: ${endUserName(e.koncovyUzivatel)} – ${e.koncovyUzivatel.telefon} – ${e.koncovyUzivatel.email}\n` +
-            `${t.realizationLocation}: ${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}\n` +
-            `${t.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}\n` +
-            t.pumpDetails(pumpInfo),
+            `${t.in.endCustomer}: ${endUserName(e.koncovyUzivatel)} – ${e.koncovyUzivatel.telefon} – ${e.koncovyUzivatel.email}\n` +
+            `${t.in.realizationLocation}: ${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}\n` +
+            `${t.in.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}\n` +
+            tk.pumpDetails(pumpInfo),
         Text36: u?.os?.tlakEnOs ?? null,
         Text37: u?.os?.tlakOs ?? null,
         Text38: u?.os?.tlakEnTv ?? null,
         Text141: kontroly
             .mapValues((_, k) => k.poznamky.poznamka)
             .filterValues((_, p) => Boolean(p))
-            .mapTo((r, p) => `Rok ${r}: ${p}`)
+            .mapTo((r, p) => `${tk.year} ${r}: ${p}`)
             .join('\n'),
     };
     const veci = kontroly.mapTo((rok, kontrola) => {
@@ -36,7 +37,7 @@ const pdfRK: GetPdfData<'RK'> = async ({ data: { kontrolyTC, evidence: e, uveden
             (rok == 1 ? 0 : 3); // tlaky v roce 1
 
         return array.map((v, i) => [
-            `Text${i + start}`, typeof v == 'boolean' ? v ? t.yes : t.no : v,
+            `Text${i + start}`, typeof v == 'boolean' ? v ? tk.yes : tk.no : v,
         ] as [`Text${number}`, string]);
     }).flat().toRecord();
 
