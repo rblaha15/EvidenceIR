@@ -1,5 +1,5 @@
 <script generics="D, I extends TranslationReference" lang="ts">
-    import type { Translations } from '$lib/translations';
+    import type { Translations, TranslationReference } from '$lib/translations';
     import { labelAndStar, type RadioWidget } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
@@ -22,7 +22,7 @@
     <div class="d-flex align-items-center">
         {labelAndStar(widget, data, t)}
         {#if !widget.required(data)}
-            <button class="btn py-1 px-2 m-1" aria-label={t.clearSelection} onclick={onClick(null)}><i class="bi bi-eraser"></i></button>
+            <button class="btn py-1 px-2 m-1" aria-label={t.widget.clearSelection} onclick={onClick(null)}><i class="bi bi-eraser"></i></button>
         {/if}
     </div>
     <div class="input-group input-group-grid">

@@ -35,6 +35,6 @@ const pdfRR: GetPdfData<'RR'> = async ({ data: { evidence: e }, t }) => ({
     Text18: cascadePumps(e, t)
         .map(tc => `${tc.cislo} (${tc.model})`)
         .join(', '),
-    Text22: e.vzdalenyPristup.plati == 'endCustomer' ? t.agreeWIthRRPrice : '',
+    Text22: e.vzdalenyPristup.plati == 'endCustomer' ? t.rr.agreeWIthRRPrice : '',
 });
 export default pdfRR;

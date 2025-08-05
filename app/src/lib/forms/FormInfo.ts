@@ -11,7 +11,7 @@ import type { PdfImport } from '$lib/forms/PdfImport';
 export type Effect<
     D, F extends Form<D>, S extends unknown[]
 > = [
-    (data: D, form: F, values: S, edit: boolean) => void,
+    (data: D, form: F, values: S, edit: boolean, t: Translations) => void,
     { [I in keyof S]: Readable<S[I]> }
 ]
 

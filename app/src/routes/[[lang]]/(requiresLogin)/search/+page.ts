@@ -5,6 +5,7 @@ import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, irLabel, irN
 import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { browser } from '$app/environment';
 import { derived, type Readable, readable } from 'svelte/store';
+import { error } from '@sveltejs/kit';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
@@ -24,8 +25,9 @@ export type Installation_PublicServiceProtocol = {
 
 export const load: PageLoad = async () => {
     if (!browser) return { items: readable([]) };
-    await checkAuth();
-    const irs = await db.getAllIRsAsStore();
+    if (!await checkAuth()) error(401);
+
+    const irs = db.getAllIRsAsStore();
     const installations = derived(irs, $irs => $irs
         .map(ir => ({
             t: 'IR',
@@ -40,7 +42,7 @@ export const load: PageLoad = async () => {
 
     if (!await checkRegulusOrAdmin()) protocols = readable([]);
     else {
-        const sps = await db.getAllIndependentProtocolsAsStore();
+        const sps = db.getAllIndependentProtocolsAsStore();
         protocols = derived(sps, $sps => $sps
             .map(sp => ({
                 t: 'SP',

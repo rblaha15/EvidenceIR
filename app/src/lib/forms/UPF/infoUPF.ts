@@ -31,7 +31,7 @@ const infoUPF: FormInfo<FormUPF, FormUPF, [], 'UPF'> = ({
 
         if (response!.ok) return;
         editResult({
-            text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false,
         });
@@ -39,7 +39,7 @@ const infoUPF: FormInfo<FormUPF, FormUPF, [], 'UPF'> = ({
     },
     showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
     createWidgetData: (_, u) => u,
-    title: t => t.commissioning,
+    title: t => t.fve.title,
 });
 
 export default infoUPF;

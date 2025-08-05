@@ -74,15 +74,14 @@ const infoSP = (() => {
 
             if (response!.ok) return true;
             else editResult({
-                text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+                text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
                 red: true,
                 load: false,
             });
         },
         createWidgetData: (_, p) => p,
-        title: (_, mode) => mode == 'edit'
-            ? `Editace SP`
-            : `Instalační a servisní protokol`,
+        title: (t, mode) =>
+            mode == 'edit' ? t.sp.editSP : t.sp.title,
         onMount: async (d, p, _, ir) => {
             await startTechniciansListening();
             await startSparePartsListening();

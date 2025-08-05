@@ -181,7 +181,7 @@ const initValue = function <D, U, H extends boolean>(widget: Required<D, U, H>, 
     widget.show = toGet(args.show ?? true);
     widget.showTextValue = toGet(args.showInXML ?? (data => widget.show(data)));
     widget.hideInRawData = (args.hideInRawData ?? false) as H;
-    widget.onError = toGet(args.onError ?? 'requiredField');
+    widget.onError = toGet(args.onError ?? 'widget.requiredField');
     widget.required = toGet(args.required ?? true);
     widget.onValueSet = args.onValueSet ?? (() => {});
 };

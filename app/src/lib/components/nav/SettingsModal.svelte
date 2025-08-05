@@ -3,15 +3,16 @@
     import type { Translations } from '$lib/translations';
 
     const { t }: { t: Translations } = $props();
+    const ts = $derived(t.nav.settings);
 </script>
 
 <div class="modal fade" id="settings" tabindex="-1" aria-labelledby="settingsLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="settingsLabel">{t.settings.title}</h4>
+                <h4 class="modal-title" id="settingsLabel">{ts.title}</h4>
                 <button
-                    aria-label={t.close}
+                    aria-label={ts.close}
                     class="btn-close"
                     data-bs-dismiss="modal"
                 ></button>
@@ -25,7 +26,7 @@
                 <button
                     class="btn btn-primary"
                     data-bs-dismiss="modal"
-                >{t.close}</button>
+                >{ts.close}</button>
             </div>
         </div>
     </div>

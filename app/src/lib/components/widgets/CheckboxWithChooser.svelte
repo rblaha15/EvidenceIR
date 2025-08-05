@@ -41,7 +41,7 @@
         <label class="form-floating d-block" id="label-{uid}">
             {#if widget.value.checked}
                 <select class="form-select" value={widget.value.chosen ?? 'notChosen'} onchange={onChange} use:Select>
-                    <option class="d-none" value='notChosen'>{t.notChosen}</option>
+                    <option class="d-none" value='notChosen'>{t.widget.notChosen}</option>
                     {#each widget.options(data) as moznost}
                         <option value={moznost}>{t.get(moznost)}</option>
                     {/each}

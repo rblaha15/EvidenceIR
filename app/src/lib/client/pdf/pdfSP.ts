@@ -3,11 +3,11 @@
 import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import '$lib/extensions';
-import { endUserName, irName, spName } from '$lib/helpers/ir';
+import { endUserName, endUserName2, irName, spName } from '$lib/helpers/ir';
 import { type GetPdfData, pdfInfo } from '$lib/client/pdf';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 
-const cenik = {
+const prices = {
     transportation: 9.92,
     work: 661.16,
     regulusRoute: 826.45,
@@ -20,9 +20,9 @@ const cenik = {
     yearlySOLCheck: 1239.67,
     withoutCode: 0,
 } as const;
-type C = keyof typeof cenik
+type P = keyof typeof prices
 
-const kody = {
+const codes = {
     assemblyWork: 18261,
     technicalAssistance: 12510,
     technicalAssistance12: 20482,
@@ -36,22 +36,22 @@ const kody = {
     yearlySOLCheck: 9782,
     withoutCode: 0,
 } as const;
-type K = keyof typeof kody
+type C = keyof typeof codes
 
 type A<S extends string> = S | `${string}.${S}` | null
 
-const cena = (subject: A<C>) => cenik[subject!.split('.').at(-1) as C];
-const kod = (subject: A<K>) => kody[subject!.split('.').at(-1) as K];
+const price = (subject: A<P>) => prices[subject!.split('.').at(-1) as P];
+const code = (subject: A<C>) => codes[subject!.split('.').at(-1) as C];
 
-const poleProUkony = [
-    { typ: 'Kombinované pole33', kod: 'Text26', cena: 'Text36', mnozstvi: 'Text84' },
-    { typ: 'Kombinované pole34', kod: 'Text27', cena: 'Text37', mnozstvi: 'Text85' },
-    { typ: 'Kombinované pole35', kod: 'Text28', cena: 'Text38', mnozstvi: 'Text86' },
+const fieldsOperations = [
+    { type: 'Kombinované pole33', code: 'Text26', price: 'Text36', amount: 'Text84' },
+    { type: 'Kombinované pole34', code: 'Text27', price: 'Text37', amount: 'Text85' },
+    { type: 'Kombinované pole35', code: 'Text28', price: 'Text38', amount: 'Text86' },
 ];
 
-const poleProDilyS = 44;
-const poleProDily = (['nazev', 'kod', 'mnozstvi', 'sklad', 'cena'] as const)
-    .associateWith((_, i) => poleProDilyS + i * 8);
+const fieldsPartsStart = 44;
+const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
+    .associateWith((_, i) => fieldsPartsStart + i * 8);
 
 const multilineLineLength = 70;
 const multilineMaxLength = multilineLineLength * 4;
@@ -64,6 +64,7 @@ const inlineTooLong = (text: string) => text.length > inlineMaxLength;
 
 export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols }, t, addDoc, index, lang }) => {
     const pumps = e.tc.model ? cascadePumps(e, t) : [];
+    const ts = t.sp
     const p = installationProtocols[index];
     return pdfNSP({
         data: {
@@ -78,7 +79,7 @@ export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installatio
                     (e.fve?.pocet ? `\nFVE: ${t.get(e.fve.typ)} – ${e.fve.pocet}x` : '') +
                     (e.fve?.akumulaceDoBaterii ? `; baterie: ${e.fve.typBaterii} – ${e.fve.kapacitaBaterii} kWh` : '') +
                     (e.jine?.popis ? `\nJiné zařízení: ${e.jine.popis}` : '') +
-                    (e.tc.model ? '\n' + formatovatCerpadla(pumps.map(t.pumpDetails)) : ''),
+                    (e.tc.model ? '\n' + pumps.map(ts.pumpDetails).join('; ') : ''),
                 pocetTC: pumps.length,
             },
         }, t, addDoc, lang,
@@ -86,19 +87,20 @@ export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installatio
 };
 
 export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
+    const ts = t.sp
     console.log(p);
-    const montazka = await nazevAdresaFirmy(p.montazka.ico, fetch);
-    const nahradniDily = [
+    const assemblyCompany = await nazevAdresaFirmy(p.montazka.ico, fetch);
+    const spareParts = [
         p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
         p.nahradniDil5, p.nahradniDil6, p.nahradniDil7, p.nahradniDil8,
     ].slice(0, p.nahradniDily.pocet);
-    const cenaDopravy = cenik.transportation * Number(p.ukony.doprava);
-    const cenaPrace = p.ukony.typPrace ? cenik.work * Number(p.ukony.doba) : 0;
-    const cenaUkony = p.ukony.ukony.sumBy(typ => cena(typ) * (typ == 'sp.commissioningTC' || typ == 'sp.yearlyHPCheck' ? p.system.pocetTC : 1));
-    const cenaDily = nahradniDily.sumBy(dil => Number(dil.unitPrice) * Number(dil.mnozstvi));
-    const cenaOstatni = cenaUkony + cenaDily;
-    const celkem = cenaDopravy + cenaPrace + cenaOstatni;
-    const dph = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21;
+    const priceTransportation = prices.transportation * Number(p.ukony.doprava);
+    const priceWork = p.ukony.typPrace ? prices.work * Number(p.ukony.doba) : 0;
+    const priceOperations = p.ukony.ukony.sumBy(typ => price(typ) * (typ == 'sp.commissioningTC' || typ == 'sp.yearlyHPCheck' ? p.system.pocetTC : 1));
+    const priceParts = spareParts.sumBy(dil => Number(dil.unitPrice) * Number(dil.mnozstvi));
+    const priceOther = priceOperations + priceParts;
+    const sum = priceTransportation + priceWork + priceOther;
+    const tax = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21;
     let response: Response;
     try {
         response = await fetch(`/signatures/${p.zasah.inicialy}.jpg`);
@@ -113,62 +115,62 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
     if (multilineTooLong(system) || inlineTooLong(zavada) || multilineTooLong(zasah))
         await addDoc({ args: pdfInfo.PS, data: p, lang: 'cs' });
 
-    if (dph == 1.12) await addDoc({ args: pdfInfo.CP, data: p, lang: 'cs' });
+    if (tax == 1.12) await addDoc({ args: pdfInfo.CP, data: p, lang: 'cs' });
 
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
         Text1: spName(p.zasah),
-        Text29: p.koncovyUzivatel.typ == 'company' ? `${t.companyName}:` : `${t.name} a ${t.surname.toLowerCase()}:`,
+        Text29: p.koncovyUzivatel.typ == 'company' ? `${t.in.companyName}:` : `${t.in.name} a ${t.in.surname.toLowerCase()}:`,
         Text2: endUserName(p.koncovyUzivatel),
-        Text30: p.koncovyUzivatel.typ == 'company' ? t.crn : t.birthday,
+        Text30: p.koncovyUzivatel.typ == 'company' ? t.in.crn : t.in.birthday,
         Text3: p.koncovyUzivatel.typ == 'company'
             ? p.koncovyUzivatel.ico : p.koncovyUzivatel.narozeni.length == 0 ? null : p.koncovyUzivatel.narozeni,
         Text4: `${p.bydliste.ulice}, ${p.bydliste.psc} ${p.bydliste.obec}`,
         Text5: p.koncovyUzivatel.telefon,
         Text6: p.koncovyUzivatel.email,
-        Text7: montazka?.obchodniJmeno ?? null,
+        Text7: assemblyCompany?.obchodniJmeno ?? null,
         Text8: p.montazka.ico,
         Text9: p.montazka.zastupce,
-        Text10: montazka?.sidlo.textovaAdresa ?? null,
+        Text10: assemblyCompany?.sidlo.textovaAdresa ?? null,
         Text11: p.montazka.telefon,
         Text12: p.montazka.email,
         Text13: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
-        Text14: multilineTooLong(system) ? 'Viz druhá strana' : system,
+        Text14: multilineTooLong(system) ? ts.seeSecondPage : system,
         Text15: dateFromISO(p.zasah.datum),
         Text16: p.zasah.datumUvedeni ? dateFromISO(p.zasah.datumUvedeni) : null,
         Text17: p.zasah.clovek,
         'Zaškrtávací pole28': p.zasah.zaruka == `sp.warrantyCommon`,
         'Zaškrtávací pole29': p.zasah.zaruka == `sp.warrantyExtended`,
-        Text19: inlineTooLong(zavada) ? 'Viz druhá strana' : zavada,
-        Text20: multilineTooLong(zasah) ? 'Viz druhá strana' : zasah,
+        Text19: inlineTooLong(zavada) ? ts.seeSecondPage : zavada,
+        Text20: multilineTooLong(zasah) ? ts.seeSecondPage : zasah,
         Text21: p.ukony.doprava + ' km',
-        Text22: cenik.transportation.roundTo(2).toLocaleString('cs') + ' Kč',
-        'Kombinované pole32': t.get(p.ukony.typPrace) ?? 'Zásah',
-        Text25: p.ukony.typPrace ? kod(p.ukony.typPrace).toString().let(k => k == '0' ? '' : k) : '',
+        Text22: prices.transportation.roundTo(2).toLocaleString('cs') + ' Kč',
+        'Kombinované pole32': t.get(p.ukony.typPrace) ?? ts.intervention,
+        Text25: p.ukony.typPrace ? code(p.ukony.typPrace).toString().let(k => k == '0' ? '' : k) : '',
         Text23: p.ukony.doba + ' h',
-        Text24: p.ukony.typPrace ? cenik.work.roundTo(2).toLocaleString('cs') + ' Kč' : '',
-        ...poleProUkony.map(p => [p.typ, ' '] as const).toRecord(),
+        Text24: p.ukony.typPrace ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '',
+        ...fieldsOperations.map(p => [p.type, ' '] as const).toRecord(),
         ...p.ukony.ukony.map((typ, i) => [
-            [poleProUkony[i].typ, t.get(typ)],
-            [poleProUkony[i].cena, cena(typ).roundTo(2).toLocaleString('cs') + ' Kč'],
-            [poleProUkony[i].kod, kod(typ).toString()],
-            [poleProUkony[i].mnozstvi, typ == 'sp.commissioningTC' || typ == 'sp.yearlyHPCheck' ? p.system.pocetTC + ' ks' : ''],
+            [fieldsOperations[i].type, t.get(typ)],
+            [fieldsOperations[i].price, price(typ).roundTo(2).toLocaleString('cs') + ' Kč'],
+            [fieldsOperations[i].code, code(typ).toString()],
+            [fieldsOperations[i].amount, typ == 'sp.commissioningTC' || typ == 'sp.yearlyHPCheck' ? p.system.pocetTC + ' ks' : ''],
         ] as const).flat().toRecord(),
-        ...nahradniDily.map((dil, i) => [
-            [`Text${poleProDily.nazev + i}`, dil.name],
-            [`Text${poleProDily.kod + i}`, dil.code],
-            [`Text${poleProDily.mnozstvi + i}`, dil.mnozstvi + ' ks'],
-            [`Text${poleProDily.sklad + i}`, dil.warehouse],
-            [`Text${poleProDily.cena + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString('cs') + ' Kč'],
+        ...spareParts.map((dil, i) => [
+            [`Text${fieldsParts.name + i}`, dil.name],
+            [`Text${fieldsParts.code + i}`, dil.code],
+            [`Text${fieldsParts.amount + i}`, dil.mnozstvi + ' ks'],
+            [`Text${fieldsParts.warehouse + i}`, dil.warehouse],
+            [`Text${fieldsParts.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString('cs') + ' Kč'],
         ] as const).flat().toRecord(),
-        Text31: cenaDopravy.roundTo(2).toLocaleString('cs') + ' Kč',
-        Text32: cenaPrace.roundTo(2).toLocaleString('cs') + ' Kč',
-        Text33: cenaOstatni.roundTo(2).toLocaleString('cs') + ' Kč',
-        Text34: celkem.roundTo(2).toLocaleString('cs') + ' Kč',
-        Text18: `${(dph * 100 - 100).toFixed(0)} %`,
-        Text35: (celkem * dph).roundTo(2).toLocaleString('cs') + ' Kč',
+        Text31: priceTransportation.roundTo(2).toLocaleString('cs') + ' Kč',
+        Text32: priceWork.roundTo(2).toLocaleString('cs') + ' Kč',
+        Text33: priceOther.roundTo(2).toLocaleString('cs') + ' Kč',
+        Text34: sum.roundTo(2).toLocaleString('cs') + ' Kč',
+        Text18: `${(tax * 100 - 100).toFixed(0)} %`,
+        Text35: (sum * tax).roundTo(2).toLocaleString('cs') + ' Kč',
         Text39: t.get(p.fakturace.hotove),
-        Text40: p.fakturace.hotove == 'no' ? 'Fakturovat:' : '',
+        Text40: p.fakturace.hotove == 'no' ? `${ts.invoice}:` : '',
         Text41: p.fakturace.hotove == 'no' ? t.get(p.fakturace.komu) : '',
         Text42: p.fakturace.hotove == 'no' ? t.get(p.fakturace.jak) : '',
         Text43: p.fakturace.komu == 'assemblyCompany' ? p.montazka.zastupce : endUserName(p.koncovyUzivatel),
@@ -177,23 +179,23 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
 };
 export default pdfSP;
 
-const formatovatCerpadla = (a: string[]) => a.join('; ');//[a.slice(0, 2).join('; '), a.slice(2, 4).join('; ')].join('\n');
-
+//[a.slice(0, 2).join('; '), a.slice(2, 4).join('; ')].join('\n');
 export const pdfCP: GetPdfData<'CP'> = async ({ data: p }) => ({
-    Text1: `${p.koncovyUzivatel.prijmeni} ${p.koncovyUzivatel.jmeno}`,
+    Text1: endUserName2(p.koncovyUzivatel),
     Text2: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
     Text3: dateFromISO(p.zasah.datum),
 });
 
-export const pdfPS: GetPdfData<'PS'> = async ({ data: p }) => {
+export const pdfPS: GetPdfData<'PS'> = async ({ data: p, t }) => {
+    const ts = t.sp
     const system = p.system.popis;
     const zavada = p.zasah.nahlasenaZavada;
     const zasah = p.zasah.popis;
     return {
         Text1: [
-            multilineTooLong(system) ? 'Popis systému:\n' + system : '',
-            inlineTooLong(zavada) ? 'Nahlášená závada: ' + zavada : '',
-            multilineTooLong(zasah) ? 'Popis zásahu:\n' + zasah : '',
+            multilineTooLong(system) ? `${ts.systemDescription}:\n${system}` : '',
+            inlineTooLong(zavada) ? `${ts.reportedFault}: ${zavada}` : '',
+            multilineTooLong(zasah) ? `${ts.interventionDescription}:\n${zasah}` : '',
         ].filter(Boolean).join('\n\n'),
     };
 };

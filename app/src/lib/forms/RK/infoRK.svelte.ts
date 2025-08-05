@@ -45,17 +45,17 @@ const infoRK = (() => {
 
             if (response!.ok) return;
             editResult({
-                text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+                text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
                 red: true,
                 load: false,
             });
             return false;
         },
         showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
-        title: t => t.yearlyHPCheckNr([`${tc()}`]),
+        title: t => t.rk.formTitle({ n: `${tc()}` }),
         createWidgetData: () => {
         },
-        subtitle: t => `${t.year}: ${rok.toString() ?? '…'}`,
+        subtitle: t => `${t.rk.year}: ${rok.toString() ?? '…'}`,
         onMount: async (d, k) => {
             if (!k.info.datum.value)
                 k.info.datum.setValue(d, todayISO());

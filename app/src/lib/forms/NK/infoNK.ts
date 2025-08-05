@@ -53,7 +53,7 @@ const infoNK: IndependentFormInfo<FormNK, FormNK, [[FriendlyCompanies], [Person[
             return true;
         }
         else editResult({
-            text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false,
         });

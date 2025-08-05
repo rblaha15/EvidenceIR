@@ -1,5 +1,5 @@
 <script generics="D, I extends TranslationReference" lang="ts">
-    import type { Translations } from '$lib/translations';
+    import type { Translations, TranslationReference } from '$lib/translations';
     import { type ChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
@@ -23,7 +23,7 @@
             <span class="input-group-text">{labelAndStar(widget, data, t)}</span>
             <select class="form-select flex-grow-1" value={widget.value ?? 'notChosen'}
                     onchange={onChange} disabled={widget.lock(data)}>
-                <option class="d-none" value='notChosen'>{t.notChosen}</option>
+                <option class="d-none" value='notChosen'>{t.widget.notChosen}</option>
                 {#each widget.options(data) as moznost}
                     <option value={moznost}>{t.get(moznost)}</option>
                 {/each}
@@ -33,7 +33,7 @@
         <label class="form-floating d-block">
             <select class="form-select" value={widget.value ?? 'notChosen'} onchange={onChange}
                     disabled={widget.lock(data)}>
-                <option class="d-none" value='notChosen'>{t.notChosen}</option>
+                <option class="d-none" value='notChosen'>{t.widget.notChosen}</option>
                 {#each widget.options(data) as moznost}
                     <option value={moznost}>{t.get(moznost)}</option>
                 {/each}

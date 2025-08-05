@@ -38,7 +38,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
         if (!edit && irid && getIsOnline() && await db.existsIR(irid)) {
             editResult({
                 red: true, load: false,
-                text: t.irExistsHtml({ link: detailIrUrl(irid) }),
+                text: t.in.irExistsHtml({ link: detailIrUrl(irid) }),
             });
             return;
         }
@@ -98,7 +98,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
         console.log(response2)
 
         if (!response1.ok) editResult({
-            text: t.emailNotSent({ status: String(response1!.status), statusText: response1!.statusText }),
+            text: t.form.emailNotSent({ status: String(response1!.status), statusText: response1!.statusText }),
             red: true,
             load: false,
         });
@@ -107,7 +107,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
     },
     redirectLink: async raw => detailIrUrl(extractIRIDFromRawData(raw)),
     createWidgetData: d => d,
-    title: (t, mode) => mode == 'edit' ? t.editing : mode == 'view' ? t.evidenceDetails : t.controllerRegistration,
+    title: (t, mode) => mode == 'edit' ? t.in.editing : mode == 'view' ? t.detail.titleIR : t.in.title,
     getEditData: async url => {
         const irid = url.searchParams.get('edit-irid') as IRID | null;
         if (!irid) return undefined;
@@ -143,7 +143,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
             data.uvedeni.regulus.items = () => $technicians.filter(t => t.email.endsWith('cz'));
         }, [techniciansList]],
         [(_, data, [$companies]) => {
-            data.uvedeni.company.items = () => $companies.commissioningCompanies;
+            data.uvedeni.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
             data.montazka.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
         }, [companies]],
         [(_, data, [$isUserRegulusOrAdmin]) => {

@@ -77,7 +77,7 @@
                 class="btn btn-outline-primary"
                 onclick={() => inputSelect?.click()}
             >
-                {multiple ? t.selectFiles : t.selectFile}
+                {multiple ? t.widget.selectFiles : t.widget.selectFile}
             </button>
         {/if}
 
@@ -86,7 +86,7 @@
                 {#each widget.value as { fileName, uuid }}
                     <li class="d-flex w-100 align-items-center list-group-item gap-3">
                         <div class="flex-grow-1 flex-shrink-1" style="word-break: break-all">{fileName}</div>
-                        <button class="btn text-danger" onclick={remove(uuid)}><i class="my-1 bi-trash"></i> {t.remove}</button>
+                        <button class="btn text-danger" onclick={remove(uuid)}><i class="my-1 bi-trash"></i> {t.widget.remove_File}</button>
                     </li>
                 {/each}
             </ul>
