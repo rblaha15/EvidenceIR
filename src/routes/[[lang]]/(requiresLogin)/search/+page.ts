@@ -40,8 +40,7 @@ export const load: PageLoad = async ({ parent }) => {
                 name: irName(ir.evidence.ir),
                 label: irLabel(ir.evidence),
             } satisfies Installation_PublicServiceProtocol))
-            .filter(i => i.id)
-            .toSorted((a, b) => a.id.localeCompare(b.id)),
+            .filter(i => i.id),
     );
 
 
@@ -54,17 +53,17 @@ export const load: PageLoad = async ({ parent }) => {
                 .map(([label, sps]) => ({
                     t: 'SP',
                     id: sps.map(sp => extractSPIDFromRawData(sp.zasah)),
-                    name: sps.length == 1 ? spName(sps[0].zasah) : ts.nProtocols({ n: `${sps.length}` }),
+                    name: sps.length == 1 ? spName(sps[0].zasah) : sps.length < 4 ? ts.nFewProtocols({ n: `${sps.length}` }) : ts.nMoreProtocols({ n: `${sps.length}` }),
                     label: label,
-                } satisfies Installation_PublicServiceProtocol))
-                .toSorted((a, b) => a.label.localeCompare(b.label)),
+                } satisfies Installation_PublicServiceProtocol)),
         );
 
     return {
         items: derived(
             [installations, protocols],
             ([$installations, $protocols]) =>
-                [...$installations, ...$protocols],
+                [...$installations, ...$protocols]
+                    .toSorted((a, b) => a.label.localeCompare(b.label)),
         ),
     };
 };

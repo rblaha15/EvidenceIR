@@ -59,7 +59,8 @@ export default {
         titleControllers: 'Vyhledávání instalací',
         titleControllersAndProtocols: 'Vyhledávání instalací a nezávislých servisních protokolů',
         search: `Vyhledat`,
-        nProtocols: t`${'n'} protokolů`
+        nFewProtocols: t`${'n'} protokoly`,
+        nMoreProtocols: t`${'n'} protokolů`,
     },
     auth: {
         signUp: `Registrace`,
