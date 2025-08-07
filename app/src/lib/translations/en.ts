@@ -7,7 +7,8 @@ const en: PlainTranslations = {
         titleControllers: 'Search installations',
         titleControllersAndProtocols: 'Search installations and independent service protocols',
         search: `Search`,
-        nProtocols: t`${'n'} protocols`
+        nFewProtocols: t`${'n'} protocols`,
+        nMoreProtocols: t`${'n'} protocols`,
     },
     auth: {
         password: 'Password',
