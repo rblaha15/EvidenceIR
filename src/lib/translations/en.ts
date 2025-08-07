@@ -7,6 +7,7 @@ const en: PlainTranslations = {
         titleControllers: 'Search installations',
         titleControllersAndProtocols: 'Search installations and independent service protocols',
         search: `Search`,
+        nProtocols: t`${'n'} protocols`
     },
     auth: {
         password: 'Password',
@@ -228,6 +229,7 @@ const en: PlainTranslations = {
         successfullyDeleted: `Record successfully deleted.`,
         titleIR: 'Installation details',
         titleNSP: 'Service protocol',
+        titleNSPs: 'Service protocols',
         linkInvalidIR: `Either the installation record doesn't exist or you don't have access to it.`,
         linkInvalidNSP: `Either the protocol doesn't exist or you don't have access to it.`,
         sendDocuments: `Sent signed documents`,
@@ -241,7 +243,7 @@ const en: PlainTranslations = {
         newIRIDLabel: `IRID (from the URL address)`,
         copyNSP: `Copy installation information to a new protocol`,
         copySP: `Do you want to create a copy for reporting service intervention by multiple persons?`,
-        transferProtocol: `Transfer the protocol to a controller (won't be delete)`,
+        transferProtocol: `Transfer the protocol to a controller (won't be deleted)`,
         deleteProtocol: `Delete the protocol`,
         duplicate: `Duplicate`,
         yes: `Yes`,

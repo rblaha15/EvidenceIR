@@ -302,6 +302,11 @@ declare global {
             this: T[],
             callback: (value: T, index: number, array: T[]) => number,
         ): number;
+
+        groupBy<K extends PropertyKey, T>(
+            this: T[],
+            keySelector: (item: T, index: number) => K,
+        ): Record<K, T[]>
     }
 
     interface ReadonlyArray<T> {
@@ -404,6 +409,10 @@ Array.prototype.associateWithSelf = function<T extends PropertyKey>(
 
 Array.prototype.awaitAll = <typeof Array.prototype.awaitAll>function() {
     return Promise.all(this);
+};
+
+Array.prototype.groupBy = <typeof Array.prototype.groupBy>function(ks) {
+    return Object.groupBy(this, ks);
 };
 
 Array.prototype.distinctBy = function <T, K>(
