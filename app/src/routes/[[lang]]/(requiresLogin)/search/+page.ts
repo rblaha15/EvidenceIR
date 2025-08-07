@@ -4,8 +4,9 @@ import db from '$lib/data';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, irLabel, irName, type SPID, spName } from '$lib/helpers/ir';
 import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { browser } from '$app/environment';
-import { derived, type Readable, readable } from 'svelte/store';
+import { derived, readable } from 'svelte/store';
 import { error } from '@sveltejs/kit';
+import '$lib/extensions';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
@@ -18,41 +19,46 @@ export type Installation_PublicServiceProtocol = {
     name: string,
 } | {
     t: 'SP',
-    id: SPID,
+    id: SPID[],
     label: string,
     name: string,
 }
 
-export const load: PageLoad = async () => {
+export const load: PageLoad = async ({ parent }) => {
     if (!browser) return { items: readable([]) };
     if (!await checkAuth()) error(401);
 
-    const irs = db.getAllIRsAsStore();
-    const installations = derived(irs, $irs => $irs
-        .map(ir => ({
-            t: 'IR',
-            id: extractIRIDFromRawData(ir.evidence),
-            name: irName(ir.evidence.ir),
-            label: irLabel(ir.evidence),
-        } satisfies Installation_PublicServiceProtocol))
-        .filter(i => i.id)
-        .toSorted((a, b) => a.id.localeCompare(b.id)));
+    const data = await parent();
+    const ts = data.translations.search;
 
-    let protocols: Readable<Installation_PublicServiceProtocol[]>;
-
-    if (!await checkRegulusOrAdmin()) protocols = readable([]);
-    else {
-        const sps = db.getAllIndependentProtocolsAsStore();
-        protocols = derived(sps, $sps => $sps
-            .map(sp => ({
-                t: 'SP',
-                id: extractSPIDFromRawData(sp.zasah),
-                name: spName(sp.zasah),
-                label: irLabel(sp),
+    const installations = derived(
+        db.getAllIRsAsStore(),
+        $irs => $irs
+            .map(ir => ({
+                t: 'IR',
+                id: extractIRIDFromRawData(ir.evidence),
+                name: irName(ir.evidence.ir),
+                label: irLabel(ir.evidence),
             } satisfies Installation_PublicServiceProtocol))
             .filter(i => i.id)
-            .toSorted((a, b) => -a.id.localeCompare(b.id)));
-    }
+            .toSorted((a, b) => a.id.localeCompare(b.id)),
+    );
+
+
+    const protocols = !await checkRegulusOrAdmin()
+        ? readable([])
+        : derived(
+            db.getAllIndependentProtocolsAsStore(),
+            $sps => Object.entries($sps
+                .groupBy(sp => irLabel(sp)))
+                .map(([label, sps]) => ({
+                    t: 'SP',
+                    id: sps.map(sp => extractSPIDFromRawData(sp.zasah)),
+                    name: sps.length == 1 ? spName(sps[0].zasah) : ts.nProtocols({ n: `${sps.length}` }),
+                    label: label,
+                } satisfies Installation_PublicServiceProtocol))
+                .toSorted((a, b) => a.label.localeCompare(b.label)),
+        );
 
     return {
         items: derived(

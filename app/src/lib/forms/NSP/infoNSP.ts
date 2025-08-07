@@ -16,7 +16,7 @@ import { companies } from '$lib/helpers/companies';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { extractSPIDFromRawData, type IRID, type SPID, spName } from '$lib/helpers/ir';
+import { extractSPIDFromRawData, type SPID, spName } from '$lib/helpers/ir';
 import db from '$lib/data';
 import { type DataNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
@@ -32,7 +32,7 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
             ...defaultAddresses(),
             subject: `Nový servisní protokol: ${spName(raw.zasah)}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, url: page.url.origin + detailSpUrl(extractSPIDFromRawData(raw.zasah)) },
+            props: { name: raw.zasah.clovek, url: page.url.origin + detailSpUrl([extractSPIDFromRawData(raw.zasah)]) },
         });
 
         if (response!.ok) return true;
@@ -42,7 +42,7 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
             load: false,
         });
     },
-    redirectLink: async raw => detailSpUrl(extractSPIDFromRawData(raw.zasah)),
+    redirectLink: async raw => detailSpUrl([extractSPIDFromRawData(raw.zasah)]),
     openPdf: async raw => ({
         link: 'NSP',
         spid: extractSPIDFromRawData(raw.zasah),

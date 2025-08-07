@@ -52,7 +52,6 @@ export interface ReadDatabase {
 
     existsIR(irid: IRID): Promise<boolean>;
 
-
     getIndependentProtocol(spid: SPID): Promise<Raw<FormNSP> | undefined>;
 
     getIndependentProtocolAsStore(spid: SPID): Readable<Raw<FormNSP> | undefined>;

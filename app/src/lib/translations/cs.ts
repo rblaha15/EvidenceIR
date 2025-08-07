@@ -59,6 +59,7 @@ export default {
         titleControllers: 'Vyhledávání instalací',
         titleControllersAndProtocols: 'Vyhledávání instalací a nezávislých servisních protokolů',
         search: `Vyhledat`,
+        nProtocols: t`${'n'} protokolů`
     },
     auth: {
         signUp: `Registrace`,
@@ -258,6 +259,7 @@ export default {
     detail: {
         titleIR: 'Podrobnosti o instalaci',
         titleNSP: 'Instalační a servisní protokol',
+        titleNSPs: 'Instalační a servisní protokoly',
         sorrySomethingWentWrong: `Omlouváme se, něco se nepovedlo.`,
         successfullyDeleted: `Záznam úspěšně odstraněn`,
         linkInvalidIR: `Buď záznam o instalaci neexistuje nebo k němu nemáte přístup.`,

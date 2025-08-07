@@ -5,6 +5,7 @@
     import { getForm } from '$lib/forms/forms.js';
     import type { IRID, SPID } from '$lib/helpers/ir';
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { invalidateAll } from '$app/navigation';
 
     const { t }: { t: Translations } = $props();
     const tn = $derived(t.nav);
@@ -50,9 +51,9 @@
     })}
     {@render item({
         url: isDetailPage
-            ? page.data.spid ? detailSpUrl() : detailIrUrl()
-            : externalSPID ? detailSpUrl(externalSPID) : detailIrUrl(externalIRID),
-        label: (page.data.spid || externalSPID) ? tn.protocolDetails : tn.installationDetails,
+            ? page.data.spids ? detailSpUrl() : detailIrUrl()
+                : externalSPID ? detailSpUrl([externalSPID]) : detailIrUrl(externalIRID),
+        label: (page.data.spids || externalSPID) ? tn.protocolDetails : tn.installationDetails,
         selected: true, shown: isDetailPage || externalIRID || externalSPID,
     })}
     {@render item({
