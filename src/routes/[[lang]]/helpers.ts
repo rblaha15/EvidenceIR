@@ -1,4 +1,4 @@
-import type { IRID, SPID } from '$lib/helpers/ir';
+import { type IRID, type SPID, spids } from '$lib/helpers/ir';
 import { languageCodes } from '$lib/languages';
 import { forms } from '$lib/forms/forms.js';
 import { type OpenPdfOptions, type Pdf, pdfInfo } from '$lib/pdf/pdf';
@@ -7,11 +7,11 @@ import type { Raw } from '$lib/forms/Form';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { relUrl } from '$lib/helpers/runes.svelte';
 import { page } from '$app/state';
-import { get, readable, type Readable } from 'svelte/store';
+import { derived, readable, type Readable } from 'svelte/store';
 
 export const extractIDs = (url: URL) => ({
     irid: url.searchParams.get('irid') as IRID | null,
-    spid: url.searchParams.get('spid') as SPID | null,
+    spids: url.searchParams.get('spid')?.let(spids) ?? [],
 });
 
 const langEntries = [...languageCodes, '', undefined] as const;
@@ -23,16 +23,15 @@ export const langAndFormEntryGenerator = () =>
 export const langAndPdfEntryGenerator = () =>
     langEntries.flatMap(lang => pdfInfo.mapTo(pdf => ({ lang, pdf })));
 
-
 export const getData = async (id: {
     irid: IRID | null;
-    spid: SPID | null
+    spids: SPID[];
 }): Promise<{
-    irid: IRID | null, spid: SPID | null,
-    ir: IR | undefined, sp: Raw<FormNSP> | undefined,
+    irid: IRID | null, spids: SPID[],
+    ir: IR | undefined, sps: Raw<FormNSP>[],
     success: boolean,
 }> => {
-    const base = { ...id, ir: undefined, sp: undefined, success: false };
+    const base = { ...id, ir: undefined, sps: [], success: false };
 
     try {
         if (id.irid) {
@@ -40,16 +39,16 @@ export const getData = async (id: {
 
             if (!ir) return { ...base };
             return { ...base, ir, success: true };
-        } else if (id.spid) {
-            let sp = await db.getIndependentProtocol(id.spid);
+        } else if (id.spids) {
+            const sps = await id.spids.map(async (spid, i) => {
+                const sp = await db.getIndependentProtocol(spid);
+                if (sp) return sp;
 
-            if (!sp) {
-                id.spid = id.spid.split('-').slice(0, -1).join('-') as SPID;
-                sp = await db.getIndependentProtocol(id.spid);
-            }
-
-            if (!sp) return { ...base };
-            return { ...base, sp, success: true };
+                spid = spid.split('-').slice(0, -1).join('-') as SPID;
+                id.spids[i] = spid;
+                return await db.getIndependentProtocol(spid);
+            }).awaitAll();
+            return { ...base, sps: sps.filterNotUndefined(), success: true };
         }
     } catch (e) {
         console.log(e);
@@ -61,12 +60,12 @@ export const getData = async (id: {
 
 export const getDataAsStore = (id: {
     irid: IRID | null;
-    spid: SPID | null
+    spids: SPID[]
 }): {
-    irid: IRID | null, spid: SPID | null,
-    ir: Readable<IR | undefined>, sp: Readable<Raw<FormNSP> | undefined>,
+    irid: IRID | null, spids: SPID[],
+    ir: Readable<IR | undefined>, sps: Readable<Raw<FormNSP>[]>,
 } => {
-    const base = { ...id, ir: readable(undefined), sp: readable(undefined) };
+    const base = { ...id, ir: readable(undefined), sps: readable([]) };
 
     try {
         if (id.irid) {
@@ -74,16 +73,12 @@ export const getDataAsStore = (id: {
 
             if (!ir) return { ...base };
             return { ...base, ir };
-        } else if (id.spid) {
-            let sp = db.getIndependentProtocolAsStore(id.spid);
-
-            if (!get(sp)) {
-                id.spid = id.spid.split('-').slice(0, -1).join('-') as SPID;
-                sp = db.getIndependentProtocolAsStore(id.spid);
-            }
-
-            if (!sp) return { ...base };
-            return { ...base, sp };
+        } else if (id.spids) {
+            const sps = derived(
+                id.spids.map(db.getIndependentProtocolAsStore),
+                a => a.filterNotUndefined(),
+            );
+            return { ...base, sps };
         }
     } catch (e) {
         console.log(e);

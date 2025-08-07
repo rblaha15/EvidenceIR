@@ -26,12 +26,12 @@ export const load: PageLoad = async ({ parent, params, url }) => {
     const id = extractIDs(url);
     if (pdf.type == 'IR' && !id.irid)
         return error(400, { message: 'irid must be provided to access this document!' });
-    if (pdf.type == 'SP' && !id.spid)
+    if (pdf.type == 'SP' && !id.spids)
         return error(400, { message: 'spid must be provided to access this document!' });
 
     const data = await getData(id);
 
-    if (pdf.type == 'IR' && !data.ir || pdf.type == 'SP' && !data.sp)
+    if (pdf.type == 'IR' && !data.ir || pdf.type == 'SP' && data.sps.length != 1)
         return error(500, { message: 'Data not loaded' });
 
     const parameters = [...url.searchParams.entries()].toRecord().mapValues((_, v) => Number(v));
@@ -46,7 +46,7 @@ export const load: PageLoad = async ({ parent, params, url }) => {
     const d = await generatePdfUrl({
         args: pdf,
         lang: language,
-        data: pdf.type == 'IR' ? data.ir! : data.sp!,
+        data: pdf.type == 'IR' ? data.ir! : data.sps[0]!,
         ...(parameters as unknown as PdfParameters<Pdf>)
     });
 

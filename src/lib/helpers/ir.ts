@@ -145,6 +145,8 @@ export type IRID = `${IRType}${string}`;
  */
 export type SPID = `${string}-${string}-${string}`;
 
+export const spids = (spids: string) => spids.split(' ') as SPID[];
+
 export const isMacIRID = (irid: IRID) => irid.startsWith('2000A140');
 export const isMacAddress = (irNumber: string) => irNumber.startsWith('00:0A:14:0');
 
