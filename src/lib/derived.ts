@@ -4,13 +4,15 @@ import derived from '$lib/derived';
 import { TCNumbers } from '$lib/forms/IN/defaultIN';
 
 export default (tr: AddParsing<PlainTranslations>) => <const> {
-    ...(['1', ...TCNumbers] as const)
-        .zip(['first', null, 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'] as const)
-        .flatMap(([n, name]) => ([
-            [`heatPumpModel${n}`, cap(tr.heatPumpModelNr([name ? tr[name] + ' ' : '']))],
-            [`heatPumpManufactureNumber${n}`, cap(tr.heatPumpManufactureNumberNr([name ? tr[name] + ' ' : '']))],
-        ] as const))
-        .toRecord(),
+    in: {
+        ...(['1', ...TCNumbers] as const)
+            .zip(['first', null, 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'] as const)
+            .flatMap(([n, name]) => ([
+                [`heatPumpModel${n}`, cap(tr.in.heatPumpModelNr([name ? tr.countsGenitive[name] + ' ' : '']))],
+                [`heatPumpManufactureNumber${n}`, cap(tr.in.heatPumpManufactureNumberNr([name ? tr.countsGenitive[name] + ' ' : '']))],
+            ] as const))
+            .toRecord(),
+    },
     demand: {
         fve: {
             slope1: tr.demand.fve.slope(['1']),

@@ -1,5 +1,5 @@
 import { nazevFirmy } from '$lib/helpers/ares';
-import type { GetPdfData } from '$lib/client/pdf';
+import type { GetPdfData } from '$lib/pdf/pdf';
 import { endUserName, irType, isMacAddress } from '$lib/helpers/ir';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
@@ -35,6 +35,6 @@ const pdfRR: GetPdfData<'RR'> = async ({ data: { evidence: e }, t }) => ({
     Text18: cascadePumps(e, t)
         .map(tc => `${tc.cislo} (${tc.model})`)
         .join(', '),
-    Text22: e.vzdalenyPristup.plati == 'endCustomer' ? t.agreeWIthRRPrice : '',
+    Text22: e.vzdalenyPristup.plati == 'endCustomer' ? t.rr.agreeWIthRRPrice : '',
 });
 export default pdfRR;

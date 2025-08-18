@@ -41,14 +41,14 @@
 
     onMount(() => {
         const currentLangLength = page.params.lang?.length ?? -1;
-        if (!page.data.areTranslationsFromRoute)
+        if (!data.isLanguageFromUrl)
             goto(
                 '/' +
                 preferredLanguage() +
                 page.url.pathname.slice(currentLangLength + 1) +
                 page.url.search +
                 page.url.hash,
-                { replaceState: true },
+                { replaceState: true, invalidateAll: true },
             );
     });
 </script>
@@ -75,7 +75,7 @@
             <div class="container my-2 d-flex flex-column gap-3 h-100">
                 <h1 class="m-0 d-flex align-items-center gap-3">
                     {#if $backButton}
-                        <button type="button" class="btn btn-link text-body p-0" aria-label={t.back} onclick={() => history.back()}
+                        <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}
                                 style="margin: -2rem 0">
                             <i class="bi-arrow-left fs-1"></i>
                         </button>

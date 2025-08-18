@@ -7,6 +7,7 @@
     import { goto } from '$app/navigation';
 
     const { t }: { t: Translations } = $props();
+    const ta = $derived(t.auth)
 
     const loggedInEmail = $derived($currentUser?.email ?? '');
 
@@ -28,13 +29,13 @@
     <ul class="dropdown-menu dropdown-menu-end">
         <li>
             <span class="dropdown-item-text">
-                {t.email}:<br />{loggedInEmail}
+                {ta.email}:<br />{loggedInEmail}
             </span>
         </li>
         {#if $responsiblePerson}
             <li>
                 <span class="dropdown-item-text">
-                    {t.responsiblePerson}:<br />{$responsiblePerson}
+                    {ta.responsiblePerson}:<br />{$responsiblePerson}
                 </span>
             </li>
         {/if}
@@ -43,12 +44,12 @@
         </li>
         <li>
             <button onclick={changePassword} class="dropdown-item text-warning">
-                {t.changePassword}
+                {ta.changePassword}
             </button>
         </li>
         <li>
             <button class="dropdown-item text-danger" onclick={logOut}>
-                {t.toLogOut}
+                {ta.toLogOut}
             </button>
         </li>
     </ul>

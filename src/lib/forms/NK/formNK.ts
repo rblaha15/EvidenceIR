@@ -10,7 +10,7 @@ import {
     InputWithChooserWidget,
     InputWithSuggestionsWidget,
     MultiCheckboxWidget,
-    PhotoSelectorWidget,
+    PhotoSelectorWidget, RadioWidget,
     SearchWidget,
     TextWidget,
     TitleWidget,
@@ -90,29 +90,29 @@ export interface FormNK extends Form<FormNK> {
     };
     system: {
         title: TitleWidget<FormNK>
-        hPType: ChooserWidget<FormNK, `airToWater` | `groundToWater`>
-        hPModel: ChooserWidget<FormNK, `iDoNotKnow` | Products['heatPumps']>
+        hPType: RadioWidget<FormNK, `airToWater` | `groundToWater`>
+        hPModel: ChooserWidget<FormNK, `demand.system.iDoNotKnow` | Products['heatPumps']>
         indoorUnitType: ChooserWidget<FormNK, `demand.system.indoorUnitNone` | Products['indoorUnits']>
         thermalStoreType: DoubleChooserWidget<FormNK, 'demand.system.storeNone' | Products['thermalStores1'], Products['thermalStores2']>
         thermalStoreVolume: InputWidget<FormNK>
         waterTankType: ChooserWidget<FormNK, `demand.system.tankNone` | Products['waterTanks']>
         waterTankVolume: InputWidget<FormNK>
-        heatingSystem: ChooserWidget<FormNK, `iDoNotKnow` | `demand.system.heatingSystem1circuit` | `demand.system.heatingSystem2circuits` | `demand.system.heatingSystem3circuits` | `demand.system.heatingSystemInvertor` | `demand.system.heatingSystemOther`>
+        heatingSystem: ChooserWidget<FormNK, `demand.system.iDoNotKnow` | `demand.system.heatingSystem1circuit` | `demand.system.heatingSystem2circuits` | `demand.system.heatingSystem3circuits` | `demand.system.heatingSystemInvertor` | `demand.system.heatingSystemOther`>
         hotWaterCirculation: CheckboxWidget<FormNK>
         wantsPool: CheckboxWidget<FormNK>
         note: InputWidget<FormNK>
     };
     pool: {
         title: TitleWidget<FormNK>
-        usagePeriod: ChooserWidget<FormNK, `demand.pool.periodYearlong` | `demand.pool.periodSeasonal`>
-        placement: ChooserWidget<FormNK, `demand.pool.locationOutdoor` | `demand.pool.locationIndoor`>
-        waterType: ChooserWidget<FormNK, `demand.pool.freshType` | `demand.pool.saltType`>
-        shape: ChooserWidget<FormNK, `demand.pool.shapeRectangle` | `demand.pool.shapeOval` | `demand.pool.shapeCircle`>
+        usagePeriod: RadioWidget<FormNK, `demand.pool.periodYearlong` | `demand.pool.periodSeasonal`>
+        placement: RadioWidget<FormNK, `demand.pool.locationOutdoor` | `demand.pool.locationIndoor`>
+        waterType: RadioWidget<FormNK, `demand.pool.freshType` | `demand.pool.saltType`>
+        shape: RadioWidget<FormNK, `demand.pool.shapeRectangle` | `demand.pool.shapeOval` | `demand.pool.shapeCircle`>
         width: InputWidget<FormNK>
         length: InputWidget<FormNK>
         radius: InputWidget<FormNK>
         depth: InputWidget<FormNK>
-        coverage: ChooserWidget<FormNK, `demand.pool.coverageNone` | `demand.pool.coverageSolid` | `demand.pool.coveragePolycarbonate` | `demand.pool.coverageOther`>
+        coverage: RadioWidget<FormNK, `demand.pool.coverageNone` | `demand.pool.coverageSolid` | `demand.pool.coveragePolycarbonate` | `demand.pool.coverageOther`>
         desiredTemperature: InputWidget<FormNK>
         note: InputWidget<FormNK>
     };

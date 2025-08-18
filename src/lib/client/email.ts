@@ -56,7 +56,7 @@ export const sendEmail = async <Props extends Record<string, unknown>>(options: 
     });
 };
 
-export const cervenka = ['david.cervenka@regulus.cz', 'jakub.cervenka@regulus.cz'] satisfies AddressLike
+export const receiver = 'seir@regulus.cz' as const satisfies AddressLike
 
 export const SENDER: Address = {
     name: 'Regulus SEIR',
@@ -68,7 +68,7 @@ export const userAddress = (user: User) => ({
     name: user.displayName ?? '',
 }) satisfies AddressLike;
 
-export const defaultAddresses = (recipient: AddressLike = cervenka, sendCopy: boolean = false) => {
+export const defaultAddresses = (recipient: AddressLike = receiver, sendCopy: boolean = false) => {
     const user = userAddress(get(currentUser)!);
     return ({
         from: SENDER,

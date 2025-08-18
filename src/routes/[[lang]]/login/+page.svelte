@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import { logIn, setName } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
-	import { type Translations } from '$lib/translations';
+	import type { PageProps } from './$types';
 	import { onMount } from 'svelte';
 	import { setTitle } from '$lib/helpers/globals.js';
 	import { startTechniciansListening, techniciansList } from '$lib/client/realtime';
@@ -11,7 +11,8 @@
 	import { relUrl } from '$lib/helpers/runes.svelte';
 	import { goto } from '$app/navigation';
 
-	const t: Translations = page.data.translations;
+	const { data }: PageProps = $props();
+	const t = $derived(data.translations.auth);
 
 	const done = browser ? <'reset' | 'edit' | 'register'>page.url.searchParams.get('done') : null;
 
@@ -32,7 +33,7 @@
 
 	let error: string | null = $state(null);
 
-	async function prihlasitSe() {
+	async function signIn() {
 		error = '';
 		await logIn(email, password)
 			.then(c =>
@@ -57,7 +58,7 @@
 				}
 			});
 	}
-	setTitle(t.logIn)
+	$effect(() => setTitle(t.logIn))
 </script>
 
 {#if done}
@@ -78,7 +79,7 @@
 			autocomplete="email"
 			type="email"
 			class="form-control"
-			placeholder="Email"
+			placeholder={t.email}
 			bind:value={email}
 		/>
 	</div>
@@ -87,7 +88,7 @@
 			autocomplete="current-password"
 			type="password"
 			class="form-control"
-			placeholder="Heslo"
+			placeholder={t.password}
 			bind:value={password}
 		/>
 	</div>
@@ -95,7 +96,7 @@
 		<p class="text-danger mt-3 mb-0">{@html error}</p>
 	{/if}
 	<div class="d-flex align-content-center mt-3">
-		<button type="submit" class="btn btn-primary me-2" onclick={prihlasitSe}>
+		<button type="submit" class="btn btn-primary me-2" onclick={signIn}>
 			{t.toLogIn}
 		</button>
 		<button type="button" class="btn btn-secondary" onclick={() => history.back()}>

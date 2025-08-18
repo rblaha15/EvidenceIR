@@ -113,6 +113,9 @@ export const typBOX = (cisloBOX: string) => ({
 export const endUserName = (k: Raw<FormIN>['koncovyUzivatel']) =>
     k.typ == 'company' ? k.nazev : `${k.jmeno} ${k.prijmeni}`;
 
+export const endUserName2 = (k: Raw<FormIN>['koncovyUzivatel']) =>
+    k.typ == 'company' ? k.nazev : `${k.prijmeni} ${k.jmeno}`;
+
 /**
  * 2: IR 12;
  *
@@ -141,6 +144,8 @@ export type IRID = `${IRType}${string}`;
  * Moderní SP ID:   RB-2024-12-31-23-59;
  */
 export type SPID = `${string}-${string}-${string}`;
+
+export const spids = (spids: string) => spids.split(' ') as SPID[];
 
 export const isMacIRID = (irid: IRID) => irid.startsWith('2000A140');
 export const isMacAddress = (irNumber: string) => irNumber.startsWith('00:0A:14:0');

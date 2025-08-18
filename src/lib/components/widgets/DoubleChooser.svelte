@@ -37,7 +37,7 @@
         <label class="form-floating d-block left">
             <select class="form-select" value={widget.value.first ?? 'notChosen'}
                     disabled={widget.lock1(data)} onchange={onChange1}>
-                <option class="d-none" value="notChosen">{t.notChosen}</option>
+                <option class="d-none" value="notChosen">{t.widget.notChosen}</option>
                 {#each widget.options1(data) as moznost}
                     <option value={moznost}>{t.get(moznost)}</option>
                 {/each}
@@ -53,7 +53,7 @@
                 onchange={onChange2}
                 use:Select
             >
-                <option class="d-none" value="notChosen">{t.notChosen}</option>
+                <option class="d-none" value="notChosen">{t.widget.notChosen}</option>
                 {#each widget.options2(data) as moznost}
                     <option value={moznost}>{t.get(moznost)}</option>
                 {/each}

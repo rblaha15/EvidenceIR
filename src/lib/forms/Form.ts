@@ -47,7 +47,13 @@ export const rawDataToData = <F extends Form>(toData: F, rawData: Raw<F>) => {
             if (!d[key1]) console.log(`${String(key1)} does not exist in target, skipping`);
             else if (!d[key1][key2]) console.log(`${String(key1)}.${String(key2)} does not exist in target, skipping`);
             else d[key1][key2]._value = value;
-        })
+        }),
     );
     return d;
 };
+
+export const compareRawData = <F extends Form>(currentData: Raw<F>, defaultData: Raw<F>) =>
+    defaultData.entries().every(([k1, section]) =>
+        !currentData[k1] || section.entries().every(([k2, value]) =>
+            !currentData[k1][k2] || currentData[k1][k2] == value,
+        ));

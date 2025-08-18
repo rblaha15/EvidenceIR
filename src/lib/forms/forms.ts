@@ -1,5 +1,5 @@
 import type { Form, Raw } from '$lib/forms/Form';
-import type { Pdf } from '$lib/client/pdf';
+import type { Pdf } from '$lib/pdf/pdf';
 import NSP from '$lib/forms/NSP/infoNSP';
 import IN from '$lib/forms/IN/infoIN';
 import OD from '$lib/forms/OD/infoOD';
@@ -10,9 +10,10 @@ import UPS from '$lib/forms/UPS/infoUPS';
 import UPT from '$lib/forms/UPT/infoUPT';
 import UPF from '$lib/forms/UPF/infoUPF';
 import NK from '$lib/forms/NK/infoNK';
+import FT from '$lib/forms/FT/infoFT';
 
 const all = {
-    SP, UPT, UPS, RK, OD, NSP, IN, NK, UPF,
+    SP, UPT, UPS, RK, OD, NSP, IN, NK, UPF, FT,
 };
 type All = typeof all;
 

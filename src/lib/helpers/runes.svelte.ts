@@ -45,11 +45,11 @@ export const iridUrl = (url = '', id: IRID = page.data.irid, lang: LC | '?' = pa
     new URL(page.url.origin + relUrl(url, lang))
         .also(u => u.searchParams.append('irid', id))
         .let(u => u.pathname + u.search + u.hash);
-export const spidUrl = (url = '', id: SPID = page.data.spid, lang: LC | '?' = page.data.languageCode) =>
+export const spidUrl = (url = '', ids: SPID[] = page.data.spids, lang: LC | '?' = page.data.languageCode) =>
     new URL(page.url.origin + relUrl(url, lang))
-        .also(u => u.searchParams.append('spid', id))
+        .also(u => u.searchParams.append('spid', ids.join(' ')))
         .let(u => u.pathname + u.search + u.hash);
 export const detailIrUrl = (id: IRID = page.data.irid, lang: LC | '?' = page.data.languageCode) =>
     iridUrl('/detail', id, lang);
-export const detailSpUrl = (id: SPID = page.data.spid, lang: LC | '?' = page.data.languageCode) =>
-    spidUrl('/detail', id, lang);
+export const detailSpUrl = (ids: SPID[] = page.data.spids, lang: LC | '?' = page.data.languageCode) =>
+    spidUrl('/detail', ids, lang);

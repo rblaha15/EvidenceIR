@@ -4,7 +4,7 @@ import type { P } from '$lib/translations';
 import type { FormRK } from '$lib/forms/RK/formRK.js';
 import type { SparePart } from '$lib/client/realtime';
 import type { FormSP, GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
-import type { IR, Year } from '$lib/client/data';
+import type { IR, Year } from '$lib/data';
 
 export type LegacyIR = {
     uvedeni?: Raw<FormUPT>;

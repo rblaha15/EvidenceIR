@@ -6,16 +6,16 @@
     import { p } from '$lib/translations';
     import Search from '$lib/components/widgets/Search.svelte';
     import { usersList } from '$lib/client/realtime';
-    import db from '$lib/client/data';
+    import db from '$lib/data';
 
     const { data }: PageProps = $props();
 
     const { translations: t, irid, ir } = $derived(data)
 
-    setTitle('Uživatelé s přístupem k evidenci', true);
+    $effect(() => setTitle(t.users.title, true));
 
     let w = $state(new SearchWidget({
-        label: 'email', type: 'email', items: [] as string[], getSearchItem: i => ({
+        label: 'users.email', type: 'email', items: [] as string[], getSearchItem: i => ({
             pieces: [
                 { text: p(i) },
             ],
@@ -40,8 +40,7 @@
 				db.updateIRUsers(irid, [...new Set([...$ir.users, w.value])]);
 				w.setValue(undefined, null);
 			}}
-        >Přidat uživatele
-        </button>
+        >{t.users.addUser}</button>
     </div>
     <div class="list-group list-group-flush">
         {#each $ir.users as user}
@@ -52,7 +51,7 @@
                     onclick={() => {
 						db.updateIRUsers(irid, $ir.users.toSpliced($ir.users.indexOf(user), 1));
 					}}
-                    aria-label="Odstranit"
+                    aria-label={t.users.remove}
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"

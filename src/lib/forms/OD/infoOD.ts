@@ -40,14 +40,14 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
             return true;
         }
         else editResult({
-            text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false,
         });
     },
     showSaveAndSendButtonByDefault: true,
     createWidgetData: f => f,
-    title: _ => 'Odeslat podepsané dokumenty',
+    title: t => t.od.title,
     isSendingEmails: true,
     redirectLink: async _ => (page.url.searchParams.get('redirect') ?? '/IN')
 };

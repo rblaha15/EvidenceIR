@@ -5,11 +5,8 @@
     import { removeAllFiles } from '$lib/components/widgets/File.svelte';
     import { browser, dev, version } from '$app/environment';
 
-    interface Props {
-        t: Translations;
-    }
-
-    const { t }: Props = $props();
+    const { t }: { t: Translations } = $props();
+    const ts = $derived(t.nav.settings);
 
     const clearAll = async () => {
         localStorage.clear();
@@ -19,18 +16,18 @@
 </script>
 
 <div class="alert alert-primary">
-    <h4 class="alert-heading">{t.settings.userSettings}</h4>
-    <div class="d-flex align-items-center"><span class="me-1">{t.settings.appTheme}:</span>
+    <h4 class="alert-heading">{ts.userSettings}</h4>
+    <div class="d-flex align-items-center"><span class="me-1">{ts.appTheme}:</span>
         <ThemeSelector {t} />
     </div>
-    <div class="d-flex align-items-center"><span class="me-1">{t.settings.language}:</span>
+    <div class="d-flex align-items-center"><span class="me-1">{ts.language}:</span>
         <LanguageSelector />
     </div>
 </div>
 
 <div class="alert alert-info">
-    <h4 class="alert-heading">{t.settings.appInfo}</h4>
-    <p class="mb-0">{t.settings.appVersion({
+    <h4 class="alert-heading">{ts.appInfo}</h4>
+    <p class="mb-0">{ts.appVersion({
         version: appVersion,
         build: version.slice(0, 7),
         type: dev ? 'DEV' : browser ? 'BROWSER' : 'UNKNOWN'
@@ -38,7 +35,7 @@
 </div>
 
 <div class="alert alert-warning">
-    <h4 class="alert-heading">{t.settings.clearBrowserData}</h4>
-    <p>{t.settings.clearDataInfo}</p>
-    <button class="btn btn-warning btn-sm" onclick={clearAll}>{t.settings.clearBrowserData}</button>
+    <h4 class="alert-heading">{ts.clearBrowserData}</h4>
+    <p>{ts.clearDataInfo}</p>
+    <button class="btn btn-warning btn-sm" onclick={clearAll}>{ts.clearBrowserData}</button>
 </div>

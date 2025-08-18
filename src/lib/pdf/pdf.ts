@@ -1,25 +1,49 @@
 import type { LanguageCode } from '$lib/languages';
-import { p, type TranslationReference, type Translations } from '$lib/translations';
+import { type TranslationReference, type Translations } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
-import type { IR } from '$lib/client/data';
-import type { PdfGenerationData } from '$lib/client/pdfGeneration';
-import RK from '$lib/client/pdf/pdfRK';
-import NN from '$lib/client/pdf/pdfNN';
-import ZL from '$lib/client/pdf/pdfZL';
-import RR from '$lib/client/pdf/pdfRR';
-import UPT from '$lib/client/pdf/pdfUPT';
-import UPS from '$lib/client/pdf/pdfUPS';
-import SP, { pdfCP as CP, pdfNSP as NSP, pdfPS as PS } from '$lib/client/pdf/pdfSP';
-import UPF from '$lib/client/pdf/pdfUPF';
+import type { IR } from '$lib/data';
+import type { PdfGenerationData } from '$lib/pdf/pdfGeneration';
+import RK from '$lib/pdf/generators/pdfRK';
+import NN from '$lib/pdf/generators/pdfNN';
+import ZL from '$lib/pdf/generators/pdfZL';
+import RR from '$lib/pdf/generators/pdfRR';
+import UPT from '$lib/pdf/generators/pdfUPT';
+import UPS from '$lib/pdf/generators/pdfUPS';
+import SP, { pdfCP as CP, pdfNSP as NSP, pdfPS as PS } from '$lib/pdf/generators/pdfSP';
+import UPF from '$lib/pdf/generators/pdfUPF';
+import FT from '$lib/pdf/generators/pdfFT';
 import type { Raw } from '$lib/forms/Form';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import type { IRID, SPID } from '$lib/helpers/ir';
 
 type AllPdf = {
-    [P in 'RK' | 'ZL' | 'RR' | 'NN' | 'UPT' | 'UPS' | 'SP' | 'UPF']: 'IR'
-} & {
-    [P in 'NSP' | 'CP' | 'PS']: 'SP'
+    /** Roční kontrola TČ */
+    RK: 'IR'
+    /** Záruční list TČ */
+    ZL: 'IR'
+    /** Souhlas s RegulusRoute */
+    RR: 'IR'
+    /** Návod na přístup do IR  */
+    NN: 'IR'
+    /** Uvedení TČ do provozu */
+    UPT: 'IR'
+    /** Uvedení SOL do provozu */
+    UPS: 'IR'
+    /** Uvedení FVE do provozu */
+    UPF: 'IR'
+    /** Servisní protokol */
+    SP: 'IR'
+    /** Doporučení pro úsporný provoz TČ */
+    TCI: 'IR'
+    /** Nezávislý servisní protokol */
+    NSP: 'SP'
+    /** Čestné prohlášení */
+    CP: 'SP'
+    /** Prázdná sránka */
+    PS: 'SP'
+    /** FaceTable */
+    FT: 'IR'
 }
 
 export const pdfInfo: PdfInfo = {
@@ -27,49 +51,49 @@ export const pdfInfo: PdfInfo = {
         type: 'IR',
         pdfName: 'RK',
         supportedLanguages: ['cs'],
-        title: `yearlyCheckTitle`,
+        title: `rk.title`,
         getPdfData: RK,
     },
     ZL: {
         type: 'IR',
         pdfName: 'ZL',
-        supportedLanguages: ['cs', 'de'],
-        title: `hpWarranty`,
+        supportedLanguages: ['cs'],
+        title: `zl.title`,
         getPdfData: ZL,
     },
     RR: {
         type: 'IR',
         pdfName: 'RR',
-        supportedLanguages: ['cs', 'de'],
-        title: `regulusRouteTitle`,
+        supportedLanguages: ['cs'],
+        title: `rr.title`,
         getPdfData: RR,
     },
     NN: {
         type: 'IR',
         pdfName: 'NN',
         supportedLanguages: ['cs'],
-        title: p(`Návod na přístup do regulátoru IR`),
+        title: 'nn.title',
         getPdfData: NN,
     },
     UPT: {
         type: 'IR',
         pdfName: 'UPT',
-        supportedLanguages: ['cs', 'de'],
-        title: p(`Protokol o uvedení tepelného čerpadla do trvalého provozu`),
+        supportedLanguages: ['cs'],
+        title: 'tc.title',
         getPdfData: UPT,
     },
     UPS: {
         type: 'IR',
         pdfName: 'UPS',
         supportedLanguages: ['cs'],
-        title: p(`Protokol o uvedení solárního systému do trvalého provozu`),
+        title: 'sol.title',
         getPdfData: UPS,
     },
     SP: {
         type: 'IR',
         pdfName: 'SP',
         supportedLanguages: ['cs'],
-        title: p(`Instalační a servisní protokol`),
+        title: 'sp.title',
         getPdfData: SP,
         requiredRegulus: true,
     },
@@ -77,7 +101,7 @@ export const pdfInfo: PdfInfo = {
         type: 'SP',
         pdfName: 'SP',
         supportedLanguages: ['cs'],
-        title: p(`Instalační a servisní protokol`),
+        title: 'sp.title',
         requiredRegulus: true,
         getPdfData: NSP,
     },
@@ -99,8 +123,21 @@ export const pdfInfo: PdfInfo = {
         type: 'IR',
         pdfName: 'UPF',
         supportedLanguages: ['cs'],
-        title: p(`Protokol o uvedení fotovoltaického systému do trvalého provozu`),
+        title: 'fve.title',
         getPdfData: UPF,
+    },
+    TCI: {
+        type: 'IR',
+        pdfName: 'TCI',
+        supportedLanguages: ['cs'],
+        title: '',
+    },
+    FT: {
+        type: 'IR',
+        pdfName: 'FT',
+        supportedLanguages: ['cs'],
+        title: 'ft.title',
+        getPdfData: FT,
     },
 };
 
@@ -130,7 +167,8 @@ export type GeneratePdfOptions<P extends Pdf> = {
 export type GetPdfData<P extends Pdf> = (o: {
     data: DataOfPdf<P>,
     t: Translations,
-    addPage: <P extends Pdf>(o: GeneratePdfOptions<P>) => Promise<void>,
+    addDoc: <P extends Pdf>(o: GeneratePdfOptions<P>) => Promise<void>,
+    lang: LanguageCode,
 } & PdfParameters<P>) => Promise<PdfGenerationData>
 
 export type PdfArgs<P extends Pdf> = {
@@ -141,7 +179,7 @@ export type PdfArgs<P extends Pdf> = {
     saveOptions?: SaveOptions;
     requiredAdmin?: boolean;
     requiredRegulus?: boolean;
-    getPdfData: GetPdfData<P>;
+    getPdfData?: GetPdfData<P>;
 };
 
 type PdfParams = {

@@ -2,46 +2,47 @@
     import type { PageProps } from './$types';
     import { page } from '$app/state';
     import { setTitle } from '$lib/helpers/globals.js';
-    import { irNumberFromIRID, irWholeName, spWholeName } from '$lib/helpers/ir';
-    import DetailNSP from './DetailNSP.svelte';
+    import { irLabel, irNumberFromIRID, irWholeName } from '$lib/helpers/ir';
     import DetailIR from './DetailIR.svelte';
+    import DetailNSPs from './DetailNSPs.svelte';
 
     let { data }: PageProps = $props();
-    const { irid, spid, ir, sp, languageCode: lang, translations: t } = $derived(data);
+    const { irid, spids, ir, sps, languageCode: lang, translations: t } = $derived(data);
+    const td = $derived(t.detail);
 
     const deleted = $derived(page.url.searchParams.has('deleted'));
 
-    $effect(() => setTitle(spid ? 'Instalační a servisní protokol' : t.evidenceDetails, true));
+    $effect(() => setTitle(spids ? spids.length > 1 ? td.titleNSPs : td.titleNSP : td.titleIR, true));
 </script>
 
-{#if $ir || $sp}
-    <h3 class="m-0">{$sp ? spWholeName($sp) : $ir ? irWholeName($ir.evidence) : ''}</h3>
+{#if $ir || $sps.length}
+    <h3 class="m-0">{$sps.length ? irLabel($sps[0]) : $ir ? irWholeName($ir.evidence) : ''}</h3>
 {:else}
     <h3 class="m-0">
-        {#if !irid}
-            {spid?.replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}
-        {:else}
+        {#if irid}
             {irNumberFromIRID(irid)}
+        {:else if spids.length === 1}
+            {spids[0].replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}
         {/if}
     </h3>
 {/if}
 {#if deleted}
     <div class="alert alert-success" role="alert">
-        {t.successfullyDeleted}
+        {td.successfullyDeleted}
     </div>
 {/if}
-{#if !$ir && !$sp}
-    <div>{t.sorrySomethingWentWrong}</div>
+{#if !$ir && !$sps.length}
+    <div>{td.sorrySomethingWentWrong}</div>
     <div>
         {#if irid}
-            {t.linkInvalid}
-        {:else if spid}
-            Buď protokol neexistuje nebo k němu nemáte přístup.
+            {td.linkInvalidIR}
+        {:else if spids.length}
+            {td.linkInvalidNSP}
         {/if}
     </div>
 {/if}
-{#if spid && $sp}
-    <DetailNSP {t} {lang} sp={$sp} {spid} />
+{#if spids && $sps.length}
+    <DetailNSPs {t} {lang} sps={$sps} />
 {/if}
 {#if irid && $ir}
     <DetailIR {t} {lang} ir={$ir} {irid} />
