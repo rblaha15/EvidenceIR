@@ -1,7 +1,7 @@
-import type { OpenPdfOptions, Pdf } from '$lib/client/pdf';
+import type { OpenPdfOptions, Pdf } from '$lib/pdf/pdf';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { IRID } from '$lib/helpers/ir';
-import db from '$lib/client/data';
+import db from '$lib/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte.js';
 import type { FormInfo, IndependentFormInfo } from '$lib/forms/FormInfo';
 import { error } from '@sveltejs/kit';

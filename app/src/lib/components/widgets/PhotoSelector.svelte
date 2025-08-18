@@ -51,14 +51,14 @@
                     class="btn btn-outline-primary"
                     onclick={() => inputSelect?.click()}
                 >
-                    {multiple ? t.selectPhotos : t.selectPhoto}
+                    {multiple ? t.widget.selectPhotos : t.widget.selectPhoto}
                 </button>
                 <button
                     type="button"
                     class="btn btn-outline-primary"
                     onclick={() => inputCapture?.click()}
                 >
-                    {t.capturePhoto}
+                    {t.widget.capturePhoto}
                 </button>
             </div>
         {/if}
@@ -69,11 +69,11 @@
                     <li class="d-flex w-100 align-items-center list-group-item gap-3">
                         {#await getFile(uuid) then photo}
                             <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
-                                 src={photo} alt="Fotografie">
+                                 src={photo} alt={t.widget.photo}>
                         {/await}
                         <div class="d-flex flex-column gap-3 text-center">
                             <span style="word-break: break-all">{fileName}</span>
-                            <button class="btn text-danger" onclick={remove(uuid)}><i class="my-1 bi-trash"></i> {t.remove}</button>
+                            <button class="btn text-danger" onclick={remove(uuid)}><i class="my-1 bi-trash"></i> {t.widget.remove_Photo}</button>
                         </div>
                     </li>
                 {/each}

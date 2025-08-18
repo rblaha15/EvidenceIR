@@ -7,13 +7,14 @@ import type { FormUPS } from '$lib/forms/UPS/formUPS';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
 import type { IRID, SPID } from '$lib/helpers/ir';
 import { getIsOnline, isOnline } from '$lib/client/realtime';
-import { offlineDatabase } from '$lib/client/offline.svelte';
+import { offlineDatabase } from '$lib/client/offline.svelte.js';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
 import { addToOfflineQueue } from '$lib/client/offlineQueue';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { flatDerived } from '$lib/helpers/stores';
+import type { FormFT } from '$lib/forms/FT/formFT';
 
 export type Year = 1 | 2 | 3 | 4;
 
@@ -29,6 +30,7 @@ export type IR = {
     };
     users: string[];
     installationProtocols: Raw<FormSP>[];
+    faceTable?: Raw<FormFT>;
 };
 
 /**
@@ -49,7 +51,6 @@ export interface ReadDatabase {
     getIRAsStore(irid: IRID): Readable<IR | undefined>;
 
     existsIR(irid: IRID): Promise<boolean>;
-
 
     getIndependentProtocol(spid: SPID): Promise<Raw<FormNSP> | undefined>;
 
@@ -84,6 +85,8 @@ export interface WriteDatabase {
     addSolarSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPS>): Promise<void>;
 
     addPhotovoltaicSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPF>): Promise<void>;
+
+    addFaceTable(irid: IRID, faceTable: Raw<FormFT>): Promise<void>;
 
     updateIRUsers(irid: IRID, users: string[]): Promise<void>;
 
@@ -126,6 +129,7 @@ const functions = [
     'addServiceProtocol', 'updateServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
     'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'addIndependentServiceProtocol', 'deleteIndependentProtocol',
     'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols', 'getAllIndependentProtocolsAsStore',
+    'addFaceTable',
 ] as const satisfies (keyof Database)[];
 
 export type WriteFunction = keyof WriteDatabase;

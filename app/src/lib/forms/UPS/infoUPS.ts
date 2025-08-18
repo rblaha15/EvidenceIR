@@ -1,5 +1,5 @@
 import type { FormInfo } from '$lib/forms/FormInfo';
-import db from '$lib/client/data';
+import db from '$lib/data';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -31,7 +31,7 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
 
         if (response!.ok) return;
         editResult({
-            text: t.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false,
         });
@@ -39,6 +39,6 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
     },
     showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence }),
-    title: t => t.commissioning,
+    title: t => t.sol.title,
 });
 export default infoUPS;

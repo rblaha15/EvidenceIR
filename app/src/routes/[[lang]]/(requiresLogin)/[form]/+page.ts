@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
 import { type FormName, forms, getForm } from '$lib/forms/forms.js';
-import { checkRegulusOrAdmin } from '$lib/client/auth';
+import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { browser } from '$app/environment';
 import { extractIDs, langAndFormEntryGenerator } from '../../helpers';
 import { removeDependency } from '$lib/forms/dependentForm.js';
@@ -14,6 +14,8 @@ export const load: PageLoad = async ({ params, url }) => {
     if (!forms.includes(formName)) return error(404);
 
     if (!browser) return { irid: null, spid: null, form: undefined };
+
+    await checkAuth()
 
     const form = getForm(formName);
 

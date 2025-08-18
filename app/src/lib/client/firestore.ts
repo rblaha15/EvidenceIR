@@ -18,7 +18,7 @@ import { get, readonly, writable } from 'svelte/store';
 import { checkRegulusOrAdmin, checkUserRegulusOrAdmin, currentUser } from './auth';
 import { firestore } from '../../hooks.client';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
-import { type Database, type IR } from '$lib/client/data';
+import { type Database, type IR } from '$lib/data';
 import { type LegacyIR, type LegacySP, migrateSP, modernizeIR } from './migrations';
 import { offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
 import { Query } from '@firebase/firestore';
@@ -143,6 +143,10 @@ export const firestoreDatabase: Database = {
     addPhotovoltaicSystemCommissioningProtocol: async (irid, protocol) => {
         await updateDoc(irDoc(irid), `uvedeniFVE`, protocol);
         await odm.update('IR', irid, ir => ({ ...ir!, uvedeniFVE: protocol }));
+    },
+    addFaceTable: async (irid, faceTable) => {
+        await updateDoc(irDoc(irid), `faceTable`, faceTable);
+        await odm.update('IR', irid, ir => ({ ...ir!, faceTable: faceTable }));
     },
     updateIRUsers: async (irid, users) => {
         await updateDoc(irDoc(irid), `users`, users);

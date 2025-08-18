@@ -5,7 +5,7 @@
     import Input from '$lib/components/widgets/Input.svelte';
     import type { Translations } from '$lib/translations';
 
-    let zrusitBtn = $state<HTMLButtonElement>();
+    let cancelBtn = $state<HTMLButtonElement>();
 
     let html5QrCode: Html5Qrcode;
 
@@ -33,17 +33,17 @@
                 undefined,
                 decodedText => {
                     widget.setValue(data, widget.processScannedText(decodedText, data));
-                    zrusitBtn?.click();
+                    cancelBtn?.click();
                 },
                 undefined,
             )
             .catch(e => {
                 console.error(e);
-                zrusitBtn?.click();
+                cancelBtn?.click();
             });
     };
 
-    const zrusit = () => {
+    const cancel = () => {
         html5QrCode.stop();
     };
 </script>
@@ -51,7 +51,7 @@
 <div class={["d-flex flex-column flex-sm-row gap-1", widget.showError(data) ? 'align-items-sm-start' : 'align-items-sm-center']}>
     <div class="flex-grow-1"><Input bind:widget {data} {t} /></div>
     <div class="d-flex gap-1 align-items-sm-center flex-column flex-sm-row">
-        <span class="text-center">{t.or}</span>
+        <span class="text-center">{t.widget.or_Scan}</span>
         <button
             class="btn btn-secondary h-auto"
             data-bs-target="#cam"
@@ -59,7 +59,7 @@
             onclick={onClick}
             type="button"
         >
-            {t.scanBarcode}
+            {t.widget.scanBarcode}
         </button>
     </div>
 </div>
@@ -67,13 +67,13 @@
     <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">{t.scanCode}:</h4>
+                <h4 class="modal-title">{t.widget.scanCode}:</h4>
                 <button
-                    aria-label={t.cancel}
+                    aria-label={t.widget.cancel}
                     class="btn-close"
                     data-bs-dismiss="modal"
-                    onclick={zrusit}
-                    title={t.cancel}
+                    onclick={cancel}
+                    title={t.widget.cancel}
                     type="button"
                 ></button>
             </div>
@@ -84,11 +84,11 @@
 
             <div class="modal-footer">
                 <button
-                    bind:this={zrusitBtn}
+                    bind:this={cancelBtn}
                     class="btn btn-danger"
                     data-bs-dismiss="modal"
-                    onclick={zrusit}
-                    type="button">{t.cancel}</button
+                    onclick={cancel}
+                    type="button">{t.widget.cancel}</button
                 >
             </div>
         </div>

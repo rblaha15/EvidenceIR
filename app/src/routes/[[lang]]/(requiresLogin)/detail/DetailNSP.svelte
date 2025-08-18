@@ -1,72 +1,35 @@
 <script lang="ts">
-    import { detailIrUrl, detailSpUrl, relUrl, spidUrl } from '$lib/helpers/runes.svelte';
+    import { relUrl, spidUrl } from '$lib/helpers/runes.svelte';
     import PDFLink from './PDFLink.svelte';
-    import { storable } from '$lib/helpers/stores';
-    import NSP from '$lib/forms/NSP/infoNSP';
     import { isUserAdmin } from '$lib/client/auth';
-    import Widget from '$lib/components/Widget.svelte';
-    import db from '$lib/client/data';
+    import db from '$lib/data';
     import { goto } from '$app/navigation';
     import type { LanguageCode } from '$lib/languages';
-    import { p, type Translations } from '$lib/translations';
-    import { defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
+    import { type Translations } from '$lib/translations';
+    import { type FormNSP } from '$lib/forms/NSP/formNSP';
     import type { Raw } from '$lib/forms/Form';
-    import type { IRID, SPID } from '$lib/helpers/ir';
-    import { InputWidget } from '$lib/forms/Widget.svelte';
-    import defaultSP from '$lib/forms/SP/defaultSP';
-    import type { FormSP } from '$lib/forms/SP/formSP.svelte';
-    import { dataToRawData } from '$lib/forms/Form.js';
+    import { extractSPIDFromRawData, spName } from '$lib/helpers/ir';
 
-    const {
-        t, sp, spid, lang,
-    }: {
-        t: Translations, sp: Raw<FormNSP>, spid: SPID, lang: LanguageCode,
+    const { t, sp, lang }: {
+        t: Translations, sp: Raw<FormNSP>, lang: LanguageCode,
     } = $props();
-
-    const protocolGroups: (keyof Raw<FormSP>)[] = defaultSP().keys();
-
-    const newIRID = new InputWidget({
-        label: p('IRID (z URL adresy)'),
-    });
-    const transfer = async () => {
-        if (!sp) return;
-        await db.addServiceProtocol(newIRID.value as IRID, sp.pick(...protocolGroups) as Raw<FormSP>);
-        await goto(detailIrUrl(newIRID.value as IRID), { replaceState: true });
-    };
-
-    const createCopy = () => {
-        const newSP = {
-            ...dataToRawData(defaultNSP()),
-            ...sp.omit(...protocolGroups),
-        };
-        storable<typeof sp>(NSP.storeName).set(newSP);
-    };
+    const td = $derived(t.detail);
+    const spid = $derived(extractSPIDFromRawData(sp.zasah));
 </script>
 
 <div class="d-flex flex-column gap-1 align-items-sm-start">
-    <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${sp.koncovyUzivatel.email}`)} tabindex="0">
-        {t.sendDocuments}
-    </a>
+    <PDFLink breakpoint={$isUserAdmin ? 'lg' : 'md'} data={sp} hideLanguageSelector={true} {lang} link="NSP" name={spName(sp.zasah)} {spid} {t}>
+        <a class="btn btn-primary" href={relUrl(`/NSP?view-spid=${spid}`)} tabindex="0">
+            {td.viewFilledData}
+        </a>
 
-    <a class="btn btn-primary" href={relUrl(`/NSP?view-spid=${spid}`)} tabindex="0">
-        {t.viewInfo}
-    </a>
-
-    <PDFLink data={sp} hideLanguageSelector={true} {lang} link="NSP" {spid} {t} />
-
-    <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>Kopírovat inpormace o instalaci do nového protokolu</a>
+        {#if $isUserAdmin}
+            <button class="btn btn-danger d-block" onclick={() => {
+                db.deleteIndependentProtocol(spid);
+                goto(spidUrl(`/detail?deleted`), { replaceState: true });
+            }}>
+                {td.deleteProtocol}
+            </button>
+        {/if}
+    </PDFLink>
 </div>
-
-{#if $isUserAdmin}
-    <div class="d-flex flex-column gap-1 align-items-sm-start">
-        <Widget widget={newIRID} {t} data={{}} />
-        <button class="btn btn-danger d-block" onclick={transfer}>Převést protokol k IR (neodstraní se)</button>
-
-        <button class="btn btn-danger d-block" onclick={() => {
-            db.deleteIndependentProtocol(spid);
-            goto(spidUrl(`/detail?deleted`), { replaceState: true });
-        }}>
-            Odstranit protokol
-        </button>
-    </div>
-{/if}

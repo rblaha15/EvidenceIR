@@ -8,14 +8,14 @@ import {
 } from '$lib/client/realtime';
 import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
-import db from '$lib/client/data';
+import db from '$lib/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { getTranslations, p, type Translations } from '$lib/translations';
 import { nazevFirmy } from '$lib/helpers/ares';
-import { generatePdf } from '$lib/client/pdfGeneration';
-import { pdfInfo } from '$lib/client/pdf';
+import { generatePdf } from '$lib/pdf/pdfGeneration';
+import { pdfInfo } from '$lib/pdf/pdf';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { xmlIN } from '$lib/forms/IN/xmlIN';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
@@ -38,7 +38,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
         if (!edit && irid && getIsOnline() && await db.existsIR(irid)) {
             editResult({
                 red: true, load: false,
-                text: t.irExistsHtml({ link: detailIrUrl(irid) }),
+                text: t.in.irExistsHtml({ link: detailIrUrl(irid) }),
             });
             return;
         }
@@ -98,7 +98,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
         console.log(response2)
 
         if (!response1.ok) editResult({
-            text: t.emailNotSent({ status: String(response1!.status), statusText: response1!.statusText }),
+            text: t.form.emailNotSent({ status: String(response1!.status), statusText: response1!.statusText }),
             red: true,
             load: false,
         });
@@ -107,7 +107,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
     },
     redirectLink: async raw => detailIrUrl(extractIRIDFromRawData(raw)),
     createWidgetData: d => d,
-    title: (t, mode) => mode == 'edit' ? t.editing : mode == 'view' ? t.evidenceDetails : t.controllerRegistration,
+    title: (t, mode) => mode == 'edit' ? t.in.editing : mode == 'view' ? t.detail.titleIR : t.in.title,
     getEditData: async url => {
         const irid = url.searchParams.get('edit-irid') as IRID | null;
         if (!irid) return undefined;
@@ -143,7 +143,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
             data.uvedeni.regulus.items = () => $technicians.filter(t => t.email.endsWith('cz'));
         }, [techniciansList]],
         [(_, data, [$companies]) => {
-            data.uvedeni.company.items = () => $companies.commissioningCompanies;
+            data.uvedeni.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
             data.montazka.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
         }, [companies]],
         [(_, data, [$isUserRegulusOrAdmin]) => {
@@ -158,11 +158,10 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
             if ($responsiblePerson != null) data.vzdalenyPristup.zodpovednaOsoba.show = () => false;
         }, [responsiblePerson]],
     ],
-    importOptions: {
+    excelImport: {
         cells: cellsIN,
         sheet: 'ZADÁNÍ',
-        onImport: () => {
-        },
+        onImport: () => {},
     },
     isSendingEmails: true,
     hideBackButton: edit => !edit,

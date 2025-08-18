@@ -1,25 +1,19 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
-	import type { Translations } from '$lib/translations';
 	import { onMount } from 'svelte';
 	import authentication from '$lib/client/authentication';
 	import { changePassword } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
-	import type { PageData } from './$types';
+	import type { PageProps } from './$types';
 	import { setTitle } from '$lib/helpers/globals.js';
 	import { relUrl } from '$lib/helpers/runes.svelte';
 	import { goto } from '$app/navigation';
 
-	interface Props {
-		data: PageData;
-	}
-
-	let { data }: Props = $props();
+	const { data }: PageProps = $props();
+	const t = $derived(data.translations.auth);
 
 	let email = $state(browser ? (page.url.searchParams.get('email') ?? data.email ?? '') : '');
-
-	const t: Translations = data.translations;
 
 	const oobCode = browser ? page.url.searchParams.get('oobCode') : null;
 	let mode:
@@ -32,8 +26,8 @@
 		| 'saving'
 		| 'loading' = $state('loading');
 
-	let heslo = $state('');
-	let hesloZnovu = $state('');
+	let password = $state('');
+	let confirmPassword = $state('');
 
 	let redirect: string = '/IN';
 	onMount(() => {
@@ -57,7 +51,7 @@
 		const originalMode = mode;
 		mode = 'saving';
 		error = '';
-		if (heslo != hesloZnovu) {
+		if (password != confirmPassword) {
 			error = t.passwordsDoNotMatch;
 			mode = originalMode
 			return;
@@ -65,7 +59,7 @@
 		if (originalMode == 'register') {
 			await authentication('enableUser', { email });
 		}
-		await changePassword(oobCode!, heslo)
+		await changePassword(oobCode!, password)
 			.then(() =>
 				goto(relUrl(`/login?email=${email}&done=${mode}&redirect=${redirect}`))
 			)
@@ -86,14 +80,14 @@
 			});
 	};
 
-	setTitle(t.newPassword)
+	$effect(() => setTitle(t.newPassword))
 </script>
 
 {#if mode === 'resetSent'}
-	<p>Email odeslán. Nyní můžete toto okno zavřít.</p>
+	<p>{t.emailSent}</p>
 {:else if mode === 'resetSending'}
 	<div class="d-flex align-items-center">
-		<span>Odesílání</span>
+		<span>{t.sending}</span>
 		<div class="spinner-border text-danger ms-2"></div>
 	</div>
 {:else if mode === 'resetEmail' || !oobCode}
@@ -129,7 +123,7 @@
 				type="password"
 				class="form-control"
 				placeholder={t.password}
-				bind:value={heslo}
+				bind:value={password}
 			/>
 		</div>
 		<div class="mt-3">
@@ -138,7 +132,7 @@
 				type="password"
 				class="form-control"
 				placeholder={t.confirmPassword}
-				bind:value={hesloZnovu}
+				bind:value={confirmPassword}
 			/>
 		</div>
 		{#if error}

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { checkAuth, currentUser } from '$lib/client/auth';
+    import { currentUser } from '$lib/client/auth';
     import { isOnline } from '$lib/client/realtime';
     import type { Translations } from '$lib/translations';
     import BaseNav from './BaseNav.svelte';
@@ -12,6 +12,7 @@
     import SettingsModal from '$lib/components/nav/SettingsModal.svelte';
 
     const { t }: { t: Translations } = $props();
+    const tn = $derived(t.nav)
 
     const isLoggedIn = $derived($currentUser != null);
 </script>
@@ -31,7 +32,7 @@
         {/if}
         <!--suppress CheckImageSize -->
         <img alt="Logo" class="d-inline me-2" height="32" src="/ic_r.png" width="32" />
-        <span class="navbar-brand fw-semibold">{t.appName}</span>
+        <span class="navbar-brand fw-semibold">{tn.appName}</span>
         {#if !$isOnline}
             <i class="bi-wifi-off fs-4"></i>
         {/if}
@@ -62,7 +63,7 @@
                 <div class="offcanvas-header">
                     <!--suppress CheckImageSize -->
                     <img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
-                    <span class="navbar-brand fw-semibold">{t.appName}</span>
+                    <span class="navbar-brand fw-semibold">{tn.appName}</span>
                     <button class="btn btn-link nav-link ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
                         <i class="bi-x fs-1"></i>
                     </button>

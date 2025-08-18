@@ -1,6 +1,6 @@
 import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { today } from '$lib/helpers/date';
-import type { GetPdfData } from '$lib/client/pdf';
+import type { GetPdfData } from '$lib/pdf/pdf';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 
 const pdfZL: GetPdfData<'ZL'> = async ({ data: { evidence: e }, t, pump }) => {

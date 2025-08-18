@@ -11,7 +11,7 @@
 
     const { data }: PageProps = $props()
 
-    const t = data.translations;
+    const t = $derived(data.translations);
 
     const itemsStore = $derived(data.items);
 
@@ -23,7 +23,7 @@
     let w = $state(new SearchWidget({
         type: 'search',
         required: false,
-        label: 'search',
+        label: 'search.search',
         items: _ => [] as Installation_PublicServiceProtocol[],
         getSearchItem: i => ({
             href: i.t == 'SP' ? detailSpUrl(i.id) : detailIrUrl(i.id),
@@ -38,9 +38,7 @@
         inline: true,
     }));
 
-    $effect(() => {
-        setTitle($isUserRegulusOrAdmin ? t.controllerAndServiceProtocolSearch : t.controllerSearch);
-    })
+    $effect(() => setTitle($isUserRegulusOrAdmin ? t.search.titleControllersAndProtocols : t.search.titleControllers))
 </script>
 
 <Search

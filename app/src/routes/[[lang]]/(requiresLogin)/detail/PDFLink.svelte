@@ -1,8 +1,8 @@
 <script generics="P extends Pdf" lang="ts">
     import { languageNames, type Translations } from '$lib/translations';
-    import { type DataOfPdf, type OpenPdfOptions, type Pdf, pdfInfo } from '$lib/client/pdf';
+    import { type DataOfPdf, type OpenPdfOptions, type Pdf, pdfInfo } from '$lib/pdf/pdf';
     import type { Snippet } from 'svelte';
-    import { generatePdfUrl } from '$lib/client/pdfGeneration';
+    import { generatePdfUrl } from '$lib/pdf/pdfGeneration';
     import type { LanguageCode } from '$lib/languages';
     import { withLoading } from '$lib/helpers/globals.js';
     import { goto } from '$app/navigation';

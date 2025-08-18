@@ -64,11 +64,11 @@
         {:else if widget instanceof MultiCheckboxWidget}
             {widget.value.map(s => t.get(s)).join(', ')}
         {:else if widget instanceof CheckboxWidget}
-            {widget.value ? t.yes : t.no}
+            {widget.value ? t.widget.yes : t.widget.no}
         {:else if widget instanceof CounterWidget}
             {widget.value}
         {:else if widget instanceof CheckboxWithChooserWidget}
-            {widget.value.checked ? t.get(widget.value.chosen) ?? '' : t.no}
+            {widget.value.checked ? t.get(widget.value.chosen) ?? '' : t.widget.no}
         {:else if widget instanceof InputWithSuggestionsWidget}
             {widget.value}
         {:else if widget instanceof CountersWidget}
@@ -76,7 +76,7 @@
         {:else if widget instanceof InputWithChooserWidget}
             {widget.value.text} {t.get(widget.value.chosen) ?? ''}
         {:else if widget instanceof CheckboxWithInputWidget}
-            {widget.value.checked ? widget.value.text : t.no}
+            {widget.value.checked ? widget.value.text : t.widget.no}
         {:else if widget instanceof SearchWidget}
             {widget.getXmlEntry()}
         {:else if widget instanceof FileWidget} <!-- Not supported -->

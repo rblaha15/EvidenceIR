@@ -37,6 +37,15 @@ export function dateFromISO(dateISO: string) {
     return `${dd}. ${mm}. ${yyyy}`;
 }
 
+export function dateToISO(date: string) {
+    const parts = date.split('.');
+    const dd = parts[0].trim().padStart(2, '0');
+    const mm = parts[1].trim().padStart(2, '0');
+    const yyyy = parts[2].trim().padStart(4, '2020');
+
+    return `${yyyy}-${mm}-${dd}`;
+}
+
 export function timeFromISO(timeISO: string) {
     return timeISO.split('T').at(-1);
 }

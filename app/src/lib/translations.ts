@@ -15,7 +15,7 @@ export type RemovePlain<S extends P = P> = S extends `PLAIN_${infer O}` ? O : ne
 
 export function p<T extends string | undefined | null>(text: T): T extends string ? P<T> : T;
 export function p<T extends string>(s: T): P<T>;
-export function p<T extends string>(a: T[]): P<T>[];
+export function p<T extends string>(a: readonly T[] | T[]): P<T>[];
 export function p<T extends string>(...a: T[]): P<T>[];
 export function p<T extends string | undefined | null>(arg: T | T[], ...other: T[]) {
     return Array.isArray(arg)
