@@ -629,6 +629,7 @@ export default {
             demandSubject: 'Předmět poptávky',
             heatPump: 'Tepelné čerpadlo',
             fve: 'FVE',
+            searchCompanyInList: `Vyhledat firmu v seznamu`,
         },
         objectDetail: {
             objectDetail: 'Detail objektu',
@@ -701,6 +702,8 @@ export default {
             airToWater: 'vzduch/voda',
             groundToWater: 'země/voda',
             iDoNotKnow: 'Nevím',
+            heatPumpType: `Typ tepelného čerpadla`,
+            heatPumpModel: `Model tepelného čerpadla`,
         },
         pool: {
             pool: 'Bazén',
@@ -771,5 +774,8 @@ export default {
         },
         demandForm: 'Dotazník poptávky',
         currency: 'Kč',
+        note: `Poznámka`,
+        representative: `Zástupce`,
+        photos: 'Fotografie',
     },
 };
