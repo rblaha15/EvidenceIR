@@ -52,12 +52,12 @@ export default (): FormNK => ({
         city: new InputWidget({ required: false, label: `demand.contacts.city`, autocapitalize: 'words' }),
         zip: new InputWidget({
             required: false, label: `demand.contacts.zip`, type: 'number', inputmode: 'numeric',
-            onError: `wrongZIPFormat`, regex: /^\d{3} \d{2}$/, maskOptions: { mask: `000 00` },
+            onError: `wrong.zip`, regex: /^\d{3} \d{2}$/, maskOptions: { mask: `000 00` },
         }),
         phone: new InputWidget({ required: false, label: `demand.contacts.phone`, inputmode: 'tel' }),
         email: new InputWidget({ required: false, label: `demand.contacts.email`, type: 'email', inputmode: 'email' }),
         assemblyCompanySearch: new SearchWidget<FormNK, Company, true>({
-            label: `searchCompanyInList`, items: [], getSearchItem: i => ({
+            label: `demand.contacts.searchCompanyInList`, items: [], getSearchItem: i => ({
                 pieces: [
                     { text: p(i.crn), width: .2 },
                     { text: p(i.companyName), width: .8 },
@@ -69,7 +69,7 @@ export default (): FormNK => ({
             },
         }),
         assemblyCompanyCRN: new InputWidget({ required: false, label: `demand.contacts.crn`, type: 'number', inputmode: 'numeric' }),
-        note: new InputWidget({ required: false, label: `note` }),
+        note: new InputWidget({ required: false, label: `demand.note` }),
     },
     photovoltaicPowerPlant: {
         title: new TitleWidget({ show: fve, text: `demand.fve.fve` }),
@@ -124,7 +124,7 @@ export default (): FormNK => ({
             show: fve,
         }),
         charging: new CheckboxWidget({ show: fve, required: false, label: `demand.fve.charging` }),
-        note: new InputWidget({ show: fve, required: false, label: `note` }),
+        note: new InputWidget({ show: fve, required: false, label: `demand.note` }),
     },
     objectDetails: {
         title: new TitleWidget({ show: hp, text: `demand.objectDetail.objectDetail` }),
@@ -168,20 +168,20 @@ export default (): FormNK => ({
             options: [`units.q`, `units.m3`, `units.kWh`],
             show: hp,
         }),
-        note: new InputWidget({ show: hp, required: false, label: `note` }),
+        note: new InputWidget({ show: hp, required: false, label: `demand.note` }),
     },
     system: {
         title: new TitleWidget({ show: hp, text: `demand.system.system` }),
         hPType: new RadioWidget({
             show: hp,
             required: false,
-            label: `heatPumpType`,
+            label: `demand.system.heatPumpType`,
             chosen: `airToWater`,
             options: [`airToWater`, `groundToWater`],
         }),
         hPModel: new ChooserWidget({
-            required: false, label: `heatPumpModel`, show: hp, options: d => [`iDoNotKnow`, ...d.system.hPType.value == 'airToWater'
-                ? [...products.heatPumpsRTC, ...products.heatPumpsAirToWaterCTC] : products.heatPumpsGroundToWater], chosen: `iDoNotKnow`,
+            required: false, label: `demand.system.heatPumpModel`, show: hp, options: d => [`demand.system.iDoNotKnow`, ...d.system.hPType.value == 'airToWater'
+                ? [...products.heatPumpsRTC, ...products.heatPumpsAirToWaterCTC] : products.heatPumpsGroundToWater], chosen: `demand.system.iDoNotKnow`,
         }),
         indoorUnitType: new ChooserWidget({
             required: false,
@@ -217,14 +217,14 @@ export default (): FormNK => ({
             show: d => hp(d) && d.system.waterTankType.value != `demand.system.tankNone`,
         }),
         heatingSystem: new ChooserWidget({
-            required: false, label: `demand.system.heatingSystem`, show: hp, chosen: `iDoNotKnow`, options: [
-                `iDoNotKnow`, `demand.system.heatingSystem1circuit`, `demand.system.heatingSystem2circuits`,
+            required: false, label: `demand.system.heatingSystem`, show: hp, chosen: `demand.system.iDoNotKnow`, options: [
+                `demand.system.iDoNotKnow`, `demand.system.heatingSystem1circuit`, `demand.system.heatingSystem2circuits`,
                 `demand.system.heatingSystem3circuits`, `demand.system.heatingSystemInvertor`, `demand.system.heatingSystemOther`,
             ],
         }),
         hotWaterCirculation: new CheckboxWidget({ show: hp, required: false, label: `demand.system.hotWaterCirculation` }),
         wantsPool: new CheckboxWidget({ show: hp, required: false, label: `demand.system.poolHeating` }),
-        note: new InputWidget({ show: hp, required: false, label: `note` }),
+        note: new InputWidget({ show: hp, required: false, label: `demand.note` }),
     },
     pool: {
         title: new TitleWidget({ show: pool, text: `demand.pool.pool` }),
@@ -291,7 +291,7 @@ export default (): FormNK => ({
             inputmode: 'numeric',
             show: pool,
         }),
-        note: new InputWidget({ show: pool, required: false, label: `note` }),
+        note: new InputWidget({ show: pool, required: false, label: `demand.note` }),
     },
     additionalSources: {
         title: new TitleWidget({ show: hp, text: `demand.additionalSources.sources` }),
@@ -334,7 +334,7 @@ export default (): FormNK => ({
         hotWaterGasBoiler: new CheckboxWidget({ show: hp, required: false, label: `demand.additionalSources.gasBoiler` }),
         hotWaterFireplace: new CheckboxWidget({ show: hp, required: false, label: `demand.additionalSources.fireplace` }),
         hotWaterOther: new InputWidget({ show: hp, required: false, label: `demand.additionalSources.otherSource` }),
-        note: new InputWidget({ show: hp, required: false, label: `note` }),
+        note: new InputWidget({ show: hp, required: false, label: `demand.note` }),
     },
     accessories: {
         title: new TitleWidget({ text: `demand.accessories.accessories` }),
@@ -365,11 +365,11 @@ export default (): FormNK => ({
                 'demand.system.heatingSystem3circuits': 3, 'demand.system.heatingSystemInvertor': 1,
             }[d.system.heatingSystem.value as string] ?? Number.POSITIVE_INFINITY),
         }),
-        note: new InputWidget({ required: false, label: `note` }),
+        note: new InputWidget({ required: false, label: `demand.note` }),
     },
     other: {
         representative: new SearchWidget<FormNK, Person>({
-            label: `representative`, items: [], getSearchItem: t => ({
+            label: `demand.representative`, items: [], getSearchItem: t => ({
                 pieces: [
                     { text: p(t.responsiblePerson!), width: .4 },
                     { text: p(t.koNumber!), width: .1 },
@@ -378,7 +378,7 @@ export default (): FormNK => ({
             }), show: false, required: true,
         }),
         photos: new PhotoSelectorWidget({
-            label: `photos`, required: false, multiple: true, max: 5,
+            label: `demand.photos`, required: false, multiple: true, max: 5,
         }),
     },
 });
