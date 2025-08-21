@@ -86,7 +86,7 @@ Změny ve verzi 2.3 oproti verzi 2.2:
     <tc>
         <typ>${t.get(d.system.hPType ?? '')}</typ>
         <model>${t.get(d.system.hPModel ?? '')}</model>
-        <nadrz>${t.get(d.system.thermalStoreType.first ?? '')} ${t.get(d.system.thermalStoreType.second ?? '')} {d.system.thermalStoreVolume}</nadrz>
+        <nadrz>${t.get(d.system.thermalStoreType.first ?? '')} ${t.get(d.system.thermalStoreType.second ?? '')} ${d.system.thermalStoreVolume}</nadrz>
         <vnitrni_jednotka>${t.get(d.system.indoorUnitType ?? '')}</vnitrni_jednotka>
     </tc>
     <zdrojeTop>
@@ -172,4 +172,4 @@ Změny ve verzi 2.3 oproti verzi 2.2:
         <prislusenstvi>${d.accessories.note}</prislusenstvi>
         <fve>${d.photovoltaicPowerPlant.note}</fve>
     </poznamka>
-</xml>`;
+</xml>`.trimStart();
