@@ -4,7 +4,7 @@ import defaultOD from './defaultOD';
 import { page } from '$app/state';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
-import { cervenka, defaultAddresses, sendEmail, userAddress } from '$lib/client/email';
+import { defaultAddresses, sendEmail, userAddress } from '$lib/client/email';
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import MailSignedProtocol from '$lib/emails/MailSignedProtocol.svelte';
 import { dev } from '$app/environment';

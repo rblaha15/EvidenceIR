@@ -16,7 +16,7 @@ export default (): FormOD => ({
         }),
         info: new TextWidget({
             text: (d, t) => p(
-                t.od.info1(receiver) +
+                t.od.info1([receiver]) +
                 (d.all.userEmail.value
                     ? t.od.info2A({ user: get(currentUser)!.email! })
                     : t.od.info2B({ user: get(currentUser)!.email!, customer: d.all.userEmail.value })) +
