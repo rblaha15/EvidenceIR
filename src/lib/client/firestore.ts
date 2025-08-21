@@ -15,7 +15,7 @@ import {
 } from 'firebase/firestore';
 import type { Raw } from '$lib/forms/Form';
 import { get, readonly, writable } from 'svelte/store';
-import { checkRegulusOrAdmin, checkUserRegulusOrAdmin, currentUser } from './auth';
+import { checkRegulusOrAdmin, currentUser, userInfo } from './auth';
 import { firestore } from '../../hooks.client';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
 import { type Database, type IR } from '$lib/data';
@@ -44,6 +44,7 @@ const getSnp = async <T>(reference: DocumentReference<T>) => {
         const snp = await getDoc(reference);
         return snp.exists() ? snp.data() : undefined;
     } catch (e) {
+        console.error(e)
         return undefined;
     }
 };
@@ -55,7 +56,7 @@ const getAsStore = <T>(reference: DocumentReference<T>) => {
 const getAllAsStore = <T>(reference: Query<T>) => {
     const currentState = writable<T[]>([]);
     onSnapshot(reference, snps => currentState.set(snps.docs
-        .mapNotUndefined(snp => snp.exists() ? snp.data() : undefined)));
+        .mapNotUndefined(snp => snp.exists() ? snp.data() : undefined)), console.error);
     return readonly(currentState);
 };
 const getSnps = async <T>(reference: Query<T>) => {
@@ -64,6 +65,7 @@ const getSnps = async <T>(reference: Query<T>) => {
         return snp.docs
             .mapNotUndefined(snp => snp.exists() ? snp.data() : undefined);
     } catch (e) {
+        console.error(e)
         return [];
     }
 };
@@ -79,9 +81,9 @@ export const firestoreDatabase: Database = {
             odm.putAll('IR', v.associateBy(v => extractIRIDFromRawData(v.evidence))),
         );
     },
-    getAllIRsAsStore: () => flatDerived(currentUser,
+    getAllIRsAsStore: () => flatDerived(userInfo,
         user => {
-            const q = user && checkUserRegulusOrAdmin(user) ? irCollection
+            const q = user.isUserRegulusOrAdmin ? irCollection
                 : query(irCollection, where('users', 'array-contains', user?.email ?? ''));
             return getAllAsStore(q);
         },
