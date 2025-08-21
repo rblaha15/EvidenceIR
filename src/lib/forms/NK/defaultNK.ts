@@ -51,7 +51,7 @@ export default (): FormNK => ({
         street: new InputWidget({ required: false, label: `demand.contacts.street`, autocapitalize: 'sentences' }),
         city: new InputWidget({ required: false, label: `demand.contacts.city`, autocapitalize: 'words' }),
         zip: new InputWidget({
-            required: false, label: `demand.contacts.zip`, type: 'number', inputmode: 'numeric',
+            required: false, label: `demand.contacts.zip`, inputmode: 'numeric',
             onError: `wrong.zip`, regex: /^\d{3} \d{2}$/, maskOptions: { mask: `000 00` },
         }),
         phone: new InputWidget({ required: false, label: `demand.contacts.phone`, inputmode: 'tel' }),
