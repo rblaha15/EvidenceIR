@@ -468,10 +468,10 @@ const en: PlainTranslations = {
         photosFromTheInstallation: 'Photos from the installation',
         noteToEmail: 'Not (to the email)',
         customerEmail: 'Customer email address',
-        info1: t`The app will send an email with the documents, optionally with the photos and the note to ${0} and ${1}.`,
+        info1: t`The app will send an email with the documents, optionally with the photos and the note to ${0}.`,
         info2A: t`A copy will be send to you, to ${'user'}.`,
         info2B: t`A copy will be send to the customer to ${'customer'} and to you, to ${'user'}.`,
-        info3: t`If you don't want to send the email to the customer, remove their address from the above filed.`,
+        info3: `If you don't want to send the email to the customer, remove their address from the above filed.`,
     },
 
     // Must be in the root because of backwards compatibility:

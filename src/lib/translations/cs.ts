@@ -544,10 +544,10 @@ export default {
         photosFromTheInstallation: 'Fotografie z instalace',
         noteToEmail: 'Poznámka (do emailu)',
         customerEmail: 'Emailová adresa zákazníka',
-        info1: t`Aplikace odešle email s dokumenty, popř. s obrázky a poznámkou na ${0} a ${1}.`,
-        info2A: t`Kopie bude odeslána vám na ${'user'}.`,
-        info2B: t`Kopie bude odeslána zákazníkovi na adresu ${'customer'} a vám na ${'user'}.`,
-        info3: t`Pokud nechcete odeslat email zákazníkovi, odstraňtě jeho adresu z políčka výše.`,
+        info1: t`Aplikace odešle email s dokumenty, popř. s obrázky a poznámkou na ${0}.`,
+        info2A: t` Kopie bude odeslána vám na ${'user'}.`,
+        info2B: t` Kopie bude odeslána zákazníkovi na adresu ${'customer'} a vám na ${'user'}.`,
+        info3: ` Pokud nechcete odeslat email zákazníkovi, odstraňtě jeho adresu z políčka výše.`,
     },
     wrong: {
         crn: `Nesprávný formát IČO`,
@@ -629,6 +629,7 @@ export default {
             demandSubject: 'Předmět poptávky',
             heatPump: 'Tepelné čerpadlo',
             fve: 'FVE',
+            searchCompanyInList: `Vyhledat firmu v seznamu`,
         },
         objectDetail: {
             objectDetail: 'Detail objektu',
@@ -701,6 +702,8 @@ export default {
             airToWater: 'vzduch/voda',
             groundToWater: 'země/voda',
             iDoNotKnow: 'Nevím',
+            heatPumpType: `Typ tepelného čerpadla`,
+            heatPumpModel: `Model tepelného čerpadla`,
         },
         pool: {
             pool: 'Bazén',
@@ -771,5 +774,8 @@ export default {
         },
         demandForm: 'Dotazník poptávky',
         currency: 'Kč',
+        note: `Poznámka`,
+        representative: `Zástupce`,
+        photos: 'Fotografie',
     },
 };
