@@ -7,6 +7,7 @@ import { browser } from '$app/environment';
 import { derived, readable } from 'svelte/store';
 import { error } from '@sveltejs/kit';
 import '$lib/extensions';
+import { getTranslations } from '$lib/translations';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
@@ -29,7 +30,7 @@ export const load: PageLoad = async ({ parent }) => {
     if (!await checkAuth()) error(401);
 
     const data = await parent();
-    const ts = data.translations.search;
+    const ts = getTranslations(data.languageCode).search;
 
     const installations = derived(
         db.getAllIRsAsStore(),
