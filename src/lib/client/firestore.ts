@@ -19,7 +19,6 @@ import { checkRegulusOrAdmin, currentUser, userInfo } from './auth';
 import { firestore } from '../../hooks.client';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
 import { type Database, type IR } from '$lib/data';
-import { type LegacyIR, type LegacySP, migrateSP, modernizeIR } from './migrations';
 import { offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
 import { Query } from '@firebase/firestore';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
@@ -27,11 +26,11 @@ import { flatDerived } from '$lib/helpers/stores';
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => modernizeIR(snapshot.data() as IR & LegacyIR),
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR,
 });
 const spCollection = collection(firestore, 'sp').withConverter<Raw<FormNSP>>({
     toFirestore: (modelObject: WithFieldValue<Raw<FormNSP>>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => migrateSP(snapshot.data() as LegacySP & Raw<FormNSP>) as Raw<FormNSP>,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<FormNSP>,
 });
 
 const checkCollection = collection(firestore, 'check');
