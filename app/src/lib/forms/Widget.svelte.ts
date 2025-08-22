@@ -1,11 +1,26 @@
-import type { TranslationReference as TR, Translations } from '../translations';
+import { get, type Translations } from '../translations';
 import type { ClassValue, FullAutoFill, HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
+import type { Untranslatable } from '$lib/translations/untranslatables';
 
-export type Get<D, U = TR> = TR extends U
-    ? (data: D, t: Translations) => U : (data: D) => U;
-export type GetOrVal<D, U = TR> = Get<D, U> | U;
-const toGet = <D, U>(getOrValue: GetOrVal<D, U>) =>
-    getOrValue instanceof Function ? getOrValue : () => getOrValue;
+export type GetB<D> = Get<D, boolean>;
+export type GetBOrVal<D> = GetOrVal<D, boolean>;
+export type GetTA<D> = GetT<D, string[]>;
+export type GetTAOrVal<D> = GetTOrVal<D, string[]>;
+export type GetTU<D> = GetT<D, string | undefined>;
+export type GetTUOrVal<D> = GetTOrVal<D, string | undefined>;
+export type GetTP<D> = GetT<D, Promise<string> | string>;
+export type GetTPOrVal<D> = GetTOrVal<D, Promise<string> | string>;
+
+export type Get<D, U> = (data: D) => U;
+export type GetT<D, U = string> = (t: Translations, data: D) => U;
+
+export type GetOrVal<D, U> = Get<D, U> | U;
+export type GetTOrVal<D, U = string> = GetT<D, U> | U;
+
+const toGetA = <D, U>(getAOrValue: GetOrVal<D, U>) =>
+    getAOrValue instanceof Function ? getAOrValue : () => getAOrValue;
+const toGetT = <D, U>(getTOrValue: GetTOrVal<D, U>) =>
+    getTOrValue instanceof Function ? getTOrValue : () => getTOrValue;
 
 type Opts = {
     mask: string;
@@ -21,17 +36,17 @@ export const labelAndStar = <D, U>(
     data: D,
     t: Translations
 ) => {
-    const label = t.get(widget.label(data, t));
+    const label = widget.label(t, data);
     return label == '' ? '' : label + (!widget.required(data) ? '' : ` ${STAR}`);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export abstract class Widget<D = never, U = any, H extends boolean = boolean> {
-    abstract label: Get<D>;
-    abstract onError: Get<D>;
+    abstract label: GetT<D>;
+    abstract onError: GetT<D>;
     displayErrorVeto = $state(false);
-    abstract show: Get<D, boolean>;
-    abstract showTextValue: Get<D, boolean>;
+    abstract show: GetB<D>;
+    abstract showTextValue: GetB<D>;
     abstract _value: U;
     get value() {
         return this._value;
@@ -60,39 +75,44 @@ export abstract class Widget<D = never, U = any, H extends boolean = boolean> {
 
     abstract hideInRawData: H;
 
-    abstract isError: Get<D, boolean>;
-    showError: Get<D, boolean> = $state((data) => this.displayErrorVeto && this.isError(data));
+    abstract isError: GetB<D>;
+    showError: GetB<D> = $state((data) => this.displayErrorVeto && this.isError(data));
 }
 
-export type SearchItemPiece = { readonly text: TR, readonly width?: number };
+type K = string;
+type T<I extends K> = (t: Translations) => Record<Exclude<I, Untranslatable>, string>;
+
+export type SearchItemPiece = { readonly text: string, readonly width?: number };
 export type SearchItem = { readonly pieces: SearchItemPiece[], readonly href?: string, disabled?: boolean };
-export type Pair<I1 extends TR, I2 extends TR> = { readonly first: I1 | null; readonly second: I2 | null; };
-type Sides = readonly [TR, TR];
-export type Arr<I extends TR> = readonly I[];
+export type Pair<I1 extends K, I2 extends K> = { readonly first: I1 | null; readonly second: I2 | null; };
+type Sides = (t: Translations) => ([string, string]);
+export type Arr<I extends K> = readonly I[];
+export type Rec<I extends K> = Record<I, number>;
 export type ChI = { readonly checked: boolean; readonly text: string; };
-export type SeI<I extends TR> = { readonly chosen: I; readonly text: string; };
-export type SeCh<I extends TR> = { readonly chosen: I | null; readonly checked: boolean; };
+export type SeI<I extends K> = { readonly chosen: I; readonly text: string; };
+export type SeCh<I extends K> = { readonly chosen: I | null; readonly checked: boolean; };
 export type Files = readonly { fileName: string, uuid: string }[];
 
 type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H };
-type ShowArgs<D> = { show?: GetOrVal<D, boolean>; showInXML?: GetOrVal<D, boolean> };
-type InfoArgs<D> = { text: GetOrVal<D, TR | Promise<TR>>; class?: GetOrVal<D, ClassValue | undefined>; } & ShowArgs<D>;
+type ShowArgs<D> = { show?: GetBOrVal<D>; showInXML?: GetBOrVal<D> };
+type InfoArgs<D> = { text: GetTPOrVal<D>; class?: GetOrVal<D, ClassValue | undefined>; } & ShowArgs<D>;
 type ValueArgs<D, U, H> = {
-    label: GetOrVal<D>, onError?: GetOrVal<D>; required?: GetOrVal<D, boolean>; onValueSet?: (data: D, newValue: U) => void
+    label: GetTOrVal<D>, onError?: GetTOrVal<D>; required?: GetBOrVal<D>; onValueSet?: (data: D, newValue: U) => void
 } & HideArgs<H> & ShowArgs<D>;
+type LabelsArgs<I extends string> = Exclude<I, Untranslatable> extends never ? { labels?: T<I>; } : { labels: T<I>; };
 type FileArgs<D> = {
-    multiple?: GetOrVal<D, boolean>; max?: GetOrVal<D, number>; accept?: GetOrVal<D, string>;
+    multiple?: GetBOrVal<D>; max?: GetOrVal<D, number>; accept?: GetOrVal<D, string>;
 };
-type ChooserArgs<D, I extends TR> = { options: GetOrVal<D, Arr<I>>; chosen?: I | null; };
-type SecondChooserArgs<I extends TR> = { options: Arr<I>; chosen?: I; text?: string; };
-type DoubleChooserArgs<D, I1 extends TR, I2 extends TR> = { options1: GetOrVal<D, Arr<I1>>; options2: GetOrVal<D, Arr<I2>>; chosen?: Pair<I1, I2>; };
-type LockArgs<D> = { lock?: GetOrVal<D, boolean>; };
-type CompactArgs<D> = { compact?: GetOrVal<D, boolean>; };
-type DoubleLockArgs<D> = { lock1?: GetOrVal<D, boolean>; lock2?: GetOrVal<D, boolean>; };
+type ChooserArgs<D, I extends K> = { options: GetOrVal<D, Arr<I>>; chosen?: I | null; };
+type SecondChooserArgs<I extends K> = { options: Arr<I>; chosen?: I; text?: string; };
+type DoubleChooserArgs<D, I1 extends K, I2 extends K> = { options1: GetOrVal<D, Arr<I1>>; options2: GetOrVal<D, Arr<I2>>; chosen?: Pair<I1, I2>; };
+type LockArgs<D> = { lock?: GetBOrVal<D>; };
+type CompactArgs<D> = { compact?: GetBOrVal<D>; };
+type DoubleLockArgs<D> = { lock1?: GetBOrVal<D>; lock2?: GetBOrVal<D>; };
 type SearchArgs<D, T> = {
-    getSearchItem: (item: T) => SearchItem;
+    getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry?: () => string;
-    inline?: GetOrVal<D, boolean>;
+    inline?: GetBOrVal<D>;
     items: GetOrVal<D, T[]>;
     type?: GetOrVal<D, HTMLInputTypeAttribute>;
     enterkeyhint?: GetOrVal<D, HTMLInputAttributes['enterkeyhint']>;
@@ -101,44 +121,45 @@ type SearchArgs<D, T> = {
     chosen?: null | T;
 };
 type CounterArgs<D> = { chosen: number; min: GetOrVal<D, number>; max: GetOrVal<D, number>; };
-type CountersArgs<D> = { counts: number[]; max: GetOrVal<D, number>; options: GetOrVal<D, Arr<TR>> };
+type CountersArgs<D, I extends K> = { counts: Rec<I>; max: GetOrVal<D, number>; };
 type CheckArgs = { checked?: boolean; };
-type SwitchArgs<D> = { hasPositivity?: GetOrVal<D, boolean>; options: Sides };
-type MultiChooserArgs<D, I extends TR> = { options: GetOrVal<D, Arr<I>>; chosen?: Arr<I>; max?: GetOrVal<D, number> };
+type SwitchArgs<D> = { hasPositivity?: GetBOrVal<D>; options: Sides };
+type MultiChooserArgs<D, I extends K> = { options: GetOrVal<D, Arr<I>>; chosen?: Arr<I>; max?: GetOrVal<D, number> } & LabelsArgs<I>;
 type Input1Args<D> = {
     regex?: GetOrVal<D, RegExp>;
-    capitalize?: GetOrVal<D, boolean>;
+    capitalize?: GetBOrVal<D>;
     type?: GetOrVal<D, HTMLInputTypeAttribute>;
     enterkeyhint?: GetOrVal<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode?: GetOrVal<D, HTMLInputAttributes['inputmode']>;
     autocapitalize?: GetOrVal<D, HTMLInputAttributes['autocapitalize']>;
 };
 type Input2Args<D> = {
-    textArea?: GetOrVal<D, boolean>;
+    textArea?: GetBOrVal<D>;
     maskOptions?: GetOrVal<D, Opts>;
     autocomplete?: GetOrVal<D, FullAutoFill>;
 };
 type Input3Args<D> = {
     text?: string;
-    suffix?: GetOrVal<D, TR | undefined>;
+    suffix?: GetTUOrVal<D>;
 };
 type SuggestionsArgs<D> = {
-    suggestions: GetOrVal<D, Arr<TR>>;
+    suggestions: GetTAOrVal<D>;
 };
 
-type Info<D, U> = Widget<D, U> & { text: Get<D, TR | Promise<TR>>; class: Get<D, ClassValue | undefined>; };
-type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: Get<D, boolean>; };
-type File<D> = Widget<D, Files> & { multiple: Get<D, boolean>; max: Get<D, number>; accept: Get<D, string>; };
-type Lock<D, U> = Widget<D, U> & { lock: Get<D, boolean>; };
-type Compact<D, U> = Widget<D, U> & { compact: Get<D, boolean>; };
-type DoubleLock<D, U> = Widget<D, U> & { lock1: Get<D, boolean>; lock2: Get<D, boolean>; };
-type Chooser<D, I extends TR> = Widget<D, I | null> & { options: Get<D, Arr<I>>; };
-type SecondChooser<D, I extends TR> = Widget<D, SeI<I>> & { options: Arr<I>; };
-type DoubleChooser<D, I1 extends TR, I2 extends TR> = Widget<D, Pair<I1, I2>> & { options1: Get<D, Arr<I1>>; options2: Get<D, Arr<I2>>; };
+type Info<D, U> = Widget<D, U> & { text: GetTP<D>; class: Get<D, ClassValue | undefined>; };
+type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: GetB<D>; };
+type Labels<D, U, I extends string> = Widget<D, U> & { labels: T<I>; get: (t: Translations, v: I | null) => string; };
+type File<D> = Widget<D, Files> & { multiple: GetB<D>; max: Get<D, number>; accept: Get<D, string>; };
+type Lock<D, U> = Widget<D, U> & { lock: GetB<D>; };
+type Compact<D, U> = Widget<D, U> & { compact: GetB<D>; };
+type DoubleLock<D, U> = Widget<D, U> & { lock1: GetB<D>; lock2: GetB<D>; };
+type Chooser<D, I extends K> = Widget<D, I | null> & { options: Get<D, Arr<I>> };
+type SecondChooser<D, I extends K> = Widget<D, SeI<I>> & { options: Arr<I> };
+type DoubleChooser<D, I1 extends K, I2 extends K> = Widget<D, Pair<I1, I2>> & { options1: Get<D, Arr<I1>>; options2: Get<D, Arr<I2>>; };
 type Search<D, T> = Widget<D, T | null> & {
-    getSearchItem: (item: T) => SearchItem;
+    getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry: () => string;
-    inline: Get<D, boolean>;
+    inline: GetB<D>;
     items: Get<D, T[]>;
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
@@ -146,133 +167,136 @@ type Search<D, T> = Widget<D, T | null> & {
     autocapitalize: Get<D, HTMLInputAttributes['autocapitalize']>;
 };
 type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; };
-type Counters<D> = Widget<D, number[]> & { max: Get<D, number>; options: Get<D, Arr<TR>> };
-type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: Get<D, boolean>; };
-type MultiChooser<D, I extends TR> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; };
+type Counters<D, I extends K> = Widget<D, Rec<I>> & { max: Get<D, number> };
+type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: GetB<D>; };
+type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; };
 type Input1<D, U> = Widget<D, U> & {
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode: Get<D, HTMLInputAttributes['inputmode']>;
     autocapitalize: Get<D, HTMLInputAttributes['autocapitalize']>;
     regex: Get<D, RegExp>;
-    capitalize: Get<D, boolean>;
+    capitalize: GetB<D>;
 };
 type Input2<D, U> = Widget<D, U> & {
-    textArea: Get<D, boolean>;
+    textArea: GetB<D>;
     autocomplete: Get<D, FullAutoFill>;
     updateMaskValue: (text: string) => void;
     maskOptions: Get<D, Opts>;
 };
 type Input3<D> = Widget<D, string> & {
-    suffix: Get<D, TR | undefined>;
+    suffix: GetTU<D>;
 }
 type Suggestions<D> = Widget<D, string> & {
-    suggestions: GetOrVal<D, Arr<TR>>;
+    suggestions: GetTAOrVal<D>;
 };
 
 const initInfo = function <D, U>(widget: Info<D, U>, args: InfoArgs<D>) {
-    widget.text = toGet(args.text);
-    widget.show = toGet(args.show ?? true);
-    widget.class = toGet(args.class);
-    widget.showTextValue = toGet(args.showInXML ?? (data => widget.show(data)));
+    widget.text = toGetT(args.text);
+    widget.show = toGetA(args.show ?? true);
+    widget.class = toGetA(args.class);
+    widget.showTextValue = toGetA(args.showInXML ?? (data => widget.show(data)));
 };
 const initValue = function <D, U, H extends boolean>(widget: Required<D, U, H>, args: ValueArgs<D, U, H>) {
-    widget.label = toGet(args.label);
-    widget.show = toGet(args.show ?? true);
-    widget.showTextValue = toGet(args.showInXML ?? (data => widget.show(data)));
+    widget.label = toGetT(args.label);
+    widget.show = toGetA(args.show ?? true);
+    widget.showTextValue = toGetA(args.showInXML ?? (data => widget.show(data)));
     widget.hideInRawData = (args.hideInRawData ?? false) as H;
-    widget.onError = toGet(args.onError ?? 'widget.requiredField');
-    widget.required = toGet(args.required ?? true);
+    widget.onError = toGetT(args.onError ?? (t => t.widget.requiredField));
+    widget.required = toGetA(args.required ?? true);
     widget.onValueSet = args.onValueSet ?? (() => {});
 };
 const initFile = function <D>(widget: File<D>, args: FileArgs<D>, defaultAccept: string = '*') {
-    widget.multiple = toGet(args.multiple ?? false);
-    widget.max = toGet(args.max ?? Number.POSITIVE_INFINITY);
-    widget.accept = toGet(args.accept ?? defaultAccept);
+    widget.multiple = toGetA(args.multiple ?? false);
+    widget.max = toGetA(args.max ?? Number.POSITIVE_INFINITY);
+    widget.accept = toGetA(args.accept ?? defaultAccept);
 };
-const initChooser = function <D, I extends TR>(widget: Chooser<D, I>, args: ChooserArgs<D, I>) {
-    widget.options = toGet(args.options);
+const initChooser = function <D, I extends K>(widget: Chooser<D, I>, args: ChooserArgs<D, I>) {
+    widget.options = toGetA(args.options);
     widget._value = args.chosen ?? null;
 };
-const initSecondChooser = function <D, I extends TR>(widget: SecondChooser<D, I>, args: SecondChooserArgs<I>) {
+const initSecondChooser = function <D, I extends K>(widget: SecondChooser<D, I>, args: SecondChooserArgs<I>) {
     widget.options = args.options;
     widget._value = { chosen: args.chosen ?? args.options[0], text: args.text ?? '' };
 };
-const initDoubleChooser = function <D, I1 extends TR, I2 extends TR>(widget: DoubleChooser<D, I1, I2>, args: DoubleChooserArgs<D, I1, I2>) {
-    widget.options1 = toGet(args.options1);
-    widget.options2 = toGet(args.options2);
+const initDoubleChooser = function <D, I1 extends K, I2 extends K>(widget: DoubleChooser<D, I1, I2>, args: DoubleChooserArgs<D, I1, I2>) {
+    widget.options1 = toGetA(args.options1);
+    widget.options2 = toGetA(args.options2);
     widget._value = args.chosen ?? { first: null, second: null };
 };
 const initLock = function <D, U>(widget: Lock<D, U>, args: LockArgs<D>) {
-    widget.lock = toGet(args.lock ?? false);
+    widget.lock = toGetA(args.lock ?? false);
+};
+const initLabels = function <D, U, I extends string>(widget: Labels<D, U, I>, args: LabelsArgs<I>) {
+    widget.labels = args.labels ?? (() => ({}) as Record<I, string>);
+    widget.get = (t, v) => get(widget.labels(t), v)
 };
 const initCompact = function <D, U>(widget: Compact<D, U>, args: CompactArgs<D>) {
-    widget.compact = toGet(args.compact ?? false);
+    widget.compact = toGetA(args.compact ?? false);
 };
 const initDoubleLock = function <D, U>(widget: DoubleLock<D, U>, args: DoubleLockArgs<D>) {
-    widget.lock1 = toGet(args.lock1 ?? false);
-    widget.lock2 = toGet(args.lock2 ?? false);
+    widget.lock1 = toGetA(args.lock1 ?? false);
+    widget.lock2 = toGetA(args.lock2 ?? false);
 };
 const initSearch = function <D, T>(widget: Search<D, T>, args: SearchArgs<D, T>) {
     widget._value = args.chosen ?? null;
-    widget.items = toGet(args.items);
-    widget.getSearchItem = toGet(args.getSearchItem);
+    widget.items = toGetA(args.items);
+    widget.getSearchItem = args.getSearchItem;
     widget.getXmlEntry = args.getXmlEntry ?? (() => JSON.stringify(widget.value));
-    widget.type = toGet(args.type ?? 'search');
-    widget.enterkeyhint = toGet(args.enterkeyhint);
-    widget.inputmode = toGet(args.inputmode);
-    widget.autocapitalize = toGet(args.autocapitalize);
-    widget.inline = toGet(args.inline ?? false);
+    widget.type = toGetA(args.type ?? 'search');
+    widget.enterkeyhint = toGetA(args.enterkeyhint);
+    widget.inputmode = toGetA(args.inputmode);
+    widget.autocapitalize = toGetA(args.autocapitalize);
+    widget.inline = toGetA(args.inline ?? false);
 };
 const initCounter = function <D>(widget: Counter<D>, args: CounterArgs<D>) {
     widget._value = args.chosen;
-    widget.min = toGet(args.min);
-    widget.max = toGet(args.max);
+    widget.min = toGetA(args.min);
+    widget.max = toGetA(args.max);
 };
-const initCounters = function <D>(widget: Counters<D>, args: CountersArgs<D>) {
+const initCounters = function <D, I extends K>(widget: Counters<D, I>, args: CountersArgs<D, I>) {
     widget._value = args.counts;
-    widget.max = toGet(args.max);
-    widget.options = toGet(args.options);
+    widget.max = toGetA(args.max);
 };
 const initSwitch = function <D>(widget: Switch<D>, args: SwitchArgs<D>) {
-    widget.hasPositivity = toGet(args.hasPositivity ?? false);
+    widget.hasPositivity = toGetA(args.hasPositivity ?? false);
     widget.options = args.options;
 };
 const initCheck = function <D>(widget: Widget<D, boolean>, args: CheckArgs) {
     widget._value = args.checked ?? false;
 };
-const initMultiChooser = function <D, I extends TR>(widget: MultiChooser<D, I>, args: MultiChooserArgs<D, I>) {
+const initMultiChooser = function <D, I extends K>(widget: MultiChooser<D, I>, args: MultiChooserArgs<D, I>) {
     widget._value = args.chosen ?? [];
-    widget.max = toGet(args.max ?? Number.MAX_VALUE);
-    widget.options = toGet(args.options);
+    widget.max = toGetA(args.max ?? Number.MAX_VALUE);
+    widget.options = toGetA(args.options);
 };
 const initInput1 = function <D, U>(widget: Input1<D, U>, args: Input1Args<D>) {
-    widget.regex = toGet(args.regex ?? /.*/);
-    widget.capitalize = toGet(args.capitalize ?? false);
-    widget.type = toGet(args.type ?? 'text');
-    widget.enterkeyhint = toGet(args.enterkeyhint);
-    widget.inputmode = toGet(args.inputmode);
-    widget.autocapitalize = toGet(args.autocapitalize);
+    widget.regex = toGetA(args.regex ?? /.*/);
+    widget.capitalize = toGetA(args.capitalize ?? false);
+    widget.type = toGetA(args.type ?? 'text');
+    widget.enterkeyhint = toGetA(args.enterkeyhint);
+    widget.inputmode = toGetA(args.inputmode);
+    widget.autocapitalize = toGetA(args.autocapitalize);
 };
 const initInput2 = function <D, U>(widget: Input2<D, U>, args: Input2Args<D>) {
-    widget.textArea = toGet(args.textArea ?? false);
-    widget.maskOptions = toGet(args.maskOptions ?? undefined);
-    widget.autocomplete = toGet(args.autocomplete ?? 'off');
+    widget.textArea = toGetA(args.textArea ?? false);
+    widget.maskOptions = toGetA(args.maskOptions ?? undefined);
+    widget.autocomplete = toGetA(args.autocomplete ?? 'off');
 };
 const initInput3 = function <D>(widget: Input3<D>, args: Input3Args<D>) {
     widget._value = args.text ?? '';
-    widget.suffix = toGet(args.suffix);
+    widget.suffix = toGetT(args.suffix);
 };
 const initSuggestions = function <D>(widget: Suggestions<D>, args: SuggestionsArgs<D>) {
-    widget.suggestions = toGet(args.suggestions);
+    widget.suggestions = toGetT(args.suggestions);
 };
 
 export class TitleWidget<D> extends Widget<D, undefined, true> {
-    text = ($state() as Get<D, TR | Promise<TR>>);
+    text = ($state() as GetTP<D>);
     label = () => '' as const;
     onError = () => '' as const;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     _value = undefined;
     onValueSet = () => {};
     hideInRawData = true as const;
@@ -286,11 +310,11 @@ export class TitleWidget<D> extends Widget<D, undefined, true> {
 }
 
 export class TextWidget<D> extends Widget<D, undefined, true> {
-    text = ($state() as Get<D, TR | Promise<TR>>);
+    text = ($state() as GetTP<D>);
     label = () => '' as const;
     onError = () => '' as const;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     _value = undefined;
     onValueSet = () => {};
     hideInRawData = true as const;
@@ -303,61 +327,67 @@ export class TextWidget<D> extends Widget<D, undefined, true> {
     }
 }
 
-export class ChooserWidget<D, I extends TR, H extends boolean = false> extends Widget<D, I | null, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+export class ChooserWidget<D, I extends K, H extends boolean = false> extends Widget<D, I | null, H> {
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     _value = $state() as I | null;
     onValueSet = $state() as (data: D, newValue: I | null) => void;
     hideInRawData = $state() as H;
-    isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
-    lock = $state() as Get<D, boolean>;
-    compact = $state() as Get<D, boolean>;
+    isError = $state(a => this.value == null && this.required(a)) as GetB<D>;
+    required = $state() as GetB<D>;
+    lock = $state() as GetB<D>;
+    compact = $state() as GetB<D>;
     options = $state() as Get<D, Arr<I>>;
+    labels = $state() as T<I>;
+    get = $state() as ((t: Translations, v: I | null) => string);
 
-    constructor(args: ValueArgs<D, I | null, H> & ChooserArgs<D, I> & LockArgs<D> & CompactArgs<D>) {
+    constructor(args: ValueArgs<D, I | null, H> & ChooserArgs<D, I> & LockArgs<D> & CompactArgs<D> & LabelsArgs<I>) {
         super();
         initValue(this, args);
         initChooser(this, args);
         initLock(this, args);
         initCompact(this, args);
+        initLabels(this, args);
     }
 }
 
-export class CheckboxWithChooserWidget<D, I extends TR, H extends boolean = false> extends Widget<D, SeCh<I>, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+export class CheckboxWithChooserWidget<D, I extends K, H extends boolean = false> extends Widget<D, SeCh<I>, H> {
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     _value = $state() as SeCh<I>;
     onValueSet = $state() as (data: D, newValue: SeCh<I>) => void;
     hideInRawData = $state() as H;
-    isError = $state(a => (this.value.chosen == null || !this.value.checked) && this.required(a)) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
+    isError = $state(a => (this.value.chosen == null || !this.value.checked) && this.required(a)) as GetB<D>;
+    required = $state() as GetB<D>;
     options = $state() as Get<D, Arr<I>>;
+    labels = $state() as T<I>;
+    get = $state() as ((t: Translations, v: I | null) => string);
 
-    constructor(args: ValueArgs<D, SeCh<I>, H> & ChooserArgs<D, I> & CheckArgs) {
+    constructor(args: ValueArgs<D, SeCh<I>, H> & ChooserArgs<D, I> & CheckArgs & LabelsArgs<I>) {
         super();
         initValue(this, args);
-        this.options = toGet(args.options);
+        this.options = toGetA(args.options);
         this._value = { chosen: args.chosen ?? null, checked: args.checked ?? false };
+        initLabels(this, args);
     }
 }
 
 export class SearchWidget<D, T, H extends boolean = false> extends Widget<D, T | null, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     _value = $state() as T | null;
     onValueSet = $state() as (data: D, newValue: T | null) => void;
     hideInRawData = $state() as H;
-    isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
-    inline = $state() as Get<D, boolean>;
-    getSearchItem = $state() as (item: T) => SearchItem;
+    isError = $state(a => this.value == null && this.required(a)) as GetB<D>;
+    required = $state() as GetB<D>;
+    inline = $state() as GetB<D>;
+    getSearchItem = $state() as (item: T, t: Translations) => SearchItem;
     getXmlEntry = $state() as () => string;
     items = $state() as Get<D, T[]>;
     type = $state() as Get<D, HTMLInputTypeAttribute>;
@@ -373,23 +403,23 @@ export class SearchWidget<D, T, H extends boolean = false> extends Widget<D, T |
 }
 
 export class InputWithSuggestionsWidget<D, H extends boolean = false> extends Widget<D, string, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     _value = $state() as string;
     onValueSet = $state() as (data: D, newValue: string) => void;
     hideInRawData = $state() as H;
-    isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
-    suggestions = $state() as Get<D, Arr<TR>>;
+    isError = $state(a => this.value == null && this.required(a)) as GetB<D>;
+    required = $state() as GetB<D>;
+    suggestions = $state() as GetTA<D>;
     type = $state() as Get<D, HTMLInputTypeAttribute>;
     enterkeyhint = $state() as Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
     autocapitalize = $state() as Get<D, HTMLInputAttributes['autocapitalize']>;
-    suffix = $state() as Get<D, TR | undefined>;
+    suffix = $state() as GetTU<D>;
     regex = $state() as Get<D, RegExp>;
-    capitalize = $state() as Get<D, boolean>;
+    capitalize = $state() as GetB<D>;
 
     setValue(data: D, value: string) {
         this._value = value;
@@ -405,41 +435,44 @@ export class InputWithSuggestionsWidget<D, H extends boolean = false> extends Wi
     }
 }
 
-export class DoubleChooserWidget<D, I1 extends TR, I2 extends TR, H extends boolean = false> extends Widget<D, Pair<I1, I2>, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+export class DoubleChooserWidget<D, I1 extends K, I2 extends K, H extends boolean = false> extends Widget<D, Pair<I1, I2>, H> {
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     _value = $state() as Pair<I1, I2>;
     onValueSet = $state() as (data: D, newValue: Pair<I1, I2>) => void;
     hideInRawData = $state() as H;
     isError = $state(
         a => (this.value.first == null || (this.value.second == null && this.options2(a).length)) && this.required(a)
-    ) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
-    lock1 = $state() as Get<D, boolean>;
-    lock2 = $state() as Get<D, boolean>;
+    ) as GetB<D>;
+    required = $state() as GetB<D>;
+    lock1 = $state() as GetB<D>;
+    lock2 = $state() as GetB<D>;
     options1 = $state() as Get<D, Arr<I1>>;
     options2 = $state() as Get<D, Arr<I2>>;
+    labels = $state() as T<I1 | I2>;
+    get = $state() as ((t: Translations, v: I1 | I2 | null) => string);
 
-    constructor(args: ValueArgs<D, Pair<I1, I2>, H> & DoubleLockArgs<D> & DoubleChooserArgs<D, I1, I2>) {
+    constructor(args: ValueArgs<D, Pair<I1, I2>, H> & DoubleLockArgs<D> & DoubleChooserArgs<D, I1, I2> & LabelsArgs<I1 | I2>) {
         super();
         initValue(this, args);
         initDoubleChooser(this, args);
         initDoubleLock(this, args);
+        initLabels(this, args);
     }
 }
 
 export class CounterWidget<D, H extends boolean = false> extends Widget<D, number, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     _value = $state() as number;
     onValueSet = $state() as (data: D, newValue: number) => void;
     required = () => false;
     hideInRawData = $state() as H;
-    isError = $state(() => false) as Get<D, boolean>;
+    isError = $state(() => false) as GetB<D>;
     min = $state() as Get<D, number>;
     max = $state() as Get<D, number>;
 
@@ -450,59 +483,64 @@ export class CounterWidget<D, H extends boolean = false> extends Widget<D, numbe
     }
 }
 
-export class CountersWidget<D, H extends boolean = false> extends Widget<D, number[], H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
+export class CountersWidget<D, I extends K, H extends boolean = false> extends Widget<D, Rec<I>, H> {
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
     required = () => false;
-    showTextValue = $state() as Get<D, boolean>;
-    _value = $state() as number[];
-    onValueSet = $state() as (data: D, newValue: number[]) => void;
+    showTextValue = $state() as GetB<D>;
+    _value = $state() as Rec<I>;
+    onValueSet = $state() as (data: D, newValue: Rec<I>) => void;
     hideInRawData = $state() as H;
-    isError = $state(() => false) as Get<D, boolean>;
+    isError = $state(() => false) as GetB<D>;
     max = $state() as Get<D, number>;
-    options = $state() as Get<D, Arr<TR>>;
+    labels = $state() as T<I>;
+    get = $state() as ((t: Translations, v: I | null) => string);
 
-    constructor(args: ValueArgs<D, number[], H> & CountersArgs<D>) {
+    constructor(args: ValueArgs<D, Rec<I>, H> & CountersArgs<D, I> & LabelsArgs<I>) {
         super();
         initValue(this, args);
         initCounters(this, args);
+        initLabels(this, args);
     }
 }
 
-export class RadioWidget<D, I extends TR, H extends boolean = false> extends Widget<D, I | null, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+export class RadioWidget<D, I extends K, H extends boolean = false> extends Widget<D, I | null, H> {
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     _value = $state() as I | null;
     onValueSet = $state() as (data: D, newValue: I | null) => void;
     hideInRawData = $state() as H;
-    isError = $state(a => this.value == null && this.required(a)) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
-    lock = $state() as Get<D, boolean>;
+    isError = $state(a => this.value == null && this.required(a)) as GetB<D>;
+    required = $state() as GetB<D>;
+    lock = $state() as GetB<D>;
     options = $state() as Get<D, Arr<I>>;
+    labels = $state() as T<I>;
+    get = $state() as ((t: Translations, v: I | null) => string);
 
-    constructor(args: ValueArgs<D, I | null, H> & ChooserArgs<D, I> & LockArgs<D>) {
+    constructor(args: ValueArgs<D, I | null, H> & ChooserArgs<D, I> & LockArgs<D> & LabelsArgs<I>) {
         super();
         initValue(this, args);
         initChooser(this, args);
         initLock(this, args);
+        initLabels(this, args);
     }
 }
 
 export class SwitchWidget<D, H extends boolean = false> extends Widget<D, boolean, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     _value = $state() as boolean;
     onValueSet = $state() as (data: D, newValue: boolean) => void;
     hideInRawData = $state() as H;
-    isError = $state(a => !this.value && this.required(a)) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
+    isError = $state(a => !this.value && this.required(a)) as GetB<D>;
+    required = $state() as GetB<D>;
     options = $state() as Sides;
-    hasPositivity = $state() as Get<D, boolean>;
+    hasPositivity = $state() as GetB<D>;
 
     constructor(args: ValueArgs<D, boolean, H> & CheckArgs & SwitchArgs<D>) {
         super();
@@ -512,41 +550,44 @@ export class SwitchWidget<D, H extends boolean = false> extends Widget<D, boolea
     }
 }
 
-export class MultiCheckboxWidget<D, I extends TR, H extends boolean = false> extends Widget<D, Arr<I>, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+export class MultiCheckboxWidget<D, I extends K, H extends boolean = false> extends Widget<D, Arr<I>, H> {
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     _value = $state() as Arr<I>;
     onValueSet = $state() as (data: D, newValue: Arr<I>) => void;
     hideInRawData = $state() as H;
-    isError = $state(a => this.value.length == 0 && this.required(a)) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
-    lock = $state() as Get<D, boolean>;
+    isError = $state(a => this.value.length == 0 && this.required(a)) as GetB<D>;
+    required = $state() as GetB<D>;
+    lock = $state() as GetB<D>;
     options = $state() as Get<D, Arr<I>>;
     max = $state() as Get<D, number>;
+    labels = $state() as T<I>;
+    get = $state() as ((t: Translations, v: I | null) => string);
 
-    constructor(args: ValueArgs<D, Arr<I>, H> & MultiChooserArgs<D, I> & LockArgs<D>) {
+    constructor(args: ValueArgs<D, Arr<I>, H> & MultiChooserArgs<D, I> & LockArgs<D> & LabelsArgs<I>) {
         super();
         initValue(this, args);
         initMultiChooser(this, args);
         initLock(this, args);
+        initLabels(this, args);
     }
 }
 
 export class InputWidget<D, H extends boolean = false> extends Widget<D, string, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     hideInRawData = $state() as H;
     _value = $state() as string;
     onValueSet = $state() as (data: D, newValue: string) => void;
     isError = $state(
         a => (this.value == '' && this.required(a)) || (this.value != '' && !this.regex(a).test(this.value))
-    ) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
-    lock = $state() as Get<D, boolean>;
+    ) as GetB<D>;
+    required = $state() as GetB<D>;
+    lock = $state() as GetB<D>;
 
     setValue(data: D, value: string) {
         this._value = value;
@@ -558,13 +599,13 @@ export class InputWidget<D, H extends boolean = false> extends Widget<D, string,
     enterkeyhint = $state() as Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
     autocapitalize = $state() as Get<D, HTMLInputAttributes['autocapitalize']>;
-    suffix = $state() as Get<D, TR | undefined>;
+    suffix = $state() as GetTU<D>;
     autocomplete = $state() as Get<D, FullAutoFill>;
     updateMaskValue = $state(() => {}) as (text: string) => void;
     maskOptions = $state() as Get<D, Opts>;
     regex = $state() as Get<D, RegExp>;
-    capitalize = $state() as Get<D, boolean>;
-    textArea = $state() as Get<D, boolean>;
+    capitalize = $state() as GetB<D>;
+    textArea = $state() as GetB<D>;
 
     constructor(args: ValueArgs<D, string, H> & LockArgs<D> & Input1Args<D> & Input2Args<D> & Input3Args<D>) {
         super();
@@ -589,18 +630,18 @@ export class ScannerWidget<D, H extends boolean = false> extends InputWidget<D, 
 }
 
 export class FileWidget<D, H extends boolean = false> extends Widget<D, Files, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
     showTextValue = () => false;
     hideInRawData = $state() as H;
     _value = $state<Files>([]);
     onValueSet = $state() as (data: D, newValue: Files) => void;
-    isError = $state(a => (this.value.length == 0) && this.required(a)) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
-    lock = $state() as Get<D, boolean>;
+    isError = $state(a => (this.value.length == 0) && this.required(a)) as GetB<D>;
+    required = $state() as GetB<D>;
+    lock = $state() as GetB<D>;
     accept = $state() as Get<D, string>;
-    multiple = $state() as Get<D, boolean>;
+    multiple = $state() as GetB<D>;
     max = $state() as Get<D, number>;
 
     constructor(args: ValueArgs<D, Files, H> & FileArgs<D> & LockArgs<D>) {
@@ -612,18 +653,18 @@ export class FileWidget<D, H extends boolean = false> extends Widget<D, Files, H
 }
 
 export class PhotoSelectorWidget<D, H extends boolean = false> extends Widget<D, Files, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
     showTextValue = () => false;
     hideInRawData = $state() as H;
     _value = $state<Files>([]);
     onValueSet = $state() as (data: D, newValue: Files) => void;
-    isError = $state(a => (this.value.length == 0) && this.required(a)) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
-    lock = $state() as Get<D, boolean>;
+    isError = $state(a => (this.value.length == 0) && this.required(a)) as GetB<D>;
+    required = $state() as GetB<D>;
+    lock = $state() as GetB<D>;
     accept = $state() as Get<D, string>;
-    multiple = $state() as Get<D, boolean>;
+    multiple = $state() as GetB<D>;
     max = $state() as Get<D, number>;
 
     constructor(args: ValueArgs<D, Files, H> & FileArgs<D> & LockArgs<D>) {
@@ -634,20 +675,20 @@ export class PhotoSelectorWidget<D, H extends boolean = false> extends Widget<D,
     }
 }
 
-export class InputWithChooserWidget<D, I extends TR, H extends boolean = false> extends Widget<D, SeI<I>, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
+export class InputWithChooserWidget<D, I extends K, H extends boolean = false> extends Widget<D, SeI<I>, H> {
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
     options = $state() as Arr<I>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     hideInRawData = $state() as H;
     _value = $state() as SeI<I>;
     onValueSet = $state() as (data: D, newValue: SeI<I>) => void;
     isError = $state(
         a => (this.value.text == '' && this.required(a)) || (this.value.text != '' && !this.regex(a).test(this.value.text))
-    ) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
-    lock = $state() as Get<D, boolean>;
+    ) as GetB<D>;
+    required = $state() as GetB<D>;
+    lock = $state() as GetB<D>;
 
     setValue(data: D, value: SeI<I>) {
         this._value = value;
@@ -663,24 +704,27 @@ export class InputWithChooserWidget<D, I extends TR, H extends boolean = false> 
     updateMaskValue = $state(() => {}) as (text: string) => void;
     maskOptions = $state() as Get<D, Opts>;
     regex = $state() as Get<D, RegExp>;
-    capitalize = $state() as Get<D, boolean>;
-    textArea = $state() as Get<D, boolean>;
+    capitalize = $state() as GetB<D>;
+    textArea = $state() as GetB<D>;
+    labels = $state() as T<I>;
+    get = $state() as ((t: Translations, v: I | null) => string);
 
-    constructor(args: ValueArgs<D, SeI<I>, H> & LockArgs<D> & Input1Args<D> & Input2Args<D> & Input3Args<D> & SecondChooserArgs<I>) {
+    constructor(args: ValueArgs<D, SeI<I>, H> & LockArgs<D> & Input1Args<D> & Input2Args<D> & Input3Args<D> & SecondChooserArgs<I> & LabelsArgs<I>) {
         super();
         initValue(this, args);
         initLock(this, args);
         initInput1(this, args);
         initInput2(this, args);
         initSecondChooser(this, args);
+        initLabels(this, args);
     }
 }
 
 export class CheckboxWithInputWidget<D, H extends boolean = false> extends Widget<D, ChI, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     hideInRawData = $state() as H;
     _value = $state() as ChI;
     onValueSet = $state() as (data: D, newValue: ChI) => void;
@@ -688,9 +732,9 @@ export class CheckboxWithInputWidget<D, H extends boolean = false> extends Widge
         a => (this.value.text == '' && this.required(a)) ||
             (!this.value.checked && this.required(a)) ||
             (this.value.text != '' && !this.regex(a).test(this.value.text))
-    ) as Get<D, boolean>;
-    required = $state() as Get<D, boolean>;
-    lock = $state() as Get<D, boolean>;
+    ) as GetB<D>;
+    required = $state() as GetB<D>;
+    lock = $state() as GetB<D>;
 
     setValue(data: D, value: ChI) {
         this._value = value;
@@ -706,8 +750,8 @@ export class CheckboxWithInputWidget<D, H extends boolean = false> extends Widge
     updateMaskValue = $state(() => {}) as (text: string) => void;
     maskOptions = $state() as Get<D, Opts>;
     regex = $state() as Get<D, RegExp>;
-    capitalize = $state() as Get<D, boolean>;
-    textArea = $state() as Get<D, boolean>;
+    capitalize = $state() as GetB<D>;
+    textArea = $state() as GetB<D>;
 
     constructor(args: ValueArgs<D, ChI, H> & LockArgs<D> & Input1Args<D> & Input2Args<D> & Input3Args<D> & CheckArgs) {
         super();
@@ -720,16 +764,16 @@ export class CheckboxWithInputWidget<D, H extends boolean = false> extends Widge
 }
 
 export class CheckboxWidget<D, H extends boolean = false> extends Widget<D, boolean, H> {
-    label = $state() as Get<D>;
-    onError = $state() as Get<D>;
-    show = $state() as Get<D, boolean>;
-    showTextValue = $state() as Get<D, boolean>;
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
     _value = $state() as boolean;
     onValueSet = $state() as (data: D, newValue: boolean) => void;
     hideInRawData = $state() as H;
-    required = $state() as Get<D, boolean>;
-    isError = $state(a => !this.value && this.required(a)) as Get<D, boolean>;
-    lock = $state() as Get<D, boolean>;
+    required = $state() as GetB<D>;
+    isError = $state(a => !this.value && this.required(a)) as GetB<D>;
+    lock = $state() as GetB<D>;
 
     constructor(args: ValueArgs<D, boolean, H> & LockArgs<D> & CheckArgs) {
         super();

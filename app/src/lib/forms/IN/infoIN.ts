@@ -12,7 +12,7 @@ import db from '$lib/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
-import { getTranslations, p, type Translations } from '$lib/translations';
+import { getTranslations } from '$lib/translations';
 import { nazevFirmy } from '$lib/helpers/ares';
 import { generatePdf } from '$lib/pdf/pdfGeneration';
 import { pdfInfo } from '$lib/pdf/pdf';
@@ -135,7 +135,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
             data.uvedeni.telefon.show = d => !d.uvedeni.jakoMontazka.value;
         }
 
-        const count = cascadePumps(dataToRawData(data), getTranslations('cs')).length;
+        const count = cascadePumps(dataToRawData(data)).length;
         data.tc.pocet.setValue(data, count == 0 ? 1 : count);
     },
     storeEffects: [
@@ -148,10 +148,10 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
         }, [companies]],
         [(_, data, [$isUserRegulusOrAdmin]) => {
             data.vzdalenyPristup.plati.options = () => $isUserRegulusOrAdmin
-                ? [p('Později, dle protokolu'), 'doNotInvoice', 'assemblyCompany', 'endCustomer']
+                ? ['laterAccordingToTheProtocol', 'doNotInvoice', 'assemblyCompany', 'endCustomer']
                 : ['assemblyCompany', 'endCustomer'];
             if ($isUserRegulusOrAdmin && !data.vzdalenyPristup.plati.value)
-                data.vzdalenyPristup.plati.setValue(data, p('Později, dle protokolu'));
+                data.vzdalenyPristup.plati.setValue(data, 'laterAccordingToTheProtocol');
         }, [isUserRegulusOrAdmin]],
         [(_, data, [$responsiblePerson]) => {
             if ($responsiblePerson != null) data.vzdalenyPristup.zodpovednaOsoba.setValue(data, $responsiblePerson);
@@ -168,7 +168,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
 };
 export default infoIN;
 
-export const cascadePumps = (e: Raw<FormIN>, t: Translations) =>
+export const cascadePumps = (e: Raw<FormIN>) =>
     TCNumbers
         .map(n => ({
             model: e.tc[`model${n}`],
@@ -176,7 +176,7 @@ export const cascadePumps = (e: Raw<FormIN>, t: Translations) =>
         }))
         .filter(tc => tc.cislo?.length && tc.model)
         .map((tc, i) => ({
-            model: t.get(tc.model)!,
+            model: tc.model!,
             cislo: tc.cislo,
             n: e.tc.model2 ? `${i + 1}` as `${TC}` : '' as const,
             N: i + 1 as TC,

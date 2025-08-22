@@ -3,8 +3,7 @@
     import { setTitle } from '$lib/helpers/globals.js';
     import { irWholeName } from '$lib/helpers/ir';
     import { SearchWidget } from '$lib/forms/Widget.svelte.js';
-    import { p } from '$lib/translations';
-    import Search from '$lib/components/widgets/Search.svelte';
+        import Search from '$lib/components/widgets/Search.svelte';
     import { usersList } from '$lib/client/realtime';
     import db from '$lib/data';
 
@@ -15,9 +14,9 @@
     $effect(() => setTitle(t.users.title, true));
 
     let w = $state(new SearchWidget({
-        label: 'users.email', type: 'email', items: [] as string[], getSearchItem: i => ({
+        label: t => t.users.email, type: 'email', items: [] as string[], getSearchItem: i => ({
             pieces: [
-                { text: p(i) },
+                { text: i },
             ],
         }), required: false,
     }));

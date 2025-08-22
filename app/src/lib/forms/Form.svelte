@@ -87,7 +87,7 @@
     const save = (send: boolean) => async () => {
         try {
             const raw = dataToRawData(f);
-            const errors = list.filter(w => w.isError(d) && w.show(d)).map(w => t.get(w.label(d, t)));
+            const errors = list.filter(w => w.isError(d) && w.show(d)).map(w => w.label(t, d));
             if (errors.length > 0) {
                 for (const i in list) {
                     list[i].displayErrorVeto = true;

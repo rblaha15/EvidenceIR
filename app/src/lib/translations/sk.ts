@@ -8,9 +8,10 @@ const sk: PlainTranslations = {
     // yes: `Áno`,
     // no: `Nie`,
     // cancel: `Zrušiť`,
-    demand: {
-        ...cs.demand,
+    nk: {
+        ...cs.nk,
         contacts: {
+            ...cs.nk.contacts,
             contacts: `Kontakty a miesto realizácie`,
             surname: `Priezvisko`,
             name: `Meno`,
@@ -25,15 +26,15 @@ const sk: PlainTranslations = {
             searchCompany: `Vyberte montážnu firmu`,
             crn: `Vyhledat firmu`,
             demandOrigin: `Pôvod dopytu`,
-            originQuestionEmail: `Otázka poslaná emailom od koncového zákazníka`,
-            originQuestionExhibition: `Otázka z výstavy`,
-            originQuestionInPerson: `Otázka pri osobnej návšteve u koncového zákazníka`,
-            originDistributionCompany: `Dopyt od distribučnej firmy`,
-            originAssembleres: `Dopyt od montážnikov`,
-            originDesigner: `Dopyt od projektanta`,
+            origins: {
+                questionEmail: `Otázka poslaná emailom od koncového zákazníka`,
+                questionExhibition: `Otázka z výstavy`,
+                questionInPerson: `Otázka pri osobnej návšteve u koncového zákazníka`,
+                distributionCompany: `Dopyt od distribučnej firmy`,
+                assembleres: `Dopyt od montážnikov`,
+                designer: `Dopyt od projektanta`,
+            },
             demandSubject: `Predmet dopytu`,
-            heatPump: `Tepelné čerpadlo`,
-            fve: `FVE`,
         },
         objectDetail: {
             objectDetail: `Detail objektu`,
@@ -84,6 +85,7 @@ const sk: PlainTranslations = {
             charging: `Dobíjacia stanica – wallbox`,
         },
         system: {
+            ...cs.nk.system,
             system: `Systém`,
             hPType: `Typ tepelného čerpadla`,
             hPModel: `Model tepelného čerpadla`,

@@ -102,15 +102,15 @@ Object.defineProperties(Object.prototype, {
     thenAlso: { writable: true },
 });
 
-Object.prototype.entries = <typeof Object.prototype.entries>function() {
+Object.prototype.entries = function() {
     return Object.entries(this);
-};
-Object.prototype.getValues = <typeof Object.prototype.getValues>function() {
+} as typeof Object.prototype.entries;
+Object.prototype.getValues = function() {
     return Object.values(this);
-};
-Object.prototype.keys = <typeof Object.prototype.keys>function() {
+} as typeof Object.prototype.getValues;
+Object.prototype.keys = function() {
     return Object.keys(this);
-};
+} as typeof Object.prototype.keys;
 Object.prototype.mapTo = function <T extends Record<PropertyKey, unknown>, U>(
     this: T,
     callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U
@@ -153,10 +153,10 @@ Object.prototype.filterValues = function <T extends Record<PropertyKey, unknown>
     ).toRecord() as { [K in keyof T]: T[K] | never; };
 };
 
-Object.prototype.zip = <typeof Object.prototype.zip>function(other) {
+Object.prototype.zip = function(other) {
     const keys = [...this.keys(), ...other.keys()];
     return keys.map(key => [key, [this[key], other[key]]] as [PropertyKey, unknown[]]).toRecord();
-};
+} as typeof Object.prototype.zip;
 
 Object.prototype.omit = function <T extends Record<PropertyKey, unknown>, K extends keyof T>(
     this: T,
@@ -362,21 +362,21 @@ declare global {
     }
 }
 
-Array.prototype.zip = <typeof Array.prototype.zip>function(other) {
+Array.prototype.zip = function(other) {
     return this.map((item, index) => [item, other[index]]);
-};
+} as typeof Array.prototype.zip;
 
-Array.prototype.mapNotUndefined = <typeof Array.prototype.mapNotUndefined>function(callback) {
+Array.prototype.mapNotUndefined = function(callback) {
     return this.map(callback).filterNotUndefined();
-};
+} as typeof Array.prototype.mapNotUndefined;
 
-Array.prototype.filterNotUndefined = <typeof Array.prototype.filterNotUndefined>function() {
+Array.prototype.filterNotUndefined = function() {
     return this.filter(it => it != undefined);
-};
+} as typeof Array.prototype.filterNotUndefined;
 
-Array.prototype.toRecord = <typeof Array.prototype.toRecord>function() {
+Array.prototype.toRecord = function() {
     return Object.fromEntries(this);
-};
+} as typeof Array.prototype.toRecord;
 
 Array.prototype.associate = function<T, K extends PropertyKey, V>(
     this: T[],
@@ -407,13 +407,13 @@ Array.prototype.associateWithSelf = function<T extends PropertyKey>(
     return this.associate(v => [v, v] as const);
 };
 
-Array.prototype.awaitAll = <typeof Array.prototype.awaitAll>function() {
+Array.prototype.awaitAll = function() {
     return Promise.all(this);
-};
+} as typeof Array.prototype.awaitAll;
 
-Array.prototype.groupBy = <typeof Array.prototype.groupBy>function(ks) {
+Array.prototype.groupBy = function(ks) {
     return Object.groupBy(this, ks);
-};
+} as typeof Array.prototype.groupBy;
 
 Array.prototype.distinctBy = function <T, K>(
     this: T[],
@@ -480,9 +480,9 @@ Array.prototype.toggle = function <T>(
     return this.includes(value) ? this.toSpliced(this.indexOf(value), 1) : [...this, value];
 };
 
-Array.prototype.sumBy = <typeof Array.prototype.sumBy>function(callback) {
+Array.prototype.sumBy = function(callback) {
     return this.reduce((sum, v, i, a) => sum + callback(v, i, a), 0);
-};
+} as typeof Array.prototype.sumBy;
 
 // TLM
 

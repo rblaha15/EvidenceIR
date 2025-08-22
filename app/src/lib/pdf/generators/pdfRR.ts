@@ -4,7 +4,6 @@ import { endUserName, irType, isMacAddress } from '$lib/helpers/ir';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
-import { p } from '$lib/translations';
 
 const representative = (c: Raw<FormIN>['montazka' | 'uvedeni']) =>
     `${c.zastupce} – ${c.email}; ${c.telefon ?? ''}`;
@@ -25,14 +24,14 @@ const pdfRR: GetPdfData<'RR'> = async ({ data: { evidence: e }, t }) => ({
     Text12: e.koncovyUzivatel.email,
     Text13: e.koncovyUzivatel.telefon,
     Text14: irType(e.ir.typ),
-    Text15: e.ir.typ.first == p('SOREL') ? '—'
+    Text15: e.ir.typ.first == 'SOREL' ? '—'
         : isMacAddress(e.ir.cislo) ? e.ir.cislo.slice(0, 6)
             : e.ir.cislo.split(' ')[0],
-    Text16: e.ir.typ.first == p('SOREL') ? '—'
+    Text16: e.ir.typ.first == 'SOREL' ? '—'
         : isMacAddress(e.ir.cislo) ? e.ir.cislo.slice(6)
             : e.ir.cislo.split(' ')[1],
     Text17: e.ir.cisloBox,
-    Text18: cascadePumps(e, t)
+    Text18: cascadePumps(e)
         .map(tc => `${tc.cislo} (${tc.model})`)
         .join(', '),
     Text22: e.vzdalenyPristup.plati == 'endCustomer' ? t.rr.agreeWIthRRPrice : '',
