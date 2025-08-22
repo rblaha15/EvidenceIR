@@ -1,4 +1,3 @@
-import { p, removePlain } from '$lib/translations';
 import type { FormIN, UserForm } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
@@ -13,7 +12,7 @@ import type { FormNSP } from '$lib/forms/NSP/formNSP';
  * SRS1 T : Novák Jan - Brno
  */
 export const irWholeName = (evidence: Raw<FormIN>, includeEstablishment: boolean = true) =>
-    evidence.ir.typ.first == 'irFVE' ? irLabel(evidence, includeEstablishment)
+    evidence.ir.typ.first == 'fve' ? irLabel(evidence, includeEstablishment)
         : `${irName(evidence.ir)} : ${irLabel(evidence, includeEstablishment)}`;
 
 /**
@@ -29,8 +28,8 @@ export const spWholeName = (sp: Raw<FormNSP>, includeEstablishment: boolean = tr
  *
  * SRS1 T
  */
-export const irName = (ir: Raw<FormIN>['ir']) => ir.typ.first == 'irFVE' ? 'FVE'
-    : ir.typ.first == p('SOREL')
+export const irName = (ir: Raw<FormIN>['ir']) => ir.typ.first == 'fve' ? 'FVE'
+    : ir.typ.first == 'SOREL'
         ? irType(ir.typ)
         : `${irType(ir.typ)} ${ir.cislo}`;
 
@@ -59,12 +58,12 @@ export const spName = (zasah: Raw<GenericFormSP<never>>['zasah']) => {
  * SRS1 T
  */
 export const irType = (typ: Raw<FormIN>['ir']['typ']) =>
-    typ.first == 'irFVE' ? ''
-        : typ.first == p('SOREL')
-            ? removePlain(typ.second!)
+    typ.first == 'fve' ? ''
+        : typ.first == 'SOREL'
+            ? typ.second!
             : typ.first?.includes('BOX')
-                ? `${removePlain(typ.first!).split(' ').slice(0, 2).join(' ')} ${removePlain(typ.second!)}`
-                : `${removePlain(typ.first!).replaceAll(' ', '')}${removePlain(typ.second!)}`;
+                ? `${typ.first!.split(' ').slice(0, 2).join(' ')} ${typ.second!}`
+                : `${typ.first!.replaceAll(' ', '')}${typ.second!}`;
 
 const companyForms = [
     's.r.o.', 'spol. s r.o.', 'a.s.', 'k.s.', 'v.o.s.',

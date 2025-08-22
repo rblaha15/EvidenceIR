@@ -1,17 +1,6 @@
 <script lang="ts">
     import type { FormIN } from '$lib/forms/IN/formIN';
     import type { Translations } from '$lib/translations';
-    import {
-        CheckboxWidget,
-        ChooserWidget,
-        DoubleChooserWidget,
-        InputWidget,
-        MultiCheckboxWidget,
-        RadioWidget,
-        SwitchWidget,
-        TextWidget,
-        TitleWidget
-    } from '$lib/forms/Widget.svelte.js';
     import type { User } from 'firebase/auth';
     import type { Form } from '$lib/forms/Form';
     import { extractIRIDFromParts } from '$lib/helpers/ir';

@@ -10,21 +10,33 @@ import {
     InputWithChooserWidget,
     InputWithSuggestionsWidget,
     MultiCheckboxWidget,
-    PhotoSelectorWidget, RadioWidget,
+    PhotoSelectorWidget,
+    RadioWidget,
     SearchWidget,
     TextWidget,
     TitleWidget,
 } from '$lib/forms/Widget.svelte.js';
 import { type Company, type Person } from '$lib/client/realtime';
 import { type Products } from '$lib/helpers/products';
-import { type P } from '$lib/translations';
-import { origins } from '$lib/forms/NK/defaultNK';
+
+export const origins = {
+    'questionEmail': '_dotazEmail',
+    'questionExhibition': '_dotaznikVYS',
+    'questionInPerson': '_dotazOsobně',
+    'distributionCompany': '_poptávkaDis',
+    'assembleres': '_poptávkaMF',
+    'designer': '_poptávkaPROJ',
+} as const;
+
+export type HoseLength = '300 mm' | '500 mm' | '700 mm' | '1000 mm';
+export type HeatingCableLength = '3,5 m' | '5 m';
+export type RoomUnitType = 'RC 25' | 'RDC' | 'RS 10' | 'RSW 30 - WiFi';
 
 export interface FormNK extends Form<FormNK> {
     contacts: {
         title: TitleWidget<FormNK>
         demandOrigin: ChooserWidget<FormNK, keyof typeof origins>
-        demandSubject: MultiCheckboxWidget<FormNK, `demand.contacts.heatPump` | `demand.contacts.fve`>
+        demandSubject: MultiCheckboxWidget<FormNK, `heatPump` | `fve`>
         surname: InputWidget<FormNK>
         name: InputWidget<FormNK>
         street: InputWidget<FormNK>
@@ -83,49 +95,49 @@ export interface FormNK extends Form<FormNK> {
         heatedVolume: InputWidget<FormNK>
         heatingCosts: InputWidget<FormNK>
         fuelType: InputWidget<FormNK>
-        fuelConsumption: InputWithChooserWidget<FormNK, `units.q` | `units.m3` | `units.kWh`>
+        fuelConsumption: InputWithChooserWidget<FormNK, `q` | `m3` | `kWh`>
         fuelType2: InputWidget<FormNK>
-        fuelConsumption2: InputWithChooserWidget<FormNK, `units.q` | `units.m3` | `units.kWh`>
+        fuelConsumption2: InputWithChooserWidget<FormNK, `q` | `m3` | `kWh`>
         note: InputWidget<FormNK>
     };
     system: {
         title: TitleWidget<FormNK>
         hPType: RadioWidget<FormNK, `airToWater` | `groundToWater`>
-        hPModel: ChooserWidget<FormNK, `demand.system.iDoNotKnow` | Products['heatPumps']>
-        indoorUnitType: ChooserWidget<FormNK, `demand.system.indoorUnitNone` | Products['indoorUnits']>
-        thermalStoreType: DoubleChooserWidget<FormNK, 'demand.system.storeNone' | Products['thermalStores1'], Products['thermalStores2']>
+        hPModel: ChooserWidget<FormNK, `iDoNotKnow` | Products['heatPumps']>
+        indoorUnitType: ChooserWidget<FormNK, `indoorUnitNone` | Products['indoorUnits']>
+        thermalStoreType: DoubleChooserWidget<FormNK, 'storeNone' | Products['thermalStores1'], Products['thermalStores2']>
         thermalStoreVolume: InputWidget<FormNK>
-        waterTankType: ChooserWidget<FormNK, `demand.system.tankNone` | Products['waterTanks']>
+        waterTankType: ChooserWidget<FormNK, `tankNone` | Products['waterTanks']>
         waterTankVolume: InputWidget<FormNK>
-        heatingSystem: ChooserWidget<FormNK, `demand.system.iDoNotKnow` | `demand.system.heatingSystem1circuit` | `demand.system.heatingSystem2circuits` | `demand.system.heatingSystem3circuits` | `demand.system.heatingSystemInvertor` | `demand.system.heatingSystemOther`>
+        heatingSystem: ChooserWidget<FormNK, `iDoNotKnow` | `heatingSystem1circuit` | `heatingSystem2circuits` | `heatingSystem3circuits` | `heatingSystemInvertor` | `heatingSystemOther`>
         hotWaterCirculation: CheckboxWidget<FormNK>
         wantsPool: CheckboxWidget<FormNK>
         note: InputWidget<FormNK>
     };
     pool: {
         title: TitleWidget<FormNK>
-        usagePeriod: RadioWidget<FormNK, `demand.pool.periodYearlong` | `demand.pool.periodSeasonal`>
-        placement: RadioWidget<FormNK, `demand.pool.locationOutdoor` | `demand.pool.locationIndoor`>
-        waterType: RadioWidget<FormNK, `demand.pool.freshType` | `demand.pool.saltType`>
-        shape: RadioWidget<FormNK, `demand.pool.shapeRectangle` | `demand.pool.shapeOval` | `demand.pool.shapeCircle`>
+        usagePeriod: RadioWidget<FormNK, `periodYearlong` | `periodSeasonal`>
+        placement: RadioWidget<FormNK, `locationOutdoor` | `locationIndoor`>
+        waterType: RadioWidget<FormNK, `freshType` | `saltType`>
+        shape: RadioWidget<FormNK, `shapeRectangle` | `shapeOval` | `shapeCircle`>
         width: InputWidget<FormNK>
         length: InputWidget<FormNK>
         radius: InputWidget<FormNK>
         depth: InputWidget<FormNK>
-        coverage: RadioWidget<FormNK, `demand.pool.coverageNone` | `demand.pool.coverageSolid` | `demand.pool.coveragePolycarbonate` | `demand.pool.coverageOther`>
+        coverage: RadioWidget<FormNK, `coverageNone` | `coverageSolid` | `coveragePolycarbonate` | `coverageOther`>
         desiredTemperature: InputWidget<FormNK>
         note: InputWidget<FormNK>
     };
     additionalSources: {
         title: TitleWidget<FormNK>
         heatingTitle: TitleWidget<FormNK>
-        heatingHeatingElementInStore: CheckboxWithChooserWidget<FormNK, `demand.additionalSources.existing` | `demand.additionalSources.newNeuter`>
-        heatingElectricBoiler: CheckboxWithChooserWidget<FormNK, `demand.additionalSources.existing` | `demand.additionalSources.newMasculine`>
-        heatingGasBoiler: CheckboxWithChooserWidget<FormNK, `demand.additionalSources.existing` | `demand.additionalSources.newMasculine`>
-        heatingFireplace: CheckboxWithChooserWidget<FormNK, `demand.additionalSources.existing` | `demand.additionalSources.newMasculine`>
+        heatingHeatingElementInStore: CheckboxWithChooserWidget<FormNK, `existing` | `newNeuter`>
+        heatingElectricBoiler: CheckboxWithChooserWidget<FormNK, `existing` | `newMasculine`>
+        heatingGasBoiler: CheckboxWithChooserWidget<FormNK, `existing` | `newMasculine`>
+        heatingFireplace: CheckboxWithChooserWidget<FormNK, `existing` | `newMasculine`>
         heatingOther: InputWidget<FormNK>
         hotWaterTitle: TitleWidget<FormNK>
-        hotWaterHeatingElementInStore: CheckboxWithChooserWidget<FormNK, `demand.additionalSources.toSocket` | `demand.additionalSources.fromRegulation`>
+        hotWaterHeatingElementInStore: CheckboxWithChooserWidget<FormNK, `toSocket` | `fromRegulation`>
         hotWaterElectricBoiler: CheckboxWidget<FormNK>
         hotWaterGasBoiler: CheckboxWidget<FormNK>
         hotWaterFireplace: CheckboxWidget<FormNK>
@@ -134,10 +146,10 @@ export interface FormNK extends Form<FormNK> {
     };
     accessories: {
         title: TitleWidget<FormNK>
-        hose: CheckboxWithChooserWidget<FormNK, P<'300 mm' | '500 mm' | '700 mm' | '1000 mm'>>
-        heatingCable: CheckboxWithChooserWidget<FormNK, P<'3,5 m' | '5 m'>>
-        wallSupportBracket: CheckboxWithChooserWidget<FormNK, `demand.accessories.onWall` | `demand.accessories.onIsolatedWall`>
-        roomUnitsAndSensors: CountersWidget<FormNK>
+        hose: CheckboxWithChooserWidget<FormNK, HoseLength>
+        heatingCable: CheckboxWithChooserWidget<FormNK, HeatingCableLength>
+        wallSupportBracket: CheckboxWithChooserWidget<FormNK, `onWall` | `onIsolatedWall`>
+        roomUnitsAndSensors: CountersWidget<FormNK, RoomUnitType>
         note: InputWidget<FormNK>
     };
     other: {

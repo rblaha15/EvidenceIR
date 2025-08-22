@@ -1,27 +1,26 @@
 import { CheckboxWidget, ChooserWidget, CounterWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte';
 import type { FormUPF, PhotovoltaicFieldGroup } from '$lib/forms/UPF/formUPF';
-import { p } from '$lib/translations';
 
 const photovoltaicField = (n: number): PhotovoltaicFieldGroup => {
     const show = (d: FormUPF) => d.fields.count.value >= n;
 
     return {
         label: new TextWidget({
-            show, class: 'fs-5', text: (_, t) => t.refFromTemplate('fve.field', { n: `${n}` }),
+            show, class: 'fs-5', text: t => t.fve.field({ n: `${n}` }),
         }),
         panelCount: new InputWidget({
-            show, required: show, label: 'fve.panelCount', type: 'number',
+            show, required: show, label: t => t.fve.panelCount, type: 'number',
         }),
         orientation: new ChooserWidget({
-            show, required: show, label: 'fve.orientation', chosen: p('J'),
-            options: p(['Z', 'JZ', 'J', 'JV', 'V']),
+            show, required: show, label: t => t.fve.orientation, chosen: 'J',
+            options: ['Z', 'JZ', 'J', 'JV', 'V'],
         }),
         slope: new InputWidget({
-            show, required: show, label: 'fve.slope', type: 'number', suffix: 'units.degree',
+            show, required: show, label: t => t.fve.slope, type: 'number', suffix: t => t.units.degree,
         }),
         location: new ChooserWidget({
-            show, required: show, label: 'fve.location',
-            options: ['fve.onFamilyHouse', 'fve.onOtherBuilding', 'fve.onLand'],
+            show, required: show, label: t => t.fve.location, labels: t => t.fve,
+            options: ['onFamilyHouse', 'onOtherBuilding', 'onLand'],
         }),
     };
 };
@@ -29,7 +28,7 @@ const photovoltaicField = (n: number): PhotovoltaicFieldGroup => {
 export default (): FormUPF => ({
     fields: {
         count: new CounterWidget({
-            label: 'fve.fieldCount',
+            label: t => t.fve.fieldCount,
             chosen: 1, min: 1, max: 4,
         }),
     },
@@ -38,36 +37,36 @@ export default (): FormUPF => ({
     filed3: photovoltaicField(3),
     filed4: photovoltaicField(4),
     connection: {
-        title: new TitleWidget({ text: 'fve.connection' }),
+        title: new TitleWidget({ text: t => t.fve.connection }),
         type: new ChooserWidget({
-            label: 'fve.connectionType',
-            options: ['fve.withNetworkSupplyPossibility', 'fve.withoutOverflows', 'fve.islandSystem'],
+            label: t => t.fve.connectionType, labels: t => t.fve,
+            options: ['withNetworkSupplyPossibility', 'withoutOverflows', 'islandSystem'],
         }),
         reservedPower: new InputWidget({
-            label: 'fve.reservedPower', suffix: 'units.kW', type: 'number',
+            label: t => t.fve.reservedPower, suffix: t => t.units.kW, type: 'number',
         }),
         mainBreakerSize: new InputWidget({
-            label: 'fve.mainBreakerSize', suffix: 'units.A', type: 'number',
+            label: t => t.fve.mainBreakerSize, suffix: t => t.units.A, type: 'number',
         }),
         yearlyEnergyConsumption: new InputWidget({
-            label: 'fve.yearlyEnergyConsumption', suffix: 'units.MWhPerYear', type: 'number',
+            label: t => t.fve.yearlyEnergyConsumption, suffix: t => t.units.MWhPerYear, type: 'number',
         }),
         accumulationToWater: new CheckboxWidget({
-            label: 'fve.accumulationToWater', required: false,
+            label: t => t.fve.accumulationToWater, required: false,
         }),
         waterVolume: new InputWidget({
-            label: 'fve.waterVolume', type: 'number', suffix: 'units.l',
+            label: t => t.fve.waterVolume, type: 'number', suffix: t => t.units.l,
             show: d => d.connection.accumulationToWater.value,
             required: d => d.connection.accumulationToWater.value,
         }),
         otherSmartControl: new InputWidget({
-            label: 'fve.otherSmartControl', required: false,
+            label: t => t.fve.otherSmartControl, required: false,
         }),
         energySharing: new CheckboxWidget({
-            label: 'fve.energySharing', required: false,
+            label: t => t.fve.energySharing, required: false,
         }),
     },
     commissioning: {
-        date: new InputWidget({ label: 'fve.dateOfCommission', type: 'date', text: (new Date()).toISOString().split('T')[0] }),
+        date: new InputWidget({ label: t => t.fve.dateOfCommission, type: 'date', text: (new Date()).toISOString().split('T')[0] }),
     },
 });

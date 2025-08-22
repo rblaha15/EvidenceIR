@@ -10,7 +10,6 @@ import {
 } from '$lib/forms/Widget.svelte';
 import { type SparePart } from '$lib/client/realtime';
 import { type Form } from '$lib/forms/Form';
-import { type P } from '$lib/translations';
 
 export type SparePartWidgetGroup<D extends Form<D>> = {
     label: TextWidget<D>,
@@ -30,15 +29,15 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
         datumUvedeni: InputWidget<D>;
         clovek: InputWidget<D>,
         inicialy: InputWidget<D>,
-        zaruka: RadioWidget<D, `sp.warrantyCommon` | `sp.warrantyExtended`>,
+        zaruka: RadioWidget<D, `warrantyCommon` | `warrantyExtended`>,
         nahlasenaZavada: InputWidget<D>,
         popis: InputWidget<D>,
     },
     ukony: {
         nadpis: TitleWidget<D>,
         doprava: InputWidget<D>,
-        typPrace: RadioWidget<D, `sp.assemblyWork` | `sp.technicalAssistance` | `sp.technicalAssistance12`>,
-        ukony: MultiCheckboxWidget<D, `sp.regulusRoute` | `sp.commissioningTC` | `sp.commissioningSOL` | `sp.commissioningFVE` | `sp.yearlyHPCheck` | `sp.yearlySOLCheck` | `sp.extendedWarranty` | `sp.installationApproval` | 'sp.withoutCode'>,
+        typPrace: RadioWidget<D, `assemblyWork` | `technicalAssistance` | `technicalAssistance12`>,
+        ukony: MultiCheckboxWidget<D, `regulusRoute` | `commissioningTC` | `commissioningSOL` | `commissioningFVE` | `yearlyHPCheck` | `yearlySOLCheck` | `extendedWarranty` | `installationApproval` | 'withoutCode'>,
         doba: InputWidget<D>,
     },
     nahradniDily: {
@@ -56,8 +55,8 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
     fakturace: {
         nadpis: TitleWidget<D>,
         hotove: ChooserWidget<D, 'yes' | 'no' | 'doNotInvoice'>,
-        komu: RadioWidget<D, P<'Investor'> | `assemblyCompany`>,
-        jak: RadioWidget<D, P<'Papírově' | 'Elektronicky'>>,
+        komu: RadioWidget<D, 'investor' | `assemblyCompany`>,
+        jak: RadioWidget<D, 'onPaper' | 'electronically'>,
     },
 }
 

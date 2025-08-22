@@ -6,7 +6,7 @@ import { cascadePumps } from '$lib/forms/IN/infoIN';
 const pdfZL: GetPdfData<'ZL'> = async ({ data: { evidence: e }, t, pump }) => {
     const uvedeni = await nazevAdresaFirmy(e.uvedeni.ico, fetch);
     const montazka = await nazevAdresaFirmy(e.montazka.ico, fetch);
-    const { model, cislo } = cascadePumps(e, t)[pump - 1];
+    const { model, cislo } = cascadePumps(e)[pump - 1];
     return {
         Text1: model,
         Text2: cislo,

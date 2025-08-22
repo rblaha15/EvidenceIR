@@ -3,24 +3,19 @@ import {
     ChooserWidget,
     CounterWidget,
     InputWidget,
-    SearchWidget,
-    SwitchWidget,
     TextWidget,
     TitleWidget,
 } from '../Widget.svelte.js';
-import type { Form, Raw } from '$lib/forms/Form';
-import type { FormIN } from '../IN/formIN';
-import type { SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
-import type { SparePart } from '$lib/client/realtime';
-import type { P } from '$lib/translations';
-import type { DataUPT } from '$lib/forms/UPT/formUPT';
+import type { Form } from '$lib/forms/Form';
+
+export type PanelOrientations = 'Z' | 'JZ' | 'J' | 'JV' | 'V';
 
 export type PhotovoltaicFieldGroup = {
     label: TextWidget<FormUPF>,
     panelCount: InputWidget<FormUPF>,
-    orientation: ChooserWidget<FormUPF, P<'Z' | 'JZ' | 'J' | 'JV' | 'V'>>,
+    orientation: ChooserWidget<FormUPF, PanelOrientations>,
     slope: InputWidget<FormUPF>,
-    location: ChooserWidget<FormUPF, 'fve.onFamilyHouse' | 'fve.onOtherBuilding' | 'fve.onLand'>,
+    location: ChooserWidget<FormUPF, 'onFamilyHouse' | 'onOtherBuilding' | 'onLand'>,
 }
 
 export interface FormUPF extends Form<FormUPF> {
@@ -33,7 +28,7 @@ export interface FormUPF extends Form<FormUPF> {
     filed4: PhotovoltaicFieldGroup,
     connection: {
         title: TitleWidget<FormUPF>,
-        type: ChooserWidget<FormUPF, 'fve.withNetworkSupplyPossibility' | 'fve.withoutOverflows' | 'fve.islandSystem'>,
+        type: ChooserWidget<FormUPF, 'withNetworkSupplyPossibility' | 'withoutOverflows' | 'islandSystem'>,
         reservedPower: InputWidget<FormUPF>,
         mainBreakerSize: InputWidget<FormUPF>,
         yearlyEnergyConsumption: InputWidget<FormUPF>,

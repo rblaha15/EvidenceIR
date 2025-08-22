@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type FormIN } from '$lib/forms/IN/formIN';
-	import { p, type Translations } from '$lib/translations';
+    import { get, type Translations } from '$lib/translations';
 	import { irName, irLabel, extractIRIDFromParts } from '$lib/helpers/ir';
 	import type { Raw } from '$lib/forms/Form';
 	import { detailIrUrl } from '$lib/helpers/runes.svelte';
@@ -36,7 +36,7 @@
 
 <h2>Regulátor</h2>
 <p><b>Typ zařízení:</b> {typZarizeni(e)}</p>
-{#if e.ir.typ.first !== p('SOREL')}
+{#if e.ir.typ.first !== 'SOREL'}
 	<p><b>Výrobní číslo:</b> {e.ir.cislo}</p>
 {/if}
 <p><b>Přihlášení:</b> {irName(e.ir)}</p>
@@ -49,8 +49,8 @@
 <p><b>PSČ:</b> {e.mistoRealizace.psc}</p>
 
 <h3>Vzdálený přístup</h3>
-<p>K regulátoru chce mít přístup {e.vzdalenyPristup.pristupMa.map((a) => t.get(a).toLowerCase()).join(', ')}</p>
-<p>Vzdálený přístup zaplatí {t.get(e.vzdalenyPristup.plati)?.toLowerCase() ?? ''}</p>
+<p>K regulátoru chce mít přístup {e.vzdalenyPristup.pristupMa.map(a => get(t.in.remoteAccess, a).toLowerCase()).join(', ')}</p>
+<p>Vzdálený přístup zaplatí {get(t.in.remoteAccess, e.vzdalenyPristup.plati)?.toLowerCase() ?? ''}</p>
 
 <h2>Uživatel</h2>
 {#if e.koncovyUzivatel.typ === `individual`}

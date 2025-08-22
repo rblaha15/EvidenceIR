@@ -33,6 +33,6 @@
     </div>
 
     {#if widget.showError(data)}
-        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
+        <p class="text-danger">{widget.onError(t, data)}</p>
     {/if}
 </div>
