@@ -3,7 +3,7 @@
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
     import { type IRID } from '$lib/helpers/ir';
     import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
-    import { p, type Translations } from '$lib/translations';
+    import { type Translations } from '$lib/translations';
     import db, { type IR } from '$lib/data';
     import ServiceProtocols from './ServiceProtocols.svelte';
     import { cascadePumps } from '$lib/forms/IN/infoIN';
@@ -36,11 +36,11 @@
     {#if ir.evidence.vzdalenyPristup.chce}
         <PDFLink name={t.rr.name} {t} link="RR" {lang} data={ir} {irid} />
     {/if}
-    {#if ir.evidence.ir.typ.first !== p('SOREL') && ir.evidence.ir.typ.first !== 'irFVE'}
+    {#if ir.evidence.ir.typ.first !== 'SOREL' && ir.evidence.ir.typ.first !== 'fve'}
         <PDFLink name={t.nn.title} {t} link="NN" {lang} data={ir} {irid} />
     {/if}
     {#if ir.evidence.ir.chceVyplnitK.includes('heatPump')}
-        {#each cascadePumps(ir.evidence, t) as tc}
+        {#each cascadePumps(ir.evidence) as tc}
             <PDFLink name={t.zl.name(tc)} {t} link="ZL" {lang} data={ir} pump={tc.N} {irid} />
         {/each}
         <PDFLink
@@ -55,7 +55,7 @@
                 >{t.tc.commission}</a>
             {/if}
         </PDFLink>
-        {#each cascadePumps(ir.evidence, t) as tc}
+        {#each cascadePumps(ir.evidence) as tc}
             <PDFLink name={t.rk.name(tc)} {t} link="RK" {lang} data={ir} pump={tc.N}
                      enabled={ir.kontrolyTC[tc.N]?.[1] !== undefined} {irid}>
                 {#if !ir.kontrolyTC[tc.N]?.[4]}
@@ -101,7 +101,7 @@
             {/if}
         </PDFLink>
     {/if}
-    {#if ir.evidence.ir.typ.first === p('IR 14')}
+    {#if ir.evidence.ir.typ.first === 'IR 14'}
         <PDFLink name={t.ft.title} {t} link="FT" {lang} data={ir} {irid} enabled={Boolean(ir.faceTable)}>
             {#if !ir.faceTable}
                 <a

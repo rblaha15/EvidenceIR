@@ -1,12 +1,13 @@
 import { CheckboxWidget, ChooserWidget, InputWidget, SwitchWidget, TitleWidget } from '../Widget.svelte.js';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { FormIN } from '$lib/forms/IN/formIN';
-import { type P } from '$lib/translations';
 
 export type DataUPS = {
     uvedeni: FormUPS,
     evidence: Raw<FormIN>,
 }
+
+export type HeatTransferFluidType = 'Solarten Super' | 'Solarten HT'
 
 export interface FormUPS extends Form<DataUPS> {
     sol: {
@@ -20,8 +21,8 @@ export interface FormUPS extends Form<DataUPS> {
         cerpadloaSkupina: InputWidget<DataUPS>,
         expanznkaSolarni: SwitchWidget<DataUPS>,
         objem: InputWidget<DataUPS>,
-        ovzdusneni: ChooserWidget<DataUPS, P<'odvzdušňovací ventil' | 'separátor vzduchu' | 'nic'>>,
-        teplonosnaKapalina: ChooserWidget<DataUPS, P<'Solarten Super' | 'Solarten HT' | 'jiná'>>,
+        ovzdusneni: ChooserWidget<DataUPS, 'airVentValve' | 'airSeparator' | 'nothing'>,
+        teplonosnaKapalina: ChooserWidget<DataUPS, HeatTransferFluidType | 'other'>,
         potrubi: InputWidget<DataUPS>,
         prumer: InputWidget<DataUPS>,
         delkyPotrubi: InputWidget<DataUPS>,

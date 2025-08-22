@@ -1,7 +1,7 @@
 // noinspection SpellCheckingInspection
 
 import { template as t } from '$lib/helpers/templates';
-import '$lib/extensions'
+import '$lib/extensions';
 
 export default {
     form: {
@@ -53,7 +53,7 @@ export default {
         preview: `Náhled`,
         downloadFile: `Stáhnout dokument`,
         previewFile: `Náhled dokumentu`,
-        page: t`Strana ${'page'}/${'total'}`
+        page: t`Strana ${'page'}/${'total'}`,
     },
     search: {
         titleControllers: 'Vyhledávání instalací',
@@ -123,7 +123,6 @@ export default {
         withNetworkSupplyPossibility: 'S možností dodávky do sítě (provedeno PPP)',
         withoutOverflows: 'Systém bez přetoků',
         islandSystem: 'Ostrovní systém',
-        otherPanels: 'Jiné (nejsou od firmy Regulus)',
         fieldCount: 'Počet polí fotovoltaických panelů',
         connection: 'Připojení',
         connectionType: 'Typ připojení',
@@ -239,6 +238,13 @@ export default {
         systemDescription: 'Popis systému',
         heatPumpCount: 'Počet TČ v instalaci',
         intervention: 'Zásah',
+        doNotInvoice: `Nefakturovat`,
+        no: `Ne`,
+        yes: `Ano`,
+        investor: `Investor`,
+        onPaper: `Papírově`,
+        electronically: `Elektronicky`,
+        assemblyCompany: `Montážní firma`,
     },
     units: {
         kW: 'kW',
@@ -372,7 +378,8 @@ export default {
         connectedWithPublicIpAddress: `Připojen veřejnou IP adresou`,
         notConnected: `Nepřipojen`,
         isElectricalBondingComplete: `Bylo provedeno kompletní elektrické pospojení`,
-        areElectricalDevicesTested: `Byly odzkoušeny všechny elektrické spotřebiče zapojené do regulace`,isBackupPowerSourceInstalled: `Je instalován záložní zdroj oběhového čerpadla`,
+        areElectricalDevicesTested: `Byly odzkoušeny všechny elektrické spotřebiče zapojené do regulace`,
+        isBackupPowerSourceInstalled: `Je instalován záložní zdroj oběhového čerpadla`,
         primaryCircuit: `Primární okruh`,
         typeOfPrimaryCircuit: `Typ primárního okruhu`,
         groundBoreholes: `Hlubinné vrty`,
@@ -393,6 +400,7 @@ export default {
         storageTankType: 'Typ zásobníkového ohřívače',
         accumulationTankType: 'Typ akumulační nádrže',
         exchangerType: 'Typ výměníku (deskový/trubkový)',
+        solarControllerType: 'Typ solárního regulátoru',
         pumpGroupType: 'Typ čerpadlové skupiny',
         expansionTankSolar: 'Expanzní nádoba (solární)',
         volume: 'Objem',
@@ -410,6 +418,11 @@ export default {
         conditionsMet: 'Instalace a uvedení do provozu solárního systému byla provedena dle podmínek uvedených v návodu na montáž, připojení a obsluhu, instalačních podmínek a obecně platných norem',
         solarControllerSet: 'Solární regulátor byl nastaven na předepsané parametry',
         ownerInformed: 'Vlastník nebo provozovatel byl seznámen se základní funkcí sol. systému a jeho obsluhou',
+        airVentValve: 'odvzdušňovací ventil',
+        airSeparator: 'separátor vzduchu',
+        nothing: 'nic',
+        other: 'jiná',
+        solarSystem: 'Solární systém',
     },
     rk: {
         title: `Popis úkonů při provádění preventivní roční prohlídky vzduchového tepelného čerpadla`,
@@ -465,11 +478,32 @@ export default {
         pripadneProvedteKontroluTlakuVEnTepleVody: 'Případně proveďte kontrolu tlaku v EN pitné vody',
     },
     in: {
+        ir: {
+            fve: `Žádný – pouze FVE`,
+        },
+        device: {
+            heatPump: `Tepelné čerpadlo`,
+            solarCollector: `Solární kolektor`,
+            ventilation: `Větrání s rekuperací tepla`,
+            photovoltaicPowerPlant: 'Fotovoltaická elektrárna',
+            other: 'Jiné zařízení',
+        },
+        tc: {
+            airToWater: `vzduch/voda`,
+            groundToWater: `země/voda`,
+        },
+        fve: {
+            otherNotRegulusPanels: 'Jiné (nejsou od firmy Regulus)',
+        },
+        userType: {
+            individual: `Jednotlivec (FO)`,
+            company: `Společnost (PO)`,
+        },
         controllerType: `Typ regulátoru`,
         serialNumber: `Sériové číslo regulátoru`,
         serialNumberIndoor: `Sériové číslo vnitřní jednotky`,
-        heatPumpManufactureNumberNr: t`Výrobní číslo ${0} tepelného čerpadla`,
-        heatPumpModelNr: t`Model ${0}tepelného čerpadla`,
+        heatPumpManufactureNumber: t`Výrobní číslo ${0} tepelného čerpadla`,
+        heatPumpModel: t`Model ${0}tepelného čerpadla`,
         birthday: `Datum narození`,
         crn: `IČO`,
         companyName: `Název`,
@@ -477,19 +511,9 @@ export default {
         surname: `Příjmení`,
         endCustomer: `Koncový zákazník`,
         realizationLocation: `Místo realizace`,
-        heatPump: `Tepelné čerpadlo`,
-        solarSystem: `Solární systém`,
-        solarCollector: `Solární kolektor`,
-        ventilation: `Větrání s rekuperací tepla`,
-        photovoltaicPowerPlant: 'Fotovoltaická elektrárna',
-        otherDevice: 'Jiné zařízení',
         irExistsHtml: t`Tento regulátor je již zaevidovaný (<a href="${'link'}">detail</a>)`,
         editing: `Editace`,
         title: `Registrace nového regulátoru`,
-        individual: `Jednotlivec (FO)`,
-        company: `Společnost (PO)`,
-        airToWater: `vzduch/voda`,
-        groundToWater: `země/voda`,
         assemblyCompany: `Montážní firma`,
         commissioningCompany: `Firma uvádějicí do provozu`,
         endUser: `Koncový uživatel`,
@@ -530,11 +554,18 @@ export default {
         totalBatteryCapacity: 'Celková kapacita baterií',
         chargingStationWallbox: 'Dobíjecí stanice – wallbox',
         irCooperation: 'Spolupráce s IR',
-        remoteAccess: `Vzdálený přístup`,
-        doYouWantRemoteAccess: `Založit vzdálený přístup k regulátoru`,
-        whoHasAccess: `Kdo k němu bude mít přístup?`,
-        whoWillBeInvoiced: `Komu bude vzdálený přístup fakturován? (jednorázová cena 1000 Kč včetně DPH)`,
-        responsiblePerson: `Zodpovědná osoba`,
+        remoteAccess: {
+            title: `Vzdálený přístup`,
+            doYouWantRemoteAccess: `Založit vzdálený přístup k regulátoru`,
+            whoHasAccess: `Kdo k němu bude mít přístup?`,
+            whoWillBeInvoiced: `Komu bude vzdálený přístup fakturován? (jednorázová cena 1000 Kč včetně DPH)`,
+            responsiblePerson: `Zodpovědná osoba`,
+            endCustomer: `Koncový zákazník`,
+            assemblyCompany: `Montážní firma`,
+            commissioningCompany: `Firma uvádějicí do provozu`,
+            doNotInvoice: `Nefakturovat`,
+            laterAccordingToTheProtocol: `Později, dle protokolu`,
+        },
         note: `Poznámka`,
         description: `Popis`,
     },
@@ -571,40 +602,7 @@ export default {
         tenth: `desátého`,
     },
 
-    // Must be in the root because of backwards compatibility:
-    no: `Ne`,
-    yes: `Ano`,
-    // IN:
-    irFVE: `Žádný – pouze FVE`,
-    heatPump: `Tepelné čerpadlo`,
-    solarCollector: `Solární kolektor`,
-    ventilation: `Větrání s rekuperací tepla`,
-    photovoltaicPowerPlant: 'Fotovoltaická elektrárna',
-    otherDevice: 'Jiné zařízení',
-    airToWater: `vzduch/voda`,
-    groundToWater: `země/voda`,
-    individual: `Jednotlivec (FO)`,
-    company: `Společnost (PO)`,
-    endCustomer: `Koncový zákazník`,
-    assemblyCompany: `Montážní firma`,
-    commissioningCompany: `Firma uvádějicí do provozu`,
-    // UPT:
-    radiators: `Radiátory`,
-    underfloorHeating: `Podlahové topení`,
-    combinationHeating: `Kombinace (podlahové topení a radiátory)`,
-    otherHeatingSystem: `Jiné`,
-    connectedViaRegulusRoute: `Připojen pomocí RegulusRoute`,
-    connectedWithPublicIpAddress: `Připojen veřejnou IP adresou`,
-    notConnected: `Nepřipojen`,
-    groundBoreholes: `Hlubinné vrty`,
-    surfaceCollector: `Plošný kolektor`,
-    otherCollector: `Jiné`,
-    expansionTankInstalled: `expanzní nádoba`,
-    bufferTankInstalled: `vyrovnávací nádrž`,
-    // SP:
-    doNotInvoice: `Nefakturovat`,
-
-    demand: {
+    nk: {
         contacts: {
             contacts: 'Kontakty a místo realizace',
             surname: 'Příjmení',
@@ -620,15 +618,19 @@ export default {
             searchCompany: 'Vyhledat firmu',
             crn: 'IČO monážní firmy',
             demandOrigin: 'Původ poptávky',
-            originQuestionEmail: 'Dotaz poslaný emailem od koncového zákazníka',
-            originQuestionExhibition: 'Dotaz z výstavy',
-            originQuestionInPerson: 'Dotaz při osobní návštěvě u koncového zákazníka',
-            originDistributionCompany: 'Poptávka od distribuční firmy',
-            originAssembleres: 'Poptávka od montážníků',
-            originDesigner: 'Poptávka od projektanta',
+            origins: {
+                questionEmail: 'Dotaz poslaný emailem od koncového zákazníka',
+                questionExhibition: 'Dotaz z výstavy',
+                questionInPerson: 'Dotaz při osobní návštěvě u koncového zákazníka',
+                distributionCompany: 'Poptávka od distribuční firmy',
+                assembleres: 'Poptávka od montážníků',
+                designer: 'Poptávka od projektanta',
+            },
             demandSubject: 'Předmět poptávky',
-            heatPump: 'Tepelné čerpadlo',
-            fve: 'FVE',
+            subjects: {
+                heatPump: 'Tepelné čerpadlo',
+                fve: 'FVE',
+            },
             searchCompanyInList: `Vyhledat firmu v seznamu`,
         },
         objectDetail: {
@@ -777,5 +779,7 @@ export default {
         note: `Poznámka`,
         representative: `Zástupce`,
         photos: 'Fotografie',
+        yes: `Ano`,
+        no: `Ne`,
     },
 };

@@ -1,7 +1,6 @@
 import type { ExcelImport } from '$lib/forms/ExcelImport';
 import type { Raw } from '$lib/forms/Form';
 import { range } from '$lib/extensions';
-import { p } from '$lib/translations';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 
 const cellsSparePart = (i: 0 | 1 | 2) => ({
@@ -25,17 +24,17 @@ export const cellsSP: ExcelImport<Raw<FormSP>>['cells'] = {
     ukony: {
         doprava: { address: [9, 38] },
         doba: { address: [9, 39] },
-        typPrace: { address: [1, 39], transform: v => v.includes('pomoc') ? `sp.technicalAssistance` : 'sp.assemblyWork' },
+        typPrace: { address: [1, 39], transform: v => v.includes('pomoc') ? `technicalAssistance` : 'assemblyWork' },
         ukony: {
             getData: get => [get([1, 40]), get([1, 41]), get([1, 42])]
                 .mapNotUndefined(u => ([
-                    ['Route', `sp.regulusRoute`] as const,
-                    ['Uvedení TČ', `sp.commissioningTC`] as const,
-                    ['Uvedení SOL', `sp.commissioningSOL`] as const,
-                    ['kontrola TČ', `sp.yearlyHPCheck`] as const,
-                    ['kontrola SOL', `sp.yearlySOLCheck`] as const,
-                    ['Záruka', `sp.extendedWarranty`] as const,
-                    ['instalace', `sp.installationApproval`] as const,
+                    ['Route', `regulusRoute`] as const,
+                    ['Uvedení TČ', `commissioningTC`] as const,
+                    ['Uvedení SOL', `commissioningSOL`] as const,
+                    ['kontrola TČ', `yearlyHPCheck`] as const,
+                    ['kontrola SOL', `yearlySOLCheck`] as const,
+                    ['Záruka', `extendedWarranty`] as const,
+                    ['instalace', `installationApproval`] as const,
                 ] as const).find(([s]) => u.includes(s))?.[1]),
         },
     },
@@ -49,7 +48,7 @@ export const cellsSP: ExcelImport<Raw<FormSP>>['cells'] = {
     },
     fakturace: {
         hotove: { address: [18, 43], transform: v => v == 'ANO' ? 'yes' : v == 'NE' ? 'no' : 'doNotInvoice' },
-        komu: { address: [18, 45], transform: v => v == 'Odběratel' ? p('Investor') : 'assemblyCompany' },
-        jak: { address: [18, 46], transform: v => p(v[0].toUpperCase() + v.slice(1) as 'Papírově' | 'Elektronicky')! },
+        komu: { address: [18, 45], transform: v => v == 'Odběratel' ? 'investor' : 'assemblyCompany' },
+        jak: { address: [18, 46], transform: v => v == 'papírově' ? 'onPaper' : 'electronically' },
     },
 };

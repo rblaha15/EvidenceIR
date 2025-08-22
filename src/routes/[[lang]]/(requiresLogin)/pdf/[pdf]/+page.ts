@@ -10,7 +10,7 @@ import { isLanguageCode } from '$lib/languages';
 
 export const entries: EntryGenerator = langAndPdfEntryGenerator;
 
-export const load: PageLoad = async ({ parent, params, url }) => {
+export const load: PageLoad = async ({ parent, params, url, fetch }) => {
     const pdfName = params.pdf as Pdf;
     if (!(pdfName in pdfInfo)) return error(404);
 
@@ -55,7 +55,7 @@ export const load: PageLoad = async ({ parent, params, url }) => {
 
     setTitle(t.pdf.previewFile, true);
 
-    return { ...d, ...id, title: t.get(pdf.title) };
+    return { ...d, ...id, title: pdf.title(t) };
 };
 
 export const prerender = true;

@@ -11,7 +11,7 @@ const pdfRK: GetPdfData<'RK'> = async ({ data: { kontrolyTC, evidence: e, uveden
     const tk = t.rk;
     const kontroly = kontrolyTC[pump] as Record<number, Raw<FormRK>>;
     const montazka = await nazevFirmy(e.montazka.ico);
-    const pumpInfo = cascadePumps(e, t)[pump - 1];
+    const pumpInfo = cascadePumps(e)[pump - 1];
     const start = {
         Text1:
             `${t.in.endCustomer}: ${endUserName(e.koncovyUzivatel)} – ${e.koncovyUzivatel.telefon} – ${e.koncovyUzivatel.email}\n` +

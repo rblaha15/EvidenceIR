@@ -34,47 +34,47 @@
 </script>
 
 {#if widget instanceof TitleWidget && widget.showTextValue(data)}
-    {#await widget.text(data, t) then text}
-        {#if text}<h2 class={[widget.class(data, t), 'm-0']}>{t.get(text)}</h2>{/if}
+    {#await widget.text(t, data) then text}
+        {#if text}<h2 class={[widget.class(data), 'm-0']}>{text}</h2>{/if}
     {/await}
 {:else if widget instanceof TextWidget && widget.showTextValue(data)}
-    {#await widget.text(data, t) then text}
-        {#if text}<p class={[widget.class(data, t), 'm-0']}>{t.get(text)}</p>{/if}
+    {#await widget.text(t, data) then text}
+        {#if text}<p class={[widget.class(data), 'm-0']}>{text}</p>{/if}
     {/await}
 {:else if widget.showTextValue(data)}
-    <p class="mb-0"><b>{t.get(widget.label(data, t))}</b>:
+    <p class="mb-0"><b>{widget.label(t, data)}</b>:
         {#if widget instanceof ScannerWidget}
             {widget.value}
         {:else if widget instanceof InputWidget}
             {!widget.value
                 ? ''
-                : widget.type(data, t) === 'date'
+                : widget.type(data) === 'date'
                     ? dateFromISO(widget.value)
-                    : widget.type(data, t) === 'datetime-local'
+                    : widget.type(data) === 'datetime-local'
                         ? datetimeFromISO(widget.value)
                         : widget.value}
         {:else if widget instanceof DoubleChooserWidget}
-            {t.get(widget.value.first) ?? ''} {t.get(widget.value.second) ?? ''}
+            {widget.get(t, widget.value.first)} {widget.get(t, widget.value.second)}
         {:else if widget instanceof ChooserWidget}
-            {t.get(widget.value) ?? ''}
+            {widget.get(t, widget.value)}
         {:else if widget instanceof RadioWidget}
-            {t.get(widget.value) ?? ''}
+            {widget.get(t, widget.value)}
         {:else if widget instanceof SwitchWidget}
-            {t.get(widget.value ? widget.options[1] : widget.options[0])}
+            {widget.value ? widget.options(t)[1] : widget.options(t)[0]}
         {:else if widget instanceof MultiCheckboxWidget}
-            {widget.value.map(s => t.get(s)).join(', ')}
+            {widget.value.map(v => widget.get(t, v)).join(', ')}
         {:else if widget instanceof CheckboxWidget}
             {widget.value ? t.widget.yes : t.widget.no}
         {:else if widget instanceof CounterWidget}
             {widget.value}
         {:else if widget instanceof CheckboxWithChooserWidget}
-            {widget.value.checked ? t.get(widget.value.chosen) ?? '' : t.widget.no}
+            {widget.value.checked ? widget.get(t, widget.value.chosen) : t.widget.no}
         {:else if widget instanceof InputWithSuggestionsWidget}
             {widget.value}
         {:else if widget instanceof CountersWidget}
-            {widget.options(data).zip(widget.value).map(([k, v]) => `${t.get(k)}: ${v}x`).join(', ')}
+            {widget.value.mapTo(([k, v]) => `${widget.get(t, k)}: ${v}x`).join(', ')}
         {:else if widget instanceof InputWithChooserWidget}
-            {widget.value.text} {t.get(widget.value.chosen) ?? ''}
+            {widget.value.text} {widget.get(t, widget.value.chosen)}
         {:else if widget instanceof CheckboxWithInputWidget}
             {widget.value.checked ? widget.value.text : t.widget.no}
         {:else if widget instanceof SearchWidget}
