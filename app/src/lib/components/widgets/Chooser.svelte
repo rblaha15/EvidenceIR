@@ -1,5 +1,5 @@
-<script generics="D, I extends TranslationReference" lang="ts">
-    import type { Translations, TranslationReference } from '$lib/translations';
+<script generics="D, I extends string" lang="ts">
+    import type { Translations } from '$lib/translations';
     import { type ChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
@@ -25,7 +25,7 @@
                     onchange={onChange} disabled={widget.lock(data)}>
                 <option class="d-none" value='notChosen'>{t.widget.notChosen}</option>
                 {#each widget.options(data) as moznost}
-                    <option value={moznost}>{t.get(moznost)}</option>
+                    <option value={moznost}>{widget.get(t, moznost)}</option>
                 {/each}
             </select>
         </label>
@@ -35,7 +35,7 @@
                     disabled={widget.lock(data)}>
                 <option class="d-none" value='notChosen'>{t.widget.notChosen}</option>
                 {#each widget.options(data) as moznost}
-                    <option value={moznost}>{t.get(moznost)}</option>
+                    <option value={moznost}>{widget.get(t, moznost)}</option>
                 {/each}
             </select>
             <label for="">{labelAndStar(widget, data, t)}</label>
@@ -43,6 +43,6 @@
     {/if}
 
     {#if widget.showError(data)}
-        <span class="text-danger">{t.get(widget.onError(data, t))}</span>
+        <span class="text-danger">{widget.onError(t, data)}</span>
     {/if}
 </div>

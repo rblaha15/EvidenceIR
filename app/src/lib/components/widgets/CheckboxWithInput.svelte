@@ -104,7 +104,7 @@
             ></textarea>
             {:else if options !== undefined}
                 <input
-                    type={widget.type(data, t)}
+                    type={widget.type(data)}
                     inputmode={widget.inputmode(data)}
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
@@ -116,7 +116,7 @@
                 />
             {:else}
                 <input
-                    type={widget.type(data, t)}
+                    type={widget.type(data)}
                     inputmode={widget.inputmode(data)}
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
@@ -138,6 +138,6 @@
     </div>
 
     {#if widget.showError(data)}
-        <span class="text-danger help-block">{t.get(widget.onError(data, t))}</span>
+        <span class="text-danger help-block">{widget.onError(t, data)}</span>
     {/if}
 </div>

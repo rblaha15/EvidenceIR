@@ -6,6 +6,7 @@ import '$lib/extensions';
 import { endUserName, endUserName2, irName, spName } from '$lib/helpers/ir';
 import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
+import { get } from '$lib/translations';
 
 const prices = {
     transportation: 9.92,
@@ -20,7 +21,6 @@ const prices = {
     yearlySOLCheck: 1239.67,
     withoutCode: 0,
 } as const;
-type P = keyof typeof prices
 
 const codes = {
     assemblyWork: 18261,
@@ -36,12 +36,6 @@ const codes = {
     yearlySOLCheck: 9782,
     withoutCode: 0,
 } as const;
-type C = keyof typeof codes
-
-type A<S extends string> = S | `${string}.${S}` | null
-
-const price = (subject: A<P>) => prices[subject!.split('.').at(-1) as P];
-const code = (subject: A<C>) => codes[subject!.split('.').at(-1) as C];
 
 const fieldsOperations = [
     { type: 'Kombinované pole33', code: 'Text26', price: 'Text36', amount: 'Text84' },
@@ -63,7 +57,7 @@ const multilineTooLong = (text: string) => text.split('\n').sumBy(line =>
 const inlineTooLong = (text: string) => text.length > inlineMaxLength;
 
 export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols }, t, addDoc, index, lang }) => {
-    const pumps = e.tc.model ? cascadePumps(e, t) : [];
+    const pumps = e.tc.model ? cascadePumps(e) : [];
     const ts = t.sp
     const p = installationProtocols[index];
     return pdfNSP({
@@ -76,7 +70,7 @@ export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installatio
                     (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +
                     (e.sol?.typ ? `\nSOL: ${e.sol.typ} – ${e.sol.pocet}x` : '') +
                     (e.rek?.typ ? `\nREK: ${e.rek.typ}` : '') +
-                    (e.fve?.pocet ? `\nFVE: ${t.get(e.fve.typ)} – ${e.fve.pocet}x` : '') +
+                    (e.fve?.pocet ? `\nFVE: ${get(t.in.fve, e.fve.typ)} – ${e.fve.pocet}x` : '') +
                     (e.fve?.akumulaceDoBaterii ? `; baterie: ${e.fve.typBaterii} – ${e.fve.kapacitaBaterii} kWh` : '') +
                     (e.jine?.popis ? `\nJiné zařízení: ${e.jine.popis}` : '') +
                     (e.tc.model ? '\n' + pumps.map(ts.pumpDetails).join('; ') : ''),
@@ -96,11 +90,11 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
     ].slice(0, p.nahradniDily.pocet);
     const priceTransportation = prices.transportation * Number(p.ukony.doprava);
     const priceWork = p.ukony.typPrace ? prices.work * Number(p.ukony.doba) : 0;
-    const priceOperations = p.ukony.ukony.sumBy(typ => price(typ) * (typ == 'sp.commissioningTC' || typ == 'sp.yearlyHPCheck' ? p.system.pocetTC : 1));
+    const priceOperations = p.ukony.ukony.sumBy(typ => prices[typ] * (typ == 'commissioningTC' || typ == 'yearlyHPCheck' ? p.system.pocetTC : 1));
     const priceParts = spareParts.sumBy(dil => Number(dil.unitPrice) * Number(dil.mnozstvi));
     const priceOther = priceOperations + priceParts;
     const sum = priceTransportation + priceWork + priceOther;
-    const tax = p.ukony.typPrace == 'sp.technicalAssistance12' ? 1.12 : 1.21;
+    const tax = p.ukony.typPrace == 'technicalAssistance12' ? 1.12 : 1.21;
     let response: Response;
     try {
         response = await fetch(`/signatures/${p.zasah.inicialy}.jpg`);
@@ -139,22 +133,22 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         Text15: dateFromISO(p.zasah.datum),
         Text16: p.zasah.datumUvedeni ? dateFromISO(p.zasah.datumUvedeni) : null,
         Text17: p.zasah.clovek,
-        'Zaškrtávací pole28': p.zasah.zaruka == `sp.warrantyCommon`,
-        'Zaškrtávací pole29': p.zasah.zaruka == `sp.warrantyExtended`,
+        'Zaškrtávací pole28': p.zasah.zaruka == `warrantyCommon`,
+        'Zaškrtávací pole29': p.zasah.zaruka == `warrantyExtended`,
         Text19: inlineTooLong(zavada) ? ts.seeSecondPage : zavada,
         Text20: multilineTooLong(zasah) ? ts.seeSecondPage : zasah,
         Text21: p.ukony.doprava + ' km',
         Text22: prices.transportation.roundTo(2).toLocaleString('cs') + ' Kč',
-        'Kombinované pole32': t.get(p.ukony.typPrace) ?? ts.intervention,
-        Text25: p.ukony.typPrace ? code(p.ukony.typPrace).toString().let(k => k == '0' ? '' : k) : '',
+        'Kombinované pole32': get(ts, p.ukony.typPrace) ?? ts.intervention,
+        Text25: p.ukony.typPrace ? codes[p.ukony.typPrace].toString().let(k => k == '0' ? '' : k) : '',
         Text23: p.ukony.doba + ' h',
         Text24: p.ukony.typPrace ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '',
         ...fieldsOperations.map(p => [p.type, ' '] as const).toRecord(),
         ...p.ukony.ukony.map((typ, i) => [
-            [fieldsOperations[i].type, t.get(typ)],
-            [fieldsOperations[i].price, price(typ).roundTo(2).toLocaleString('cs') + ' Kč'],
-            [fieldsOperations[i].code, code(typ).toString()],
-            [fieldsOperations[i].amount, typ == 'sp.commissioningTC' || typ == 'sp.yearlyHPCheck' ? p.system.pocetTC + ' ks' : ''],
+            [fieldsOperations[i].type, get(ts, typ)],
+            [fieldsOperations[i].price, prices[typ].roundTo(2).toLocaleString('cs') + ' Kč'],
+            [fieldsOperations[i].code, codes[typ].toString()],
+            [fieldsOperations[i].amount, typ == 'commissioningTC' || typ == 'yearlyHPCheck' ? p.system.pocetTC + ' ks' : ''],
         ] as const).flat().toRecord(),
         ...spareParts.map((dil, i) => [
             [`Text${fieldsParts.name + i}`, dil.name],
@@ -169,10 +163,10 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         Text34: sum.roundTo(2).toLocaleString('cs') + ' Kč',
         Text18: `${(tax * 100 - 100).toFixed(0)} %`,
         Text35: (sum * tax).roundTo(2).toLocaleString('cs') + ' Kč',
-        Text39: t.get(p.fakturace.hotove),
+        Text39: get(ts, p.fakturace.hotove),
         Text40: p.fakturace.hotove == 'no' ? `${ts.invoice}:` : '',
-        Text41: p.fakturace.hotove == 'no' ? t.get(p.fakturace.komu) : '',
-        Text42: p.fakturace.hotove == 'no' ? t.get(p.fakturace.jak) : '',
+        Text41: p.fakturace.hotove == 'no' ? get(ts, p.fakturace.komu) : '',
+        Text42: p.fakturace.hotove == 'no' ? get(ts, p.fakturace.jak) : '',
         Text43: p.fakturace.komu == 'assemblyCompany' ? p.montazka.zastupce : endUserName(p.koncovyUzivatel),
         images: signature ? [{ x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 }] : [],
     } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;

@@ -39,7 +39,7 @@
     let { t, widget = $bindable(), data }: Props = $props();
 
     let inputSelect = $state<HTMLInputElement>();
-    const accept = $derived(widget.accept(data, t));
+    const accept = $derived(widget.accept(data));
     const multiple = $derived(widget.multiple(data));
     const max = $derived(widget.max(data));
 
@@ -94,7 +94,7 @@
     </div>
 
     {#if widget.showError(data)}
-        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
+        <p class="text-danger">{widget.onError(t, data)}</p>
     {/if}
 
     <input

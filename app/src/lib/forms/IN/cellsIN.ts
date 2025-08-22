@@ -1,6 +1,5 @@
 import type { ExcelImport } from '$lib/forms/ExcelImport';
 import type { Raw } from '$lib/forms/Form';
-import { p } from '$lib/translations';
 import type { FormIN } from '$lib/forms/IN/formIN';
 
 export const cellsIN: ExcelImport<Raw<FormIN>>['cells'] = {
@@ -34,13 +33,13 @@ export const cellsIN: ExcelImport<Raw<FormIN>>['cells'] = {
             address: [2, 33], transform: v => v == 'Vyberte typ' ? null
                 : v.includes('EcoPart') || v.includes('EcoHeat') ? 'groundToWater' : 'airToWater',
         },
-        model: { address: [2, 33], transform: v => v == 'Vyberte typ' ? null : p(v)! as Raw<FormIN>['tc']['model'] },
+        model: { address: [2, 33], transform: v => v == 'Vyberte typ' ? null : v as Raw<FormIN>['tc']['model'] },
         cislo: { address: [6, 33] },
-        model2: { address: [2, 34], transform: v => v == 'Vyberte typ' ? null : p(v)! as Raw<FormIN>['tc']['model2'] },
+        model2: { address: [2, 34], transform: v => v == 'Vyberte typ' ? null : v as Raw<FormIN>['tc']['model2'] },
         cislo2: { address: [6, 34] },
-        model3: { address: [2, 35], transform: v => v == 'Vyberte typ' ? null : p(v)! as Raw<FormIN>['tc']['model3'] },
+        model3: { address: [2, 35], transform: v => v == 'Vyberte typ' ? null : v as Raw<FormIN>['tc']['model3'] },
         cislo3: { address: [6, 35] },
-        model4: { address: [2, 36], transform: v => v == 'Vyberte typ' ? null : p(v)! as Raw<FormIN>['tc']['model4'] },
+        model4: { address: [2, 36], transform: v => v == 'Vyberte typ' ? null : v as Raw<FormIN>['tc']['model4'] },
         cislo4: { address: [6, 36] },
     },
     ir: {
@@ -50,8 +49,8 @@ export const cellsIN: ExcelImport<Raw<FormIN>>['cells'] = {
                     get([2, 39]).includes('Eco') ? null : get([2, 39]); // EcoZenith, EcoEl
                 const ir = get([2, 41]) == 'Vyberte typ' ? box : get([2, 41]);
                 return {
-                    first: p(ir?.split(' ')?.toSpliced(-1, 1)?.join(' ')) ?? null,
-                    second: p(ir?.split(' ')?.at(-1)) ?? null,
+                    first: ir?.split(' ')?.toSpliced(-1, 1)?.join(' ') ?? null,
+                    second: ir?.split(' ')?.at(-1) ?? null,
                 } as Raw<FormIN>['ir']['typ'];
             },
         },

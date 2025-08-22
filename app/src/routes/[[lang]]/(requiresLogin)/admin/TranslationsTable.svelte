@@ -1,41 +1,56 @@
-<script lang="ts" module>
-    import type { STemplate, Template } from '$lib/helpers/templates.js';
-
-    type TranslationEntry = string | STemplate<(string | number)[]> | Record<string, unknown>
-    type Translations = Record<string, TranslationEntry>
-    type String = string
-</script>
-
 <script lang="ts">
-    import { type LanguageCode, languageCodes } from '$lib/languages';
-    import { getTranslations, type TranslationReference } from '$lib/translations';
-    import isString from 'lodash.isstring';
+    import type { STemplate, Template } from '$lib/helpers/templates.js';
+    import { languageCodes } from '$lib/languages';
+    import { getTranslations, type Translate, type Translations } from '$lib/translations';
     import cs from '$lib/translations/cs';
+    import isString from 'lodash.isstring';
+
+    type TranslationEntry1 = string | STemplate<(string | number)[]> | Record<string, unknown> | ((...args: unknown[]) => string);
+    type Translations1 = Record<string, TranslationEntry1>
+    type TranslationEntry2 = string | Template<(string | number)[]> | Record<string, unknown> | ((...args: unknown[]) => string);
+    type Translations2 = Record<string, TranslationEntry2>
+
+    type JointTranslations_<R extends Translations2> = {
+        [K in keyof R]: R[K] extends Translations2
+            ? JointTranslations_<R[K]>
+            : Translate<R[K]>
+    }
+
+    type JointTranslations = JointTranslations_<Translations>
+
+    const getJointTranslations = (r: Translations1 = cs, t: Translate<Translations2> = languageCodes.associateWith(getTranslations)): JointTranslations =>
+        r.mapValues((k, v) => {
+            const tr = t.mapValues((_, v) => v[k]);
+            if (isString(v) || Array.isArray(v) || v instanceof Function) {
+                return tr;
+            } else {
+                return getJointTranslations(v as Translations1, tr as Translate<Translations2>) as JointTranslations_<Translations2>;
+            }
+        }) as JointTranslations;
+
+    export const jointTranslations = getJointTranslations()
 
     const parseSelf = <T extends (number | string)[]>(template: Template<T>) => template(
         template.keys.associateWith<T[number], string>(it => `{${it}}`),
     );
-    const view = (t: Template<(string | number)[]> | string) => typeof t === 'string' ? t : parseSelf(t);
-    const get = (lang: LanguageCode, key: string, k: string) => view(getTranslations(lang).get((key ? key + '.' + k : k) as TranslationReference))
-    const cast = (v: unknown) => v as Translations
+    const view = (t: Template<(string | number)[]> | string | Function) =>
+        t instanceof Function ? 'strings' in t ? parseSelf(t) : t : t;
+    const cast = (v: unknown) => v as JointTranslations
 </script>
 
-{#snippet group(key: String, g: Translations)}
+{#snippet group(key: String, gs: JointTranslations)}
     {#if key}
         <h3 class="p-3">{key}</h3>
     {/if}
-    {#each g.entries() as [k, v]}
-        {#if isString(v) || Array.isArray(v)}
-            {@const cs = get('cs', key, k)}
-            {@const en = get('en', key, k)}
+    {#each gs.entries() as [k, v]}
+        {#if 'cs' in v}
             <tr>
                 <th>{k}</th>
-                {#each languageCodes as lang}
-                    {@const v = get(lang, key, k)}
+                {#each v.entries() as [lang, t]}
                     <td class="col-20"
-                        class:table-danger={lang !== 'cs' && lang !== 'sk' && cs === v}
-                        class:table-warning={lang !== 'en' && lang !== 'cs' && en === v || lang === 'sk' && cs === v}>
-                        {v}
+                        class:table-danger={lang !== 'cs' && lang !== 'sk' && view(v.cs) === view(t)}
+                        class:table-warning={lang !== 'en' && lang !== 'cs' && view(v.en) === view(t) || lang === 'sk' && view(v.cs) === view(t)}>
+                        {view(t)}
                     </td>
                 {/each}
             </tr>
@@ -56,7 +71,7 @@
         </tr>
         </thead>
         <tbody>
-            {@render group('', cs)}
+            {@render group('', jointTranslations)}
         </tbody>
     </table>
 </div>

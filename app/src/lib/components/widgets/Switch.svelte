@@ -14,26 +14,26 @@
 
 <div class="d-flex gap-1 flex-column">
     <div class="input-group flex-nowrap" style="width: min-content">
-        <span class="input-group-text" style="width: max-content">{t.get(widget.label(data, t))}</span>
-        {#each widget.options as option, i}
+        <span class="input-group-text" style="width: max-content">{widget.label(t, data)}</span>
+        {#each widget.options(t) as option, i}
             <input
                 type="radio"
                 class="btn-check"
                 bind:group={value.value}
                 value={Boolean(i)}
-                id={widget.label(data, t) + Boolean(i)}
+                id={widget.label(t, data) + Boolean(i)}
                 autocomplete="off"
             />
             <label class={["btn",
                 widget.value !== Boolean(i) ? 'btn-outline-secondary'
                     : !widget.hasPositivity(data) ? 'btn-secondary'
                     : i === 1 ? 'btn-success' : 'btn-danger'
-            ]} for={widget.label(data, t) + Boolean(i)}
-            >{t.get(option)}</label>
+            ]} for={widget.label(t, data) + Boolean(i)}
+            >{option}</label>
         {/each}
     </div>
 
     {#if widget.showError(data)}
-        <span class="text-danger">{t.get(widget.onError(data, t))}</span>
+        <span class="text-danger">{widget.onError(t, data)}</span>
     {/if}
 </div>

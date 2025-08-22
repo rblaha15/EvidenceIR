@@ -90,7 +90,7 @@
             ></textarea>
             {:else if options !== undefined}
                 <input
-                    type={widget.type(data, t)}
+                    type={widget.type(data)}
                     inputmode={widget.inputmode(data)}
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
@@ -102,7 +102,7 @@
                 />
             {:else}
                 <input
-                    type={widget.type(data, t)}
+                    type={widget.type(data)}
                     inputmode={widget.inputmode(data)}
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
@@ -118,15 +118,15 @@
                 />
             {/if}
             <label for="">{labelAndStar(widget, data, t)}</label>
-            <button class="btn py-1 px-2 m-1" class:d-none={!widget.value || widget.type(data, t) !== 'date' || widget.required(data)} aria-label={t.widget.clearSelection} onclick={onClick}><i class="bi bi-eraser"></i></button>
+            <button class="btn py-1 px-2 m-1" class:d-none={!widget.value || widget.type(data) !== 'date' || widget.required(data)} aria-label={t.widget.clearSelection} onclick={onClick}><i class="bi bi-eraser"></i></button>
         </label>
-        {#if widget.suffix(data, t)}
-            <span class="input-group-text">{t.get(widget.suffix(data, t) ?? '')}</span>
+        {#if widget.suffix(t, data)}
+            <span class="input-group-text">{widget.suffix(t, data) ?? ''}</span>
         {/if}
     </div>
 
     {#if widget.showError(data)}
-        <span class="text-danger help-block">{t.get(widget.onError(data, t))}</span>
+        <span class="text-danger help-block">{widget.onError(t, data)}</span>
     {/if}
 </div>
 
