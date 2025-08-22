@@ -2,6 +2,7 @@ import { nazevFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import { endUserName } from '$lib/helpers/ir';
+import { get } from '$lib/translations';
 
 const pdfUPS: GetPdfData<'UPS'> = async ({ data: { evidence: e, uvedeniSOL }, t }) => {
     const u = uvedeniSOL!;
@@ -29,8 +30,8 @@ const pdfUPS: GetPdfData<'UPS'> = async ({ data: { evidence: e, uvedeniSOL }, t 
 /*                */ Text19: u.sol.cerpadloaSkupina,
 /*                */ Text20: u.sol.expanznkaSolarni ? tu.yes : tu.no,
 /*                */ Text21: u.sol.objem,
-/*                */ Text22: t.get(u.sol.ovzdusneni),
-/*                */ Text23: t.get(u.sol.teplonosnaKapalina),
+/*                */ Text22: get(tu, u.sol.ovzdusneni),
+/*                */ Text23: get(tu, u.sol.teplonosnaKapalina),
 /*                */ Text24: u.sol.potrubi,
 /*                */ Text25: u.sol.prumer,
 /*                */ Text26: u.sol.delkyPotrubi,

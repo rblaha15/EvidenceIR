@@ -1,4 +1,5 @@
 import isString from 'lodash.isstring';
+import cs from '$lib/translations/cs';
 
 export type STemplate<T extends (number | string)[]> = [strings: readonly string[], keys: T]
 
@@ -14,7 +15,7 @@ export type Template<T extends (number | string)[]> = {
 export const template = <T extends (number | string)[]>(strings: readonly string[], ...keys: T) =>
     [strings, keys] as STemplate<T>;
 
-type TranslationEntry = string | STemplate<(string | number)[]> | Record<string, unknown>
+type TranslationEntry = string | STemplate<(string | number)[]> | Record<string, unknown> | ((...args: unknown[]) => string);
 type Translations = Record<string, TranslationEntry>
 
 const addParsingToTemplate = <T extends (string | number)[]>(v: STemplate<T>) => {
@@ -31,7 +32,7 @@ const addParsingToTemplate = <T extends (string | number)[]>(v: STemplate<T>) =>
 
 export const addParsing = <T extends Translations>(obj: T): AddParsing<T> =>
     obj.mapValues((_, v: TranslationEntry) => {
-        return isString(v)
+        return isString(v) || v instanceof Function
             ? v
             : v instanceof Array
                 ? addParsingToTemplate(v)

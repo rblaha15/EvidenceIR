@@ -39,8 +39,9 @@ export type PdfGenerationData = {
 
 export const generatePdfUrl = async <P extends Pdf>(
     o: GeneratePdfOptions<P>,
+    fetch: typeof window.fetch = window.fetch,
 ) => {
-    const pdfData = await generatePdf(o);
+    const pdfData = await generatePdf(o, fetch);
 
     const blob = new Blob([pdfData.pdfBytes], {
         type: 'application/pdf',
@@ -51,6 +52,7 @@ export const generatePdfUrl = async <P extends Pdf>(
 
 export const generatePdf = async <P extends Pdf>(
     o: GeneratePdfOptions<P>,
+    fetch: typeof window.fetch = window.fetch,
 ) => {
     const { args, lang, data } = o;
 
@@ -61,7 +63,7 @@ export const generatePdf = async <P extends Pdf>(
     const formPdfBytes = await (await fetch(formLocation, { cache: 'reload' })).arrayBuffer();
 
     const pdfDoc = await PDFDocument.load(formPdfBytes);
-    pdfDoc.setTitle(t.get(args.title));
+    pdfDoc.setTitle(args.title(t));
 
     const form = pdfDoc.getForm();
     const fields = form.getFields();
@@ -148,15 +150,15 @@ export const generatePdf = async <P extends Pdf>(
 
     form.updateFieldAppearances(ubuntuFont);
 
-    fields.forEach(field => {
-        if (field instanceof PDFSignature) {
-            field.acroField.getWidgets().forEach(w => {
-                w.ensureAP().set(PDFName.of('N'), PDFRef.of(0));
-            });
-            form.removeField(field);
-        }
-    });
-    form.flatten();
+    // fields.forEach(field => {
+    //     if (field instanceof PDFSignature) {
+    //         field.acroField.getWidgets().forEach(w => {
+    //             w.ensureAP().set(PDFName.of('N'), PDFRef.of(0));
+    //         });
+    //         form.removeField(field);
+    //     }
+    // });
+    // form.flatten();
 
     const pdfBytes = await pdfDoc.save(args.saveOptions);
 

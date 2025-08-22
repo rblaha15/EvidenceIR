@@ -22,7 +22,7 @@
     let search = $state('');
 
     $effect(() => {
-        search = widget.value ? t.get(widget.getSearchItem(widget.value).pieces[0].text) : '';
+        search = widget.value ? widget.getSearchItem(widget.value, t).pieces[0].text : '';
     });
 
     const all = $derived(widget.items(data));
@@ -31,8 +31,8 @@
         search;
         return all?.filter((item) =>
             wordsToFilter(search).every(
-                filter => widget.getSearchItem(item).pieces.some(piece =>
-                    wordsToFilter(t.get(piece.text)).some(word => word.includes(filter)),
+                filter => widget.getSearchItem(item, t).pieces.some(piece =>
+                    wordsToFilter(piece.text).some(word => word.includes(filter)),
                 ),
             ),
         ) ?? [];
@@ -70,7 +70,7 @@
                 class:rb-0={!hidden}
                 oninput={e => search = e.currentTarget.value}
                 placeholder=" "
-                type={widget.type(data, t)}
+                type={widget.type(data)}
                 value={hidden ? widget.value ? ' ' : '' : search}
             />
             <label for="">{labelAndStar(widget, data, t)}</label>
@@ -81,7 +81,7 @@
         {#if !hidden}
             <div class="list-group z-3 w-100 overflow-y-auto shadow-lg mb-2" class:options={!widget.inline(data)}>
                 {#each filtered as item, i}
-                    {@const searchItem = widget.getSearchItem(item)}
+                    {@const searchItem = widget.getSearchItem(item, t)}
                     <a
                         tabindex="0"
                         class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
@@ -98,7 +98,7 @@
                         {#each searchItem.pieces as piece}
                             <p class="mb-0 w-md-100"
                                style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
-                            >{t.get(piece.text)}</p>
+                            >{piece.text}</p>
                         {/each}
                     </a>
                 {:else}
@@ -108,7 +108,7 @@
         {/if}
 
         {#if widget.value && hidden}
-            {@const searchItem = widget.getSearchItem(widget.value)}
+            {@const searchItem = widget.getSearchItem(widget.value, t)}
             <div class="list-group w-100 z-2 selected" class:options={!widget.inline(data)}>
                 <div
                     class="list-group-item-action list-group-item d-flex flex-column flex-md-row align-items-md-center rt-0"
@@ -116,7 +116,7 @@
                     {#each searchItem.pieces as piece, j}
                         <p class="mb-0 me-1 d-md-block" class:d-none={j !== 0}
                            style="color: var(--bs-body-color); flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
-                        >{t.get(piece.text)}</p>
+                        >{piece.text}</p>
                     {/each}
                 </div>
             </div>
@@ -124,7 +124,7 @@
     </div>
 
     {#if widget.showError(data)}
-        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
+        <p class="text-danger">{widget.onError(t, data)}</p>
     {/if}
 </div>
 

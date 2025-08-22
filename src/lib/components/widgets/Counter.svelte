@@ -15,7 +15,7 @@
 
 <div class="d-flex gap-1 flex-column">
     <div class="input-group flex-nowrap" style="width: min-content">
-        <span class="input-group-text" style="width: max-content" id="label-{uid}">{t.get(widget.label(data, t))}</span>
+        <span class="input-group-text" style="width: max-content" id="label-{uid}">{widget.label(t, data)}</span>
         <button class="btn btn-outline-primary" onclick={() => widget.mutateValue(data, v => v - 1)}
                 disabled={widget.value === widget.min(data)}
         ><strong>-</strong></button>
@@ -26,6 +26,6 @@
     </div>
 
     {#if widget.showError(data)}
-        <span class="text-danger help-block">{t.get(widget.onError(data, t))}</span>
+        <span class="text-danger help-block">{widget.onError(t, data)}</span>
     {/if}
 </div>

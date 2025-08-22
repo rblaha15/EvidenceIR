@@ -5,6 +5,7 @@ import { dateFromISO, todayISO } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import { endUserName } from '$lib/helpers/ir';
 import { range } from '$lib/extensions';
+import { get } from '$lib/translations';
 
 const pdfUPF: GetPdfData<'UPF'> = async ({ data: { evidence: e, uvedeniFVE, }, t, lang }) => {
     const u = uvedeniFVE!
@@ -24,7 +25,7 @@ const pdfUPF: GetPdfData<'UPF'> = async ({ data: { evidence: e, uvedeniFVE, }, t
 /*      uvadecTel */ Text8: e.uvedeni.telefon,
 /*    uvadecEmail */ Text9: e.uvedeni.email,
 /*          datum */ Text10: dateFromISO(u.commissioning.date ?? todayISO()),
-        'Kombinované pole19': t.get(e.fve.typ!),
+        'Kombinované pole19': get(t.in.fve, e.fve.typ!),
         'Kombinované pole20': '450',
         Text11: e.fve.pocet,
         Text12: (Number(e.fve.pocet) * 450).toLocaleString(lang),
@@ -36,9 +37,9 @@ const pdfUPF: GetPdfData<'UPF'> = async ({ data: { evidence: e, uvedeniFVE, }, t
         ] as const).flat().associateWith(_ => ' '),
         ...fields.map((field, i) => [
             [`Text${13 + i * 2}`, field.panelCount],
-            [`Kombinované pole${28 + i}`, t.get(field.orientation)],
+            [`Kombinované pole${28 + i}`, get(tu, field.orientation)],
             [`Text${14 + i * 2}`, field.slope + ' °'],
-            [`Kombinované pole${1 + i}`, field.location == 'fve.onFamilyHouse' ? tu.onFamilyHouseShort : t.get(field.location)],
+            [`Kombinované pole${1 + i}`, get({ ...tu, onFamilyHouse: tu.onFamilyHouseShort }, field.location)],
         ] as const).flat().toRecord(),
         Text28: e.fve.typStridace,
         Text21: e.fve.cisloStridace,
@@ -46,7 +47,7 @@ const pdfUPF: GetPdfData<'UPF'> = async ({ data: { evidence: e, uvedeniFVE, }, t
         Text22: e.fve.typBaterii,
         Text23: e.fve.kapacitaBaterii,
         'Kombinované pole6': e.fve.wallbox ? tu.yes : tu.no,
-        'Kombinované pole10': t.get(u.connection.type),
+        'Kombinované pole10': get(tu, u.connection.type),
         Text24: u.connection.reservedPower,
         Text25: u.connection.mainBreakerSize,
         Text26: u.connection.yearlyEnergyConsumption,

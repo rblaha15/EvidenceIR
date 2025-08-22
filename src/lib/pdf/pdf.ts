@@ -1,5 +1,5 @@
 import type { LanguageCode } from '$lib/languages';
-import { type TranslationReference, type Translations } from '$lib/translations';
+import { type Translations } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
 import type { IR } from '$lib/data';
 import type { PdfGenerationData } from '$lib/pdf/pdfGeneration';
@@ -51,49 +51,49 @@ export const pdfInfo: PdfInfo = {
         type: 'IR',
         pdfName: 'RK',
         supportedLanguages: ['cs'],
-        title: `rk.title`,
+        title: t => t.rk.title,
         getPdfData: RK,
     },
     ZL: {
         type: 'IR',
         pdfName: 'ZL',
         supportedLanguages: ['cs'],
-        title: `zl.title`,
+        title: t => t.zl.title,
         getPdfData: ZL,
     },
     RR: {
         type: 'IR',
         pdfName: 'RR',
         supportedLanguages: ['cs'],
-        title: `rr.title`,
+        title: t => t.rr.title,
         getPdfData: RR,
     },
     NN: {
         type: 'IR',
         pdfName: 'NN',
         supportedLanguages: ['cs'],
-        title: 'nn.title',
+        title: t => t.nn.title,
         getPdfData: NN,
     },
     UPT: {
         type: 'IR',
         pdfName: 'UPT',
         supportedLanguages: ['cs'],
-        title: 'tc.title',
+        title: t => t.tc.title,
         getPdfData: UPT,
     },
     UPS: {
         type: 'IR',
         pdfName: 'UPS',
         supportedLanguages: ['cs'],
-        title: 'sol.title',
+        title: t => t.sol.title,
         getPdfData: UPS,
     },
     SP: {
         type: 'IR',
         pdfName: 'SP',
         supportedLanguages: ['cs'],
-        title: 'sp.title',
+        title: t => t.sp.title,
         getPdfData: SP,
         requiredRegulus: true,
     },
@@ -101,7 +101,7 @@ export const pdfInfo: PdfInfo = {
         type: 'SP',
         pdfName: 'SP',
         supportedLanguages: ['cs'],
-        title: 'sp.title',
+        title: t => t.sp.title,
         requiredRegulus: true,
         getPdfData: NSP,
     },
@@ -109,34 +109,34 @@ export const pdfInfo: PdfInfo = {
         type: 'SP',
         pdfName: 'CP',
         supportedLanguages: ['cs'],
-        title: '',
+        title: _ => '',
         getPdfData: CP,
     },
     PS: {
         type: 'SP',
         pdfName: 'PS',
         supportedLanguages: ['cs'],
-        title: '',
+        title: _ => '',
         getPdfData: PS,
     },
     UPF: {
         type: 'IR',
         pdfName: 'UPF',
         supportedLanguages: ['cs'],
-        title: 'fve.title',
+        title: t => t.fve.title,
         getPdfData: UPF,
     },
     TCI: {
         type: 'IR',
         pdfName: 'TCI',
         supportedLanguages: ['cs'],
-        title: '',
+        title: _ => '',
     },
     FT: {
         type: 'IR',
         pdfName: 'FT',
         supportedLanguages: ['cs'],
-        title: 'ft.title',
+        title: t => t.ft.title,
         getPdfData: FT,
     },
 };
@@ -175,7 +175,7 @@ export type PdfArgs<P extends Pdf> = {
     type: TypeOfPdf<P>;
     pdfName: string;
     supportedLanguages: LanguageCode[];
-    title: TranslationReference;
+    title: (t: Translations) => string;
     saveOptions?: SaveOptions;
     requiredAdmin?: boolean;
     requiredRegulus?: boolean;

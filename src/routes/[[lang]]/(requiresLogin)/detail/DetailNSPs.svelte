@@ -24,7 +24,7 @@
     const protocolGroups: (keyof Raw<FormSP>)[] = defaultSP().keys();
 
     const newIRID = new InputWidget({
-        label: 'detail.newIRIDLabel',
+        label: t => t.detail.newIRIDLabel,
     });
     const transfer = async () => {
         await sps.map(async sp => {

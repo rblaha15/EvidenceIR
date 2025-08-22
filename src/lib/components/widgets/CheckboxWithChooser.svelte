@@ -1,5 +1,5 @@
-<script generics="D, I extends TranslationReference" lang="ts">
-    import type { TranslationReference, Translations } from '$lib/translations';
+<script generics="D, I extends string" lang="ts">
+    import type { Translations } from '$lib/translations';
     import { CheckboxWithChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import type { Action } from 'svelte/action';
     import { onMount } from 'svelte';
@@ -43,7 +43,7 @@
                 <select class="form-select" value={widget.value.chosen ?? 'notChosen'} onchange={onChange} use:Select>
                     <option class="d-none" value='notChosen'>{t.widget.notChosen}</option>
                     {#each widget.options(data) as moznost}
-                        <option value={moznost}>{t.get(moznost)}</option>
+                        <option value={moznost}>{widget.get(t, moznost)}</option>
                     {/each}
                 </select>
             {:else}
@@ -56,6 +56,6 @@
     </div>
 
     {#if widget.showError(data)}
-        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
+        <p class="text-danger">{widget.onError(t, data)}</p>
     {/if}
 </div>
