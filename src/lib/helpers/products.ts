@@ -13,6 +13,7 @@ const products = {
         'RTC 6i',
         'RTC 13e',
         'RTC 20e',
+        'airTHERM 10',
     ],
     heatPumpsGroundToWater: [
         'EcoPart 612M',
