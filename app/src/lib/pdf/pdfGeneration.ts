@@ -148,15 +148,15 @@ export const generatePdf = async <P extends Pdf>(
 
     form.updateFieldAppearances(ubuntuFont);
 
-    fields.forEach(field => {
-        if (field instanceof PDFSignature) {
-            field.acroField.getWidgets().forEach(w => {
-                w.ensureAP().set(PDFName.of('N'), PDFRef.of(0));
-            });
-            form.removeField(field);
-        }
-    });
-    form.flatten();
+    // fields.forEach(field => {
+    //     if (field instanceof PDFSignature) {
+    //         field.acroField.getWidgets().forEach(w => {
+    //             w.ensureAP().set(PDFName.of('N'), PDFRef.of(0));
+    //         });
+    //         form.removeField(field);
+    //     }
+    // });
+    // form.flatten();
 
     const pdfBytes = await pdfDoc.save(args.saveOptions);
 
