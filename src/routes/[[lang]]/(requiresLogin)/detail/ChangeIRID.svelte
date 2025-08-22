@@ -1,7 +1,7 @@
 <script lang="ts">
     import { ChooserWidget, InputWidget } from '$lib/forms/Widget.svelte';
     import type { IRTypes } from '$lib/forms/IN/formIN';
-    import { p, type Translations } from '$lib/translations';
+    import { type Translations } from '$lib/translations';
     import { time, todayISO } from '$lib/helpers/date';
     import { untrack } from 'svelte';
     import { extractIRIDFromParts, type IRID } from '$lib/helpers/ir';
@@ -19,30 +19,31 @@
 
     type D = { type: ChooserWidget<D, IRTypes>, number: InputWidget<D> };
 
-    const sorel = (d: D) => d.type.value == p('SOREL');
-    const irFVE = (d: D) => d.type.value == 'irFVE';
+    const sorel = (d: D) => d.type.value == 'SOREL';
+    const irFVE = (d: D) => d.type.value == 'fve';
 
     let irType = $state(new ChooserWidget<D, IRTypes>({
-        label: `in.controllerType`,
-        options: [...p('IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL'), 'irFVE'],
+        label: t => t.in.controllerType,
+        options: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL', 'fve'],
         onValueSet: (d, v) => {
-            if (v == p('SOREL')) {
+            if (v == 'SOREL') {
                 d.number.setValue(d, `${todayISO()} ${time()}`);
             }
         },
+        labels: t => t.in.ir,
     }));
     let irNumber = $state(new InputWidget<D>({
-        label: `in.serialNumber`,
-        onError: `wrong.number`,
+        label: t => t.in.serialNumber,
+        onError: t => t.wrong.number,
         regex: d => sorel(d) || irFVE(d)
             ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
-            : d.type.value == p('IR 12')
+            : d.type.value == 'IR 12'
                 ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:0[69]:[0-9A-F]{2}:[0-9A-F]{2}/
                 : /[A-Z][1-9OND] [0-9]{4}/,
         capitalize: true,
         maskOptions: d => ({
             mask: sorel(d) ? `0000-00-00T00:00` :
-                d.type.value != p('IR 12') ? 'Z9 0000'
+                d.type.value != 'IR 12' ? 'Z9 0000'
                     : d.number.value.length == 0 ? 'X'
                         : d.number.value[0] == '0'
                             ? 'NN:NA:14:N6:FF:FF'

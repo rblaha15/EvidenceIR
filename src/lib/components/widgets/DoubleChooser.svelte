@@ -1,7 +1,7 @@
-<script generics="D, I1 extends TranslationReference, I2 extends TranslationReference" lang="ts">
+<script generics="D, I1 extends string, I2 extends string" lang="ts">
     import { onMount } from 'svelte';
     import type { Action } from 'svelte/action';
-    import type { TranslationReference, Translations } from '$lib/translations';
+    import type { Translations } from '$lib/translations';
     import { type DoubleChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
@@ -39,7 +39,7 @@
                     disabled={widget.lock1(data)} onchange={onChange1}>
                 <option class="d-none" value="notChosen">{t.widget.notChosen}</option>
                 {#each widget.options1(data) as moznost}
-                    <option value={moznost}>{t.get(moznost)}</option>
+                    <option value={moznost}>{widget.get(t, moznost)}</option>
                 {/each}
             </select>
             <label for="">{labelAndStar(widget, data, t)}</label>
@@ -55,13 +55,13 @@
             >
                 <option class="d-none" value="notChosen">{t.widget.notChosen}</option>
                 {#each widget.options2(data) as moznost}
-                    <option value={moznost}>{t.get(moznost)}</option>
+                    <option value={moznost}>{widget.get(t, moznost)}</option>
                 {/each}
             </select>
         {/if}
     </div>
     {#if widget.showError(data)}
-        <p class="text-danger">{t.get(widget.onError(data, t))}</p>
+        <p class="text-danger">{widget.onError(t, data)}</p>
     {/if}
 </div>
 

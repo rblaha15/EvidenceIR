@@ -1,7 +1,8 @@
 import { getApps, initializeApp, type FirebaseOptions } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { dev } from '$app/environment';
 
 const firebaseConfig: FirebaseOptions = {
 	apiKey: 'AIzaSyCKu8Z4wx55DfrZdYtKvrqvwZ2Y6nQvx24',
@@ -17,6 +18,7 @@ const firebaseConfig: FirebaseOptions = {
 export const app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig)
 
 export const firestore = getFirestore(app)
+if (dev) connectFirestoreEmulator(firestore, '127.0.0.1', 8001);
 
 export const realtime = getDatabase(app);
 

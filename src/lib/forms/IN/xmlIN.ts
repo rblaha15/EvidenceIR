@@ -25,17 +25,17 @@ const widgetToXML = (v: Widget<FormIN>, t: Translations) => {
     if (v instanceof InputWidget)
         return v.value;
     if (v instanceof DoubleChooserWidget)
-        return `${t.get(v.value.first) ?? ''} ${t.get(v.value.second) ?? ''}`;
+        return `${v.get(t, v.value.first) ?? ''} ${v.get(t, v.value.second) ?? ''}`;
     if (v instanceof ChooserWidget)
-        return t.get(v.value) ?? '';
+        return v.get(t, v.value) ?? '';
     if (v instanceof RadioWidget)
-        return t.get(v.value) ?? '';
+        return v.get(t, v.value) ?? '';
     if (v instanceof SwitchWidget)
-        return t.get(v.value ? v.options[1] : v.options[0]);
+        return v.value ? v.options(t)[1] : v.options(t)[0];
     if (v instanceof MultiCheckboxWidget)
-        return v.value.map(s => t.get(s)).join(', ');
+        return v.value.map(s => v.get(t, s)).join(', ');
     if (v instanceof CheckboxWidget)
-        return v.value ? t.yes : t.no;
+        return v.value ? t.tc.yes : t.tc.no;
     if (v instanceof CounterWidget)
         return v.value.toLocaleString('cs');
     if (v instanceof SearchWidget)

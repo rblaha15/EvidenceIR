@@ -1,5 +1,5 @@
-<script generics="D, I extends TranslationReference" lang="ts">
-    import type { Translations, TranslationReference } from '$lib/translations';
+<script generics="D, I extends string" lang="ts">
+    import type { Translations } from '$lib/translations';
     import { labelAndStar, type RadioWidget } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
@@ -35,11 +35,11 @@
             </button>
             <button onclick={onClick(item)} tabindex="-1"
                     id="label-{uid}-{item}" class="input-group-text last"
-            >{t.get(item)}</button>
+            >{widget.get(t, item)}</button>
         {/each}
     </div>
 
     {#if widget.showError(data)}
-        <span class="text-danger">{t.get(widget.onError(data, t))}</span>
+        <span class="text-danger">{widget.onError(t, data)}</span>
     {/if}
 </div>

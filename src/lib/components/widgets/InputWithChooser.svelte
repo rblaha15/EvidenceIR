@@ -1,5 +1,5 @@
-<script generics="D, I extends TranslationReference" lang="ts">
-    import type { TranslationReference, Translations } from '$lib/translations';
+<script generics="D, I extends string" lang="ts">
+    import type { Translations } from '$lib/translations';
     import { InputWithChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount } from 'svelte';
@@ -99,7 +99,7 @@
             ></textarea>
             {:else if options !== undefined}
                 <input
-                    type={widget.type(data, t)}
+                    type={widget.type(data)}
                     inputmode={widget.inputmode(data)}
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
@@ -111,7 +111,7 @@
                 />
             {:else}
                 <input
-                    type={widget.type(data, t)}
+                    type={widget.type(data)}
                     inputmode={widget.inputmode(data)}
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
@@ -137,13 +137,13 @@
             onchange={onChange}
         >
             {#each widget.options as moznost}
-                <option value={moznost}>{t.get(moznost)}</option>
+                <option value={moznost}>{widget.get(t, moznost)}</option>
             {/each}
         </select>
     </div>
 
     {#if widget.showError(data)}
-        <span class="text-danger help-block">{t.get(widget.onError(data, t))}</span>
+        <span class="text-danger help-block">{widget.onError(t, data)}</span>
     {/if}
 </div>
 

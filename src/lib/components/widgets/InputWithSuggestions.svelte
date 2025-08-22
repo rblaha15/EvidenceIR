@@ -23,7 +23,7 @@
         <label class="form-floating d-block">
             <input
                 list="datalist-{uid}"
-                type={widget.type(data, t)}
+                type={widget.type(data)}
                 inputmode={widget.inputmode(data)}
                 enterkeyhint={widget.enterkeyhint(data)}
                 autocapitalize={widget.autocapitalize(data)}
@@ -36,18 +36,18 @@
             }}
             />
             <datalist id="datalist-{uid}">
-                {#each widget.suggestions(data) as suggestion}
-                    <option value={t.get(suggestion)}>{t.get(suggestion)}</option>
+                {#each widget.suggestions(t, data) as suggestion}
+                    <option value={suggestion}>{suggestion}</option>
                 {/each}
             </datalist>
             <label for="">{labelAndStar(widget, data, t)}</label>
         </label>
-        {#if widget.suffix(data, t)}
-            <span class="input-group-text">{t.get(widget.suffix(data, t) ?? '')}</span>
+        {#if widget.suffix(t, data)}
+            <span class="input-group-text">{widget.suffix(t, data) ?? ''}</span>
         {/if}
     </div>
 
     {#if widget.showError(data)}
-        <span class="text-danger help-block">{t.get(widget.onError(data, t))}</span>
+        <span class="text-danger help-block">{widget.onError(t, data)}</span>
     {/if}
 </div>

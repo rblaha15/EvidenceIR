@@ -12,7 +12,6 @@ import {
     TitleWidget,
 } from '$lib/forms/Widget.svelte.js';
 import { type Company, type Technician } from '$lib/client/realtime';
-import { type P } from '$lib/translations';
 import { type Form } from '$lib/forms/Form';
 import { type Products } from '$lib/helpers/products';
 
@@ -67,8 +66,9 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
     };
 }
 
-export type IRTypes = P<'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 14' | 'IR 12' | 'SOREL'> | 'irFVE';
-export type IRSubTypes = P<'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6 EP' | 'STDC E' | 'TRS3' | 'TRS4' | 'TRS5' | 'TRS6 K'>;
+export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 14' | 'IR 12' | 'SOREL';
+export type IRTypes = UntranslatableIRTypes | 'fve';
+export type IRSubTypes = 'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6 EP' | 'STDC E' | 'TRS3' | 'TRS4' | 'TRS5' | 'TRS6 K';
 
 export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     ir: {
@@ -76,12 +76,12 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         cislo: InputWidget<FormIN>;
         cisloBox: InputWidget<FormIN>;
         boxType: TextWidget<FormIN>;
-        chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `ventilation` | 'photovoltaicPowerPlant' | 'otherDevice'>;
+        chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `ventilation` | 'photovoltaicPowerPlant' | 'other'>;
     };
     tc: {
         nadpis: TitleWidget<FormIN>;
         poznamka: TextWidget<FormIN>;
-        typ: RadioWidget<FormIN, `airToWater` | `groundToWater`>;
+        typ: RadioWidget<FormIN, 'airToWater' | 'groundToWater'>;
         pocet: CounterWidget<FormIN, true>;
         model: ChooserWidget<FormIN, Products['heatPumps']>;
         cislo: ScannerWidget<FormIN>;
@@ -115,7 +115,7 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     };
     fve: {
         title: TitleWidget<FormIN>;
-        typ: ChooserWidget<FormIN, P<'DG-450-B'> | 'fve.otherPanels'>;
+        typ: ChooserWidget<FormIN, 'DG-450-B' | 'otherNotRegulusPanels'>;
         pocet: InputWidget<FormIN>;
         typStridace: InputWidget<FormIN>;
         cisloStridace: InputWidget<FormIN>;
@@ -132,8 +132,8 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     vzdalenyPristup: {
         nadpis: TitleWidget<FormIN>;
         chce: CheckboxWidget<FormIN>;
-        pristupMa: MultiCheckboxWidget<FormIN, `endCustomer` | `assemblyCompany` | `commissioningCompany`>;
-        plati: RadioWidget<FormIN, 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | P<'Později, dle protokolu'>>;
+        pristupMa: MultiCheckboxWidget<FormIN, 'endCustomer' | 'assemblyCompany' | 'commissioningCompany'>;
+        plati: RadioWidget<FormIN, 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | 'laterAccordingToTheProtocol'>;
         zodpovednaOsoba: InputWidget<FormIN>;
     };
     ostatni: {

@@ -1,6 +1,6 @@
 <script generics="R extends Raw<Form>" lang="ts">
     import type { Writable } from 'svelte/store';
-    import { type P, p, type Translations } from '$lib/translations';
+    import { type Translations } from '$lib/translations';
     import { endLoading, setTitle, startLoading } from '$lib/helpers/globals.js';
     import type { Form, Raw } from '$lib/forms/Form';
     import { type ExcelImport, processExcel } from '$lib/forms/ExcelImport';
@@ -10,6 +10,7 @@
     import { invalidateAll } from '$app/navigation';
     import { type PdfImport, processPdf } from '$lib/forms/PdfImport';
     import { PDFDocument } from 'pdf-lib';
+    import type { Untranslatable, US } from '$lib/translations/untranslatables';
 
     interface Props<R extends Raw<Form>> {
         title: string;
@@ -48,16 +49,16 @@
     let fileExcel = $state<File>();
     let filePdf = $state<File>();
     let sheetWidget = $state(new ChooserWidget({
-        options: [] as P[], show: (d): boolean => sheetWidget.options(d).length > 1, label: 'form.import.workbookSheet',
+        options: [] as US[], show: (d): boolean => sheetWidget.options(d).length > 1, label: t => t.form.import.workbookSheet,
     }));
     let error = $state(false);
 
     $effect(() => {
         if (fileExcel) readSheetNames(fileExcel).then(names => {
-            const sheets = names.filter(excelImport?.sheetFilter ?? (n => n == (excelImport?.sheet ?? n)));
-            sheetWidget.options = () => p(sheets);
+            const sheets = names.filter(excelImport?.sheetFilter ?? (n => n == (excelImport?.sheet ?? n))) as US[];
+            sheetWidget.options = () => sheets;
             if (sheets.length == 1)
-                sheetWidget._value = p(sheets[0]);
+                sheetWidget._value = sheets[0];
         }); else {
             sheetWidget._value = null;
             sheetWidget.options = () => [];
@@ -67,7 +68,7 @@
     const confirmExcel = async () => {
         error = false;
         if (!excelImport || !fileExcel) return;
-        const rows = await readXlsxFile(fileExcel, { ...excelImport, sheet: t.get(sheetWidget.value!) });
+        const rows = await readXlsxFile(fileExcel, { ...excelImport, sheet: sheetWidget.value! });
         console.log(rows);
         try {
             excelImport.onImport(processExcel<R>(excelImport, rows));

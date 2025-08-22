@@ -1,5 +1,5 @@
-<script generics="D, I extends TranslationReference" lang="ts">
-    import type { TranslationReference, Translations } from '$lib/translations';
+<script generics="D, I extends string" lang="ts">
+    import type { Translations } from '$lib/translations';
     import { type MultiCheckboxWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
@@ -34,11 +34,11 @@
             <button onclick={onClick(item)} class="input-group-text last"
                     tabindex="-1" id="label-{uid}-{item}"
                     disabled={widget.lock(data) || !widget.value.includes(item) && count >= widget.max(data)}
-            >{t.get(item)}</button>
+            >{widget.get(t, item)}</button>
         {/each}
     </div>
 
     {#if widget.showError(data)}
-        <span class="text-danger">{t.get(widget.onError(data, t))}</span>
+        <span class="text-danger">{widget.onError(t, data)}</span>
     {/if}
 </div>

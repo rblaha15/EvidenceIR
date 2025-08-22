@@ -1,6 +1,5 @@
 import type { Raw } from '$lib/forms/Form';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
-import type { P } from '$lib/translations';
 import type { FormRK } from '$lib/forms/RK/formRK.js';
 import type { SparePart } from '$lib/client/realtime';
 import type { FormSP, GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
@@ -12,7 +11,7 @@ export type LegacyIR = {
     installationProtocols: LegacySP[];
     evidence: {
         vzdalenyPristup: {
-            fakturuje: 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | P<'Později, dle protokolu'>;
+            fakturuje: 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | 'PLAIN_Později, dle protokolu';
         };
         ir: {
             cisloBOX: string;
@@ -96,8 +95,9 @@ const migrateND = (d: LegacyND) => ({
     code: String(d.dil?.code ?? ''),
     unitPrice: String(d.dil?.unitPrice ?? ''),
     warehouse: '',
+    dil: undefined,
 }) as Raw<FormSP>['nahradniDil1'];
-export const migrateSP = <D extends GenericFormSP<D>>(legacy: LegacySP) => legacy['nahradniDil8'] ? legacy : ({
+export const migrateSP = <D extends GenericFormSP<D>>(legacy: LegacySP) => legacy['nahradniDil8'] && !legacy['nahradniDil1']['dil'] ? legacy : ({
     ...legacy,
     ukony: {
         ...legacy.ukony,

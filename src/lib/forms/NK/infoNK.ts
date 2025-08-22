@@ -18,7 +18,7 @@ const infoNK: IndependentFormInfo<FormNK, FormNK, [[FriendlyCompanies], [Person[
     type: '',
     storeName: 'stored_demand',
     defaultData: defaultNK,
-    saveData: async (raw, _, data, editResult, t) => {
+    saveData: async (raw, _, __, editResult, t) => {
         const user = get(currentUser)!;
 
         const name = raw.contacts.name;
@@ -33,7 +33,7 @@ const infoNK: IndependentFormInfo<FormNK, FormNK, [[FriendlyCompanies], [Person[
             ...defaultAddresses(page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz', true),
             subject: `Poptávka z aplikace – OSOBA: ${name} ${surname}`,
             attachments: [{
-                content: xml(raw, user, cs, data),
+                content: xml(raw, user, cs),
                 contentType: 'application/xml',
                 filename: `Dotazník ${name} ${surname}.xml`,
             }, ...(await photoIds
@@ -59,7 +59,7 @@ const infoNK: IndependentFormInfo<FormNK, FormNK, [[FriendlyCompanies], [Person[
         });
     },
     createWidgetData: d => d,
-    title: t => t.demand.demandForm,
+    title: t => t.nk.demandForm,
     onMount: async () => {
         await startLidiListening();
     },

@@ -1,10 +1,10 @@
-import type { RequestHandler } from './$types';
 import { checkToken } from '$lib/server/auth';
 import { error } from '@sveltejs/kit';
 import { sendEmail } from '$lib/server/email';
 import type { EmailMessage } from '$lib/client/email';
 import { Readable } from 'node:stream';
 import type { Attachment } from 'nodemailer/lib/mailer';
+import type { RequestHandler } from './$types';
 
 export type FinalEmailMessage = Omit<EmailMessage, 'attachments'> & {
     attachments?: Attachment[];

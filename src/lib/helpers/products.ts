@@ -1,7 +1,5 @@
-import { p } from '$lib/translations';
-
 const products = {
-    heatPumpsAirToWaterCTC: p([
+    heatPumpsAirToWaterCTC: [
         'EcoAir 614M',
         'EcoAir 622M',
         'EcoAir 406',
@@ -9,14 +7,14 @@ const products = {
         'EcoAir 410',
         'EcoAir 415',
         'EcoAir 420',
-    ]),
-    heatPumpsRTC: p([
+    ],
+    heatPumpsRTC: [
         'RTC',
         'RTC 6i',
         'RTC 13e',
         'RTC 20e',
-    ]),
-    heatPumpsGroundToWater: p([
+    ],
+    heatPumpsGroundToWater: [
         'EcoPart 612M',
         'EcoPart 616M',
         'EcoPart 406',
@@ -26,23 +24,23 @@ const products = {
         'EcoPart 414',
         'EcoPart 417',
         'EcoPart 435',
-    ]),
-    indoorUnits: p([
+    ],
+    indoorUnits: [
         'RegulusBOX',
         'RegulusHBOX 112',
         'RegulusHBOX 212',
         'RegulusHBOX K 106',
-    ]),
+    ],
     thermalStores: {
-        [p('DUO')]: p([
+        DUO: [
             '-',
             'P',
             'PR',
             'K',
             'K P',
             'K PR',
-        ]),
-        [p('HSK')]: p([
+        ],
+        HSK: [
             'P',
             'P+',
             'PR',
@@ -50,8 +48,8 @@ const products = {
             'PV',
             'PB',
             'TV',
-        ]),
-        [p('PS')]: p([
+        ],
+        PS: [
             'E+',
             'ES+',
             'N+',
@@ -59,9 +57,9 @@ const products = {
             'K+',
             '2F',
             'WF',
-        ]),
+        ],
     },
-    waterTanks: p([
+    waterTanks: [
         'NBC',
         'RGC',
         'RDC',
@@ -70,8 +68,8 @@ const products = {
         'RBC',
         'RBC HP',
         'R2BC',
-    ]),
-}
+    ],
+} as const
 
 export default products;
 

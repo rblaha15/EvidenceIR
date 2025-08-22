@@ -1,17 +1,17 @@
 import type { Raw } from '$lib/forms/Form';
-import type { TranslationReference, Translations } from '$lib/translations';
+import { get, type Translations } from '$lib/translations';
 import type { SeCh } from '$lib/forms/Widget.svelte';
 import type { User } from 'firebase/auth';
 import { browser, dev, version } from '$app/environment';
-import type { FormNK } from './formNK';
+import { type FormNK, origins } from './formNK';
 
-const fve = (d: Raw<FormNK>) => d.contacts.demandSubject.includes(`demand.contacts.fve`);
-const hp = (d: Raw<FormNK>) => d.contacts.demandSubject.includes(`demand.contacts.heatPump`);
+const fve = (d: Raw<FormNK>) => d.contacts.demandSubject.includes(`fve`);
+const hp = (d: Raw<FormNK>) => d.contacts.demandSubject.includes(`heatPump`);
 const pool = (d: Raw<FormNK>) => hp(d) && d.system.wantsPool;
 
-const seCh = (t: Translations, v: SeCh<TranslationReference>) => v.checked ? t.get(v.chosen ?? '') : t.no;
+const seCh = <I extends string>(t: Translations, l: Record<string, string>, v: SeCh<I>) => v.checked ? get(l, v.chosen) : t.nk.no;
 
-export default (d: Raw<FormNK>, user: User, t: Translations, dem: FormNK) => `
+export default (d: Raw<FormNK>, user: User, t: Translations) => `
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="dotaznik_app.xsl"?>
 
@@ -35,7 +35,6 @@ Změny ve verzi 3.0 oproti verzi 2.3:
 Změny ve verzi 2.3 oproti verzi 2.2:
 - Přidán kód1 (/xml/system/kod1)
   - Možnosti jsou: _dotazEmail, _dotaznikVYS, _dotazOsobně, _poptávkaDis, _poptávkaMF, _poptávkaPROJ 
-  - V DEBUG verzi aplikace lze zadat i možnost _debug, ta by se ale nikdy neměla objevit v opravdových poptávkách
 - Pokojová čidla a jednotky sjednoceny do jednoho pole (/xml/prislusenstvi/pokojova_cidla_a_jednotky)
   - Nyní mohou obsahovat více možností, oddělených čárkou
   - Každá možnost má před sebou vždy specifikován počet položek pomocí písmene x 
@@ -45,16 +44,16 @@ Změny ve verzi 2.3 oproti verzi 2.2:
 
 <xml>
     <system>
-        <kod1>${t.get(d.contacts.demandOrigin!)}</kod1>
-        <resi_tc>${hp(d) ? t.yes : t.no}</resi_tc>
-        <resi_fve>${fve(d) ? t.yes : t.no}</resi_fve>
-        <resi_sol>${t.no}</resi_sol>
-        <resi_rek>${t.no}</resi_rek>
-        <resi_krb>${t.no}</resi_krb>
-        <resi_konz>${t.no}</resi_konz>
-        <resi_jine>${t.no}</resi_jine>
-        <resi_jine_uvedte>${t.no}</resi_jine_uvedte>
-        <resi_doporuc>${t.no}</resi_doporuc>
+        <kod1>${origins[d.contacts.demandOrigin!]}</kod1>
+        <resi_tc>${hp(d) ? t.nk.yes : t.nk.no}</resi_tc>
+        <resi_fve>${fve(d) ? t.nk.yes : t.nk.no}</resi_fve>
+        <resi_sol>${t.nk.no}</resi_sol>
+        <resi_rek>${t.nk.no}</resi_rek>
+        <resi_krb>${t.nk.no}</resi_krb>
+        <resi_konz>${t.nk.no}</resi_konz>
+        <resi_jine>${t.nk.no}</resi_jine>
+        <resi_jine_uvedte>${t.nk.no}</resi_jine_uvedte>
+        <resi_doporuc>${t.nk.no}</resi_doporuc>
         <cislo_ko>${d.other.representative!.koNumber}</cislo_ko>
         <odesilatel>${user.email}</odesilatel>
     </system>
@@ -69,7 +68,7 @@ Změny ve verzi 2.3 oproti verzi 2.2:
         <partner_ico>${d.contacts.assemblyCompanyCRN}</partner_ico>
     </kontakt>${hp(d) ? `
     <detailobjektu>
-        <os_popis>${t.get(d.system.heatingSystem ?? '')}</os_popis>
+        <os_popis>${get(t.nk.system, d.system.heatingSystem)}</os_popis>
         <tepelna_ztrata>${d.objectDetails.heatLost}</tepelna_ztrata>
         <rocni_spotreba_vytapeni>${d.objectDetails.heatNeedsForHeating}</rocni_spotreba_vytapeni>
         <rocni_spotreba_tv>${d.objectDetails.heatNeedsForHotWater}</rocni_spotreba_tv>
@@ -77,57 +76,57 @@ Změny ve verzi 2.3 oproti verzi 2.2:
         <vytapeny_objem>${d.objectDetails.heatedVolume}</vytapeny_objem>
         <spotreba_paliva_druh>${d.objectDetails.fuelType}</spotreba_paliva_druh>
         <spotreba_paliva_mnozstvi>${d.objectDetails.fuelConsumption.text}</spotreba_paliva_mnozstvi>
-        <spotreba_paliva_jednotky>${t.get(d.objectDetails.fuelConsumption.chosen ?? '')}</spotreba_paliva_jednotky>
+        <spotreba_paliva_jednotky>${get(t.units, d.objectDetails.fuelConsumption.chosen)}</spotreba_paliva_jednotky>
         <spotreba_paliva_2_druh>${d.objectDetails.fuelType2}</spotreba_paliva_2_druh>
         <spotreba_paliva_2_mnozstvi>${d.objectDetails.fuelConsumption2.text}</spotreba_paliva_2_mnozstvi>
-        <spotreba_paliva_2_jednotky>${t.get(d.objectDetails.fuelConsumption2.chosen ?? '')}</spotreba_paliva_2_jednotky>
-        <rocni_platba_vytapeni>${d.objectDetails.heatingCosts} ${t.demand.currency}</rocni_platba_vytapeni>
+        <spotreba_paliva_2_jednotky>${get(t.units, d.objectDetails.fuelConsumption2.chosen)}</spotreba_paliva_2_jednotky>
+        <rocni_platba_vytapeni>${d.objectDetails.heatingCosts} ${t.nk.currency}</rocni_platba_vytapeni>
     </detailobjektu>
     <tc>
-        <typ>${t.get(d.system.hPType ?? '')}</typ>
-        <model>${t.get(d.system.hPModel ?? '')}</model>
-        <nadrz>${t.get(d.system.thermalStoreType.first ?? '')} ${t.get(d.system.thermalStoreType.second ?? '')} ${d.system.thermalStoreVolume}</nadrz>
-        <vnitrni_jednotka>${t.get(d.system.indoorUnitType ?? '')}</vnitrni_jednotka>
+        <typ>${get(t.nk.system, d.system.hPType)}</typ>
+        <model>${get(t.nk.system, d.system.hPModel)}</model>
+        <nadrz>${get(t.nk.system, d.system.thermalStoreType.first)} ${get(t.nk.system, d.system.thermalStoreType.second)} ${d.system.thermalStoreVolume}</nadrz>
+        <vnitrni_jednotka>${get(t.nk.system, d.system.indoorUnitType)}</vnitrni_jednotka>
     </tc>
     <zdrojeTop>
-        <topne_teleso>${seCh(t, d.additionalSources.heatingHeatingElementInStore)}</topne_teleso>
-        <elektrokotel>${seCh(t, d.additionalSources.heatingElectricBoiler)}</elektrokotel>
-        <plyn_kotel>${seCh(t, d.additionalSources.heatingGasBoiler)}</plyn_kotel>
-        <krb_KTP>${seCh(t, d.additionalSources.heatingFireplace)}</krb_KTP>
+        <topne_teleso>${seCh(t, t.nk.additionalSources, d.additionalSources.heatingHeatingElementInStore)}</topne_teleso>
+        <elektrokotel>${seCh(t, t.nk.additionalSources, d.additionalSources.heatingElectricBoiler)}</elektrokotel>
+        <plyn_kotel>${seCh(t, t.nk.additionalSources, d.additionalSources.heatingGasBoiler)}</plyn_kotel>
+        <krb_KTP>${seCh(t, t.nk.additionalSources, d.additionalSources.heatingFireplace)}</krb_KTP>
         <jiny_zdroj>${d.additionalSources.heatingOther}</jiny_zdroj>
     </zdrojeTop>
     <tv>
-        <zasobnik>${t.get(d.system.waterTankType ?? '')} ${d.system.waterTankVolume}</zasobnik>
-        <cirkulace>${d.system.hotWaterCirculation ? t.yes : t.no}</cirkulace>
+        <zasobnik>${get(t.nk.system, d.system.waterTankType)} ${d.system.waterTankVolume}</zasobnik>
+        <cirkulace>${d.system.hotWaterCirculation ? t.nk.yes : t.nk.no}</cirkulace>
     </tv>
     <zdrojeTV>
-        <topne_teleso>${seCh(t, d.additionalSources.hotWaterHeatingElementInStore)}</topne_teleso>
-        <elektrokotel>${d.additionalSources.hotWaterElectricBoiler ? t.yes : t.no}</elektrokotel>
-        <plyn_kotel>${d.additionalSources.hotWaterGasBoiler ? t.yes : t.no}</plyn_kotel>
-        <krb_KTP>${d.additionalSources.hotWaterFireplace ? t.yes : t.no}</krb_KTP>
+        <topne_teleso>${seCh(t, t.nk.additionalSources, d.additionalSources.hotWaterHeatingElementInStore)}</topne_teleso>
+        <elektrokotel>${d.additionalSources.hotWaterElectricBoiler ? t.nk.yes : t.nk.no}</elektrokotel>
+        <plyn_kotel>${d.additionalSources.hotWaterGasBoiler ? t.nk.yes : t.nk.no}</plyn_kotel>
+        <krb_KTP>${d.additionalSources.hotWaterFireplace ? t.nk.yes : t.nk.no}</krb_KTP>
         <jiny_zdroj>${d.additionalSources.hotWaterOther}</jiny_zdroj>
     </zdrojeTV>
     <bazen>
-        <ohrev>${d.system.wantsPool ? t.yes : t.no}</ohrev>
-        <doba_vyuzivani>${pool(d) ? '' : t.get(d.pool.usagePeriod ?? '')}</doba_vyuzivani>
-        <umisteni>${pool(d) ? '' : t.get(d.pool.placement ?? '')}</umisteni>
-        <zakryti>${pool(d) ? '' : t.get(d.pool.coverage ?? '')}</zakryti>
-        <tvar>${pool(d) ? '' : t.get(d.pool.shape ?? '')}</tvar>
+        <ohrev>${d.system.wantsPool ? t.nk.yes : t.nk.no}</ohrev>
+        <doba_vyuzivani>${pool(d) ? '' : get(t.nk.pool, d.pool.usagePeriod)}</doba_vyuzivani>
+        <umisteni>${pool(d) ? '' : get(t.nk.pool, d.pool.placement)}</umisteni>
+        <zakryti>${pool(d) ? '' : get(t.nk.pool, d.pool.coverage)}</zakryti>
+        <tvar>${pool(d) ? '' : get(t.nk.pool, d.pool.shape)}</tvar>
         <sirka>${d.pool.width}</sirka>
         <delka>${d.pool.length}</delka>
         <hloubka>${d.pool.depth}</hloubka>
         <prumer>${d.pool.radius}</prumer>
         <teplota>${d.pool.desiredTemperature}</teplota>
-        <voda>${pool(d) ? '' : t.get(d.pool.waterType ?? '')}</voda>
+        <voda>${pool(d) ? '' : get(t.nk.pool, d.pool.waterType)}</voda>
     </bazen>
     <prislusenstvi>
-        <hadice>${seCh(t, d.accessories.hose)}</hadice>
-        <topny_kabel>${seCh(t, d.accessories.heatingCable)}</topny_kabel>
-        <drzak_na_tc>${seCh(t, d.accessories.wallSupportBracket)}</drzak_na_tc>
-        <pokojova_cidla_a_jednotky>${dem.accessories.roomUnitsAndSensors.options(dem)
-    .zip(d.accessories.roomUnitsAndSensors)
-    .filter(([, c]) => c > 0)
-    .map(([k, c]) => `${c}x ${t.get(k)}`)}</pokojova_cidla_a_jednotky>
+        <hadice>${seCh(t, t.nk.accessories, d.accessories.hose)}</hadice>
+        <topny_kabel>${seCh(t, t.nk.accessories, d.accessories.heatingCable)}</topny_kabel>
+        <drzak_na_tc>${seCh(t, t.nk.accessories, d.accessories.wallSupportBracket)}</drzak_na_tc>
+        <pokojova_cidla_a_jednotky>${d.accessories.roomUnitsAndSensors
+    .filterValues((_, c) => c > 0)
+    .mapTo((k, c) => `${c}x ${get(t.nk.accessories, k)}`)
+    .join()}</pokojova_cidla_a_jednotky>
     </prislusenstvi>` : ''}${fve(d) ? `
     <fve>
         <stavajici_topeni>${d.photovoltaicPowerPlant.currentHeating}</stavajici_topeni>
@@ -139,11 +138,11 @@ Změny ve verzi 2.3 oproti verzi 2.2:
         <umisteni_rozvadece>${d.photovoltaicPowerPlant.breakerBoxLocation}</umisteni_rozvadece>
         <pozadovany_vykon>${d.photovoltaicPowerPlant.requiredPower}</pozadovany_vykon>
         <typ_budovy_instalace>${d.photovoltaicPowerPlant.locationBuildingType}</typ_budovy_instalace>
-        <hromosvod>${d.photovoltaicPowerPlant.lightningRod ? t.yes : t.no}</hromosvod>
+        <hromosvod>${d.photovoltaicPowerPlant.lightningRod ? t.nk.yes : t.nk.no}</hromosvod>
         <material_krytiny>${d.photovoltaicPowerPlant.roofMaterial}</material_krytiny>
         <typ_tasek>${d.photovoltaicPowerPlant.tileType}</typ_tasek>
         <stari_krytiny>${d.photovoltaicPowerPlant.roofAge}</stari_krytiny>
-        <pouzit_optimizatory>${d.photovoltaicPowerPlant.useOptimizers ? t.yes : t.no}</pouzit_optimizatory>
+        <pouzit_optimizatory>${d.photovoltaicPowerPlant.useOptimizers ? t.nk.yes : t.nk.no}</pouzit_optimizatory>
         <rozmer_1>${d.photovoltaicPowerPlant.size1}</rozmer_1>
         <orientace_1>${d.photovoltaicPowerPlant.orientation1}</orientace_1>
         <sklon_1>${d.photovoltaicPowerPlant.slope1}</sklon_1>
@@ -156,12 +155,12 @@ Změny ve verzi 2.3 oproti verzi 2.2:
         <rozmer_4>${d.photovoltaicPowerPlant.size4}</rozmer_4>
         <orientace_4>${d.photovoltaicPowerPlant.orientation4}</orientace_4>
         <sklon_4>${d.photovoltaicPowerPlant.slope4}</sklon_4>
-        <baterie>${d.photovoltaicPowerPlant.battery.checked ? t.yes : t.no}</baterie>
+        <baterie>${d.photovoltaicPowerPlant.battery.checked ? t.nk.yes : t.nk.no}</baterie>
         <baterie_kapacita>${d.photovoltaicPowerPlant.battery.text}</baterie_kapacita>
-        <voda>${d.photovoltaicPowerPlant.water ? t.yes : t.no}</voda>
-        <sit>${d.photovoltaicPowerPlant.network.checked ? t.yes : t.no}</sit>
+        <voda>${d.photovoltaicPowerPlant.water ? t.nk.yes : t.nk.no}</voda>
+        <sit>${d.photovoltaicPowerPlant.network.checked ? t.nk.yes : t.nk.no}</sit>
         <sit_vykon>${d.photovoltaicPowerPlant.network.text}</sit_vykon>
-        <dobijeni>${d.photovoltaicPowerPlant.charging ? t.yes : t.no}</dobijeni>
+        <dobijeni>${d.photovoltaicPowerPlant.charging ? t.nk.yes : t.nk.no}</dobijeni>
     </fve>` : ''}
     <poznamka>
         <kontakty>${d.contacts.note}</kontakty>
