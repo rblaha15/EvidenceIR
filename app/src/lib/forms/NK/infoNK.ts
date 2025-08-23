@@ -1,5 +1,4 @@
-import { type FriendlyCompanies, type Person, startLidiListening, usersList } from '$lib/client/realtime';
-import type { User } from 'firebase/auth';
+import { startLidiListening } from '$lib/client/realtime';
 import defaultNK from '$lib/forms/NK/defaultNK';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
@@ -10,11 +9,10 @@ import xml from '$lib/forms/NK/xmlNK';
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import type { Attachment } from 'nodemailer/lib/mailer';
 import MailDemand from '$lib/emails/MailDemand.svelte';
-import { companies } from '$lib/helpers/companies';
 import type { FormNK } from '$lib/forms/NK/formNK';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 
-const infoNK: IndependentFormInfo<FormNK, FormNK, [[FriendlyCompanies], [Person[], User | null]]> = {
+const infoNK: IndependentFormInfo<FormNK, FormNK> = {
     type: '',
     storeName: 'stored_demand',
     defaultData: defaultNK,
@@ -63,20 +61,6 @@ const infoNK: IndependentFormInfo<FormNK, FormNK, [[FriendlyCompanies], [Person[
     onMount: async () => {
         await startLidiListening();
     },
-    storeEffects: [
-        [(_, d, [$companies]) => {
-            d.contacts.assemblyCompanySearch.items = () => $companies.assemblyCompanies;
-        }, [companies]],
-        [(_, d, [$users, $currentUser]) => {
-            const withKO = $users.filter(p => p.koNumber && p.responsiblePerson);
-            const me = withKO.find(t => $currentUser?.email == t.email);
-            d.other.representative.items = () => withKO
-                .filter(p => p.email.endsWith('cz'))
-                .toSorted((a, b) => a.responsiblePerson!.split(' ').at(-1)!
-                    .localeCompare(b.responsiblePerson!.split(' ').at(-1)!));
-            if (me) d.other.representative.setValue(d, me);
-        }, [usersList, currentUser]],
-    ],
     isSendingEmails: true,
     showSaveAndSendButtonByDefault: true,
     requiredRegulus: true,

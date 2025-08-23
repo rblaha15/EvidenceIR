@@ -25,7 +25,7 @@
             ><strong>-</strong></button>
             <span class="input-group-text input-group-input">{value}</span>
             <button class="btn btn-outline-primary" onclick={
-                () => widget.mutateValue(data, v => ({ ...v, [option]: v[option] - 1 }))
+                () => widget.mutateValue(data, v => ({ ...v, [option]: v[option] + 1 }))
             } disabled={sum === widget.max(data)}
             ><strong>+</strong></button>
             <div class="input-group-text last" id="label-{uid}">{widget.get(t, option)}</div>

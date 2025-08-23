@@ -1,6 +1,7 @@
 import { get, type Translations } from '../translations';
 import type { ClassValue, FullAutoFill, HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 import type { Untranslatable } from '$lib/translations/untranslatables';
+import type { Readable } from 'svelte/store';
 
 export type GetB<D> = Get<D, boolean>;
 export type GetBOrVal<D> = GetOrVal<D, boolean>;
@@ -10,6 +11,8 @@ export type GetTU<D> = GetT<D, string | undefined>;
 export type GetTUOrVal<D> = GetTOrVal<D, string | undefined>;
 export type GetTP<D> = GetT<D, Promise<string> | string>;
 export type GetTPOrVal<D> = GetTOrVal<D, Promise<string> | string>;
+export type GetR<D, U> = Get<D, Readable<U>>;
+export type GetROrVal<D, U> = GetOrVal<D, Readable<U>>;
 
 export type Get<D, U> = (data: D) => U;
 export type GetT<D, U = string> = (t: Translations, data: D) => U;
@@ -113,7 +116,7 @@ type SearchArgs<D, T> = {
     getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry?: () => string;
     inline?: GetBOrVal<D>;
-    items: GetOrVal<D, T[]>;
+    items: GetROrVal<D, T[]>;
     type?: GetOrVal<D, HTMLInputTypeAttribute>;
     enterkeyhint?: GetOrVal<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode?: GetOrVal<D, HTMLInputAttributes['inputmode']>;
@@ -160,7 +163,7 @@ type Search<D, T> = Widget<D, T | null> & {
     getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry: () => string;
     inline: GetB<D>;
-    items: Get<D, T[]>;
+    items: GetR<D, T[]>;
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode: Get<D, HTMLInputAttributes['inputmode']>;
@@ -389,7 +392,7 @@ export class SearchWidget<D, T, H extends boolean = false> extends Widget<D, T |
     inline = $state() as GetB<D>;
     getSearchItem = $state() as (item: T, t: Translations) => SearchItem;
     getXmlEntry = $state() as () => string;
-    items = $state() as Get<D, T[]>;
+    items = $state() as GetR<D, T[]>;
     type = $state() as Get<D, HTMLInputTypeAttribute>;
     enterkeyhint = $state() as Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
