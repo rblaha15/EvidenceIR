@@ -29,7 +29,7 @@ const infoSP = (() => {
         defaultData: () => defaultSP(),
         openPdf: () => ({
             link: 'SP',
-            index: i.also(console.log),
+            index: i,
         }),
         getEditData: (ir, url) => {
             const editIndex = url.searchParams.get('edit') as string | null;
@@ -79,6 +79,8 @@ const infoSP = (() => {
                 load: false,
             });
         },
+        showSaveAndSendButtonByDefault: true,
+        isSendingEmails: true,
         createWidgetData: (_, p) => p,
         title: (t, mode) =>
             mode == 'edit' ? t.sp.editSP : t.sp.title,
