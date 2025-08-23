@@ -103,6 +103,8 @@ export default {
         requiresLogIn: `Tato stránka vyžaduje přihlášení.`,
         responsiblePerson: `Zodpovědná osoba`,
         changePassword: `Změnit heslo`,
+        noAccess: `Pro přístup na tuto stránku nemáte oprávnění.`,
+        siteDoesNotExist: `Tato stránka neexistuje. Ano, dívali jsme se i za čerpadlo i pod kolektory…`,
     },
     users: {
         title: 'Uživatelé s přístupem k evidenci',
