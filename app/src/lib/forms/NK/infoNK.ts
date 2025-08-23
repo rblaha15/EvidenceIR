@@ -11,6 +11,7 @@ import type { Attachment } from 'nodemailer/lib/mailer';
 import MailDemand from '$lib/emails/MailDemand.svelte';
 import type { FormNK } from '$lib/forms/NK/formNK';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
+import { relUrl } from '$lib/helpers/runes.svelte';
 
 const infoNK: IndependentFormInfo<FormNK, FormNK> = {
     type: '',
@@ -56,6 +57,7 @@ const infoNK: IndependentFormInfo<FormNK, FormNK> = {
             load: false,
         });
     },
+    redirectLink: async () => relUrl('/NK?sent'),
     createWidgetData: d => d,
     title: t => t.nk.demandForm,
     onMount: async () => {
