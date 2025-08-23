@@ -25,8 +25,11 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
     type: '',
     storeName: 'stored_new_SP',
     defaultData: defaultNSP,
-    saveData: async (raw, _, __, editResult, t) => {
-        await db.addIndependentServiceProtocol(raw);
+    saveData: async (raw, edit, _, editResult, t, send) => {
+        if (edit) await db.updateIndependentServiceProtocol(raw);
+        else await db.addIndependentServiceProtocol(raw);
+
+        if (edit && !send) return true;
 
         const response = await sendEmail({
             ...defaultAddresses(),
@@ -42,6 +45,8 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
             load: false,
         });
     },
+    showSaveAndSendButtonByDefault: true,
+    isSendingEmails: true,
     redirectLink: async raw => detailSpUrl([extractSPIDFromRawData(raw.zasah)]),
     openPdf: async raw => ({
         link: 'NSP',
@@ -49,11 +54,18 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         lang: 'cs',
     }),
     createWidgetData: f => f,
-    title: t => t.sp.title,
+    title: (t, m) => m == 'edit' ? t.sp.editSP : t.sp.title,
     onMount: async (d, f) => {
         await startTechniciansListening();
         await startSparePartsListening();
-        f.zasah.datum.setValue(d, nowISO());
+        if (!f.zasah.datum.value)
+            f.zasah.datum.setValue(d, nowISO());
+    },
+    getEditData: async url => {
+        const spid = url.searchParams.get('edit-spid') as SPID | null;
+        if (!spid) return undefined;
+
+        return await db.getIndependentProtocol(spid);
     },
     getViewData: async url => {
         const spid = url.searchParams.get('view-spid') as SPID | null;
@@ -63,10 +75,10 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         return !sp ? undefined : sp;
     },
     storeEffects: [
-        [(d, f, [$techniciansList, $currentUser]) => {
+        [(d, f, [$techniciansList, $currentUser], edit) => {
             f.uvedeni.regulus.items = () => $techniciansList.filter(t => t.email.endsWith('cz'));
 
-            const ja = $techniciansList.find(t => $currentUser?.email == t.email);
+            const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
             f.zasah.clovek.setValue(d, ja?.name ?? f.zasah.clovek.value);
             f.zasah.clovek.show = () => !ja;
             f.zasah.clovek.required = () => !ja;

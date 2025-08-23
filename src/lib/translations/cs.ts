@@ -284,7 +284,7 @@ export default {
         newIRIDLabel: `IRID (z URL adresy)`,
         copyNSP: `Kopírovat informace o instalaci do nového protokolu`,
         copySP: `Chcete vytvořit kopii pro vykázání servisního zásahu více osob?`,
-        transferProtocol: `Převést protokol k IR (neodstraní se)`,
+        transferProtocols: `Převést protokoly k IR (neodstraní se)`,
         deleteProtocol: `Odstranit protokol`,
         duplicate: `Duplikovat`,
         yes: `Ano`,
