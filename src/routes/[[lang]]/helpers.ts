@@ -56,7 +56,7 @@ export const getDataAsStore = (id: {
     spids: SPID[]
 }): {
     irid: IRID | null, spids: SPID[],
-    ir: Readable<IR | undefined>, sps: Readable<Raw<FormNSP>[]>,
+    ir: Readable<IR | undefined | 'loading'>, sps: Readable<Raw<FormNSP>[] | 'loading'>,
 } => {
     const base = { ...id, ir: readable(undefined), sps: readable([]) };
 
@@ -69,7 +69,7 @@ export const getDataAsStore = (id: {
         } else if (id.spids) {
             const sps = derived(
                 id.spids.map(db.getIndependentProtocolAsStore),
-                a => a.filterNotUndefined(),
+                a => a.some(p => p == 'loading') ? 'loading' : a.filterNotUndefined() as Raw<FormNSP>[],
             );
             return { ...base, sps };
         }
