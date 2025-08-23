@@ -1,8 +1,4 @@
-import { unknownCompany } from '$lib/forms/IN/formIN';
 import {
-    type FriendlyCompanies,
-    type SparePart,
-    sparePartsList,
     startSparePartsListening,
     startTechniciansListening,
     type Technician,
@@ -12,7 +8,6 @@ import type { User } from 'firebase/auth';
 import { currentUser } from '$lib/client/auth';
 import { detailSpUrl } from '$lib/helpers/runes.svelte.js';
 import { nowISO } from '$lib/helpers/date';
-import { companies } from '$lib/helpers/companies';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
@@ -21,7 +16,7 @@ import db from '$lib/data';
 import { type DataNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 
-const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null], [SparePart[]], [FriendlyCompanies]], 'NSP'> = {
+const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null]], 'NSP'> = {
     type: '',
     storeName: 'stored_new_SP',
     defaultData: defaultNSP,
@@ -79,33 +74,13 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         return !sp ? undefined : sp;
     },
     storeEffects: [
-        [(d, f, [$techniciansList, $currentUser], edit) => {
-            f.uvedeni.regulus.items = () => $techniciansList.filter(t => t.email.endsWith('cz'));
-
+        [(_, f, [$techniciansList, $currentUser], edit) => {
             const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
-            f.zasah.clovek.setValue(d, ja?.name ?? f.zasah.clovek.value);
-            f.zasah.clovek.show = () => !ja;
-            f.zasah.clovek.required = () => !ja;
-            f.zasah.inicialy.setValue(d, ja?.initials ?? f.zasah.inicialy.value);
-            f.zasah.inicialy.show = () => !ja;
-            f.zasah.inicialy.required = () => !ja;
+            if (!f.zasah.clovek.value) f.zasah.clovek.setValue(f, ja?.name ?? f.zasah.clovek.value);
+            f.zasah.clovek.show = () => f.zasah.clovek.value != ja?.name;
+            if (!f.zasah.inicialy.value) f.zasah.inicialy.setValue(f, ja?.initials ?? f.zasah.inicialy.value);
+            f.zasah.inicialy.show = () => f.zasah.inicialy.value != ja?.initials;
         }, [techniciansList, currentUser]],
-        [(_, f, [$sparePartsList]) => {
-            const spareParts = $sparePartsList.map(it => ({
-                ...it,
-                name: it.name.replace('  ', ' '),
-            }) satisfies SparePart);
-            [
-                f.nahradniDil1, f.nahradniDil2, f.nahradniDil3, f.nahradniDil4,
-                f.nahradniDil5, f.nahradniDil6, f.nahradniDil7, f.nahradniDil8,
-            ].forEach(nahradniDil => {
-                nahradniDil.dil.items = () => spareParts;
-            });
-        }, [sparePartsList]],
-        [(_, f, [$companies]) => {
-            f.uvedeni.company.items = () => $companies.commissioningCompanies;
-            f.montazka.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
-        }, [companies]],
     ],
     requiredRegulus: true,
     hideBackButton: edit => !edit,

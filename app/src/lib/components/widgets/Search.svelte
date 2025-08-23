@@ -27,9 +27,9 @@
 
     const all = $derived(widget.items(data));
     let filtered = $derived.by(() => {
-        all;
+        $all;
         search;
-        return all?.filter((item) =>
+        return $all?.filter((item) =>
             wordsToFilter(search).every(
                 filter => widget.getSearchItem(item, t).pieces.some(piece =>
                     wordsToFilter(piece.text).some(word => word.includes(filter)),

@@ -16,10 +16,13 @@ import {
     TextWidget,
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
-import type { Company, Person } from '$lib/client/realtime';
+import { type Company, type Person, usersList } from '$lib/client/realtime';
 import { languageCodes } from '$lib/languages';
 import products from '$lib/helpers/products';
 import { type FormNK, origins } from './formNK';
+import { assemblyCompanies } from '$lib/helpers/companies';
+import { derived } from 'svelte/store';
+import { currentUser } from '$lib/client/auth';
 
 const fve = (d: FormNK) => d.contacts.demandSubject.value.includes(`fve`);
 const hp = (d: FormNK) => d.contacts.demandSubject.value.includes(`heatPump`);
@@ -43,7 +46,7 @@ export default (): FormNK => ({
         phone: new InputWidget({ required: false, label: t => t.nk.contacts.phone, inputmode: 'tel' }),
         email: new InputWidget({ required: false, label: t => t.nk.contacts.email, type: 'email', inputmode: 'email' }),
         assemblyCompanySearch: new SearchWidget<FormNK, Company, true>({
-            label: t => t.nk.contacts.searchCompanyInList, items: [], getSearchItem: i => ({
+            label: t => t.nk.contacts.searchCompanyInList, items: assemblyCompanies, getSearchItem: i => ({
                 pieces: [
                     { text: i.crn, width: .2 },
                     { text: i.companyName, width: .8 },
@@ -380,13 +383,21 @@ export default (): FormNK => ({
     },
     other: {
         representative: new SearchWidget<FormNK, Person>({
-            label: t => t.nk.representative, items: [], getSearchItem: t => ({
+            label: t => t.nk.representative, getSearchItem: t => ({
                 pieces: [
                     { text: t.responsiblePerson!, width: .4 },
                     { text: t.koNumber!, width: .1 },
                     { text: t.email, width: .5 },
                 ],
-            }), show: false, required: true,
+            }), show: false, required: true, items: d => derived([usersList, currentUser], ([$users, $currentUser]) => {
+                const withKO = $users.filter(p => p.koNumber && p.responsiblePerson);
+                const me = withKO.find(t => $currentUser?.email == t.email);
+                if (me) d.other.representative.setValue(d, me);
+                return withKO
+                    .filter(p => p.email.endsWith('cz'))
+                    .toSorted((a, b) => a.responsiblePerson!.split(' ').at(-1)!
+                        .localeCompare(b.responsiblePerson!.split(' ').at(-1)!));
+            }),
         }),
         photos: new PhotoSelectorWidget({
             label: t => t.nk.photos, required: false, multiple: true, max: 5,

@@ -12,12 +12,14 @@ import {
     TitleWidget,
 } from '../Widget.svelte.js';
 import { type FormIN, unknownCompany, type UserForm } from './formIN';
-import type { Company, Technician } from '$lib/client/realtime';
+import { type Company, type Technician, techniciansList } from '$lib/client/realtime';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
 import { isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
 import products, { type Products } from '$lib/helpers/products';
 import type { Translations } from '$lib/translations';
+import { derived } from 'svelte/store';
+import { assemblyCompanies, commissioningCompanies } from '$lib/helpers/companies';
 
 const jeFO = (d: UserForm<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserForm<never>) => jeFO(d);
@@ -135,7 +137,8 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
     montazka: {
         nadpis: new TitleWidget({ text: t => t.in.assemblyCompany }),
         company: new SearchWidget<D, Company, true>({
-            label: t => t.in.searchCompanyInList, items: [], getSearchItem: i => ({
+            items: derived(assemblyCompanies, c => [unknownCompany, ...c]),
+            label: t => t.in.searchCompanyInList, getSearchItem: i => ({
                 pieces: i.crn == unknownCompany.crn ? [
                     { text: i.companyName },
                 ] : [
@@ -204,7 +207,8 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             },
         }),
         company: new SearchWidget<D, Company, true>({
-            label: t => t.in.searchCompanyInList, items: [], getSearchItem: i => ({
+            items: derived(commissioningCompanies, c => [unknownCompany, ...c]),
+            label: t => t.in.searchCompanyInList, getSearchItem: i => ({
                 pieces: i.crn == unknownCompany.crn ? [
                     { text: i.companyName },
                 ] : [
@@ -238,7 +242,10 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             }, showInXML: false,
         }),
         regulus: new SearchWidget<D, Technician, true>({
-            label: t => t.in.searchRepresentative, items: [], showInXML: false, getSearchItem: i => ({
+            items: derived(techniciansList, $technicians =>
+                $technicians.filter(t => t.email.endsWith('cz'))
+            ),
+            label: t => t.in.searchRepresentative, showInXML: false, getSearchItem: i => ({
                 pieces: [
                     { text: i.name },
                     { text: i.email },
