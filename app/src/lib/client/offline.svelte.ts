@@ -145,6 +145,7 @@ export const offlineDatabase: Database = {
         return ir!;
     }),
     addIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),
+    updateIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),
     deleteIndependentProtocol: spid => odm.delete('SP', spid),
     getIndependentProtocol: spid => odm.get('SP', spid),
     getIndependentProtocolAsStore: spid => derived(storedSP, sps => sps[spid]),

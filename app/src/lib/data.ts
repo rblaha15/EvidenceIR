@@ -46,19 +46,19 @@ export interface ReadDatabase {
 
     getAllIRs(): Promise<IR[]>;
 
-    getAllIRsAsStore(): Readable<IR[]>;
+    getAllIRsAsStore(): Readable<IR[] | 'loading'>;
 
-    getIRAsStore(irid: IRID): Readable<IR | undefined>;
+    getIRAsStore(irid: IRID): Readable<IR | undefined | 'loading'>;
 
     existsIR(irid: IRID): Promise<boolean>;
 
     getIndependentProtocol(spid: SPID): Promise<Raw<FormNSP> | undefined>;
 
-    getIndependentProtocolAsStore(spid: SPID): Readable<Raw<FormNSP> | undefined>;
+    getIndependentProtocolAsStore(spid: SPID): Readable<Raw<FormNSP> | undefined | 'loading'>;
 
     getAllIndependentProtocols(): Promise<Raw<FormNSP>[]>;
 
-    getAllIndependentProtocolsAsStore(): Readable<Raw<FormNSP>[]>;
+    getAllIndependentProtocolsAsStore(): Readable<Raw<FormNSP>[] | 'loading'>;
 }
 
 /**
