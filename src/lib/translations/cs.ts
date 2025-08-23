@@ -105,7 +105,7 @@ export default {
         responsiblePerson: `Zodpovědná osoba`,
         changePassword: `Změnit heslo`,
         noAccess: `Pro přístup na tuto stránku nemáte oprávnění.`,
-        siteDoesNotExist: `Tato stránka neexistuje. Ano, dívali jsme se i za čerpadlo i pod kolektory…`,
+        siteDoesNotExist: `Tato stránka neexistuje. A to jsme se dívali i do venkovní jednotky…`,
     },
     users: {
         title: 'Uživatelé s přístupem k evidenci',
