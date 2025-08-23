@@ -50,7 +50,7 @@ const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
     .associateWith((_, i) => fieldsPartsStart + i * 8);
 
 
-export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols }, t, addDoc, index, lang }) => {
+export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols, uvedeniTC: u }, t, addDoc, index, lang }) => {
     const pumps = e.tc.model ? cascadePumps(e) : [];
     const ts = t.sp
     const p = installationProtocols[index];
@@ -62,6 +62,10 @@ export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installatio
                 popis:
                     irName(e.ir) +
                     (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +
+                    (u?.nadrze?.akumulacka || u?.nadrze?.zasobnik ? '\n' : '') +
+                    (u?.nadrze?.akumulacka ? `Nádrž: ${u.nadrze.akumulacka}` : '') +
+                    (u?.nadrze?.akumulacka && u?.nadrze?.zasobnik ? '; ' : '') +
+                    (u?.nadrze?.zasobnik ? `Zásobník: ${u.nadrze.zasobnik}` : '') +
                     (e.sol?.typ ? `\nSOL: ${e.sol.typ} – ${e.sol.pocet}x` : '') +
                     (e.rek?.typ ? `\nREK: ${e.rek.typ}` : '') +
                     (e.fve?.pocet ? `\nFVE: ${get(t.in.fve, e.fve.typ)} – ${e.fve.pocet}x` : '') +
