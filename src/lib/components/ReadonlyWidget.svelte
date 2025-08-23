@@ -72,7 +72,7 @@
         {:else if widget instanceof InputWithSuggestionsWidget}
             {widget.value}
         {:else if widget instanceof CountersWidget}
-            {widget.value.mapTo(([k, v]) => `${widget.get(t, k)}: ${v}x`).join(', ')}
+            {widget.value.mapTo((k, v) => `${widget.get(t, k)}: ${v}x`).join(', ')}
         {:else if widget instanceof InputWithChooserWidget}
             {widget.value.text} {widget.get(t, widget.value.chosen)}
         {:else if widget instanceof CheckboxWithInputWidget}
