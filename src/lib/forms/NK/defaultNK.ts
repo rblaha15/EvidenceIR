@@ -190,6 +190,7 @@ export default (): FormNK => ({
         thermalStoreType: new DoubleChooserWidget({
             required: false,
             label: t => t.nk.system.storeType,
+            chosen: { first: `storeNone`, second: null },
             options1: [`storeNone`, ...products.thermalStores.keys()],
             show: hp,
             options2: d => products.thermalStores[d.system.thermalStoreType.value.first as keyof typeof products.thermalStores] ?? [],
@@ -356,8 +357,7 @@ export default (): FormNK => ({
         heatingCable: new CheckboxWithChooserWidget({
             required: false,
             label: t => t.nk.accessories.heatingCable,
-            chosen: '3,5 m',
-            options: ['3,5 m', '5 m'],
+            options: ['2,5 m', '3,5 m', '5 m'],
         }),
         wallSupportBracket: new CheckboxWithChooserWidget({
             required: false,

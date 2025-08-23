@@ -93,7 +93,7 @@ const sk: PlainTranslations = {
             storeNone: 'Žiadná',
             storeVolume: `Objem nádrže`,
             tankType: `Typ zásobníka`,
-            tankNone: 'Žiadná',
+            tankNone: 'Žiadný',
             tankVolume: `Objem zásobníka`,
             indoorUnitType: `Typ vnútornej jednotky`,
             indoorUnitNone: 'Žiadná',

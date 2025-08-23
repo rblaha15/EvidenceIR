@@ -29,7 +29,7 @@ export const origins = {
 } as const;
 
 export type HoseLength = '300 mm' | '500 mm' | '700 mm' | '1000 mm';
-export type HeatingCableLength = '3,5 m' | '5 m';
+export type HeatingCableLength = '3,5 m' | '2,5 m' | '5 m';
 export type RoomUnitType = 'RC 25' | 'RDC' | 'RS 10' | 'RSW 30 - WiFi';
 
 export interface FormNK extends Form<FormNK> {
