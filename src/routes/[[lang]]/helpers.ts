@@ -40,14 +40,7 @@ export const getData = async (id: {
             if (!ir) return { ...base };
             return { ...base, ir, success: true };
         } else if (id.spids) {
-            const sps = await id.spids.map(async (spid, i) => {
-                const sp = await db.getIndependentProtocol(spid);
-                if (sp) return sp;
-
-                spid = spid.split('-').slice(0, -1).join('-') as SPID;
-                id.spids[i] = spid;
-                return await db.getIndependentProtocol(spid);
-            }).awaitAll();
+            const sps = await id.spids.map(db.getIndependentProtocol).awaitAll();
             return { ...base, sps: sps.filterNotUndefined(), success: true };
         }
     } catch (e) {
