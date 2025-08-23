@@ -15,6 +15,7 @@ import type { TC } from '$lib/forms/IN/defaultIN';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { flatDerived } from '$lib/helpers/stores';
 import type { FormFT } from '$lib/forms/FT/formFT';
+import '$lib/extensions';
 
 export type Year = 1 | 2 | 3 | 4;
 
