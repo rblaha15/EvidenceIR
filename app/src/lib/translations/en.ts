@@ -52,7 +52,7 @@ const en: PlainTranslations = {
         responsiblePerson: 'Responsible person',
         changePassword: `Change password`,
         noAccess: `You do not have access to this page.`,
-        siteDoesNotExist: `This site does not exist. And we've even looked in the outdoor unit…`,
+        siteDoesNotExist: `This site does not exist. And we've even looked twice in the heat pump outdoor unit and it isn't there too…`,
     },
     theme: {
         dark: 'Dark',

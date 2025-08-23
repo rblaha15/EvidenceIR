@@ -10,11 +10,12 @@
 </script>
 
 <h3>
+    Error {page.status}:
     {#if page.status === 404}
         {t.auth.siteDoesNotExist}
     {:else if page.status === 401}
         {t.auth.noAccess}
     {:else}
-        Error {page.status}: {page.error?.message}
+        {page.error?.message}
     {/if}
 </h3>
