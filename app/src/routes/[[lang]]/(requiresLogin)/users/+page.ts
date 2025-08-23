@@ -4,7 +4,9 @@ import { error } from '@sveltejs/kit';
 import { extractIDs, langEntryGenerator } from '../../helpers';
 import type { EntryGenerator, PageLoad } from './$types';
 import { startLidiListening } from '$lib/client/realtime';
-import db from '$lib/data';
+import db, { type IR } from '$lib/data';
+import { waitUntil } from '$lib/helpers/stores';
+import type { Readable } from 'svelte/store';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
@@ -19,7 +21,11 @@ export const load: PageLoad = async ({ url }) => {
 
     await startLidiListening()
 
-    return { irid: id.irid, ir: db.getIRAsStore(id.irid) };
+    const store = db.getIRAsStore(id.irid);
+
+    await waitUntil(store, p => p != 'loading')
+
+    return { irid: id.irid, ir: store as Readable<IR | undefined> };
 };
 
 export const prerender = true;
