@@ -247,6 +247,7 @@ export default {
         onPaper: `Papírově`,
         electronically: `Elektronicky`,
         assemblyCompany: `Montážní firma`,
+        textTooLong: 'Pozor, zadaný text je moc dlouhý a nevešel by se do vyhrazeného pole v protokolu, takže bude napsaný na druhé straně dokumentu.',
     },
     units: {
         kW: 'kW',

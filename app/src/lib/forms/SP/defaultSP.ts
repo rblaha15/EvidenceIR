@@ -11,6 +11,21 @@ import {
 import type { SparePart } from '$lib/client/realtime';
 import type { GenericFormSP, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
 import type { Translations } from '$lib/translations';
+import { browser } from '$app/environment';
+import { text } from '@sveltejs/kit';
+
+const multilineLineLength = 670;
+const multilineMaxLength = multilineLineLength * 4;
+const inlineMaxLength = 540;
+
+const ctx = browser ? document.createElement('canvas').getContext('2d')! : null!;
+
+const measure = (text: string) => ctx.measureText(text).width;
+
+export const multilineTooLong = (text: string) => text.split('\n').sumBy(line =>
+    Math.ceil(measure(line) / multilineLineLength) * multilineLineLength,
+) > multilineMaxLength;
+export const inlineTooLong = (text: string) => measure(text) > inlineMaxLength;
 
 const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8): SparePartWidgetGroup<D> => {
     const show = (d: D) => d.nahradniDily.pocet.value >= n;
@@ -65,7 +80,9 @@ export default <D extends GenericFormSP<D>>(): GenericFormSP<D> => ({
         inicialy: new InputWidget({ label: t => t.sp.technicianInitials, show: false, showInXML: false }),
         zaruka: new RadioWidget({ label: t => t.sp.warranty, options: [`warrantyCommon`, `warrantyExtended`], required: false, labels }),
         nahlasenaZavada: new InputWidget({ label: t => t.sp.reportedFault, required: false }),
+        overflowFault: new TextWidget({ text: (t, d) => inlineTooLong(d.zasah.nahlasenaZavada.value) ? t.sp.textTooLong : '' }),
         popis: new InputWidget({ label: t => t.sp.interventionDescription, required: false, textArea: true }),
+        overflowIntervention: new TextWidget({ text: (t, d) => multilineTooLong(d.zasah.popis.value) ? t.sp.textTooLong : '' }),
     },
     ukony: {
         nadpis: new TitleWidget({ text: t => t.sp.billing }),
