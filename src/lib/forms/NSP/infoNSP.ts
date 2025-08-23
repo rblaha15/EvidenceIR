@@ -5,7 +5,7 @@ import {
     techniciansList,
 } from '$lib/client/realtime';
 import type { User } from 'firebase/auth';
-import { currentUser } from '$lib/client/auth';
+import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { detailSpUrl } from '$lib/helpers/runes.svelte.js';
 import { nowISO } from '$lib/helpers/date';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -16,7 +16,7 @@ import db from '$lib/data';
 import { type DataNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 
-const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null]], 'NSP'> = {
+const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], User | null]], 'NSP'> = {
     type: '',
     storeName: 'stored_new_SP',
     defaultData: defaultNSP,
@@ -74,7 +74,10 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         return !sp ? undefined : sp;
     },
     storeEffects: [
-        [(_, f, [$techniciansList, $currentUser], edit) => {
+        [(_, data, [$isUserRegulusOrAdmin]) => { // From IN
+            data.koncovyUzivatel.company.show = d => $isUserRegulusOrAdmin && d.koncovyUzivatel.typ.value == 'company';
+        }, [isUserRegulusOrAdmin]],
+        [(_, f, [$techniciansList, $currentUser], edit) => { // From SP
             const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
             if (!f.zasah.clovek.value) f.zasah.clovek.setValue(f, ja?.name ?? f.zasah.clovek.value);
             f.zasah.clovek.show = () => f.zasah.clovek.value != ja?.name;

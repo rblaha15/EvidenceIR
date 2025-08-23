@@ -22,6 +22,8 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
         prijmeni: InputWidget<D>;
         jmeno: InputWidget<D>;
         narozeni: InputWidget<D>;
+        company: SearchWidget<D, Company, true>;
+        or: TextWidget<D>;
         nazev: InputWidget<D>;
         wrongFormat: TextWidget<D>;
         pobocka: InputWidget<D>;
@@ -45,7 +47,7 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
     montazka: {
         nadpis: TitleWidget<D>;
         company: SearchWidget<D, Company, true>;
-        nebo: TextWidget<D>;
+        or: TextWidget<D>;
         ico: InputWidget<D>;
         chosen: TextWidget<D>;
         zastupce: InputWidget<D>;
@@ -56,7 +58,7 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
         nadpis: TitleWidget<D>;
         jakoMontazka: CheckboxWidget<D, true>;
         company: SearchWidget<D, Company, true>;
-        nebo: TextWidget<D>;
+        or: TextWidget<D>;
         ico: InputWidget<D>;
         chosen: TextWidget<D>;
         regulus: SearchWidget<D, Technician, true>;

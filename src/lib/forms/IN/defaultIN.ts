@@ -14,7 +14,7 @@ import {
 import { type FormIN, unknownCompany, type UserForm } from './formIN';
 import { type Company, type Technician, techniciansList } from '$lib/client/realtime';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
-import { isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
+import { companyForms, isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
 import products, { type Products } from '$lib/helpers/products';
 import type { Translations } from '$lib/translations';
@@ -59,6 +59,22 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             regex: /^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?[0-9]{4}$/,
             autocomplete: `bday`, required: false, show: fo,
         }),
+        company: new SearchWidget<D, Company, true>({
+            items: derived(assemblyCompanies, c => c.filter(c => companyForms.some(f => c.companyName.endsWith(f)))),
+            label: t => t.in.searchCompanyInList, getSearchItem: i => ({
+                pieces: [
+                    { text: i.crn, width: .2 },
+                    { text: i.companyName, width: .8 },
+                ],
+            }), showInXML: false, required: false, hideInRawData: true, show: false,
+            onValueSet: (d, company) => {
+                d.koncovyUzivatel.nazev.setValue(d, company?.companyName ?? '');
+                d.koncovyUzivatel.ico.setValue(d, company?.crn ?? '');
+                d.koncovyUzivatel.telefon.setValue(d, company?.phone ?? '');
+                d.koncovyUzivatel.email.setValue(d, company?.email ?? '');
+            },
+        }),
+        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: po }),
         nazev: new InputWidget({ label: t => t.in.companyName, show: po, required: po }),
         wrongFormat: new TextWidget({
             text: t => t.wrong.company, showInXML: false,
@@ -153,7 +169,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 d.montazka.zastupce.setValue(d, company?.representative ?? '');
             },
         }),
-        nebo: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn }),
+        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn }),
         ico: new InputWidget({
             label: t => t.in.crn,
             onError: t => t.wrong.crn,
@@ -223,7 +239,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 d.uvedeni.zastupce.setValue(d, company?.representative ?? '');
             },
         }),
-        nebo: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => !d.uvedeni.jakoMontazka.value }),
+        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => !d.uvedeni.jakoMontazka.value }),
         ico: new InputWidget({
             label: t => t.in.crn,
             onError: t => t.wrong.crn,
@@ -236,14 +252,14 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
         }),
         chosen: new TextWidget({
             text: async (t, d) => {
-                if (d.uvedeni.ico.value == unknownCompany.crn) return ''
+                if (d.uvedeni.ico.value == unknownCompany.crn) return '';
                 const company = await nazevFirmy(d.uvedeni.ico.value);
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
             }, showInXML: false,
         }),
         regulus: new SearchWidget<D, Technician, true>({
             items: derived(techniciansList, $technicians =>
-                $technicians.filter(t => t.email.endsWith('cz'))
+                $technicians.filter(t => t.email.endsWith('cz')),
             ),
             label: t => t.in.searchRepresentative, showInXML: false, getSearchItem: i => ({
                 pieces: [
