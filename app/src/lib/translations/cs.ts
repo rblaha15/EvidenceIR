@@ -578,7 +578,7 @@ export default {
         photosFromTheInstallation: 'Fotografie z instalace',
         noteToEmail: 'Poznámka (do emailu)',
         customerEmail: 'Emailová adresa zákazníka',
-        info1: t`Aplikace odešle email s dokumenty, popř. s obrázky a poznámkou na ${0}.`,
+        info1: t`Aplikace odešle email s dokumenty, popř. s obrázky a poznámkou na ${0} a ${1}.`,
         info2A: t` Kopie bude odeslána vám na ${'user'}.`,
         info2B: t` Kopie bude odeslána zákazníkovi na adresu ${'customer'} a vám na ${'user'}.`,
         info3: ` Pokud nechcete odeslat email zákazníkovi, odstraňtě jeho adresu z políčka výše.`,
