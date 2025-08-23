@@ -76,6 +76,7 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
     storeEffects: [
         [(_, data, [$isUserRegulusOrAdmin]) => { // From IN
             data.koncovyUzivatel.company.show = d => $isUserRegulusOrAdmin && d.koncovyUzivatel.typ.value == 'company';
+            data.koncovyUzivatel.or.show = d => $isUserRegulusOrAdmin && d.koncovyUzivatel.typ.value == 'company';
         }, [isUserRegulusOrAdmin]],
         [(_, f, [$techniciansList, $currentUser], edit) => { // From SP
             const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
