@@ -22,31 +22,35 @@
     const sorel = (d: D) => d.type.value == 'SOREL';
     const irFVE = (d: D) => d.type.value == 'fve';
 
-    let irType = $state(new ChooserWidget<D, IRTypes>({
+    let irType: ChooserWidget<D, IRTypes> = $state(new ChooserWidget({
         label: t => t.in.controllerType,
-        options: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL', 'fve'],
+        options: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
         onValueSet: (d, v) => {
-            if (v == 'SOREL') {
+            if (v == 'SOREL' || v == 'fve') {
                 d.number.setValue(d, `${todayISO()} ${time()}`);
             }
         },
         labels: t => t.in.ir,
     }));
-    let irNumber = $state(new InputWidget<D>({
+    let irNumber: InputWidget<D> = $state(new InputWidget({
         label: t => t.in.serialNumber,
         onError: t => t.wrong.number,
         regex: d => sorel(d) || irFVE(d)
             ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
             : d.type.value == 'IR 12'
-                ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:0[69]:[0-9A-F]{2}:[0-9A-F]{2}/
-                : /[A-Z][1-9OND] [0-9]{4}/,
+                ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
+                : d.type.value == 'IR 10'
+                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
+                    : /[A-Z][1-9OND] [0-9]{4}/,
         capitalize: true,
         maskOptions: d => ({
             mask: sorel(d) ? `0000-00-00T00:00` :
-                d.type.value != 'IR 12' ? 'Z9 0000'
+                d.type.value != 'IR 12' && d.type.value != 'IR 10' ? 'Z9 0000'
                     : d.number.value.length == 0 ? 'X'
                         : d.number.value[0] == '0'
-                            ? 'NN:NA:14:N6:FF:FF'
+                            ? d.type.value == 'IR 10'
+                                ? 'NN:NA:14:N6:FF:FF'
+                                : 'NN:NA:14:N9:FF:FF'
                             : 'Z9 0000',
             definitions: {
                 X: /[0A-Za-z]/,

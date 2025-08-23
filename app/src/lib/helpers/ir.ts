@@ -1,4 +1,4 @@
-import type { FormIN, UserForm } from '$lib/forms/IN/formIN';
+import type { FormIN, IRTypes, UserForm } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
 
@@ -28,14 +28,14 @@ export const spWholeName = (sp: Raw<FormNSP>, includeEstablishment: boolean = tr
  *
  * SRS1 T
  */
-export const irName = (ir: Raw<FormIN>['ir']) => ir.typ.first == 'fve' ? 'FVE'
-    : ir.typ.first == 'SOREL'
-        ? irType(ir.typ)
-        : `${irType(ir.typ)} ${ir.cislo}`;
+export const irName = (ir: Raw<FormIN>['ir']) =>
+    ir.typ.first == 'fve' ? 'FVE'
+        : ir.typ.first == 'SOREL' ? irType(ir.typ)
+            : `${irType(ir.typ)} ${ir.cislo}`;
 
 export const irNumberFromIRID = (irid: IRID) =>
-    irid.startsWith('S') ? 'SOREL'
-        : irid.startsWith('F') ? 'FVE'
+    irid[0] == 'S' ? 'SOREL'
+        : irid[0] == 'F' ? 'FVE'
             : !isMacIRID(irid) ? `${irid.slice(1, 3)} ${irid.slice(3, 7)}`
                 : `00:0A:0${irid[6]}:${irid[7] + irid[8]}:${irid[9] + irid[10]}:${irid[11] + irid[12]}`;
 
@@ -51,19 +51,25 @@ export const spName = (zasah: Raw<GenericFormSP<never>>['zasah']) => {
 };
 
 /**
+ * IR10CTC400
+ *
  * IR14CTC
  *
  * IR RegulusBOX CTC
  *
  * SRS1 T
  */
-export const irType = (typ: Raw<FormIN>['ir']['typ']) =>
-    typ.first == 'fve' ? ''
-        : typ.first == 'SOREL'
-            ? typ.second!
-            : typ.first?.includes('BOX')
-                ? `${typ.first!.split(' ').slice(0, 2).join(' ')} ${typ.second!}`
-                : `${typ.first!.replaceAll(' ', '')}${typ.second!}`;
+export const irType = (type: Raw<FormIN>['ir']['typ']) => ({
+    'IR 10': 'IR10CTC400',
+    'IR 12': 'IR12CTC',
+    'IR 14': 'IR14' + type.second!,
+    'IR 34': 'IR34' + type.second!,
+    'IR RegulusBOX': `IR RegulusBOX ` + type.second!,
+    'IR RegulusHBOX': `IR RegulusHBOX ` + type.second!,
+    'IR RegulusHBOX K': `IR RegulusHBOX ` + type.second!,
+    'SOREL': type.second!,
+    'fve': '',
+} as const)[type.first!];
 
 const companyForms = [
     's.r.o.', 'spol. s r.o.', 'a.s.', 'k.s.', 'v.o.s.',
@@ -116,6 +122,8 @@ export const endUserName2 = (k: Raw<FormIN>['koncovyUzivatel']) =>
     k.typ == 'company' ? k.nazev : `${k.prijmeni} ${k.jmeno}`;
 
 /**
+ * 0: IR 10;
+ *
  * 2: IR 12;
  *
  * 4: IR 14;
@@ -128,7 +136,7 @@ export const endUserName2 = (k: Raw<FormIN>['koncovyUzivatel']) =>
  *
  * F: FVE;
  */
-export type IRType = '2' | '4' | '3' | 'B' | 'S' | 'F';
+export type IRType = '0' | '2' | '4' | '3' | 'B' | 'S' | 'F';
 /**
  * MAC IR:        2000A1406FFFF (13);
  *
@@ -138,26 +146,28 @@ export type IRType = '2' | '4' | '3' | 'B' | 'S' | 'F';
  */
 export type IRID = `${IRType}${string}`;
 /**
- * Zastaralé SP ID: RB-2024-12-31-23;
- *
- * Moderní SP ID:   RB-2024-12-31-23-59;
+ * SP ID: RB-2024-12-31-23-59;
  */
 export type SPID = `${string}-${string}-${string}`;
 
 export const spids = (spids: string) => spids.split(' ') as SPID[];
 
-export const isMacIRID = (irid: IRID) => irid.startsWith('2000A140');
+export const isMacIRID = (irid: IRID) => irid.startsWith('2000A1409') || irid.startsWith('0000A1406');
 export const isMacAddress = (irNumber: string) => irNumber.startsWith('00:0A:14:0');
 
-const extractIRTypeFromFullIRType = (fullIRType: string): IRType =>
-    (fullIRType.includes('12') ? '2'
-        : fullIRType.includes('14') ? '4'
-            : fullIRType.includes('34') ? '3'
-                : fullIRType.includes('BOX') ? 'B'
-                    : fullIRType.includes('SOREL') ? 'S'
-                        : fullIRType == 'irFVE' ? 'F'
-                            : undefined)!;
-export const extractIRIDFromParts = (fullIRType: string, irNumber: string): IRID =>
+const extractIRTypeFromFullIRType = (fullIRType: IRTypes): IRType => ({
+    'IR 10': '0',
+    'IR 12': '2',
+    'IR 14': '4',
+    'IR 34': '3',
+    'IR RegulusBOX': 'B',
+    'IR RegulusHBOX': 'B',
+    'IR RegulusHBOX K': 'B',
+    'SOREL': 'S',
+    'fve': 'F',
+} as const)[fullIRType];
+
+export const extractIRIDFromParts = (fullIRType: IRTypes, irNumber: string): IRID =>
     `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replaceAll(/[ :T-]/g, '')}`;
 export const extractIRIDFromRawData = (evidence: Raw<FormIN>): IRID =>
     extractIRIDFromParts(evidence.ir.typ.first!, evidence.ir.cislo);
