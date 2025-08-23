@@ -8,6 +8,7 @@ import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { get } from '$lib/translations';
 import { unknownCompany } from '$lib/forms/IN/formIN';
+import { inlineTooLong, multilineTooLong } from '$lib/forms/SP/defaultSP';
 
 const prices = {
     transportation: 9.92,
@@ -48,14 +49,6 @@ const fieldsPartsStart = 44;
 const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
     .associateWith((_, i) => fieldsPartsStart + i * 8);
 
-const multilineLineLength = 70;
-const multilineMaxLength = multilineLineLength * 4;
-const inlineMaxLength = 55;
-
-const multilineTooLong = (text: string) => text.split('\n').sumBy(line =>
-    Math.ceil(line.length / multilineLineLength) * multilineLineLength,
-) > multilineMaxLength;
-const inlineTooLong = (text: string) => text.length > inlineMaxLength;
 
 export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols }, t, addDoc, index, lang }) => {
     const pumps = e.tc.model ? cascadePumps(e) : [];
