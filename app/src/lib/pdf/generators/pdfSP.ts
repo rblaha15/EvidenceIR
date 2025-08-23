@@ -7,6 +7,7 @@ import { endUserName, endUserName2, irName, spName } from '$lib/helpers/ir';
 import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { get } from '$lib/translations';
+import { unknownCompany } from '$lib/forms/IN/formIN';
 
 const prices = {
     transportation: 9.92,
@@ -111,6 +112,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
 
     if (tax == 1.12) await addDoc({ args: pdfInfo.CP, data: p, lang: 'cs' });
 
+    const isUnknown = p.montazka.ico == unknownCompany.crn;
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
         Text1: spName(p.zasah),
@@ -123,11 +125,11 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         Text5: p.koncovyUzivatel.telefon,
         Text6: p.koncovyUzivatel.email,
         Text7: assemblyCompany?.obchodniJmeno ?? null,
-        Text8: p.montazka.ico,
-        Text9: p.montazka.zastupce,
-        Text10: assemblyCompany?.sidlo.textovaAdresa ?? null,
-        Text11: p.montazka.telefon,
-        Text12: p.montazka.email,
+        Text8: isUnknown ? null : p.montazka.ico,
+        Text9: isUnknown ? null : p.montazka.zastupce,
+        Text10: isUnknown ? null : assemblyCompany?.sidlo.textovaAdresa ?? null,
+        Text11: isUnknown ? null : p.montazka.telefon,
+        Text12: isUnknown ? null : p.montazka.email,
         Text13: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
         Text14: multilineTooLong(system) ? ts.seeSecondPage : system,
         Text15: dateFromISO(p.zasah.datum),

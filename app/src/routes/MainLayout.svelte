@@ -62,7 +62,7 @@
 {:then _}
     <div class="d-flex flex-column h-100">
         <Navigation {t} />
-        <div class="flex-grow-1 overflow-y-scroll">
+        <div class="flex-grow-1 mb-2 overflow-y-scroll">
             <div class="sticky-top progress rounded-0" role="progressbar"
                  style:scale="1 {$progress === 'load' ? 1 : 0}"
                  style="transition: scale .5s; transform-origin: top;"
@@ -72,7 +72,7 @@
                      style="transition: width 5s;"
                 ></div>
             </div>
-            <div class="container my-2 d-flex flex-column gap-3 h-100">
+            <div class="container mt-2 d-flex flex-column gap-3">
                 <h1 class="m-0 d-flex align-items-center gap-3">
                     {#if $backButton}
                         <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}

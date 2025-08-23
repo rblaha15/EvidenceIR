@@ -27,9 +27,7 @@
         label: t => t.detail.newIRIDLabel,
     });
     const transfer = async () => {
-        await sps.map(async sp => {
-            await db.addServiceProtocol(newIRID.value as IRID, sp.pick(...protocolGroups) as Raw<FormSP>);
-        }).awaitAll();
+        await sps.map(sp => db.addServiceProtocol(newIRID.value as IRID, sp.pick(...protocolGroups) as Raw<FormSP>)).awaitAll();
         await goto(detailIrUrl(newIRID.value as IRID), { replaceState: true });
     };
 
@@ -57,6 +55,6 @@
 {#if $isUserAdmin}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         <Widget widget={newIRID} {t} data={{}} />
-        <button class="btn btn-danger d-block" onclick={transfer}>{td.transferProtocol}</button>
+        <button class="btn btn-danger d-block" onclick={transfer}>{td.transferProtocols}</button>
     </div>
 {/if}

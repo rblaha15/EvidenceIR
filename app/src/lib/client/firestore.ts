@@ -158,6 +158,11 @@ export const firestoreDatabase: Database = {
         await setDoc(spDoc(spid), protocol);
         await odm.put('SP', spid, protocol);
     },
+    updateIndependentServiceProtocol: async protocol => {
+        const spid = extractSPIDFromRawData(protocol.zasah);
+        await updateDoc(spDoc(spid), protocol);
+        await odm.put('SP', spid, protocol);
+    },
     deleteIndependentProtocol: async spid => {
         await deleteDoc(spDoc(spid));
         await odm.delete('SP', spid);

@@ -205,7 +205,9 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
         }),
         company: new SearchWidget<D, Company, true>({
             label: t => t.in.searchCompanyInList, items: [], getSearchItem: i => ({
-                pieces: [
+                pieces: i.crn == unknownCompany.crn ? [
+                    { text: i.companyName },
+                ] : [
                     { text: i.crn, width: .2 },
                     { text: i.companyName, width: .8 },
                 ],
@@ -225,11 +227,12 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             maskOptions: {
                 mask: `00000000[00]`,
             }, showInXML: true,
-            show: d => !d.uvedeni.jakoMontazka.value,
+            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.company.value?.crn != unknownCompany.crn,
             required: d => !d.uvedeni.jakoMontazka.value,
         }),
         chosen: new TextWidget({
             text: async (t, d) => {
+                if (d.uvedeni.ico.value == unknownCompany.crn) return ''
                 const company = await nazevFirmy(d.uvedeni.ico.value);
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
             }, showInXML: false,
@@ -255,7 +258,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             label: t => t.in.representativeName,
             autocomplete: `section-commissioningRepr billing name`,
             showInXML: true,
-            show: d => d.uvedeni.ico.value != regulusCRN.toString(),
+            show: d => d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCompany.crn,
             required: d => d.uvedeni.ico.value != regulusCRN.toString(),
         }),
         email: new InputWidget({
@@ -263,7 +266,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             onError: t => t.wrong.email,
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             showInXML: true,
-            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
+            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCompany.crn,
             required: false,
             autocomplete: `section-commissioning billing work email`,
         }),
@@ -273,7 +276,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
             type: 'tel',
             showInXML: true,
-            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
+            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCompany.crn,
             required: false,
             autocomplete: `section-assembly billing work tel`,
         }),
