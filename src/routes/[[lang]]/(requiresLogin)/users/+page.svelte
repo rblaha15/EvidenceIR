@@ -6,6 +6,7 @@
         import Search from '$lib/components/widgets/Search.svelte';
     import { usersList } from '$lib/client/realtime';
     import db from '$lib/data';
+    import { derived } from 'svelte/store';
 
     const { data }: PageProps = $props();
 
@@ -14,16 +15,12 @@
     $effect(() => setTitle(t.users.title, true));
 
     let w = $state(new SearchWidget({
-        label: t => t.users.email, type: 'email', items: [] as string[], getSearchItem: i => ({
+        items: derived(usersList, l => l.map(i => i.email)), getSearchItem: i => ({
             pieces: [
                 { text: i },
             ],
-        }), required: false,
+        }), required: false, label: t => t.users.email, type: 'email',
     }));
-
-    $effect(() => {
-        w.items = () => $usersList.map(i => i.email);
-    });
 </script>
 
 {#if $ir && irid}

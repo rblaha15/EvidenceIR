@@ -692,7 +692,7 @@ export default {
             storeNone: 'Žádná',
             storeVolume: 'Objem nádrže',
             tankType: 'Typ zásobníku',
-            tankNone: 'Žádná',
+            tankNone: 'Žádný',
             tankVolume: 'Objem zásobníku',
             indoorUnitType: 'Typ vnitřní jednotky',
             indoorUnitNone: 'Žádná',

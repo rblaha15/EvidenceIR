@@ -71,7 +71,7 @@ export const irType = (type: Raw<FormIN>['ir']['typ']) => ({
     'fve': '',
 } as const)[type.first!];
 
-const companyForms = [
+export const companyForms = [
     's.r.o.', 'spol. s r.o.', 'a.s.', 'k.s.', 'v.o.s.',
 ];
 const removeCompanyForm = (name: string) => companyForms.reduce((name, typ) => name.replace(typ, '').trimEnd().replace(/,$/, ''), name);

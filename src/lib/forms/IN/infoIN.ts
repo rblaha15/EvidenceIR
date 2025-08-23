@@ -21,14 +21,13 @@ import { xmlIN } from '$lib/forms/IN/xmlIN';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
 import { page } from '$app/state';
 import MailSDaty from '$lib/emails/MailSDaty.svelte';
-import { companies } from '$lib/helpers/companies';
 import { cellsIN } from '$lib/forms/IN/cellsIN';
-import { type FormIN, unknownCompany } from '$lib/forms/IN/formIN';
+import { type FormIN } from '$lib/forms/IN/formIN';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import MailXML from '$lib/emails/MailXML.svelte';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
 
-const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyCompanies], [boolean], [string | null]]> = {
+const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string | null]]> = {
     type: '',
     storeName: 'stored_data',
     defaultData: () => defaultIN(),
@@ -138,13 +137,9 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
         data.tc.pocet.setValue(data, count == 0 ? 1 : count);
     },
     storeEffects: [
-        [(_, data, [$technicians]) => {
-            data.uvedeni.regulus.items = () => $technicians.filter(t => t.email.endsWith('cz'));
-        }, [techniciansList]],
-        [(_, data, [$companies]) => {
-            data.uvedeni.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
-            data.montazka.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
-        }, [companies]],
+        [(_, data, [$isUserRegulusOrAdmin]) => { // Also in NSP
+            data.koncovyUzivatel.company.show = d => $isUserRegulusOrAdmin && d.koncovyUzivatel.typ.value == 'company';
+        }, [isUserRegulusOrAdmin]],
         [(_, data, [$isUserRegulusOrAdmin]) => {
             data.vzdalenyPristup.plati.options = () => $isUserRegulusOrAdmin
                 ? ['laterAccordingToTheProtocol', 'doNotInvoice', 'assemblyCompany', 'endCustomer']

@@ -8,11 +8,11 @@ import {
     TextWidget,
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
-import type { SparePart } from '$lib/client/realtime';
+import { type SparePart, sparePartsList } from '$lib/client/realtime';
 import type { GenericFormSP, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
 import type { Translations } from '$lib/translations';
 import { browser } from '$app/environment';
-import { text } from '@sveltejs/kit';
+import { derived } from 'svelte/store';
 
 const multilineLineLength = 670;
 const multilineMaxLength = multilineLineLength * 4;
@@ -36,7 +36,13 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
             show, text: t => t.sp.sparePart({ n: `${n}` }), class: 'fs-5',
         }),
         dil: new SearchWidget({
-            required: false, show, hideInRawData: true, label: t => t.sp.searchItem, items: [],
+            items: derived(sparePartsList, $sparePartsList =>
+                $sparePartsList.map(it => ({
+                    ...it,
+                    name: it.name.replace('  ', ' '),
+                }) satisfies SparePart),
+            ),
+            required: false, show, hideInRawData: true, label: t => t.sp.searchItem,
             onValueSet: (d, part) => {
                 const nd = dil(d);
                 nd.code.setValue(d, part?.code?.let(String) ?? '');
@@ -86,7 +92,12 @@ export default <D extends GenericFormSP<D>>(): GenericFormSP<D> => ({
     },
     ukony: {
         nadpis: new TitleWidget({ text: t => t.sp.billing }),
-        doprava: new InputWidget({ label: t => t.sp.transportation, type: 'number', onError: t => t.wrong.number, suffix: t => t.units.km }),
+        doprava: new InputWidget({
+            label: t => t.sp.transportation,
+            type: 'number',
+            onError: t => t.wrong.number,
+            suffix: t => t.units.km,
+        }),
         typPrace: new RadioWidget({
             label: t => t.sp.workType,
             options: [`assemblyWork`, `technicalAssistance`, `technicalAssistance12`],
