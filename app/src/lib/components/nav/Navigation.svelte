@@ -48,11 +48,9 @@
                         </button>
                     </div>
                 {/if}
-                <div class="d-none d-md-block ms-3">
-                    <button aria-label="Settings" class="btn btn-link nav-link" data-bs-target="#settings" data-bs-toggle="modal">
-                        <i class="bi-gear-fill fs-2"></i>
-                    </button>
-                </div>
+                <button aria-label="Settings" class="btn btn-link nav-link ms-3" data-bs-target="#settings" data-bs-toggle="modal">
+                    <i class="bi-gear-fill fs-2"></i>
+                </button>
                 <UserDropdown {t} />
             </div>
             <div class="w-100"></div>
@@ -70,8 +68,6 @@
                 </div>
                 <div class="offcanvas-body">
                     <BaseNav {t} />
-                    <hr />
-                    <Settings {t} />
                 </div>
             </div>
         {:else}

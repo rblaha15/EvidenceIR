@@ -53,7 +53,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
         const t = getTranslations(data.lang).auth
         const html = t.passwordResetEmailHtml({ link, email: data.email, });
         await sendEmail({
-            from: SENDER,
+            from: SENDER(),
             to: data.email,
             subject: t.passwordReset,
             html,

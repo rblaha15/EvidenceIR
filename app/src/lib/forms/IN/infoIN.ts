@@ -63,17 +63,16 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
             ...defaultAddresses(),
             subject: `Založení RegulusRoute k ${irName(raw.ir)}`,
             attachments: [{
-                content: xmlIN(data, cs),
-                contentType: 'application/xml',
-                filename: `Evidence ${irid}.xml`,
-            }, {
                 content: [...pdf.pdfBytes],
                 contentType: 'application/pdf',
                 filename: pdf.fileName,
             }],
             component: MailRRoute,
             props: { e: raw, montazka, uvadec, t: cs, origin: page.url.origin },
-        }) : await sendEmail({
+        }) : null
+        console.log(response1)
+
+        const response2 = await sendEmail({
             ...defaultAddresses(),
             subject: edit
                 ? `Úprava evidence regulátoru ${irName(raw.ir)}`
@@ -87,7 +86,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
             props: { e: raw, origin: page.url.origin },
         });
 
-        const response2 = await sendEmail({
+        const response3 = await sendEmail({
             ...defaultAddresses('blahova@regulus.cz', true),
             subject: edit
                 ? `Úprava evidence regulátoru ${irName(raw.ir)}`
@@ -95,9 +94,9 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
             component: MailSDaty,
             props: { data, t: cs, user, origin: page.url.origin },
         });
-        console.log(response2)
+        console.log(response3)
 
-        if (!response1.ok) editResult({
+        if (!response2.ok) editResult({
             text: t.form.emailNotSent({ status: String(response1!.status), statusText: response1!.statusText }),
             red: true,
             load: false,

@@ -4,7 +4,7 @@ import defaultOD from './defaultOD';
 import { page } from '$app/state';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
-import { defaultAddresses, sendEmail, userAddress } from '$lib/client/email';
+import { cervenka, defaultAddresses, sendEmail, userAddress } from '$lib/client/email';
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import MailSignedProtocol from '$lib/emails/MailSignedProtocol.svelte';
 import { dev } from '$app/environment';
@@ -20,7 +20,7 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
         const user = userAddress(get(currentUser)!);
 
         const response = await sendEmail({
-            ...defaultAddresses(),
+            ...defaultAddresses(cervenka, false, user.name || undefined),
             cc: dev ? undefined : raw.all.userEmail ? [user, raw.all.userEmail] : user,
             subject: `Podepsané dokumenty`,
             attachments: (await [...raw.all.documents, ...raw.all.photos]

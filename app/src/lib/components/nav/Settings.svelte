@@ -4,6 +4,7 @@
     import LanguageSelector from '$lib/components/nav/LanguageSelector.svelte';
     import { removeAllFiles } from '$lib/components/widgets/File.svelte';
     import { browser, dev, version } from '$app/environment';
+    import { page } from '$app/state';
 
     const { t }: { t: Translations } = $props();
     const ts = $derived(t.nav.settings);
@@ -30,7 +31,7 @@
     <p class="mb-0">{ts.appVersion({
         version: appVersion,
         build: version.slice(0, 7),
-        type: dev ? 'DEV' : browser ? 'BROWSER' : 'UNKNOWN'
+        type: dev ? 'DEV' : browser ? page.url.hostname.includes('dev') ? 'PREVIEW' : 'BROWSER' : 'UNKNOWN'
     })}</p>
 </div>
 
