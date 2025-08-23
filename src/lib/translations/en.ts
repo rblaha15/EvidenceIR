@@ -398,6 +398,7 @@ const en: PlainTranslations = {
         onPaper: 'On paper',
         electronically: 'Electronically',
         assemblyCompany: 'Assembly company',
+        textTooLong: 'Warning: Text is too long for it to fit in the reserved field in the protocol, so so it will be written on a second page of the document.'
     },
     ft: {
         title: 'Optional inputs and outputs of the controller',
