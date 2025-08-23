@@ -8,6 +8,7 @@ import { derived, readable } from 'svelte/store';
 import { error } from '@sveltejs/kit';
 import '$lib/extensions';
 import { getTranslations } from '$lib/translations';
+import { waitUntil } from '$lib/helpers/stores';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
@@ -34,7 +35,7 @@ export const load: PageLoad = async ({ parent }) => {
 
     const installations = derived(
         db.getAllIRsAsStore(),
-        $irs => $irs
+        $irs => $irs == 'loading' ? null : $irs
             .map(ir => ({
                 t: 'IR',
                 id: extractIRIDFromRawData(ir.evidence),
@@ -49,7 +50,7 @@ export const load: PageLoad = async ({ parent }) => {
         ? readable([])
         : derived(
             db.getAllIndependentProtocolsAsStore(),
-            $sps => Object.entries($sps
+            $sps => $sps == 'loading' ? null : Object.entries($sps
                 .groupBy(sp => irLabel(sp)))
                 .map(([label, sps]) => ({
                     t: 'SP',
@@ -59,11 +60,14 @@ export const load: PageLoad = async ({ parent }) => {
                 } satisfies Installation_PublicServiceProtocol)),
         );
 
+    await waitUntil(installations, i => i != null)
+    await waitUntil(protocols, p => p != null)
+
     return {
         items: derived(
             [installations, protocols],
             ([$installations, $protocols]) =>
-                [...$installations, ...$protocols]
+                [...$installations ?? [], ...$protocols ?? []]
                     .toSorted((a, b) => a.label.localeCompare(b.label)),
         ),
     };
