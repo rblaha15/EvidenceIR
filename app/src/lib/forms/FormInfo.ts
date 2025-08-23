@@ -27,7 +27,7 @@ export type IndependentFormInfo<
     type: '';
     storeName: string;
     defaultData: () => F;
-    saveData: (raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean) => Promise<boolean | void>;
+    saveData: (raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, resetForm: () => void) => Promise<boolean | void>;
     storeData?: (data: F) => R;
     createWidgetData: (data: F) => D;
     title: (t: Translations, mode: 'create' | 'edit' | 'view') => string;

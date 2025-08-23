@@ -64,6 +64,7 @@ const en: PlainTranslations = {
         MWhPerYear: 'MWh/year',
     },
     form: {
+        successfullySent: `Successfully sent!`,
         save: 'Save',
         saveAndSend: 'Save & send emails',
         saving: 'Saving...',

@@ -5,6 +5,7 @@ import '$lib/extensions';
 
 export default {
     form: {
+        successfullySent: `Úspěšně odesláno!`,
         redirecting: `Přesměrování…`,
         saving: `Ukládání...`,
         youHaveAMistake: t`Ve formuláři máte chybu. Prosím, zkontrolujte vyplněné informace. Chybná pole: ${'fields'}`,
