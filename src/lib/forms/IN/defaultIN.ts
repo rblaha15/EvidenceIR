@@ -150,7 +150,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 d.montazka.zastupce.setValue(d, company?.representative ?? '');
             },
         }),
-        nebo: new TextWidget({ text: `in.or_CRN`, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn }),
+        nebo: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn }),
         ico: new InputWidget({
             label: t => t.in.crn,
             onError: t => t.wrong.crn,
@@ -217,7 +217,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 d.uvedeni.zastupce.setValue(d, company?.representative ?? '');
             },
         }),
-        nebo: new TextWidget({ text: `in.or_CRN`, showInXML: false, show: d => !d.uvedeni.jakoMontazka.value }),
+        nebo: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => !d.uvedeni.jakoMontazka.value }),
         ico: new InputWidget({
             label: t => t.in.crn,
             onError: t => t.wrong.crn,
@@ -344,9 +344,9 @@ export default (): FormIN => ({
     ir: {
         typ: new DoubleChooserWidget({
             label: t => t.in.controllerType,
-            options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL', 'fve'],
+            options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
             options2: ({ ir: { typ: { value: { first: f } } } }) => (
-                f == 'IR 12' ? ['CTC']
+                f == 'IR 12' || f == 'IR 10' ? ['CTC']
                     : f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
                         : f == 'fve' ? []
                             : ['CTC', 'RTC']
@@ -363,7 +363,7 @@ export default (): FormIN => ({
                 if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
                     d.ir.typ.setValue(d, { ...v, second: null });
                 }
-                if (v.first == 'IR 12' && v.second != 'CTC') {
+                if ((v.first == 'IR 12' || v.first == 'IR 10') && v.second != 'CTC') {
                     d.ir.typ.setValue(d, { ...v, second: 'CTC' });
                 }
                 if (v.first == 'fve' && v.second) {
@@ -382,26 +382,31 @@ export default (): FormIN => ({
             regex: d => sorel(d) || irFVE(d)
                 ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
                 : d.ir.typ.value.first == 'IR 12'
-                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:0[69]:[0-9A-F]{2}:[0-9A-F]{2}/
-                    : /[A-Z][1-9OND] [0-9]{4}/,
+                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
+                    : d.ir.typ.value.first == 'IR 10'
+                        ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
+                        : /[A-Z][1-9OND] [0-9]{4}/,
             capitalize: true,
             maskOptions: d => ({
                 mask: sorel(d) ? `0000-00-00T00:00` :
-                    d.ir.typ.value.first != 'IR 12' ? 'Z9 0000'
+                    d.ir.typ.value.first != 'IR 12' && d.ir.typ.value.first != 'IR 10' ? 'Z8 0000'
                         : d.ir.cislo.value.length == 0 ? 'X'
                             : d.ir.cislo.value[0] == '0'
-                                ? 'NN:NA:14:N6:FF:FF'
-                                : 'Z9 0000',
+                                ? d.ir.typ.value.first == 'IR 10'
+                                    ? 'NN:NA:14:N6:FF:FF'
+                                    : 'NN:NA:14:N9:FF:FF'
+                                : 'Z8 0000',
                 definitions: {
                     X: /[0A-Za-z]/,
                     N: /0/,
                     A: /[Aa]/,
-                    6: /[69]/,
+                    6: /6/,
+                    9: /9/,
                     1: /1/,
                     4: /4/,
                     F: /[0-9A-Fa-f]/,
                     Z: /[A-Za-z]/,
-                    9: /[1-9ONDond]/,
+                    8: /[1-9ONDond]/,
                 },
             }),
             show: d => !sorel(d) && !irFVE(d),
