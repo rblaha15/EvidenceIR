@@ -74,7 +74,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 d.koncovyUzivatel.email.setValue(d, company?.email ?? '');
             },
         }),
-        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: po }),
+        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: false }),
         nazev: new InputWidget({ label: t => t.in.companyName, show: po, required: po }),
         wrongFormat: new TextWidget({
             text: t => t.wrong.company, showInXML: false,
