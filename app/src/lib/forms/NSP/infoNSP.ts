@@ -55,9 +55,13 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
     }),
     createWidgetData: f => f,
     title: (t, m) => m == 'edit' ? t.sp.editSP : t.sp.title,
-    onMount: async (d, f) => {
+    onMount: async (d, f, mode) => {
         await startTechniciansListening();
         await startSparePartsListening();
+
+        f.zasah.inicialy.lock = () => mode == 'edit';
+        f.zasah.datum.lock = () => mode == 'edit';
+
         if (!f.zasah.datum.value)
             f.zasah.datum.setValue(d, nowISO());
     },
