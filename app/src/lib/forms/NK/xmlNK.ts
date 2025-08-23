@@ -54,7 +54,7 @@ Změny ve verzi 2.3 oproti verzi 2.2:
         <resi_jine>${t.nk.no}</resi_jine>
         <resi_jine_uvedte>${t.nk.no}</resi_jine_uvedte>
         <resi_doporuc>${t.nk.no}</resi_doporuc>
-        <cislo_ko>${d.other.representative!.koNumber}</cislo_ko>
+        <cislo_ko>${d.other.representative?.koNumber ?? '?'}</cislo_ko>
         <odesilatel>${user.email}</odesilatel>
     </system>
     <kontakt>
