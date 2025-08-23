@@ -11,13 +11,12 @@ import type { Attachment } from 'nodemailer/lib/mailer';
 import MailDemand from '$lib/emails/MailDemand.svelte';
 import type { FormNK } from '$lib/forms/NK/formNK';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
-import { relUrl } from '$lib/helpers/runes.svelte';
 
 const infoNK: IndependentFormInfo<FormNK, FormNK> = {
     type: '',
     storeName: 'stored_demand',
     defaultData: defaultNK,
-    saveData: async (raw, _, __, editResult, t) => {
+    saveData: async (raw, _, form, editResult, t, __, resetForm) => {
         const user = get(currentUser)!;
 
         const name = raw.contacts.name;
@@ -29,7 +28,7 @@ const infoNK: IndependentFormInfo<FormNK, FormNK> = {
             .map(photo => photo.uuid);
 
         const response = await sendEmail({
-            ...defaultAddresses(page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz', true),
+            ...defaultAddresses(page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz', true, user.displayName || undefined),
             subject: `Poptávka z aplikace – OSOBA: ${name} ${surname}`,
             attachments: [{
                 content: xml(raw, user, cs),
@@ -44,20 +43,23 @@ const infoNK: IndependentFormInfo<FormNK, FormNK> = {
                     filename: `Fotka ${i + 1}`,
                 })],
             component: MailDemand,
-            props: { email: user.email! },
+            props: { user: user.displayName || user.email!, t: cs, data: form },
         });
 
         if (response!.ok) {
-            await photoIds.map(removeFile).awaitAll()
-            return true;
-        }
-        else editResult({
+            await photoIds.map(removeFile).awaitAll();
+            editResult({
+                text: t.form.successfullySent,
+                red: false,
+                load: false,
+            });
+            resetForm();
+        } else editResult({
             text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false,
         });
     },
-    redirectLink: async () => relUrl('/NK?sent'),
     createWidgetData: d => d,
     title: t => t.nk.demandForm,
     onMount: async () => {
