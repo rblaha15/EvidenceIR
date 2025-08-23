@@ -92,6 +92,8 @@ export interface WriteDatabase {
 
     addIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
 
+    updateIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
+
     deleteIndependentProtocol(spid: SPID): Promise<void>;
 }
 
@@ -129,7 +131,7 @@ const functions = [
     'addServiceProtocol', 'updateServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
     'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'addIndependentServiceProtocol', 'deleteIndependentProtocol',
     'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols', 'getAllIndependentProtocolsAsStore',
-    'addFaceTable',
+    'addFaceTable', 'updateIndependentServiceProtocol',
 ] as const satisfies (keyof Database)[];
 
 export type WriteFunction = keyof WriteDatabase;

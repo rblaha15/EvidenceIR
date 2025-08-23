@@ -22,6 +22,9 @@
         <a class="btn btn-primary" href={relUrl(`/NSP?view-spid=${spid}`)} tabindex="0">
             {td.viewFilledData}
         </a>
+        <a class="btn btn-warning" href={relUrl(`/NSP?edit-spid=${spid}`)} tabindex="0">
+            {td.editProtocol}
+        </a>
 
         {#if $isUserAdmin}
             <button class="btn btn-danger d-block" onclick={() => {

@@ -12,7 +12,7 @@
 
     const deleted = $derived(page.url.searchParams.has('deleted'));
 
-    $effect(() => setTitle(spids ? spids.length > 1 ? td.titleNSPs : td.titleNSP : td.titleIR, true));
+    $effect(() => setTitle(spids.length ? spids.length > 1 ? td.titleNSPs : td.titleNSP : td.titleIR, true));
 </script>
 
 {#if $ir || $sps.length}

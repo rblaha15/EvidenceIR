@@ -264,7 +264,7 @@ const en: PlainTranslations = {
         newIRIDLabel: `IRID (from the URL address)`,
         copyNSP: `Copy installation information to a new protocol`,
         copySP: `Do you want to create a copy for reporting service intervention by multiple persons?`,
-        transferProtocol: `Transfer the protocol to a controller (won't be deleted)`,
+        transferProtocols: `Transfer the protocols to a controller (won't be deleted)`,
         deleteProtocol: `Delete the protocol`,
         duplicate: `Duplicate`,
         yes: `Yes`,
