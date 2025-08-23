@@ -23,7 +23,7 @@ import type { FormInfo } from '$lib/forms/FormInfo';
 
 const infoSP = (() => {
     let i = $state() as number;
-    const info: FormInfo<FormSP, FormSP, [[Technician[], User | null], [SparePart[]]], 'SP'> = {
+    const info: FormInfo<FormSP, FormSP, [[Technician[], User | null]], 'SP'> = {
         type: 'IR',
         storeName: 'stored_sp',
         defaultData: () => defaultSP(),
@@ -101,18 +101,6 @@ const infoSP = (() => {
                 if (!p.zasah.inicialy.value) p.zasah.inicialy.setValue(p, ja?.initials ?? p.zasah.inicialy.value);
                 p.zasah.inicialy.show = () => p.zasah.inicialy.value != ja?.initials;
             }, [techniciansList, currentUser]],
-            [(_, p, [$sparePartsList]) => {
-                const spareParts = $sparePartsList.map(it => ({
-                    ...it,
-                    name: it.name.replace('  ', ' '),
-                }) satisfies SparePart);
-                [
-                    p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
-                    p.nahradniDil5, p.nahradniDil6, p.nahradniDil7, p.nahradniDil8,
-                ].forEach(nahradniDil => {
-                    nahradniDil.dil.items = () => spareParts;
-                });
-            }, [sparePartsList]],
         ],
         excelImport: {
             sheet: 'Protokol',
