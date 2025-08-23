@@ -94,7 +94,7 @@ const infoSP = (() => {
             }
         },
         storeEffects: [
-            [(_, p, [$techniciansList, $currentUser], edit) => {
+            [(_, p, [$techniciansList, $currentUser], edit) => { // Also in NSP
                 const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
                 if (!p.zasah.clovek.value) p.zasah.clovek.setValue(p, ja?.name ?? p.zasah.clovek.value);
                 p.zasah.clovek.show = () => p.zasah.clovek.value != ja?.name;
