@@ -1,13 +1,15 @@
 import { type Load } from '@sveltejs/kit';
-import { asLanguageCodeOrNull, preferredLanguage } from '$lib/languages';
+import { asLanguageCodeOrNull, defaultLanguage, preferredLanguage } from '$lib/languages';
 import { getTranslations } from '$lib/translations';
+import { browser } from '$app/environment';
 
 export const load: Load = ({ params, url }) => {
     const lang = asLanguageCodeOrNull(params.lang ?? url.pathname.split('/')[1]);
+    const newLang = lang ?? (browser ? preferredLanguage() : defaultLanguage);
     return {
-        translations: getTranslations(lang ?? preferredLanguage()),
+        translations: getTranslations(newLang),
         isLanguageFromUrl: lang != null,
-        languageCode: lang ?? preferredLanguage(),
+        languageCode: newLang,
     } as const;
 };
 

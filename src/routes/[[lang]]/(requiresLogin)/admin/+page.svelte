@@ -175,7 +175,7 @@
         } satisfies TableDefinition<SparePart>,
     };
 
-    onMount(async () => {
+    $effect(() => {
         tabs.keys().forEach(tab => {
             const tabEl = document.querySelector(`#${tab}-tab`)!;
             tabEl.addEventListener('show.bs.tab', () => {
