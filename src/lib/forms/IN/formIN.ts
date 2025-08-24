@@ -22,6 +22,8 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
         prijmeni: InputWidget<D>;
         jmeno: InputWidget<D>;
         narozeni: InputWidget<D>;
+        company: SearchWidget<D, Company, true>;
+        or: TextWidget<D>;
         nazev: InputWidget<D>;
         wrongFormat: TextWidget<D>;
         pobocka: InputWidget<D>;
@@ -45,7 +47,7 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
     montazka: {
         nadpis: TitleWidget<D>;
         company: SearchWidget<D, Company, true>;
-        nebo: TextWidget<D>;
+        or: TextWidget<D>;
         ico: InputWidget<D>;
         chosen: TextWidget<D>;
         zastupce: InputWidget<D>;
@@ -56,7 +58,7 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
         nadpis: TitleWidget<D>;
         jakoMontazka: CheckboxWidget<D, true>;
         company: SearchWidget<D, Company, true>;
-        nebo: TextWidget<D>;
+        or: TextWidget<D>;
         ico: InputWidget<D>;
         chosen: TextWidget<D>;
         regulus: SearchWidget<D, Technician, true>;
@@ -66,7 +68,7 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
     };
 }
 
-export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 14' | 'IR 12' | 'SOREL';
+export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL';
 export type IRTypes = UntranslatableIRTypes | 'fve';
 export type IRSubTypes = 'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6 EP' | 'STDC E' | 'TRS3' | 'TRS4' | 'TRS5' | 'TRS6 K';
 

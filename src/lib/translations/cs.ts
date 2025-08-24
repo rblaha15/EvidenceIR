@@ -5,6 +5,7 @@ import '$lib/extensions';
 
 export default {
     form: {
+        successfullySent: `Úspěšně odesláno!`,
         redirecting: `Přesměrování…`,
         saving: `Ukládání...`,
         youHaveAMistake: t`Ve formuláři máte chybu. Prosím, zkontrolujte vyplněné informace. Chybná pole: ${'fields'}`,
@@ -103,6 +104,8 @@ export default {
         requiresLogIn: `Tato stránka vyžaduje přihlášení.`,
         responsiblePerson: `Zodpovědná osoba`,
         changePassword: `Změnit heslo`,
+        noAccess: `Pro přístup na tuto stránku nemáte oprávnění.`,
+        siteDoesNotExist: `Tato stránka neexistuje. A to jsme se i dvakrát dívali do venkovní jednotky TČ a ani tam to není…`,
     },
     users: {
         title: 'Uživatelé s přístupem k evidenci',
@@ -245,6 +248,7 @@ export default {
         onPaper: `Papírově`,
         electronically: `Elektronicky`,
         assemblyCompany: `Montážní firma`,
+        textTooLong: 'Pozor, zadaný text je moc dlouhý a nevešel by se do vyhrazeného pole v protokolu, takže bude napsaný na druhé straně dokumentu.',
     },
     units: {
         kW: 'kW',
@@ -282,7 +286,7 @@ export default {
         newIRIDLabel: `IRID (z URL adresy)`,
         copyNSP: `Kopírovat informace o instalaci do nového protokolu`,
         copySP: `Chcete vytvořit kopii pro vykázání servisního zásahu více osob?`,
-        transferProtocol: `Převést protokol k IR (neodstraní se)`,
+        transferProtocols: `Převést protokoly k IR (neodstraní se)`,
         deleteProtocol: `Odstranit protokol`,
         duplicate: `Duplikovat`,
         yes: `Ano`,
@@ -575,7 +579,7 @@ export default {
         photosFromTheInstallation: 'Fotografie z instalace',
         noteToEmail: 'Poznámka (do emailu)',
         customerEmail: 'Emailová adresa zákazníka',
-        info1: t`Aplikace odešle email s dokumenty, popř. s obrázky a poznámkou na ${0}.`,
+        info1: t`Aplikace odešle email s dokumenty, popř. s obrázky a poznámkou na ${0} a ${1}.`,
         info2A: t` Kopie bude odeslána vám na ${'user'}.`,
         info2B: t` Kopie bude odeslána zákazníkovi na adresu ${'customer'} a vám na ${'user'}.`,
         info3: ` Pokud nechcete odeslat email zákazníkovi, odstraňtě jeho adresu z políčka výše.`,
@@ -689,7 +693,7 @@ export default {
             storeNone: 'Žádná',
             storeVolume: 'Objem nádrže',
             tankType: 'Typ zásobníku',
-            tankNone: 'Žádná',
+            tankNone: 'Žádný',
             tankVolume: 'Objem zásobníku',
             indoorUnitType: 'Typ vnitřní jednotky',
             indoorUnitNone: 'Žádná',

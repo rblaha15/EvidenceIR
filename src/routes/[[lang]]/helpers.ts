@@ -40,14 +40,7 @@ export const getData = async (id: {
             if (!ir) return { ...base };
             return { ...base, ir, success: true };
         } else if (id.spids) {
-            const sps = await id.spids.map(async (spid, i) => {
-                const sp = await db.getIndependentProtocol(spid);
-                if (sp) return sp;
-
-                spid = spid.split('-').slice(0, -1).join('-') as SPID;
-                id.spids[i] = spid;
-                return await db.getIndependentProtocol(spid);
-            }).awaitAll();
+            const sps = await id.spids.map(db.getIndependentProtocol).awaitAll();
             return { ...base, sps: sps.filterNotUndefined(), success: true };
         }
     } catch (e) {
@@ -63,7 +56,7 @@ export const getDataAsStore = (id: {
     spids: SPID[]
 }): {
     irid: IRID | null, spids: SPID[],
-    ir: Readable<IR | undefined>, sps: Readable<Raw<FormNSP>[]>,
+    ir: Readable<IR | undefined | 'loading'>, sps: Readable<Raw<FormNSP>[] | 'loading'>,
 } => {
     const base = { ...id, ir: readable(undefined), sps: readable([]) };
 
@@ -76,7 +69,7 @@ export const getDataAsStore = (id: {
         } else if (id.spids) {
             const sps = derived(
                 id.spids.map(db.getIndependentProtocolAsStore),
-                a => a.filterNotUndefined(),
+                a => a.some(p => p == 'loading') ? 'loading' : a.filterNotUndefined() as Raw<FormNSP>[],
             );
             return { ...base, sps };
         }

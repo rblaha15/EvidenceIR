@@ -15,6 +15,7 @@ import type { TC } from '$lib/forms/IN/defaultIN';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { flatDerived } from '$lib/helpers/stores';
 import type { FormFT } from '$lib/forms/FT/formFT';
+import '$lib/extensions';
 
 export type Year = 1 | 2 | 3 | 4;
 
@@ -46,19 +47,19 @@ export interface ReadDatabase {
 
     getAllIRs(): Promise<IR[]>;
 
-    getAllIRsAsStore(): Readable<IR[]>;
+    getAllIRsAsStore(): Readable<IR[] | 'loading'>;
 
-    getIRAsStore(irid: IRID): Readable<IR | undefined>;
+    getIRAsStore(irid: IRID): Readable<IR | undefined | 'loading'>;
 
     existsIR(irid: IRID): Promise<boolean>;
 
     getIndependentProtocol(spid: SPID): Promise<Raw<FormNSP> | undefined>;
 
-    getIndependentProtocolAsStore(spid: SPID): Readable<Raw<FormNSP> | undefined>;
+    getIndependentProtocolAsStore(spid: SPID): Readable<Raw<FormNSP> | undefined | 'loading'>;
 
     getAllIndependentProtocols(): Promise<Raw<FormNSP>[]>;
 
-    getAllIndependentProtocolsAsStore(): Readable<Raw<FormNSP>[]>;
+    getAllIndependentProtocolsAsStore(): Readable<Raw<FormNSP>[] | 'loading'>;
 }
 
 /**
@@ -91,6 +92,8 @@ export interface WriteDatabase {
     updateIRUsers(irid: IRID, users: string[]): Promise<void>;
 
     addIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
+
+    updateIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
 
     deleteIndependentProtocol(spid: SPID): Promise<void>;
 }
@@ -129,7 +132,7 @@ const functions = [
     'addServiceProtocol', 'updateServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
     'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'addIndependentServiceProtocol', 'deleteIndependentProtocol',
     'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols', 'getAllIndependentProtocolsAsStore',
-    'addFaceTable',
+    'addFaceTable', 'updateIndependentServiceProtocol',
 ] as const satisfies (keyof Database)[];
 
 export type WriteFunction = keyof WriteDatabase;

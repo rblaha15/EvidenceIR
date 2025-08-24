@@ -101,7 +101,7 @@
             }
 
             result = { load: true, red: false, text: t.form.saving };
-            const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send);
+            const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send, () => f = defaultData());
 
             if (!dev) storedData.set(undefined);
 

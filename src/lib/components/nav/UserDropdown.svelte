@@ -7,7 +7,7 @@
     import { goto } from '$app/navigation';
 
     const { t }: { t: Translations } = $props();
-    const ta = $derived(t.auth)
+    const ta = $derived(t.auth);
 
     const loggedInEmail = $derived($currentUser?.email ?? '');
 
@@ -16,17 +16,24 @@
             email: loggedInEmail,
             lang: page.data.languageCode,
             redirect: page.url.pathname.slice(page.data.languageCode.length + 1) + page.url.search,
-            mode: 'edit'
+            mode: 'edit',
         });
         await goto(link, { replaceState: true });
-    }
+    };
 </script>
 
 <div class="dropdown ms-3">
-    <button class="btn btn-link nav-link" data-bs-toggle="dropdown" aria-label="User">
+    <button aria-label="User" class="btn btn-link nav-link" data-bs-toggle="dropdown">
         <i class="bi-person-fill fs-2"></i>
     </button>
     <ul class="dropdown-menu dropdown-menu-end">
+        {#if $currentUser?.displayName}
+            <li>
+                <span class="dropdown-item-text">
+                    {$currentUser?.displayName}
+                </span>
+            </li>
+        {/if}
         <li>
             <span class="dropdown-item-text">
                 {ta.email}:<br />{loggedInEmail}
@@ -43,7 +50,7 @@
             <hr class="dropdown-divider" />
         </li>
         <li>
-            <button onclick={changePassword} class="dropdown-item text-warning">
+            <button class="dropdown-item text-warning" onclick={changePassword}>
                 {ta.changePassword}
             </button>
         </li>

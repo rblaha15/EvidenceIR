@@ -21,14 +21,13 @@ import { xmlIN } from '$lib/forms/IN/xmlIN';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
 import { page } from '$app/state';
 import MailSDaty from '$lib/emails/MailSDaty.svelte';
-import { companies } from '$lib/helpers/companies';
 import { cellsIN } from '$lib/forms/IN/cellsIN';
-import { type FormIN, unknownCompany } from '$lib/forms/IN/formIN';
+import { type FormIN } from '$lib/forms/IN/formIN';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import MailXML from '$lib/emails/MailXML.svelte';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
 
-const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyCompanies], [boolean], [string | null]]> = {
+const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string | null]]> = {
     type: '',
     storeName: 'stored_data',
     defaultData: () => defaultIN(),
@@ -63,17 +62,16 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
             ...defaultAddresses(),
             subject: `Založení RegulusRoute k ${irName(raw.ir)}`,
             attachments: [{
-                content: xmlIN(data, cs),
-                contentType: 'application/xml',
-                filename: `Evidence ${irid}.xml`,
-            }, {
                 content: [...pdf.pdfBytes],
                 contentType: 'application/pdf',
                 filename: pdf.fileName,
             }],
             component: MailRRoute,
             props: { e: raw, montazka, uvadec, t: cs, origin: page.url.origin },
-        }) : await sendEmail({
+        }) : null
+        console.log(response1)
+
+        const response2 = await sendEmail({
             ...defaultAddresses(),
             subject: edit
                 ? `Úprava evidence regulátoru ${irName(raw.ir)}`
@@ -87,7 +85,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
             props: { e: raw, origin: page.url.origin },
         });
 
-        const response2 = await sendEmail({
+        const response3 = await sendEmail({
             ...defaultAddresses('blahova@regulus.cz', true),
             subject: edit
                 ? `Úprava evidence regulátoru ${irName(raw.ir)}`
@@ -95,9 +93,9 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
             component: MailSDaty,
             props: { data, t: cs, user, origin: page.url.origin },
         });
-        console.log(response2)
+        console.log(response3)
 
-        if (!response1.ok) editResult({
+        if (!response2.ok) editResult({
             text: t.form.emailNotSent({ status: String(response1!.status), statusText: response1!.statusText }),
             red: true,
             load: false,
@@ -139,13 +137,10 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[Technician[]], [FriendlyComp
         data.tc.pocet.setValue(data, count == 0 ? 1 : count);
     },
     storeEffects: [
-        [(_, data, [$technicians]) => {
-            data.uvedeni.regulus.items = () => $technicians.filter(t => t.email.endsWith('cz'));
-        }, [techniciansList]],
-        [(_, data, [$companies]) => {
-            data.uvedeni.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
-            data.montazka.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
-        }, [companies]],
+        [(_, data, [$isUserRegulusOrAdmin]) => { // Also in NSP
+            data.koncovyUzivatel.company.show = d => $isUserRegulusOrAdmin && d.koncovyUzivatel.typ.value == 'company';
+            data.koncovyUzivatel.or.show = d => $isUserRegulusOrAdmin && d.koncovyUzivatel.typ.value == 'company';
+        }, [isUserRegulusOrAdmin]],
         [(_, data, [$isUserRegulusOrAdmin]) => {
             data.vzdalenyPristup.plati.options = () => $isUserRegulusOrAdmin
                 ? ['laterAccordingToTheProtocol', 'doNotInvoice', 'assemblyCompany', 'endCustomer']
