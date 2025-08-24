@@ -1,18 +1,21 @@
-const node_fetch = fetch;
-
 export const regulusCRN = 45317020
 
-const companyOverrides = {
-    4466601609: {
-        obchodniJmeno: "Regulus Wärmetechnik GmbH",
-        sidlo: { textovaAdresa: "Ruhrstraße 22, 67574 Osthofen, Deutschland" },
-    }
-} as Record<string, { obchodniJmeno: string; sidlo: { textovaAdresa: string; }; }>
+type RT = {
+    obchodniJmeno: string;
+    sidlo: {
+        textovaAdresa: string;
+        nazevObce?: string,
+        nazevUlice?: string,
+        cisloDomovni?: number,
+        cisloOrientacni?: number,
+        cisloOrientacniPismeno?: string,
+        nazevCastiObce?: string,
+        psc?: number,
+        pscTxt?: string,
+    };
+}
 
-export const nazevAdresaFirmy = async (ico: string, fetch: typeof node_fetch = node_fetch) => {
-
-    if (Object.keys(companyOverrides).includes(ico))
-        return (companyOverrides)[ico]
+export const nazevAdresaFirmy = async (ico: string, fetch: typeof window.fetch = window.fetch) => {
 
     if (ico.length != 8) return undefined
 
@@ -27,13 +30,10 @@ export const nazevAdresaFirmy = async (ico: string, fetch: typeof node_fetch = n
     if (!response.ok) return undefined;
 
     const json = await response.json();
-    return json as { obchodniJmeno: string; sidlo: { textovaAdresa: string; }; };
+    return json as RT;
 };
 
-export const nazevFirmy = async (ico: string, fetch: typeof node_fetch = node_fetch) => {
-
-    if (Object.keys(companyOverrides).includes(ico))
-        return (companyOverrides)[ico].obchodniJmeno
+export const nazevFirmy = async (ico: string, fetch: typeof window.fetch = window.fetch) => {
 
     if (ico.length != 8) return undefined
 
