@@ -7,6 +7,8 @@ import { endUserName, endUserName2, irName, spName } from '$lib/helpers/ir';
 import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { get } from '$lib/translations';
+import { unknownCompany } from '$lib/forms/IN/formIN';
+import { inlineTooLong, multilineTooLong } from '$lib/forms/SP/defaultSP';
 
 const prices = {
     transportation: 9.92,
@@ -47,16 +49,8 @@ const fieldsPartsStart = 44;
 const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
     .associateWith((_, i) => fieldsPartsStart + i * 8);
 
-const multilineLineLength = 70;
-const multilineMaxLength = multilineLineLength * 4;
-const inlineMaxLength = 55;
 
-const multilineTooLong = (text: string) => text.split('\n').sumBy(line =>
-    Math.ceil(line.length / multilineLineLength) * multilineLineLength,
-) > multilineMaxLength;
-const inlineTooLong = (text: string) => text.length > inlineMaxLength;
-
-export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols }, t, addDoc, index, lang }) => {
+export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols, uvedeniTC: u }, t, addDoc, index, lang }) => {
     const pumps = e.tc.model ? cascadePumps(e) : [];
     const ts = t.sp
     const p = installationProtocols[index];
@@ -68,6 +62,10 @@ export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installatio
                 popis:
                     irName(e.ir) +
                     (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +
+                    (u?.nadrze?.akumulacka || u?.nadrze?.zasobnik ? '\n' : '') +
+                    (u?.nadrze?.akumulacka ? `Nádrž: ${u.nadrze.akumulacka}` : '') +
+                    (u?.nadrze?.akumulacka && u?.nadrze?.zasobnik ? '; ' : '') +
+                    (u?.nadrze?.zasobnik ? `Zásobník: ${u.nadrze.zasobnik}` : '') +
                     (e.sol?.typ ? `\nSOL: ${e.sol.typ} – ${e.sol.pocet}x` : '') +
                     (e.rek?.typ ? `\nREK: ${e.rek.typ}` : '') +
                     (e.fve?.pocet ? `\nFVE: ${get(t.in.fve, e.fve.typ)} – ${e.fve.pocet}x` : '') +
@@ -111,6 +109,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
 
     if (tax == 1.12) await addDoc({ args: pdfInfo.CP, data: p, lang: 'cs' });
 
+    const isUnknown = p.montazka.ico == unknownCompany.crn;
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
         Text1: spName(p.zasah),
@@ -123,11 +122,11 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         Text5: p.koncovyUzivatel.telefon,
         Text6: p.koncovyUzivatel.email,
         Text7: assemblyCompany?.obchodniJmeno ?? null,
-        Text8: p.montazka.ico,
-        Text9: p.montazka.zastupce,
-        Text10: assemblyCompany?.sidlo.textovaAdresa ?? null,
-        Text11: p.montazka.telefon,
-        Text12: p.montazka.email,
+        Text8: isUnknown ? null : p.montazka.ico,
+        Text9: isUnknown ? null : p.montazka.zastupce,
+        Text10: isUnknown ? null : assemblyCompany?.sidlo.textovaAdresa ?? null,
+        Text11: isUnknown ? null : p.montazka.telefon,
+        Text12: isUnknown ? null : p.montazka.email,
         Text13: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
         Text14: multilineTooLong(system) ? ts.seeSecondPage : system,
         Text15: dateFromISO(p.zasah.datum),

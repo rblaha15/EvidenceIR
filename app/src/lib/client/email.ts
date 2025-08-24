@@ -57,21 +57,23 @@ export const sendEmail = async <Props extends Record<string, unknown>>(options: 
 };
 
 export const receiver = 'seir@regulus.cz' as const satisfies AddressLike
+export const cervenka = ['david.cervenka@regulus.cz', 'jakub.cervenka@regulus.cz'] as const satisfies AddressLike
 
-export const SENDER: Address = {
-    name: 'Regulus SEIR',
+
+export const SENDER = (name?: string): Address => ({
+    name: name ? name + ' (Regulus SEIR)' : 'Regulus SEIR',
     address: 'aplikace.regulus@gmail.com',
-};
+});
 
 export const userAddress = (user: User) => ({
     address: user.email!,
     name: user.displayName ?? '',
 }) satisfies AddressLike;
 
-export const defaultAddresses = (recipient: AddressLike = receiver, sendCopy: boolean = false) => {
+export const defaultAddresses = (recipient: AddressLike = receiver, sendCopy: boolean = false, name?: string) => {
     const user = userAddress(get(currentUser)!);
     return ({
-        from: SENDER,
+        from: SENDER(name),
         replyTo: user,
         to: dev ? 'radek.blaha.15@gmail.com' : recipient,
         cc: dev || !sendCopy ? undefined : user,

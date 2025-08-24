@@ -12,12 +12,14 @@ import {
     TitleWidget,
 } from '../Widget.svelte.js';
 import { type FormIN, unknownCompany, type UserForm } from './formIN';
-import type { Company, Technician } from '$lib/client/realtime';
+import { type Company, type Technician, techniciansList } from '$lib/client/realtime';
 import { nazevFirmy, regulusCRN } from '$lib/helpers/ares';
-import { isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
+import { companyForms, isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
 import products, { type Products } from '$lib/helpers/products';
 import type { Translations } from '$lib/translations';
+import { derived } from 'svelte/store';
+import { assemblyCompanies, commissioningCompanies } from '$lib/helpers/companies';
 
 const jeFO = (d: UserForm<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserForm<never>) => jeFO(d);
@@ -57,6 +59,22 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             regex: /^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?[0-9]{4}$/,
             autocomplete: `bday`, required: false, show: fo,
         }),
+        company: new SearchWidget<D, Company, true>({
+            items: derived(assemblyCompanies, c => c.filter(c => companyForms.some(f => c.companyName.endsWith(f)))),
+            label: t => t.in.searchCompanyInList, getSearchItem: i => ({
+                pieces: [
+                    { text: i.crn, width: .2 },
+                    { text: i.companyName, width: .8 },
+                ],
+            }), showInXML: false, required: false, hideInRawData: true, show: false,
+            onValueSet: (d, company) => {
+                d.koncovyUzivatel.nazev.setValue(d, company?.companyName ?? '');
+                d.koncovyUzivatel.ico.setValue(d, company?.crn ?? '');
+                d.koncovyUzivatel.telefon.setValue(d, company?.phone ?? '');
+                d.koncovyUzivatel.email.setValue(d, company?.email ?? '');
+            },
+        }),
+        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: false }),
         nazev: new InputWidget({ label: t => t.in.companyName, show: po, required: po }),
         wrongFormat: new TextWidget({
             text: t => t.wrong.company, showInXML: false,
@@ -135,7 +153,8 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
     montazka: {
         nadpis: new TitleWidget({ text: t => t.in.assemblyCompany }),
         company: new SearchWidget<D, Company, true>({
-            label: t => t.in.searchCompanyInList, items: [], getSearchItem: i => ({
+            items: derived(assemblyCompanies, c => [unknownCompany, ...c]),
+            label: t => t.in.searchCompanyInList, getSearchItem: i => ({
                 pieces: i.crn == unknownCompany.crn ? [
                     { text: i.companyName },
                 ] : [
@@ -150,7 +169,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 d.montazka.zastupce.setValue(d, company?.representative ?? '');
             },
         }),
-        nebo: new TextWidget({ text: `in.or_CRN`, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn }),
+        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn }),
         ico: new InputWidget({
             label: t => t.in.crn,
             onError: t => t.wrong.crn,
@@ -204,8 +223,11 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             },
         }),
         company: new SearchWidget<D, Company, true>({
-            label: t => t.in.searchCompanyInList, items: [], getSearchItem: i => ({
-                pieces: [
+            items: derived(commissioningCompanies, c => [unknownCompany, ...c]),
+            label: t => t.in.searchCompanyInList, getSearchItem: i => ({
+                pieces: i.crn == unknownCompany.crn ? [
+                    { text: i.companyName },
+                ] : [
                     { text: i.crn, width: .2 },
                     { text: i.companyName, width: .8 },
                 ],
@@ -217,7 +239,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 d.uvedeni.zastupce.setValue(d, company?.representative ?? '');
             },
         }),
-        nebo: new TextWidget({ text: `in.or_CRN`, showInXML: false, show: d => !d.uvedeni.jakoMontazka.value }),
+        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => !d.uvedeni.jakoMontazka.value }),
         ico: new InputWidget({
             label: t => t.in.crn,
             onError: t => t.wrong.crn,
@@ -225,17 +247,21 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             maskOptions: {
                 mask: `00000000[00]`,
             }, showInXML: true,
-            show: d => !d.uvedeni.jakoMontazka.value,
+            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.company.value?.crn != unknownCompany.crn,
             required: d => !d.uvedeni.jakoMontazka.value,
         }),
         chosen: new TextWidget({
             text: async (t, d) => {
+                if (d.uvedeni.ico.value == unknownCompany.crn) return '';
                 const company = await nazevFirmy(d.uvedeni.ico.value);
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
             }, showInXML: false,
         }),
         regulus: new SearchWidget<D, Technician, true>({
-            label: t => t.in.searchRepresentative, items: [], showInXML: false, getSearchItem: i => ({
+            items: derived(techniciansList, $technicians =>
+                $technicians.filter(t => t.email.endsWith('cz')),
+            ),
+            label: t => t.in.searchRepresentative, showInXML: false, getSearchItem: i => ({
                 pieces: [
                     { text: i.name },
                     { text: i.email },
@@ -255,7 +281,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             label: t => t.in.representativeName,
             autocomplete: `section-commissioningRepr billing name`,
             showInXML: true,
-            show: d => d.uvedeni.ico.value != regulusCRN.toString(),
+            show: d => d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCompany.crn,
             required: d => d.uvedeni.ico.value != regulusCRN.toString(),
         }),
         email: new InputWidget({
@@ -263,7 +289,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             onError: t => t.wrong.email,
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             showInXML: true,
-            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
+            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCompany.crn,
             required: false,
             autocomplete: `section-commissioning billing work email`,
         }),
@@ -273,7 +299,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
             type: 'tel',
             showInXML: true,
-            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString(),
+            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCompany.crn,
             required: false,
             autocomplete: `section-assembly billing work tel`,
         }),
@@ -344,9 +370,9 @@ export default (): FormIN => ({
     ir: {
         typ: new DoubleChooserWidget({
             label: t => t.in.controllerType,
-            options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'SOREL', 'fve'],
+            options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
             options2: ({ ir: { typ: { value: { first: f } } } }) => (
-                f == 'IR 12' ? ['CTC']
+                f == 'IR 12' || f == 'IR 10' ? ['CTC']
                     : f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
                         : f == 'fve' ? []
                             : ['CTC', 'RTC']
@@ -363,7 +389,7 @@ export default (): FormIN => ({
                 if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
                     d.ir.typ.setValue(d, { ...v, second: null });
                 }
-                if (v.first == 'IR 12' && v.second != 'CTC') {
+                if ((v.first == 'IR 12' || v.first == 'IR 10') && v.second != 'CTC') {
                     d.ir.typ.setValue(d, { ...v, second: 'CTC' });
                 }
                 if (v.first == 'fve' && v.second) {
@@ -382,26 +408,31 @@ export default (): FormIN => ({
             regex: d => sorel(d) || irFVE(d)
                 ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
                 : d.ir.typ.value.first == 'IR 12'
-                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:0[69]:[0-9A-F]{2}:[0-9A-F]{2}/
-                    : /[A-Z][1-9OND] [0-9]{4}/,
+                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
+                    : d.ir.typ.value.first == 'IR 10'
+                        ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
+                        : /[A-Z][1-9OND] [0-9]{4}/,
             capitalize: true,
             maskOptions: d => ({
                 mask: sorel(d) ? `0000-00-00T00:00` :
-                    d.ir.typ.value.first != 'IR 12' ? 'Z9 0000'
+                    d.ir.typ.value.first != 'IR 12' && d.ir.typ.value.first != 'IR 10' ? 'Z8 0000'
                         : d.ir.cislo.value.length == 0 ? 'X'
                             : d.ir.cislo.value[0] == '0'
-                                ? 'NN:NA:14:N6:FF:FF'
-                                : 'Z9 0000',
+                                ? d.ir.typ.value.first == 'IR 10'
+                                    ? 'NN:NA:14:N6:FF:FF'
+                                    : 'NN:NA:14:N9:FF:FF'
+                                : 'Z8 0000',
                 definitions: {
                     X: /[0A-Za-z]/,
                     N: /0/,
                     A: /[Aa]/,
-                    6: /[69]/,
+                    6: /6/,
+                    9: /9/,
                     1: /1/,
                     4: /4/,
                     F: /[0-9A-Fa-f]/,
                     Z: /[A-Za-z]/,
-                    9: /[1-9ONDond]/,
+                    8: /[1-9ONDond]/,
                 },
             }),
             show: d => !sorel(d) && !irFVE(d),

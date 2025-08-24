@@ -1,6 +1,6 @@
 import { FileWidget, InputWidget, PhotoSelectorWidget, TextWidget } from '$lib/forms/Widget.svelte';
 import type { FormOD } from './formOD';
-import { receiver } from '$lib/client/email';
+import { cervenka, receiver } from '$lib/client/email';
 import { currentUser } from '$lib/client/auth';
 import { get } from 'svelte/store';
 
@@ -15,10 +15,10 @@ export default (): FormOD => ({
         }),
         info: new TextWidget({
             text: (t, d) =>
-                t.od.info1([receiver]) +
+                t.od.info1(cervenka) +
                 (d.all.userEmail.value
-                    ? t.od.info2A({ user: get(currentUser)!.email! })
-                    : t.od.info2B({ user: get(currentUser)!.email!, customer: d.all.userEmail.value })) +
+                    ? t.od.info2B({ user: get(currentUser)!.email!, customer: d.all.userEmail.value })
+                    : t.od.info2A({ user: get(currentUser)!.email! })) +
                 (d.all.userEmail.value ? t.od.info3 : ''),
         }),
     },

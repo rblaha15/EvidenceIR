@@ -23,13 +23,13 @@ import type { FormInfo } from '$lib/forms/FormInfo';
 
 const infoSP = (() => {
     let i = $state() as number;
-    const info: FormInfo<FormSP, FormSP, [[Technician[], User | null], [SparePart[]]], 'SP'> = {
+    const info: FormInfo<FormSP, FormSP, [[Technician[], User | null]], 'SP'> = {
         type: 'IR',
         storeName: 'stored_sp',
         defaultData: () => defaultSP(),
         openPdf: () => ({
             link: 'SP',
-            index: i.also(console.log),
+            index: i,
         }),
         getEditData: (ir, url) => {
             const editIndex = url.searchParams.get('edit') as string | null;
@@ -79,6 +79,8 @@ const infoSP = (() => {
                 load: false,
             });
         },
+        showSaveAndSendButtonByDefault: true,
+        isSendingEmails: true,
         createWidgetData: (_, p) => p,
         title: (t, mode) =>
             mode == 'edit' ? t.sp.editSP : t.sp.title,
@@ -92,25 +94,13 @@ const infoSP = (() => {
             }
         },
         storeEffects: [
-            [(_, p, [$techniciansList, $currentUser], edit) => {
+            [(_, p, [$techniciansList, $currentUser], edit) => { // Also in NSP
                 const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
                 if (!p.zasah.clovek.value) p.zasah.clovek.setValue(p, ja?.name ?? p.zasah.clovek.value);
                 p.zasah.clovek.show = () => p.zasah.clovek.value != ja?.name;
                 if (!p.zasah.inicialy.value) p.zasah.inicialy.setValue(p, ja?.initials ?? p.zasah.inicialy.value);
                 p.zasah.inicialy.show = () => p.zasah.inicialy.value != ja?.initials;
             }, [techniciansList, currentUser]],
-            [(_, p, [$sparePartsList]) => {
-                const spareParts = $sparePartsList.map(it => ({
-                    ...it,
-                    name: it.name.replace('  ', ' '),
-                }) satisfies SparePart);
-                [
-                    p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
-                    p.nahradniDil5, p.nahradniDil6, p.nahradniDil7, p.nahradniDil8,
-                ].forEach(nahradniDil => {
-                    nahradniDil.dil.items = () => spareParts;
-                });
-            }, [sparePartsList]],
         ],
         excelImport: {
             sheet: 'Protokol',

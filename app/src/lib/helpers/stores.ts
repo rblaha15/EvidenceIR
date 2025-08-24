@@ -59,3 +59,10 @@ export const flatDerived = <T, U>(
         innerEffect?.(result, value);
     });
 });
+
+export const waitUntil = <T>(store: Readable<T>, predicate: (value: T) => boolean) =>
+    new Promise(resolve => {
+        store.subscribe(value => {
+            if (predicate(value)) resolve(null);
+        });
+    });

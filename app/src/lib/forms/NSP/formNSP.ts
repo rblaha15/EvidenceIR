@@ -1,16 +1,17 @@
 import type { UserForm } from '$lib/forms/IN/formIN';
 import { type GenericFormSP } from '$lib/forms/SP/formSP.svelte';
 import type { Form } from '$lib/forms/Form';
-import { CounterWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte';
+import { CounterWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte';
 import { userData } from '$lib/forms/IN/defaultIN';
-import defaultSP from '$lib/forms/SP/defaultSP';
+import defaultSP, { multilineTooLong } from '$lib/forms/SP/defaultSP';
 
-export type DataNSP = UserForm<DataNSP> & GenericFormSP<DataNSP>
+export type DataNSP = FormNSP
 
 export interface FormNSP extends GenericFormSP<DataNSP>, UserForm<DataNSP>, Form<DataNSP> {
     system: {
         nadpis: TitleWidget<DataNSP>;
         popis: InputWidget<DataNSP>;
+        overflowSystem: TextWidget<DataNSP>;
         pocetTC: CounterWidget<DataNSP>;
     };
 }
@@ -20,6 +21,7 @@ export const defaultNSP = (): FormNSP => ({
     system: {
         nadpis: new TitleWidget({ text: t => t.sp.title }),
         popis: new InputWidget({ label: t => t.sp.systemDescription, textArea: true, required: true }),
+        overflowSystem: new TextWidget({ text: (t, d) => multilineTooLong(d.system.popis.value) ? t.sp.textTooLong : '' }),
         pocetTC: new CounterWidget({ label: t => t.sp.heatPumpCount, min: 0, max: Number.POSITIVE_INFINITY, chosen: 0 }),
     },
     ...defaultSP(),

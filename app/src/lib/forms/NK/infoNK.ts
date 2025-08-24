@@ -1,5 +1,4 @@
-import { type FriendlyCompanies, type Person, startLidiListening, usersList } from '$lib/client/realtime';
-import type { User } from 'firebase/auth';
+import { startLidiListening } from '$lib/client/realtime';
 import defaultNK from '$lib/forms/NK/defaultNK';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
@@ -10,15 +9,14 @@ import xml from '$lib/forms/NK/xmlNK';
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import type { Attachment } from 'nodemailer/lib/mailer';
 import MailDemand from '$lib/emails/MailDemand.svelte';
-import { companies } from '$lib/helpers/companies';
 import type { FormNK } from '$lib/forms/NK/formNK';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 
-const infoNK: IndependentFormInfo<FormNK, FormNK, [[FriendlyCompanies], [Person[], User | null]]> = {
+const infoNK: IndependentFormInfo<FormNK, FormNK> = {
     type: '',
     storeName: 'stored_demand',
     defaultData: defaultNK,
-    saveData: async (raw, _, __, editResult, t) => {
+    saveData: async (raw, _, form, editResult, t, __, resetForm) => {
         const user = get(currentUser)!;
 
         const name = raw.contacts.name;
@@ -30,7 +28,7 @@ const infoNK: IndependentFormInfo<FormNK, FormNK, [[FriendlyCompanies], [Person[
             .map(photo => photo.uuid);
 
         const response = await sendEmail({
-            ...defaultAddresses(page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz', true),
+            ...defaultAddresses(page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz', true, user.displayName || undefined),
             subject: `Poptávka z aplikace – OSOBA: ${name} ${surname}`,
             attachments: [{
                 content: xml(raw, user, cs),
@@ -45,14 +43,18 @@ const infoNK: IndependentFormInfo<FormNK, FormNK, [[FriendlyCompanies], [Person[
                     filename: `Fotka ${i + 1}`,
                 })],
             component: MailDemand,
-            props: { email: user.email! },
+            props: { user: user.displayName || user.email!, t: cs, data: form },
         });
 
         if (response!.ok) {
-            await photoIds.map(removeFile).awaitAll()
-            return true;
-        }
-        else editResult({
+            await photoIds.map(removeFile).awaitAll();
+            editResult({
+                text: t.form.successfullySent,
+                red: false,
+                load: false,
+            });
+            resetForm();
+        } else editResult({
             text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false,
@@ -63,20 +65,6 @@ const infoNK: IndependentFormInfo<FormNK, FormNK, [[FriendlyCompanies], [Person[
     onMount: async () => {
         await startLidiListening();
     },
-    storeEffects: [
-        [(_, d, [$companies]) => {
-            d.contacts.assemblyCompanySearch.items = () => $companies.assemblyCompanies;
-        }, [companies]],
-        [(_, d, [$users, $currentUser]) => {
-            const withKO = $users.filter(p => p.koNumber && p.responsiblePerson);
-            const me = withKO.find(t => $currentUser?.email == t.email);
-            d.other.representative.items = () => withKO
-                .filter(p => p.email.endsWith('cz'))
-                .toSorted((a, b) => a.responsiblePerson!.split(' ').at(-1)!
-                    .localeCompare(b.responsiblePerson!.split(' ').at(-1)!));
-            if (me) d.other.representative.setValue(d, me);
-        }, [usersList, currentUser]],
-    ],
     isSendingEmails: true,
     showSaveAndSendButtonByDefault: true,
     requiredRegulus: true,

@@ -1,18 +1,13 @@
-import { unknownCompany } from '$lib/forms/IN/formIN';
 import {
-    type FriendlyCompanies,
-    type SparePart,
-    sparePartsList,
     startSparePartsListening,
     startTechniciansListening,
     type Technician,
     techniciansList,
 } from '$lib/client/realtime';
 import type { User } from 'firebase/auth';
-import { currentUser } from '$lib/client/auth';
+import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { detailSpUrl } from '$lib/helpers/runes.svelte.js';
 import { nowISO } from '$lib/helpers/date';
-import { companies } from '$lib/helpers/companies';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
@@ -21,12 +16,15 @@ import db from '$lib/data';
 import { type DataNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 
-const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null], [SparePart[]], [FriendlyCompanies]], 'NSP'> = {
+const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], User | null]], 'NSP'> = {
     type: '',
     storeName: 'stored_new_SP',
     defaultData: defaultNSP,
-    saveData: async (raw, _, __, editResult, t) => {
-        await db.addIndependentServiceProtocol(raw);
+    saveData: async (raw, edit, _, editResult, t, send) => {
+        if (edit) await db.updateIndependentServiceProtocol(raw);
+        else await db.addIndependentServiceProtocol(raw);
+
+        if (edit && !send) return true;
 
         const response = await sendEmail({
             ...defaultAddresses(),
@@ -42,6 +40,8 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
             load: false,
         });
     },
+    showSaveAndSendButtonByDefault: true,
+    isSendingEmails: true,
     redirectLink: async raw => detailSpUrl([extractSPIDFromRawData(raw.zasah)]),
     openPdf: async raw => ({
         link: 'NSP',
@@ -49,11 +49,22 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         lang: 'cs',
     }),
     createWidgetData: f => f,
-    title: t => t.sp.title,
-    onMount: async (d, f) => {
+    title: (t, m) => m == 'edit' ? t.sp.editSP : t.sp.title,
+    onMount: async (d, f, mode) => {
         await startTechniciansListening();
         await startSparePartsListening();
-        f.zasah.datum.setValue(d, nowISO());
+
+        f.zasah.inicialy.lock = () => mode == 'edit';
+        f.zasah.datum.lock = () => mode == 'edit';
+
+        if (!f.zasah.datum.value)
+            f.zasah.datum.setValue(d, nowISO());
+    },
+    getEditData: async url => {
+        const spid = url.searchParams.get('edit-spid') as SPID | null;
+        if (!spid) return undefined;
+
+        return await db.getIndependentProtocol(spid);
     },
     getViewData: async url => {
         const spid = url.searchParams.get('view-spid') as SPID | null;
@@ -63,33 +74,17 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         return !sp ? undefined : sp;
     },
     storeEffects: [
-        [(d, f, [$techniciansList, $currentUser]) => {
-            f.uvedeni.regulus.items = () => $techniciansList.filter(t => t.email.endsWith('cz'));
-
-            const ja = $techniciansList.find(t => $currentUser?.email == t.email);
-            f.zasah.clovek.setValue(d, ja?.name ?? f.zasah.clovek.value);
-            f.zasah.clovek.show = () => !ja;
-            f.zasah.clovek.required = () => !ja;
-            f.zasah.inicialy.setValue(d, ja?.initials ?? f.zasah.inicialy.value);
-            f.zasah.inicialy.show = () => !ja;
-            f.zasah.inicialy.required = () => !ja;
+        [(_, data, [$isUserRegulusOrAdmin]) => { // From IN
+            data.koncovyUzivatel.company.show = d => $isUserRegulusOrAdmin && d.koncovyUzivatel.typ.value == 'company';
+            data.koncovyUzivatel.or.show = d => $isUserRegulusOrAdmin && d.koncovyUzivatel.typ.value == 'company';
+        }, [isUserRegulusOrAdmin]],
+        [(_, f, [$techniciansList, $currentUser], edit) => { // From SP
+            const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
+            if (!f.zasah.clovek.value) f.zasah.clovek.setValue(f, ja?.name ?? f.zasah.clovek.value);
+            f.zasah.clovek.show = () => f.zasah.clovek.value != ja?.name;
+            if (!f.zasah.inicialy.value) f.zasah.inicialy.setValue(f, ja?.initials ?? f.zasah.inicialy.value);
+            f.zasah.inicialy.show = () => f.zasah.inicialy.value != ja?.initials;
         }, [techniciansList, currentUser]],
-        [(_, f, [$sparePartsList]) => {
-            const spareParts = $sparePartsList.map(it => ({
-                ...it,
-                name: it.name.replace('  ', ' '),
-            }) satisfies SparePart);
-            [
-                f.nahradniDil1, f.nahradniDil2, f.nahradniDil3, f.nahradniDil4,
-                f.nahradniDil5, f.nahradniDil6, f.nahradniDil7, f.nahradniDil8,
-            ].forEach(nahradniDil => {
-                nahradniDil.dil.items = () => spareParts;
-            });
-        }, [sparePartsList]],
-        [(_, f, [$companies]) => {
-            f.uvedeni.company.items = () => $companies.commissioningCompanies;
-            f.montazka.company.items = () => [unknownCompany, ...$companies.assemblyCompanies];
-        }, [companies]],
     ],
     requiredRegulus: true,
     hideBackButton: edit => !edit,

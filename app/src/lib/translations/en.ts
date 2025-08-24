@@ -51,6 +51,8 @@ const en: PlainTranslations = {
         requiresLogIn: `You have to be logged in to access this site.`,
         responsiblePerson: 'Responsible person',
         changePassword: `Change password`,
+        noAccess: `You do not have access to this page.`,
+        siteDoesNotExist: `This site does not exist. And we've even looked twice in the heat pump outdoor unit and it isn't there too…`,
     },
     theme: {
         dark: 'Dark',
@@ -62,6 +64,7 @@ const en: PlainTranslations = {
         MWhPerYear: 'MWh/year',
     },
     form: {
+        successfullySent: `Successfully sent!`,
         save: 'Save',
         saveAndSend: 'Save & send emails',
         saving: 'Saving...',
@@ -262,7 +265,7 @@ const en: PlainTranslations = {
         newIRIDLabel: `IRID (from the URL address)`,
         copyNSP: `Copy installation information to a new protocol`,
         copySP: `Do you want to create a copy for reporting service intervention by multiple persons?`,
-        transferProtocol: `Transfer the protocol to a controller (won't be deleted)`,
+        transferProtocols: `Transfer the protocols to a controller (won't be deleted)`,
         deleteProtocol: `Delete the protocol`,
         duplicate: `Duplicate`,
         yes: `Yes`,
@@ -396,6 +399,7 @@ const en: PlainTranslations = {
         onPaper: 'On paper',
         electronically: 'Electronically',
         assemblyCompany: 'Assembly company',
+        textTooLong: 'Warning: Text is too long for it to fit in the reserved field in the protocol, so so it will be written on a second page of the document.'
     },
     ft: {
         title: 'Optional inputs and outputs of the controller',
@@ -492,7 +496,7 @@ const en: PlainTranslations = {
         photosFromTheInstallation: 'Photos from the installation',
         noteToEmail: 'Not (to the email)',
         customerEmail: 'Customer email address',
-        info1: t`The app will send an email with the documents, optionally with the photos and the note to ${0}.`,
+        info1: t`The app will send an email with the documents, optionally with the photos and the note to ${0} and ${1}.`,
         info2A: t`A copy will be send to you, to ${'user'}.`,
         info2B: t`A copy will be send to the customer to ${'customer'} and to you, to ${'user'}.`,
         info3: `If you don't want to send the email to the customer, remove their address from the above filed.`,

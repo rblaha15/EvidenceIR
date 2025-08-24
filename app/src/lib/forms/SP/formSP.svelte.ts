@@ -31,7 +31,9 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
         inicialy: InputWidget<D>,
         zaruka: RadioWidget<D, `warrantyCommon` | `warrantyExtended`>,
         nahlasenaZavada: InputWidget<D>,
+        overflowFault: TextWidget<D>;
         popis: InputWidget<D>,
+        overflowIntervention: TextWidget<D>;
     },
     ukony: {
         nadpis: TitleWidget<D>,

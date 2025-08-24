@@ -4,7 +4,6 @@ import { type DBSchema as DBS, type IDBPDatabase, openDB } from 'idb';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
 import type { Raw } from '$lib/forms/Form';
 import { currentUser } from '$lib/client/auth';
-import { type LegacyIR, type LegacySP, migrateSP, modernizeIR } from '$lib/client/migrations';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 
 interface DBSchema extends DBS {
@@ -49,8 +48,8 @@ const db = async () => {
     return dbMap[uid] || (dbMap[uid] = await newDb(uid));
 };
 
-const mIR = (i: IR) => modernizeIR(i as LegacyIR & IR);
-const mSP = (s: Raw<FormNSP>) => migrateSP(s as LegacySP & Raw<FormNSP>) as Raw<FormNSP>;
+const mIR = (i: IR) => i
+const mSP = (s: Raw<FormNSP>) => s;
 const m = <T extends 'IR' | 'SP'>(type: T) => (v: Data<T>) => (type === 'IR' ? mIR(v as IR) : mSP(v as Raw<FormNSP>)) as Data<T>;
 
 const odm = {
@@ -146,6 +145,7 @@ export const offlineDatabase: Database = {
         return ir!;
     }),
     addIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),
+    updateIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),
     deleteIndependentProtocol: spid => odm.delete('SP', spid),
     getIndependentProtocol: spid => odm.get('SP', spid),
     getIndependentProtocolAsStore: spid => derived(storedSP, sps => sps[spid]),

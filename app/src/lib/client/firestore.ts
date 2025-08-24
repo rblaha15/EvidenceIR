@@ -19,7 +19,6 @@ import { checkRegulusOrAdmin, currentUser, userInfo } from './auth';
 import { firestore } from '../../hooks.client';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
 import { type Database, type IR } from '$lib/data';
-import { type LegacyIR, type LegacySP, migrateSP, modernizeIR } from './migrations';
 import { offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
 import { Query } from '@firebase/firestore';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
@@ -27,11 +26,11 @@ import { flatDerived } from '$lib/helpers/stores';
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => modernizeIR(snapshot.data() as IR & LegacyIR),
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR,
 });
 const spCollection = collection(firestore, 'sp').withConverter<Raw<FormNSP>>({
     toFirestore: (modelObject: WithFieldValue<Raw<FormNSP>>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => migrateSP(snapshot.data() as LegacySP & Raw<FormNSP>) as Raw<FormNSP>,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<FormNSP>,
 });
 
 const checkCollection = collection(firestore, 'check');
@@ -49,12 +48,12 @@ const getSnp = async <T>(reference: DocumentReference<T>) => {
     }
 };
 const getAsStore = <T>(reference: DocumentReference<T>) => {
-    const currentState = writable<T | undefined>(undefined);
+    const currentState = writable<T | undefined | 'loading'>('loading');
     onSnapshot(reference, data => currentState.set(data.exists() ? data.data() : undefined));
     return readonly(currentState);
 };
 const getAllAsStore = <T>(reference: Query<T>) => {
-    const currentState = writable<T[]>([]);
+    const currentState = writable<T[] | 'loading'>('loading');
     onSnapshot(reference, snps => currentState.set(snps.docs
         .mapNotUndefined(snp => snp.exists() ? snp.data() : undefined)), console.error);
     return readonly(currentState);
@@ -87,10 +86,10 @@ export const firestoreDatabase: Database = {
                 : query(irCollection, where('users', 'array-contains', user?.email ?? ''));
             return getAllAsStore(q);
         },
-        irs => odm.putAll('IR', irs.associateBy(v => extractIRIDFromRawData(v.evidence))),
+        irs => irs != 'loading' ? odm.putAll('IR', irs.associateBy(v => extractIRIDFromRawData(v.evidence))) : 0,
     ),
     getIRAsStore: irid => getAsStore(irDoc(irid))
-        .also(r => r.subscribe(v => odm.putOrDelete('IR', irid, v))),
+        .also(r => r.subscribe(v => v != 'loading' ? odm.putOrDelete('IR', irid, v) : 0)),
     addIR: async ir => {
         const irid = extractIRIDFromRawData(ir.evidence);
         await setDoc(irDoc(irid), ir);
@@ -159,6 +158,11 @@ export const firestoreDatabase: Database = {
         await setDoc(spDoc(spid), protocol);
         await odm.put('SP', spid, protocol);
     },
+    updateIndependentServiceProtocol: async protocol => {
+        const spid = extractSPIDFromRawData(protocol.zasah);
+        await updateDoc(spDoc(spid), protocol);
+        await odm.put('SP', spid, protocol);
+    },
     deleteIndependentProtocol: async spid => {
         await deleteDoc(spDoc(spid));
         await odm.delete('SP', spid);
@@ -166,11 +170,11 @@ export const firestoreDatabase: Database = {
     getIndependentProtocol: spid => getSnp(spDoc(spid))
         .thenAlso(v => odm.putOrDelete('SP', spid, v)),
     getIndependentProtocolAsStore: spid => getAsStore(spDoc(spid)).also(r =>
-        r.subscribe(v => odm.putOrDelete('SP', spid, v)),
+        r.subscribe(v => v != 'loading' ? odm.putOrDelete('SP', spid, v) : 0),
     ),
     getAllIndependentProtocols: () => getSnps(spCollection)
         .thenAlso(v => odm.putAll('SP', v.associateBy(v => extractSPIDFromRawData(v.zasah)))),
     getAllIndependentProtocolsAsStore: () => getAllAsStore(spCollection).also(r =>
-        r.subscribe(v => odm.putAll('SP', v.associateBy(v => extractSPIDFromRawData(v.zasah)))),
+        r.subscribe(v => v != 'loading' ? odm.putAll('SP', v.associateBy(v => extractSPIDFromRawData(v.zasah))) : 0),
     ),
 };
