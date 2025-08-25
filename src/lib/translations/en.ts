@@ -159,7 +159,7 @@ const en: PlainTranslations = {
         batteryType: 'Type of the batteries',
         totalBatteryCapacity: 'Total battery capacity',
         chargingStationWallbox: 'Charging station – wallbox',
-        irCooperation: 'Cooperation with the IR controller',
+        irCooperation: 'Cooperation with the Regulus controller',
         description: `Description`,
         endCustomer: 'End customer',
         remoteAccess: {
@@ -175,8 +175,8 @@ const en: PlainTranslations = {
             laterAccordingToTheProtocol: 'Later, according to the protocol',
         },
         userType: {
-            individual: `Individual`,
-            company: `Company`,
+            individual: `Natural person`,
+            company: `Juridical person`,
         },
         ir: {
             fve: `None – photovoltaic system only`,
@@ -214,6 +214,7 @@ const en: PlainTranslations = {
             clearBrowserData: `Clear data from the browser`,
             clearDataInfo: `Website data in the browser include your user settings, pages saved for offline use and all unfinished forms. Data already saved and sent to the server will not be deleted. You will not be logged out of your account.`,
             close: `Close`,
+            didYouFindMistakesInTranslationsHtml: `Have you found a mistake in the translations? Please email us at <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Mistakes in translations" target="_blank">aplikace.regulus@gmail.com</a>.`,
         },
         installationDetails: `Installation details`,
         protocolDetails: `Protocol details`,

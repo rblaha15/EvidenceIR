@@ -161,6 +161,7 @@ export default {
             clearBrowserData: `Vyčistit data z prohlížeče`,
             clearDataInfo: `Data stránky v prohlížeči obsahují vaše uživatelská nastavení, stránky uložené do offline režimu, offline frontu neodeslaných dat a všechny rozepsané formuláře. Neodstraní se žádná data, která již byla uložena a odeslána na server. Nebudete odhlášeni ze svého účtu.`,
             close: `Zavřít`,
+            didYouFindMistakesInTranslationsHtml: `Našli jste nějaké chyby v překladech? Napište nám to prosím na <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Chyba v překladech" target="_blank">aplikace.regulus@gmail.com</a>.`,
         },
         offlineQueue: {
             title: `Fronta neodeslaných změn a emailů`,
