@@ -11,22 +11,22 @@ import {
     type OptionsOutputsF,
 } from '$lib/forms/FT/portsOptions';
 import { todayISO } from '$lib/helpers/date';
-import type { TranslationReference } from '$lib/translations';
 
-const commonChooser = <O extends TranslationReference>(label: string, def: O, options: readonly O[], onlyCTC: boolean) =>
-    new ChooserWidget<DataFT, O>({
-        options: options, compact: true, required: false, label: label,
-        chosen: def, show: !onlyCTC || (e => e.ir.typ.second == 'PLAIN_CTC')
-    });
+const args = <
+    O extends OptionsInputsC | OptionsInputsB | OptionsOutputsF | OptionsOutputsB
+>(label: string, def: O, options: readonly O[], onlyCTC: boolean) => ({
+    options: options, compact: true, required: false, label,
+    chosen: def, show: !onlyCTC || ((e: DataFT) => e.ir.typ.second == 'CTC'),
+});
 
 const widgetInputC = (label: string, onlyCTC = false, def: OptionsInputsC = 'nevyužito') =>
-    commonChooser(label, def, optionsInputsC, onlyCTC);
+    new ChooserWidget(args(label, def, optionsInputsC, onlyCTC));
 const widgetInputB = (label: string, onlyCTC = false, def: OptionsInputsB = 'nevyužito') =>
-    commonChooser(label, def, optionsInputsB, onlyCTC);
+    new ChooserWidget(args(label, def, optionsInputsB, onlyCTC));
 const widgetOutputF = (label: string, onlyCTC = false, def: OptionsOutputsF = 'nevyužito') =>
-    commonChooser(label, def, optionsOutputsF, onlyCTC);
+    new ChooserWidget(args(label, def, optionsOutputsF, onlyCTC));
 const widgetOutputB = (label: string, onlyCTC = false, def: OptionsOutputsB = 'nevyužito') =>
-    commonChooser(label, def, optionsOutputsB, onlyCTC);
+    new ChooserWidget(args(label, def, optionsOutputsB, onlyCTC));
 
 export default (): FormFT => ({
     inputsC: {
