@@ -50,21 +50,21 @@ export const pdfInfo: PdfInfo = {
     RK: {
         type: 'IR',
         pdfName: 'RK',
-        supportedLanguages: ['cs'],
+        supportedLanguages: ['cs', 'de'],
         title: t => t.rk.title,
         getPdfData: RK,
     },
     ZL: {
         type: 'IR',
         pdfName: 'ZL',
-        supportedLanguages: ['cs'],
+        supportedLanguages: ['cs', 'de'],
         title: t => t.zl.title,
         getPdfData: ZL,
     },
     RR: {
         type: 'IR',
         pdfName: 'RR',
-        supportedLanguages: ['cs'],
+        supportedLanguages: ['cs', 'de'],
         title: t => t.rr.title,
         getPdfData: RR,
     },
@@ -78,7 +78,7 @@ export const pdfInfo: PdfInfo = {
     UPT: {
         type: 'IR',
         pdfName: 'UPT',
-        supportedLanguages: ['cs'],
+        supportedLanguages: ['cs', 'de'],
         title: t => t.tc.title,
         getPdfData: UPT,
     },

@@ -5,14 +5,14 @@ import { endUserName, irType, typBOX } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { get } from '$lib/translations';
 
-const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
+const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc, lang }) => {
     const { evidence: e, uvedeniTC } = data
     const u = uvedeniTC!;
     const tu = t.tc
     const pumps = cascadePumps(e);
     const isCascade = Boolean(e.tc.model2);
 
-    await addDoc({
+    if (lang == 'cs') await addDoc({
         lang: 'cs',
         args: pdfInfo.TCI,
         data,

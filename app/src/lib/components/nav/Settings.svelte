@@ -24,6 +24,7 @@
     <div class="d-flex align-items-center"><span class="me-1">{ts.language}:</span>
         <LanguageSelector />
     </div>
+    <div>{@html ts.didYouFindMistakesInTranslationsHtml}</div>
 </div>
 
 <div class="alert alert-info">

@@ -18,7 +18,7 @@
 		<span class="mx-1">{page.data.languageCode.toUpperCase()}</span>
 	</button>
 	<ul class="dropdown-menu">
-		{#each languageCodes.filter(it => it !== 'sk' && it !== 'de') as code}
+		{#each languageCodes.filter(it => it !== 'sk') as code}
 			<li>
 				<button
 					class="dropdown-item d-flex align-items-center"
