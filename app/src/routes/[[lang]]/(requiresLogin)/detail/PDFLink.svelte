@@ -86,7 +86,7 @@
                                     <button
                                         tabindex="0"
                                         class="dropdown-item d-flex align-items-center"
-                                        onclick={() => downloadPdf(code)}
+                                        onclick={() => previewPdf(code)}
                                     >
                                         <span class="fs-6 me-2">{code.toUpperCase()}</span>
                                         {languageNames[code]}

@@ -44,10 +44,10 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
         : pdf.supportedLanguages[0];
 
     const d = await generatePdfUrl({
+        ...(parameters as unknown as PdfParameters<Pdf>),
         args: pdf,
         lang: language,
         data: pdf.type == 'IR' ? data.ir! : data.sps[0]!,
-        ...(parameters as unknown as PdfParameters<Pdf>)
     });
 
     const pageData = await parent();
