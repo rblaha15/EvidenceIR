@@ -113,7 +113,7 @@
         </PDFLink>
     {/if}
 </div>
-{#if isUserRegulusOrAdmin}
+{#if $isUserRegulusOrAdmin}
     <ServiceProtocols {ir} {t} {lang} {irid} />
 {/if}
 <div class="d-flex flex-column gap-1 align-items-sm-start">
