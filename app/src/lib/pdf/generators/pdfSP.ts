@@ -138,7 +138,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         Text20: multilineTooLong(zasah) ? ts.seeSecondPage : zasah,
         Text21: p.ukony.doprava + ' km',
         Text22: prices.transportation.roundTo(2).toLocaleString('cs') + ' Kč',
-        'Kombinované pole32': get(ts, p.ukony.typPrace) ?? ts.intervention,
+        'Kombinované pole32': get(ts, p.ukony.typPrace) || ts.intervention,
         Text25: p.ukony.typPrace ? codes[p.ukony.typPrace].toString().let(k => k == '0' ? '' : k) : '',
         Text23: p.ukony.doba + ' h',
         Text24: p.ukony.typPrace ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '',
