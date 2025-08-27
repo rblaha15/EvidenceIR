@@ -1,11 +1,11 @@
 // noinspection JSNonASCIINames
 
-import { nazevFirmy } from "$lib/helpers/ares";
 import { dateFromISO, todayISO } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import { endUserName } from '$lib/helpers/ir';
 import { range } from '$lib/extensions';
 import { get } from '$lib/translations';
+import ares from '$lib/helpers/ares';
 
 const pdfUPF: GetPdfData<'UPF'> = async ({ data: { evidence: e, uvedeniFVE, }, t, lang }) => {
     const u = uvedeniFVE!
@@ -19,7 +19,7 @@ const pdfUPF: GetPdfData<'UPF'> = async ({ data: { evidence: e, uvedeniFVE, }, t
 /*      koncakTel */ Text2: e.koncovyUzivatel.telefon,
 /*    koncakEmail */ Text3: e.koncovyUzivatel.email,
 /*      instalace */ Text4: `${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,
-/*       montazka */ Text5: await nazevFirmy(e.montazka.ico) ?? '',
+/*       montazka */ Text5: await ares.getName(e.montazka.ico) ?? '',
 /*    montazkaICO */ Text6: e.montazka.ico,
 /*    uvadecOsoba */ Text7: e.uvedeni.zastupce,
 /*      uvadecTel */ Text8: e.uvedeni.telefon,

@@ -1,8 +1,8 @@
-import { nazevFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import { endUserName } from '$lib/helpers/ir';
 import { get } from '$lib/translations';
+import ares from '$lib/helpers/ares';
 
 const pdfUPS: GetPdfData<'UPS'> = async ({ data: { evidence: e, uvedeniSOL }, t }) => {
     const u = uvedeniSOL!;
@@ -13,7 +13,7 @@ const pdfUPS: GetPdfData<'UPS'> = async ({ data: { evidence: e, uvedeniSOL }, t 
 /*      koncakTel */ Text2: e.koncovyUzivatel.telefon,
 /*    koncakEmail */ Text3: e.koncovyUzivatel.email,
 /*      instalace */ Text4: `${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,
-/*       montazka */ Text5: (await nazevFirmy(e.montazka.ico)) ?? '',
+/*       montazka */ Text5: (await ares.getName(e.montazka.ico)) ?? '',
 /*    montazkaICO */ Text6: e.montazka.ico,
 /*    uvadecOsoba */ Text7: e.uvedeni.zastupce,
 /*      uvadecTel */ Text8: e.uvedeni.telefon,

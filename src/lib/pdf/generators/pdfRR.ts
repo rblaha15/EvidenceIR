@@ -1,19 +1,19 @@
-import { nazevFirmy } from '$lib/helpers/ares';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import { endUserName, irType, isMacAddress } from '$lib/helpers/ir';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
+import ares from '$lib/helpers/ares';
 
 const representative = (c: Raw<FormIN>['montazka' | 'uvedeni']) =>
     `${c.zastupce} – ${c.email}; ${c.telefon ?? ''}`;
 
 const pdfRR: GetPdfData<'RR'> = async ({ data: { evidence: e }, t }) => ({
     Text1: e.montazka.ico,
-    Text2: (await nazevFirmy(e.montazka.ico, fetch)) ?? null,
+    Text2: (await ares.getName(e.montazka.ico, fetch)) ?? null,
     Text3: representative(e.montazka),
     Text4: e.uvedeni.ico,
-    Text5: (await nazevFirmy(e.uvedeni.ico, fetch)) ?? null,
+    Text5: (await ares.getName(e.uvedeni.ico, fetch)) ?? null,
     Text6: representative(e.uvedeni),
     Text7: endUserName(e.koncovyUzivatel),
     Text8: e.koncovyUzivatel.typ == 'company'

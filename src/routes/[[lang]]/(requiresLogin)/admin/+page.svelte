@@ -7,7 +7,7 @@
         usersList,
         type SparePart,
         sparePartsList,
-        startFirmyListening,
+        startCompaniesListening,
         startLidiListening,
         startSparePartsListening,
         startTechniciansListening,
