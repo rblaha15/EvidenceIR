@@ -7,14 +7,10 @@
         usersList,
         type SparePart,
         sparePartsList,
-        startCompaniesListening,
-        startLidiListening,
-        startSparePartsListening,
-        startTechniciansListening,
         type Technician,
         techniciansList,
     } from '$lib/client/realtime';
-    import { type Component, onMount, untrack } from 'svelte';
+    import { type Component, untrack } from 'svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import TranslationsTable from './TranslationsTable.svelte';
@@ -71,7 +67,11 @@
                 ],
                 key: p => p.email,
                 instructions: [
-                    'Vložte .csv soubor oddělený středníky (;), kde v prvním sloupci je email, v druhém sloupci iča montážních firem oddělená hashy (#), v třetím slopci jsou stejně oddělená iča uvaděčů, ve čtvrtém spoupci jméno odpovědné osoby a v pátém sloupci číslo KO zaměstnance:<br />Př.: email@example.com;12345678#87654321;14725836#63852741;Jan Novák',
+                    'Vložte .csv soubor oddělený středníky (;), kde v každém řádku je uveden jeden uživatel aplikace.',
+                    'Zaměstnanec Regulusu: email (se jménem a příjmením*);&lt;prázdno&gt;;&lt;prázdno&gt;;jméno;číslo KO<br />Př.: jan.novak@regulus.cz;;;Jan Novák;123',
+                    'Externí uživatel: email;iča montážních firem oddělená křížky (#);stejně oddělená iča uvaděčů;jméno odpovědné osoby;&lt;prázdno&gt;<br />Př.: email@example.com;12345678#87654321;14725836#63852741;Jan Novák;',
+                    'Zaměstnance není nutné v této tabulce uvádět, využití jsou jen specifikování čísla KO (potřeba pro odesílání NK) a pro určení jména (není nutné, popř. lze i v tabulce techniků)',
+                    '* výjimky: komanek@regulus.cz, cervenka@regulus.cz, kocar@regulus.cz, malucha@regulus.cz, novak@regulus.cz, tereza@regulus.cz, martin@regulus.cz, blaha@regulus.cz, blahova@regulus.cz ',
                 ],
                 columns: {
                     email: { header: 'Email', cellType: 'header' },
