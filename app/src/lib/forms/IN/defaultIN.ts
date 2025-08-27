@@ -13,7 +13,7 @@ import {
 } from '../Widget.svelte.js';
 import { type FormIN, unknownCompany, type UserForm } from './formIN';
 import { type Company, type Technician, techniciansList } from '$lib/client/realtime';
-import { nazevAdresaFirmy, nazevFirmy, regulusCRN } from '$lib/helpers/ares';
+import ares, { regulusCRN } from '$lib/helpers/ares';
 import { companyForms, isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
 import products, { type Products } from '$lib/helpers/products';
@@ -72,7 +72,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 d.koncovyUzivatel.ico.setValue(d, company?.crn ?? '');
                 d.koncovyUzivatel.telefon.setValue(d, company?.phone ?? '');
                 d.koncovyUzivatel.email.setValue(d, company?.email ?? '');
-                if (company?.crn) nazevAdresaFirmy(company.crn).then(ares => {
+                if (company?.crn) ares.getNameAndAddress(company.crn).then(ares => {
                     const s = ares?.sidlo;
                     d.bydliste.psc.setValue(d, s?.psc?.toString() ?? s?.pscTxt ?? '');
                     d.bydliste.obec.setValue(d, [s?.nazevObce, s?.nazevCastiObce].filterNotUndefined().join(' - '));
@@ -192,7 +192,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
         }),
         chosen: new TextWidget({
             text: async (t, d) => {
-                const company = await nazevFirmy(d.montazka.ico.value);
+                const company = await ares.getName(d.montazka.ico.value);
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
             }, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn,
         }),
@@ -263,7 +263,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
         chosen: new TextWidget({
             text: async (t, d) => {
                 if (d.uvedeni.ico.value == unknownCompany.crn) return '';
-                const company = await nazevFirmy(d.uvedeni.ico.value);
+                const company = await ares.getName(d.uvedeni.ico.value);
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
             }, showInXML: false,
         }),

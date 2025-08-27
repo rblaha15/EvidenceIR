@@ -3,7 +3,7 @@ import { checkAdmin, checkAuth } from '$lib/client/auth';
 import { browser } from '$app/environment';
 import { error } from '@sveltejs/kit';
 import { langEntryGenerator } from '../../helpers';
-import { startFirmyListening, startLidiListening, startSparePartsListening, startTechniciansListening } from '$lib/client/realtime';
+import { startCompaniesListening, startLidiListening, startSparePartsListening, startTechniciansListening } from '$lib/client/realtime';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
@@ -11,7 +11,7 @@ export const load: PageLoad = async () => {
     if ((!await checkAuth() || !await checkAdmin()) && browser) error(401);
 
     await startLidiListening();
-    await startFirmyListening();
+    await startCompaniesListening();
     await startTechniciansListening();
     await startSparePartsListening();
 };
