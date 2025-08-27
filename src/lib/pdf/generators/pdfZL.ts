@@ -1,11 +1,11 @@
-import { nazevAdresaFirmy } from '$lib/helpers/ares';
+import ares from '$lib/helpers/ares';
 import { today } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 
 const pdfZL: GetPdfData<'ZL'> = async ({ data: { evidence: e }, t, pump }) => {
-    const uvedeni = await nazevAdresaFirmy(e.uvedeni.ico, fetch);
-    const montazka = await nazevAdresaFirmy(e.montazka.ico, fetch);
+    const uvedeni = await ares.getNameAndAddress(e.uvedeni.ico, fetch);
+    const montazka = await ares.getNameAndAddress(e.montazka.ico, fetch);
     const { model, cislo } = cascadePumps(e)[pump - 1];
     return {
         Text1: model,
