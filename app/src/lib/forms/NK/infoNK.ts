@@ -1,4 +1,4 @@
-import { startLidiListening } from '$lib/client/realtime';
+import { startUsersListening } from '$lib/client/realtime';
 import defaultNK from '$lib/forms/NK/defaultNK';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
@@ -63,7 +63,7 @@ const infoNK: IndependentFormInfo<FormNK, FormNK> = {
     createWidgetData: d => d,
     title: t => t.nk.demandForm,
     onMount: async () => {
-        await startLidiListening();
+        await startUsersListening();
     },
     isSendingEmails: true,
     showSaveAndSendButtonByDefault: true,

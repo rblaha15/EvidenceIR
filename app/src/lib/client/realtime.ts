@@ -128,7 +128,7 @@ export const responsiblePerson = derived(
 
 export const usersList = writable([] as Person[]);
 
-export const startLidiListening = async () => {
+export const startUsersListening = async () => {
 	const { onValue } = await import('firebase/database');
 	return onValue(lidiRef, (data) => {
 		usersList.set((data.val() as { [uid: string]: Person } ?? {}).getValues().map(p => ({
