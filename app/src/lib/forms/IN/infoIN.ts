@@ -1,10 +1,7 @@
 import {
-    type FriendlyCompanies,
     getIsOnline,
     responsiblePerson,
     startTechniciansListening,
-    type Technician,
-    techniciansList,
 } from '$lib/client/realtime';
 import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
@@ -13,7 +10,7 @@ import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { getTranslations } from '$lib/translations';
-import { nazevFirmy } from '$lib/helpers/ares';
+import ares from '$lib/helpers/ares';
 import { generatePdf } from '$lib/pdf/pdfGeneration';
 import { pdfInfo } from '$lib/pdf/pdf';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -53,8 +50,8 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         if (doNotSend) return true;
 
         const cs = getTranslations('cs');
-        const montazka = (await nazevFirmy(raw.montazka.ico)) ?? null;
-        const uvadec = (await nazevFirmy(raw.uvedeni.ico)) ?? null;
+        const montazka = (await ares.getName(raw.montazka.ico)) ?? null;
+        const uvadec = (await ares.getName(raw.uvedeni.ico)) ?? null;
 
         const pdf = await generatePdf({ args: pdfInfo.RR, lang: 'cs', data: newIr });
 

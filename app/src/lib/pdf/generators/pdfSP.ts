@@ -1,6 +1,5 @@
 // noinspection JSNonASCIINames
 
-import { nazevAdresaFirmy } from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import '$lib/extensions';
 import { endUserName, endUserName2, irName, spName } from '$lib/helpers/ir';
@@ -9,6 +8,7 @@ import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { get } from '$lib/translations';
 import { unknownCompany } from '$lib/forms/IN/formIN';
 import { inlineTooLong, multilineTooLong } from '$lib/forms/SP/defaultSP';
+import ares from '$lib/helpers/ares';
 
 const prices = {
     transportation: 9.92,
@@ -81,7 +81,7 @@ export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installatio
 export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
     const ts = t.sp
     console.log(p);
-    const assemblyCompany = await nazevAdresaFirmy(p.montazka.ico, fetch);
+    const assemblyCompany = await ares.getNameAndAddress(p.montazka.ico, fetch);
     const spareParts = [
         p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
         p.nahradniDil5, p.nahradniDil6, p.nahradniDil7, p.nahradniDil8,
