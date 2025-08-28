@@ -549,7 +549,7 @@ export default (): FormIN => ({
             text: t => t.in.device.solarCollector, show: sol,
         }),
         typ: new InputWidget({
-            label: t => t.in.solarControllerType, required: sol, show: sol,
+            label: t => t.in.solarCollectorType, required: sol, show: sol,
         }),
         pocet: new InputWidget({
             label: t => t.in.solarCollectorCount, type: `number`, required: sol, show: sol,
