@@ -17,12 +17,15 @@
 
 	const oobCode = browser ? page.url.searchParams.get('oobCode') : null;
 	let mode:
+        // To send an email with a reset link
 		| 'resetEmail'
 		| 'resetSending'
 		| 'resetSent'
+        // To set the password
 		| 'reset'
 		| 'edit'
 		| 'register'
+        // Operational
 		| 'saving'
 		| 'loading' = $state('loading');
 
@@ -60,7 +63,7 @@
 		}
 		await changePassword(oobCode!, password)
 			.then(() =>
-				goto(relUrl(`/login?email=${email}&done=${mode}&redirect=${redirect}`))
+				goto(relUrl(`/login?email=${email}&done=${originalMode}&redirect=${redirect}`))
 			)
 			.catch((e) => {
 				console.log(e.code);

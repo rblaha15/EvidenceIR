@@ -13,7 +13,7 @@ import { getTranslations } from '$lib/translations';
 import ares from '$lib/helpers/ares';
 import { generatePdf } from '$lib/pdf/pdfGeneration';
 import { pdfInfo } from '$lib/pdf/pdf';
-import { defaultAddresses, sendEmail } from '$lib/client/email';
+import { cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
 import { xmlIN } from '$lib/forms/IN/xmlIN';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
 import { page } from '$app/state';
@@ -56,7 +56,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         const pdf = await generatePdf({ args: pdfInfo.RR, lang: 'cs', data: newIr });
 
         const response1 = raw.vzdalenyPristup.chce ? await sendEmail({
-            ...defaultAddresses(),
+            ...defaultAddresses(cervenka),
             subject: `Založení RegulusRoute k ${irName(raw.ir)}`,
             attachments: [{
                 content: [...pdf.pdfBytes],
