@@ -6,7 +6,7 @@
 	import { changePassword } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import type { PageProps } from './$types';
-	import { setTitle } from '$lib/helpers/globals.js';
+    import { initialRoute, setTitle } from '$lib/helpers/globals.js';
 	import { relUrl } from '$lib/helpers/runes.svelte';
 	import { goto } from '$app/navigation';
 
@@ -29,9 +29,8 @@
 	let password = $state('');
 	let confirmPassword = $state('');
 
-	let redirect: string = '/IN';
+    const redirect = $derived(browser ? page.url.searchParams.get('redirect') ?? initialRoute : initialRoute);
 	onMount(() => {
-		redirect = page.url.searchParams.get('redirect') ?? '/IN';
 		mode = page.url.searchParams.get('mode') as typeof mode;
 	});
 
