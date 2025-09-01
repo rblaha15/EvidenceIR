@@ -40,9 +40,6 @@
         <PDFLink name={t.nn.title} {t} link="NN" {lang} data={ir} {irid} />
     {/if}
     {#if ir.evidence.ir.chceVyplnitK.includes('heatPump')}
-        {#each cascadePumps(ir.evidence) as tc}
-            <PDFLink name={t.zl.name(tc)} {t} link="ZL" {lang} data={ir} pump={tc.N} {irid} />
-        {/each}
         <PDFLink
             enabled={ir.uvedeniTC !== undefined} name={t.tc.name} {t} link="UPT"
             {lang} data={ir} {irid}
@@ -55,6 +52,9 @@
                 >{t.tc.commission}</a>
             {/if}
         </PDFLink>
+        {#each cascadePumps(ir.evidence) as tc}
+            <PDFLink name={t.zl.name(tc)} {t} link="ZL" {lang} data={ir} pump={tc.N} {irid} />
+        {/each}
         {#each cascadePumps(ir.evidence) as tc}
             <PDFLink name={t.rk.name(tc)} {t} link="RK" {lang} data={ir} pump={tc.N}
                      enabled={ir.kontrolyTC[tc.N]?.[1] !== undefined} {irid}>
