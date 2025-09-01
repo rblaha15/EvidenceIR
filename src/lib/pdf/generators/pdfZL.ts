@@ -1,5 +1,4 @@
 import ares from '$lib/helpers/ares';
-import { today } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 
@@ -19,7 +18,7 @@ const pdfZL: GetPdfData<'ZL'> = async ({ data: { evidence: e }, t, pump }) => {
         Text11: e.uvedeni.zastupce,
         Text12: '',
         Text13: '',
-        Text14: today(),
+        Text14: null,
     };
 };
 
