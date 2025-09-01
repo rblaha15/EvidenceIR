@@ -32,3 +32,5 @@ export const runLoading = <R>(
 }
 const p = writable<'' | 'done' | 'load'>('');
 export const progress = readonly(p)
+
+export const initialRoute = '/search'
