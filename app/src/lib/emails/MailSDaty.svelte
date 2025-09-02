@@ -14,7 +14,7 @@
         origin: string;
     }
 
-    let {
+    const {
         data,
         user,
         t,
@@ -31,4 +31,4 @@
 {#each list as widget}
     <ReadonlyWidget {widget} {t} {data} />
 {/each}
-<p><b>Zaevidoval</b>: {user.email}</p>
+<p><b>Zaevidoval</b>: {user.displayName || user.email}</p>

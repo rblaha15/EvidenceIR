@@ -4,6 +4,7 @@
 	import { irName, irLabel, extractIRIDFromParts } from '$lib/helpers/ir';
 	import type { Raw } from '$lib/forms/Form';
 	import { detailIrUrl } from '$lib/helpers/runes.svelte';
+    import type { User } from 'firebase/auth';
 
 	const typZarizeni = (e: Raw<FormIN>): string => {
 		if (e.ir.typ.first!.includes('BOX')) return 'CP-2972';
@@ -19,14 +20,16 @@
 		montazka: string | null;
 		uvadec: string | null;
         origin: string;
+        user: User;
 	}
 
-	let {
+	const {
 		e,
 		t,
 		montazka,
 		uvadec,
         origin,
+        user,
 	}: Props = $props();
 
     const irid = extractIRIDFromParts(e.ir.typ.first!, e.ir.cislo);
@@ -84,3 +87,5 @@
 <p>{e.ostatni.poznamka}</p>
 
 <p>Odkaz na podrobnosti evidence: <a href={origin + detailIrUrl(irid)}>{origin + detailIrUrl(irid)}</a></p>
+
+<p><b>Zaevidoval</b>: {user.displayName || user.email}</p>
