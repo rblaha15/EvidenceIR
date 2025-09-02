@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 	import authentication from '$lib/client/authentication';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
-	import { setTitle } from '$lib/helpers/globals.js';
+    import { initialRoute, setTitle } from '$lib/helpers/globals.js';
 	import { goto } from '$app/navigation';
 
 	const { data }: PageProps = $props();
@@ -14,8 +14,7 @@
 	let sending = $state(false);
 	let email = $state(browser ? (page.url.searchParams.get('email') ?? '') : '');
 
-	let redirect: string = '/IN';
-	onMount(() => (redirect = page.url.searchParams.get('redirect') ?? '/IN'));
+	const redirect = $derived(browser ? page.url.searchParams.get('redirect') ?? initialRoute : initialRoute);
 
 	let error: string | null = $state(null);
 

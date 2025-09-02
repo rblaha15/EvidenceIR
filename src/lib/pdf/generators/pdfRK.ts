@@ -1,16 +1,16 @@
-import { nazevFirmy } from '$lib/helpers/ares';
 import { endUserName } from '$lib/helpers/ir';
 import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
 import { type FormRK } from '$lib/forms/RK/formRK.js';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import defaultRK from '$lib/forms/RK/defaultRK';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
+import ares from '$lib/helpers/ares';
 
 const pdfRK: GetPdfData<'RK'> = async ({ data: { kontrolyTC, evidence: e, uvedeniTC: u }, t, pump }) => {
     console.log(kontrolyTC);
     const tk = t.rk;
     const kontroly = kontrolyTC[pump] as Record<number, Raw<FormRK>>;
-    const montazka = await nazevFirmy(e.montazka.ico);
+    const montazka = await ares.getName(e.montazka.ico);
     const pumpInfo = cascadePumps(e)[pump - 1];
     const start = {
         Text1:

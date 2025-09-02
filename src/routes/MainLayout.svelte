@@ -3,11 +3,12 @@
     import { checkAuth } from '$lib/client/auth';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import { onMount, type Snippet } from 'svelte';
-    import { backButton, endLoading, progress, startLoading, title } from '$lib/helpers/globals';
+    import { backButton, endLoading, initialRoute, progress, startLoading, title } from '$lib/helpers/globals';
     import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { dev } from '$app/environment';
     import { page } from '$app/state';
     import { preferredLanguage } from '$lib/languages';
+    import { relUrl } from '$lib/helpers/runes.svelte';
 
     interface Props {
         data: LayoutData;
@@ -37,19 +38,22 @@
 
     $effect(() => {
         processGoto(page.url);
-    })
+    });
 
-    onMount(() => {
-        const currentLangLength = page.params.lang?.length ?? -1;
-        if (!data.isLanguageFromUrl)
-            goto(
-                '/' +
-                preferredLanguage() +
-                page.url.pathname.slice(currentLangLength + 1) +
-                page.url.search +
-                page.url.hash,
-                { replaceState: true, invalidateAll: true },
-            );
+    onMount(async () => {
+    });
+    onMount(async () => {
+        const currentLangLength = data.languageCode?.length ?? -1;
+        const path = page.url.pathname.slice(currentLangLength + 1);
+        if (path == '') await goto(relUrl(initialRoute));
+        if (!data.isLanguageFromUrl) await goto(
+            '/' +
+            preferredLanguage() +
+            path +
+            page.url.search +
+            page.url.hash,
+            { replaceState: true, invalidateAll: true },
+        );
     });
 </script>
 

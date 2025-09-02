@@ -3,7 +3,7 @@ import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { error } from '@sveltejs/kit';
 import { extractIDs, langEntryGenerator } from '../../helpers';
 import type { EntryGenerator, PageLoad } from './$types';
-import { startLidiListening } from '$lib/client/realtime';
+import { startUsersListening } from '$lib/client/realtime';
 import db, { type IR } from '$lib/data';
 import { waitUntil } from '$lib/helpers/stores';
 import type { Readable } from 'svelte/store';
@@ -19,7 +19,7 @@ export const load: PageLoad = async ({ url }) => {
     const id = extractIDs(url);
     if (!id.irid) error(400, { message: 'irid must be provided!' });
 
-    await startLidiListening()
+    await startUsersListening()
 
     const store = db.getIRAsStore(id.irid);
 
