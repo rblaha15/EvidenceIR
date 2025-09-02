@@ -128,7 +128,7 @@ export const responsiblePerson = derived(
 
 export const usersList = writable([] as Person[]);
 
-export const startLidiListening = async () => {
+export const startUsersListening = async () => {
 	const { onValue } = await import('firebase/database');
 	return onValue(lidiRef, (data) => {
 		usersList.set((data.val() as { [uid: string]: Person } ?? {}).getValues().map(p => ({
@@ -139,7 +139,7 @@ export const startLidiListening = async () => {
 
 export const companiesList = writable([] as Company[]);
 
-export const startFirmyListening = async () => {
+export const startCompaniesListening = async () => {
 	const { onValue } = await import('firebase/database');
 	return onValue(firmyRef, (data) => {
 		companiesList.set((data.val() as { [crn: CRN]: Company } ?? {}).getValues());
@@ -150,7 +150,7 @@ export const techniciansList = writable([] as Technician[]);
 
 export const startTechniciansListening = async () => {
 	const { onValue } = await import('firebase/database');
-	onValue(techniciRef, (data) => {
+	return onValue(techniciRef, (data) => {
 		techniciansList.set((data.val() as Technician[]) ?? []);
 	});
 };
@@ -159,7 +159,7 @@ export const sparePartsList = writable([] as SparePart[]);
 
 export const startSparePartsListening = async () => {
 	const { onValue } = await import('firebase/database');
-	onValue(dilyRef, (data) => {
+	return onValue(dilyRef, (data) => {
 		sparePartsList.set((data.val() as SparePart[]) ?? []);
 	});
 };

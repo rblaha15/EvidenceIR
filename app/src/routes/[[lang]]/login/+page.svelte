@@ -5,8 +5,8 @@
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import type { PageProps } from './$types';
 	import { onMount } from 'svelte';
-	import { setTitle } from '$lib/helpers/globals.js';
-	import { startTechniciansListening, techniciansList } from '$lib/client/realtime';
+    import { initialRoute, setTitle } from '$lib/helpers/globals.js';
+    import { startUsersListening, startTechniciansListening, techniciansList, usersList } from '$lib/client/realtime';
 	import { get } from 'svelte/store';
 	import { relUrl } from '$lib/helpers/runes.svelte';
 	import { goto } from '$app/navigation';
@@ -18,10 +18,10 @@
 
 	let email = $state(browser ? page.url.searchParams.get('email') ?? '' : '');
 	let password = $state('');
-	let redirect = $state('/IN');
+    const redirect = $derived(browser ? page.url.searchParams.get('redirect') ?? initialRoute : initialRoute);
 	onMount(() => {
 		startTechniciansListening()
-		redirect = page.url.searchParams.get('redirect') ?? '/IN'
+		startUsersListening()
 	});
 
 	let signUpLink = $derived(relUrl(
@@ -37,7 +37,10 @@
 		error = '';
 		await logIn(email, password)
 			.then(c =>
-				setName(get(techniciansList).find(t => t.email == c.user.email)?.name).then(() =>
+				setName(
+                    get(techniciansList).find(t => t.email == c.user.email)?.name
+                    ?? get(usersList).find(t => t.email == c.user.email)?.responsiblePerson
+                ).then(() =>
 					goto(page.url.origin + relUrl(redirect))
 				)
 			)

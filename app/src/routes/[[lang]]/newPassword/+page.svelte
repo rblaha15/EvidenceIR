@@ -6,7 +6,7 @@
 	import { changePassword } from '$lib/client/auth';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import type { PageProps } from './$types';
-	import { setTitle } from '$lib/helpers/globals.js';
+    import { initialRoute, setTitle } from '$lib/helpers/globals.js';
 	import { relUrl } from '$lib/helpers/runes.svelte';
 	import { goto } from '$app/navigation';
 
@@ -17,21 +17,23 @@
 
 	const oobCode = browser ? page.url.searchParams.get('oobCode') : null;
 	let mode:
+        // To send an email with a reset link
 		| 'resetEmail'
 		| 'resetSending'
 		| 'resetSent'
+        // To set the password
 		| 'reset'
 		| 'edit'
 		| 'register'
+        // Operational
 		| 'saving'
 		| 'loading' = $state('loading');
 
 	let password = $state('');
 	let confirmPassword = $state('');
 
-	let redirect: string = '/IN';
+    const redirect = $derived(browser ? page.url.searchParams.get('redirect') ?? initialRoute : initialRoute);
 	onMount(() => {
-		redirect = page.url.searchParams.get('redirect') ?? '/IN';
 		mode = page.url.searchParams.get('mode') as typeof mode;
 	});
 
@@ -61,7 +63,7 @@
 		}
 		await changePassword(oobCode!, password)
 			.then(() =>
-				goto(relUrl(`/login?email=${email}&done=${mode}&redirect=${redirect}`))
+				goto(relUrl(`/login?email=${email}&done=${originalMode}&redirect=${redirect}`))
 			)
 			.catch((e) => {
 				console.log(e.code);
