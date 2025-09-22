@@ -6,7 +6,7 @@ import { dev } from '$app/environment';
 import { get } from 'svelte/store';
 import type { User } from 'firebase/auth';
 import { getIsOnline } from '$lib/client/realtime';
-import { addEmailToOfflineQueue } from '$lib/client/offlineQueue';
+import { addEmailToOfflineQueue } from '$lib/client/offlineQueue.svelte';
 import type { Readable } from 'node:stream';
 
 export type AttachmentLike = Omit<Attachment, 'content'> & {

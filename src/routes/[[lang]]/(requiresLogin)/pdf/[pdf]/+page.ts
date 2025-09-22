@@ -14,7 +14,7 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
     const pdfName = params.pdf as Pdf;
     if (!(pdfName in pdfInfo)) return error(404);
 
-    if (!browser) return { url: '', fileName: '', irid: '', spid: '', title: '' };
+    if (!browser) return { url: '', fileName: '', irid: '', spid: '', fileLang: '', args: null };
 
     if (!await checkAuth()) error(401);
 
@@ -55,7 +55,7 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
 
     setTitle(t.pdf.previewFile, true);
 
-    return { ...d, ...id, title: pdf.title(t) };
+    return { ...d, ...id, args: pdf, fileLang: language };
 };
 
 export const prerender = true;

@@ -22,7 +22,9 @@
     <div class="d-flex align-items-center">
         {labelAndStar(widget, data, t)}
         {#if !widget.required(data)}
-            <button class="btn py-1 px-2 m-1" aria-label={t.widget.clearSelection} onclick={onClick(null)}><i class="bi bi-eraser"></i></button>
+            <button class="btn py-1 px-2 m-1" aria-label={t.widget.clearSelection} onclick={onClick(null)}>
+                <span class="material-icons">clear</span>
+            </button>
         {/if}
     </div>
     <div class="input-group input-group-grid">

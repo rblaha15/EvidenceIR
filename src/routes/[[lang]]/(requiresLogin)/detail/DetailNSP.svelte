@@ -9,6 +9,7 @@
     import { type FormNSP } from '$lib/forms/NSP/formNSP';
     import type { Raw } from '$lib/forms/Form';
     import { extractSPIDFromRawData, spName } from '$lib/helpers/ir';
+    import { aA } from '$lib/helpers/stores';
 
     const { t, sp, lang }: {
         t: Translations, sp: Raw<FormNSP>, lang: LanguageCode,
@@ -17,22 +18,30 @@
     const spid = $derived(extractSPIDFromRawData(sp.zasah));
 </script>
 
-<div class="d-flex flex-column gap-1 align-items-sm-start">
-    <PDFLink breakpoint={$isUserAdmin ? 'lg' : 'md'} data={sp} hideLanguageSelector={true} {lang} link="NSP" name={spName(sp.zasah)} {spid} {t}>
-        <a class="btn btn-primary" href={relUrl(`/NSP?view-spid=${spid}`)} tabindex="0">
-            {td.viewFilledData}
-        </a>
-        <a class="btn btn-warning" href={relUrl(`/NSP?edit-spid=${spid}`)} tabindex="0">
-            {td.editProtocol}
-        </a>
-
+<PDFLink data={sp} link="NSP" name={spName(sp.zasah)} {spid} {t}>
+    {#snippet dropdown()}
+        <li>
+            <span class="d-flex align-items-center dropdown-item">
+                <span class="text-primary material-icons">preview</span>
+                <a class="text-primary dropdown-item" href={relUrl(`/NSP?view-spid=${spid}`)}>{td.viewFilledData}</a>
+            </span>
+        </li>
+        <li>
+            <span class="d-flex align-items-center dropdown-item">
+                <span class="text-warning material-icons">edit_document</span>
+                <a class="text-warning dropdown-item" href={relUrl(`/NSP?edit-spid=${spid}`)}>{td.editProtocol}</a>
+            </span>
+        </li>
         {#if $isUserAdmin}
-            <button class="btn btn-danger d-block" onclick={() => {
-                db.deleteIndependentProtocol(spid);
-                goto(spidUrl(`/detail?deleted`), { replaceState: true });
-            }}>
-                {td.deleteProtocol}
-            </button>
+            <li>
+                <span class="d-flex align-items-center dropdown-item">
+                    <span class="text-danger material-icons">delete_forever</span>
+                    <button class="text-danger dropdown-item" onclick={() => {
+                        db.deleteIndependentProtocol(spid);
+                        goto(spidUrl(`/detail?deleted`), { replaceState: true });
+                    }}>{td.deleteProtocol}{$aA}</button>
+                </span>
+            </li>
         {/if}
-    </PDFLink>
-</div>
+    {/snippet}
+</PDFLink>

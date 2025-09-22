@@ -8,6 +8,7 @@
     import { techniciansList } from '$lib/client/realtime';
     import { currentUser } from '$lib/client/auth';
     import { invalidateAll } from '$app/navigation';
+    import { aR } from '$lib/helpers/stores';
 
     const {
         irid, ir, lang, t,
@@ -36,17 +37,31 @@
     };
 </script>
 
-<h4 class="m-0">{td.serviceProtocols}</h4>
+<h4 class="m-0">{td.serviceProtocols}{$aR}</h4>
 {#if ir.installationProtocols.length}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         {#each ir.installationProtocols as p, i}
-            <PDFLink name={spName(p.zasah)} {lang} data={ir} {t} link="SP" index={i}
-                     hideLanguageSelector={true}
-                     breakpoint="md" {irid}>
+            <PDFLink name={spName(p.zasah)} data={ir} {t} link="SP" index={i} {irid}>
                 {#snippet dropdown()}
-                    <li><a class="dropdown-item text-primary" href={iridUrl(`/SP/?view=${i}`)}>{td.viewFilledData}</a></li>
-                    <li><a class="dropdown-item text-warning" href={iridUrl(`/SP/?edit=${i}`)}>{td.editProtocol}</a></li>
-                    <li><button class="dropdown-item text-warning" data-bs-toggle="modal" data-bs-target="#duplicateModal">{td.duplicate}</button></li>
+                    <li>
+                        <span class="d-flex align-items-center dropdown-item">
+                            <span class="text-primary material-icons">preview</span>
+                            <a class="text-primary dropdown-item" href={iridUrl(`/SP/?view=${i}`)}>{td.viewFilledData}</a>
+                        </span>
+                    </li>
+                    <li>
+                        <span class="d-flex align-items-center dropdown-item">
+                            <span class="text-warning material-icons">edit_document</span>
+                            <a class="text-warning dropdown-item" href={iridUrl(`/SP/?edit=${i}`)}>{td.editProtocol}</a>
+                        </span>
+                    </li>
+                    <li>
+                        <span class="d-flex align-items-center dropdown-item">
+                            <span class="text-warning material-icons">file_copy</span>
+                            <button class="text-warning dropdown-item" data-bs-toggle="modal"
+                                    data-bs-target="#duplicateModal">{td.duplicate}</button>
+                        </span>
+                    </li>
                 {/snippet}
             </PDFLink>
 
@@ -73,6 +88,7 @@
 
 <div class="d-flex align-items-center gap-3 flex-wrap flex-sm-nowrap">
     <a class="btn btn-primary" href={iridUrl('/SP')} tabindex="0">
+        <span class="material-icons">add</span>
         {ir.installationProtocols.length ? td.fillInAnotherProtocol : td.fillInProtocol}
     </a>
 </div>

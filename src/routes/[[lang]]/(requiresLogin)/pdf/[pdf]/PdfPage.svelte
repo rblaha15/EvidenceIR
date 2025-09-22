@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-
     const {
         pdf, pageNumber,
     }: {
@@ -27,8 +25,9 @@
         }).promise;
     };
 
-    onMount(async () => {
-        await render(pageNumber);
+    $effect(() => {
+        pdf;
+        render(pageNumber);
     });
 </script>
 

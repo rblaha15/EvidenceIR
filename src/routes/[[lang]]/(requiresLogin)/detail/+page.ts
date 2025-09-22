@@ -4,7 +4,7 @@ import { error } from '@sveltejs/kit';
 import { browser } from '$app/environment';
 import { checkAuth } from '$lib/client/auth';
 import { startTechniciansListening } from '$lib/client/realtime';
-import { type Readable, readable } from 'svelte/store';
+import { derived, type Readable, readable } from 'svelte/store';
 import { waitUntil } from '$lib/helpers/stores';
 import type { IRID, SPID } from '$lib/helpers/ir';
 import type { IR } from '$lib/data';
@@ -26,7 +26,11 @@ export const load: PageLoad = async ({ url }) => {
     await waitUntil(data.ir, p => p != 'loading')
     await waitUntil(data.sps, p => p != 'loading')
 
-    return data as {
+    return {
+        ...data,
+        sps: derived(data.sps, (s, set) => { if (s != 'loading') set(s) }),
+        ir: derived(data.ir, (i, set) => { if (i != 'loading') set(i) }),
+    } as {
         irid: IRID | null, spids: SPID[],
         ir: Readable<IR | undefined>, sps: Readable<Raw<FormNSP>[]>,
     };

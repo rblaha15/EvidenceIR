@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Translations } from '$lib/translations';
-    import { readableQueue } from '$lib/client/offlineQueue';
+    import { readableQueue } from '$lib/client/offlineQueue.svelte';
 
     const { t }: { t: Translations } = $props();
     const tq = $derived(t.nav.offlineQueue)
@@ -24,8 +24,8 @@
                 <ol class="list-group list-group-flush list-group-numbered">
                     {#each $readableQueue as dwo}
                         <li class="list-group-item d-flex gap-3 align-items-center">
-                            <i class="bi-{dwo.type === 'database' ? 'database-fill-gear' : 'envelope-arrow-up'} fs-5"></i>
-                            <span class="flex-grow-1">{dwo.subject}</span>
+                            <span class="material-icons fs-5">{dwo.type === 'database' ? 'storage' : 'outgoing_mail'}</span>
+                            <span class="flex-grow-1">{dwo.subject(t)}</span>
                         </li>
                     {/each}
                 </ol>

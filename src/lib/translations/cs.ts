@@ -50,8 +50,7 @@ export default {
         notChosen: `Nevybráno`,
     },
     pdf: {
-        download: `Stáhnout`,
-        preview: `Náhled`,
+        fileLanguage: `Jazyk dokumentu`,
         downloadFile: `Stáhnout dokument`,
         previewFile: `Náhled dokumentu`,
         page: t`Strana ${'page'}/${'total'}`,
@@ -156,6 +155,7 @@ export default {
             userSettings: `Uživatelská nastavení`,
             appTheme: `Téma aplikace`,
             language: `Jazyk`,
+            defaultDocumentLanguage: `Jazyk dokumentů`,
             appInfo: `Informace o aplikaci`,
             appVersion: t`Verze aplikace: ${'version'} (${'build'}) (${'type'})`,
             clearBrowserData: `Vyčistit data z prohlížeče`,

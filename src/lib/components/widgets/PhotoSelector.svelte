@@ -73,7 +73,10 @@
                         {/await}
                         <div class="d-flex flex-column gap-3 text-center">
                             <span style="word-break: break-all">{fileName}</span>
-                            <button class="btn text-danger" onclick={remove(uuid)}><i class="my-1 bi-trash"></i> {t.widget.remove_Photo}</button>
+                            <button class="btn text-danger" onclick={remove(uuid)}>
+                                <span class="material-icons">delete</span>
+                                {t.widget.remove_Photo}
+                            </button>
                         </div>
                     </li>
                 {/each}
