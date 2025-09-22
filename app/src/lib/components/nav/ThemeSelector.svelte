@@ -8,7 +8,7 @@
     type ThemeSetting = typeof themeSettings[number];
     type Theme = Exclude<ThemeSetting, 'auto'>;
     const media = '(prefers-color-scheme: dark)';
-    const icons = ['moon-stars-fill', 'sun-fill', 'circle-half'] as const;
+    const icons = ['dark_mode', 'light_mode', 'contrast'] as const;
 
     const storedTheme = storableState<ThemeSetting>('theme', 'auto');
 
@@ -34,7 +34,7 @@
         class="btn dropdown-toggle d-flex align-items-center"
         data-bs-toggle="dropdown"
     >
-        <i class="bi-{selectedIcon} m-1"></i>
+        <span class="material-icons">{selectedIcon}</span>
     </button>
     <ul class="dropdown-menu">
         {#each themeSettings.zip(icons) as [theme, icon]}
@@ -49,9 +49,9 @@
                         document.querySelector<HTMLElement>('#bd-theme')?.focus();
                     }}
                 >
-                    <i class="bi-{icon} me-2"></i>
+                    <span class="material-icons me-2">{icon}</span>
                     {t.theme[theme]}
-                    <i class="bi-check2 ms-auto" class:d-none={storedTheme.value !== theme}></i>
+                    <span class="material-icons ms-auto" class:d-none={storedTheme.value !== theme}>check</span>
                 </button>
             </li>
         {/each}

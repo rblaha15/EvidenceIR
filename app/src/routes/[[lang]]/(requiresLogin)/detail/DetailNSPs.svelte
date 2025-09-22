@@ -13,7 +13,7 @@
     import defaultSP from '$lib/forms/SP/defaultSP';
     import type { FormSP } from '$lib/forms/SP/formSP.svelte';
     import DetailNSP from './DetailNSP.svelte';
-    import { storable } from '$lib/helpers/stores';
+    import { aA, storable } from '$lib/helpers/stores';
     import NSP from '$lib/forms/NSP/infoNSP';
 
     const { t, sps, lang }: {
@@ -40,21 +40,34 @@
     };
 </script>
 
-<div class="d-flex flex-column gap-3 align-items-sm-start">
-    <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${sps[0].koncovyUzivatel.email}`)} tabindex="0">
-        {td.sendDocuments}
-    </a>
-
-    {#each sps as sp}
-        <DetailNSP {sp} {lang} {t} />
-    {/each}
-
-    <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>{td.copyNSP}</a>
-</div>
-
-{#if $isUserAdmin}
-    <div class="d-flex flex-column gap-1 align-items-sm-start">
-        <Widget widget={newIRID} {t} data={{}} />
-        <button class="btn btn-danger d-block" onclick={transfer}>{td.transferProtocols}</button>
+<div class="d-flex flex-wrap gap-3 justify-content-between">
+    <div class="d-flex flex-column gap-3">
+        <div class="d-flex flex-column gap-1 align-items-sm-start">
+            {#each sps as sp}
+                <DetailNSP {sp} {lang} {t} />
+            {/each}
+        </div>
     </div>
-{/if}
+
+    <div class="d-flex flex-column gap-3 align-items-sm-start">
+        <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${sps[0].koncovyUzivatel.email}`)} tabindex="0">
+            <span class="material-icons">attach_email</span>
+            {td.sendDocuments}
+        </a>
+
+        <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>
+            <span class="material-icons">file_copy</span>
+            {td.copyNSP}
+        </a>
+
+        {#if $isUserAdmin}
+            <div class="d-flex flex-column gap-1 align-items-sm-start">
+                <Widget widget={newIRID} {t} data={{}} />
+                <button class="btn btn-danger d-block" onclick={transfer}>
+                    <span class="material-icons">drive_file_move</span>
+                    {td.transferProtocols}{$aA}
+                </button>
+            </div>
+        {/if}
+    </div>
+</div>

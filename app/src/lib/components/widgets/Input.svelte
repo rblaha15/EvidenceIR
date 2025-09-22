@@ -66,7 +66,7 @@
     };
     const onClick = () => {
         widget.setValue(data, '');
-    }
+    };
 </script>
 
 <div class="d-flex gap-1 flex-column">
@@ -118,7 +118,10 @@
                 />
             {/if}
             <label for="">{labelAndStar(widget, data, t)}</label>
-            <button class="btn py-1 px-2 m-1" class:d-none={!widget.value || widget.type(data) !== 'date' || widget.required(data)} aria-label={t.widget.clearSelection} onclick={onClick}><i class="bi bi-eraser"></i></button>
+            <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1"
+                    class:d-none={!widget.value || widget.type(data) !== 'date' || widget.required(data)} onclick={onClick}>
+                <span class="material-icons">clear</span>
+            </button>
         </label>
         {#if widget.suffix(t, data)}
             <span class="input-group-text">{widget.suffix(t, data) ?? ''}</span>
