@@ -74,8 +74,9 @@
                 value={hidden ? widget.value ? ' ' : '' : search}
             />
             <label for="">{labelAndStar(widget, data, t)}</label>
-            <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" class:d-none={!widget.value} onclick={onClick}><i
-                class="bi bi-eraser"></i></button>
+            <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" class:d-none={!widget.value} onclick={onClick}>
+                <span class="material-icons">clear</span>
+            </button>
         </label>
 
         {#if !hidden}

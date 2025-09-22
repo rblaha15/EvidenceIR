@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { derived, get, type Readable, writable, type Writable } from 'svelte/store';
-import { currentUser } from '$lib/client/auth';
+import { currentUser, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
 
 export function storable<T>(key: string): Writable<T | undefined>;
 export function storable<T>(key: string, defaultValue: T): Writable<T>;
@@ -66,3 +66,6 @@ export const waitUntil = <T>(store: Readable<T>, predicate: (value: T) => boolea
             if (predicate(value)) resolve(null);
         });
     });
+
+export const aA = derived(isUserAdmin, a => a ? ' (A)' : '')
+export const aR = derived(isUserAdmin, a => a ? ' (R)' : '')

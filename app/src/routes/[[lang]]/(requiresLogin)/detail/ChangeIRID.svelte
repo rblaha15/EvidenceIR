@@ -104,8 +104,10 @@
 </script>
 
 {#if change === 'no'}
-    <button class="btn btn-warning d-block" onclick={() => (change = 'input')}
-    >{td.changeController}</button>
+    <button class="btn btn-warning d-block" onclick={() => (change = 'input')}>
+        <span class="material-icons">drive_file_rename_outline</span>
+        {td.changeController}
+    </button>
 {:else if change === 'input'}
     <div class="d-flex flex-column gap-3 w-100">
         <Widget bind:widget={irType} data={d} {t} />

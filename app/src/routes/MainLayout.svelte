@@ -81,7 +81,7 @@
                     {#if $backButton}
                         <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}
                                 style="margin: -2rem 0">
-                            <i class="bi-arrow-left fs-1"></i>
+                            <span class="material-icons fs-1">arrow_back</span>
                         </button>
                     {/if}
                     {$title}

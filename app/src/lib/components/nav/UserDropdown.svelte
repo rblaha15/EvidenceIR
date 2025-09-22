@@ -24,7 +24,7 @@
 
 <div class="dropdown ms-3">
     <button aria-label="User" class="btn btn-link nav-link" data-bs-toggle="dropdown">
-        <i class="bi-person-fill fs-2"></i>
+        <span class="material-icons fs-2">account_circle</span>
     </button>
     <ul class="dropdown-menu dropdown-menu-end">
         {#if $currentUser?.displayName}

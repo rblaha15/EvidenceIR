@@ -64,7 +64,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
                 filename: pdf.fileName,
             }],
             component: MailRRoute,
-            props: { e: raw, montazka, uvadec, t: cs, origin: page.url.origin },
+            props: { e: raw, montazka, uvadec, t: cs, origin: page.url.origin, user },
         }) : null
         console.log(response1)
 
@@ -79,7 +79,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
                 filename: `Evidence ${irid}.xml`,
             }],
             component: MailXML,
-            props: { e: raw, origin: page.url.origin },
+            props: { e: raw, origin: page.url.origin, user },
         });
 
         const response3 = await sendEmail({

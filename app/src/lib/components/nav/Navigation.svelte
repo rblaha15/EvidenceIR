@@ -7,7 +7,7 @@
     import Settings from '$lib/components/nav/Settings.svelte';
     import UserDropdown from '$lib/components/nav/UserDropdown.svelte';
     import LoggedOutButtons from '$lib/components/nav/LoggedOutButtons.svelte';
-    import { readableQueue } from '$lib/client/offlineQueue';
+    import { readableQueue } from '$lib/client/offlineQueue.svelte';
     import QueueModal from '$lib/components/nav/QueueModal.svelte';
     import SettingsModal from '$lib/components/nav/SettingsModal.svelte';
 
@@ -27,14 +27,14 @@
                 aria-controls="NOC"
                 aria-label="Menu"
             >
-                <i class="bi-list fs-1"></i>
+                <span class="material-icons fs-1">menu</span>
             </button>
         {/if}
         <!--suppress CheckImageSize -->
         <img alt="Logo" class="d-inline me-2" height="32" src="/ic_r.png" width="32" />
         <span class="navbar-brand fw-semibold">{tn.appName}</span>
         {#if !$isOnline}
-            <i class="bi-wifi-off fs-4"></i>
+            <span class="material-icons">wifi_off</span>
         {/if}
         <div class="me-auto"></div>
         {#if isLoggedIn}
@@ -43,13 +43,12 @@
                     <div class="ms-3">
                         <button aria-label="Offline queue" class="btn btn-link nav-link text-warning-emphasis" data-bs-target="#queue"
                                 data-bs-toggle="modal">
-                            <i class="bi-wifi-off fs-2"></i>
-                            <i class="bi-database-fill-exclamation fs-2" style="margin-left: -.5rem"></i>
+                            <span class="material-icons fs-2">sync_problem</span>
                         </button>
                     </div>
                 {/if}
                 <button aria-label="Settings" class="btn btn-link nav-link ms-3" data-bs-target="#settings" data-bs-toggle="modal">
-                    <i class="bi-gear-fill fs-2"></i>
+                    <span class="material-icons fs-2">settings</span>
                 </button>
                 <UserDropdown {t} />
             </div>
@@ -63,7 +62,7 @@
                     <img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
                     <span class="navbar-brand fw-semibold">{tn.appName}</span>
                     <button class="btn btn-link nav-link ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
-                        <i class="bi-x fs-1"></i>
+                        <span class="material-icons">close</span>
                     </button>
                 </div>
                 <div class="offcanvas-body">
