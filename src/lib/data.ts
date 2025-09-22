@@ -10,7 +10,7 @@ import { getIsOnline, isOnline } from '$lib/client/realtime';
 import { offlineDatabase } from '$lib/client/offline.svelte.js';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
-import { addToOfflineQueue } from '$lib/client/offlineQueue';
+import { addToOfflineQueue } from '$lib/client/offlineQueue.svelte';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { flatDerived } from '$lib/helpers/stores';

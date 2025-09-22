@@ -10,7 +10,7 @@
     import { invalidateAll } from '$app/navigation';
     import { type PdfImport, processPdf } from '$lib/forms/PdfImport';
     import { PDFDocument } from 'pdf-lib';
-    import type { Untranslatable, US } from '$lib/translations/untranslatables';
+    import type { US } from '$lib/translations/untranslatables';
 
     interface Props<R extends Raw<Form>> {
         title: string;
@@ -99,8 +99,8 @@
                 data-bs-toggle="modal"
                 data-bs-target="#import"
             >
-                <i class="my-1 bi-upload"></i>
-                <span class="ms-2">{tfi.importData}</span>
+                <span class="material-icons">upload</span>
+                {tfi.importData}
             </button>
         {/if}
         {#if !hideResetButton}
@@ -113,8 +113,8 @@
                     endLoading();
                 }}
             >
-                <i class="my-1 bi-arrow-clockwise"></i>
-                <span class="ms-2">{tf.clearForm}</span>
+                <span class="material-icons">delete_forever</span>
+                {tf.clearForm}
             </button>
         {/if}
     </div>

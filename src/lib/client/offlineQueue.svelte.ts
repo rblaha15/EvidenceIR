@@ -1,13 +1,14 @@
 import type { EmailMessage } from '$lib/client/email';
 import { type Database, isWriteFunction, type WriteFunction } from '$lib/data';
-import { derived, get } from 'svelte/store';
-import { storable } from '$lib/helpers/stores';
+import { derived, writable } from 'svelte/store';
 import { getToken } from '$lib/client/auth';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { irName, irNumberFromIRID, irWholeName, spName, spWholeName } from '$lib/helpers/ir';
 import { isOnline } from './realtime';
 import type { Translations } from '$lib/translations';
 import type { Template, TemplateArgs } from '$lib/helpers/templates';
+import { browser } from '$app/environment';
+import { openDB } from 'idb';
 
 type DoWhenOnlineDatabase<F extends keyof Database = keyof Database> = {
     type: 'database'
@@ -21,23 +22,60 @@ type DoWhenOnlineEmail = {
 type DoWhenOnline<F extends keyof Database = keyof Database> =
     DoWhenOnlineDatabase<F> | DoWhenOnlineEmail;
 
-const doWhenOnlineQueue = storable<DoWhenOnline[]>('doWhenOnlineQueue', []);
+// const doWhenOnlineQueue = storable<DoWhenOnline[]>('doWhenOnlineQueue', []);
+
+const db = browser ? openDB<{
+    doWhenOnlineQueue: {
+        value: DoWhenOnline;
+        key: number;
+    };
+}>('doWhenOnlineQueue', 1, {
+    upgrade: db => {
+        if (!db.objectStoreNames.contains('doWhenOnlineQueue'))
+            db.createObjectStore('doWhenOnlineQueue');
+    },
+}) : undefined;
+
+const stored = writable<DoWhenOnline[]>([], set => {
+    get().then(set);
+});
+
+const length = async (adb: NonNullable<Awaited<typeof db>>) =>
+    (await adb.getAllKeys('doWhenOnlineQueue')).length;
+const add = async (i: DoWhenOnline) => {
+    if (!browser) return;
+    stored.update(q => [...q, i]);
+    const adb = await db!;
+    await adb.add('doWhenOnlineQueue', $state.snapshot(i) as DoWhenOnline, await length(adb));
+}
+const get = async () => {
+    if (!browser) return [];
+    return (await (await db!).getAll('doWhenOnlineQueue'))!;
+}
+const clear = async () => {
+    if (!browser) return;
+    stored.set([]);
+    await (await db!).clear('doWhenOnlineQueue');
+}
 
 export const addToOfflineQueue = <F extends keyof Database = keyof Database>(
     functionName: F,
     args: Parameters<Database[F]>,
 ) => {
     console.log('Adding', functionName, 'with args', ...args, 'to the offline queue');
-    doWhenOnlineQueue.update(q => [...q, { functionName, args, type: 'database' }]);
+    add({ functionName, args, type: 'database' })
+    // doWhenOnlineQueue.update(q => [...q, { functionName, args, type: 'database' }]);
 };
 
 export const addEmailToOfflineQueue = (message: EmailMessage) => {
     console.log('Adding email', message, 'to the offline queue');
-    doWhenOnlineQueue.update(q => [...q, { message, type: 'email' }]);
+    add({ message, type: 'email' })
+    // doWhenOnlineQueue.update(q => [...q, { message, type: 'email' }]);
 };
 
 export const processOfflineQueue = async () => {
-    const current = get(doWhenOnlineQueue);
+    const current = await get();
+    await clear();
     await current.map(async dwo => {
         if (dwo.type === 'email') {
             const { message } = dwo;
@@ -59,8 +97,7 @@ export const processOfflineQueue = async () => {
         }
     }).awaitAll();
 
-    doWhenOnlineQueue.update(q => q.slice(current.length));
-    const after = get(doWhenOnlineQueue);
+    const after = await get();
     if (after.length) await processOfflineQueue();
 };
 
@@ -68,7 +105,7 @@ isOnline.subscribe(async online => {
     if (online) await processOfflineQueue();
 });
 
-const importantItemsInOfflineQueue = derived(doWhenOnlineQueue, q =>
+const importantItemsInOfflineQueue = derived(stored, q =>
     q.filter(dwo =>
         dwo.type === 'email' || isWriteFunction(dwo.functionName),
     ) as DoWhenOnline<WriteFunction>[],
@@ -89,6 +126,7 @@ const functions: {
     addPhotovoltaicSystemCommissioningProtocol: irid => ({ ir: irNumberFromIRID(irid) }),
     updateIRUsers: irid => ({ ir: irNumberFromIRID(irid) }),
     addIndependentServiceProtocol: p => ({ sp: spWholeName(p) }),
+    updateIndependentServiceProtocol: p => ({ sp: spWholeName(p) }),
     deleteIndependentProtocol: spid => ({ spid }),
 };
 

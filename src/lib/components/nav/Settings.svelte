@@ -5,6 +5,9 @@
     import { removeAllFiles } from '$lib/components/widgets/File.svelte';
     import { browser, dev, version } from '$app/environment';
     import { page } from '$app/state';
+    import { currentPreferredDocumentLanguage, type LanguageCode, setUserPreferredLanguage } from '$lib/languages';
+    import { goto } from '$app/navigation';
+    import { setUserPreferredDocumentLanguage } from '$lib/languages.js';
 
     const { t }: { t: Translations } = $props();
     const ts = $derived(t.nav.settings);
@@ -14,6 +17,11 @@
         await removeAllFiles();
         location.reload();
     };
+
+    const redirect = (code: LanguageCode) => goto(
+        '/' + code + page.url.pathname.slice(page.data.languageCode.length + 1) + page.url.search,
+        { replaceState: true, invalidateAll: true },
+    );
 </script>
 
 <div class="alert alert-primary">
@@ -22,7 +30,15 @@
         <ThemeSelector {t} />
     </div>
     <div class="d-flex align-items-center"><span class="me-1">{ts.language}:</span>
-        <LanguageSelector />
+        <LanguageSelector onChange={code => {
+            setUserPreferredLanguage(code);
+            return redirect(code);
+        }} selected={page.data.languageCode} />
+    </div>
+    <div class="d-flex align-items-center"><span class="me-1">{ts.defaultDocumentLanguage}:</span>
+        <LanguageSelector onChange={code => {
+            setUserPreferredDocumentLanguage(code);
+        }} selected={$currentPreferredDocumentLanguage ?? '—'} />
     </div>
     <div>{@html ts.didYouFindMistakesInTranslationsHtml}</div>
 </div>

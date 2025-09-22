@@ -46,3 +46,8 @@
 .input-group-input:not([disabled]) {
     background-color: var(--bs-body-bg);
 }
+
+.material-icons {
+    vertical-align: -.25em;
+    font-size: 1.375em;
+}

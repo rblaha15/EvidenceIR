@@ -24,7 +24,7 @@
                 id={widget.label(t, data) + Boolean(i)}
                 autocomplete="off"
             />
-            <label class={["btn",
+            <label class={["btn text-nowrap",
                 widget.value !== Boolean(i) ? 'btn-outline-secondary'
                     : !widget.hasPositivity(data) ? 'btn-secondary'
                     : i === 1 ? 'btn-success' : 'btn-danger'
