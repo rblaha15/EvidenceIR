@@ -1,18 +1,10 @@
 <script lang="ts">
-	import { type FormIN } from '$lib/forms/IN/formIN';
+    import { type FormIN, type IRTypes } from '$lib/forms/IN/formIN';
     import { get, type Translations } from '$lib/translations';
 	import { irName, irLabel, extractIRIDFromParts } from '$lib/helpers/ir';
 	import type { Raw } from '$lib/forms/Form';
 	import { detailIrUrl } from '$lib/helpers/runes.svelte';
     import type { User } from 'firebase/auth';
-
-	const typZarizeni = (e: Raw<FormIN>): string => {
-		if (e.ir.typ.first!.includes('BOX')) return 'CP-2972';
-		if (e.ir.typ.first!.includes('12')) return 'CP-1054';
-		if (e.ir.typ.first!.includes('14')) return 'CP-2007';
-        if (e.ir.typ.first!.includes('34')) return 'CP-2007';
-		return '???';
-	};
 
 	interface Props {
 		e: Raw<FormIN>;
@@ -32,16 +24,27 @@
         user,
 	}: Props = $props();
 
+    const deviceType = ({
+        'IR 10': 'CP-1015',
+        'IR 12': 'CP-1054',
+        'IR 14': 'CP-2007',
+        'IR 30': 'CP-1054',
+        'IR 34': 'CP-2007',
+        'IR RegulusBOX': 'CP-2972',
+        'IR RegulusHBOX': 'CP-2972',
+        'IR RegulusHBOX K': 'CP-2972',
+        'SOREL': '', // Shouldn't happen - see defaultIN.ts: supportsRemoteAccess
+        'fve': '', // Shouldn't happen - see defaultIN.ts: supportsRemoteAccess
+    } as const)[e.ir.typ.first!];
+
     const irid = extractIRIDFromParts(e.ir.typ.first!, e.ir.cislo);
 </script>
 
 <p>Prosím o založení RegulusRoutu k tomuto regulátoru:</p>
 
 <h2>Regulátor</h2>
-<p><b>Typ zařízení:</b> {typZarizeni(e)}</p>
-{#if e.ir.typ.first !== 'SOREL'}
-	<p><b>Výrobní číslo:</b> {e.ir.cislo}</p>
-{/if}
+<p><b>Typ zařízení:</b> {deviceType}</p>
+<p><b>Výrobní číslo:</b> {e.ir.cislo}</p>
 <p><b>Přihlášení:</b> {irName(e.ir)}</p>
 <p><b>Poznámka:</b> {irLabel(e)}</p>
 <h3>Zodpovědná osoba:</h3>

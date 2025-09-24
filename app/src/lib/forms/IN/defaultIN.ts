@@ -14,7 +14,18 @@ import {
 import { type FormIN, unknownCompany, type UserForm } from './formIN';
 import { type Company, type Technician, techniciansList } from '$lib/client/realtime';
 import ares, { regulusCRN } from '$lib/helpers/ares';
-import { companyForms, isCompanyFormInvalid, typBOX } from '$lib/helpers/ir';
+import {
+    companyForms,
+    doesNotHaveIRNumber,
+    doesNotSupportHeatPumps,
+    isCompanyFormInvalid,
+    isMACAddressTypeIR10,
+    isMACAddressTypeIR12,
+    supportsMACAddresses,
+    supportsOnlyCTC,
+    supportsRemoteAccess,
+    typBOX,
+} from '$lib/helpers/ir';
 import { time, todayISO } from '$lib/helpers/date';
 import products, { type Products } from '$lib/helpers/products';
 import type { Translations } from '$lib/translations';
@@ -35,8 +46,7 @@ const ctc = (d: FormIN) => d.ir.typ.value.second == 'CTC';
 const rtc = (d: FormIN) => d.ir.typ.value.second == 'RTC';
 const subType = (d: FormIN) => d.ir.typ.value.second != null;
 
-const sorel = (d: FormIN) => d.ir.typ.value.first == 'SOREL';
-
+const supportsRemoteAccessF = (f: FormIN) => supportsRemoteAccess(f.ir.typ.value.first)
 const irFVE = (d: FormIN) => d.ir.typ.value.first == 'fve';
 const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == 'DG-450-B';
 
@@ -378,20 +388,20 @@ const heatPump = <const I extends TC>(i: I) => ({
 
 export default (): FormIN => ({
     ir: {
-        typ: new DoubleChooserWidget({
+        typ: new DoubleChooserWidget({ // Code partially duplicated in ChangeIRID.svelte
             label: t => t.in.controllerType,
-            options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
+            options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
             options2: ({ ir: { typ: { value: { first: f } } } }) => (
-                f == 'IR 12' || f == 'IR 10' ? ['CTC']
+                supportsOnlyCTC(f) ? ['CTC']
                     : f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
-                        : f == 'fve' ? []
+                        : doesNotSupportHeatPumps(f) ? []
                             : ['CTC', 'RTC']
             ),
             onValueSet: (d, v) => {
                 if (v.second == 'RTC') {
                     d.tc.typ.setValue(d, 'airToWater');
                 }
-                if (v.first == 'SOREL' || v.first == 'fve') {
+                if (doesNotHaveIRNumber(v.first)) {
                     d.ir.cislo.setValue(d, `${todayISO()} ${time()}`);
                     d.ir.cisloBox.setValue(d, '');
                     d.vzdalenyPristup.chce.setValue(d, false);
@@ -399,10 +409,10 @@ export default (): FormIN => ({
                 if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
                     d.ir.typ.setValue(d, { ...v, second: null });
                 }
-                if ((v.first == 'IR 12' || v.first == 'IR 10') && v.second != 'CTC') {
+                if (supportsOnlyCTC(v.first) && v.second != 'CTC') {
                     d.ir.typ.setValue(d, { ...v, second: 'CTC' });
                 }
-                if (v.first == 'fve' && v.second) {
+                if (doesNotSupportHeatPumps(v.first) && v.second) {
                     d.ir.typ.setValue(d, { ...v, second: null });
                 }
                 if (v.first == 'fve') {
@@ -412,23 +422,23 @@ export default (): FormIN => ({
             },
             labels: t => t.in.ir,
         }),
-        cislo: new InputWidget({
+        cislo: new InputWidget({ // Code partially duplicated in ChangeIRID.svelte
             label: t => t.in.serialNumber,
             onError: t => t.wrong.number,
-            regex: d => sorel(d) || irFVE(d)
+            regex: d => doesNotHaveIRNumber(d.ir.typ.value.first)
                 ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
-                : d.ir.typ.value.first == 'IR 12'
+                : isMACAddressTypeIR12(d.ir.typ.value.first)
                     ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
-                    : d.ir.typ.value.first == 'IR 10'
+                    : isMACAddressTypeIR10(d.ir.typ.value.first)
                         ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
                         : /[A-Z][1-9OND] [0-9]{4}/,
             capitalize: true,
             maskOptions: d => ({
-                mask: sorel(d) ? `0000-00-00T00:00` :
-                    d.ir.typ.value.first != 'IR 12' && d.ir.typ.value.first != 'IR 10' ? 'Z8 0000'
+                mask: doesNotHaveIRNumber(d.ir.typ.value.first) ? `0000-00-00T00:00` :
+                    !supportsMACAddresses(d.ir.typ.value.first) ? 'Z8 0000'
                         : d.ir.cislo.value.length == 0 ? 'X'
                             : d.ir.cislo.value[0] == '0'
-                                ? d.ir.typ.value.first == 'IR 10'
+                                ? isMACAddressTypeIR10(d.ir.typ.value.first)
                                     ? 'NN:NA:14:N6:FF:FF'
                                     : 'NN:NA:14:N9:FF:FF'
                                 : 'Z8 0000',
@@ -445,7 +455,7 @@ export default (): FormIN => ({
                     8: /[1-9ONDond]/,
                 },
             }),
-            show: d => !sorel(d) && !irFVE(d),
+            show: d => !doesNotHaveIRNumber(d.ir.typ.value.first),
         }),
         cisloBox: new InputWidget({
             label: t => t.in.serialNumberIndoor,
@@ -470,10 +480,10 @@ export default (): FormIN => ({
         }),
         chceVyplnitK: new MultiCheckboxWidget({
             label: t => t.in.whatToAddInfoTo,
-            options: d => sorel(d)
-                ? [`solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'other']
-                : irFVE(d)
-                    ? ['photovoltaicPowerPlant']
+            options: d => irFVE(d)
+                ? ['photovoltaicPowerPlant']
+                : doesNotSupportHeatPumps(d.ir.typ.value.first)
+                    ? [`solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'other']
                     : [`heatPump`, `solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'other'] as const,
             lock: irFVE,
             required: false, showInXML: false, onValueSet: (d, v) => {
@@ -613,9 +623,9 @@ export default (): FormIN => ({
     },
     ...userData(),
     vzdalenyPristup: {
-        nadpis: new TitleWidget({ text: t => t.in.remoteAccess.title, show: d => !sorel(d) && !irFVE(d) }),
+        nadpis: new TitleWidget({ text: t => t.in.remoteAccess.title, show: supportsRemoteAccessF }),
         chce: new CheckboxWidget({
-            label: t => t.in.remoteAccess.doYouWantRemoteAccess, required: false, show: d => !sorel(d) && !irFVE(d),
+            label: t => t.in.remoteAccess.doYouWantRemoteAccess, required: false, show: supportsRemoteAccessF,
             onValueSet: (d, v) => {
                 if (!v) {
                     d.vzdalenyPristup.pristupMa.setValue(d, []);
@@ -626,22 +636,22 @@ export default (): FormIN => ({
         pristupMa: new MultiCheckboxWidget({
             label: t => t.in.remoteAccess.whoHasAccess,
             options: [`endCustomer`, `assemblyCompany`, `commissioningCompany`],
-            show: d => !sorel(d) && !irFVE(d) && d.vzdalenyPristup.chce.value,
-            required: d => !sorel(d) && !irFVE(d) && d.vzdalenyPristup.chce.value,
+            show: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
+            required: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
             labels: t => t.in.remoteAccess,
         }),
         plati: new RadioWidget({
             label: t => t.in.remoteAccess.whoWillBeInvoiced,
             options: ['assemblyCompany', 'endCustomer'] as ReturnType<FormIN['vzdalenyPristup']['plati']['options']>,
-            show: d => !sorel(d) && !irFVE(d) && d.vzdalenyPristup.chce.value,
-            required: d => !sorel(d) && !irFVE(d) && d.vzdalenyPristup.chce.value,
+            show: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
+            required: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
             labels: t => t.in.remoteAccess,
         }),
         zodpovednaOsoba: new InputWidget({
             label: t => t.in.remoteAccess.responsiblePerson,
             autocomplete: `section-resp billing name`,
-            show: d => !sorel(d) && !irFVE(d) && d.vzdalenyPristup.chce.value,
-            required: d => !sorel(d) && !irFVE(d) && d.vzdalenyPristup.chce.value,
+            show: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
+            required: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
         }),
     },
     ostatni: {
