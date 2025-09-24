@@ -17,6 +17,27 @@
     const isLoggedIn = $derived($currentUser != null);
 </script>
 
+{#snippet settings()}
+    <button aria-label="Settings" class="btn btn-link nav-link ms-3" data-bs-target="#settings" data-bs-toggle="modal">
+        <span class="material-icons fs-2">settings</span>
+    </button>
+{/snippet}
+{#snippet queue()}
+    {#if $readableQueue.length}
+        <div class="ms-3">
+            <button aria-label="Offline queue" class="btn btn-link nav-link text-warning-emphasis" data-bs-target="#queue"
+                    data-bs-toggle="modal">
+                <span class="material-icons fs-2">sync_problem</span>
+            </button>
+        </div>
+    {/if}
+{/snippet}
+{#snippet header()}
+    <!--suppress CheckImageSize -->
+    <img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
+    <span class="navbar-brand fw-semibold">{tn.appName}</span>
+{/snippet}
+
 <nav class="navbar navbar-expand-md gray flex-wrap">
     <div class="container-fluid">
         {#if isLoggedIn}
@@ -30,37 +51,24 @@
                 <span class="material-icons fs-1">menu</span>
             </button>
         {/if}
-        <!--suppress CheckImageSize -->
-        <img alt="Logo" class="d-inline me-2" height="32" src="/ic_r.png" width="32" />
-        <span class="navbar-brand fw-semibold">{tn.appName}</span>
+        {@render header()}
         {#if !$isOnline}
             <span class="material-icons">wifi_off</span>
         {/if}
         <div class="me-auto"></div>
         {#if isLoggedIn}
             <div class="d-flex flex-row ms-auto ms-md-0">
-                {#if $readableQueue.length}
-                    <div class="ms-3">
-                        <button aria-label="Offline queue" class="btn btn-link nav-link text-warning-emphasis" data-bs-target="#queue"
-                                data-bs-toggle="modal">
-                            <span class="material-icons fs-2">sync_problem</span>
-                        </button>
-                    </div>
-                {/if}
-                <button aria-label="Settings" class="btn btn-link nav-link ms-3" data-bs-target="#settings" data-bs-toggle="modal">
-                    <span class="material-icons fs-2">settings</span>
-                </button>
+                {@render queue()}
+                {@render settings()}
                 <UserDropdown {t} />
             </div>
-            <div class="w-100"></div>
+            <div class="w-100"></div> <!-- Row break -->
             <div class="d-none d-md-inline me-auto">
                 <BaseNav {t} />
             </div>
             <div class="d-md-none offcanvas offcanvas-start" tabindex="-1" id="NOC">
                 <div class="offcanvas-header">
-                    <!--suppress CheckImageSize -->
-                    <img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
-                    <span class="navbar-brand fw-semibold">{tn.appName}</span>
+                    {@render header()}
                     <button class="btn btn-link nav-link ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
                         <span class="material-icons">close</span>
                     </button>
@@ -70,9 +78,7 @@
                 </div>
             </div>
         {:else}
-            <div class="ms-auto">
-                <LanguageSelector />
-            </div>
+            {@render settings()}
             <div class="d-flex flex-row">
                 <LoggedOutButtons {t} />
             </div>

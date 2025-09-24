@@ -8,7 +8,7 @@ import { cervenka, defaultAddresses, sendEmail, userAddress } from '$lib/client/
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import MailSignedProtocol from '$lib/emails/MailSignedProtocol.svelte';
 import { dev } from '$app/environment';
-import { initialRoute } from '$lib/helpers/globals';
+import { initialRouteLoggedIn } from '$lib/helpers/globals';
 
 const infoOD: IndependentFormInfo<FormOD, FormOD> = {
     type: '',
@@ -50,7 +50,7 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
     createWidgetData: f => f,
     title: t => t.od.title,
     isSendingEmails: true,
-    redirectLink: async _ => (page.url.searchParams.get('redirect') ?? initialRoute)
+    redirectLink: async _ => (page.url.searchParams.get('redirect') ?? initialRouteLoggedIn)
 };
 
 export default infoOD;

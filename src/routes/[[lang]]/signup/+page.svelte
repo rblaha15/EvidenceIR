@@ -2,10 +2,9 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import type { PageProps } from './$types';
-	import { onMount } from 'svelte';
 	import authentication from '$lib/client/authentication';
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
-    import { initialRoute, setTitle } from '$lib/helpers/globals.js';
+    import { initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
 	import { goto } from '$app/navigation';
 
 	const { data }: PageProps = $props();
@@ -14,7 +13,7 @@
 	let sending = $state(false);
 	let email = $state(browser ? (page.url.searchParams.get('email') ?? '') : '');
 
-	const redirect = $derived(browser ? page.url.searchParams.get('redirect') ?? initialRoute : initialRoute);
+	const redirect = $derived(browser ? page.url.searchParams.get('redirect') ?? initialRouteLoggedIn : initialRouteLoggedIn);
 
 	let error: string | null = $state(null);
 
