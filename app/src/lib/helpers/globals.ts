@@ -33,4 +33,5 @@ export const runLoading = <R>(
 const p = writable<'' | 'done' | 'load'>('');
 export const progress = readonly(p)
 
-export const initialRoute = '/search'
+export const initialRouteLoggedIn = '/search'
+export const initialRouteLoggedOut = '/login'

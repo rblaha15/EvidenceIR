@@ -5,7 +5,7 @@
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
 	import type { PageProps } from './$types';
 	import { onMount } from 'svelte';
-    import { initialRoute, setTitle } from '$lib/helpers/globals.js';
+    import { initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
     import { startUsersListening, startTechniciansListening, techniciansList, usersList } from '$lib/client/realtime';
 	import { get } from 'svelte/store';
 	import { relUrl } from '$lib/helpers/runes.svelte';
@@ -18,7 +18,7 @@
 
 	let email = $state(browser ? page.url.searchParams.get('email') ?? '' : '');
 	let password = $state('');
-    const redirect = $derived(browser ? page.url.searchParams.get('redirect') ?? initialRoute : initialRoute);
+    const redirect = $derived(browser ? page.url.searchParams.get('redirect') ?? initialRouteLoggedIn : initialRouteLoggedIn);
 	onMount(() => {
 		startTechniciansListening()
 		startUsersListening()

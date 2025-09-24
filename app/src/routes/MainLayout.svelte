@@ -3,7 +3,15 @@
     import { checkAuth } from '$lib/client/auth';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import { onMount, type Snippet } from 'svelte';
-    import { backButton, endLoading, initialRoute, progress, startLoading, title } from '$lib/helpers/globals';
+    import {
+        backButton,
+        endLoading,
+        initialRouteLoggedIn,
+        initialRouteLoggedOut,
+        progress,
+        startLoading,
+        title,
+    } from '$lib/helpers/globals';
     import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { dev } from '$app/environment';
     import { page } from '$app/state';
@@ -45,7 +53,10 @@
     onMount(async () => {
         const currentLangLength = data.languageCode?.length ?? -1;
         const path = page.url.pathname.slice(currentLangLength + 1);
-        if (path == '') await goto(relUrl(initialRoute));
+        if (path == '') {
+            const isLoggedIn = await checkAuth()
+            await goto(relUrl(isLoggedIn ? initialRouteLoggedIn : initialRouteLoggedOut));
+        }
         if (!data.isLanguageFromUrl) await goto(
             '/' +
             preferredLanguage() +
