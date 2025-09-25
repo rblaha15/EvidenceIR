@@ -10,7 +10,7 @@ import { fieldsFT } from '$lib/forms/FT/fieldsFT';
 
 const infoFT: FormInfo<DataFT, FormFT, [], 'FT'> = {
     type: 'IR',
-    storeName: 'stored_facetable',
+    storeName: () => 'stored_facetable',
     title: t => t.ft.title,
     defaultData: defaultFT,
     createWidgetData: e => e,

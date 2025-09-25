@@ -18,7 +18,7 @@ import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 
 const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], User | null]], 'NSP'> = {
     type: '',
-    storeName: 'stored_new_SP',
+    storeName: () => 'stored_new_SP',
     defaultData: defaultNSP,
     saveData: async (raw, edit, _, editResult, t, send) => {
         if (edit) await db.updateIndependentServiceProtocol(raw);

@@ -12,7 +12,7 @@ import type { FormUPF } from '$lib/forms/UPF/formUPF';
 
 const infoUPF: FormInfo<FormUPF, FormUPF, [], 'UPF'> = ({
     type: 'IR',
-    storeName: 'stored_photovoltaic_power_plant_commission',
+    storeName: () => 'stored_photovoltaic_power_plant_commission',
     defaultData: defaultUPF,
     openPdf: () => ({
         link: 'UPF',

@@ -12,7 +12,7 @@ import defaultUPS from './defaultUPS';
 
 const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
     type: 'IR',
-    storeName: 'stored_solar_collector_commission',
+    storeName: () => 'stored_solar_collector_commission',
     defaultData: defaultUPS,
     openPdf: () => ({
         link: 'UPS',
