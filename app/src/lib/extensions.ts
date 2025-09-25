@@ -208,14 +208,16 @@ Object.prototype.thenAlso = function <T extends PromiseLike<any>, U>(
 
 declare global {
     interface Number {
-        roundTo: (decimalPlaces?: number) => number;
+        roundTo: (this: number, decimalPlaces?: number) => number;
     }
 }
 
 Number.prototype.roundTo = function(decimalPlaces = 0) {
     const power = 10 ** decimalPlaces;
-    return Math.round(this as number * power) / power;
+    return Math.round(this * power) / power;
 };
+
+
 declare global {
     interface Array<T> {
         zip<T, U>(
@@ -307,6 +309,10 @@ declare global {
             this: T[],
             keySelector: (item: T, index: number) => K,
         ): Record<K, T[]>
+
+        last<T>(
+            this: T[] | readonly T[],
+        ): T;
     }
 
     interface ReadonlyArray<T> {
@@ -483,6 +489,20 @@ Array.prototype.toggle = function <T>(
 Array.prototype.sumBy = function(callback) {
     return this.reduce((sum, v, i, a) => sum + callback(v, i, a), 0);
 } as typeof Array.prototype.sumBy;
+
+Array.prototype.last = function() {
+    return this.at(-1);
+} as typeof Array.prototype.last;
+
+declare global {
+    interface String {
+        toNumber: (radix?: number) => number;
+    }
+}
+
+String.prototype.toNumber = function(this: string, radix?: number) {
+    return parseInt(this, radix);
+};
 
 // TLM
 

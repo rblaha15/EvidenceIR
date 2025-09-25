@@ -25,7 +25,7 @@ export type IndependentFormInfo<
     R extends Raw<F> = Raw<F>
 > = {
     type: '';
-    storeName: string;
+    storeName: () => string;
     defaultData: () => F;
     saveData: (raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, resetForm: () => void) => Promise<boolean | void>;
     storeData?: (data: F) => R;
