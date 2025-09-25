@@ -13,12 +13,12 @@ import type { FormInfo } from '$lib/forms/FormInfo';
 import type { TC } from '$lib/forms/IN/defaultIN';
 
 const infoRK = (() => {
-    let rok = $state() as number;
+    let year = $state() as number;
     const tc = (url: URL = page.url) => (url.searchParams.get('tc')?.let(Number) ?? 1) as TC;
 
     const info: FormInfo<DataRK, FormRK, [], 'RK'> = {
         type: 'IR',
-        storeName: 'stored_check',
+        storeName: () => `stored_check-${tc()}`,
         defaultData: defaultRK,
         openPdf: () => ({
             link: 'RK',
@@ -27,12 +27,12 @@ const infoRK = (() => {
         getEditData: (ir, url) => {
             console.log(ir.kontrolyTC, tc(url));
             const kontroly = ir.kontrolyTC[tc(url)] ?? {};
-            rok = kontroly?.[1] == undefined ? 1
+            year = kontroly?.[1] == undefined ? 1
                 : Math.max(...kontroly.keys().map(Number)) + 1;
             return undefined;
         },
         saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
-            await db.addHeatPumpCheck(irid, tc(), rok as Year, raw);
+            await db.addHeatPumpCheck(irid, tc(), year as Year, raw);
             if (await checkRegulusOrAdmin()) return;
 
             const user = get(currentUser)!;
@@ -55,7 +55,7 @@ const infoRK = (() => {
         title: t => t.rk.formTitle({ n: `${tc()}` }),
         createWidgetData: () => {
         },
-        subtitle: t => `${t.rk.year}: ${rok.toString() ?? '…'}`,
+        subtitle: t => `${t.rk.year}: ${year.toString() ?? '…'}`,
         onMount: async (d, k) => {
             if (!k.info.datum.value)
                 k.info.datum.setValue(d, todayISO());

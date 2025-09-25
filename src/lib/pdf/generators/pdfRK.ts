@@ -6,8 +6,20 @@ import defaultRK from '$lib/forms/RK/defaultRK';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import ares from '$lib/helpers/ares';
 
+const calculateCompressorRuntime = ({ runtimeHoursPerYear, startupCountPerYear }: {
+    runtimeHoursPerYear: string[],
+    startupCountPerYear: string[],
+}, y: number) => {
+    const thisRuntimeHours = runtimeHoursPerYear[y - 1].toNumber() || 0;
+    const thisStartupCount = startupCountPerYear[y - 1].toNumber() || 0;
+    const lastRuntimeHours = runtimeHoursPerYear.slice(0, y - 1).map(parseInt).findLast(Boolean) || 0;
+    const lastStartupCount = startupCountPerYear.slice(0, y - 1).map(parseInt).findLast(Boolean) || 0;
+    if (thisStartupCount == lastStartupCount) return 0;
+    if (thisStartupCount == 0) return 0;
+    return (thisRuntimeHours - lastRuntimeHours) / (thisStartupCount - lastStartupCount) * 60;
+};
+
 const pdfRK: GetPdfData<'RK'> = async ({ data: { kontrolyTC, evidence: e, uvedeniTC: u }, t, pump }) => {
-    console.log(kontrolyTC);
     const tk = t.rk;
     const kontroly = kontrolyTC[pump] as Record<number, Raw<FormRK>>;
     const montazka = await ares.getName(e.montazka.ico);
@@ -27,8 +39,18 @@ const pdfRK: GetPdfData<'RK'> = async ({ data: { kontrolyTC, evidence: e, uveden
             .mapTo((r, p) => `${tk.year} ${r}: ${p}`)
             .join('\n'),
     };
+    const argsHP = {
+        runtimeHoursPerYear: kontroly.mapTo((_, k) => k.kontrolniUkonyRegulace.stavPocitadlaCelkovychProvoznichHodinKompresoru),
+        startupCountPerYear: kontroly.mapTo((_, k) => k.kontrolniUkonyRegulace.stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace),
+    };
+    const argsHW = {
+        runtimeHoursPerYear: kontroly.mapTo((_, k) => k.kontrolniUkonyRegulace.stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace),
+        startupCountPerYear: kontroly.mapTo((_, k) => k.kontrolniUkonyRegulace.stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace),
+    };
     const veci = kontroly.mapTo((rok, kontrola) => {
         const k = dataToRawData(rawDataToData(defaultRK(), kontrola)); // seřazení informací
+        k.kontrolniUkonyRegulace.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly = calculateCompressorRuntime(argsHP, rok).roundTo().toLocaleString('cs');
+        k.kontrolniUkonyRegulace.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly = calculateCompressorRuntime(argsHW, rok).roundTo().toLocaleString('cs');
         const array = k.omit('info', 'poznamky').getValues().flatMap(obj => obj.getValues());
         const start =
             1 + // Indexujeme od 1

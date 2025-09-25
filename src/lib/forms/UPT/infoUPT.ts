@@ -12,7 +12,7 @@ import type { DataUPT, FormUPT } from '$lib/forms/UPT/formUPT';
 
 const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
     type: 'IR',
-    storeName: 'stored_heat_pump_commission',
+    storeName: () => 'stored_heat_pump_commission',
     defaultData: defaultUPT,
     openPdf: () => ({
         link: 'UPT',

@@ -49,7 +49,7 @@
         showSaveAndSendButtonByDefault,
     } = formInfo;
 
-    const storedData = storable<Raw<F>>(storeName);
+    const storedData = storable<Raw<F>>(storeName());
     let mode: 'create' | 'edit' | 'loading' | 'view' = $state('loading');
 
     let f: F = $state(defaultData());
