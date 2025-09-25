@@ -25,7 +25,7 @@ const infoSP = (() => {
     let i = $state() as number;
     const info: FormInfo<FormSP, FormSP, [[Technician[], User | null]], 'SP'> = {
         type: 'IR',
-        storeName: 'stored_sp',
+        storeName: () => 'stored_sp',
         defaultData: () => defaultSP(),
         openPdf: () => ({
             link: 'SP',

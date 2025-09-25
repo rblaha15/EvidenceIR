@@ -26,7 +26,7 @@ import { dataToRawData, type Raw } from '$lib/forms/Form';
 
 const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string | null]]> = {
     type: '',
-    storeName: 'stored_data',
+    storeName: () => 'stored_data',
     defaultData: () => defaultIN(),
     saveData: async (raw, edit, data, editResult, t, send) => {
         const irid = extractIRIDFromRawData(raw);

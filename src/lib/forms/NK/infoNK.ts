@@ -14,7 +14,7 @@ import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 
 const infoNK: IndependentFormInfo<FormNK, FormNK> = {
     type: '',
-    storeName: 'stored_demand',
+    storeName: () => 'stored_demand',
     defaultData: defaultNK,
     saveData: async (raw, _, form, editResult, t, __, resetForm) => {
         const user = get(currentUser)!;

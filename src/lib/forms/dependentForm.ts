@@ -28,7 +28,7 @@ export const removeDependency = async <
     return {
         ...formInfo,
         type: '',
-        storeName: `${storeName}_${irid}`,
+        storeName: () => `${storeName()}_${irid}`,
         getEditData: async url => getEditData?.(ir, url),
         getViewData: async url => getViewData?.(ir, url),
         saveData: async (raw, edit, data, editResult, t, send) => {
