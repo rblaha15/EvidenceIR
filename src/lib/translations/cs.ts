@@ -574,6 +574,7 @@ export default {
         },
         note: `Poznámka`,
         description: `Popis`,
+        contactPerson: 'Kontaktní osoba',
     },
     od: {
         title: 'Odeslat podepsané dokumenty',

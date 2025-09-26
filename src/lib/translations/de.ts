@@ -106,6 +106,7 @@ const de: PlainTranslations = {
         irCooperation: 'Zusammenarbeit mit der Regulierungsbehörde Regulus',
         note: `Notiz`,
         description: `Beschreibung`,
+        contactPerson: 'Ansprechperson',
     },
     auth: {
         password: `Passwort`,
