@@ -28,6 +28,7 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
         wrongFormat: TextWidget<D>;
         pobocka: InputWidget<D>;
         ico: InputWidget<D>;
+        kontaktniOsoba: InputWidget<D>;
         telefon: InputWidget<D>;
         email: InputWidget<D>;
     };
