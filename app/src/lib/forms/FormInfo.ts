@@ -32,7 +32,13 @@ export type IndependentFormInfo<
     createWidgetData: (data: F) => D;
     title: (t: Translations, mode: 'create' | 'edit' | 'view') => string;
     subtitle?: ((t: Translations, edit: boolean) => string) | undefined;
+    /**
+     * Runs after getViewData
+     */
     getEditData?: ((url: URL) => Promise<R | undefined>) | undefined;
+    /**
+     * Runs before getEditData
+     */
     getViewData?: ((url: URL) => Promise<R | undefined>) | undefined;
     onMount?: (data: D, form: F, mode: 'create' | 'edit' | 'view') => Promise<void> | undefined;
     storeEffects?: { [I in keyof S]: Effect<D, F, S[I]> } | undefined;
@@ -61,7 +67,13 @@ export type FormInfo<
     openPdf?: () => Omit<OpenPdfOptions<P>, 'irid'>;
     saveData: (irid: IRID, raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, ir: IR) => Promise<boolean | void>;
     createWidgetData: (evidence: Raw<FormIN>, data: F) => D;
+    /**
+     * Runs in +page.ts after getViewData
+     */
     getEditData?: ((ir: IR, url: URL) => R | undefined) | undefined;
+    /**
+     * Runs in +page.ts before getEditData
+     */
     getViewData?: ((ir: IR, url: URL) => R | undefined) | undefined;
     onMount?: (data: D, form: F, mode: 'create' | 'edit' | 'view', ir: IR) => Promise<void> | undefined;
 } & Omit<
