@@ -34,7 +34,7 @@
         href: relUrl(`/NSP?view-spid=${spid}`),
     }, {
         color: 'warning',
-        icon: 'edit_dokument',
+        icon: 'edit_document',
         text: td.editProtocol,
         href: relUrl(`/NSP?edit-spid=${spid}`),
     }, {
