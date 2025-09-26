@@ -11,34 +11,53 @@ import { type DataRK, type FormRK } from '$lib/forms/RK/formRK.js';
 import defaultRK from '$lib/forms/RK/defaultRK';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import type { TC } from '$lib/forms/IN/defaultIN';
+import { error } from '@sveltejs/kit';
 
 const infoRK = (() => {
-    let year = $state() as number;
-    const tc = (url: URL = page.url) => (url.searchParams.get('tc')?.let(Number) ?? 1) as TC;
+    let year = $state() as Year;
+    const pump = (url: URL = page.url) => (url.searchParams.get('pump')?.toNumber() || error(400, 'Argument pump not valid or missing')) as TC;
 
     const info: FormInfo<DataRK, FormRK, [], 'RK'> = {
         type: 'IR',
-        storeName: () => `stored_check-${tc()}`,
+        storeName: () => `stored_check-${pump()}`,
         defaultData: defaultRK,
         openPdf: () => ({
             link: 'RK',
-            pump: tc(),
+            pump: pump(),
         }),
         getEditData: (ir, url) => {
-            console.log(ir.kontrolyTC, tc(url));
-            const kontroly = ir.kontrolyTC[tc(url)] ?? {};
-            year = kontroly?.[1] == undefined ? 1
-                : Math.max(...kontroly.keys().map(Number)) + 1;
-            return undefined;
+            const edit = (url.searchParams.get('edit-year')?.toNumber()) as Year | undefined;
+            if (edit) {
+                year = edit
+                return ir.kontrolyTC[pump(url)]![edit];
+            }
         },
-        saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
-            await db.addHeatPumpCheck(irid, tc(), year as Year, raw);
+        getViewData: (ir, url) => {
+            const view = (url.searchParams.get('view-year')?.toNumber()) as Year | undefined;
+            if (view) {
+                year = view
+                return ir.kontrolyTC[pump(url)]![view];
+            }
+            else {
+                const checks = ir.kontrolyTC[pump(url)] ?? {};
+                year = checks?.[1]
+                    ? (Math.max(...checks.keys().map(Number)) + 1) as Year
+                    : 1;
+                return undefined;
+            }
+        },
+        saveData: async (irid, raw, edit, _, editResult, t, __, ir) => {
+            const hp = pump();
+            await db.addHeatPumpCheck(irid, hp, year, raw);
+
             if (await checkRegulusOrAdmin()) return;
 
             const user = get(currentUser)!;
             const response = await sendEmail({
                 ...defaultAddresses(),
-                subject: `Vyplněna nová roční kontrola TČ k ${irName(ir.evidence.ir)}`,
+                subject: edit
+                    ? `Vyplněna nová roční kontrola TČ${hp} k ${irName(ir.evidence.ir)}`
+                    : `Upravena roční kontrola TČ${hp} k ${irName(ir.evidence.ir)}`,
                 component: MailProtocol,
                 props: { name: user.email!, url: page.url.origin + detailIrUrl(irid) },
             });
@@ -52,7 +71,7 @@ const infoRK = (() => {
             return false;
         },
         showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
-        title: t => t.rk.formTitle({ n: `${tc()}` }),
+        title: t => t.rk.formTitle({ n: `${pump()}` }),
         createWidgetData: () => {
         },
         subtitle: t => `${t.rk.year}: ${year.toString() ?? '…'}`,

@@ -5,6 +5,7 @@ import type { GetPdfData } from '$lib/pdf/pdf';
 import defaultRK from '$lib/forms/RK/defaultRK';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import ares from '$lib/helpers/ares';
+import { dateFromISO } from '$lib/helpers/date';
 
 const calculateCompressorRuntime = ({ runtimeHoursPerYear, startupCountPerYear }: {
     runtimeHoursPerYear: string[],
@@ -71,7 +72,7 @@ const pdfRK: GetPdfData<'RK'> = async ({ data: { kontrolyTC, evidence: e, uveden
             (Number(rok) - 1) * 2; // 2 metadata
 
         return [
-            [`Text${start}`, veci.datum],
+            [`Text${start}`, dateFromISO(veci.datum)],
             [`Text${start + 1}`, veci.osoba],
         ] as [`Text${number}`, string][];
     }).flat().toRecord();

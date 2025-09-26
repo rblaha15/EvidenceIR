@@ -9,6 +9,7 @@
     import { currentUser } from '$lib/client/auth';
     import { invalidateAll } from '$app/navigation';
     import { aR } from '$lib/helpers/stores';
+    import type { ClassValue } from 'svelte/elements';
 
     const {
         irid, ir, lang, t,
@@ -41,29 +42,26 @@
 {#if ir.installationProtocols.length}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         {#each ir.installationProtocols as p, i}
-            <PDFLink name={spName(p.zasah)} data={ir} {t} link="SP" index={i} {irid}>
-                {#snippet dropdown()}
-                    <li>
-                        <span class="d-flex align-items-center dropdown-item">
-                            <span class="text-primary material-icons">preview</span>
-                            <a class="text-primary dropdown-item" href={iridUrl(`/SP/?view=${i}`)}>{td.viewFilledData}</a>
-                        </span>
-                    </li>
-                    <li>
-                        <span class="d-flex align-items-center dropdown-item">
-                            <span class="text-warning material-icons">edit_document</span>
-                            <a class="text-warning dropdown-item" href={iridUrl(`/SP/?edit=${i}`)}>{td.editProtocol}</a>
-                        </span>
-                    </li>
-                    <li>
-                        <span class="d-flex align-items-center dropdown-item">
-                            <span class="text-warning material-icons">file_copy</span>
-                            <button class="text-warning dropdown-item" data-bs-toggle="modal"
-                                    data-bs-target="#duplicateModal">{td.duplicate}</button>
-                        </span>
-                    </li>
-                {/snippet}
-            </PDFLink>
+            {#snippet duplicateButton(klass: ClassValue)}
+                <button class={klass} data-bs-toggle="modal" data-bs-target="#duplicateModal">{td.duplicate}</button>
+            {/snippet}
+            <PDFLink
+                name={spName(p.zasah)} data={ir} {t} link="SP" index={i} {irid} dropdownItems={[{
+                    color: 'primary',
+                    icon: 'preview',
+                    text: td.viewFilledData,
+                    href: iridUrl(`/SP/?view=${i}`),
+                }, {
+                    color: 'warning',
+                    icon: 'edit_document',
+                    text: td.editProtocol,
+                    href: iridUrl(`/SP/?edit=${i}`),
+                }, {
+                    color: 'warning',
+                    icon: 'file_copy',
+                    item: duplicateButton,
+                }]}
+            />
 
             <div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
