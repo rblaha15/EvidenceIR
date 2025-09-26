@@ -192,6 +192,7 @@ const en: PlainTranslations = {
             airToWater: 'Air-to-Water',
             groundToWater: 'Ground-to-Water',
         },
+        contactPerson: 'Contact person',
     },
     wrong: {
         number: 'Invalid number format',
