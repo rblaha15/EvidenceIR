@@ -80,6 +80,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             onValueSet: (d, company) => {
                 d.koncovyUzivatel.nazev.setValue(d, company?.companyName ?? '');
                 d.koncovyUzivatel.ico.setValue(d, company?.crn ?? '');
+                d.koncovyUzivatel.kontaktniOsoba.setValue(d, company?.representative ?? '');
                 d.koncovyUzivatel.telefon.setValue(d, company?.phone ?? '');
                 d.koncovyUzivatel.email.setValue(d, company?.email ?? '');
                 if (company?.crn) ares.getNameAndAddress(company.crn).then(ares => {
@@ -106,6 +107,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             regex: /^\d{8}(\d{2})?$/, required: po, show: po,
             maskOptions: { mask: `00000000[00]` },
         }),
+        kontaktniOsoba: new InputWidget({ label: t => t.in.contactPerson, required: false, show: po }),
         telefon: new InputWidget({
             label: t => t.in.phone, onError: t => t.wrong.phone,
             regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
