@@ -45,9 +45,9 @@ export default (): FormRK => ({
         stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv: new InputWidget(
             { label: t => t.rk.stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv, required: false }),
         prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: new InputWidget(
-            { label: t => t.rk.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly, required: false }),
+            { label: t => t.rk.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly, required: false, show: false }),
         prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly: new InputWidget(
-            { label: t => t.rk.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly, required: false }),
+            { label: t => t.rk.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly, required: false, show: false }),
     },
     kontrolniElektroinstalace: {
         nadpis: new TitleWidget({ text: t => t.rk.kontrolniElektroinstalace }),

@@ -24,12 +24,10 @@ const pdfRR: GetPdfData<'RR'> = async ({ data: { evidence: e }, t }) => ({
     Text12: e.koncovyUzivatel.email,
     Text13: e.koncovyUzivatel.telefon,
     Text14: irType(e.ir.typ),
-    Text15: e.ir.typ.first == 'SOREL' ? '—'
-        : isMacAddress(e.ir.cislo) ? e.ir.cislo.slice(0, 6)
-            : e.ir.cislo.split(' ')[0],
-    Text16: e.ir.typ.first == 'SOREL' ? '—'
-        : isMacAddress(e.ir.cislo) ? e.ir.cislo.slice(6)
-            : e.ir.cislo.split(' ')[1],
+    Text15: isMacAddress(e.ir.cislo) ? e.ir.cislo.slice(0, 6)
+        : e.ir.cislo.split(' ')[0],
+    Text16: isMacAddress(e.ir.cislo) ? e.ir.cislo.slice(6)
+        : e.ir.cislo.split(' ')[1],
     Text17: e.ir.cisloBox,
     Text18: cascadePumps(e)
         .map(tc => `${tc.cislo} (${tc.model})`)
