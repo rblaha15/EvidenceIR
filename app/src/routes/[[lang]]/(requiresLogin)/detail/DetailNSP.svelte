@@ -19,11 +19,14 @@
     const spid = $derived(extractSPIDFromRawData(sp.zasah));
 </script>
 
-{#snippet deleteButton(klass: ClassValue)}
-    <button class={klass} onclick={() => {
+{#snippet deleteButton()}
+    <button class="btn btn-danger" onclick={() => {
         db.deleteIndependentProtocol(spid);
         goto(spidUrl(`/detail?deleted`), { replaceState: true });
-    }}>{td.deleteProtocol}{$aA}</button>
+    }}>
+        <span class="material-icons">delete_forever</span>
+        {td.deleteProtocol}{$aA}
+    </button>
 {/snippet}
 
 <PDFLink
@@ -38,8 +41,6 @@
         text: td.editProtocol,
         href: relUrl(`/NSP?edit-spid=${spid}`),
     }, {
-        color: 'danger',
-        icon: 'delete_forever',
         item: deleteButton,
         hide: !$isUserAdmin,
     }]}>
