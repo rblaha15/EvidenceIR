@@ -279,6 +279,7 @@ export default {
         linkInvalidNSP: `Buď protokol neexistuje nebo k němu nemáte přístup.`,
         sendDocuments: `Odeslat podepsané dokumenty`,
         viewFilledData: `Zobrazit vyplněné údaje`,
+        editCheck: `Upravit kontroly`,
         editInstallationData: `Upravit údaje o instalaci`,
         deleteThisRecord: `Odstranit tuto evidenci instalace`,
         delete: `Odstranit`,

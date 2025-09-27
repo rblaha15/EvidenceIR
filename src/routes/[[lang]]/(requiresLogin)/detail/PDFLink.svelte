@@ -18,15 +18,20 @@
             show?: boolean,
         },
         dropdownItems?: ({
+            hide?: boolean,
+            text: string,
+        } | {
             color: 'warning' | 'danger' | 'primary',
             icon: string,
             hide?: boolean,
-        } & ({
             text: string,
             href: string,
         } | {
+            color: 'warning' | 'danger' | 'primary',
+            icon: string,
+            hide?: boolean,
             item: Snippet<[klass: ClassValue]>,
-        }))[]
+        })[]
     }
 
     const {
@@ -66,14 +71,20 @@
                 <ul class="dropdown-menu">
                     {#each dropdownItems ?? [] as item}
                         {#if !item.hide}
-                            <li><span class="d-flex align-items-center dropdown-item">
-                            <span class="text-{item.color} material-icons">{item.icon}</span>
-                                {#if 'text' in item}
-                                <a class="text-{item.color} dropdown-item" href={item.href}>{item.text}</a>
-                            {:else}
-                                {@render item.item(`text-${item.color} dropdown-item`)}
-                            {/if}
-                        </span></li>
+                            <li>
+                                {#if 'color' in item}
+                                    <span class="d-flex align-items-center dropdown-item">
+                                        <span class="text-{item.color} material-icons">{item.icon}</span>
+                                        {#if 'text' in item}
+                                            <a class="text-{item.color} dropdown-item" href={item.href}>{item.text}</a>
+                                        {:else}
+                                            {@render item.item(`text-${item.color} dropdown-item`)}
+                                        {/if}
+                                    </span>
+                                {:else}
+                                    <h6 class="dropdown-header">{item.text}</h6>
+                                {/if}
+                            </li>
                         {/if}
                     {/each}
                 </ul>
