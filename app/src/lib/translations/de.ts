@@ -162,6 +162,7 @@ const de: PlainTranslations = {
         linkInvalidNSP: `Entweder existiert das Protokoll nicht oder Sie haben keinen Zugriff darauf.`,
         sendDocuments: `Signierte Dokumente senden`,
         viewFilledData: `Ausgefüllte Daten anzeigen`,
+        editCheck: `Überprüfungen bearbeiten`,
         editInstallationData: `Installationsdaten bearbeiten`,
         deleteThisRecord: `Dieses Installationsprotokoll löschen`,
         delete: `Löschen`,
