@@ -12,7 +12,7 @@ import { initialRouteLoggedIn } from '$lib/helpers/globals';
 
 const infoOD: IndependentFormInfo<FormOD, FormOD> = {
     type: '',
-    storeName: 'stored_documents_to_send',
+    storeName: () => 'stored_documents_to_send',
     defaultData: defaultOD,
     onMount: async (d, f) => {
         f.all.userEmail.setValue(d, page.url.searchParams.get('user') ?? '')

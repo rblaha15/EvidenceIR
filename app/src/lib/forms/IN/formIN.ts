@@ -28,6 +28,7 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
         wrongFormat: TextWidget<D>;
         pobocka: InputWidget<D>;
         ico: InputWidget<D>;
+        kontaktniOsoba: InputWidget<D>;
         telefon: InputWidget<D>;
         email: InputWidget<D>;
     };
@@ -68,7 +69,7 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
     };
 }
 
-export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL';
+export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL';
 export type IRTypes = UntranslatableIRTypes | 'fve';
 export type IRSubTypes = 'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6 EP' | 'STDC E' | 'TRS3' | 'TRS4' | 'TRS5' | 'TRS6 K';
 

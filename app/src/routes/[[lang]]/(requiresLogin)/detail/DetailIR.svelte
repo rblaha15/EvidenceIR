@@ -36,76 +36,55 @@
                 {/if}
                 {#if ir.evidence.ir.chceVyplnitK.includes('heatPump')}
                     <PDFLink
-                        enabled={ir.uvedeniTC !== undefined} name={t.tc.name} {t} link="UPT"
-                        data={ir} {irid}
-                    >
-                        {#if !ir.uvedeniTC}
-                            <a
-                                tabindex="0"
-                                class="btn btn-primary d-block"
-                                href={iridUrl('/UPT')}
-                            >{t.tc.commission}</a>
-                        {/if}
-                    </PDFLink>
+                        disabled={!ir.uvedeniTC} name={t.tc.name} {t} link="UPT"
+                        data={ir} {irid} additionalButton={{
+                            href: iridUrl('/UPT'),
+                            text: t.tc.commission,
+                            important: true,
+                        }}
+                    />
                     {#each cascadePumps(ir.evidence) as tc}
                         <PDFLink name={t.zl.name(tc)} {t} link="ZL" data={ir} pump={tc.N} {irid} />
                     {/each}
                     {#each cascadePumps(ir.evidence) as tc}
-                        <PDFLink name={t.rk.name(tc)} {t} link="RK" data={ir} pump={tc.N}
-                                 enabled={ir.kontrolyTC[tc.N]?.[1] !== undefined} {irid}>
-                            {#if !ir.kontrolyTC[tc.N]?.[4]}
-                                <a
-                                    tabindex="0" href={iridUrl(`/RK?tc=${tc.N}`)}
-                                    class="btn btn-outline-primary d-block"
-                                >{t.rk.fillOut(tc)}</a>
-                            {/if}
-                        </PDFLink>
+                        <PDFLink
+                            name={t.rk.name(tc)} {t} link="RK" data={ir} pump={tc.N} {irid}
+                            disabled={!ir.kontrolyTC[tc.N]?.[1]} additionalButton={{
+                                show: !ir.kontrolyTC[tc.N]?.[4],
+                                href: iridUrl(`/RK?pump=${tc.N}`),
+                                text: t.rk.fillOut(tc),
+                            }}
+                        />
                     {/each}
                 {/if}
                 {#if ir.evidence.ir.chceVyplnitK.includes('solarCollector')}
                     <PDFLink
-                        enabled={ir.uvedeniSOL !== undefined}
-                        name={t.sol.name}
-                        {t}
-                        link="UPS"
-                        data={ir} {irid}
-                    >
-                        {#if !ir.uvedeniSOL}
-                            <a
-                                tabindex="0"
-                                class="btn btn-primary d-block"
-                                href={iridUrl('/UPS')}
-                            >{t.sol.commission}</a>
-                        {/if}
-                    </PDFLink>
+                        disabled={!ir.uvedeniSOL}
+                        name={t.sol.name} {t} link="UPS" data={ir} {irid} additionalButton={{
+                            href: iridUrl('/UPS'),
+                            text: t.sol.commission,
+                            important: true,
+                        }}
+                    />
                 {/if}
                 {#if ir.evidence.ir.chceVyplnitK.includes('photovoltaicPowerPlant')}
                     <PDFLink
-                        enabled={ir.uvedeniFVE !== undefined}
-                        name={t.fve.name}
-                        {t}
-                        link="UPF"
-                        data={ir} {irid}
-                    >
-                        {#if !ir.uvedeniFVE}
-                            <a
-                                tabindex="0"
-                                class="btn btn-primary d-block"
-                                href={iridUrl('/UPF')}
-                            >{t.fve.commission}</a>
-                        {/if}
-                    </PDFLink>
+                        disabled={!ir.uvedeniFVE}
+                        name={t.fve.name} {t} link="UPF" data={ir} {irid} additionalButton={{
+                            href: iridUrl('/UPF'),
+                            text: t.fve.commission,
+                            important: true,
+                        }}
+                    />
                 {/if}
                 {#if ir.evidence.ir.typ.first === 'IR 14'}
-                    <PDFLink name={t.ft.title} {t} link="FT" data={ir} {irid} enabled={Boolean(ir.faceTable)}>
-                        {#if !ir.faceTable}
-                            <a
-                                tabindex="0"
-                                class="btn btn-outline-primary d-block"
-                                href={iridUrl('/FT')}
-                            >{t.ft.setUp}</a>
-                        {/if}
-                    </PDFLink>
+                    <PDFLink
+                        name={t.ft.title} {t} link="FT" data={ir} {irid}
+                        disabled={!ir.faceTable} additionalButton={{
+                            href: iridUrl('/FT'),
+                            text: t.ft.setUp,
+                        }}
+                    />
                 {/if}
             </div>
         </div>

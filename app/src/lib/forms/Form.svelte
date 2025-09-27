@@ -49,7 +49,7 @@
         showSaveAndSendButtonByDefault,
     } = formInfo;
 
-    const storedData = storable<Raw<F>>(storeName);
+    const storedData = storable<Raw<F>>(storeName());
     let mode: 'create' | 'edit' | 'loading' | 'view' = $state('loading');
 
     let f: F = $state(defaultData());
@@ -158,16 +158,16 @@
 </script>
 
 {#if mode !== 'loading'}
+    {#if subtitle}
+        <h3 class="m-0">{subtitle(t, mode === 'edit')}</h3>
+    {/if}
+
     <FormHeader readonly={mode === 'view'} excelImport={excelImport ? {
         ...excelImport, onImport: onImportExcel, isDangerous, defaultData: () => dataToRawData(defaultData())
     } : undefined} pdfImport={pdfImport ? {
         ...pdfImport, onImport: onImportPdf, isDangerous, defaultData: () => dataToRawData(defaultData())
     } : undefined} store={storedData} {t} title={title(t, mode)}
     showBackButton={mode === 'view' || !hideBackButton?.(mode === 'edit')} />
-
-    {#if subtitle}
-        <h3>{subtitle(t, mode === 'edit')}</h3>
-    {/if}
     {#each list as _, i}
         {#if mode === 'view'}
             <ReadonlyWidget widget={list[i]} {t} data={d} />

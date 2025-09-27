@@ -4,11 +4,12 @@
     import { type Translations } from '$lib/translations';
     import { time, todayISO } from '$lib/helpers/date';
     import { untrack } from 'svelte';
-    import { extractIRIDFromParts, type IRID } from '$lib/helpers/ir';
+    import { doesNotHaveIRNumber, extractIRIDFromParts, type IRID, isMACAddressTypeIR10, supportsMACAddresses } from '$lib/helpers/ir';
     import db, { type IR } from '$lib/data';
     import { goto } from '$app/navigation';
     import { detailIrUrl } from '$lib/helpers/runes.svelte';
     import Widget from '$lib/components/Widget.svelte';
+    import { isMACAddressTypeIR12 } from '$lib/helpers/ir.js';
 
     const { t, ir, irid }: {
         t: Translations, ir: IR, irid: IRID,
@@ -19,14 +20,11 @@
 
     type D = { type: ChooserWidget<D, IRTypes>, number: InputWidget<D> };
 
-    const sorel = (d: D) => d.type.value == 'SOREL';
-    const irFVE = (d: D) => d.type.value == 'fve';
-
     let irType: ChooserWidget<D, IRTypes> = $state(new ChooserWidget({
         label: t => t.in.controllerType,
-        options: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
+        options: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
         onValueSet: (d, v) => {
-            if (v == 'SOREL' || v == 'fve') {
+            if (doesNotHaveIRNumber(v)) {
                 d.number.setValue(d, `${todayISO()} ${time()}`);
             }
         },
@@ -35,20 +33,20 @@
     let irNumber: InputWidget<D> = $state(new InputWidget({
         label: t => t.in.serialNumber,
         onError: t => t.wrong.number,
-        regex: d => sorel(d) || irFVE(d)
+        regex: d => doesNotHaveIRNumber(d.type.value)
             ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
-            : d.type.value == 'IR 12'
+            : isMACAddressTypeIR12(d.type.value)
                 ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
-                : d.type.value == 'IR 10'
+                : isMACAddressTypeIR10(d.type.value)
                     ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
                     : /[A-Z][1-9OND] [0-9]{4}/,
         capitalize: true,
         maskOptions: d => ({
-            mask: sorel(d) ? `0000-00-00T00:00` :
-                d.type.value != 'IR 12' && d.type.value != 'IR 10' ? 'Z9 0000'
+            mask: doesNotHaveIRNumber(d.type.value) ? `0000-00-00T00:00` :
+                !supportsMACAddresses(d.type.value) ? 'Z9 0000'
                     : d.number.value.length == 0 ? 'X'
                         : d.number.value[0] == '0'
-                            ? d.type.value == 'IR 10'
+                            ? isMACAddressTypeIR10(d.type.value)
                                 ? 'NN:NA:14:N6:FF:FF'
                                 : 'NN:NA:14:N9:FF:FF'
                             : 'Z9 0000',
@@ -64,7 +62,7 @@
                 9: /[1-9ONDond]/,
             },
         }),
-        show: d => !sorel(d) && !irFVE(d),
+        show: d => !doesNotHaveIRNumber(d.type.value),
     }));
 
     const d = $derived({ number: irNumber, type: irType });

@@ -17,6 +17,7 @@
     import { page } from '$app/state';
     import { preferredLanguage } from '$lib/languages';
     import { relUrl } from '$lib/helpers/runes.svelte';
+    import type { EventHandler } from 'svelte/elements';
 
     interface Props {
         data: LayoutData;
@@ -54,7 +55,7 @@
         const currentLangLength = data.languageCode?.length ?? -1;
         const path = page.url.pathname.slice(currentLangLength + 1);
         if (path == '') {
-            const isLoggedIn = await checkAuth()
+            const isLoggedIn = await checkAuth();
             await goto(relUrl(isLoggedIn ? initialRouteLoggedIn : initialRouteLoggedOut));
         }
         if (!data.isLanguageFromUrl) await goto(
@@ -66,14 +67,49 @@
             { replaceState: true, invalidateAll: true },
         );
     });
+
+    let error = $state<{ name: string; message: string; fileName: any; lineNumber: any; columnNumber: any }>();
+
+    const handleError: EventHandler<PromiseRejectionEvent, Window> = e => {
+        const r = e.reason as Error;
+        if (r.message.startsWith('ServiceWorker')) return;
+        error = {
+            name: r.name,
+            message: r.message,
+            fileName: 'fileName' in r ? r.fileName || '' : '',
+            lineNumber: 'lineNumber' in r ? r.lineNumber || '' : '',
+            columnNumber: 'columnNumber' in r ? r.columnNumber || '' : '',
+        };
+    };
 </script>
+
+<svelte:window onunhandledrejection={handleError} />
 
 <svelte:head>
     <title>{dev ? '(dev) ' : ''}SEIR :: {$title}</title>
 </svelte:head>
 
 {#await checkAuth()}
-    <div class="spinner-border text-danger m-2"></div>
+    {#if !error}
+        <div class="spinner-border text-danger m-3"></div>
+    {:else}
+        <div class="alert alert-danger m-3 d-flex flex-column gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <span class="material-icons">error_outline</span>
+                <h4 class="alert-heading m-0">{error.name}</h4>
+            </div>
+            <p class="m-0">
+                {#each error.message.split('\n') as line, i}
+                    {#if i !== 0}<br />{/if}
+                    {line}
+                {/each}
+            </p>
+            {#if error.fileName || error.lineNumber || error.columnNumber}
+                <hr class="m-0" />
+                <p class="w-100 text-end m-0">{error.fileName}:{error.lineNumber}:{error.columnNumber}</p>
+            {/if}
+        </div>
+    {/if}
 {:then _}
     <div class="d-flex flex-column h-100">
         <Navigation {t} />

@@ -107,6 +107,6 @@ export const generatePdfPreviewUrl = <P extends Pdf>(o: OpenPdfOptions<P>) => {
     }
     if (irid) url.searchParams.append('irid', irid);
     if (spid) url.searchParams.append('spid', spid);
-    url.searchParams.append('lang', lang ?? '?');
+    if (lang) url.searchParams.append('lang', lang);
     return url;
 };

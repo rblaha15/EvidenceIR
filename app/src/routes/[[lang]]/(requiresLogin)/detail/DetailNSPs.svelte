@@ -36,7 +36,7 @@
             ...dataToRawData(defaultNSP()),
             ...sps[0].omit(...protocolGroups),
         };
-        storable<typeof sps[0]>(NSP.storeName).set(newSP);
+        storable<typeof sps[0]>(NSP.storeName()).set(newSP);
     };
 </script>
 

@@ -55,6 +55,8 @@ export const spName = (zasah: Raw<GenericFormSP<never>>['zasah']) => {
  *
  * IR14CTC
  *
+ * IR30
+ *
  * IR RegulusBOX CTC
  *
  * SRS1 T
@@ -63,6 +65,7 @@ export const irType = (type: Raw<FormIN>['ir']['typ']) => ({
     'IR 10': 'IR10CTC400',
     'IR 12': 'IR12CTC',
     'IR 14': 'IR14' + type.second!,
+    'IR 30': 'IR30',
     'IR 34': 'IR34' + type.second!,
     'IR RegulusBOX': `IR RegulusBOX ` + type.second!,
     'IR RegulusHBOX': `IR RegulusHBOX ` + type.second!,
@@ -128,6 +131,8 @@ export const endUserName2 = (k: Raw<FormIN>['koncovyUzivatel']) =>
  *
  * 4: IR 14;
  *
+ * 1: IR 30;
+ *
  * 3: IR 34;
  *
  * B: BOX/HBOX/HBOXK;
@@ -136,7 +141,7 @@ export const endUserName2 = (k: Raw<FormIN>['koncovyUzivatel']) =>
  *
  * F: FVE;
  */
-export type IRType = '0' | '2' | '4' | '3' | 'B' | 'S' | 'F';
+export type IRType = '0' | '2' | '4' | '1'  | '3' | 'B' | 'S' | 'F';
 /**
  * MAC IR:        2000A1406FFFF (13);
  *
@@ -159,6 +164,7 @@ const extractIRTypeFromFullIRType = (fullIRType: IRTypes): IRType => ({
     'IR 10': '0',
     'IR 12': '2',
     'IR 14': '4',
+    'IR 30': '1',
     'IR 34': '3',
     'IR RegulusBOX': 'B',
     'IR RegulusHBOX': 'B',
@@ -178,3 +184,11 @@ export const extractSPIDFromRawData = (zasah: Raw<GenericFormSP<never>['zasah']>
     const technik = zasah.inicialy;
     return `${technik}-${datum}-${hodina}-${minuta}`;
 };
+
+export const supportsOnlyCTC = (t: IRTypes | null) => t == 'IR 10' || t == 'IR 12' || t == 'IR 30';
+export const supportsMACAddresses = (t: IRTypes | null) => t == 'IR 10' || t == 'IR 12' || t == 'IR 30';
+export const isMACAddressTypeIR12 = (t: IRTypes | null) => t == 'IR 12' || t == 'IR 30';
+export const isMACAddressTypeIR10 = (t: IRTypes | null) => t == 'IR 10';
+export const doesNotSupportHeatPumps = (t: IRTypes | null) => t == 'fve';
+export const doesNotHaveIRNumber = (t: IRTypes | null) => t == 'fve' || t == 'SOREL';
+export const supportsRemoteAccess = (t: IRTypes | null) => t != 'fve' && t != 'SOREL';
