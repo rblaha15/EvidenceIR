@@ -4,7 +4,6 @@
     import type { Snippet } from 'svelte';
     import { generatePdfPreviewUrl } from '../../helpers';
     import { currentPreferredDocumentLanguage } from '$lib/languages';
-    import type { ClassValue } from 'svelte/elements';
 
     type Props<P extends Pdf> = OpenPdfOptions<P> & {
         data: DataOfPdf<P>;
@@ -18,15 +17,18 @@
             show?: boolean,
         },
         dropdownItems?: ({
+            hide?: boolean,
+            text: string,
+        } | {
             color: 'warning' | 'danger' | 'primary',
             icon: string,
             hide?: boolean,
-        } & ({
             text: string,
             href: string,
         } | {
-            item: Snippet<[klass: ClassValue]>,
-        }))[]
+            hide?: boolean,
+            item: Snippet,
+        })[]
     }
 
     const {
@@ -63,20 +65,24 @@
                     <span class="material-icons">more_vert</span>
                     <span class="visually-hidden">Toggle dropdown with other options</span>
                 </button>
-                <ul class="dropdown-menu">
-                    {#each dropdownItems ?? [] as item}
-                        {#if !item.hide}
-                            <li><span class="d-flex align-items-center dropdown-item">
-                            <span class="text-{item.color} material-icons">{item.icon}</span>
-                                {#if 'text' in item}
-                                <a class="text-{item.color} dropdown-item" href={item.href}>{item.text}</a>
-                            {:else}
-                                {@render item.item(`text-${item.color} dropdown-item`)}
+                <div class="dropdown-menu">
+                    <div class="d-flex flex-column gap-1 p-3">
+                        {#each dropdownItems ?? [] as item}
+                            {#if !item.hide}
+                                {#if 'color' in item}
+                                    <a class="btn btn-{item.color}" href={item.href} tabindex="0">
+                                        <span class="material-icons">{item.icon}</span>
+                                        {item.text}
+                                    </a>
+                                {:else if 'item' in item}
+                                    {@render item.item()}
+                                {:else}
+                                    <h6 class="m-0">{item.text}</h6>
+                                {/if}
                             {/if}
-                        </span></li>
-                        {/if}
-                    {/each}
-                </ul>
+                        {/each}
+                    </div>
+                </div>
             {/if}
         </div>
     {:else if name}

@@ -260,6 +260,7 @@ const en: PlainTranslations = {
         linkInvalidNSP: `Either the protocol doesn't exist or you don't have access to it.`,
         sendDocuments: `Sent signed documents`,
         viewFilledData: `Display the filled data`,
+        editCheck: `Edit checks`,
         editInstallationData: `Edit the installation data`,
         deleteThisRecord: `Delete the installation record`,
         delete: `Delete`,

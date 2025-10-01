@@ -42,8 +42,11 @@
 {#if ir.installationProtocols.length}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         {#each ir.installationProtocols as p, i}
-            {#snippet duplicateButton(klass: ClassValue)}
-                <button class={klass} data-bs-toggle="modal" data-bs-target="#duplicateModal">{td.duplicate}</button>
+            {#snippet duplicateButton()}
+                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#duplicateModal">
+                    <span class="material-icons">file_copy</span>
+                    {td.duplicate}
+                </button>
             {/snippet}
             <PDFLink
                 name={spName(p.zasah)} data={ir} {t} link="SP" index={i} {irid} dropdownItems={[{
@@ -57,8 +60,6 @@
                     text: td.editProtocol,
                     href: iridUrl(`/SP/?edit=${i}`),
                 }, {
-                    color: 'warning',
-                    icon: 'file_copy',
                     item: duplicateButton,
                 }]}
             />
