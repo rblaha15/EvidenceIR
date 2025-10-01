@@ -66,7 +66,7 @@ export type FormInfo<
     type: 'IR';
     openPdf?: () => Omit<OpenPdfOptions<P>, 'irid'>;
     saveData: (irid: IRID, raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, ir: IR) => Promise<boolean | void>;
-    createWidgetData: (evidence: Raw<FormIN>, data: F) => D;
+    createWidgetData: (evidence: Raw<FormIN>, data: F, ir: IR) => Omit<D, keyof Form>;
     /**
      * Runs in +page.ts after getViewData
      */

@@ -311,8 +311,10 @@ const en: PlainTranslations = {
     pdf: {
         fileLanguage: `Document language`,
         downloadFile: `Download document`,
-        previewFile: `Document preview`,
+        documentPreview: `Document preview`,
         page: t`Page ${'page'}/${'total'}`,
+        previewLoading: `Loading document preview…`,
+        previewNotSuccessful: `Document preview couldn't be loaded.`,
     },
     nk: cs.nk,
     fve: {

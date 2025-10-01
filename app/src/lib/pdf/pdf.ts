@@ -1,5 +1,5 @@
 import type { LanguageCode } from '$lib/languages';
-import { type Translations } from '$lib/translations';
+import { get, type Translations } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
 import type { IR } from '$lib/data';
 import type { PdfGenerationData } from '$lib/pdf/pdfGeneration';
@@ -15,7 +15,11 @@ import FT from '$lib/pdf/generators/pdfFT';
 import type { Raw } from '$lib/forms/Form';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { TC } from '$lib/forms/IN/defaultIN';
-import type { IRID, SPID } from '$lib/helpers/ir';
+import { type IRID, irName, type SPID } from '$lib/helpers/ir';
+import type { FormIN } from '$lib/forms/IN/formIN';
+import type { FormSP } from '$lib/forms/SP/formSP.svelte';
+import type { FormUPT } from '$lib/forms/UPT/formUPT';
+import { cascadePumps } from '$lib/forms/IN/infoIN';
 
 type AllPdf = {
     /** Roční kontrola TČ */
@@ -194,3 +198,29 @@ type PdfParams = {
     },
 };
 export type PdfParameters<P extends Pdf> = P extends keyof PdfParams ? PdfParams[P] : {};
+
+export const generalizeServiceProtocol = (
+    e: Raw<FormIN>, p: Raw<FormSP>, u: Raw<FormUPT> | undefined, t: Translations,
+) => {
+    const pumps = e.tc.model ? cascadePumps(e) : [];
+    return {
+        ...e,
+        ...p,
+        system: {
+            popis:
+                irName(e.ir) +
+                (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +
+                (u?.nadrze?.akumulacka || u?.nadrze?.zasobnik ? '\n' : '') +
+                (u?.nadrze?.akumulacka ? `Nádrž: ${u.nadrze.akumulacka}` : '') +
+                (u?.nadrze?.akumulacka && u?.nadrze?.zasobnik ? '; ' : '') +
+                (u?.nadrze?.zasobnik ? `Zásobník: ${u.nadrze.zasobnik}` : '') +
+                (e.sol?.typ ? `\nSOL: ${e.sol.typ} – ${e.sol.pocet}x` : '') +
+                (e.rek?.typ ? `\nREK: ${e.rek.typ}` : '') +
+                (e.fve?.pocet ? `\nFVE: ${get(t.in.fve, e.fve.typ)} – ${e.fve.pocet}x` : '') +
+                (e.fve?.akumulaceDoBaterii ? `; baterie: ${e.fve.typBaterii} – ${e.fve.kapacitaBaterii} kWh` : '') +
+                (e.jine?.popis ? `\nJiné zařízení: ${e.jine.popis}` : '') +
+                (e.tc.model ? '\n' + pumps.map(t.sp.pumpDetails).join('; ') : ''),
+            pocetTC: pumps.length,
+        },
+    };
+};
