@@ -1,6 +1,6 @@
 <script lang="ts">
     import PDFLink from './PDFLink.svelte';
-    import { isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { type IRID } from '$lib/helpers/ir';
     import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { type Translations } from '$lib/translations';
@@ -10,7 +10,7 @@
     import type { LanguageCode } from '$lib/languages';
     import { goto } from '$app/navigation';
     import ChangeIRID from './ChangeIRID.svelte';
-    import { aR } from '$lib/helpers/stores';
+    import { aA, aR } from '$lib/helpers/stores';
 
     const { t, ir, lang, irid }: {
         t: Translations, ir: IR, lang: LanguageCode, irid: IRID,
@@ -53,7 +53,14 @@
                                 show: !ir.kontrolyTC[tc.N]?.[4],
                                 href: iridUrl(`/RK?pump=${tc.N}`),
                                 text: t.rk.fillOut(tc),
-                            }}
+                            }} dropdownItems={$isUserAdmin ? ir.kontrolyTC[tc.N]?.keys().flatMap(y => [{
+                                text: `${t.rk.year} ${y}`,
+                            }, {
+                                color: 'warning',
+                                icon: 'edit_document',
+                                text: td.editCheck + $aA,
+                                href: iridUrl(`/RK/?pump=${tc.N}&edit-year=${y}`),
+                            }]) : undefined}
                         />
                     {/each}
                 {/if}
