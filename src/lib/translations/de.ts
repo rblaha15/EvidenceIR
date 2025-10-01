@@ -245,8 +245,10 @@ const de: PlainTranslations = {
     pdf: {
         fileLanguage: `Dokumentsprache`,
         downloadFile: `Dokument herunterladen`,
-        previewFile: `Dokumentvorschau`,
+        documentPreview: `Dokumentvorschau`,
         page: t`Seite ${'page'}/${'total'}`,
+        previewLoading: `Dokumentvorschau wird geladen…`,
+        previewNotSuccessful: `Dokumentvorschau konnte nicht angezeigt werden.`,
     },
     countsGenitive: {
         first: `ersten`,

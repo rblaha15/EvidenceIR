@@ -18,7 +18,7 @@
         InputWithChooserWidget,
         CheckboxWithInputWidget,
         PhotoSelectorWidget,
-        FileWidget,
+        FileWidget, InlinePdfPreviewWidget,
     } from '$lib/forms/Widget.svelte.js';
     import Input from '$lib/components/widgets/Input.svelte';
     import DoubleChooser from '$lib/components/widgets/DoubleChooser.svelte';
@@ -37,6 +37,7 @@
     import CheckboxWithInput from '$lib/components/widgets/CheckboxWithInput.svelte'
     import PhotoSelector from "$lib/components/widgets/PhotoSelector.svelte";
     import File from "$lib/components/widgets/File.svelte";
+    import InlinePdfPreview from '$lib/components/widgets/InlinePdfPreview.svelte';
 
     interface Props {
         t: Translations;
@@ -55,6 +56,8 @@
     {#await widget.text(t, data) then text}
         {#if text}<p class={[widget.class(data), 'm-0']}>{text}</p>{/if}
     {/await}
+{:else if widget instanceof InlinePdfPreviewWidget && widget.show(data)}
+    <InlinePdfPreview bind:widget {t} {data} />
 {:else if widget instanceof ScannerWidget && widget.show(data)}
     <Scanner bind:widget {t} {data} />
 {:else if widget instanceof InputWidget && widget.show(data)}
