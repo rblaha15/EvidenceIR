@@ -27,6 +27,7 @@ const photovoltaicField = (n: number): PhotovoltaicFieldGroup => {
 
 export default (): FormUPF => ({
     fields: {
+        title: new TitleWidget({ text: t => t.in.system, level: 2 }),
         count: new CounterWidget({
             label: t => t.fve.fieldCount,
             chosen: 1, min: 1, max: 4,
@@ -37,7 +38,7 @@ export default (): FormUPF => ({
     filed3: photovoltaicField(3),
     filed4: photovoltaicField(4),
     connection: {
-        title: new TitleWidget({ text: t => t.fve.connection }),
+        title: new TitleWidget({ text: t => t.fve.connection, level: 2 }),
         type: new ChooserWidget({
             label: t => t.fve.connectionType, labels: t => t.fve,
             options: ['withNetworkSupplyPossibility', 'withoutOverflows', 'islandSystem'],

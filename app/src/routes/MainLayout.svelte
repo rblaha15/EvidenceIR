@@ -18,6 +18,7 @@
     import { preferredLanguage } from '$lib/languages';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import type { EventHandler } from 'svelte/elements';
+    import TableOfContents from '$lib/components/TableOfContents.svelte';
 
     interface Props {
         data: LayoutData;
@@ -123,18 +124,27 @@
                      style="transition: width 5s;"
                 ></div>
             </div>
-            <div class="container mt-2 d-flex flex-column gap-3">
-                <h1 class="m-0 d-flex align-items-center gap-3">
-                    {#if $backButton}
-                        <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}
-                                style="margin: -2rem 0">
-                            <span class="material-icons fs-1">arrow_back</span>
-                        </button>
-                    {/if}
-                    {$title}
-                </h1>
-                {@render children?.()}
-            </div>
+            <main class="container d-flex gap-3">
+                <div class="mt-3 d-flex flex-column gap-3 w-100">
+                    <h1 id="main-title" class="m-0 d-flex align-items-center gap-3">
+                        {#if $backButton}
+                            <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}
+                                    style="margin: -2rem 0">
+                                <span class="material-icons fs-1">arrow_back</span>
+                            </button>
+                        {/if}
+                        {$title}
+                    </h1>
+                    {@render children?.()}
+                </div>
+                {#if page.route.id?.includes('[form]')}
+                    {#key page.url.pathname + page.url.search}
+                        <div class="d-none d-md-block position-sticky top-0 pt-3 end-0 h-100 toc">
+                            <TableOfContents {t} />
+                        </div>
+                    {/key}
+                {/if}
+            </main>
         </div>
     </div>
 {/await}

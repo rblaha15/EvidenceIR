@@ -1,0 +1,52 @@
+:root, [data-bs-theme=light] {
+    --toc-color: var(--bs-primary);
+}
+
+:root, [data-bs-theme=dark] {
+    --toc-color: var(--bs-emphasis-color);
+}
+
+.toc {
+    width: 24rem;
+}
+
+.toc nav ul {
+    padding-left: 0;
+    margin-bottom: 0;
+    list-style: none
+}
+
+.toc nav ul ul {
+    padding-left: 1rem
+}
+
+.toc nav a {
+    display: block;
+    padding: .125rem 0 .125rem .75rem;
+    color: inherit;
+    text-decoration: none;
+    border-left: .125rem solid transparent
+}
+
+.toc nav a:hover,
+.toc nav a.active {
+    color: var(--toc-color);
+    border-left-color: var(--toc-color)
+}
+
+.toc nav a.active {
+    font-weight: 500
+}
+
+.toc nav a code {
+    font: inherit
+}
+
+.toc-toggle {
+    display: flex;
+    align-items: center
+}
+
+.toc-collapse {
+    display: block !important
+}

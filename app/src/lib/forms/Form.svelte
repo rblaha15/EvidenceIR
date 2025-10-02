@@ -17,11 +17,12 @@
     import { storable } from '$lib/helpers/stores';
     import { dev } from '$app/environment';
     import type { IndependentFormInfo } from '$lib/forms/FormInfo';
-    import { runLoading } from '$lib/helpers/globals.js';
+    import { refreshTOC, runLoading } from '$lib/helpers/globals.js';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
     import { goto } from '$app/navigation';
     import { generatePdfPreviewUrl } from '../../routes/[[lang]]/helpers';
     import { relUrl } from '$lib/helpers/runes.svelte';
+    import { TitleWidget } from '$lib/forms/Widget.svelte';
 
     const { t, formInfo, editData, viewData }: {
         t: Translations,
@@ -83,6 +84,15 @@
 
     const list = $derived(f.getValues().flatMap(obj => obj.getValues()));
     const d = $derived(createWidgetData(f));
+
+    $effect(() => {
+        list
+            .filter(w => w instanceof TitleWidget)
+            .filter(w => w.show(d))
+            .map(w => w.text(t, d))
+            .awaitAll()
+            .then(() => refreshTOC);
+    });
 
     const save = (send: boolean) => async () => {
         try {
@@ -159,7 +169,7 @@
 
 {#if mode !== 'loading'}
     {#if subtitle}
-        <h3 class="m-0">{subtitle(t, mode === 'edit')}</h3>
+        <h2 class="m-0" id="form-subtitle">{subtitle(t, mode === 'edit')}</h2>
     {/if}
 
     <FormHeader readonly={mode === 'view'} excelImport={excelImport ? {

@@ -19,6 +19,8 @@
     <style lang="scss">
       @use 'bootstrap/scss/bootstrap';
       @use '../lib/components/input-groups.css';
+      @use '../lib/components/styles.css';
+      @use '../lib/components/toc.css';
 
       @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
       @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wdth,wght@0,75..100,300..800;1,75..100,300..800&display=swap');
