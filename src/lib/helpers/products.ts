@@ -7,12 +7,17 @@ const products = {
         'EcoAir 410',
         'EcoAir 415',
         'EcoAir 420',
+        'EcoAir 712M',
+        'EcoAir 720M',
     ],
     heatPumpsRTC: [
         'RTC',
         'RTC 6i',
         'RTC 13e',
         'RTC 20e',
+        'RTC 15p',
+        'RTC 25p',
+        'RTC 40p',
         'airTHERM 10',
     ],
     heatPumpsGroundToWater: [
