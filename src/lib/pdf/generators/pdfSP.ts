@@ -2,9 +2,8 @@
 
 import { dateFromISO } from '$lib/helpers/date';
 import '$lib/extensions';
-import { endUserName, endUserName2, irName, spName } from '$lib/helpers/ir';
-import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
-import { cascadePumps } from '$lib/forms/IN/infoIN';
+import { endUserName, endUserName2, spName } from '$lib/helpers/ir';
+import { generalizeServiceProtocol, type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { get } from '$lib/translations';
 import { unknownCompany } from '$lib/forms/IN/formIN';
 import { inlineTooLong, multilineTooLong } from '$lib/forms/SP/defaultSP';
@@ -48,35 +47,6 @@ const fieldsOperations = [
 const fieldsPartsStart = 44;
 const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
     .associateWith((_, i) => fieldsPartsStart + i * 8);
-
-
-export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols, uvedeniTC: u }, t, addDoc, index, lang }) => {
-    const pumps = e.tc.model ? cascadePumps(e) : [];
-    const ts = t.sp
-    const p = installationProtocols[index];
-    return pdfNSP({
-        data: {
-            ...e,
-            ...p,
-            system: {
-                popis:
-                    irName(e.ir) +
-                    (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +
-                    (u?.nadrze?.akumulacka || u?.nadrze?.zasobnik ? '\n' : '') +
-                    (u?.nadrze?.akumulacka ? `Nádrž: ${u.nadrze.akumulacka}` : '') +
-                    (u?.nadrze?.akumulacka && u?.nadrze?.zasobnik ? '; ' : '') +
-                    (u?.nadrze?.zasobnik ? `Zásobník: ${u.nadrze.zasobnik}` : '') +
-                    (e.sol?.typ ? `\nSOL: ${e.sol.typ} – ${e.sol.pocet}x` : '') +
-                    (e.rek?.typ ? `\nREK: ${e.rek.typ}` : '') +
-                    (e.fve?.pocet ? `\nFVE: ${get(t.in.fve, e.fve.typ)} – ${e.fve.pocet}x` : '') +
-                    (e.fve?.akumulaceDoBaterii ? `; baterie: ${e.fve.typBaterii} – ${e.fve.kapacitaBaterii} kWh` : '') +
-                    (e.jine?.popis ? `\nJiné zařízení: ${e.jine.popis}` : '') +
-                    (e.tc.model ? '\n' + pumps.map(ts.pumpDetails).join('; ') : ''),
-                pocetTC: pumps.length,
-            },
-        }, t, addDoc, lang,
-    });
-};
 
 export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
     const ts = t.sp
@@ -170,6 +140,11 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         images: signature ? [{ x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 }] : [],
     } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };
+
+export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols, uvedeniTC: u }, t, addDoc, index, lang }) =>
+    pdfNSP({
+        data: generalizeServiceProtocol(e, installationProtocols[index], u, t), t, addDoc, lang,
+    });
 export default pdfSP;
 
 //[a.slice(0, 2).join('; '), a.slice(2, 4).join('; ')].join('\n');

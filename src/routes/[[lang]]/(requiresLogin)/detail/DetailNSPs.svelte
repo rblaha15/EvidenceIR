@@ -10,7 +10,7 @@
     import { dataToRawData, type Raw } from '$lib/forms/Form';
     import type { IRID } from '$lib/helpers/ir';
     import { InputWidget } from '$lib/forms/Widget.svelte';
-    import defaultSP from '$lib/forms/SP/defaultSP';
+    import { defaultGenericSP } from '$lib/forms/SP/defaultSP';
     import type { FormSP } from '$lib/forms/SP/formSP.svelte';
     import DetailNSP from './DetailNSP.svelte';
     import { aA, storable } from '$lib/helpers/stores';
@@ -21,7 +21,7 @@
     } = $props();
     const td = $derived(t.detail);
 
-    const protocolGroups: (keyof Raw<FormSP>)[] = defaultSP().keys();
+    const protocolGroups: (keyof Raw<FormSP>)[] = defaultGenericSP().keys();
 
     const newIRID = new InputWidget({
         label: t => t.detail.newIRIDLabel,

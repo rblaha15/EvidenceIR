@@ -12,27 +12,27 @@ export const entries: EntryGenerator = langAndPdfEntryGenerator;
 
 export const load: PageLoad = async ({ parent, params, url, fetch }) => {
     const pdfName = params.pdf as Pdf;
-    if (!(pdfName in pdfInfo)) return error(404);
+    if (!(pdfName in pdfInfo)) error(404);
 
-    if (!browser) return { url: '', fileName: '', irid: '', spid: '', fileLang: '', args: null };
+    if (!browser) return { url: '', fileName: '', irid: '', spids: [], fileLang: '', args: null };
 
     if (!await checkAuth()) error(401);
 
     const pdf = pdfInfo[pdfName] as PdfArgs<Pdf>;
 
     if (pdf.requiredRegulus && !await checkRegulusOrAdmin())
-        return error(401);
+        error(401);
 
     const id = extractIDs(url);
     if (pdf.type == 'IR' && !id.irid)
-        return error(400, { message: 'irid must be provided to access this document!' });
+        error(400, { message: 'irid must be provided to access this document!' });
     if (pdf.type == 'SP' && !id.spids)
-        return error(400, { message: 'spid must be provided to access this document!' });
+        error(400, { message: 'spids must be provided to access this document!' });
 
     const data = await getData(id);
 
     if (pdf.type == 'IR' && !data.ir || pdf.type == 'SP' && data.sps.length != 1)
-        return error(500, { message: 'Data not loaded' });
+        error(500, { message: 'Data not loaded' });
 
     const parameters = [...url.searchParams.entries()].toRecord().mapValues((_, v) => Number(v));
 
@@ -48,7 +48,7 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
         args: pdf,
         lang: language,
         data: pdf.type == 'IR' ? data.ir! : data.sps[0]!,
-    });
+    }, fetch);
 
     const pageData = await parent();
     const t = pageData.translations;
