@@ -91,7 +91,7 @@
             .filter(w => w.show(d))
             .map(w => w.text(t, d))
             .awaitAll()
-            .then(() => refreshTOC);
+            .then(refreshTOC);
     });
 
     const save = (send: boolean) => async () => {
