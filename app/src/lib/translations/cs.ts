@@ -29,6 +29,9 @@ export default {
             somethingWentWrong: `Něco se nepovedlo...`,
             workbookSheet: `List sešitu`,
         },
+        toc: {
+            title: `Obsah formuláře`,
+        },
     },
     widget: {
         yes: 'Ano',
@@ -523,6 +526,8 @@ export default {
         irExistsHtml: t`Tento regulátor je již zaevidovaný (<a href="${'link'}">detail</a>)`,
         editing: `Editace`,
         title: `Registrace nového regulátoru`,
+        system: `Systém`,
+        associatedCompanies: `Sdružené firmy`,
         assemblyCompany: `Montážní firma`,
         commissioningCompany: `Firma uvádějicí do provozu`,
         endUser: `Koncový uživatel`,

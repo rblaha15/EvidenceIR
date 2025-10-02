@@ -46,6 +46,7 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
         psc: InputWidget<D>;
     };
     montazka: {
+        nadpisFirmy: TitleWidget<D>;
         nadpis: TitleWidget<D>;
         company: SearchWidget<D, Company, true>;
         or: TextWidget<D>;
@@ -75,6 +76,7 @@ export type IRSubTypes = 'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6
 
 export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     ir: {
+        nadpis: TitleWidget<FormIN>;
         typ: DoubleChooserWidget<FormIN, IRTypes, IRSubTypes>;
         cislo: InputWidget<FormIN>;
         cisloBox: InputWidget<FormIN>;

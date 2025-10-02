@@ -38,6 +38,7 @@
     import PhotoSelector from "$lib/components/widgets/PhotoSelector.svelte";
     import File from "$lib/components/widgets/File.svelte";
     import InlinePdfPreview from '$lib/components/widgets/InlinePdfPreview.svelte';
+    import Title from '$lib/components/widgets/Title.svelte';
 
     interface Props {
         t: Translations;
@@ -49,9 +50,7 @@
 </script>
 
 {#if widget instanceof TitleWidget && widget.show(data)}
-    {#await widget.text(t, data) then text}
-        {#if text}<h2 class={[widget.class(data), 'm-0']}>{text}</h2>{/if}
-    {/await}
+    <Title bind:widget {t} {data} />
 {:else if widget instanceof TextWidget && widget.show(data)}
     {#await widget.text(t, data) then text}
         {#if text}<p class={[widget.class(data), 'm-0']}>{text}</p>{/if}

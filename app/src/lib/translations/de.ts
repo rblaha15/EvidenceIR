@@ -59,6 +59,7 @@ const de: PlainTranslations = {
         irExistsHtml: t`Dieser Regler ist bereits registriert (<a href="${`link`}">Detail</a>)`,
         editing: `Bearbeitung`,
         samePlaceAsResidence: `Gleich wie Wohnsitz`,
+        associatedCompanies: `Verbundene Unternehmen`,
         commissioningCompany: `Inbetriebnahme-Firma`,
         endCustomer: `Endkunde`,
         assemblyCompany: `Montagefirma`,
@@ -85,6 +86,7 @@ const de: PlainTranslations = {
             company: `Juristische Person`,
         },
         title: `Registrieren eines neuen Controllers`,
+        system: `System`,
         establishment: `Zweigstelle/Werk`,
         email: `E-Mail`,
         headquarters: `Hauptsitz`,
@@ -210,6 +212,9 @@ const de: PlainTranslations = {
             uploadPdf: `Laden Sie ein PDF-Dokument mit vollständigen Daten hoch`,
             somethingWentWrong: `Etwas ist schief gelaufen....`,
             workbookSheet: `Arbeitsblatt`,
+        },
+        toc: {
+            title: `Formularinhalt`,
         },
     },
     nav: {

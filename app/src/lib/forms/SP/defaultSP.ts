@@ -1,6 +1,6 @@
 import {
     ChooserWidget,
-    CounterWidget, type GetT, type InlinePdfPreviewData, InlinePdfPreviewWidget,
+    CounterWidget, type GetT, type HeadingLevel, type InlinePdfPreviewData, InlinePdfPreviewWidget,
     InputWidget,
     MultiCheckboxWidget,
     RadioWidget,
@@ -81,9 +81,10 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
 const labels = <A extends Translations['sp']>(t: Translations): Pick<A, keyof Translations['sp']> => t.sp;
 
 export const defaultGenericSP = <D extends GenericFormSP<D>>(
-    getPdfData: GetT<D, InlinePdfPreviewData<'NSP'>>
+    getPdfData: GetT<D, InlinePdfPreviewData<'NSP'>>, titleLevel: HeadingLevel = 2,
 ): GenericFormSP<D> => ({
     zasah: {
+        nadpis: new TitleWidget({ text: t => t.sp.intervention, level: titleLevel }),
         datum: new InputWidget({ label: t => t.sp.interventionDate, type: 'datetime-local' }),
         datumUvedeni: new InputWidget({ label: t => t.sp.commissioningDate, type: 'date', required: false }),
         clovek: new InputWidget({ label: t => t.sp.technicianName, show: false }),
@@ -95,7 +96,7 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
         overflowIntervention: new TextWidget({ text: (t, d) => multilineTooLong(d.zasah.popis.value) ? t.sp.textTooLong : '' }),
     },
     ukony: {
-        nadpis: new TitleWidget({ text: t => t.sp.billing }),
+        nadpis: new TitleWidget({ text: t => t.sp.billing, level: titleLevel }),
         doprava: new InputWidget({
             label: t => t.sp.transportation,
             type: 'number',
@@ -122,7 +123,7 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
         }),
     },
     nahradniDily: {
-        nadpis: new TitleWidget({ text: t => t.sp.usedSpareParts }),
+        nadpis: new TitleWidget({ text: t => t.sp.usedSpareParts, level: titleLevel }),
         pocet: new CounterWidget({ label: t => t.sp.sparePartCount, min: 0, max: 8, chosen: 0 }),
     },
     nahradniDil1: sparePart(1),
@@ -134,7 +135,7 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     nahradniDil7: sparePart(7),
     nahradniDil8: sparePart(8),
     fakturace: {
-        nadpis: new TitleWidget({ text: t => t.sp.invoicing }),
+        nadpis: new TitleWidget({ text: t => t.sp.invoicing, level: titleLevel }),
         hotove: new ChooserWidget({ label: t => t.sp.paidInCash, options: ['yes', 'no', 'doNotInvoice'], labels }),
         komu: new RadioWidget({
             label: t => t.sp.whoToInvoice, options: ['investor', `assemblyCompany`], labels,
@@ -147,7 +148,7 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     },
     other: {
         title: new TitleWidget({
-            text: t => t.pdf.documentPreview, showInXML: false,
+            text: t => t.pdf.documentPreview, showInXML: false, level: 2,
         }),
         preview: new InlinePdfPreviewWidget({
             pdfData: getPdfData,
