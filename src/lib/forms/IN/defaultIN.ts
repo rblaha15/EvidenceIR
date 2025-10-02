@@ -52,7 +52,7 @@ const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == 'DG-450-B';
 
 export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
     koncovyUzivatel: {
-        nadpis: new TitleWidget({ text: t => t.in.endUser }),
+        nadpis: new TitleWidget({ text: t => t.in.endUser, level: 2 }),
         typ: new RadioWidget({
             label: '', chosen: `individual`, showInXML: false,
             options: [`individual`, `company`], labels: t => t.in.userType,
@@ -120,7 +120,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
         }),
     },
     bydliste: {
-        nadpis: new TitleWidget({ text: (t, d) => jeFO(d) ? t.in.residence : t.in.headquarters }),
+        nadpis: new TitleWidget({ text: (t, d) => jeFO(d) ? t.in.residence : t.in.headquarters, level: 3 }),
         ulice: new InputWidget({
             label: t => t.in.street,
             autocomplete: `section-user billing street-address`,
@@ -137,7 +137,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
         }),
     },
     mistoRealizace: {
-        nadpis: new TitleWidget({ text: t => t.in.realizationLocation }),
+        nadpis: new TitleWidget({ text: t => t.in.realizationLocation, level: 3 }),
         jakoBydliste: new CheckboxWidget<D, true>({
             label: (t, d) => jeFO(d) ? t.in.samePlaceAsResidence : t.in.samePlaceAsHeadquarters,
             required: false, showInXML: false, hideInRawData: true,
@@ -173,7 +173,8 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
         }),
     },
     montazka: {
-        nadpis: new TitleWidget({ text: t => t.in.assemblyCompany }),
+        nadpisFirmy: new TitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
+        nadpis: new TitleWidget({ text: t => t.in.assemblyCompany, level: 3 }),
         company: new SearchWidget<D, Company, true>({
             items: derived(assemblyCompanies, c => [unknownCompany, ...c]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
@@ -232,7 +233,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
         }),
     },
     uvedeni: {
-        nadpis: new TitleWidget({ text: t => t.in.commissioning }),
+        nadpis: new TitleWidget({ text: t => t.in.commissioning, level: 3 }),
         jakoMontazka: new CheckboxWidget<D, true>({
             label: t => t.in.commissionedByAssemblyCompany, required: false, showInXML: false, hideInRawData: true,
             onValueSet: (d, v) => {
@@ -390,6 +391,7 @@ const heatPump = <const I extends TC>(i: I) => ({
 
 export default (): FormIN => ({
     ir: {
+        nadpis: new TitleWidget({ text: t => t.in.system, level: 2 }),
         typ: new DoubleChooserWidget({ // Code partially duplicated in ChangeIRID.svelte
             label: t => t.in.controllerType,
             options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
@@ -522,7 +524,7 @@ export default (): FormIN => ({
     tc: {
         nadpis: new TitleWidget({
             text: (t, d) => d.tc.pocet.value > 1 ? t.in.heatPumps : t.in.device.heatPump,
-            show: tc,
+            show: tc, level: 3,
         }),
         poznamka: new TextWidget({
             text: t => t.in.pleaseFillInIrType, showInXML: false,
@@ -558,7 +560,7 @@ export default (): FormIN => ({
     },
     sol: {
         title: new TitleWidget({
-            text: t => t.in.device.solarCollector, show: sol,
+            text: t => t.in.device.solarCollector, show: sol, level: 3
         }),
         typ: new InputWidget({
             label: t => t.in.solarCollectorType, required: sol, show: sol,
@@ -568,7 +570,7 @@ export default (): FormIN => ({
         }),
     },
     rek: {
-        title: new TitleWidget({ text: t => t.in.device.ventilation, show: rek }),
+        title: new TitleWidget({ text: t => t.in.device.ventilation, show: rek, level: 3 }),
         typ: new InputWidget({
             label: t => t.in.recoveryVentilationUnitType,
             required: rek, show: rek,
@@ -577,7 +579,7 @@ export default (): FormIN => ({
     fve: {
         title: new TitleWidget({
             text: t => t.in.photovoltaicSystem,
-            show: fve,
+            show: fve, level: 3
         }),
         typ: new ChooserWidget({
             label: t => t.in.panelType, chosen: 'DG-450-B',
@@ -617,7 +619,7 @@ export default (): FormIN => ({
     jine: {
         title: new TitleWidget({
             text: t => t.in.device.other,
-            show: other,
+            show: other, level: 3
         }),
         popis: new InputWidget({
             label: t => t.in.description, required: other, show: other,
@@ -625,7 +627,7 @@ export default (): FormIN => ({
     },
     ...userData(),
     vzdalenyPristup: {
-        nadpis: new TitleWidget({ text: t => t.in.remoteAccess.title, show: supportsRemoteAccessF }),
+        nadpis: new TitleWidget({ text: t => t.in.remoteAccess.title, show: supportsRemoteAccessF, level: 2 }),
         chce: new CheckboxWidget({
             label: t => t.in.remoteAccess.doYouWantRemoteAccess, required: false, show: supportsRemoteAccessF,
             onValueSet: (d, v) => {

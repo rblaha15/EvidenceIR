@@ -101,10 +101,12 @@ export type InlinePdfPreviewData<P extends PdfType> = {
     type: P,
     data: DataOfPdf<P>,
 } & PdfParameters<P>;
+export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
 
 type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H };
 type ShowArgs<D> = { show?: GetBOrVal<D>; showInXML?: GetBOrVal<D> };
 type InfoArgs<D> = { text: GetTPOrVal<D>; class?: GetOrVal<D, ClassValue | undefined>; } & ShowArgs<D>;
+type TitleArgs = { level: HeadingLevel };
 type PdfArgs<D, P extends PdfType> = { pdfData: GetT<D, InlinePdfPreviewData<P>> } & Omit<ShowArgs<D>, 'showInXML'>;
 type ValueArgs<D, U, H> = {
     label: GetTOrVal<D>, onError?: GetTOrVal<D>; required?: GetBOrVal<D>; onValueSet?: (data: D, newValue: U) => void
@@ -157,6 +159,7 @@ type SuggestionsArgs<D> = {
 };
 
 type Info<D, U> = Widget<D, U> & { text: GetTP<D>; class: Get<D, ClassValue | undefined>; };
+type Title<D> = Widget<D, undefined> & { level: HeadingLevel; };
 type Pdf<D, P extends PdfType> = Widget<D, undefined> & { pdfData: GetT<D, InlinePdfPreviewData<P>> };
 type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: GetB<D>; };
 type Labels<D, U, I extends string> = Widget<D, U> & { labels: T<I>; get: (t: Translations, v: I | null) => string; };
@@ -207,6 +210,9 @@ const initInfo = function <D, U>(widget: Info<D, U>, args: InfoArgs<D>) {
     widget.show = toGetA(args.show ?? true);
     widget.class = toGetA(args.class);
     widget.showTextValue = toGetA(args.showInXML ?? (data => widget.show(data)));
+};
+const initTitle = function <D, U>(widget: Title<D>, args: TitleArgs) {
+    widget.level = args.level;
 };
 const initPdf = function <D, P extends PdfType>(widget: Pdf<D, P>, args: PdfArgs<D, P>) {
     widget.pdfData = args.pdfData;
@@ -317,10 +323,12 @@ export class TitleWidget<D> extends Widget<D, undefined, true> {
     hideInRawData = true as const;
     isError = () => false;
     class = $state() as Get<D, ClassValue>;
+    level = $state() as HeadingLevel;
 
-    constructor(args: InfoArgs<D>) {
+    constructor(args: InfoArgs<D> & TitleArgs) {
         super();
         initInfo(this, args);
+        initTitle(this, args);
     }
 }
 
