@@ -35,9 +35,11 @@
     {/if}
 {/snippet}
 {#snippet header()}
-    <!--suppress CheckImageSize -->
-    <img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
-    <span class="navbar-brand fw-semibold">{tn.appName}</span>
+    <a class="navbar-brand" href="/">
+        <!--suppress CheckImageSize -->
+        <img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
+        <span class="fw-semibold">{tn.appName}</span>
+    </a>
 {/snippet}
 
 <nav class="navbar navbar-expand-md gray flex-wrap">
