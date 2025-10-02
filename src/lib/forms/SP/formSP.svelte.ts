@@ -31,6 +31,7 @@ export type DataSP = IR & FormSP & {
 
 export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
     zasah: {
+        nadpis: TitleWidget<D>,
         datum: InputWidget<D>,
         datumUvedeni: InputWidget<D>;
         clovek: InputWidget<D>,

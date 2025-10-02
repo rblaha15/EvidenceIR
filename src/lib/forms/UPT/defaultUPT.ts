@@ -25,7 +25,8 @@ const newSuitsWidget = <D>(args: {
 
 export default (): FormUPT => ({
     tc: {
-        nadpis: new TitleWidget({ text: t => t.in.device.heatPump }),
+        nadpisSystem: new TitleWidget({ text: t => t.in.system, level: 2 }),
+        nadpis: new TitleWidget({ text: t => t.in.device.heatPump, level: 3 }),
         jisticTC: newSuitsWidget({ label: t => t.tc.characteristicsAndSizeOfHeatPumpBreaker }),
         jisticVJ: newSuitsWidget({
             show: d => d.evidence.ir.typ.first!.includes('BOX'),
@@ -40,12 +41,12 @@ export default (): FormUPT => ({
         filtr: new CheckboxWidget({ required: false, label: t => t.tc.isCirculationPumpFilterInstalled }),
     },
     nadrze: {
-        nadpis: new TitleWidget({ text: t => t.tc.tanks }),
+        nadpis: new TitleWidget({ text: t => t.tc.tanks, level: 3 }),
         akumulacka: new InputWidget({ label: t => t.tc.typeOfAccumulationTank, required: false }),
         zasobnik: new InputWidget({ label: t => t.tc.typeOfStorageTank, required: false }),
     },
     os: {
-        nadpis: new TitleWidget({ text: t => t.tc.heatingSystem }),
+        nadpis: new TitleWidget({ text: t => t.tc.heatingSystem, level: 3 }),
         tvori: new ChooserWidget({
             label: t => t.tc.heatingSystemConsistsOf, options: [
                 `radiators`,
@@ -78,7 +79,7 @@ export default (): FormUPT => ({
         bazenTc: new CheckboxWidget({ required: false, label: t => t.tc.isPoolHeatingManagedByHeatPump }),
     },
     reg: {
-        nadpis: new TitleWidget({ text: t => t.tc.controlAndElectricalInstallation }),
+        nadpis: new TitleWidget({ text: t => t.tc.controlAndElectricalInstallation, level: 3 }),
         pripojeniKInternetu: new ChooserWidget({
             label: t => t.tc.internetConnection, options: [
                 `connectedViaRegulusRoute`,
@@ -98,6 +99,7 @@ export default (): FormUPT => ({
         nadpis: new TitleWidget({
             text: t => t.tc.primaryCircuit,
             show: d => d.evidence.tc.typ == 'groundToWater',
+            level: 3,
         }),
         typ: new ChooserWidget({
             label: t => t.tc.typeOfPrimaryCircuit,
@@ -137,7 +139,7 @@ export default (): FormUPT => ({
         }),
     },
     uvadeni: {
-        nadpis: new TitleWidget({ text: t => t.tc.commissioningSteps }),
+        nadpis: new TitleWidget({ text: t => t.tc.commissioningSteps, level: 2 }),
         tc: new CheckboxWidget({ required: false, label: t => t.tc.wasInstallationAccordingToManual }),
         reg: new CheckboxWidget({ required: false, label: t => t.tc.wasControllerSetToParameters }),
         vlastnik: new CheckboxWidget({ required: false, label: t => t.tc.wasOwnerFamiliarizedWithFunction }),

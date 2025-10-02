@@ -7,7 +7,7 @@ export default (): FormRK => ({
         datum: new InputWidget({ label: t => t.rk.checkDate, type: 'date' }),
     },
     kontrolniUkonyTepelnehoCerpadla: {
-        nadpis: new TitleWidget({ text: t => t.rk.kontrolniUkonyTepelnehoCerpadla }),
+        nadpis: new TitleWidget({ text: t => t.rk.kontrolniUkonyTepelnehoCerpadla, level: 2 }),
         kontrolaChoduKompresoru: new CheckboxWidget({ label: t => t.rk.kontrolaChoduKompresoru, required: false }),
         optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu: new CheckboxWidget(
             { label: t => t.rk.optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu, required: false }),
@@ -24,7 +24,7 @@ export default (): FormRK => ({
             { label: t => t.rk.kontrolaElektrickeCastiJednotkyTepelnehoCerpadla, required: false }),
     },
     kontrolniUkonyRegulace: {
-        nadpis: new TitleWidget({ text: t => t.rk.kontrolniUkonyRegulace }),
+        nadpis: new TitleWidget({ text: t => t.rk.kontrolniUkonyRegulace, level: 2 }),
         kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: new CheckboxWidget(
             { label: t => t.rk.kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin, required: false }),
         kontrolaNastaveniParametruRegulatoru: new CheckboxWidget({ label: t => t.rk.kontrolaNastaveniParametruRegulatoru, required: false }),
@@ -50,7 +50,7 @@ export default (): FormRK => ({
             { label: t => t.rk.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly, required: false, show: false }),
     },
     kontrolniElektroinstalace: {
-        nadpis: new TitleWidget({ text: t => t.rk.kontrolniElektroinstalace }),
+        nadpis: new TitleWidget({ text: t => t.rk.kontrolniElektroinstalace, level: 2 }),
         kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace: new CheckboxWidget(
             { label: t => t.rk.kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace, required: false }),
         kontrolaDotazeniSvorkovychSpoju: new CheckboxWidget({ label: t => t.rk.kontrolaDotazeniSvorkovychSpoju, required: false }),
@@ -60,7 +60,7 @@ export default (): FormRK => ({
             { label: t => t.rk.kontrolaSepnutiDohrevuSepnutiStykacePripadneRele, required: false }),
     },
     kontrolniUkonyOtopneSoustavy: {
-        nadpis: new TitleWidget({ text: t => t.rk.kontrolniUkonyOtopneSoustavy }),
+        nadpis: new TitleWidget({ text: t => t.rk.kontrolniUkonyOtopneSoustavy, level: 2 }),
         kontrolaFunkceObehovychCerpadel: new CheckboxWidget({ label: t => t.rk.kontrolaFunkceObehovychCerpadel, required: false }),
         vycisteniFiltruObehovychCerpadel: new CheckboxWidget({ label: t => t.rk.vycisteniFiltruObehovychCerpadel, required: false }),
         odvzdusneniZdrojeTc: new CheckboxWidget({ label: t => t.rk.odvzdusneniZdrojeTc, required: false }),
@@ -75,7 +75,7 @@ export default (): FormRK => ({
             { label: t => t.rk.pripadneProvedteKontroluTlakuVOtopneSoustave, required: false }),
     },
     kontrolaZasobnikuTv: {
-        nadpis: new TitleWidget({ text: t => t.rk.kontrolaZasobnikuTv }),
+        nadpis: new TitleWidget({ text: t => t.rk.kontrolaZasobnikuTv, level: 2 }),
         kontrolaMgAnodyVZasobnikuPripVymena: new CheckboxWidget({ label: t => t.rk.kontrolaMgAnodyVZasobnikuPripVymena, required: false }),
         kontrolaPojistovacihoVentilu: new CheckboxWidget({ label: t => t.rk.kontrolaPojistovacihoVentilu, required: false }),
         pripadneProvedteKontroluTlakuVEnTepleVody: new CheckboxWidget({

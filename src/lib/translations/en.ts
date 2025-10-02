@@ -88,6 +88,9 @@ const en: PlainTranslations = {
             somethingWentWrong: `Something went wrong...`,
             workbookSheet: `Workbook sheet`,
         },
+        toc: {
+            title: `Form contents`,
+        },
     },
     countsGenitive: {
         first: `first`,
@@ -140,6 +143,8 @@ const en: PlainTranslations = {
         samePlaceAsResidence: 'Same as the place of residence',
         companyName: `Name`,
         title: `New controller registration`,
+        system: `System`,
+        associatedCompanies: `Associated companies`,
         assemblyCompany: `Assembly company`,
         commissioningCompany: `Commissioning company`,
         establishment: `Establishment`,

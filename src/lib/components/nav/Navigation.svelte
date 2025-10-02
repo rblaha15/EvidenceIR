@@ -10,6 +10,8 @@
     import { readableQueue } from '$lib/client/offlineQueue.svelte';
     import QueueModal from '$lib/components/nav/QueueModal.svelte';
     import SettingsModal from '$lib/components/nav/SettingsModal.svelte';
+    import { page } from '$app/state';
+    import TableOfContents from '$lib/components/TableOfContents.svelte';
 
     const { t }: { t: Translations } = $props();
     const tn = $derived(t.nav)
@@ -75,6 +77,14 @@
                 </div>
                 <div class="offcanvas-body">
                     <BaseNav {t} />
+                    {#if page.route.id?.includes('[form]')}
+                        <hr />
+                        {#key page.url.pathname + page.url.search}
+                            <div class="d-md-none toc">
+                                <TableOfContents {t} />
+                            </div>
+                        {/key}
+                    {/if}
                 </div>
             </div>
         {:else}

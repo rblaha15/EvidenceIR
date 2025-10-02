@@ -9,6 +9,7 @@ export type DataUPT = {
 
 export interface FormUPT extends Form<DataUPT> {
     tc: {
+        nadpisSystem: TitleWidget<DataUPT>,
         nadpis: TitleWidget<DataUPT>,
         jisticTC: SwitchWidget<DataUPT>,
         jisticVJ: SwitchWidget<DataUPT>,

@@ -21,6 +21,7 @@
     const isDetailPage = $derived(isForm && formType === 'IR' || route?.endsWith('/detail') || route?.endsWith('/users') || isPdf);
     const externalIRID = $derived(search.get('view-irid') || search.get('edit-irid')) as IRID | undefined;
     const externalSPID = $derived(search.get('view-spid') || search.get('edit-spid')) as SPID | undefined;
+    const spids = $derived(page.data.spids as SPID[] | null);
 </script>
 
 {#snippet item({ url, label, selected, shown = true }: { url: s, label: s, selected: BooleanLike, shown?: BooleanLike })}
@@ -51,12 +52,12 @@
     })}
     {@render item({
         url: isDetailPage
-            ? page.data.spids ? detailSpUrl() : detailIrUrl()
+            ? spids?.length ? detailSpUrl() : detailIrUrl()
                 : externalSPID ? detailSpUrl([externalSPID]) : detailIrUrl(externalIRID),
-        label: (page.data.spids || externalSPID) ? tn.protocolDetails : tn.installationDetails,
+        label: (spids?.length || externalSPID) ? tn.protocolDetails : tn.installationDetails,
         selected: true, shown: isDetailPage || externalIRID || externalSPID,
     })}
     {@render item({
-        url: relUrl('/admin'), label: 'Admin', shown: $isUserAdmin, selected: page.route.id?.endsWith('/admin'),
+        url: relUrl('/admin'), label: 'Admin', shown: $isUserAdmin, selected: route?.endsWith('/admin'),
     })}
 </ul>
