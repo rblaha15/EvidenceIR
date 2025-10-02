@@ -1,6 +1,6 @@
 import {
     ChooserWidget,
-    CounterWidget,
+    CounterWidget, InlinePdfPreviewWidget,
     InputWidget,
     MultiCheckboxWidget,
     RadioWidget,
@@ -9,9 +9,10 @@ import {
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
 import { type SparePart } from '$lib/client/realtime';
-import { type Form } from '$lib/forms/Form';
+import { type Form, type Raw } from '$lib/forms/Form';
+import type { IR } from '$lib/data';
 
-export type SparePartWidgetGroup<D extends Form<D>> = {
+export type SparePartWidgetGroup<D> = {
     label: TextWidget<D>,
     dil: SearchWidget<D, SparePart, true>,
     name: InputWidget<D>;
@@ -21,7 +22,12 @@ export type SparePartWidgetGroup<D extends Form<D>> = {
     mnozstvi: InputWidget<D>,
 }
 
-export type FormSP = GenericFormSP<FormSP>
+export interface FormSP extends GenericFormSP<DataSP>, Form<DataSP> {
+}
+
+export type DataSP = IR & FormSP & {
+    raw: Raw<FormSP>
+}
 
 export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
     zasah: {
@@ -59,6 +65,10 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
         hotove: ChooserWidget<D, 'yes' | 'no' | 'doNotInvoice'>,
         komu: RadioWidget<D, 'investor' | `assemblyCompany`>,
         jak: RadioWidget<D, 'onPaper' | 'electronically'>,
+    },
+    other: {
+        title: TitleWidget<D>,
+        preview: InlinePdfPreviewWidget<D, 'NSP'>
     },
 }
 

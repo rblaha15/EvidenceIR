@@ -52,8 +52,10 @@ export default {
     pdf: {
         fileLanguage: `Jazyk dokumentu`,
         downloadFile: `Stáhnout dokument`,
-        previewFile: `Náhled dokumentu`,
+        documentPreview: `Náhled dokumentu`,
         page: t`Strana ${'page'}/${'total'}`,
+        previewLoading: `Načítání náhledu dokumentu…`,
+        previewNotSuccessful: `Náhled dokumentu se nepodařilo zobrazit.`,
     },
     search: {
         titleControllers: 'Vyhledávání instalací',

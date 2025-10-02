@@ -2,6 +2,8 @@ import { get, type Translations } from '../translations';
 import type { ClassValue, FullAutoFill, HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 import type { Untranslatable } from '$lib/translations/untranslatables';
 import type { Readable } from 'svelte/store';
+import type { LanguageCode } from '$lib/languages';
+import type { DataOfPdf, PdfParameters, Pdf as PdfType } from '$lib/pdf/pdf';
 
 export type GetB<D> = Get<D, boolean>;
 export type GetBOrVal<D> = GetOrVal<D, boolean>;
@@ -95,10 +97,15 @@ export type ChI = { readonly checked: boolean; readonly text: string; };
 export type SeI<I extends K> = { readonly chosen: I; readonly text: string; };
 export type SeCh<I extends K> = { readonly chosen: I | null; readonly checked: boolean; };
 export type Files = readonly { fileName: string, uuid: string }[];
+export type InlinePdfPreviewData<P extends PdfType> = {
+    type: P,
+    data: DataOfPdf<P>,
+} & PdfParameters<P>;
 
 type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H };
 type ShowArgs<D> = { show?: GetBOrVal<D>; showInXML?: GetBOrVal<D> };
 type InfoArgs<D> = { text: GetTPOrVal<D>; class?: GetOrVal<D, ClassValue | undefined>; } & ShowArgs<D>;
+type PdfArgs<D, P extends PdfType> = { pdfData: GetT<D, InlinePdfPreviewData<P>> } & Omit<ShowArgs<D>, 'showInXML'>;
 type ValueArgs<D, U, H> = {
     label: GetTOrVal<D>, onError?: GetTOrVal<D>; required?: GetBOrVal<D>; onValueSet?: (data: D, newValue: U) => void
 } & HideArgs<H> & ShowArgs<D>;
@@ -150,6 +157,7 @@ type SuggestionsArgs<D> = {
 };
 
 type Info<D, U> = Widget<D, U> & { text: GetTP<D>; class: Get<D, ClassValue | undefined>; };
+type Pdf<D, P extends PdfType> = Widget<D, undefined> & { pdfData: GetT<D, InlinePdfPreviewData<P>> };
 type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: GetB<D>; };
 type Labels<D, U, I extends string> = Widget<D, U> & { labels: T<I>; get: (t: Translations, v: I | null) => string; };
 type File<D> = Widget<D, Files> & { multiple: GetB<D>; max: Get<D, number>; accept: Get<D, string>; };
@@ -199,6 +207,10 @@ const initInfo = function <D, U>(widget: Info<D, U>, args: InfoArgs<D>) {
     widget.show = toGetA(args.show ?? true);
     widget.class = toGetA(args.class);
     widget.showTextValue = toGetA(args.showInXML ?? (data => widget.show(data)));
+};
+const initPdf = function <D, P extends PdfType>(widget: Pdf<D, P>, args: PdfArgs<D, P>) {
+    widget.pdfData = args.pdfData;
+    widget.show = toGetA(args.show ?? true);
 };
 const initValue = function <D, U, H extends boolean>(widget: Required<D, U, H>, args: ValueArgs<D, U, H>) {
     widget.label = toGetT(args.label);
@@ -327,6 +339,23 @@ export class TextWidget<D> extends Widget<D, undefined, true> {
     constructor(args: InfoArgs<D>) {
         super();
         initInfo(this, args);
+    }
+}
+
+export class InlinePdfPreviewWidget<D, P extends PdfType> extends Widget<D, undefined, true> {
+    label = () => '' as const;
+    onError = () => '' as const;
+    show = $state() as GetB<D>;
+    showTextValue = () => false as const;
+    _value = undefined;
+    onValueSet = () => {};
+    hideInRawData = true as const;
+    isError = () => false;
+    pdfData = $state() as GetT<D, InlinePdfPreviewData<P>>;
+
+    constructor(args: PdfArgs<D, P>) {
+        super();
+        initPdf(this, args);
     }
 }
 

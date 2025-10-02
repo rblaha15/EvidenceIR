@@ -1,6 +1,6 @@
 import {
     ChooserWidget,
-    CounterWidget,
+    CounterWidget, type GetT, type InlinePdfPreviewData, InlinePdfPreviewWidget,
     InputWidget,
     MultiCheckboxWidget,
     RadioWidget,
@@ -9,10 +9,12 @@ import {
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
 import { type SparePart, sparePartsList } from '$lib/client/realtime';
-import type { GenericFormSP, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
+import type { FormSP, GenericFormSP, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
 import type { Translations } from '$lib/translations';
 import { browser } from '$app/environment';
 import { derived } from 'svelte/store';
+import { dataToRawData } from '$lib/forms/Form';
+import { generalizeServiceProtocol } from '$lib/pdf/pdf';
 
 const multilineLineLength = 670;
 const multilineMaxLength = multilineLineLength * 4;
@@ -76,9 +78,11 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
     });
 };
 
-const labels = (t: Translations) => t.sp;
+const labels = <A extends Translations['sp']>(t: Translations): Pick<A, keyof Translations['sp']> => t.sp;
 
-export default <D extends GenericFormSP<D>>(): GenericFormSP<D> => ({
+export const defaultGenericSP = <D extends GenericFormSP<D>>(
+    getPdfData: GetT<D, InlinePdfPreviewData<'NSP'>>
+): GenericFormSP<D> => ({
     zasah: {
         datum: new InputWidget({ label: t => t.sp.interventionDate, type: 'datetime-local' }),
         datumUvedeni: new InputWidget({ label: t => t.sp.commissioningDate, type: 'date', required: false }),
@@ -141,4 +145,19 @@ export default <D extends GenericFormSP<D>>(): GenericFormSP<D> => ({
             required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
         }),
     },
+    other: {
+        title: new TitleWidget({
+            text: t => t.pdf.documentPreview, showInXML: false,
+        }),
+        preview: new InlinePdfPreviewWidget({
+            pdfData: getPdfData,
+        }),
+    },
 });
+
+export default (): FormSP => ({
+    ...defaultGenericSP((t, d) => ({
+        type: 'NSP',
+        data: generalizeServiceProtocol(d.evidence, d.raw, d.uvedeniTC, t),
+    })),
+})
