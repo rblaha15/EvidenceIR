@@ -40,15 +40,15 @@
 
 <ul class="navbar-nav">
     {@render item({
+        url: relUrl('/search'), label: t.nav.search, selected: route?.endsWith('/search'),
+    })}
+    {@render item({
         url: relUrl('/IN'), label: tn.newRegistration,
         selected: isForm && form === 'IN' && !externalIRID,
     })}
     {@render item({
         url: relUrl('/NSP'), label: tn.independentServiceProtocol, shown: $isUserRegulusOrAdmin,
         selected: isForm && form === 'NSP' && !externalSPID,
-    })}
-    {@render item({
-        url: relUrl('/search'), label: t.nav.search, selected: route?.endsWith('/search'),
     })}
     {@render item({
         url: isDetailPage
