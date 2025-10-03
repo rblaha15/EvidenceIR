@@ -50,13 +50,13 @@
 </script>
 
 {#if widget instanceof TitleWidget && widget.show(data)}
-    <Title bind:widget {t} {data} />
+    <Title {widget} {t} {data} />
 {:else if widget instanceof TextWidget && widget.show(data)}
     {#await widget.text(t, data) then text}
         {#if text}<p class={[widget.class(data), 'm-0']}>{text}</p>{/if}
     {/await}
 {:else if widget instanceof InlinePdfPreviewWidget && widget.show(data)}
-    <InlinePdfPreview bind:widget {t} {data} />
+    <InlinePdfPreview {widget} {t} {data} />
 {:else if widget instanceof ScannerWidget && widget.show(data)}
     <Scanner bind:widget {t} {data} />
 {:else if widget instanceof InputWidget && widget.show(data)}

@@ -2,8 +2,7 @@ import { get, type Translations } from '../translations';
 import type { ClassValue, FullAutoFill, HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 import type { Untranslatable } from '$lib/translations/untranslatables';
 import type { Readable } from 'svelte/store';
-import type { LanguageCode } from '$lib/languages';
-import type { DataOfPdf, PdfParameters, Pdf as PdfType } from '$lib/pdf/pdf';
+import type { DataOfPdf, Pdf as PdfType, PdfParameters } from '$lib/pdf/pdf';
 
 export type GetB<D> = Get<D, boolean>;
 export type GetBOrVal<D> = GetOrVal<D, boolean>;
@@ -39,7 +38,7 @@ export const STAR = '∗';
 export const labelAndStar = <D, U>(
     widget: Required<D, U, boolean>,
     data: D,
-    t: Translations
+    t: Translations,
 ) => {
     const label = widget.label(t, data);
     return label == '' ? '' : label + (!widget.required(data) ? '' : ` ${STAR}`);
@@ -117,7 +116,11 @@ type FileArgs<D> = {
 };
 type ChooserArgs<D, I extends K> = { options: GetOrVal<D, Arr<I>>; chosen?: I | null; };
 type SecondChooserArgs<I extends K> = { options: Arr<I>; chosen?: I; text?: string; };
-type DoubleChooserArgs<D, I1 extends K, I2 extends K> = { options1: GetOrVal<D, Arr<I1>>; options2: GetOrVal<D, Arr<I2>>; chosen?: Pair<I1, I2>; };
+type DoubleChooserArgs<D, I1 extends K, I2 extends K> = {
+    options1: GetOrVal<D, Arr<I1>>;
+    options2: GetOrVal<D, Arr<I2>>;
+    chosen?: Pair<I1, I2>;
+};
 type LockArgs<D> = { lock?: GetBOrVal<D>; };
 type CompactArgs<D> = { compact?: GetBOrVal<D>; };
 type DoubleLockArgs<D> = { lock1?: GetBOrVal<D>; lock2?: GetBOrVal<D>; };
@@ -136,7 +139,12 @@ type CounterArgs<D> = { chosen: number; min: GetOrVal<D, number>; max: GetOrVal<
 type CountersArgs<D, I extends K> = { counts: Rec<I>; max: GetOrVal<D, number>; };
 type CheckArgs = { checked?: boolean; };
 type SwitchArgs<D> = { hasPositivity?: GetBOrVal<D>; options: Sides };
-type MultiChooserArgs<D, I extends K> = { options: GetOrVal<D, Arr<I>>; chosen?: Arr<I>; max?: GetOrVal<D, number> } & LabelsArgs<I>;
+type MultiChooserArgs<D, I extends K> = {
+    options: GetOrVal<D, Arr<I>>;
+    chosen?: Arr<I>;
+    max?: GetOrVal<D, number>;
+    inverseSelection?: boolean;
+} & LabelsArgs<I>;
 type Input1Args<D> = {
     regex?: GetOrVal<D, RegExp>;
     capitalize?: GetBOrVal<D>;
@@ -183,7 +191,7 @@ type Search<D, T> = Widget<D, T | null> & {
 type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; };
 type Counters<D, I extends K> = Widget<D, Rec<I>> & { max: Get<D, number> };
 type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: GetB<D>; };
-type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; };
+type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; inverseSelection: boolean; };
 type Input1<D, U> = Widget<D, U> & {
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
@@ -225,7 +233,8 @@ const initValue = function <D, U, H extends boolean>(widget: Required<D, U, H>, 
     widget.hideInRawData = (args.hideInRawData ?? false) as H;
     widget.onError = toGetT(args.onError ?? (t => t.widget.requiredField));
     widget.required = toGetA(args.required ?? true);
-    widget.onValueSet = args.onValueSet ?? (() => {});
+    widget.onValueSet = args.onValueSet ?? (() => {
+    });
 };
 const initFile = function <D>(widget: File<D>, args: FileArgs<D>, defaultAccept: string = '*') {
     widget.multiple = toGetA(args.multiple ?? false);
@@ -250,7 +259,7 @@ const initLock = function <D, U>(widget: Lock<D, U>, args: LockArgs<D>) {
 };
 const initLabels = function <D, U, I extends string>(widget: Labels<D, U, I>, args: LabelsArgs<I>) {
     widget.labels = args.labels ?? (() => ({}) as Record<I, string>);
-    widget.get = (t, v) => get(widget.labels(t), v)
+    widget.get = (t, v) => get(widget.labels(t), v);
 };
 const initCompact = function <D, U>(widget: Compact<D, U>, args: CompactArgs<D>) {
     widget.compact = toGetA(args.compact ?? false);
@@ -290,6 +299,7 @@ const initMultiChooser = function <D, I extends K>(widget: MultiChooser<D, I>, a
     widget._value = args.chosen ?? [];
     widget.max = toGetA(args.max ?? Number.MAX_VALUE);
     widget.options = toGetA(args.options);
+    widget.inverseSelection = Boolean(args.inverseSelection);
 };
 const initInput1 = function <D, U>(widget: Input1<D, U>, args: Input1Args<D>) {
     widget.regex = toGetA(args.regex ?? /.*/);
@@ -484,7 +494,7 @@ export class DoubleChooserWidget<D, I1 extends K, I2 extends K, H extends boolea
     onValueSet = $state() as (data: D, newValue: Pair<I1, I2>) => void;
     hideInRawData = $state() as H;
     isError = $state(
-        a => (this.value.first == null || (this.value.second == null && this.options2(a).length)) && this.required(a)
+        a => (this.value.first == null || (this.value.second == null && this.options2(a).length)) && this.required(a),
     ) as GetB<D>;
     required = $state() as GetB<D>;
     lock1 = $state() as GetB<D>;
@@ -605,6 +615,7 @@ export class MultiCheckboxWidget<D, I extends K, H extends boolean = false> exte
     max = $state() as Get<D, number>;
     labels = $state() as T<I>;
     get = $state() as ((t: Translations, v: I | null) => string);
+    inverseSelection = $state() as boolean;
 
     constructor(args: ValueArgs<D, Arr<I>, H> & MultiChooserArgs<D, I> & LockArgs<D> & LabelsArgs<I>) {
         super();
@@ -624,7 +635,7 @@ export class InputWidget<D, H extends boolean = false> extends Widget<D, string,
     _value = $state() as string;
     onValueSet = $state() as (data: D, newValue: string) => void;
     isError = $state(
-        a => (this.value == '' && this.required(a)) || (this.value != '' && !this.regex(a).test(this.value))
+        a => (this.value == '' && this.required(a)) || (this.value != '' && !this.regex(a).test(this.value)),
     ) as GetB<D>;
     required = $state() as GetB<D>;
     lock = $state() as GetB<D>;
@@ -641,7 +652,8 @@ export class InputWidget<D, H extends boolean = false> extends Widget<D, string,
     autocapitalize = $state() as Get<D, HTMLInputAttributes['autocapitalize']>;
     suffix = $state() as GetTU<D>;
     autocomplete = $state() as Get<D, FullAutoFill>;
-    updateMaskValue = $state(() => {}) as (text: string) => void;
+    updateMaskValue = $state(() => {
+    }) as (text: string) => void;
     maskOptions = $state() as Get<D, Opts>;
     regex = $state() as Get<D, RegExp>;
     capitalize = $state() as GetB<D>;
@@ -665,7 +677,7 @@ export class ScannerWidget<D, H extends boolean = false> extends InputWidget<D, 
         processScannedText?: (text: string, data: D) => string
     }) {
         super(args);
-        this.processScannedText = args.processScannedText ?? (t => t)
+        this.processScannedText = args.processScannedText ?? (t => t);
     }
 }
 
@@ -725,7 +737,7 @@ export class InputWithChooserWidget<D, I extends K, H extends boolean = false> e
     _value = $state() as SeI<I>;
     onValueSet = $state() as (data: D, newValue: SeI<I>) => void;
     isError = $state(
-        a => (this.value.text == '' && this.required(a)) || (this.value.text != '' && !this.regex(a).test(this.value.text))
+        a => (this.value.text == '' && this.required(a)) || (this.value.text != '' && !this.regex(a).test(this.value.text)),
     ) as GetB<D>;
     required = $state() as GetB<D>;
     lock = $state() as GetB<D>;
@@ -741,7 +753,8 @@ export class InputWithChooserWidget<D, I extends K, H extends boolean = false> e
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
     autocapitalize = $state() as Get<D, HTMLInputAttributes['autocapitalize']>;
     autocomplete = $state() as Get<D, FullAutoFill>;
-    updateMaskValue = $state(() => {}) as (text: string) => void;
+    updateMaskValue = $state(() => {
+    }) as (text: string) => void;
     maskOptions = $state() as Get<D, Opts>;
     regex = $state() as Get<D, RegExp>;
     capitalize = $state() as GetB<D>;
@@ -771,7 +784,7 @@ export class CheckboxWithInputWidget<D, H extends boolean = false> extends Widge
     isError = $state(
         a => (this.value.text == '' && this.required(a)) ||
             (!this.value.checked && this.required(a)) ||
-            (this.value.text != '' && !this.regex(a).test(this.value.text))
+            (this.value.text != '' && !this.regex(a).test(this.value.text)),
     ) as GetB<D>;
     required = $state() as GetB<D>;
     lock = $state() as GetB<D>;
@@ -787,7 +800,8 @@ export class CheckboxWithInputWidget<D, H extends boolean = false> extends Widge
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
     autocapitalize = $state() as Get<D, HTMLInputAttributes['autocapitalize']>;
     autocomplete = $state() as Get<D, FullAutoFill>;
-    updateMaskValue = $state(() => {}) as (text: string) => void;
+    updateMaskValue = $state(() => {
+    }) as (text: string) => void;
     maskOptions = $state() as Get<D, Opts>;
     regex = $state() as Get<D, RegExp>;
     capitalize = $state() as GetB<D>;
