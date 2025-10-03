@@ -9,7 +9,7 @@
         data: D;
     }
 
-    let { t, widget = $bindable(), data }: Props = $props();
+    const { t, widget, data }: Props = $props();
 </script>
 
 {#await widget.text(t, data) then text}
