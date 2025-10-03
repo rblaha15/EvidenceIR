@@ -1,6 +1,10 @@
 import {
     ChooserWidget,
-    CounterWidget, type GetT, type HeadingLevel, type InlinePdfPreviewData, InlinePdfPreviewWidget,
+    CounterWidget,
+    type GetT,
+    type HeadingLevel,
+    type InlinePdfPreviewData,
+    InlinePdfPreviewWidget,
     InputWidget,
     MultiCheckboxWidget,
     RadioWidget,
@@ -9,11 +13,10 @@ import {
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
 import { type SparePart, sparePartsList } from '$lib/client/realtime';
-import type { FormSP, GenericFormSP, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
+import type { FormSP, GenericFormSP, Operation, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
 import type { Translations } from '$lib/translations';
 import { browser } from '$app/environment';
 import { derived } from 'svelte/store';
-import { dataToRawData } from '$lib/forms/Form';
 import { generalizeServiceProtocol } from '$lib/pdf/pdf';
 
 const multilineLineLength = 670;
@@ -80,6 +83,13 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
 
 const labels = <A extends Translations['sp']>(t: Translations): Pick<A, keyof Translations['sp']> => t.sp;
 
+const operations = [
+    `regulusRoute`, `commissioningTC`, `commissioningSOL`, `commissioningFVE`, `yearlyHPCheck`,
+    `yearlySOLCheck`, `extendedWarranty`, `installationApproval`, `withoutCode`,
+] as const satisfies Operation[];
+export const invoiceableParts = [
+    'transportation' as const, 'work' as const, ...operations,
+];
 export const defaultGenericSP = <D extends GenericFormSP<D>>(
     getPdfData: GetT<D, InlinePdfPreviewData<'NSP'>>, titleLevel: HeadingLevel = 2,
 ): GenericFormSP<D> => ({
@@ -110,10 +120,7 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
             labels,
         }),
         ukony: new MultiCheckboxWidget({
-            label: t => t.sp.operations, max: 3, required: false, options: [
-                `regulusRoute`, `commissioningTC`, `commissioningSOL`, `commissioningFVE`, `yearlyHPCheck`,
-                `yearlySOLCheck`, `extendedWarranty`, `installationApproval`, `withoutCode`,
-            ], labels,
+            label: t => t.sp.operations, max: 3, required: false, options: operations, labels,
         }),
         doba: new InputWidget({
             label: (t, d) => d.ukony.typPrace.value != null ? t.sp.billedTime : t.sp.interventionTime,
@@ -144,6 +151,13 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
         jak: new RadioWidget({
             label: t => t.sp.invoice, options: ['onPaper', 'electronically'], labels,
             required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
+        }),
+        invoiceParts: new MultiCheckboxWidget({
+            label: t => t.sp.invoiceParts, options: d => [
+                'transportation' as const,
+                ...d.ukony.typPrace.value ? ['work' as const] : [],
+                ...d.ukony.ukony.value,
+            ], labels, required: false, chosen: invoiceableParts,
         }),
     },
     other: {
