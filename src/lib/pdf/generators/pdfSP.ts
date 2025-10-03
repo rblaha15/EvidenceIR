@@ -6,7 +6,7 @@ import { endUserName, endUserName2, spName } from '$lib/helpers/ir';
 import { generalizeServiceProtocol, type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { get } from '$lib/translations';
 import { unknownCompany } from '$lib/forms/IN/formIN';
-import { inlineTooLong, multilineTooLong } from '$lib/forms/SP/defaultSP';
+import { inlineTooLong, invoiceableParts, multilineTooLong } from '$lib/forms/SP/defaultSP';
 import ares from '$lib/helpers/ares';
 
 const prices = {
@@ -49,16 +49,19 @@ const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
     .associateWith((_, i) => fieldsPartsStart + i * 8);
 
 export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
-    const ts = t.sp
+    const ts = t.sp;
     console.log(p);
+    const ip = invoiceableParts.associateWith(it => p.fakturace.invoiceParts.includes(it));
     const assemblyCompany = await ares.getNameAndAddress(p.montazka.ico, fetch);
     const spareParts = [
         p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
         p.nahradniDil5, p.nahradniDil6, p.nahradniDil7, p.nahradniDil8,
     ].slice(0, p.nahradniDily.pocet);
-    const priceTransportation = prices.transportation * Number(p.ukony.doprava);
-    const priceWork = p.ukony.typPrace ? prices.work * Number(p.ukony.doba) : 0;
-    const priceOperations = p.ukony.ukony.sumBy(typ => prices[typ] * (typ == 'commissioningTC' || typ == 'yearlyHPCheck' ? p.system.pocetTC : 1));
+    const priceTransportation = ip.transportation ? prices.transportation * Number(p.ukony.doprava) : 0;
+    const priceWork = p.ukony.typPrace && ip.work ? prices.work * Number(p.ukony.doba) : 0;
+    const priceOperations = p.ukony.ukony.sumBy(type =>
+        ip[type] ? prices[type] * (type == 'commissioningTC' || type == 'yearlyHPCheck' ? p.system.pocetTC : 1) : 0,
+    );
     const priceParts = spareParts.sumBy(dil => Number(dil.unitPrice) * Number(dil.mnozstvi));
     const priceOther = priceOperations + priceParts;
     const sum = priceTransportation + priceWork + priceOther;
@@ -107,17 +110,17 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         Text19: inlineTooLong(zavada) ? ts.seeSecondPage : zavada,
         Text20: multilineTooLong(zasah) ? ts.seeSecondPage : zasah,
         Text21: p.ukony.doprava + ' km',
-        Text22: prices.transportation.roundTo(2).toLocaleString('cs') + ' Kč',
+        Text22: ip.transportation ? prices.transportation.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč',
         'Kombinované pole32': get(ts, p.ukony.typPrace) || ts.intervention,
         Text25: p.ukony.typPrace ? codes[p.ukony.typPrace].toString().let(k => k == '0' ? '' : k) : '',
         Text23: p.ukony.doba + ' h',
-        Text24: p.ukony.typPrace ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '',
+        Text24: p.ukony.typPrace ? ip.work ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč' : '',
         ...fieldsOperations.map(p => [p.type, ' '] as const).toRecord(),
-        ...p.ukony.ukony.map((typ, i) => [
-            [fieldsOperations[i].type, get(ts, typ)],
-            [fieldsOperations[i].price, prices[typ].roundTo(2).toLocaleString('cs') + ' Kč'],
-            [fieldsOperations[i].code, codes[typ].toString()],
-            [fieldsOperations[i].amount, typ == 'commissioningTC' || typ == 'yearlyHPCheck' ? p.system.pocetTC + ' ks' : ''],
+        ...p.ukony.ukony.map((type, i) => [
+            [fieldsOperations[i].type, get(ts, type)],
+            [fieldsOperations[i].price, ip[type] ? prices[type].roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč'],
+            [fieldsOperations[i].code, codes[type].toString()],
+            [fieldsOperations[i].amount, type == 'commissioningTC' || type == 'yearlyHPCheck' ? p.system.pocetTC + ' ks' : ''],
         ] as const).flat().toRecord(),
         ...spareParts.map((dil, i) => [
             [`Text${fieldsParts.name + i}`, dil.name],
@@ -155,7 +158,7 @@ export const pdfCP: GetPdfData<'CP'> = async ({ data: p }) => ({
 });
 
 export const pdfPS: GetPdfData<'PS'> = async ({ data: p, t }) => {
-    const ts = t.sp
+    const ts = t.sp;
     const system = p.system.popis;
     const zavada = p.zasah.nahlasenaZavada;
     const zasah = p.zasah.popis;
