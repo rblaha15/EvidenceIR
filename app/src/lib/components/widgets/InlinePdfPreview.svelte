@@ -12,7 +12,7 @@
         data: D;
     }
 
-    let { t, widget = $bindable(), data: formData }: Props<P> = $props();
+    const { t, widget, data: formData }: Props<P> = $props();
 
     const { type, data, ...parameters } = $derived(widget.pdfData(t, formData));
 

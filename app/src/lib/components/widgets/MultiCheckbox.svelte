@@ -11,8 +11,17 @@
     let { t, widget = $bindable(), data }: Props = $props();
 
     const count = $derived(widget.value.length);
-    const value = $derived(widget.bindableValue(data));
+    const options = $derived(widget.options(data));
+    const value = $derived({
+        get value() {
+            return widget.inverseSelection ? options.filter(i => !widget.value.includes(i)) : widget.value
+        },
+        set value(selected) {
+            widget.setValue(data, widget.inverseSelection ? options.filter(i => !selected.includes(i)) : selected)
+        }
+    })
 
+    const checked = (item: I) => widget.value.includes(item).let(c => widget.inverseSelection ? !c : c)
     const onClick = (item: I) => () => {
         widget.mutateValue(data, v => v.toggle(item));
     };
@@ -23,17 +32,17 @@
 <div class="d-flex gap-1 flex-column">
     <div>{labelAndStar(widget, data, t)}</div>
     <div class="input-group input-group-grid">
-        {#each widget.options(data) as item}
+        {#each options as item}
             <button class="input-group-text input-group-input first" onclick={onClick(item)}
-                    disabled={widget.lock(data) || !widget.value.includes(item) && count >= widget.max(data)}
+                    disabled={widget.lock(data) || !checked(item) && count >= widget.max(data)}
                     aria-labelledby="label-{uid}-{item}" tabindex="-1"
             >
                 <input class="form-check-input m-0" type="checkbox" role="button" bind:group={value.value}
-                       disabled={widget.lock(data) || !widget.value.includes(item) && count >= widget.max(data)} value={item} />
+                       disabled={widget.lock(data) || !checked(item) && count >= widget.max(data)} value={item} />
             </button>
             <button onclick={onClick(item)} class="input-group-text last"
                     tabindex="-1" id="label-{uid}-{item}"
-                    disabled={widget.lock(data) || !widget.value.includes(item) && count >= widget.max(data)}
+                    disabled={widget.lock(data) || !checked(item) && count >= widget.max(data)}
             >{widget.get(t, item)}</button>
         {/each}
     </div>

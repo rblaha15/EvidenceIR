@@ -53,7 +53,7 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
     const pageData = await parent();
     const t = pageData.translations;
 
-    setTitle(t.pdf.previewFile, true);
+    setTitle(t.pdf.documentPreview, true);
 
     return { ...d, ...id, args: pdf, fileLang: language };
 };
