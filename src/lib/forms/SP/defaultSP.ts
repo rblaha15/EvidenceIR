@@ -157,7 +157,7 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
                 'transportation' as const,
                 ...d.ukony.typPrace.value ? ['work' as const] : [],
                 ...d.ukony.ukony.value,
-            ], labels, required: false, chosen: invoiceableParts,
+            ], labels, required: false, inverseSelection: true,
         }),
     },
     other: {

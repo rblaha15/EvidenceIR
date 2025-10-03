@@ -496,12 +496,12 @@ Array.prototype.last = function() {
 
 declare global {
     interface String {
-        toNumber: (radix?: number) => number;
+        toNumber: () => number;
     }
 }
 
-String.prototype.toNumber = function(this: string, radix?: number) {
-    return parseInt(this, radix);
+String.prototype.toNumber = function(this: string) {
+    return Number(this);
 };
 
 // TLM

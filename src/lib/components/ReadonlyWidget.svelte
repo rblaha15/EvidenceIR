@@ -23,6 +23,7 @@
         type Widget,
     } from '$lib/forms/Widget.svelte';
     import { dateFromISO, datetimeFromISO } from '$lib/helpers/date';
+    import Title from '$lib/components/widgets/Title.svelte';
 
     interface Props {
         t: Translations;
@@ -34,9 +35,7 @@
 </script>
 
 {#if widget instanceof TitleWidget && widget.showTextValue(data)}
-    {#await widget.text(t, data) then text}
-        {#if text}<h2 class={[widget.class(data), 'm-0']}>{text}</h2>{/if}
-    {/await}
+    <Title {widget} {data} {t} />
 {:else if widget instanceof TextWidget && widget.showTextValue(data)}
     {#await widget.text(t, data) then text}
         {#if text}<p class={[widget.class(data), 'm-0']}>{text}</p>{/if}
@@ -62,7 +61,8 @@
         {:else if widget instanceof SwitchWidget}
             {widget.value ? widget.options(t)[1] : widget.options(t)[0]}
         {:else if widget instanceof MultiCheckboxWidget}
-            {widget.value.map(v => widget.get(t, v)).join(', ')}
+            {(widget.inverseSelection ? widget.options(data).filter(i => !widget.value.includes(i)) : widget.value)
+                .map(v => widget.get(t, v)).join(', ')}
         {:else if widget instanceof CheckboxWidget}
             {widget.value ? t.widget.yes : t.widget.no}
         {:else if widget instanceof CounterWidget}

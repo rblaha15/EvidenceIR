@@ -51,7 +51,7 @@ const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
 export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
     const ts = t.sp;
     console.log(p);
-    const ip = invoiceableParts.associateWith(it => p.fakturace.invoiceParts.includes(it));
+    const ip = invoiceableParts.associateWith(it => !p.fakturace.invoiceParts?.includes(it));
     const assemblyCompany = await ares.getNameAndAddress(p.montazka.ico, fetch);
     const spareParts = [
         p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
@@ -109,11 +109,11 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         'Zaškrtávací pole29': p.zasah.zaruka == `warrantyExtended`,
         Text19: inlineTooLong(zavada) ? ts.seeSecondPage : zavada,
         Text20: multilineTooLong(zasah) ? ts.seeSecondPage : zasah,
-        Text21: p.ukony.doprava + ' km',
+        Text21: p.ukony.doprava.toNumber().roundTo(2).toLocaleString('cs') + ' km',
         Text22: ip.transportation ? prices.transportation.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč',
         'Kombinované pole32': get(ts, p.ukony.typPrace) || ts.intervention,
         Text25: p.ukony.typPrace ? codes[p.ukony.typPrace].toString().let(k => k == '0' ? '' : k) : '',
-        Text23: p.ukony.doba + ' h',
+        Text23: p.ukony.doba.toNumber().roundTo(2).toLocaleString('cs') + ' h',
         Text24: p.ukony.typPrace ? ip.work ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč' : '',
         ...fieldsOperations.map(p => [p.type, ' '] as const).toRecord(),
         ...p.ukony.ukony.map((type, i) => [
@@ -125,7 +125,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         ...spareParts.map((dil, i) => [
             [`Text${fieldsParts.name + i}`, dil.name],
             [`Text${fieldsParts.code + i}`, dil.code],
-            [`Text${fieldsParts.amount + i}`, dil.mnozstvi + ' ks'],
+            [`Text${fieldsParts.amount + i}`, dil.mnozstvi.toNumber().roundTo(2).toLocaleString('cs') + ' ks'],
             [`Text${fieldsParts.warehouse + i}`, dil.warehouse],
             [`Text${fieldsParts.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString('cs') + ' Kč'],
         ] as const).flat().toRecord(),
