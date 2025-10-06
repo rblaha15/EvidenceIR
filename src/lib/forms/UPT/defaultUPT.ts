@@ -8,6 +8,7 @@ import {
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
+import { defaultRKD } from '$lib/forms/RKD/formRKD';
 
 const newSuitsWidget = <D>(args: {
     label: GetTOrVal<D>,
@@ -152,4 +153,5 @@ export default (): FormUPT => ({
         }),
         date: new InputWidget({ label: t => t.tc.dateOfCommission, type: 'date', text: (new Date()).toISOString().split('T')[0] }),
     },
+    checkRecommendations: defaultRKD()
 });

@@ -53,7 +53,7 @@
     onMount(async () => {
     });
     onMount(async () => {
-        const currentLangLength = data.languageCode?.length ?? -1;
+        const currentLangLength = data.isLanguageFromUrl ? data.languageCode?.length ?? -1 : -1;
         const path = page.url.pathname.slice(currentLangLength + 1);
         if (path == '') {
             const isLoggedIn = await checkAuth();
@@ -137,7 +137,7 @@
                     </h1>
                     {@render children?.()}
                 </div>
-                {#if page.route.id?.includes('[form]')}
+                {#if page.route.id?.includes('[form]') && !page.error}
                     {#key page.url.pathname + page.url.search}
                         <div class="d-none d-md-block position-sticky top-0 pt-3 end-0 h-100 toc">
                             <TableOfContents {t} />

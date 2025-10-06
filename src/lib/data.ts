@@ -19,6 +19,8 @@ import '$lib/extensions';
 
 export type Year = 1 | 2 | 3 | 4;
 
+export type RecommendationState = 'waiting' | 'sentRecommendation' | 'sentRequest';
+
 export type IR = {
     evidence: Raw<FormIN>;
     uvedeniTC?: Raw<FormUPT>;
@@ -32,6 +34,19 @@ export type IR = {
     users: string[];
     installationProtocols: Raw<FormSP>[];
     faceTable?: Raw<FormFT>;
+    yearlyHeatPumpCheckRecommendation?: {
+        executingCompany: 'assembly' | 'commissioning' | 'regulus',
+        state: RecommendationState,
+        code?: string,
+    }
+};
+
+export type RecommendationData = {
+    irid: IRID;
+    user: string;
+    company: string;
+    companyEmail: string;
+    location: string;
 };
 
 /**
@@ -91,6 +106,8 @@ export interface WriteDatabase {
 
     updateIRUsers(irid: IRID, users: string[]): Promise<void>;
 
+    updateRecommendationsSettings(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
+
     addIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
 
     updateIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
@@ -130,9 +147,9 @@ const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>
 const functions = [
     'getIR', 'getAllIRs', 'getAllIRsAsStore', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
     'addServiceProtocol', 'updateServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
-    'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'addIndependentServiceProtocol', 'deleteIndependentProtocol',
-    'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols', 'getAllIndependentProtocolsAsStore',
-    'addFaceTable', 'updateIndependentServiceProtocol',
+    'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'updateRecommendationsSettings', 'addIndependentServiceProtocol',
+    'deleteIndependentProtocol', 'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols',
+    'getAllIndependentProtocolsAsStore', 'addFaceTable', 'updateIndependentServiceProtocol',
 ] as const satisfies (keyof Database)[];
 
 export type WriteFunction = keyof WriteDatabase;
