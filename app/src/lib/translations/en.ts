@@ -247,6 +247,7 @@ const en: PlainTranslations = {
                 addSolarSystemCommissioningProtocol: t`Created a solar system commissioning protocol at the ${'ir'} controller`,
                 addPhotovoltaicSystemCommissioningProtocol: t`Created a photovoltaic system commissioning protocol at the ${'ir'} controller`,
                 updateIRUsers: t`Updated the list of users with access to the ${'ir'} controller`,
+                updateRecommendationsSettings: t`Updated the yearly check recommendation settings at the ${'ir'} controller`,
                 addIndependentServiceProtocol: t`Created a new independent service protocol ${'sp'}`,
                 updateIndependentServiceProtocol: t`Updated the ${'sp'} independent service protocol`,
                 deleteIndependentProtocol: t`Removed the ${'spid'} independent service protocol`,

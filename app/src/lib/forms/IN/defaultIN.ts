@@ -26,7 +26,7 @@ import {
     supportsRemoteAccess,
     typBOX,
 } from '$lib/helpers/ir';
-import { time, todayISO } from '$lib/helpers/date';
+import { time, dayISO } from '$lib/helpers/date';
 import products, { type Products } from '$lib/helpers/products';
 import type { Translations } from '$lib/translations';
 import { derived } from 'svelte/store';
@@ -406,7 +406,7 @@ export default (): FormIN => ({
                     d.tc.typ.setValue(d, 'airToWater');
                 }
                 if (doesNotHaveIRNumber(v.first)) {
-                    d.ir.cislo.setValue(d, `${todayISO()} ${time()}`);
+                    d.ir.cislo.setValue(d, `${dayISO()} ${time()}`);
                     d.ir.cisloBox.setValue(d, '');
                     d.vzdalenyPristup.chce.setValue(d, false);
                 }
