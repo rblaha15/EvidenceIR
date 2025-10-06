@@ -40,13 +40,13 @@ export const storableState: GetStorableState = <T>(key: string, defaultValue?: T
 };
 
 export const relUrl = (url = '', lang: LC | '?' = page.data.languageCode) =>
-    `/${lang}${url}`;
+    lang == '?' ? url : `/${lang}${url}`;
 export const iridUrl = (url = '', id: IRID = page.data.irid, lang: LC | '?' = page.data.languageCode) =>
-    new URL(page.url.origin + relUrl(url, lang))
+    new URL('file://' + relUrl(url, lang))
         .also(u => u.searchParams.append('irid', id))
         .let(u => u.pathname + u.search + u.hash);
 export const spidUrl = (url = '', ids: SPID[] = page.data.spids, lang: LC | '?' = page.data.languageCode) =>
-    new URL(page.url.origin + relUrl(url, lang))
+    new URL('file://' + relUrl(url, lang))
         .also(u => u.searchParams.append('spid', ids.join(' ')))
         .let(u => u.pathname + u.search + u.hash);
 export const detailIrUrl = (id: IRID = page.data.irid, lang: LC | '?' = page.data.languageCode) =>

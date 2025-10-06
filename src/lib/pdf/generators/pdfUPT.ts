@@ -1,4 +1,4 @@
-import { dateFromISO, todayISO } from '$lib/helpers/date';
+import { dateFromISO, dayISO } from '$lib/helpers/date';
 import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { endUserName, irType, typBOX } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
@@ -28,7 +28,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc, lang }) => {
         Text7: e.uvedeni.zastupce,
         Text8: e.uvedeni.telefon,
         Text9: e.uvedeni.email,
-        Text10: dateFromISO(u.uvadeni.date ?? todayISO()),
+        Text10: dateFromISO(u.uvadeni.date ?? dayISO()),
         Text11: isCascade ? tu.cascadeSee : e.tc.model!,
         Text12: isCascade ? '—' : e.tc.cislo,
         Text13: e.ir.typ.first!.includes('BOX') ? typBOX(e.ir.cisloBox) ?? e.ir.typ.first!.slice(10) + ' ' + e.ir.typ.second! : '—',

@@ -27,6 +27,7 @@
                 hotove: 'doNotInvoice',
                 komu: null,
                 jak: null,
+                invoiceParts: [],
             },
             zasah: {
                 ...p.zasah,

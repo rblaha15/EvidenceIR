@@ -2,13 +2,16 @@ import { get, readonly, writable } from 'svelte/store';
 
 const t = writable('SEIR');
 const bb = writable(false);
+const hn = writable(false);
 const toc = writable<(() => void)[]>([]);
-export const setTitle = (title: string, backButton: boolean = false) => {
+export const setTitle = (title: string, backButton: boolean = false, hideNav: boolean = false) => {
     t.set(title);
     bb.set(backButton);
+    hn.set(hideNav);
 };
 export const title = readonly(t);
 export const backButton = readonly(bb);
+export const hideNav = readonly(hn);
 export const refreshTOC = () => get(toc).forEach(f => f());
 export const registerTOC = (refreshFn: () => void) => toc.update(f => [...f, refreshFn]);
 

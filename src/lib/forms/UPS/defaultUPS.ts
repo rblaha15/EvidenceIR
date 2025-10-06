@@ -7,7 +7,7 @@ import {
     SwitchWidget,
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
-import { todayISO } from '$lib/helpers/date';
+import { dayISO } from '$lib/helpers/date';
 import { type FormUPS } from '$lib/forms/UPS/formUPS';
 
 const newYesNoWidget = <D>(args: {
@@ -59,6 +59,6 @@ export default (): FormUPS => ({
         podminky: new CheckboxWidget({ label: t => t.sol.conditionsMet }),
         regulator: new CheckboxWidget({ label: t => t.sol.solarControllerSet }),
         vlastnik: new CheckboxWidget({ label: t => t.sol.ownerInformed }),
-        date: new InputWidget({ label: t => t.sol.dateOfCommission, type: 'date', text: todayISO() }),
+        date: new InputWidget({ label: t => t.sol.dateOfCommission, type: 'date', text: dayISO() }),
     },
 });

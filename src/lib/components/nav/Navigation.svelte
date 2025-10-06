@@ -3,8 +3,6 @@
     import { isOnline } from '$lib/client/realtime';
     import type { Translations } from '$lib/translations';
     import BaseNav from './BaseNav.svelte';
-    import LanguageSelector from './LanguageSelector.svelte';
-    import Settings from '$lib/components/nav/Settings.svelte';
     import UserDropdown from '$lib/components/nav/UserDropdown.svelte';
     import LoggedOutButtons from '$lib/components/nav/LoggedOutButtons.svelte';
     import { readableQueue } from '$lib/client/offlineQueue.svelte';
@@ -12,9 +10,10 @@
     import SettingsModal from '$lib/components/nav/SettingsModal.svelte';
     import { page } from '$app/state';
     import TableOfContents from '$lib/components/TableOfContents.svelte';
+    import { hideNav } from '$lib/helpers/globals';
 
     const { t }: { t: Translations } = $props();
-    const tn = $derived(t.nav)
+    const tn = $derived(t.nav);
 
     const isLoggedIn = $derived($currentUser != null);
 </script>
@@ -35,16 +34,24 @@
     {/if}
 {/snippet}
 {#snippet header()}
-    <a class="navbar-brand" href="/">
+    {#snippet header()}
         <!--suppress CheckImageSize -->
         <img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
         <span class="fw-semibold">{tn.appName}</span>
-    </a>
+    {/snippet}
+
+    {#if $hideNav}
+        {@render header()}
+    {:else}
+        <a class="navbar-brand" href="/">
+            {@render header()}
+        </a>
+    {/if}
 {/snippet}
 
 <nav class="navbar navbar-expand-md gray flex-wrap">
     <div class="container-fluid">
-        {#if isLoggedIn}
+        {#if isLoggedIn && !$hideNav}
             <button
                 class="d-md-none me-2 btn nav-link btn-link"
                 data-bs-toggle="offcanvas"
@@ -56,11 +63,11 @@
             </button>
         {/if}
         {@render header()}
-        {#if !$isOnline}
+        {#if !$isOnline && !$hideNav}
             <span class="material-icons">wifi_off</span>
         {/if}
         <div class="me-auto"></div>
-        {#if isLoggedIn}
+        {#if isLoggedIn && !$hideNav}
             <div class="d-flex flex-row ms-auto ms-md-0">
                 {@render queue()}
                 {@render settings()}
@@ -91,9 +98,11 @@
             </div>
         {:else}
             {@render settings()}
-            <div class="d-flex flex-row">
-                <LoggedOutButtons {t} />
-            </div>
+            {#if !$hideNav}
+                <div class="d-flex flex-row">
+                    <LoggedOutButtons {t} />
+                </div>
+            {/if}
         {/if}
     </div>
 </nav>

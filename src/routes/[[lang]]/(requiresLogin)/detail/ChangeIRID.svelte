@@ -2,7 +2,7 @@
     import { ChooserWidget, InputWidget } from '$lib/forms/Widget.svelte';
     import type { IRTypes } from '$lib/forms/IN/formIN';
     import { type Translations } from '$lib/translations';
-    import { time, todayISO } from '$lib/helpers/date';
+    import { time, dayISO } from '$lib/helpers/date';
     import { untrack } from 'svelte';
     import { doesNotHaveIRNumber, extractIRIDFromParts, type IRID, isMACAddressTypeIR10, supportsMACAddresses } from '$lib/helpers/ir';
     import db, { type IR } from '$lib/data';
@@ -25,7 +25,7 @@
         options: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
         onValueSet: (d, v) => {
             if (doesNotHaveIRNumber(v)) {
-                d.number.setValue(d, `${todayISO()} ${time()}`);
+                d.number.setValue(d, `${dayISO()} ${time()}`);
             }
         },
         labels: t => t.in.ir,

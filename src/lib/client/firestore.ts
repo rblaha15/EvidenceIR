@@ -20,7 +20,7 @@ import { firestore } from '../../hooks.client';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
 import { type Database, type IR } from '$lib/data';
 import { offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
-import { Query } from '@firebase/firestore';
+import { deleteField, Query } from '@firebase/firestore';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { flatDerived } from '$lib/helpers/stores';
 
@@ -152,6 +152,16 @@ export const firestoreDatabase: Database = {
     updateIRUsers: async (irid, users) => {
         await updateDoc(irDoc(irid), `users`, users);
         await odm.update('IR', irid, ir => ({ ...ir!, users: users }));
+    },
+    updateRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => {
+        const ir = await getSnp(irDoc(irid));
+        ir!.yearlyHeatPumpCheckRecommendation = enabled ? {
+            state: 'waiting',
+            ...ir!.yearlyHeatPumpCheckRecommendation ?? {},
+            executingCompany: executingCompany!,
+        } : undefined;
+        await updateDoc(irDoc(irid), `yearlyHeatPumpCheckRecommendation`, ir!.yearlyHeatPumpCheckRecommendation ?? deleteField());
+        await odm.put('IR', irid, ir!);
     },
     addIndependentServiceProtocol: async protocol => {
         const spid = extractSPIDFromRawData(protocol.zasah);

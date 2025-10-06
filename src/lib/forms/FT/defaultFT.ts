@@ -10,7 +10,7 @@ import {
     optionsOutputsF,
     type OptionsOutputsF,
 } from '$lib/forms/FT/portsOptions';
-import { todayISO } from '$lib/helpers/date';
+import { dayISO } from '$lib/helpers/date';
 
 const args = <
     O extends OptionsInputsC | OptionsInputsB | OptionsOutputsF | OptionsOutputsB
@@ -76,6 +76,6 @@ export default (): FormFT => ({
     },
     info: {
         setBy: new InputWidget({ label: t => t.ft.setBy }),
-        date: new InputWidget({ label: t => t.ft.date, type: 'date', text: todayISO(), }),
+        date: new InputWidget({ label: t => t.ft.date, type: 'date', text: dayISO(), }),
     },
 })

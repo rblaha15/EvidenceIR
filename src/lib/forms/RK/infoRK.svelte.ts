@@ -6,7 +6,7 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
-import { todayISO } from '$lib/helpers/date';
+import { dayISO } from '$lib/helpers/date';
 import { type DataRK, type FormRK } from '$lib/forms/RK/formRK.js';
 import defaultRK from '$lib/forms/RK/defaultRK';
 import type { FormInfo } from '$lib/forms/FormInfo';
@@ -77,7 +77,7 @@ const infoRK = (() => {
         subtitle: t => `${t.rk.year}: ${year.toString() ?? '…'}`,
         onMount: async (d, k) => {
             if (!k.info.datum.value)
-                k.info.datum.setValue(d, todayISO());
+                k.info.datum.setValue(d, dayISO());
         },
     };
     return info;
