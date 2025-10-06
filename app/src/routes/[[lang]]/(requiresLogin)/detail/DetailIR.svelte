@@ -11,6 +11,7 @@
     import { goto } from '$app/navigation';
     import ChangeIRID from './ChangeIRID.svelte';
     import { aA, aR } from '$lib/helpers/stores';
+    import RKD from './RKD.svelte';
 
     const { t, ir, lang, irid }: {
         t: Translations, ir: IR, lang: LanguageCode, irid: IRID,
@@ -153,5 +154,7 @@
                 </div>
             </div>
         </div>
+
+        <RKD {ir} {irid} {t} />
     </div>
 </div>

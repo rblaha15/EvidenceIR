@@ -5,6 +5,7 @@ import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } 
 import type { Raw } from '$lib/forms/Form';
 import { currentUser } from '$lib/client/auth';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import { updateDoc } from 'firebase/firestore';
 
 interface DBSchema extends DBS {
     IR: {
@@ -143,6 +144,14 @@ export const offlineDatabase: Database = {
     updateIRUsers: async (irid, users) => odm.update('IR', irid, ir => {
         ir!.users = users;
         return ir!;
+    }),
+    updateRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => odm.update('IR', irid, ir => {
+        ir!.yearlyHeatPumpCheckRecommendation = enabled ? {
+            state: 'waiting',
+            ...ir!.yearlyHeatPumpCheckRecommendation ?? {},
+            executingCompany: executingCompany!,
+        } : undefined;
+        return ir!
     }),
     addIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),
     updateIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),

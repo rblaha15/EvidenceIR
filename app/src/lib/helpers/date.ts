@@ -7,11 +7,10 @@ export function today() {
     return `${dd}. ${mm}. ${yyyy}`;
 }
 
-export function todayISO() {
-    const today = new Date();
-    const dd = String(today.getDate()).padStart(2, '0');
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const yyyy = today.getFullYear();
+export function dayISO(date: Date = new Date()) {
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
 
     return `${yyyy}-${mm}-${dd}`;
 }
@@ -25,7 +24,7 @@ export function time() {
 }
 
 export function nowISO() {
-    return `${todayISO()}T${time()}`;
+    return `${dayISO()}T${time()}`;
 }
 
 export function dateFromISO(dateISO: string) {
