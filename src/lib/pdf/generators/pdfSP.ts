@@ -103,10 +103,10 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         Text13: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
         Text14: multilineTooLong(system) ? ts.seeSecondPage : system,
         Text15: dateFromISO(p.zasah.datum),
-        Text16: p.zasah.datumUvedeni ? dateFromISO(p.zasah.datumUvedeni) : null,
+        Text16: p.system.datumUvedeni ? dateFromISO(p.system.datumUvedeni) : null,
         Text17: p.zasah.clovek,
-        'Zaškrtávací pole28': p.zasah.zaruka == `warrantyCommon`,
-        'Zaškrtávací pole29': p.zasah.zaruka == `warrantyExtended`,
+        'Zaškrtávací pole28': p.system.zaruka == `warrantyCommon`,
+        'Zaškrtávací pole29': p.system.zaruka == `warrantyExtended`,
         Text19: inlineTooLong(zavada) ? ts.seeSecondPage : zavada,
         Text20: multilineTooLong(zasah) ? ts.seeSecondPage : zasah,
         Text21: p.ukony.doprava.toNumber().roundTo(2).toLocaleString('cs') + ' km',
@@ -137,9 +137,14 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         Text35: (sum * tax).roundTo(2).toLocaleString('cs') + ' Kč',
         Text39: get(ts, p.fakturace.hotove),
         Text40: p.fakturace.hotove == 'no' ? `${ts.invoice}:` : '',
-        Text41: p.fakturace.hotove == 'no' ? get(ts, p.fakturace.komu) : '',
+        Text41: p.fakturace.hotove == 'yes' ? ''
+            : p.fakturace.komu.chosen == 'otherCompany' ? p.fakturace.komu.text : get(ts, p.fakturace.komu.chosen),
         Text42: p.fakturace.hotove == 'no' ? get(ts, p.fakturace.jak) : '',
-        Text43: p.fakturace.komu == 'assemblyCompany' ? p.montazka.zastupce : endUserName(p.koncovyUzivatel),
+        Text43: {
+            assemblyCompany: p.montazka.zastupce,
+            investor: endUserName(p.koncovyUzivatel),
+            otherCompany: p.fakturace.komu.text,
+        }[p.fakturace.komu.chosen ?? 'investor'],
         images: signature ? [{ x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 }] : [],
     } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };

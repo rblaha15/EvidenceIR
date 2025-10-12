@@ -3,6 +3,7 @@ import type { ClassValue, FullAutoFill, HTMLInputAttributes, HTMLInputTypeAttrib
 import type { Untranslatable } from '$lib/translations/untranslatables';
 import type { Readable } from 'svelte/store';
 import type { DataOfPdf, Pdf as PdfType, PdfParameters } from '$lib/pdf/pdf';
+import type { Form } from '$lib/forms/Form';
 
 export type GetB<D> = Get<D, boolean>;
 export type GetBOrVal<D> = GetOrVal<D, boolean>;
@@ -72,8 +73,12 @@ export abstract class Widget<D = never, U = any, H extends boolean = boolean> {
         const get = () => this.value;
         const set = (value: U) => this.setValue(data, value);
         return {
-            get value() { return get(); },
-            set value(value: U) { set(value); },
+            get value() {
+                return get();
+            },
+            set value(value: U) {
+                set(value);
+            },
         };
     };
 
@@ -94,11 +99,13 @@ export type Arr<I extends K> = readonly I[];
 export type Rec<I extends K> = Record<I, number>;
 export type ChI = { readonly checked: boolean; readonly text: string; };
 export type SeI<I extends K> = { readonly chosen: I; readonly text: string; };
+export type RaI<I extends K> = { readonly chosen: I | null; readonly text: string; };
 export type SeCh<I extends K> = { readonly chosen: I | null; readonly checked: boolean; };
 export type Files = readonly { fileName: string, uuid: string }[];
-export type InlinePdfPreviewData<P extends PdfType> = {
+export type InlinePdfPreviewData<D, P extends PdfType> = {
     type: P,
     data: DataOfPdf<P>,
+    form: Form<D>,
 } & PdfParameters<P>;
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
 
@@ -106,7 +113,7 @@ type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H 
 type ShowArgs<D> = { show?: GetBOrVal<D>; showInXML?: GetBOrVal<D> };
 type InfoArgs<D> = { text: GetTPOrVal<D>; class?: GetOrVal<D, ClassValue | undefined>; } & ShowArgs<D>;
 type TitleArgs = { level: HeadingLevel };
-type PdfArgs<D, P extends PdfType> = { pdfData: GetT<D, InlinePdfPreviewData<P>> } & Omit<ShowArgs<D>, 'showInXML'>;
+type PdfArgs<D, P extends PdfType> = { pdfData: GetT<D, InlinePdfPreviewData<D, P>> } & Omit<ShowArgs<D>, 'showInXML'>;
 type ValueArgs<D, U, H> = {
     label: GetTOrVal<D>, onError?: GetTOrVal<D>; required?: GetBOrVal<D>; onValueSet?: (data: D, newValue: U) => void
 } & HideArgs<H> & ShowArgs<D>;
@@ -168,7 +175,7 @@ type SuggestionsArgs<D> = {
 
 type Info<D, U> = Widget<D, U> & { text: GetTP<D>; class: Get<D, ClassValue | undefined>; };
 type Title<D> = Widget<D, undefined> & { level: HeadingLevel; };
-type Pdf<D, P extends PdfType> = Widget<D, undefined> & { pdfData: GetT<D, InlinePdfPreviewData<P>> };
+type Pdf<D, P extends PdfType> = Widget<D, undefined> & { pdfData: GetT<D, InlinePdfPreviewData<D, P>> };
 type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: GetB<D>; };
 type Labels<D, U, I extends string> = Widget<D, U> & { labels: T<I>; get: (t: Translations, v: I | null) => string; };
 type File<D> = Widget<D, Files> & { multiple: GetB<D>; max: Get<D, number>; accept: Get<D, string>; };
@@ -329,7 +336,8 @@ export class TitleWidget<D> extends Widget<D, undefined, true> {
     show = $state() as GetB<D>;
     showTextValue = $state() as GetB<D>;
     _value = undefined;
-    onValueSet = () => {};
+    onValueSet = () => {
+    };
     hideInRawData = true as const;
     isError = () => false;
     class = $state() as Get<D, ClassValue>;
@@ -349,7 +357,8 @@ export class TextWidget<D> extends Widget<D, undefined, true> {
     show = $state() as GetB<D>;
     showTextValue = $state() as GetB<D>;
     _value = undefined;
-    onValueSet = () => {};
+    onValueSet = () => {
+    };
     hideInRawData = true as const;
     isError = () => false;
     class = $state() as Get<D, ClassValue>;
@@ -366,10 +375,11 @@ export class InlinePdfPreviewWidget<D, P extends PdfType> extends Widget<D, unde
     show = $state() as GetB<D>;
     showTextValue = () => false as const;
     _value = undefined;
-    onValueSet = () => {};
+    onValueSet = () => {
+    };
     hideInRawData = true as const;
     isError = () => false;
-    pdfData = $state() as GetT<D, InlinePdfPreviewData<P>>;
+    pdfData = $state() as GetT<D, InlinePdfPreviewData<D, P>>;
 
     constructor(args: PdfArgs<D, P>) {
         super();
@@ -576,6 +586,45 @@ export class RadioWidget<D, I extends K, H extends boolean = false> extends Widg
         initChooser(this, args);
         initLock(this, args);
         initLabels(this, args);
+    }
+}
+
+export class RadioWithInputWidget<D, I extends K, H extends boolean = false> extends Widget<D, RaI<I>, H> {
+    label = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    options = $state() as Get<D, Arr<I>>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
+    hideInRawData = $state() as H;
+    _value = $state() as RaI<I>;
+    onValueSet = $state() as (data: D, newValue: RaI<I>) => void;
+    isError = $state(a => (
+        this.value.chosen == null && this.required(a)
+    ) || (
+        this.value.chosen == this.options(a).at(-1)! && (
+            this.value.text == '' || !this.regex(a).test(this.value.text)
+        )
+    )) as GetB<D>;
+    required = $state() as GetB<D>;
+    lock = $state() as GetB<D>;
+
+    type = $state() as Get<D, HTMLInputTypeAttribute>;
+    enterkeyhint = $state() as Get<D, HTMLInputAttributes['enterkeyhint']>;
+    inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
+    autocapitalize = $state() as Get<D, HTMLInputAttributes['autocapitalize']>;
+    regex = $state() as Get<D, RegExp>;
+    labels = $state() as T<I>;
+    get = $state() as ((t: Translations, v: I | null) => string);
+    capitalize = $state() as GetB<D>;
+
+    constructor(args: ValueArgs<D, RaI<I>, H> & LockArgs<D> & Input1Args<D> & Input3Args<D> & ChooserArgs<D, I> & LabelsArgs<I>) {
+        super();
+        initValue(this, args);
+        initLock(this, args);
+        initInput1(this, args);
+        initLabels(this, args);
+        this.options = toGetA(args.options);
+        this._value = { chosen: args.chosen ?? null, text: args.text ?? '' };
     }
 }
 

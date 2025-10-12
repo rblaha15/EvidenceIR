@@ -57,7 +57,7 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
         f.zasah.inicialy.lock = () => mode == 'edit';
         f.zasah.datum.lock = () => mode == 'edit';
 
-        if (!f.zasah.datum.value)
+        if (!f.zasah.datum.value) // Also in SP
             f.zasah.datum.setValue(d, nowISO());
     },
     getEditData: async url => {

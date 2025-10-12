@@ -4,17 +4,14 @@ import {
     InlinePdfPreviewWidget,
     InputWidget,
     MultiCheckboxWidget,
-    RadioWidget,
+    RadioWidget, RadioWithInputWidget,
     SearchWidget,
-    TextWidget,
-    TitleWidget,
 } from '$lib/forms/Widget.svelte';
 import { type SparePart } from '$lib/client/realtime';
 import { type Form, type Raw } from '$lib/forms/Form';
 import type { IR } from '$lib/data';
 
 export type SparePartWidgetGroup<D> = {
-    label: TextWidget<D>,
     dil: SearchWidget<D, SparePart, true>,
     name: InputWidget<D>;
     code: InputWidget<D>;
@@ -28,6 +25,7 @@ export interface FormSP extends GenericFormSP<DataSP>, Form<DataSP> {
 
 export type DataSP = IR & FormSP & {
     raw: Raw<FormSP>
+    form: FormSP
 }
 
 export type Operation =
@@ -42,27 +40,24 @@ export type Operation =
     | 'withoutCode';
 
 export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
-    zasah: {
-        nadpis: TitleWidget<D>,
-        datum: InputWidget<D>,
+    system: {
         datumUvedeni: InputWidget<D>;
+        zaruka: RadioWidget<D, `warrantyCommon` | `warrantyExtended`>,
+    }
+    zasah: {
+        datum: InputWidget<D>,
         clovek: InputWidget<D>,
         inicialy: InputWidget<D>,
-        zaruka: RadioWidget<D, `warrantyCommon` | `warrantyExtended`>,
         nahlasenaZavada: InputWidget<D>,
-        overflowFault: TextWidget<D>;
         popis: InputWidget<D>,
-        overflowIntervention: TextWidget<D>;
     },
     ukony: {
-        nadpis: TitleWidget<D>,
-        doprava: InputWidget<D>,
-        typPrace: RadioWidget<D, `assemblyWork` | `technicalAssistance` | `technicalAssistance12`>,
         ukony: MultiCheckboxWidget<D, Operation>,
+        typPrace: RadioWidget<D, `assemblyWork` | `technicalAssistance` | `technicalAssistance12`>,
         doba: InputWidget<D>,
+        doprava: InputWidget<D>,
     },
     nahradniDily: {
-        nadpis: TitleWidget<D>,
         pocet: CounterWidget<D>,
     },
     nahradniDil1: SparePartWidgetGroup<D>,
@@ -74,14 +69,12 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
     nahradniDil7: SparePartWidgetGroup<D>,
     nahradniDil8: SparePartWidgetGroup<D>,
     fakturace: {
-        nadpis: TitleWidget<D>,
         hotove: ChooserWidget<D, 'yes' | 'no' | 'doNotInvoice'>,
-        komu: RadioWidget<D, 'investor' | `assemblyCompany`>,
+        komu: RadioWithInputWidget<D, 'investor' | `assemblyCompany` | 'otherCompany'>,
         jak: RadioWidget<D, 'onPaper' | 'electronically'>,
         invoiceParts: MultiCheckboxWidget<D, 'work' | Operation | `transportation`>,
     },
     other: {
-        title: TitleWidget<D>,
         preview: InlinePdfPreviewWidget<D, 'NSP'>
     },
 }

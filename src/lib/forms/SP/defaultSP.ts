@@ -8,6 +8,7 @@ import {
     InputWidget,
     MultiCheckboxWidget,
     RadioWidget,
+    RadioWithInputWidget,
     SearchWidget,
     TextWidget,
     TitleWidget,
@@ -18,6 +19,7 @@ import type { Translations } from '$lib/translations';
 import { browser } from '$app/environment';
 import { derived } from 'svelte/store';
 import { generalizeServiceProtocol } from '$lib/pdf/pdf';
+import { type FormGroupPlus, type FormPlus } from '$lib/forms/Form';
 
 const multilineLineLength = 670;
 const multilineMaxLength = multilineLineLength * 4;
@@ -32,12 +34,12 @@ export const multilineTooLong = (text: string) => text.split('\n').sumBy(line =>
 ) > multilineMaxLength;
 export const inlineTooLong = (text: string) => measure(text) > inlineMaxLength;
 
-const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8): SparePartWidgetGroup<D> => {
+const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8): FormGroupPlus<SparePartWidgetGroup<D>> => {
     const show = (d: D) => d.nahradniDily.pocet.value >= n;
     const dil = (d: D) => d[`nahradniDil${n}` as const];
 
     return ({
-        label: new TextWidget({
+        _label: new TextWidget({
             show, text: t => t.sp.sparePart({ n: `${n}` }), class: 'fs-5',
         }),
         dil: new SearchWidget({
@@ -83,35 +85,38 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
 
 const labels = <A extends Translations['sp']>(t: Translations): Pick<A, keyof Translations['sp']> => t.sp;
 
+const independentOperations = [
+    `yearlyHPCheck`, `yearlySOLCheck`, `withoutCode`,
+] as const satisfies Operation[];
 const operations = [
-    `regulusRoute`, `commissioningTC`, `commissioningSOL`, `commissioningFVE`, `yearlyHPCheck`,
-    `yearlySOLCheck`, `extendedWarranty`, `installationApproval`, `withoutCode`,
+    ...independentOperations,
+    `regulusRoute`, `commissioningTC`, `commissioningSOL`, `commissioningFVE`, `extendedWarranty`,
+    `installationApproval`,
 ] as const satisfies Operation[];
 export const invoiceableParts = [
     'transportation' as const, 'work' as const, ...operations,
 ];
 export const defaultGenericSP = <D extends GenericFormSP<D>>(
-    getPdfData: GetT<D, InlinePdfPreviewData<'NSP'>>, titleLevel: HeadingLevel = 2,
-): GenericFormSP<D> => ({
-    zasah: {
-        nadpis: new TitleWidget({ text: t => t.sp.intervention, level: titleLevel }),
-        datum: new InputWidget({ label: t => t.sp.interventionDate, type: 'datetime-local' }),
+    getPdfData: GetT<D, Omit<InlinePdfPreviewData<D, 'NSP'>, 'type'>>, titleLevel: HeadingLevel = 2, reduceOperations = false,
+): FormPlus<GenericFormSP<D>> => ({
+    system: {
         datumUvedeni: new InputWidget({ label: t => t.sp.commissioningDate, type: 'date', required: false }),
+        zaruka: new RadioWidget({ label: t => t.sp.warranty, options: [`warrantyCommon`, `warrantyExtended`], required: false, labels }),
+    },
+    zasah: {
+        _title: new TitleWidget({ text: t => t.sp.intervention, level: titleLevel }),
+        datum: new InputWidget({ label: t => t.sp.interventionDate, type: 'datetime-local' }),
         clovek: new InputWidget({ label: t => t.sp.technicianName, show: false }),
         inicialy: new InputWidget({ label: t => t.sp.technicianInitials, show: false, showInXML: false }),
-        zaruka: new RadioWidget({ label: t => t.sp.warranty, options: [`warrantyCommon`, `warrantyExtended`], required: false, labels }),
         nahlasenaZavada: new InputWidget({ label: t => t.sp.reportedFault, required: false }),
-        overflowFault: new TextWidget({ text: (t, d) => inlineTooLong(d.zasah.nahlasenaZavada.value) ? t.sp.textTooLong : '' }),
+        _overflowFault: new TextWidget({ text: (t, d) => inlineTooLong(d.zasah.nahlasenaZavada.value) ? t.sp.textTooLong : '' }),
         popis: new InputWidget({ label: t => t.sp.interventionDescription, required: false, textArea: true }),
-        overflowIntervention: new TextWidget({ text: (t, d) => multilineTooLong(d.zasah.popis.value) ? t.sp.textTooLong : '' }),
+        _overflowIntervention: new TextWidget({ text: (t, d) => multilineTooLong(d.zasah.popis.value) ? t.sp.textTooLong : '' }),
     },
     ukony: {
-        nadpis: new TitleWidget({ text: t => t.sp.billing, level: titleLevel }),
-        doprava: new InputWidget({
-            label: t => t.sp.transportation,
-            type: 'number',
-            onError: t => t.wrong.number,
-            suffix: t => t.units.km,
+        _title: new TitleWidget({ text: t => t.sp.billing, level: titleLevel }),
+        ukony: new MultiCheckboxWidget({
+            label: t => t.sp.operations, max: 3, required: false, options: reduceOperations ? independentOperations : operations, labels,
         }),
         typPrace: new RadioWidget({
             label: t => t.sp.workType,
@@ -119,18 +124,21 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
             required: false,
             labels,
         }),
-        ukony: new MultiCheckboxWidget({
-            label: t => t.sp.operations, max: 3, required: false, options: operations, labels,
-        }),
         doba: new InputWidget({
             label: (t, d) => d.ukony.typPrace.value != null ? t.sp.billedTime : t.sp.interventionTime,
             type: 'number',
             onError: t => t.wrong.number,
             suffix: t => t.units.h,
         }),
+        doprava: new InputWidget({
+            label: t => t.sp.transportation,
+            type: 'number',
+            onError: t => t.wrong.number,
+            suffix: t => t.units.km,
+        }),
     },
     nahradniDily: {
-        nadpis: new TitleWidget({ text: t => t.sp.usedSpareParts, level: titleLevel }),
+        _title: new TitleWidget({ text: t => t.sp.usedSpareParts, level: titleLevel }),
         pocet: new CounterWidget({ label: t => t.sp.sparePartCount, min: 0, max: 8, chosen: 0 }),
     },
     nahradniDil1: sparePart(1),
@@ -142,10 +150,10 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     nahradniDil7: sparePart(7),
     nahradniDil8: sparePart(8),
     fakturace: {
-        nadpis: new TitleWidget({ text: t => t.sp.invoicing, level: titleLevel }),
+        _title: new TitleWidget({ text: t => t.sp.invoicing, level: titleLevel }),
         hotove: new ChooserWidget({ label: t => t.sp.paidInCash, options: ['yes', 'no', 'doNotInvoice'], labels }),
-        komu: new RadioWidget({
-            label: t => t.sp.whoToInvoice, options: ['investor', `assemblyCompany`], labels,
+        komu: new RadioWithInputWidget({
+            label: t => t.sp.whoToInvoice, options: ['investor', `assemblyCompany`, 'otherCompany'], labels,
             required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
         }),
         jak: new RadioWidget({
@@ -161,18 +169,19 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
         }),
     },
     other: {
-        title: new TitleWidget({
+        _title: new TitleWidget({
             text: t => t.pdf.documentPreview, showInXML: false, level: 2,
         }),
         preview: new InlinePdfPreviewWidget({
-            pdfData: getPdfData,
+            pdfData: (t, d) => ({
+                type: 'NSP',
+                ...getPdfData(t, d),
+            }),
         }),
     },
 });
 
-export default (): FormSP => ({
-    ...defaultGenericSP((t, d) => ({
-        type: 'NSP',
-        data: generalizeServiceProtocol(d.evidence, d.raw, d.uvedeniTC, t),
-    })),
-})
+export default (): FormSP => defaultGenericSP((t, d) => ({
+    data: generalizeServiceProtocol(d.evidence, d.raw, d.uvedeniTC, t),
+    form: d.form,
+}));
