@@ -9,6 +9,8 @@
     import { goto } from '$app/navigation';
     import { setUserPreferredDocumentLanguage } from '$lib/languages.js';
     import { hideNav } from '$lib/helpers/globals';
+    import { clearLocalDatabase } from '$lib/client/offline.svelte';
+    import { clearOfflineQueue } from '$lib/client/offlineQueue.svelte';
 
     const { t }: { t: Translations } = $props();
     const ts = $derived(t.nav.settings);
@@ -16,6 +18,8 @@
     const clearAll = async () => {
         localStorage.clear();
         await removeAllFiles();
+        await clearLocalDatabase();
+        await clearOfflineQueue();
         location.reload();
     };
 

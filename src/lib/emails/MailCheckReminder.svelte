@@ -1,22 +1,18 @@
 <script lang="ts">
-    import { getTranslations } from '$lib/translations';
     import type { RecommendationData } from '$lib/data';
-
     const {
         link, data,
     }: {
         link: string,
         data: RecommendationData,
     } = $props();
-
-    const t = getTranslations('cs').rk.recommendations;
 </script>
 
 <p>Dobrý den,<br />blíží se termín pro provedení roční kontroly Vašeho tepelného čerpadla.</p>
 
-<p>{t.name({ name: data.user })}</p>
-<p>{t.location({ location: data.location })}</p>
-<p>{t.executedBy({ company: data.company[0].toLocaleLowerCase() + data.company.slice(1) })}</p>
+<p>Jméno: {data.user}</p>
+<p>Místo instalace: {data.location}</p>
+<p>Kontrolu provede: {data.company[0].toLocaleLowerCase() + data.company.slice(1)}</p>
 
 <p>Pokud chcete prohlídku objednat, klikněte na tlačítko.</p>
 

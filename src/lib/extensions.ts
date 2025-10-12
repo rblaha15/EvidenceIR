@@ -270,7 +270,12 @@ declare global {
         distinctBy<T, K>(
             this: T[] | readonly T[],
             key: (item: T, index: number, array: T[]) => K,
-            options?: { reversed?: boolean }
+            options?: { reversed?: boolean },
+        ): T[];
+
+        distinct<T>(
+            this: T[] | readonly T[],
+            options?: { reversed?: boolean },
         ): T[];
 
         awaitAll<T>(
@@ -439,6 +444,13 @@ Array.prototype.distinctBy = function <T, K>(
         ).values()
     ]);
 };
+
+Array.prototype.distinct = function <T>(
+    this: T[],
+    { reversed = false }: { reversed?: boolean } = {}
+) {
+    return this.distinctBy(it => it, { reversed }) as T[];
+}
 
 Array.prototype.window = function <T>(
     this: T[],
