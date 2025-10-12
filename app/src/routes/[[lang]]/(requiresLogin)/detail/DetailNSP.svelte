@@ -10,7 +10,6 @@
     import type { Raw } from '$lib/forms/Form';
     import { extractSPIDFromRawData, spName } from '$lib/helpers/ir';
     import { aA } from '$lib/helpers/stores';
-    import type { ClassValue } from 'svelte/elements';
 
     const { t, sp }: {
         t: Translations, sp: Raw<FormNSP>, lang: LanguageCode,

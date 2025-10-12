@@ -76,6 +76,7 @@ export type IRSubTypes = 'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6
 
 export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     ir: {
+        nadpisSystem: TitleWidget<FormIN>;
         nadpis: TitleWidget<FormIN>;
         typ: DoubleChooserWidget<FormIN, IRTypes, IRSubTypes>;
         cislo: InputWidget<FormIN>;

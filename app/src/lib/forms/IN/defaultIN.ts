@@ -391,7 +391,8 @@ const heatPump = <const I extends TC>(i: I) => ({
 
 export default (): FormIN => ({
     ir: {
-        nadpis: new TitleWidget({ text: t => t.in.system, level: 2 }),
+        nadpisSystem: new TitleWidget({ text: t => t.in.system, level: 2 }),
+        nadpis: new TitleWidget({ text: t => t.in.controller, level: 3 }),
         typ: new DoubleChooserWidget({ // Code partially duplicated in ChangeIRID.svelte
             label: t => t.in.controllerType,
             options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],

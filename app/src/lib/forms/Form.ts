@@ -2,6 +2,15 @@ import { Widget } from '$lib/forms/Widget.svelte.js';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
+type HiddenFormGroup<D> = Record<`_${string}`, Widget<D, any, true>>;
+type HiddenForm<D> = Record<`_${string}`, HiddenFormGroup<D>>;
+export type FormGroupPlus<P extends Record<string, Widget>> = P extends Record<string, Widget<infer D>>
+    ? P & HiddenFormGroup<D> : never;
+
+export type FormPlus<F extends Form> = F extends Form<infer D> ? {
+    [K in keyof F]: FormGroupPlus<F[K]>;
+} & HiddenForm<D> : never;
+
 export type Form<D = never> = Record<string, Record<string, Widget<D>>>
 export type Raw<Q extends Form | Record<string, Widget> | Widget> =
     Q extends Form ? RawForm<Q>

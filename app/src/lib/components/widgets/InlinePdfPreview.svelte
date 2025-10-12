@@ -14,7 +14,7 @@
 
     const { t, widget, data: formData }: Props<P> = $props();
 
-    const { type, data, ...parameters } = $derived(widget.pdfData(t, formData));
+    const { type, data, form, ...parameters } = $derived(widget.pdfData(t, formData));
 
     const args = $derived(pdfInfo[type]);
 
@@ -24,19 +24,37 @@
             : args.supportedLanguages[0],
     );
 
-    const url = $derived(generatePdfUrl({
+    const result = $derived(generatePdfUrl({
         ...(parameters as unknown as PdfParameters<P>),
         args, lang, data,
     }));
+
+    const list = $derived(form.getValues().flatMap(obj => obj.getValues()));
+    const errors = $derived(list.filter(w => w.isError(formData) && w.show(formData)).map(w => w.label(t, formData)));
+
+    let url = $state<string>();
+    let error = $state(false);
+
+    $effect(() => {
+        result.then(r => {
+            url = r.url;
+            error = false;
+        }).catch(_ => {
+            url = undefined;
+            error = true;
+        });
+    });
 </script>
 
-{#await url}
+{#if errors.length}
+    <p class="alert alert-warning">{t.pdf.previewNotAvaiable({ fields: errors.join(', ') })}</p>
+{:else if error}
+    <p class="alert alert-danger">{t.pdf.previewNotSuccessful}</p>
+{:else if !url}
     <p class="alert alert-secondary d-flex align-items-center gap-3">
         <span class="spinner-border text-danger"></span>
         {t.pdf.previewLoading}
     </p>
-{:then { url }}
+{:else}
     <PdfPreview t={t.pdf} {url} />
-{:catch _}
-    <p class="alert alert-danger">{t.pdf.previewNotSuccessful}</p>
-{/await}
+{/if}

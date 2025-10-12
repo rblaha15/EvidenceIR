@@ -9,7 +9,6 @@
     import { currentUser } from '$lib/client/auth';
     import { invalidateAll } from '$app/navigation';
     import { aR } from '$lib/helpers/stores';
-    import type { ClassValue } from 'svelte/elements';
 
     const {
         irid, ir, lang, t,
@@ -25,7 +24,7 @@
             ...p,
             fakturace: {
                 hotove: 'doNotInvoice',
-                komu: null,
+                komu: { chosen: null, text: '' },
                 jak: null,
                 invoiceParts: [],
             },

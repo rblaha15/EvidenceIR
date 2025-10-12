@@ -18,7 +18,7 @@
         InputWithChooserWidget,
         CheckboxWithInputWidget,
         PhotoSelectorWidget,
-        FileWidget, InlinePdfPreviewWidget,
+        FileWidget, InlinePdfPreviewWidget, RadioWithInputWidget,
     } from '$lib/forms/Widget.svelte.js';
     import Input from '$lib/components/widgets/Input.svelte';
     import DoubleChooser from '$lib/components/widgets/DoubleChooser.svelte';
@@ -39,6 +39,7 @@
     import File from "$lib/components/widgets/File.svelte";
     import InlinePdfPreview from '$lib/components/widgets/InlinePdfPreview.svelte';
     import Title from '$lib/components/widgets/Title.svelte';
+    import RadioWithInput from '$lib/components/widgets/RadioWithInput.svelte';
 
     interface Props {
         t: Translations;
@@ -67,6 +68,8 @@
     <Chooser bind:widget {t} {data} />
 {:else if widget instanceof RadioWidget && widget.show(data)}
     <Radio bind:widget {t} {data} />
+{:else if widget instanceof RadioWithInputWidget && widget.show(data)}
+    <RadioWithInput bind:widget {t} {data} />
 {:else if widget instanceof SwitchWidget && widget.show(data)}
     <Switch bind:widget {t} {data} />
 {:else if widget instanceof MultiCheckboxWidget && widget.show(data)}

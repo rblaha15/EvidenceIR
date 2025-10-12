@@ -1,4 +1,6 @@
 <script lang="ts">
+    import type { RenderTask } from 'pdfjs-dist';
+
     const {
         pdf, pageNumber,
     }: {
@@ -6,11 +8,11 @@
     } = $props();
 
     let canvas = $state() as HTMLCanvasElement;
+    let task = $state<RenderTask>();
     const ctx = $derived(canvas?.getContext('2d'));
 
     const render = async (p: number) => {
         if (!pdf) return;
-
         if (!ctx) return;
 
         const page = await pdf.getPage(p);
@@ -19,10 +21,12 @@
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
-        await page.render({
+        if (task) task.cancel();
+        task = page.render({
             canvasContext: ctx,
             viewport: viewport,
-        }).promise;
+        });
+        await task.promise;
     };
 
     $effect(() => {

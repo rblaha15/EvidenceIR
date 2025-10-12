@@ -207,6 +207,7 @@ export const generalizeServiceProtocol = (
         ...e,
         ...p,
         system: {
+            ...p.system,
             popis:
                 irName(e.ir) +
                 (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +

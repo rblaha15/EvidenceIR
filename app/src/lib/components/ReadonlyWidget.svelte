@@ -24,6 +24,7 @@
     } from '$lib/forms/Widget.svelte';
     import { dateFromISO, datetimeFromISO } from '$lib/helpers/date';
     import Title from '$lib/components/widgets/Title.svelte';
+    import { RadioWithInputWidget } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
         t: Translations;
@@ -58,6 +59,8 @@
             {widget.get(t, widget.value)}
         {:else if widget instanceof RadioWidget}
             {widget.get(t, widget.value)}
+        {:else if widget instanceof RadioWithInputWidget}
+            {widget.value.chosen === widget.options(data).at(-1) ? widget.value.text : widget.get(t, widget.value.chosen)}
         {:else if widget instanceof SwitchWidget}
             {widget.value ? widget.options(t)[1] : widget.options(t)[0]}
         {:else if widget instanceof MultiCheckboxWidget}

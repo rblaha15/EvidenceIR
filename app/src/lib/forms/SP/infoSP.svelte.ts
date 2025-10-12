@@ -1,7 +1,5 @@
 import {
     getIsOnline,
-    type SparePart,
-    sparePartsList,
     startSparePartsListening,
     startTechniciansListening,
     type Technician,
@@ -83,17 +81,17 @@ const infoSP = (() => {
         showSaveAndSendButtonByDefault: true,
         isSendingEmails: true,
         createWidgetData: (_, p, ir) => ({
-            ...p, ...ir, raw: dataToRawData<FormSP, Raw<FormSP>>(p),
+            ...p, ...ir, raw: dataToRawData<FormSP, Raw<FormSP>>(p), form: p,
         }),
         title: (t, mode) =>
             mode == 'edit' ? t.sp.editSP : t.sp.title,
         onMount: async (d, p, _, ir) => {
             await startTechniciansListening();
             await startSparePartsListening();
-            if (!p.zasah.datum.value)
+            if (!p.zasah.datum.value) // Also in NSP
                 p.zasah.datum.setValue(d, nowISO());
-            if (!p.zasah.datumUvedeni.value && ir.uvedeniTC?.uvadeni?.date) {
-                p.zasah.datumUvedeni.setValue(d, ir.uvedeniTC.uvadeni.date);
+            if (!p.system.datumUvedeni.value && ir.uvedeniTC?.uvadeni?.date) {
+                p.system.datumUvedeni.setValue(d, ir.uvedeniTC.uvadeni.date);
             }
         },
         storeEffects: [
