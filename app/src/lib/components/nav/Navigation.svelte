@@ -33,6 +33,11 @@
         </div>
     {/if}
 {/snippet}
+{#snippet buttons()}
+    {@render queue()}
+    {@render settings()}
+    <UserDropdown {t} />
+{/snippet}
 {#snippet header()}
     {#snippet header()}
         <!--suppress CheckImageSize -->
@@ -66,16 +71,17 @@
         {#if !$isOnline && !$hideNav}
             <span class="material-icons">wifi_off</span>
         {/if}
-        <div class="me-auto"></div>
+        <div class="me-auto me-lg-3"></div>
         {#if isLoggedIn && !$hideNav}
-            <div class="d-flex flex-row ms-auto ms-md-0">
-                {@render queue()}
-                {@render settings()}
-                <UserDropdown {t} />
+            <div class="d-none d-md-flex d-lg-none flex-row ms-auto ms-md-0">
+                {@render buttons()}
             </div>
-            <div class="w-100"></div> <!-- Row break -->
+            <div class="d-none d-md-block d-lg-none w-100"></div> <!-- Row break -->
             <div class="d-none d-md-inline me-auto">
                 <BaseNav {t} />
+            </div>
+            <div class="d-flex d-md-none d-lg-flex flex-row ms-auto ms-md-0">
+                {@render buttons()}
             </div>
             <div class="d-md-none offcanvas offcanvas-start" tabindex="-1" id="NOC">
                 <div class="offcanvas-header">

@@ -11,7 +11,7 @@
         }
     } = $props();
 
-    const t = $derived(data.translations.rk.recommendations);
+    const t = $derived(data.translations.rk.recommendations.requestPage);
 
     let status = $state<'loading' | 'accepted' | 'error'>('loading');
 

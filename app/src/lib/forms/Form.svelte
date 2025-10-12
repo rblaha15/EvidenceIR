@@ -5,8 +5,7 @@
     P extends Pdf = Pdf,
 " lang="ts">
     // noinspection ES6UnusedImports
-    import { compareRawData, type Form } from '$lib/forms/Form';
-    import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
+    import { compareRawData, dataToRawData, type Form, type Raw, rawDataToData } from '$lib/forms/Form';
     // noinspection ES6UnusedImports
     import { type Pdf } from '$lib/pdf/pdf';
     import type { Translations } from '$lib/translations';
@@ -177,7 +176,7 @@
     } : undefined} pdfImport={pdfImport ? {
         ...pdfImport, onImport: onImportPdf, isDangerous, defaultData: () => dataToRawData(defaultData())
     } : undefined} store={storedData} {t} title={title(t, mode)}
-    showBackButton={mode === 'view' || !hideBackButton?.(mode === 'edit')} />
+                showBackButton={mode === 'view' || !hideBackButton?.(mode === 'edit')} />
     {#each list as _, i}
         {#if mode === 'view'}
             <ReadonlyWidget widget={list[i]} {t} data={d} />
@@ -192,7 +191,9 @@
                     <button onclick={save(false)} class="mb-auto btn btn-success">{t.form.save}</button>
                 {/if}
                 {#if !result.load && (mode === 'edit' && isSendingEmails || $showSaveAndSendButtonByDefaultStore)}
-                    <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">{t.form.saveAndSend}</button>
+                    <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">
+                        <span class="material-icons">send</span> {t.form.saveAndSend}
+                    </button>
                 {/if}
                 {#if result.load}
                     <div class="spinner-border text-danger"></div>

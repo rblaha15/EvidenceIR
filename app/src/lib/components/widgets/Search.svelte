@@ -99,7 +99,12 @@
                         {#each searchItem.pieces as piece}
                             <p class="mb-0 w-md-100"
                                style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
-                            >{piece.text}</p>
+                            >
+                                {#if piece.icon}
+                                    <span class="material-icons">{piece.icon}</span>
+                                {/if}
+                                {piece.text}
+                            </p>
                         {/each}
                     </a>
                 {:else}

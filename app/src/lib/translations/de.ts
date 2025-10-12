@@ -255,6 +255,7 @@ const de: PlainTranslations = {
         page: t`Seite ${'page'}/${'total'}`,
         previewLoading: `Dokumentvorschau wird geladen…`,
         previewNotSuccessful: `Dokumentvorschau konnte nicht angezeigt werden.`,
+        previewNotAvailable: t`Die Dokumentvorschau kann derzeit nicht angezeigt werden. Bitte korrigieren Sie alle Fehler im Formular. Ungültige Felder: ${'fields'}`,
     },
     countsGenitive: {
         first: `ersten`,
@@ -389,8 +390,7 @@ const de: PlainTranslations = {
         titleControllers: 'Suche nach Installationen',
         titleControllersAndProtocols: 'Suche nach Installationen und unabhängigen Serviceprotokollen',
         search: `Suchen`,
-        nFewProtocols: t`${'n'} Protokolle`,
-        nMoreProtocols: t`${'n'} Protokolle`,
+        nProtocols: (n, p) => `${n} Protokolle (${p})`,
     },
     sol: {
         ...en.sol,

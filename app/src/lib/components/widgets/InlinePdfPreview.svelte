@@ -47,11 +47,11 @@
 </script>
 
 {#if errors.length}
-    <p class="alert alert-warning">{t.pdf.previewNotAvaiable({ fields: errors.join(', ') })}</p>
+    <p class="alert alert-warning m-0">{t.pdf.previewNotAvailable({ fields: errors.join(', ') })}</p>
 {:else if error}
-    <p class="alert alert-danger">{t.pdf.previewNotSuccessful}</p>
+    <p class="alert alert-danger m-0">{t.pdf.previewNotSuccessful}</p>
 {:else if !url}
-    <p class="alert alert-secondary d-flex align-items-center gap-3">
+    <p class="alert alert-secondary m-0 d-flex align-items-center gap-3">
         <span class="spinner-border text-danger"></span>
         {t.pdf.previewLoading}
     </p>

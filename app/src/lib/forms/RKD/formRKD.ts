@@ -2,8 +2,8 @@ import { CheckboxWidget, RadioWidget, TextWidget, TitleWidget, Widget } from '$l
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import ares, { regulusCRN } from '$lib/helpers/ares';
-import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
-import db, { type IR, type RecommendationData } from '$lib/data';
+import { extractIRIDFromRawData, irName } from '$lib/helpers/ir';
+import db, { type IR } from '$lib/data';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
@@ -24,7 +24,7 @@ export interface FormPartRKD<D extends DataRKD<D>> extends Record<string, Widget
 }
 
 export const defaultRKD = <D extends DataRKD<D>>(): FormPartRKD<D> => ({
-    title: new TitleWidget({ text: t => t.rk.recommendations.settingsTitle, level: 2, showInXML: false }),
+    title: new TitleWidget({ text: t => t.rk.recommendations.title, level: 2, showInXML: false }),
     enabled: new CheckboxWidget({
         label: t => t.rk.recommendations.userWantsTo, hideInRawData: true, showInXML: false, required: false,
     }),

@@ -5,7 +5,6 @@ import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } 
 import type { Raw } from '$lib/forms/Form';
 import { currentUser } from '$lib/client/auth';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
-import { updateDoc } from 'firebase/firestore';
 
 interface DBSchema extends DBS {
     IR: {
@@ -49,9 +48,16 @@ const db = async () => {
     return dbMap[uid] || (dbMap[uid] = await newDb(uid));
 };
 
-const mIR = (i: IR) => i
+const mIR = (i: IR) => i;
 const mSP = (s: Raw<FormNSP>) => s;
 const m = <T extends 'IR' | 'SP'>(type: T) => (v: Data<T>) => (type === 'IR' ? mIR(v as IR) : mSP(v as Raw<FormNSP>)) as Data<T>;
+
+export const clearLocalDatabase = async () => {
+    storedIR.set({})
+    storedSP.set({})
+    await (await db()).clear('IR');
+    await (await db()).clear('SP');
+};
 
 const odm = {
     put: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>, value: Data<T>) => {
@@ -151,7 +157,7 @@ export const offlineDatabase: Database = {
             ...ir!.yearlyHeatPumpCheckRecommendation ?? {},
             executingCompany: executingCompany!,
         } : undefined;
-        return ir!
+        return ir!;
     }),
     addIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),
     updateIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),
