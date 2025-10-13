@@ -10,6 +10,7 @@
     import { detailIrUrl } from '$lib/helpers/runes.svelte';
     import Widget from '$lib/components/Widget.svelte';
     import { isMACAddressTypeIR12 } from '$lib/helpers/ir.js';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t, ir, irid }: {
         t: Translations, ir: IR, irid: IRID,
@@ -103,7 +104,7 @@
 
 {#if change === 'no'}
     <button class="btn btn-warning d-block" onclick={() => (change = 'input')}>
-        <span class="material-icons">drive_file_rename_outline</span>
+        <Icon icon="drive_file_rename_outline" />
         {td.changeController}
     </button>
 {:else if change === 'input'}

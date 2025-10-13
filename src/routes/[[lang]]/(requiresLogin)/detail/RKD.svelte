@@ -4,6 +4,7 @@
     import type { IRID } from '$lib/helpers/ir';
     import { defaultRKD, type FormPartRKD, saveRKD } from '$lib/forms/RKD/formRKD';
     import Widget from '$lib/components/Widget.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t, ir }: {
         t: Translations, ir: IR, irid: IRID,
@@ -39,7 +40,7 @@
             loading = false
             f.executingCompany.displayErrorVeto = false
         }}>
-            <span class="material-icons">alarm</span>
+            <Icon icon="alarm" />
             {tr.settingsTitle}
         </button>
     </div>
@@ -49,7 +50,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="recommendationsModalLabel">
-                        <span class="material-icons">alarm</span>
+                        <Icon icon="alarm" />
                         {tr.settingsTitle}
                     </h1>
                     <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
@@ -66,7 +67,7 @@
                         {/if}
                         <button class="btn btn-warning" onclick={save} disabled={loading}>
                             {#if f.enabled.value !== Boolean(ir.yearlyHeatPumpCheckRecommendation) && !f.executingCompany.isError(data)}
-                                <span class="material-icons">send</span>
+                                <Icon icon="send" />
                             {/if}
                             {tr.save}
                         </button>

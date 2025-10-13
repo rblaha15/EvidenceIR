@@ -15,6 +15,7 @@
     import DetailNSP from './DetailNSP.svelte';
     import { aA, storable } from '$lib/helpers/stores';
     import NSP from '$lib/forms/NSP/infoNSP';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t, sps, lang }: {
         t: Translations, sps: Raw<FormNSP>[], lang: LanguageCode,
@@ -51,12 +52,12 @@
 
     <div class="d-flex flex-column gap-3 align-items-sm-start">
         <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${sps[0].koncovyUzivatel.email}`)} tabindex="0">
-            <span class="material-icons">attach_email</span>
+            <Icon icon="attach_email" />
             {td.sendDocuments}
         </a>
 
         <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>
-            <span class="material-icons">file_copy</span>
+            <Icon icon="file_copy" />
             {td.copyNSP}
         </a>
 
@@ -64,7 +65,7 @@
             <div class="d-flex flex-column gap-1 align-items-sm-start">
                 <Widget widget={newIRID} {t} data={{}} />
                 <button class="btn btn-danger d-block" onclick={transfer}>
-                    <span class="material-icons">drive_file_move</span>
+                    <Icon icon="drive_file_move" />
                     {td.transferProtocols}{$aA}
                 </button>
             </div>

@@ -7,6 +7,7 @@
     import { goto } from '$app/navigation';
     import { aA } from '$lib/helpers/stores';
     import { relUrl } from '$lib/helpers/runes.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t }: { t: Translations } = $props();
     const ta = $derived(t.auth);
@@ -26,7 +27,7 @@
 
 <div class="dropdown ms-3">
     <button aria-label="User" class="btn btn-link nav-link" data-bs-toggle="dropdown">
-        <span class="material-icons fs-2">account_circle</span>
+        <Icon icon="account_circle" class="fs-2" />
     </button>
     <div class="dropdown-menu dropdown-menu-end">
         <div class="d-flex flex-column gap-3 px-3 pt-1">
@@ -47,11 +48,11 @@
         <hr class="my-3" />
         <div class="d-flex flex-column gap-1 px-3 align-items-start">
             <button class="btn btn-warning" onclick={changePassword}>
-                <span class="material-icons">password</span>
+                <Icon icon="password" />
                 {ta.changePassword}
             </button>
             <button class="btn btn-danger" onclick={logOut}>
-                <span class="material-icons">logout</span>
+                <Icon icon="logout" />
                 {ta.toLogOut}
             </button>
         </div>
@@ -59,7 +60,7 @@
             <hr class="my-3" />
             <div class="px-3 pb-1">
                 <a class="btn btn-info" href={relUrl('/admin')}>
-                    <span class="material-icons">admin_panel_settings</span>
+                    <Icon icon="admin_panel_settings" />
                     Admin{$aA}
                 </a>
             </div>
