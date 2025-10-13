@@ -275,6 +275,7 @@ const en: PlainTranslations = {
         editCheck: `Edit checks`,
         editInstallationData: `Edit the installation data`,
         deleteThisRecord: `Delete the installation record`,
+        downloadXML: `Download the installation XML file`,
         delete: `Delete`,
         cancel: `Cancel`,
         confirmDeletion: `Do you really want to delete the installation record?`,
