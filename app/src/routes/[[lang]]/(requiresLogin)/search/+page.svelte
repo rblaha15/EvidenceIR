@@ -18,7 +18,7 @@
         type: 'search',
         required: false,
         label: t => t.search.search,
-        items: _ => itemsStore,
+        items: () => itemsStore,
         getSearchItem: i => ({
             href: i.t == 'SP' ? detailSpUrl(i.id) : detailIrUrl(i.id),
             pieces: [

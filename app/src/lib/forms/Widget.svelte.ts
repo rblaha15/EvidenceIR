@@ -15,6 +15,8 @@ export type GetTP<D> = GetT<D, Promise<string> | string>;
 export type GetTPOrVal<D> = GetTOrVal<D, Promise<string> | string>;
 export type GetR<D, U> = Get<D, Readable<U>>;
 export type GetROrVal<D, U> = GetOrVal<D, Readable<U>>;
+export type GetTR<D, U> = GetT<D, Readable<U>>;
+export type GetTROrVal<D, U> = GetTOrVal<D, Readable<U>>;
 
 export type Get<D, U> = (data: D) => U;
 export type GetT<D, U = string> = (t: Translations, data: D) => U;
@@ -135,7 +137,7 @@ type SearchArgs<D, T> = {
     getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry?: () => string;
     inline?: GetBOrVal<D>;
-    items: GetROrVal<D, T[]>;
+    items: GetTROrVal<D, T[]>;
     type?: GetOrVal<D, HTMLInputTypeAttribute>;
     enterkeyhint?: GetOrVal<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode?: GetOrVal<D, HTMLInputAttributes['inputmode']>;
@@ -149,6 +151,7 @@ type SwitchArgs<D> = { hasPositivity?: GetBOrVal<D>; options: Sides };
 type MultiChooserArgs<D, I extends K> = {
     options: GetOrVal<D, Arr<I>>;
     chosen?: Arr<I>;
+    weights?: (i: I) => number;
     max?: GetOrVal<D, number>;
     inverseSelection?: boolean;
 } & LabelsArgs<I>;
@@ -189,7 +192,7 @@ type Search<D, T> = Widget<D, T | null> & {
     getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry: () => string;
     inline: GetB<D>;
-    items: GetR<D, T[]>;
+    items: GetTR<D, T[]>;
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode: Get<D, HTMLInputAttributes['inputmode']>;
@@ -198,7 +201,7 @@ type Search<D, T> = Widget<D, T | null> & {
 type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; };
 type Counters<D, I extends K> = Widget<D, Rec<I>> & { max: Get<D, number> };
 type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: GetB<D>; };
-type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; inverseSelection: boolean; };
+type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; inverseSelection: boolean; weights: (i: I) => number; };
 type Input1<D, U> = Widget<D, U> & {
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
@@ -277,7 +280,7 @@ const initDoubleLock = function <D, U>(widget: DoubleLock<D, U>, args: DoubleLoc
 };
 const initSearch = function <D, T>(widget: Search<D, T>, args: SearchArgs<D, T>) {
     widget._value = args.chosen ?? null;
-    widget.items = toGetA(args.items);
+    widget.items = toGetT(args.items);
     widget.getSearchItem = args.getSearchItem;
     widget.getXmlEntry = args.getXmlEntry ?? (() => JSON.stringify(widget.value));
     widget.type = toGetA(args.type ?? 'search');
@@ -307,6 +310,7 @@ const initMultiChooser = function <D, I extends K>(widget: MultiChooser<D, I>, a
     widget.max = toGetA(args.max ?? Number.MAX_VALUE);
     widget.options = toGetA(args.options);
     widget.inverseSelection = Boolean(args.inverseSelection);
+    widget.weights = args.weights ?? (() => 1);
 };
 const initInput1 = function <D, U>(widget: Input1<D, U>, args: Input1Args<D>) {
     widget.regex = toGetA(args.regex ?? /.*/);
@@ -449,7 +453,7 @@ export class SearchWidget<D, T, H extends boolean = false> extends Widget<D, T |
     inline = $state() as GetB<D>;
     getSearchItem = $state() as (item: T, t: Translations) => SearchItem;
     getXmlEntry = $state() as () => string;
-    items = $state() as GetR<D, T[]>;
+    items = $state() as GetTR<D, T[]>;
     type = $state() as Get<D, HTMLInputTypeAttribute>;
     enterkeyhint = $state() as Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
@@ -665,6 +669,7 @@ export class MultiCheckboxWidget<D, I extends K, H extends boolean = false> exte
     labels = $state() as T<I>;
     get = $state() as ((t: Translations, v: I | null) => string);
     inverseSelection = $state() as boolean;
+    weights = $state() as (i: I) => number;
 
     constructor(args: ValueArgs<D, Arr<I>, H> & MultiChooserArgs<D, I> & LockArgs<D> & LabelsArgs<I>) {
         super();

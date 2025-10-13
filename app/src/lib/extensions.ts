@@ -306,7 +306,7 @@ declare global {
         ): T[];
 
         sumBy<T>(
-            this: T[],
+            this: T[] | readonly T[],
             callback: (value: T, index: number, array: T[]) => number,
         ): number;
 
@@ -365,6 +365,11 @@ declare global {
             key: (item: T, index: number, array: T[]) => K,
             options?: { reversed?: boolean }
         ): T[];
+
+        sumBy<T>(
+            this: T[] | readonly T[],
+            callback: (value: T, index: number, array: T[]) => number,
+        ): number;
 
         toggle<T>(
             this: T[] | readonly T[],
@@ -499,7 +504,7 @@ Array.prototype.toggle = function <T>(
 };
 
 Array.prototype.sumBy = function(callback) {
-    return this.reduce((sum, v, i, a) => sum + callback(v, i, a), 0);
+    return [...this].reduce((sum, v, i, a) => sum + callback(v, i, a), 0);
 } as typeof Array.prototype.sumBy;
 
 Array.prototype.last = function() {

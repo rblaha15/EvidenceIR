@@ -389,7 +389,7 @@ export default (): FormNK => ({
                     { text: t.koNumber!, width: .1 },
                     { text: t.email, width: .5 },
                 ],
-            }), show: false, required: true, items: d => derived([usersList, currentUser], ([$users, $currentUser]) => {
+            }), show: false, required: true, items: (_, d) => derived([usersList, currentUser], ([$users, $currentUser]) => {
                 const withKO = $users.filter(p => p.koNumber && p.responsiblePerson);
                 const me = withKO.find(t => $currentUser?.email == t.email);
                 if (me) d.other.representative.setValue(d, me);

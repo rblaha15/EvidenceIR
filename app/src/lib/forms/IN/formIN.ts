@@ -14,6 +14,7 @@ import {
 import { type Company, type Technician } from '$lib/client/realtime';
 import { type Form } from '$lib/forms/Form';
 import { type Products } from '$lib/helpers/products';
+import { getTranslations, type Translations } from '$lib/translations';
 
 export interface UserForm<D extends UserForm<D>> extends Form<D> {
     koncovyUzivatel: {
@@ -147,10 +148,6 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     };
 }
 
-export const unknownCompany: Company = {
-    companyName: 'Neznámá',
-    email: 'neznama@montazni.fi',
-    crn: '99999999',
-    phone: '+420999999999',
-    representative: 'Neznámý montážník',
-};
+export const unknownCRN = '99999999';
+export const unknownCompany = (t: Translations = getTranslations('cs')): Company =>
+    ({ ...t.in.unknownCompany, crn: unknownCRN });

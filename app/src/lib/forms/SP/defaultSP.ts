@@ -116,7 +116,9 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     ukony: {
         _title: new TitleWidget({ text: t => t.sp.billing, level: titleLevel }),
         ukony: new MultiCheckboxWidget({
-            label: t => t.sp.operations, max: 3, required: false, options: reduceOperations ? independentOperations : operations, labels,
+            label: (t, d) => t.sp.operations(3 - (d.ukony.ukony.value.includes('yearlyHPCheck') ? 1 : 0)),
+            max: 3, required: false, options: reduceOperations ? independentOperations : operations, labels, weights: i =>
+                i == 'yearlyHPCheck' ? 2 : 1,
         }),
         typPrace: new RadioWidget({
             label: t => t.sp.workType,
@@ -139,7 +141,9 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     },
     nahradniDily: {
         _title: new TitleWidget({ text: t => t.sp.usedSpareParts, level: titleLevel }),
-        pocet: new CounterWidget({ label: t => t.sp.sparePartCount, min: 0, max: 8, chosen: 0 }),
+        pocet: new CounterWidget({
+            label: t => t.sp.sparePartCount, min: 0, max: d => d.fakturace.discount.value ? 7 : 8, chosen: 0,
+        }),
     },
     nahradniDil1: sparePart(1),
     nahradniDil2: sparePart(2),
@@ -166,6 +170,10 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
                 ...d.ukony.typPrace.value ? ['work' as const] : [],
                 ...d.ukony.ukony.value,
             ], labels, required: false, inverseSelection: true,
+        }),
+        discount: new InputWidget({
+            label: t => t.sp.discountNoTax, type: 'number', onError: t => t.wrong.number, suffix: 'Kč', required: false,
+            lock: d => d.nahradniDily.pocet.value == 8,
         }),
     },
     other: {

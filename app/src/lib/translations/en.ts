@@ -198,6 +198,12 @@ const en: PlainTranslations = {
             groundToWater: 'Ground-to-Water',
         },
         contactPerson: 'Contact person',
+        unknownCompany: {
+            companyName: 'Neznámá',
+            email: 'neznama@montazni.fi',
+            phone: '+420999999999',
+            representative: 'Neznámý montážník',
+        },
     },
     wrong: {
         number: 'Invalid number format',
@@ -358,6 +364,7 @@ const en: PlainTranslations = {
         title: `Service protocol`,
         editSP: `SP editing`,
         yearlyHPCheck: `Heat pump yearly check`,
+        yearlyHPInCascadeCheck: `Heat pump in a cascade yearly check`,
         warrantyRepair: `Warranty repair`,
         postWarrantyRepair: `Post warranty repair`,
         installationApproval: `Installation approval`,
@@ -387,7 +394,7 @@ const en: PlainTranslations = {
         transportation: 'Transportation',
         workType: 'Work type',
         work: 'Work',
-        operations: 'Work operations (max. 3)',
+        operations: max => `Work operations (max. ${max})`,
         billedTime: 'Billed time',
         interventionTime: 'Intervention time',
         usedSpareParts: 'Used spare parts',
@@ -415,7 +422,9 @@ const en: PlainTranslations = {
         onPaper: 'On paper',
         electronically: 'Electronically',
         assemblyCompany: 'Assembly company',
-        textTooLong: 'Warning: Text is too long for it to fit in the reserved field in the protocol, so so it will be written on a second page of the document.'
+        textTooLong: 'Warning: Text is too long for it to fit in the reserved field in the protocol, so so it will be written on a second page of the document.',
+        discount: 'Discount',
+        discountNoTax: 'Discount (excl. VAT)',
     },
     ft: {
         title: 'Optional inputs and outputs of the controller',
