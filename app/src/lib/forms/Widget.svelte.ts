@@ -1,4 +1,4 @@
-import { get, type Translations } from '../translations';
+import type { Translations } from '../translations';
 import type { ClassValue, FullAutoFill, HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 import type { Untranslatable } from '$lib/translations/untranslatables';
 import type { Readable } from 'svelte/store';
@@ -226,6 +226,9 @@ type Input3<D> = Widget<D, string> & {
 type Suggestions<D> = Widget<D, string> & {
     suggestions: GetTAOrVal<D>;
 };
+
+const get = <I extends string>(l: Record<Exclude<I, Untranslatable>, string | undefined>, v: I | null): string =>
+    v ? l[v] ?? v ?? '' : ''
 
 const initInfo = function <D, U>(widget: Info<D, U>, args: InfoArgs<D>) {
     widget.text = toGetT(args.text);

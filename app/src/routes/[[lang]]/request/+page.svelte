@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { PageData } from './$types';
     import { onMount } from 'svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { data }: {
         data: PageData & {
@@ -39,7 +40,7 @@
 {:else if status === 'accepted'}
     <div class="alert alert-success d-flex flex-column gap-3">
         <div class="d-flex align-items-center gap-3">
-            <span class="material-icons">done</span>
+            <Icon icon="done" />
             <h4 class="alert-heading m-0">{t.requestSent}</h4>
         </div>
         <p class="m-0">{t.youCanCloseThisTab}</p>
@@ -48,7 +49,7 @@
 {#if status === 'error'}
     <div class="alert alert-danger d-flex flex-column gap-3">
         <div class="d-flex align-items-center gap-3">
-            <span class="material-icons">error_outline</span>
+            <Icon icon="error_outline" />
             <h4 class="alert-heading m-0">{t.somethingWentWrong}</h4>
         </div>
         <p class="m-0">{@html t.unknownErrorHtml}</p>

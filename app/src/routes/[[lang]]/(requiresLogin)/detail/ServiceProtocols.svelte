@@ -9,6 +9,7 @@
     import { currentUser } from '$lib/client/auth';
     import { invalidateAll } from '$app/navigation';
     import { aR } from '$lib/helpers/stores';
+    import Icon from '$lib/components/Icon.svelte';
 
     const {
         irid, ir, lang, t,
@@ -44,7 +45,7 @@
         {#each ir.installationProtocols as p, i}
             {#snippet duplicateButton()}
                 <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#duplicateModal">
-                    <span class="material-icons">file_copy</span>
+                    <Icon icon="file_copy" />
                     {td.duplicate}
                 </button>
             {/snippet}
@@ -87,7 +88,7 @@
 
 <div class="d-flex align-items-center gap-3 flex-wrap flex-sm-nowrap">
     <a class="btn btn-primary" href={iridUrl('/SP')} tabindex="0">
-        <span class="material-icons">add</span>
+        <Icon icon="add" />
         {ir.installationProtocols.length ? td.fillInAnotherProtocol : td.fillInProtocol}
     </a>
 </div>
