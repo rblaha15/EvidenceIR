@@ -15,6 +15,8 @@ export type GetTP<D> = GetT<D, Promise<string> | string>;
 export type GetTPOrVal<D> = GetTOrVal<D, Promise<string> | string>;
 export type GetR<D, U> = Get<D, Readable<U>>;
 export type GetROrVal<D, U> = GetOrVal<D, Readable<U>>;
+export type GetTR<D, U> = GetT<D, Readable<U>>;
+export type GetTROrVal<D, U> = GetTOrVal<D, Readable<U>>;
 
 export type Get<D, U> = (data: D) => U;
 export type GetT<D, U = string> = (t: Translations, data: D) => U;
@@ -135,7 +137,7 @@ type SearchArgs<D, T> = {
     getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry?: () => string;
     inline?: GetBOrVal<D>;
-    items: GetROrVal<D, T[]>;
+    items: GetTROrVal<D, T[]>;
     type?: GetOrVal<D, HTMLInputTypeAttribute>;
     enterkeyhint?: GetOrVal<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode?: GetOrVal<D, HTMLInputAttributes['inputmode']>;
@@ -190,7 +192,7 @@ type Search<D, T> = Widget<D, T | null> & {
     getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry: () => string;
     inline: GetB<D>;
-    items: GetR<D, T[]>;
+    items: GetTR<D, T[]>;
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode: Get<D, HTMLInputAttributes['inputmode']>;
@@ -278,7 +280,7 @@ const initDoubleLock = function <D, U>(widget: DoubleLock<D, U>, args: DoubleLoc
 };
 const initSearch = function <D, T>(widget: Search<D, T>, args: SearchArgs<D, T>) {
     widget._value = args.chosen ?? null;
-    widget.items = toGetA(args.items);
+    widget.items = toGetT(args.items);
     widget.getSearchItem = args.getSearchItem;
     widget.getXmlEntry = args.getXmlEntry ?? (() => JSON.stringify(widget.value));
     widget.type = toGetA(args.type ?? 'search');
@@ -451,7 +453,7 @@ export class SearchWidget<D, T, H extends boolean = false> extends Widget<D, T |
     inline = $state() as GetB<D>;
     getSearchItem = $state() as (item: T, t: Translations) => SearchItem;
     getXmlEntry = $state() as () => string;
-    items = $state() as GetR<D, T[]>;
+    items = $state() as GetTR<D, T[]>;
     type = $state() as Get<D, HTMLInputTypeAttribute>;
     enterkeyhint = $state() as Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;

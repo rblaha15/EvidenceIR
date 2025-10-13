@@ -11,7 +11,7 @@ import {
     TextWidget,
     TitleWidget,
 } from '../Widget.svelte.js';
-import { type FormIN, unknownCompany, type UserForm } from './formIN';
+import { type FormIN, unknownCompany, unknownCRN, type UserForm } from './formIN';
 import { type Company, type Technician, techniciansList } from '$lib/client/realtime';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 import {
@@ -176,9 +176,9 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
         nadpisFirmy: new TitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
         nadpis: new TitleWidget({ text: t => t.in.assemblyCompany, level: 3 }),
         company: new SearchWidget<D, Company, true>({
-            items: derived(assemblyCompanies, c => [unknownCompany, ...c]),
+            items: t => derived(assemblyCompanies, c => [unknownCompany(t), ...c]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
-                pieces: i.crn == unknownCompany.crn ? [
+                pieces: i.crn == unknownCRN ? [
                     { text: i.companyName },
                 ] : [
                     { text: i.crn, width: .2 },
@@ -192,7 +192,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 d.montazka.zastupce.setValue(d, company?.representative ?? '');
             },
         }),
-        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn }),
+        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN }),
         ico: new InputWidget({
             label: t => t.in.crn,
             onError: t => t.wrong.crn,
@@ -201,25 +201,25 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 mask: `00000000[00]`,
             },
             required: false, showInXML: true,
-            show: d => d.montazka.company.value?.crn != unknownCompany.crn,
+            show: d => d.montazka.company.value?.crn != unknownCRN,
         }),
         chosen: new TextWidget({
             text: async (t, d) => {
                 const company = await ares.getName(d.montazka.ico.value);
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
-            }, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCompany.crn,
+            }, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN,
         }),
         zastupce: new InputWidget({
             label: t => t.in.representativeName, showInXML: true,
             autocomplete: `section-assemblyRepr billing name`,
-            show: d => d.montazka.company.value?.crn != unknownCompany.crn,
+            show: d => d.montazka.company.value?.crn != unknownCRN,
         }),
         email: new InputWidget({
             label: t => t.in.email,
             onError: t => t.wrong.email,
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             autocomplete: `section-assembly billing work email`,
-            show: d => d.montazka.company.value?.crn != unknownCompany.crn,
+            show: d => d.montazka.company.value?.crn != unknownCRN,
             required: false, showInXML: true,
         }),
         telefon: new InputWidget({
@@ -228,7 +228,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
             type: 'tel',
             autocomplete: `section-assembly billing work tel`,
-            show: d => d.montazka.company.value?.crn != unknownCompany.crn,
+            show: d => d.montazka.company.value?.crn != unknownCRN,
             required: false, showInXML: true,
         }),
     },
@@ -246,9 +246,9 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             },
         }),
         company: new SearchWidget<D, Company, true>({
-            items: derived(commissioningCompanies, c => [unknownCompany, ...c]),
+            items: t => derived(commissioningCompanies, c => [unknownCompany(t), ...c]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
-                pieces: i.crn == unknownCompany.crn ? [
+                pieces: i.crn == unknownCRN ? [
                     { text: i.companyName },
                 ] : [
                     { text: i.crn, width: .2 },
@@ -270,12 +270,12 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             maskOptions: {
                 mask: `00000000[00]`,
             }, showInXML: true,
-            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.company.value?.crn != unknownCompany.crn,
+            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.company.value?.crn != unknownCRN,
             required: d => !d.uvedeni.jakoMontazka.value,
         }),
         chosen: new TextWidget({
             text: async (t, d) => {
-                if (d.uvedeni.ico.value == unknownCompany.crn) return '';
+                if (d.uvedeni.ico.value == unknownCRN) return '';
                 const company = await ares.getName(d.uvedeni.ico.value);
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
             }, showInXML: false,
@@ -304,7 +304,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             label: t => t.in.representativeName,
             autocomplete: `section-commissioningRepr billing name`,
             showInXML: true,
-            show: d => d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCompany.crn,
+            show: d => d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCRN,
             required: d => d.uvedeni.ico.value != regulusCRN.toString(),
         }),
         email: new InputWidget({
@@ -312,7 +312,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             onError: t => t.wrong.email,
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             showInXML: true,
-            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCompany.crn,
+            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCRN,
             required: false,
             autocomplete: `section-commissioning billing work email`,
         }),
@@ -322,7 +322,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
             type: 'tel',
             showInXML: true,
-            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCompany.crn,
+            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCRN,
             required: false,
             autocomplete: `section-assembly billing work tel`,
         }),

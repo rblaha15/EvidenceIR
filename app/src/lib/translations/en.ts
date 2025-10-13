@@ -198,6 +198,12 @@ const en: PlainTranslations = {
             groundToWater: 'Ground-to-Water',
         },
         contactPerson: 'Contact person',
+        unknownCompany: {
+            companyName: 'Neznámá',
+            email: 'neznama@montazni.fi',
+            phone: '+420999999999',
+            representative: 'Neznámý montážník',
+        },
     },
     wrong: {
         number: 'Invalid number format',
