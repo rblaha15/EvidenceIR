@@ -11,6 +11,7 @@
     import { page } from '$app/state';
     import TableOfContents from '$lib/components/TableOfContents.svelte';
     import { hideNav } from '$lib/helpers/globals';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t }: { t: Translations } = $props();
     const tn = $derived(t.nav);
@@ -20,7 +21,7 @@
 
 {#snippet settings()}
     <button aria-label="Settings" class="btn btn-link nav-link ms-3" data-bs-target="#settings" data-bs-toggle="modal">
-        <span class="material-icons fs-2">settings</span>
+        <Icon icon="settings" class="fs-2" />
     </button>
 {/snippet}
 {#snippet queue()}
@@ -28,7 +29,7 @@
         <div class="ms-3">
             <button aria-label="Offline queue" class="btn btn-link nav-link text-warning-emphasis" data-bs-target="#queue"
                     data-bs-toggle="modal">
-                <span class="material-icons fs-2">sync_problem</span>
+                <Icon icon="sync_problem" class="fs-2" />
             </button>
         </div>
     {/if}
@@ -64,12 +65,12 @@
                 aria-controls="NOC"
                 aria-label="Menu"
             >
-                <span class="material-icons fs-1">menu</span>
+                <Icon icon="menu" class="fs-1" />
             </button>
         {/if}
         {@render header()}
         {#if !$isOnline && !$hideNav}
-            <span class="material-icons">wifi_off</span>
+            <Icon icon="wifi_off" />
         {/if}
         <div class="me-auto me-lg-3"></div>
         {#if isLoggedIn && !$hideNav}
@@ -87,7 +88,7 @@
                 <div class="offcanvas-header">
                     {@render header()}
                     <button class="btn btn-link nav-link ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
-                        <span class="material-icons">close</span>
+                        <Icon icon="close" />
                     </button>
                 </div>
                 <div class="offcanvas-body">

@@ -3,6 +3,7 @@
     import { labelAndStar, type SearchWidget } from '$lib/forms/Widget.svelte.js';
     import { browser } from '$app/environment';
     import type { ClassValue } from 'svelte/elements';
+    import Icon from '$lib/components/Icon.svelte';
 
     export const wordsToFilter = (s: string) => s
         .normalize('NFD')
@@ -74,11 +75,11 @@
                 value={hidden ? widget.value ? ' ' : '' : search}
             />
             <label for="">
-                <span class="material-icons">search</span>
+                <Icon icon="search" />
                 {labelAndStar(widget, data, t)}
             </label>
             <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" class:d-none={!widget.value} onclick={onClick}>
-                <span class="material-icons">clear</span>
+                <Icon icon="clear" />
             </button>
         </label>
 
@@ -103,9 +104,7 @@
                             <p class="mb-0 w-md-100"
                                style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                             >
-                                {#if piece.icon}
-                                    <span class="material-icons">{piece.icon}</span>
-                                {/if}
+                                <Icon icon={piece.icon} />
                                 {piece.text}
                             </p>
                         {/each}

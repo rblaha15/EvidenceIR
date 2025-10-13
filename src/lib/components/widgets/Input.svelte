@@ -3,6 +3,7 @@
     import { type InputWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount } from 'svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     interface Props {
         t: Translations;
@@ -120,7 +121,7 @@
             <label for="">{labelAndStar(widget, data, t)}</label>
             <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1"
                     class:d-none={!widget.value || widget.type(data) !== 'date' || widget.required(data)} onclick={onClick}>
-                <span class="material-icons">clear</span>
+                <Icon icon="clear" />
             </button>
         </label>
         {#if widget.suffix(t, data)}

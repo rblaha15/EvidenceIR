@@ -19,6 +19,7 @@
     import { relUrl } from '$lib/helpers/runes.svelte';
     import type { EventHandler } from 'svelte/elements';
     import TableOfContents from '$lib/components/TableOfContents.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     interface Props {
         data: LayoutData;
@@ -96,7 +97,7 @@
     {:else}
         <div class="alert alert-danger m-3 d-flex flex-column gap-3">
             <div class="d-flex align-items-center gap-3">
-                <span class="material-icons">error_outline</span>
+                <Icon icon="error_outline" />
                 <h4 class="alert-heading m-0">{error.name}</h4>
             </div>
             <p class="m-0">
@@ -130,7 +131,7 @@
                         {#if $backButton}
                             <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}
                                     style="margin: -2rem 0">
-                                <span class="material-icons fs-1">arrow_back</span>
+                                <Icon icon="arrow_back" class="fs-1" />
                             </button>
                         {/if}
                         {$title}

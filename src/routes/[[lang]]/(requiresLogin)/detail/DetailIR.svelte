@@ -12,6 +12,7 @@
     import ChangeIRID from './ChangeIRID.svelte';
     import { aA, aR } from '$lib/helpers/stores';
     import RKD from './RKD.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t, ir, lang, irid }: {
         t: Translations, ir: IR, lang: LanguageCode, irid: IRID,
@@ -107,31 +108,31 @@
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${ir.evidence.koncovyUzivatel.email}`)}
                tabindex="0">
-                <span class="material-icons">attach_email</span>
+                <Icon icon="attach_email" />
                 {td.sendDocuments}
             </a>
             <a class="btn btn-primary" href={relUrl(`/IN?view-irid=${irid}`)}
                tabindex="0">
-                <span class="material-icons">preview</span>
+                <Icon icon="preview" />
                 {td.viewFilledData}
             </a>
         </div>
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#if $isUserRegulusOrAdmin}
                 <a tabindex="0" class="btn btn-info" href={iridUrl('/users')}>
-                    <span class="material-icons">people</span>
+                    <Icon icon="people" />
                     {td.usersWithAccess}{$aR}
                 </a>
             {/if}
             <ChangeIRID {ir} {irid} {t} />
             <a class="btn btn-warning" href={relUrl(`/IN?edit-irid=${irid}`)}
                tabindex="0">
-                <span class="material-icons">edit_document</span>
+                <Icon icon="edit_document" />
                 {td.editInstallationData}
             </a>
             <button class="btn btn-danger d-block"
                     data-bs-target="#deleteModal" data-bs-toggle="modal">
-                <span class="material-icons">delete_forever</span>
+                <Icon icon="delete_forever" />
                 {td.deleteThisRecord}
             </button>
 
@@ -143,7 +144,7 @@
                             <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
                         </div>
                         <div class="modal-body">
-                            <span class="material-icons">delete_forever</span>
+                            <Icon icon="delete_forever" />
                             {td.confirmDeletion}
                         </div>
                         <div class="modal-footer">
