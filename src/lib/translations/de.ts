@@ -110,6 +110,12 @@ const de: PlainTranslations = {
         note: `Notiz`,
         description: `Beschreibung`,
         contactPerson: 'Ansprechperson',
+        unknownCompany: {
+            companyName: 'Unbekannt',
+            email: 'unbekannt@montage.fi',
+            phone: '+499999999999',
+            representative: 'Unbekannter Installateur',
+        },
     },
     auth: {
         password: `Passwort`,

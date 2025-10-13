@@ -10,7 +10,8 @@
 
     let { t, widget = $bindable(), data }: Props = $props();
 
-    const count = $derived(widget.value.length);
+    const weights = $derived(widget.weights);
+    const count = $derived(widget.value.sumBy(weights));
     const options = $derived(widget.options(data));
     const value = $derived({
         get value() {
@@ -34,15 +35,15 @@
     <div class="input-group input-group-grid">
         {#each options as item}
             <button class="input-group-text input-group-input first" onclick={onClick(item)}
-                    disabled={widget.lock(data) || !checked(item) && count >= widget.max(data)}
+                    disabled={widget.lock(data) || !checked(item) && count + weights(item) > widget.max(data)}
                     aria-labelledby="label-{uid}-{item}" tabindex="-1"
             >
                 <input class="form-check-input m-0" type="checkbox" role="button" bind:group={value.value}
-                       disabled={widget.lock(data) || !checked(item) && count >= widget.max(data)} value={item} />
+                       disabled={widget.lock(data) || !checked(item) && count + weights(item) > widget.max(data)} value={item} />
             </button>
             <button onclick={onClick(item)} class="input-group-text last"
                     tabindex="-1" id="label-{uid}-{item}"
-                    disabled={widget.lock(data) || !checked(item) && count >= widget.max(data)}
+                    disabled={widget.lock(data) || !checked(item) && count + weights(item) > widget.max(data)}
             >{widget.get(t, item)}</button>
         {/each}
     </div>

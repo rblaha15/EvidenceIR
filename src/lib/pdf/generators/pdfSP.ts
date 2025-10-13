@@ -5,7 +5,7 @@ import '$lib/extensions';
 import { endUserName, endUserName2, spName } from '$lib/helpers/ir';
 import { generalizeServiceProtocol, type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { get } from '$lib/translations';
-import { unknownCompany } from '$lib/forms/IN/formIN';
+import { unknownCompany, unknownCRN } from '$lib/forms/IN/formIN';
 import { inlineTooLong, invoiceableParts, multilineTooLong } from '$lib/forms/SP/defaultSP';
 import ares from '$lib/helpers/ares';
 
@@ -19,6 +19,7 @@ const prices = {
     commissioningSOL: 1652.89,
     commissioningFVE: 1652.89,
     yearlyHPCheck: 2479.34,
+    yearlyHPInCascadeCheck: 991.74,
     yearlySOLCheck: 1239.67,
     withoutCode: 0,
 } as const;
@@ -34,6 +35,7 @@ const codes = {
     commissioningSOL: 9785,
     commissioningFVE: 21665,
     yearlyHPCheck: 9787,
+    yearlyHPInCascadeCheck: 21829,
     yearlySOLCheck: 9782,
     withoutCode: 0,
 } as const;
@@ -51,7 +53,9 @@ const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
 export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
     const ts = t.sp;
     console.log(p);
-    const ip = invoiceableParts.associateWith(it => !p.fakturace.invoiceParts?.includes(it));
+    const ip = invoiceableParts.associateWith(it => !p.fakturace.invoiceParts?.includes(it)).let(ip => ({
+        ...ip, yearlyHPInCascadeCheck: ip.yearlyHPCheck,
+    }));
     const assemblyCompany = await ares.getNameAndAddress(p.montazka.ico, fetch);
     const spareParts = [
         p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
@@ -59,11 +63,16 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
     ].slice(0, p.nahradniDily.pocet);
     const priceTransportation = ip.transportation ? prices.transportation * Number(p.ukony.doprava) : 0;
     const priceWork = p.ukony.typPrace && ip.work ? prices.work * Number(p.ukony.doba) : 0;
-    const priceOperations = p.ukony.ukony.sumBy(type =>
-        ip[type] ? prices[type] * (type == 'commissioningTC' || type == 'yearlyHPCheck' ? p.system.pocetTC : 1) : 0,
-    );
+    const operationsWithCascades = p.ukony.ukony.flatMap(type => [
+        ...type == 'yearlyHPCheck' ? [['yearlyHPCheck', 1 as number] as const, ['yearlyHPInCascadeCheck', p.system.pocetTC - 1] as const]
+            : type == 'commissioningTC' ? [['commissioningTC', p.system.pocetTC] as const]
+                : [[type, 1 as number] as const],
+    ]);
+    const priceOperations = operationsWithCascades.sumBy(([type, count]) => ip[type] ? prices[type] * count : 0);
     const priceParts = spareParts.sumBy(dil => Number(dil.unitPrice) * Number(dil.mnozstvi));
-    const priceOther = priceOperations + priceParts;
+    const priceWithoutDiscount = priceTransportation + priceWork + priceOperations + priceParts;
+    const discount = Math.min(p.fakturace.discount?.toNumber() ?? 0, priceWithoutDiscount);
+    const priceOther = priceOperations + priceParts - discount;
     const sum = priceTransportation + priceWork + priceOther;
     const tax = p.ukony.typPrace == 'technicalAssistance12' ? 1.12 : 1.21;
     let response: Response;
@@ -82,7 +91,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
 
     if (tax == 1.12) await addDoc({ args: pdfInfo.CP, data: p, lang: 'cs' });
 
-    const isUnknown = p.montazka.ico == unknownCompany.crn;
+    const isUnknown = p.montazka.ico == unknownCRN;
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
         Text1: spName(p.zasah),
@@ -116,11 +125,11 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         Text23: p.ukony.doba.toNumber().roundTo(2).toLocaleString('cs') + ' h',
         Text24: p.ukony.typPrace ? ip.work ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč' : '',
         ...fieldsOperations.map(p => [p.type, ' '] as const).toRecord(),
-        ...p.ukony.ukony.map((type, i) => [
+        ...operationsWithCascades.map(([type, count], i) => [
             [fieldsOperations[i].type, get(ts, type)],
             [fieldsOperations[i].price, ip[type] ? prices[type].roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč'],
             [fieldsOperations[i].code, codes[type].toString()],
-            [fieldsOperations[i].amount, type == 'commissioningTC' || type == 'yearlyHPCheck' ? p.system.pocetTC + ' ks' : ''],
+            [fieldsOperations[i].amount, count > 1 ? count + ' ks' : ''],
         ] as const).flat().toRecord(),
         ...spareParts.map((dil, i) => [
             [`Text${fieldsParts.name + i}`, dil.name],
@@ -129,6 +138,10 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
             [`Text${fieldsParts.warehouse + i}`, dil.warehouse],
             [`Text${fieldsParts.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString('cs') + ' Kč'],
         ] as const).flat().toRecord(),
+        ...(spareParts.length == 8 || discount == 0 ? {} : {
+            [`Text${fieldsParts.name + 7}`]: 'Sleva',
+            [`Text${fieldsParts.price + 7}`]: (-discount).roundTo(2).toLocaleString('cs') + ' Kč',
+        }),
         Text31: priceTransportation.roundTo(2).toLocaleString('cs') + ' Kč',
         Text32: priceWork.roundTo(2).toLocaleString('cs') + ' Kč',
         Text33: priceOther.roundTo(2).toLocaleString('cs') + ' Kč',

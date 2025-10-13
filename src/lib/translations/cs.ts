@@ -2,6 +2,7 @@
 
 import { template as t } from '$lib/helpers/templates';
 import '$lib/extensions';
+import { unknownCRN } from '$lib/forms/IN/formIN';
 
 export default {
     form: {
@@ -202,6 +203,7 @@ export default {
         title: `Instalační a servisní protokol`,
         editSP: `Editace SP`,
         yearlyHPCheck: `Roční kontrola TČ`,
+        yearlyHPInCascadeCheck: `Roční kontrola TČ v kaskádě`,
         warrantyRepair: `Záruční oprava`,
         postWarrantyRepair: `Pozáruční oprava`,
         installationApproval: `Schválení instalace`,
@@ -231,7 +233,7 @@ export default {
         transportation: 'Doprava',
         workType: 'Typ práce',
         work: 'Práce',
-        operations: 'Pracovní úkony (max. 3)',
+        operations: (max: number) => `Pracovní úkony (max. ${max})`,
         billedTime: 'Doba fakturované práce',
         interventionTime: 'Doba zásahu',
         usedSpareParts: 'Použité náhradní díly',
@@ -260,6 +262,8 @@ export default {
         assemblyCompany: `Montážní firma`,
         textTooLong: 'Pozor, zadaný text je moc dlouhý a nevešel by se do vyhrazeného pole v protokolu, takže bude napsaný na druhé straně dokumentu.',
         otherCompany: 'Jiná firma',
+        discount: 'Sleva',
+        discountNoTax: 'Sleva (bez DPH)',
     },
     units: {
         kW: 'kW',
@@ -607,6 +611,12 @@ export default {
         note: `Poznámka`,
         description: `Popis`,
         contactPerson: 'Kontaktní osoba',
+        unknownCompany: {
+            companyName: 'Neznámá',
+            email: 'neznama@montazni.fi',
+            phone: '+420999999999',
+            representative: 'Neznámý montážník',
+        },
     },
     od: {
         title: 'Odeslat podepsané dokumenty',
