@@ -123,13 +123,6 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         data.ir.cislo.lock = () => mode == 'edit';
         data.ir.typ.lock1 = () => mode == 'edit';
 
-        if (mode != 'create') {
-            data.uvedeni.regulus.required = () => false;
-            data.uvedeni.zastupce.show = () => true;
-            data.uvedeni.email.show = d => !d.uvedeni.jakoMontazka.value;
-            data.uvedeni.telefon.show = d => !d.uvedeni.jakoMontazka.value;
-        }
-
         const count = cascadePumps(dataToRawData(data)).length;
         data.tc.pocet.setValue(data, count == 0 ? 1 : count);
     },

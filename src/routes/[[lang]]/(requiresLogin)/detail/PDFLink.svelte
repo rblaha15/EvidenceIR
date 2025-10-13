@@ -1,9 +1,10 @@
 <script generics="P extends Pdf" lang="ts">
-    import { type Translations } from '$lib/translations';
+    import type { Translations } from '$lib/translations';
     import { type DataOfPdf, type OpenPdfOptions, type Pdf } from '$lib/pdf/pdf';
     import type { Snippet } from 'svelte';
     import { generatePdfPreviewUrl } from '../../helpers';
     import { currentPreferredDocumentLanguage } from '$lib/languages';
+    import type { Color } from '$lib/forms/Widget.svelte';
 
     type Props<P extends Pdf> = OpenPdfOptions<P> & {
         data: DataOfPdf<P>;
@@ -20,7 +21,7 @@
             hide?: boolean,
             text: string,
         } | {
-            color: 'warning' | 'danger' | 'primary',
+            color: Color,
             icon: string,
             hide?: boolean,
             text: string,

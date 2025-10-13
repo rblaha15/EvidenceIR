@@ -11,10 +11,24 @@ import {
     TextWidget,
     TitleWidget,
 } from '$lib/forms/Widget.svelte.js';
-import { type Company, type Technician } from '$lib/client/realtime';
+import { type Company } from '$lib/client/realtime';
 import { type Form } from '$lib/forms/Form';
 import { type Products } from '$lib/helpers/products';
 import { getTranslations, type Translations } from '$lib/translations';
+
+type CompanyWidgetGroup<D> = {
+    company: SearchWidget<D, Company, true>;
+    ico: InputWidget<D>;
+    chosen: TextWidget<D>;
+    zastupce: InputWidget<D>;
+    email: InputWidget<D>;
+    telefon: InputWidget<D>;
+}
+type AddressWidgetGroup<D> = {
+    obec: InputWidget<D>;
+    ulice: InputWidget<D>;
+    psc: InputWidget<D>;
+}
 
 export interface UserForm<D extends UserForm<D>> extends Form<D> {
     koncovyUzivatel: {
@@ -33,42 +47,10 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
         telefon: InputWidget<D>;
         email: InputWidget<D>;
     };
-    bydliste: {
-        nadpis: TitleWidget<D>;
-        obec: InputWidget<D>;
-        ulice: InputWidget<D>;
-        psc: InputWidget<D>;
-    };
-    mistoRealizace: {
-        nadpis: TitleWidget<D>;
-        jakoBydliste: CheckboxWidget<D, true>;
-        obec: InputWidget<D>;
-        ulice: InputWidget<D>;
-        psc: InputWidget<D>;
-    };
-    montazka: {
-        nadpisFirmy: TitleWidget<D>;
-        nadpis: TitleWidget<D>;
-        company: SearchWidget<D, Company, true>;
-        or: TextWidget<D>;
-        ico: InputWidget<D>;
-        chosen: TextWidget<D>;
-        zastupce: InputWidget<D>;
-        email: InputWidget<D>;
-        telefon: InputWidget<D>;
-    };
-    uvedeni: {
-        nadpis: TitleWidget<D>;
-        jakoMontazka: CheckboxWidget<D, true>;
-        company: SearchWidget<D, Company, true>;
-        or: TextWidget<D>;
-        ico: InputWidget<D>;
-        chosen: TextWidget<D>;
-        regulus: SearchWidget<D, Technician, true>;
-        zastupce: InputWidget<D>;
-        email: InputWidget<D>;
-        telefon: InputWidget<D>;
-    };
+    bydliste: AddressWidgetGroup<D>;
+    mistoRealizace: AddressWidgetGroup<D>;
+    montazka: CompanyWidgetGroup<D>;
+    uvedeni: CompanyWidgetGroup<D>;
 }
 
 export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL';

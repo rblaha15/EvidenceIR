@@ -1,10 +1,11 @@
-import {
+import type {
     ChooserWidget,
     CounterWidget,
     InlinePdfPreviewWidget,
     InputWidget,
     MultiCheckboxWidget,
-    RadioWidget, RadioWithInputWidget,
+    RadioWidget,
+    RadioWithInputWidget,
     SearchWidget,
 } from '$lib/forms/Widget.svelte';
 import { type SparePart } from '$lib/client/realtime';
