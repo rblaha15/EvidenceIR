@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { Translations } from '$lib/translations';
     import { readableQueue } from '$lib/client/offlineQueue.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t }: { t: Translations } = $props();
     const tq = $derived(t.nav.offlineQueue)
@@ -24,7 +25,7 @@
                 <ol class="list-group list-group-flush list-group-numbered">
                     {#each $readableQueue as dwo}
                         <li class="list-group-item d-flex gap-3 align-items-center">
-                            <span class="material-icons fs-5">{dwo.type === 'database' ? 'storage' : 'outgoing_mail'}</span>
+                            <Icon class="fs-5" icon={dwo.type === 'database' ? 'storage' : 'outgoing_mail'} />
                             <span class="flex-grow-1">{dwo.subject(t)}</span>
                         </li>
                     {/each}

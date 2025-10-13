@@ -1,6 +1,7 @@
 <script generics="D, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
     import { labelAndStar, type RadioWidget } from '$lib/forms/Widget.svelte.js';
+    import Icon from '$lib/components/Icon.svelte';
 
     interface Props {
         t: Translations;
@@ -23,7 +24,7 @@
         {labelAndStar(widget, data, t)}
         {#if !widget.required(data)}
             <button class="btn py-1 px-2 m-1" aria-label={t.widget.clearSelection} onclick={onClick(null)}>
-                <span class="material-icons">clear</span>
+                <Icon icon="clear" />
             </button>
         {/if}
     </div>

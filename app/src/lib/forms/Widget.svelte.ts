@@ -1,4 +1,4 @@
-import { get, type Translations } from '../translations';
+import type { Translations } from '../translations';
 import type { ClassValue, FullAutoFill, HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 import type { Untranslatable } from '$lib/translations/untranslatables';
 import type { Readable } from 'svelte/store';
@@ -110,10 +110,13 @@ export type InlinePdfPreviewData<D, P extends PdfType> = {
     form: Form<D>,
 } & PdfParameters<P>;
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
+export type Color = 'warning' | 'danger' | 'primary' | 'info' | 'secondary' | 'success'
+export type BtnColor = Color | `outline-${Color}`
 
 type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H };
 type ShowArgs<D> = { show?: GetBOrVal<D>; showInXML?: GetBOrVal<D> };
 type InfoArgs<D> = { text: GetTPOrVal<D>; class?: GetOrVal<D, ClassValue | undefined>; } & ShowArgs<D>;
+type BtnArgs<D> = { text: GetTOrVal<D>; color: GetOrVal<D, BtnColor>; icon?: GetOrVal<D, string | undefined>; onClick: Get<D, void> } & ShowArgs<D>;
 type TitleArgs = { level: HeadingLevel };
 type PdfArgs<D, P extends PdfType> = { pdfData: GetT<D, InlinePdfPreviewData<D, P>> } & Omit<ShowArgs<D>, 'showInXML'>;
 type ValueArgs<D, U, H> = {
@@ -177,6 +180,7 @@ type SuggestionsArgs<D> = {
 };
 
 type Info<D, U> = Widget<D, U> & { text: GetTP<D>; class: Get<D, ClassValue | undefined>; };
+type Btn<D, U> = Widget<D, U> & { text: GetT<D>; color: Get<D, BtnColor>; icon: Get<D, string | undefined>; onClick: Get<D, void> };
 type Title<D> = Widget<D, undefined> & { level: HeadingLevel; };
 type Pdf<D, P extends PdfType> = Widget<D, undefined> & { pdfData: GetT<D, InlinePdfPreviewData<D, P>> };
 type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: GetB<D>; };
@@ -223,11 +227,21 @@ type Suggestions<D> = Widget<D, string> & {
     suggestions: GetTAOrVal<D>;
 };
 
+const get = <I extends string>(l: Record<Exclude<I, Untranslatable>, string | undefined>, v: I | null): string =>
+    v ? l[v] ?? v ?? '' : ''
+
 const initInfo = function <D, U>(widget: Info<D, U>, args: InfoArgs<D>) {
     widget.text = toGetT(args.text);
     widget.show = toGetA(args.show ?? true);
     widget.class = toGetA(args.class);
     widget.showTextValue = toGetA(args.showInXML ?? (data => widget.show(data)));
+};
+const initBtn = function <D, U>(widget: Btn<D, U>, args: BtnArgs<D>) {
+    widget.text = toGetT(args.text);
+    widget.show = toGetA(args.show ?? true);
+    widget.color = toGetA(args.color);
+    widget.icon = toGetA(args.icon);
+    widget.onClick = toGetA(args.onClick);
 };
 const initTitle = function <D, U>(widget: Title<D>, args: TitleArgs) {
     widget.level = args.level;
@@ -388,6 +402,28 @@ export class InlinePdfPreviewWidget<D, P extends PdfType> extends Widget<D, unde
     constructor(args: PdfArgs<D, P>) {
         super();
         initPdf(this, args);
+    }
+}
+
+export class ButtonWidget<D> extends Widget<D, undefined, true> {
+    label = () => '' as const;
+    onError = () => '' as const;
+    show = $state() as GetB<D>;
+    showTextValue = () => false as const;
+    _value = undefined;
+    onValueSet = () => {
+    };
+    hideInRawData = true as const;
+    isError = () => false;
+
+    text = $state() as GetT<D>;
+    color = $state() as Get<D, BtnColor>;
+    icon = $state() as Get<D, string | undefined>;
+    onClick = $state() as Get<D, void>;
+
+    constructor(args: BtnArgs<D>) {
+        super();
+        initBtn(this, args);
     }
 }
 

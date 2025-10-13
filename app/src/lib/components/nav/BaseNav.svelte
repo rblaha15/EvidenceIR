@@ -7,6 +7,7 @@
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { invalidateAll } from '$app/navigation';
     import { aA, aR } from '$lib/helpers/stores';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t }: { t: Translations } = $props();
     const tn = $derived(t.nav);
@@ -35,7 +36,7 @@
                 aria-current={selected ? 'page' : null}
                 href={url}
             >
-                <span class="material-icons">{icon}</span>
+                <Icon {icon} />
                 {label}
             </a>
         </li>

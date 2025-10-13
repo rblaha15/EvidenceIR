@@ -22,6 +22,7 @@
     import { generatePdfPreviewUrl } from '../../routes/[[lang]]/helpers';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { TitleWidget } from '$lib/forms/Widget.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t, formInfo, editData, viewData }: {
         t: Translations,
@@ -192,7 +193,7 @@
                 {/if}
                 {#if !result.load && (mode === 'edit' && isSendingEmails || $showSaveAndSendButtonByDefaultStore)}
                     <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">
-                        <span class="material-icons">send</span> {t.form.saveAndSend}
+                        <Icon icon="send" /> {t.form.saveAndSend}
                     </button>
                 {/if}
                 {#if result.load}

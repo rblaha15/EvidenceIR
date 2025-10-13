@@ -1,6 +1,7 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
     import {
+        ButtonWidget,
         CheckboxWidget,
         CheckboxWithChooserWidget,
         CheckboxWithInputWidget,
@@ -8,7 +9,7 @@
         CountersWidget,
         CounterWidget,
         DoubleChooserWidget,
-        FileWidget,
+        FileWidget, InlinePdfPreviewWidget,
         InputWidget,
         InputWithChooserWidget,
         InputWithSuggestionsWidget,
@@ -41,6 +42,8 @@
     {#await widget.text(t, data) then text}
         {#if text}<p class={[widget.class(data), 'm-0']}>{text}</p>{/if}
     {/await}
+{:else if widget instanceof InlinePdfPreviewWidget} <!-- Not supported -->
+{:else if widget instanceof ButtonWidget} <!-- Not supported -->
 {:else if widget.showTextValue(data)}
     <p class="mb-0"><b>{widget.label(t, data)}</b>:
         {#if widget instanceof ScannerWidget}

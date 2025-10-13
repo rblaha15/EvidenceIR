@@ -1,9 +1,11 @@
 <script generics="P extends Pdf" lang="ts">
-    import { type Translations } from '$lib/translations';
+    import type { Translations } from '$lib/translations';
     import { type DataOfPdf, type OpenPdfOptions, type Pdf } from '$lib/pdf/pdf';
     import type { Snippet } from 'svelte';
     import { generatePdfPreviewUrl } from '../../helpers';
     import { currentPreferredDocumentLanguage } from '$lib/languages';
+    import type { Color } from '$lib/forms/Widget.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     type Props<P extends Pdf> = OpenPdfOptions<P> & {
         data: DataOfPdf<P>;
@@ -20,7 +22,7 @@
             hide?: boolean,
             text: string,
         } | {
-            color: 'warning' | 'danger' | 'primary',
+            color: Color,
             icon: string,
             hide?: boolean,
             text: string,
@@ -56,13 +58,13 @@
                 tabindex="0"
                 style="--bs-btn-padding-x: 0rem"
             >
-                <span class="material-icons">file_open</span>
+                <Icon icon="file_open" />
                 {#if name}<span>{name}</span>{/if}
             </a>
             {#if dropdownItems}
                 <button type="button" class="btn btn-outline-secondary" style="--bs-btn-padding-x: 0" data-bs-toggle="dropdown"
                         aria-expanded="false">
-                    <span class="material-icons">more_vert</span>
+                    <Icon icon="more_vert" />
                     <span class="visually-hidden">Toggle dropdown with other options</span>
                 </button>
                 <div class="dropdown-menu">
@@ -71,7 +73,7 @@
                             {#if !item.hide}
                                 {#if 'color' in item}
                                     <a class="btn btn-{item.color}" href={item.href} tabindex="0">
-                                        <span class="material-icons">{item.icon}</span>
+                                        <Icon icon={item.icon} />
                                         {item.text}
                                     </a>
                                 {:else if 'item' in item}

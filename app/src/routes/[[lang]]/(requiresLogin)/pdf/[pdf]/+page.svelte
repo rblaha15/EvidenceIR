@@ -6,6 +6,7 @@
     import { goto } from '$app/navigation';
     import LanguageSelector from '$lib/components/nav/LanguageSelector.svelte';
     import PdfPreview from '$lib/components/pdf/PdfPreview.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     const {
         data,
@@ -33,7 +34,7 @@
         } options={supportedLanguages} selected={data.fileLang} />
     </div>
     <button class="btn btn-primary" onclick={download}>
-        <span class="material-icons">file_download</span>
+        <Icon icon="file_download" />
         {t.downloadFile}
     </button>
 </PdfPreview>

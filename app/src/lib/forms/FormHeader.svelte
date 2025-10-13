@@ -11,6 +11,7 @@
     import { type PdfImport, processPdf } from '$lib/forms/PdfImport';
     import { PDFDocument } from 'pdf-lib';
     import type { US } from '$lib/translations/untranslatables';
+    import Icon from '$lib/components/Icon.svelte';
 
     interface Props<R extends Raw<Form>> {
         title: string;
@@ -99,7 +100,7 @@
                 data-bs-toggle="modal"
                 data-bs-target="#import"
             >
-                <span class="material-icons">upload</span>
+                <Icon icon="upload" />
                 {tfi.importData}
             </button>
         {/if}
@@ -113,7 +114,7 @@
                     endLoading();
                 }}
             >
-                <span class="material-icons">delete_forever</span>
+                <Icon icon="delete_forever" />
                 {tf.clearForm}
             </button>
         {/if}
