@@ -1,4 +1,5 @@
 import {
+    ButtonWidget,
     CheckboxWidget,
     ChooserWidget,
     CounterWidget,
@@ -31,6 +32,7 @@ import products, { type Products } from '$lib/helpers/products';
 import type { Translations } from '$lib/translations';
 import { derived } from 'svelte/store';
 import { assemblyCompanies, commissioningCompanies } from '$lib/helpers/companies';
+import type { FormPlus } from '$lib/forms/Form';
 
 const jeFO = (d: UserForm<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserForm<never>) => jeFO(d);
@@ -50,7 +52,7 @@ const supportsRemoteAccessF = (f: FormIN) => supportsRemoteAccess(f.ir.typ.value
 const irFVE = (d: FormIN) => d.ir.typ.value.first == 'fve';
 const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == 'DG-450-B';
 
-export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
+export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
     koncovyUzivatel: {
         nadpis: new TitleWidget({ text: t => t.in.endUser, level: 2 }),
         typ: new RadioWidget({
@@ -120,7 +122,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
         }),
     },
     bydliste: {
-        nadpis: new TitleWidget({ text: (t, d) => jeFO(d) ? t.in.residence : t.in.headquarters, level: 3 }),
+        _title: new TitleWidget({ text: (t, d) => jeFO(d) ? t.in.residence : t.in.headquarters, level: 3 }),
         ulice: new InputWidget({
             label: t => t.in.street,
             autocomplete: `section-user billing street-address`,
@@ -137,28 +139,22 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
         }),
     },
     mistoRealizace: {
-        nadpis: new TitleWidget({ text: t => t.in.realizationLocation, level: 3 }),
-        jakoBydliste: new CheckboxWidget<D, true>({
-            label: (t, d) => jeFO(d) ? t.in.samePlaceAsResidence : t.in.samePlaceAsHeadquarters,
-            required: false, showInXML: false, hideInRawData: true,
-            onValueSet: (d, v) => {
-                if (v) {
-                    d.mistoRealizace.obec.setValue(d, d.bydliste.obec.value);
-                    d.mistoRealizace.psc.setValue(d, d.bydliste.psc.value);
-                    d.mistoRealizace.ulice.setValue(d, d.bydliste.ulice.value);
-                }
+        _title: new TitleWidget({ text: t => t.in.realizationLocation, level: 3 }),
+        _setAsResidence: new ButtonWidget<D>({
+            text: (t, d) => jeFO(d) ? t.in.setPlaceAsResidence : t.in.setPlaceAsHeadquarters,
+            color: 'secondary', onClick: d => {
+                d.mistoRealizace.obec.setValue(d, d.bydliste.obec.value);
+                d.mistoRealizace.psc.setValue(d, d.bydliste.psc.value);
+                d.mistoRealizace.ulice.setValue(d, d.bydliste.ulice.value);
             },
         }),
         ulice: new InputWidget({
             label: t => t.in.street, required: false, showInXML: true,
             autocomplete: `section-realization shipping address-level2`,
-            show: d => !d.mistoRealizace.jakoBydliste.value,
         }),
         obec: new InputWidget({
             label: t => t.in.town, showInXML: true,
             autocomplete: `section-realization shipping address-level1`,
-            show: d => !d.mistoRealizace.jakoBydliste.value,
-            required: d => !d.mistoRealizace.jakoBydliste.value,
         }),
         psc: new InputWidget({
             label: t => t.in.zip, showInXML: true,
@@ -168,13 +164,11 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 mask: `000 00`,
             },
             autocomplete: `section-realization shipping postal-code`,
-            show: d => !d.mistoRealizace.jakoBydliste.value,
-            required: d => !d.mistoRealizace.jakoBydliste.value,
         }),
     },
     montazka: {
-        nadpisFirmy: new TitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
-        nadpis: new TitleWidget({ text: t => t.in.assemblyCompany, level: 3 }),
+        _titleCompanies: new TitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
+        _title: new TitleWidget({ text: t => t.in.assemblyCompany, level: 3 }),
         company: new SearchWidget<D, Company, true>({
             items: t => derived(assemblyCompanies, c => [unknownCompany(t), ...c]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
@@ -192,7 +186,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 d.montazka.zastupce.setValue(d, company?.representative ?? '');
             },
         }),
-        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN }),
+        _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN }),
         ico: new InputWidget({
             label: t => t.in.crn,
             onError: t => t.wrong.crn,
@@ -233,16 +227,15 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
         }),
     },
     uvedeni: {
-        nadpis: new TitleWidget({ text: t => t.in.commissioning, level: 3 }),
-        jakoMontazka: new CheckboxWidget<D, true>({
-            label: t => t.in.commissionedByAssemblyCompany, required: false, showInXML: false, hideInRawData: true,
-            onValueSet: (d, v) => {
-                if (v) {
-                    d.uvedeni.ico.setValue(d, d.montazka.ico.value);
-                    d.uvedeni.zastupce.setValue(d, d.montazka.zastupce.value);
-                    d.uvedeni.email.setValue(d, d.montazka.email.value);
-                    d.uvedeni.telefon.setValue(d, d.montazka.telefon.value);
-                }
+        _title: new TitleWidget({ text: t => t.in.commissioning, level: 3 }),
+        _setAsAssembly: new ButtonWidget<D>({
+            text: t => t.in.setToAssemblyCompany, color: 'secondary',
+            onClick: d => {
+                d.uvedeni.company.setValue(d, d.montazka.company.value);
+                d.uvedeni.ico.setValue(d, d.montazka.ico.value);
+                d.uvedeni.zastupce.setValue(d, d.montazka.zastupce.value);
+                d.uvedeni.email.setValue(d, d.montazka.email.value);
+                d.uvedeni.telefon.setValue(d, d.montazka.telefon.value);
             },
         }),
         company: new SearchWidget<D, Company, true>({
@@ -254,7 +247,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                     { text: i.crn, width: .2 },
                     { text: i.companyName, width: .8 },
                 ],
-            }), show: d => !d.uvedeni.jakoMontazka.value, showInXML: false, required: false, hideInRawData: true,
+            }), showInXML: false, required: false, hideInRawData: true,
             onValueSet: (d, company) => {
                 d.uvedeni.ico.setValue(d, company?.crn ?? '');
                 d.uvedeni.email.setValue(d, company?.email ?? '');
@@ -262,7 +255,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 d.uvedeni.zastupce.setValue(d, company?.representative ?? '');
             },
         }),
-        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => !d.uvedeni.jakoMontazka.value }),
+        _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN }),
         ico: new InputWidget({
             label: t => t.in.crn,
             onError: t => t.wrong.crn,
@@ -270,8 +263,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             maskOptions: {
                 mask: `00000000[00]`,
             }, showInXML: true,
-            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.company.value?.crn != unknownCRN,
-            required: d => !d.uvedeni.jakoMontazka.value,
+            show: d => d.uvedeni.company.value?.crn != unknownCRN,
         }),
         chosen: new TextWidget({
             text: async (t, d) => {
@@ -280,7 +272,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
             }, showInXML: false,
         }),
-        regulus: new SearchWidget<D, Technician, true>({
+        _regulus: new SearchWidget<D, Technician, true>({
             items: derived(techniciansList, $technicians =>
                 $technicians.filter(t => t.email.endsWith('cz')),
             ),
@@ -290,8 +282,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
                     { text: i.email },
                     { text: i.phone },
                 ],
-            }), show: d => d.uvedeni.ico.value == regulusCRN.toString(),
-            required: d => d.uvedeni.ico.value == regulusCRN.toString(),
+            }), show: d => d.uvedeni.ico.value == regulusCRN.toString(), required: false,
             hideInRawData: true, onValueSet: (d, technician) => {
                 if (technician) {
                     d.uvedeni.email.setValue(d, technician.email ?? '');
@@ -304,15 +295,14 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             label: t => t.in.representativeName,
             autocomplete: `section-commissioningRepr billing name`,
             showInXML: true,
-            show: d => d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCRN,
-            required: d => d.uvedeni.ico.value != regulusCRN.toString(),
+            show: d => d.uvedeni.company.value?.crn != unknownCRN,
         }),
         email: new InputWidget({
             label: t => t.in.email,
             onError: t => t.wrong.email,
             regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
             showInXML: true,
-            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCRN,
+            show: d => d.uvedeni.company.value?.crn != unknownCRN,
             required: false,
             autocomplete: `section-commissioning billing work email`,
         }),
@@ -322,7 +312,7 @@ export const userData = <D extends UserForm<D>>(): UserForm<D> => ({
             regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
             type: 'tel',
             showInXML: true,
-            show: d => !d.uvedeni.jakoMontazka.value && d.uvedeni.ico.value != regulusCRN.toString() && d.uvedeni.company.value?.crn != unknownCRN,
+            show: d => d.uvedeni.company.value?.crn != unknownCRN,
             required: false,
             autocomplete: `section-assembly billing work tel`,
         }),

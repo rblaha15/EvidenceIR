@@ -25,7 +25,7 @@
         search = widget.value ? widget.getSearchItem(widget.value, t).pieces[0].text : '';
     });
 
-    const all = $derived(widget.items(data));
+    const all = $derived(widget.items(t, data));
     let filtered = $derived.by(() => {
         $all;
         search;
@@ -73,7 +73,10 @@
                 type={widget.type(data)}
                 value={hidden ? widget.value ? ' ' : '' : search}
             />
-            <label for="">{labelAndStar(widget, data, t)}</label>
+            <label for="">
+                <span class="material-icons">search</span>
+                {labelAndStar(widget, data, t)}
+            </label>
             <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" class:d-none={!widget.value} onclick={onClick}>
                 <span class="material-icons">clear</span>
             </button>
