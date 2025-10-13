@@ -295,6 +295,7 @@ export default {
         editCheck: `Upravit kontroly`,
         editInstallationData: `Upravit údaje o instalaci`,
         deleteThisRecord: `Odstranit tuto evidenci instalace`,
+        downloadXML: `Stáhnout XML instalace`,
         delete: `Odstranit`,
         cancel: `Zrušit`,
         confirmDeletion: `Opravdu chcete odstranit evidenci instalace?`,
