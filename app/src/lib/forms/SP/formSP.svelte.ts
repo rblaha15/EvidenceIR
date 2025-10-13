@@ -73,6 +73,7 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
         komu: RadioWithInputWidget<D, 'investor' | `assemblyCompany` | 'otherCompany'>,
         jak: RadioWidget<D, 'onPaper' | 'electronically'>,
         invoiceParts: MultiCheckboxWidget<D, 'work' | Operation | `transportation`>,
+        discount: InputWidget<D>,
     },
     other: {
         preview: InlinePdfPreviewWidget<D, 'NSP'>

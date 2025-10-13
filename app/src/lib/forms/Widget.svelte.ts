@@ -149,6 +149,7 @@ type SwitchArgs<D> = { hasPositivity?: GetBOrVal<D>; options: Sides };
 type MultiChooserArgs<D, I extends K> = {
     options: GetOrVal<D, Arr<I>>;
     chosen?: Arr<I>;
+    weights?: (i: I) => number;
     max?: GetOrVal<D, number>;
     inverseSelection?: boolean;
 } & LabelsArgs<I>;
@@ -198,7 +199,7 @@ type Search<D, T> = Widget<D, T | null> & {
 type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; };
 type Counters<D, I extends K> = Widget<D, Rec<I>> & { max: Get<D, number> };
 type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: GetB<D>; };
-type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; inverseSelection: boolean; };
+type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; inverseSelection: boolean; weights: (i: I) => number; };
 type Input1<D, U> = Widget<D, U> & {
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
@@ -307,6 +308,7 @@ const initMultiChooser = function <D, I extends K>(widget: MultiChooser<D, I>, a
     widget.max = toGetA(args.max ?? Number.MAX_VALUE);
     widget.options = toGetA(args.options);
     widget.inverseSelection = Boolean(args.inverseSelection);
+    widget.weights = args.weights ?? (() => 1);
 };
 const initInput1 = function <D, U>(widget: Input1<D, U>, args: Input1Args<D>) {
     widget.regex = toGetA(args.regex ?? /.*/);
@@ -665,6 +667,7 @@ export class MultiCheckboxWidget<D, I extends K, H extends boolean = false> exte
     labels = $state() as T<I>;
     get = $state() as ((t: Translations, v: I | null) => string);
     inverseSelection = $state() as boolean;
+    weights = $state() as (i: I) => number;
 
     constructor(args: ValueArgs<D, Arr<I>, H> & MultiChooserArgs<D, I> & LockArgs<D> & LabelsArgs<I>) {
         super();
