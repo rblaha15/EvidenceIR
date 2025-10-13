@@ -24,22 +24,23 @@
             : args.supportedLanguages[0],
     );
 
-    const result = $derived(generatePdfUrl({
+    const list = $derived(form.getValues().flatMap(obj => obj.getValues()));
+    const errors = $derived(list.filter(w => w.isError(formData) && w.show(formData)).map(w => w.label(t, formData)));
+
+    const result = $derived(errors.length ? null : generatePdfUrl({
         ...(parameters as unknown as PdfParameters<P>),
         args, lang, data,
     }));
-
-    const list = $derived(form.getValues().flatMap(obj => obj.getValues()));
-    const errors = $derived(list.filter(w => w.isError(formData) && w.show(formData)).map(w => w.label(t, formData)));
 
     let url = $state<string>();
     let error = $state(false);
 
     $effect(() => {
-        result.then(r => {
+        result?.then(r => {
             url = r.url;
             error = false;
-        }).catch(_ => {
+        }).catch(e => {
+            console.error(e);
             url = undefined;
             error = true;
         });
