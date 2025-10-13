@@ -10,17 +10,17 @@ import { inlineTooLong, invoiceableParts, multilineTooLong } from '$lib/forms/SP
 import ares from '$lib/helpers/ares';
 
 const prices = {
-    transportation: 9.92,
-    work: 661.16,
-    regulusRoute: 826.45,
-    installationApproval: 2479.34,
-    extendedWarranty: 4958.68,
-    commissioningTC: 3305.79,
-    commissioningSOL: 1652.89,
-    commissioningFVE: 1652.89,
-    yearlyHPCheck: 2479.34,
-    yearlyHPInCascadeCheck: 991.74,
-    yearlySOLCheck: 1239.67,
+    transportation: 12 / 1.21,
+    work: 800 / 1.21,
+    regulusRoute: 1_000 / 1.21,
+    installationApproval: 3_000 / 1.21,
+    extendedWarranty: 6_000 / 1.21,
+    commissioningTC: 4_000 / 1.21,
+    commissioningSOL: 2_000 / 1.21,
+    commissioningFVE: 2_000 / 1.21,
+    yearlyHPCheck: 3_000 / 1.21,
+    yearlyHPInCascadeCheck: 1_200 / 1.21,
+    yearlySOLCheck: 150 / 1.21,
     withoutCode: 0,
 } as const;
 
