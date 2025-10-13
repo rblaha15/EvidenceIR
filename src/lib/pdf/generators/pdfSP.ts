@@ -5,7 +5,7 @@ import '$lib/extensions';
 import { endUserName, endUserName2, spName } from '$lib/helpers/ir';
 import { generalizeServiceProtocol, type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { get } from '$lib/translations';
-import { unknownCompany } from '$lib/forms/IN/formIN';
+import { unknownCompany, unknownCRN } from '$lib/forms/IN/formIN';
 import { inlineTooLong, invoiceableParts, multilineTooLong } from '$lib/forms/SP/defaultSP';
 import ares from '$lib/helpers/ares';
 
@@ -91,7 +91,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
 
     if (tax == 1.12) await addDoc({ args: pdfInfo.CP, data: p, lang: 'cs' });
 
-    const isUnknown = p.montazka.ico == unknownCompany.crn;
+    const isUnknown = p.montazka.ico == unknownCRN;
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
         Text1: spName(p.zasah),

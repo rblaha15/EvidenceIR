@@ -2,6 +2,7 @@
 
 import { template as t } from '$lib/helpers/templates';
 import '$lib/extensions';
+import { unknownCRN } from '$lib/forms/IN/formIN';
 
 export default {
     form: {
@@ -610,6 +611,12 @@ export default {
         note: `Poznámka`,
         description: `Popis`,
         contactPerson: 'Kontaktní osoba',
+        unknownCompany: {
+            companyName: 'Neznámá',
+            email: 'neznama@montazni.fi',
+            phone: '+420999999999',
+            representative: 'Neznámý montážník',
+        },
     },
     od: {
         title: 'Odeslat podepsané dokumenty',
