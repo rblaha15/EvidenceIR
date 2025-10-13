@@ -3,7 +3,7 @@
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { type IRID } from '$lib/helpers/ir';
     import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
-    import { type Translations } from '$lib/translations';
+    import { getTranslations, type Translations } from '$lib/translations';
     import db, { type IR } from '$lib/data';
     import ServiceProtocols from './ServiceProtocols.svelte';
     import { cascadePumps } from '$lib/forms/IN/infoIN';
@@ -13,6 +13,10 @@
     import { aA, aR } from '$lib/helpers/stores';
     import RKD from './RKD.svelte';
     import Icon from '$lib/components/Icon.svelte';
+    import { createFileUrl, downloadFile } from '../../helpers';
+    import { xmlIN } from '$lib/forms/IN/xmlIN';
+    import { rawDataToData } from '$lib/forms/Form.js';
+    import defaultIN from '$lib/forms/IN/defaultIN';
 
     const { t, ir, lang, irid }: {
         t: Translations, ir: IR, lang: LanguageCode, irid: IRID,
@@ -23,6 +27,15 @@
         await db.deleteIR(irid!);
         await goto(iridUrl(`/detail?deleted`), { replaceState: true });
     };
+
+    const download = async () => {
+        const xml = xmlIN(rawDataToData(defaultIN(), ir.evidence), getTranslations('cs'))
+        const blob = new Blob([xml], {
+            type: 'application/xml',
+        });
+        const url = await createFileUrl(blob);
+        downloadFile(url, `Evidence ${irid}.xml`)
+    }
 </script>
 
 <div class="d-flex flex-wrap gap-5 justify-content-between">
@@ -134,6 +147,10 @@
                     data-bs-target="#deleteModal" data-bs-toggle="modal">
                 <Icon icon="delete_forever" />
                 {td.deleteThisRecord}
+            </button>
+            <button class="btn btn-info d-block" onclick={download}>
+                <Icon icon="download" />
+                {td.downloadXML}
             </button>
 
             <div aria-hidden="true" aria-labelledby="deleteModalLabel" class="modal fade" id="deleteModal" tabindex="-1">

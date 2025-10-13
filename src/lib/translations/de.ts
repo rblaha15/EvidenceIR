@@ -174,6 +174,7 @@ const de: PlainTranslations = {
         editCheck: `Überprüfungen bearbeiten`,
         editInstallationData: `Installationsdaten bearbeiten`,
         deleteThisRecord: `Dieses Installationsprotokoll löschen`,
+        downloadXML: `Die XML-Installationsdatei herunterladen`,
         delete: `Löschen`,
         cancel: `Abbrechen`,
         confirmDeletion: `Möchten Sie das Installationsprotokoll wirklich löschen?`,
