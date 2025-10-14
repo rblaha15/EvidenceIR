@@ -282,6 +282,7 @@ const en: PlainTranslations = {
         usersWithAccess: `Users with access to this record`,
         newIRIDLabel: `IRID (from the URL address)`,
         copyNSP: `Copy installation information to a new protocol`,
+        copyNSPtoInstallation: `Copy installation information to a new registration`,
         copySP: `Do you want to create a copy for reporting service intervention by multiple persons?`,
         transferProtocols: `Transfer the protocols to a controller (won't be deleted)`,
         deleteProtocol: `Delete the protocol`,

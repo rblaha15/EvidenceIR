@@ -15,7 +15,10 @@
     import DetailNSP from './DetailNSP.svelte';
     import { aA, storable } from '$lib/helpers/stores';
     import NSP from '$lib/forms/NSP/infoNSP';
+    import IN from '$lib/forms/IN/infoIN';
     import Icon from '$lib/components/Icon.svelte';
+    import type { FormIN } from '$lib/forms/IN/formIN';
+    import defaultIN from '$lib/forms/IN/defaultIN';
 
     const { t, sps, lang }: {
         t: Translations, sps: Raw<FormNSP>[], lang: LanguageCode,
@@ -38,6 +41,13 @@
             ...sps[0].omit(...protocolGroups),
         };
         storable<typeof sps[0]>(NSP.storeName()).set(newSP);
+    };
+    const createCopyIN = () => {
+        const newIN = {
+            ...dataToRawData(defaultIN()),
+            ...sps[0].omit(...protocolGroups),
+        };
+        storable<Raw<FormIN>>(IN.storeName()).set(newIN);
     };
 </script>
 
@@ -62,6 +72,11 @@
         </a>
 
         {#if $isUserAdmin}
+            <a class="btn btn-warning" href={relUrl('/IN')} onclick={createCopyIN}>
+                <Icon icon="add_home_work" />
+                {td.copyNSPtoInstallation}{$aA}
+            </a>
+
             <div class="d-flex flex-column gap-1 align-items-sm-start">
                 <Widget widget={newIRID} {t} data={{}} />
                 <button class="btn btn-danger d-block" onclick={transfer}>

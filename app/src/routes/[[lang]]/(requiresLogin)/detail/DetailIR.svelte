@@ -29,13 +29,13 @@
     };
 
     const download = async () => {
-        const xml = xmlIN(rawDataToData(defaultIN(), ir.evidence), getTranslations('cs'))
+        const xml = xmlIN(rawDataToData(defaultIN(), ir.evidence), getTranslations('cs'));
         const blob = new Blob([xml], {
             type: 'application/xml',
         });
         const url = await createFileUrl(blob);
-        downloadFile(url, `Evidence ${irid}.xml`)
-    }
+        downloadFile(url, `Evidence ${irid}.xml`);
+    };
 </script>
 
 <div class="d-flex flex-wrap gap-5 justify-content-between">
@@ -148,10 +148,13 @@
                 <Icon icon="delete_forever" />
                 {td.deleteThisRecord}
             </button>
-            <button class="btn btn-info d-block" onclick={download}>
-                <Icon icon="download" />
-                {td.downloadXML}{$aR}
-            </button>
+
+            {#if $isUserRegulusOrAdmin}
+                <button class="btn btn-info d-block" onclick={download}>
+                    <Icon icon="download" />
+                    {td.downloadXML}{$aR}
+                </button>
+            {/if}
 
             <div aria-hidden="true" aria-labelledby="deleteModalLabel" class="modal fade" id="deleteModal" tabindex="-1">
                 <div class="modal-dialog">
