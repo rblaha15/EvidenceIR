@@ -181,6 +181,7 @@ const de: PlainTranslations = {
         usersWithAccess: `Benutzer mit Zugriff auf dieses Protokoll`,
         newIRIDLabel: `IRID (von URL)`,
         copyNSP: `Installationsinformationen in ein neues Protokoll kopieren`,
+        copyNSPtoInstallation: `Installationsinformationen in ein neues Registrierung kopieren`,
         copySP: `Möchten Sie eine Kopie erstellen, um Serviceeingriffe mehreren Personen zu melden?`,
         transferProtocols: `Protokolle in IR konvertieren (werden nicht gelöscht)`,
         deleteProtocol: `Protokoll löschen`,
