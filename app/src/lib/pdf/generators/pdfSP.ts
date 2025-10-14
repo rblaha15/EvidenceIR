@@ -17,6 +17,7 @@ const prices = {
     installationApproval: 3_000 / 1.21,
     extendedWarranty: 6_000 / 1.21,
     commissioningTC: 4_000 / 1.21,
+    commissioningHPInCascade: 1_600 / 1.21,
     commissioningSOL: 2_000 / 1.21,
     commissioningFVE: 2_000 / 1.21,
     yearlyHPCheck: 3_000 / 1.21,
@@ -33,6 +34,7 @@ const codes = {
     installationApproval: 14846,
     extendedWarranty: 14847,
     commissioningTC: 9786,
+    commissioningHPInCascade: 21840,
     commissioningSOL: 9785,
     commissioningFVE: 21665,
     yearlyHPCheck: 9787,
@@ -56,7 +58,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
     const ts = t.sp;
     console.log(p);
     const ip = invoiceableParts.associateWith(it => !p.fakturace.invoiceParts?.includes(it)).let(ip => ({
-        ...ip, yearlyHPInCascadeCheck: ip.yearlyHPCheck,
+        ...ip, yearlyHPInCascadeCheck: ip.yearlyHPCheck, commissioningHPInCascade: ip.commissioningTC,
     }));
     const assemblyCompany = await ares.getNameAndAddress(p.montazka.ico, fetch);
     const spareParts = [
@@ -67,7 +69,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
     const priceWork = p.ukony.typPrace && ip.work ? prices.work * Number(p.ukony.doba) : 0;
     const operationsWithCascades = p.ukony.ukony.flatMap(type => [
         ...type == 'yearlyHPCheck' && (pumpCount ?? 1) > 1 ? [['yearlyHPCheck', 1 as number] as const, ['yearlyHPInCascadeCheck', pumpCount! - 1] as const]
-            : type == 'commissioningTC' ? [['commissioningTC', pumpCount ?? 1] as const]
+            : type == 'commissioningTC' && (pumpCount ?? 1) > 1 ? [['commissioningTC', 1 as number] as const, ['commissioningHPInCascade', pumpCount! - 1] as const]
                 : [[type, 1 as number] as const],
     ]);
     const priceOperations = operationsWithCascades.sumBy(([type, count]) => ip[type] ? prices[type] * count : 0);

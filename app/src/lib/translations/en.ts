@@ -376,6 +376,7 @@ const en: PlainTranslations = {
         warrantyExtended: `Extended`,
         warrantyCommon: `Common`,
         commissioningTC: `Heat pump commission`,
+        commissioningHPInCascade: `Heat pump commission`,
         commissioningSOL: `Solar system commission`,
         commissioningFVE: `Photovoltaic system commission`,
         withoutCode: `Business activity`,
