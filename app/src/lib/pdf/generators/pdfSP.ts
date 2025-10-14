@@ -5,9 +5,10 @@ import '$lib/extensions';
 import { endUserName, endUserName2, spName } from '$lib/helpers/ir';
 import { generalizeServiceProtocol, type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { get } from '$lib/translations';
-import { unknownCompany, unknownCRN } from '$lib/forms/IN/formIN';
+import { unknownCRN } from '$lib/forms/IN/formIN';
 import { inlineTooLong, invoiceableParts, multilineTooLong } from '$lib/forms/SP/defaultSP';
 import ares from '$lib/helpers/ares';
+import { cascadePumps } from '$lib/forms/IN/infoIN';
 
 const prices = {
     transportation: 12 / 1.21,
@@ -41,6 +42,7 @@ const codes = {
 } as const;
 
 const fieldsOperations = [
+    { type: 'Kombinované pole32', code: 'Text25', price: 'Text24', amount: 'Text23' }, // Shared with work
     { type: 'Kombinované pole33', code: 'Text26', price: 'Text36', amount: 'Text84' },
     { type: 'Kombinované pole34', code: 'Text27', price: 'Text37', amount: 'Text85' },
     { type: 'Kombinované pole35', code: 'Text28', price: 'Text38', amount: 'Text86' },
@@ -50,7 +52,7 @@ const fieldsPartsStart = 44;
 const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
     .associateWith((_, i) => fieldsPartsStart + i * 8);
 
-export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
+export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount }) => {
     const ts = t.sp;
     console.log(p);
     const ip = invoiceableParts.associateWith(it => !p.fakturace.invoiceParts?.includes(it)).let(ip => ({
@@ -64,8 +66,8 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
     const priceTransportation = ip.transportation ? prices.transportation * Number(p.ukony.doprava) : 0;
     const priceWork = p.ukony.typPrace && ip.work ? prices.work * Number(p.ukony.doba) : 0;
     const operationsWithCascades = p.ukony.ukony.flatMap(type => [
-        ...type == 'yearlyHPCheck' ? [['yearlyHPCheck', 1 as number] as const, ['yearlyHPInCascadeCheck', p.system.pocetTC - 1] as const]
-            : type == 'commissioningTC' ? [['commissioningTC', p.system.pocetTC] as const]
+        ...type == 'yearlyHPCheck' && (pumpCount ?? 1) > 1 ? [['yearlyHPCheck', 1 as number] as const, ['yearlyHPInCascadeCheck', pumpCount! - 1] as const]
+            : type == 'commissioningTC' ? [['commissioningTC', pumpCount ?? 1] as const]
                 : [[type, 1 as number] as const],
     ]);
     const priceOperations = operationsWithCascades.sumBy(([type, count]) => ip[type] ? prices[type] * count : 0);
@@ -92,6 +94,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
     if (tax == 1.12) await addDoc({ args: pdfInfo.CP, data: p, lang: 'cs' });
 
     const isUnknown = p.montazka.ico == unknownCRN;
+    const fo = p.ukony.typPrace ? fieldsOperations.slice(1) : fieldsOperations;
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
         Text1: spName(p.zasah),
@@ -122,14 +125,16 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         Text22: ip.transportation ? prices.transportation.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč',
         'Kombinované pole32': get(ts, p.ukony.typPrace) || ts.intervention,
         Text25: p.ukony.typPrace ? codes[p.ukony.typPrace].toString().let(k => k == '0' ? '' : k) : '',
-        Text23: p.ukony.doba.toNumber().roundTo(2).toLocaleString('cs') + ' h',
+        Text23: p.ukony.typPrace ? p.ukony.doba.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
+        Text87: p.zasah.interventionDuration
+            ? p.zasah.interventionDuration.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
         Text24: p.ukony.typPrace ? ip.work ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč' : '',
-        ...fieldsOperations.map(p => [p.type, ' '] as const).toRecord(),
+        ...fo.map(p => [p.type, ' '] as const).toRecord(),
         ...operationsWithCascades.map(([type, count], i) => [
-            [fieldsOperations[i].type, get(ts, type)],
-            [fieldsOperations[i].price, ip[type] ? prices[type].roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč'],
-            [fieldsOperations[i].code, codes[type].toString()],
-            [fieldsOperations[i].amount, count > 1 ? count + ' ks' : ''],
+            [fo[i].type, get(ts, type)],
+            [fo[i].price, ip[type] ? prices[type].roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč'],
+            [fo[i].code, codes[type].toString()],
+            [fo[i].amount, count > 1 ? count + ' ks' : ''],
         ] as const).flat().toRecord(),
         ...spareParts.map((dil, i) => [
             [`Text${fieldsParts.name + i}`, dil.name],
@@ -149,12 +154,13 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
         Text18: `${(tax * 100 - 100).toFixed(0)} %`,
         Text35: (sum * tax).roundTo(2).toLocaleString('cs') + ' Kč',
         Text39: get(ts, p.fakturace.hotove),
-        Text40: p.fakturace.hotove == 'no' ? `${ts.invoice}:` : '',
+        Text40: ' ',
         Text41: p.fakturace.hotove == 'yes' ? ''
             : p.fakturace.komu.chosen == 'otherCompany' ? p.fakturace.komu.text : get(ts, p.fakturace.komu.chosen),
         Text42: p.fakturace.hotove == 'no' ? get(ts, p.fakturace.jak) : '',
         Text43: {
             assemblyCompany: p.montazka.zastupce,
+            commissioningCompany: p.uvedeni.zastupce,
             investor: endUserName(p.koncovyUzivatel),
             otherCompany: p.fakturace.komu.text,
         }[p.fakturace.komu.chosen ?? 'investor'],
@@ -165,10 +171,10 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc }) => {
 export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols, uvedeniTC: u }, t, addDoc, index, lang }) =>
     pdfNSP({
         data: generalizeServiceProtocol(e, installationProtocols[index], u, t), t, addDoc, lang,
+        pumpCount: cascadePumps(e).length,
     });
 export default pdfSP;
 
-//[a.slice(0, 2).join('; '), a.slice(2, 4).join('; ')].join('\n');
 export const pdfCP: GetPdfData<'CP'> = async ({ data: p }) => ({
     Text1: endUserName2(p.koncovyUzivatel),
     Text2: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,

@@ -42,7 +42,8 @@
                 <input class="form-check-input m-0" type="radio" role="button"
                        bind:group={chosen.value} value={item} />
             </button>
-            <button onclick={() => chosen.value = item} tabindex="-1" style:grid-column={item === other && chosen.value === other ? '2' : '2 / span 2'}
+            <button onclick={() => chosen.value = item} tabindex="-1"
+                    style:grid-column={item === other && chosen.value === other ? '2' : '2 / span 2'}
                     id="label-{uid}-{item}" class={["input-group-text", { last: item !== other }]}
             >{widget.get(t, item)}</button>
             {#if item === other && chosen.value === other}
@@ -51,21 +52,24 @@
                            onclick={() => chosen.value = other} class="form-control shadow-none input-group-text"
                            role="button" disabled={widget.lock(data)} tabindex="-1" />
                 {:else}
-                    <input
-                        type={widget.type(data)}
-                        inputmode={widget.inputmode(data)}
-                        enterkeyhint={widget.enterkeyhint(data)}
-                        autocapitalize={widget.autocapitalize(data)}
-                        class="form-control last w-100"
-                        aria-labelledby="label-{uid}-{item}"
-                        value={widget.value.text}
-                        oninput={e => {
-                        widget.mutateValue(data, v => (
-                            { chosen: other, text: e.currentTarget.value ?? v.text }
-                        ));
-                    }}
-                        disabled={widget.lock(data)}
-                    />
+                    <div class="form-floating w-100">
+                        <input
+                            type={widget.type(data)}
+                            inputmode={widget.inputmode(data)}
+                            enterkeyhint={widget.enterkeyhint(data)}
+                            autocapitalize={widget.autocapitalize(data)}
+                            placeholder={widget.otherLabel(t, data)}
+                            class="form-control last w-100"
+                            value={widget.value.text}
+                            oninput={e => {
+                                widget.mutateValue(data, v => (
+                                    { chosen: other, text: e.currentTarget.value ?? v.text }
+                                ));
+                            }}
+                            disabled={widget.lock(data)}
+                        />
+                        <label for="">{widget.otherLabel(t, data)}</label>
+                    </div>
                 {/if}
             {/if}
         {/each}

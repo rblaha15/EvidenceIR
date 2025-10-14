@@ -104,6 +104,7 @@
                 </div>
             </div>
         {:else}
+            <div class="d-none d-md-inline me-auto"></div>
             {@render settings()}
             {#if !$hideNav}
                 <div class="d-flex flex-row">

@@ -1,6 +1,6 @@
 import {
     ChooserWidget,
-    CounterWidget,
+    CounterWidget, type Get,
     type GetT,
     type HeadingLevel,
     type InlinePdfPreviewData,
@@ -20,6 +20,7 @@ import { browser } from '$app/environment';
 import { derived } from 'svelte/store';
 import { generalizeServiceProtocol } from '$lib/pdf/pdf';
 import { type FormGroupPlus, type FormPlus } from '$lib/forms/Form';
+import { cascadePumps } from '$lib/forms/IN/infoIN';
 
 const multilineLineLength = 670;
 const multilineMaxLength = multilineLineLength * 4;
@@ -40,7 +41,7 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
 
     return ({
         _label: new TextWidget({
-            show, text: t => t.sp.sparePart({ n: `${n}` }), class: 'fs-5',
+            show, text: t => t.sp.sparePart(n), class: 'fs-5',
         }),
         dil: new SearchWidget({
             items: derived(sparePartsList, $sparePartsList =>
@@ -97,7 +98,7 @@ export const invoiceableParts = [
     'transportation' as const, 'work' as const, ...operations,
 ];
 export const defaultGenericSP = <D extends GenericFormSP<D>>(
-    getPdfData: GetT<D, Omit<InlinePdfPreviewData<D, 'NSP'>, 'type'>>, titleLevel: HeadingLevel = 2, reduceOperations = false,
+    getPdfData: GetT<D, Omit<InlinePdfPreviewData<D, 'NSP'>, 'type'>>, hpCount: Get<D, number>, titleLevel: HeadingLevel = 2, reduceOperations = false,
 ): FormPlus<GenericFormSP<D>> => ({
     system: {
         datumUvedeni: new InputWidget({ label: t => t.sp.commissioningDate, type: 'date', required: false }),
@@ -112,31 +113,31 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
         _overflowFault: new TextWidget({ text: (t, d) => inlineTooLong(d.zasah.nahlasenaZavada.value) ? t.sp.textTooLong : '' }),
         popis: new InputWidget({ label: t => t.sp.interventionDescription, required: false, textArea: true }),
         _overflowIntervention: new TextWidget({ text: (t, d) => multilineTooLong(d.zasah.popis.value) ? t.sp.textTooLong : '' }),
+        interventionDuration: new InputWidget({
+            label: t => t.sp.interventionTime,
+            type: 'number',
+            onError: t => t.wrong.number, suffix: t => t.units.h, required: false,
+        }),
     },
     ukony: {
         _title: new TitleWidget({ text: t => t.sp.billing, level: titleLevel }),
         ukony: new MultiCheckboxWidget({
-            label: (t, d) => t.sp.operations(3 - (d.ukony.ukony.value.includes('yearlyHPCheck') ? 1 : 0)),
-            max: 3, required: false, options: reduceOperations ? independentOperations : operations, labels, weights: i =>
-                i == 'yearlyHPCheck' ? 2 : 1,
+            label: (t, d) => t.sp.operations(3 - (d.ukony.ukony.value.includes('yearlyHPCheck') && hpCount(d) > 1 ? 1 : 0) + (d.ukony.typPrace.value ? 0 : 1)),
+            max: d => d.ukony.typPrace.value ? 3 : 4, required: false, options: reduceOperations ? independentOperations : operations, labels, weights: (d, i) =>
+                i == 'yearlyHPCheck' && hpCount(d) > 1 ? 2 : 1,
         }),
         typPrace: new RadioWidget({
-            label: t => t.sp.workType,
+            label: t => t.sp.workType, required: false, labels, lock: d => d.ukony.ukony.value.sumBy(i => d.ukony.ukony.weights(d, i)) == 4,
             options: [`assemblyWork`, `technicalAssistance`, `technicalAssistance12`],
-            required: false,
-            labels,
         }),
         doba: new InputWidget({
-            label: (t, d) => d.ukony.typPrace.value != null ? t.sp.billedTime : t.sp.interventionTime,
-            type: 'number',
-            onError: t => t.wrong.number,
-            suffix: t => t.units.h,
+            label: t => t.sp.billedTime, type: 'number',
+            show: d => d.ukony.typPrace.value != null, required: d => d.ukony.typPrace.value != null,
+            onError: t => t.wrong.number, suffix: t => t.units.h,
         }),
         doprava: new InputWidget({
-            label: t => t.sp.transportation,
-            type: 'number',
-            onError: t => t.wrong.number,
-            suffix: t => t.units.km,
+            label: t => t.sp.transportation, type: 'number',
+            onError: t => t.wrong.number, suffix: t => t.units.km,
         }),
     },
     nahradniDily: {
@@ -155,25 +156,25 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     nahradniDil8: sparePart(8),
     fakturace: {
         _title: new TitleWidget({ text: t => t.sp.invoicing, level: titleLevel }),
-        hotove: new ChooserWidget({ label: t => t.sp.paidInCash, options: ['yes', 'no', 'doNotInvoice'], labels }),
-        komu: new RadioWithInputWidget({
-            label: t => t.sp.whoToInvoice, options: ['investor', `assemblyCompany`, 'otherCompany'], labels,
-            required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
-        }),
-        jak: new RadioWidget({
-            label: t => t.sp.invoice, options: ['onPaper', 'electronically'], labels,
-            required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
-        }),
         invoiceParts: new MultiCheckboxWidget({
             label: t => t.sp.invoiceParts, options: d => [
                 'transportation' as const,
                 ...d.ukony.typPrace.value ? ['work' as const] : [],
                 ...d.ukony.ukony.value,
-            ], labels, required: false, inverseSelection: true,
+            ], labels, required: false,
         }),
         discount: new InputWidget({
             label: t => t.sp.discountNoTax, type: 'number', onError: t => t.wrong.number, suffix: 'Kč', required: false,
             lock: d => d.nahradniDily.pocet.value == 8,
+        }),
+        hotove: new ChooserWidget({ label: t => t.sp.paidInCash, options: ['yes', 'no'] as ('yes' | 'no' | 'doNotInvoice')[], labels, chosen: 'no' }),
+        komu: new RadioWithInputWidget({
+            label: t => t.sp.whoToInvoice, options: ['investor', `assemblyCompany`, `commissioningCompany`, 'otherCompany'], labels,
+            required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no', otherLabel: t => t.sp.crnOrName,
+        }),
+        jak: new RadioWidget({
+            label: t => t.sp.send, options: ['onPaper', 'electronically'], labels,
+            required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
         }),
     },
     other: {
@@ -192,4 +193,5 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
 export default (): FormSP => defaultGenericSP((t, d) => ({
     data: generalizeServiceProtocol(d.evidence, d.raw, d.uvedeniTC, t),
     form: d.form,
-}));
+    pumpCount: cascadePumps(d.evidence).length,
+}), d => cascadePumps(d.evidence).length);

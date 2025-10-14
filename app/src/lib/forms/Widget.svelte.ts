@@ -42,8 +42,9 @@ export const labelAndStar = <D, U>(
     widget: Required<D, U, boolean>,
     data: D,
     t: Translations,
+    getLabel: GetT<D> = widget.label,
 ) => {
-    const label = widget.label(t, data);
+    const label = getLabel(t, data);
     return label == '' ? '' : label + (!widget.required(data) ? '' : ` ${STAR}`);
 };
 
@@ -154,7 +155,7 @@ type SwitchArgs<D> = { hasPositivity?: GetBOrVal<D>; options: Sides };
 type MultiChooserArgs<D, I extends K> = {
     options: GetOrVal<D, Arr<I>>;
     chosen?: Arr<I>;
-    weights?: (i: I) => number;
+    weights?: (d: D, i: I) => number;
     max?: GetOrVal<D, number>;
     inverseSelection?: boolean;
 } & LabelsArgs<I>;
@@ -205,7 +206,7 @@ type Search<D, T> = Widget<D, T | null> & {
 type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; };
 type Counters<D, I extends K> = Widget<D, Rec<I>> & { max: Get<D, number> };
 type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: GetB<D>; };
-type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; inverseSelection: boolean; weights: (i: I) => number; };
+type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; inverseSelection: boolean; weights: (d: D, i: I) => number; };
 type Input1<D, U> = Widget<D, U> & {
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
@@ -631,6 +632,7 @@ export class RadioWidget<D, I extends K, H extends boolean = false> extends Widg
 
 export class RadioWithInputWidget<D, I extends K, H extends boolean = false> extends Widget<D, RaI<I>, H> {
     label = $state() as GetT<D>;
+    otherLabel = $state() as GetT<D>;
     onError = $state() as GetT<D>;
     options = $state() as Get<D, Arr<I>>;
     show = $state() as GetB<D>;
@@ -657,12 +659,13 @@ export class RadioWithInputWidget<D, I extends K, H extends boolean = false> ext
     get = $state() as ((t: Translations, v: I | null) => string);
     capitalize = $state() as GetB<D>;
 
-    constructor(args: ValueArgs<D, RaI<I>, H> & LockArgs<D> & Input1Args<D> & Input3Args<D> & ChooserArgs<D, I> & LabelsArgs<I>) {
+    constructor(args: ValueArgs<D, RaI<I>, H> & LockArgs<D> & Input1Args<D> & Input3Args<D> & ChooserArgs<D, I> & LabelsArgs<I> & { otherLabel: GetTOrVal<D> }) {
         super();
         initValue(this, args);
         initLock(this, args);
         initInput1(this, args);
         initLabels(this, args);
+        this.otherLabel = toGetT(args.otherLabel);
         this.options = toGetA(args.options);
         this._value = { chosen: args.chosen ?? null, text: args.text ?? '' };
     }
@@ -705,7 +708,7 @@ export class MultiCheckboxWidget<D, I extends K, H extends boolean = false> exte
     labels = $state() as T<I>;
     get = $state() as ((t: Translations, v: I | null) => string);
     inverseSelection = $state() as boolean;
-    weights = $state() as (i: I) => number;
+    weights = $state() as (d: D, i: I) => number;
 
     constructor(args: ValueArgs<D, Arr<I>, H> & MultiChooserArgs<D, I> & LockArgs<D> & LabelsArgs<I>) {
         super();
