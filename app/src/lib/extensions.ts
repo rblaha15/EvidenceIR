@@ -270,7 +270,12 @@ declare global {
         distinctBy<T, K>(
             this: T[] | readonly T[],
             key: (item: T, index: number, array: T[]) => K,
-            options?: { reversed?: boolean }
+            options?: { reversed?: boolean },
+        ): T[];
+
+        distinct<T>(
+            this: T[] | readonly T[],
+            options?: { reversed?: boolean },
         ): T[];
 
         awaitAll<T>(
@@ -301,7 +306,7 @@ declare global {
         ): T[];
 
         sumBy<T>(
-            this: T[],
+            this: T[] | readonly T[],
             callback: (value: T, index: number, array: T[]) => number,
         ): number;
 
@@ -360,6 +365,11 @@ declare global {
             key: (item: T, index: number, array: T[]) => K,
             options?: { reversed?: boolean }
         ): T[];
+
+        sumBy<T>(
+            this: T[] | readonly T[],
+            callback: (value: T, index: number, array: T[]) => number,
+        ): number;
 
         toggle<T>(
             this: T[] | readonly T[],
@@ -440,6 +450,13 @@ Array.prototype.distinctBy = function <T, K>(
     ]);
 };
 
+Array.prototype.distinct = function <T>(
+    this: T[],
+    { reversed = false }: { reversed?: boolean } = {}
+) {
+    return this.distinctBy(it => it, { reversed }) as T[];
+}
+
 Array.prototype.window = function <T>(
     this: T[],
     size: number,
@@ -487,7 +504,7 @@ Array.prototype.toggle = function <T>(
 };
 
 Array.prototype.sumBy = function(callback) {
-    return this.reduce((sum, v, i, a) => sum + callback(v, i, a), 0);
+    return [...this].reduce((sum, v, i, a) => sum + callback(v, i, a), 0);
 } as typeof Array.prototype.sumBy;
 
 Array.prototype.last = function() {
@@ -496,12 +513,12 @@ Array.prototype.last = function() {
 
 declare global {
     interface String {
-        toNumber: (radix?: number) => number;
+        toNumber: () => number;
     }
 }
 
-String.prototype.toNumber = function(this: string, radix?: number) {
-    return parseInt(this, radix);
+String.prototype.toNumber = function(this: string) {
+    return Number(this);
 };
 
 // TLM

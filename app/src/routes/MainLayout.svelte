@@ -15,9 +15,11 @@
     import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { dev } from '$app/environment';
     import { page } from '$app/state';
-    import { preferredLanguage } from '$lib/languages';
+    import { preferredLanguage, setUserPreferredLanguage } from '$lib/languages';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import type { EventHandler } from 'svelte/elements';
+    import TableOfContents from '$lib/components/TableOfContents.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     interface Props {
         data: LayoutData;
@@ -49,16 +51,17 @@
         processGoto(page.url);
     });
 
-    onMount(async () => {
-    });
-    onMount(async () => {
-        const currentLangLength = data.languageCode?.length ?? -1;
-        const path = page.url.pathname.slice(currentLangLength + 1);
-        if (path == '') {
+    const currentLangLength = $derived(data.isLanguageFromUrl ? data.languageCode?.length ?? -1 : -1);
+    const path = $derived(page.url.pathname.slice(currentLangLength + 1));
+
+    const fixUrl = async () => {
+        if (path == '/') {
             const isLoggedIn = await checkAuth();
-            await goto(relUrl(isLoggedIn ? initialRouteLoggedIn : initialRouteLoggedOut));
+            const route = isLoggedIn ? initialRouteLoggedIn : initialRouteLoggedOut;
+            const lang = data.isLanguageFromUrl ? data.languageCode : '?';
+            return await goto(relUrl(route, lang));
         }
-        if (!data.isLanguageFromUrl) await goto(
+        if (!data.isLanguageFromUrl) return await goto(
             '/' +
             preferredLanguage() +
             path +
@@ -66,6 +69,11 @@
             page.url.hash,
             { replaceState: true, invalidateAll: true },
         );
+        setUserPreferredLanguage(data.languageCode)
+    };
+    $effect(() => {
+        page.url;
+        fixUrl();
     });
 
     let error = $state<{ name: string; message: string; fileName: any; lineNumber: any; columnNumber: any }>();
@@ -95,7 +103,7 @@
     {:else}
         <div class="alert alert-danger m-3 d-flex flex-column gap-3">
             <div class="d-flex align-items-center gap-3">
-                <span class="material-icons">error_outline</span>
+                <Icon icon="error_outline" />
                 <h4 class="alert-heading m-0">{error.name}</h4>
             </div>
             <p class="m-0">
@@ -123,18 +131,27 @@
                      style="transition: width 5s;"
                 ></div>
             </div>
-            <div class="container mt-2 d-flex flex-column gap-3">
-                <h1 class="m-0 d-flex align-items-center gap-3">
-                    {#if $backButton}
-                        <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}
-                                style="margin: -2rem 0">
-                            <span class="material-icons fs-1">arrow_back</span>
-                        </button>
-                    {/if}
-                    {$title}
-                </h1>
-                {@render children?.()}
-            </div>
+            <main class="container d-flex gap-3">
+                <div class="mt-3 d-flex flex-column gap-3 w-100">
+                    <h1 id="main-title" class="m-0 d-flex align-items-center gap-3">
+                        {#if $backButton}
+                            <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}
+                                    style="margin: -2rem 0">
+                                <Icon icon="arrow_back" class="fs-1" />
+                            </button>
+                        {/if}
+                        {$title}
+                    </h1>
+                    {@render children?.()}
+                </div>
+                {#if page.route.id?.includes('[form]') && !page.error}
+                    {#key page.url.pathname + page.url.search}
+                        <div class="d-none d-md-block position-sticky top-0 pt-3 end-0 h-100 toc">
+                            <TableOfContents {t} />
+                        </div>
+                    {/key}
+                {/if}
+            </main>
         </div>
     </div>
 {/await}

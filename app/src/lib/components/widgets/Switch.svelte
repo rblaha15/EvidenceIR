@@ -12,9 +12,9 @@
     const value = $derived(widget.bindableValue(data));
 </script>
 
-<div class="d-flex gap-1 flex-column">
-    <div class="input-group flex-nowrap" style="width: min-content">
-        <span class="input-group-text" style="width: max-content">{widget.label(t, data)}</span>
+<div class="d-flex gap-1 flex-column align-items-start">
+    <div class="input-group d-flex flex-nowrap">
+        <span class="input-group-text">{widget.label(t, data)}</span>
         {#each widget.options(t) as option, i}
             <input
                 type="radio"

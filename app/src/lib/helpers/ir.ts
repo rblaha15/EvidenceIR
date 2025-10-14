@@ -181,7 +181,7 @@ export const extractSPIDFromRawData = (zasah: Raw<GenericFormSP<never>['zasah']>
     const datum = zasah.datum.split('T')[0];
     const hodina = zasah.datum.split('T')[1].split(':')[0];
     const minuta = zasah.datum.split('T')[1].split(':')[1];
-    const technik = zasah.inicialy;
+    const technik = zasah.inicialy.trim();
     return `${technik}-${datum}-${hodina}-${minuta}`;
 };
 

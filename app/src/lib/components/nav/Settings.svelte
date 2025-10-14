@@ -8,6 +8,9 @@
     import { currentPreferredDocumentLanguage, type LanguageCode, setUserPreferredLanguage } from '$lib/languages';
     import { goto } from '$app/navigation';
     import { setUserPreferredDocumentLanguage } from '$lib/languages.js';
+    import { hideNav } from '$lib/helpers/globals';
+    import { clearLocalDatabase } from '$lib/client/offline.svelte';
+    import { clearOfflineQueue } from '$lib/client/offlineQueue.svelte';
 
     const { t }: { t: Translations } = $props();
     const ts = $derived(t.nav.settings);
@@ -15,6 +18,9 @@
     const clearAll = async () => {
         localStorage.clear();
         await removeAllFiles();
+        await clearLocalDatabase();
+        await clearOfflineQueue();
+        await (await caches.keys()).map(name => caches.delete(name)).awaitAll();
         location.reload();
     };
 
@@ -35,11 +41,13 @@
             return redirect(code);
         }} selected={page.data.languageCode} />
     </div>
-    <div class="d-flex align-items-center"><span class="me-1">{ts.defaultDocumentLanguage}:</span>
-        <LanguageSelector onChange={code => {
-            setUserPreferredDocumentLanguage(code);
-        }} selected={$currentPreferredDocumentLanguage ?? '—'} />
-    </div>
+    {#if !$hideNav}
+        <div class="d-flex align-items-center"><span class="me-1">{ts.defaultDocumentLanguage}:</span>
+            <LanguageSelector onChange={code => {
+                setUserPreferredDocumentLanguage(code);
+            }} selected={$currentPreferredDocumentLanguage ?? '—'} />
+        </div>
+    {/if}
     <div>{@html ts.didYouFindMistakesInTranslationsHtml}</div>
 </div>
 
@@ -52,8 +60,10 @@
     })}</p>
 </div>
 
-<div class="alert alert-warning">
-    <h4 class="alert-heading">{ts.clearBrowserData}</h4>
-    <p>{ts.clearDataInfo}</p>
-    <button class="btn btn-warning btn-sm" onclick={clearAll}>{ts.clearBrowserData}</button>
-</div>
+{#if !$hideNav}
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">{ts.clearBrowserData}</h4>
+        <p>{ts.clearDataInfo}</p>
+        <button class="btn btn-warning btn-sm" onclick={clearAll}>{ts.clearBrowserData}</button>
+    </div>
+{/if}

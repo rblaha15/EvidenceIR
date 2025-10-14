@@ -1,7 +1,5 @@
 import {
     getIsOnline,
-    type SparePart,
-    sparePartsList,
     startSparePartsListening,
     startTechniciansListening,
     type Technician,
@@ -17,13 +15,14 @@ import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { nowISO } from '$lib/helpers/date';
 import { currentUser } from '$lib/client/auth';
 import { cellsSP } from '$lib/forms/SP/cellsSP';
-import { type FormSP } from '$lib/forms/SP/formSP.svelte';
+import { type DataSP, type FormSP } from '$lib/forms/SP/formSP.svelte';
 import defaultSP from '$lib/forms/SP/defaultSP';
 import type { FormInfo } from '$lib/forms/FormInfo';
+import { dataToRawData, type Raw } from '$lib/forms/Form';
 
 const infoSP = (() => {
     let i = $state() as number;
-    const info: FormInfo<FormSP, FormSP, [[Technician[], User | null]], 'SP'> = {
+    const info: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP'> = {
         type: 'IR',
         storeName: () => 'stored_sp',
         defaultData: () => defaultSP(),
@@ -81,24 +80,26 @@ const infoSP = (() => {
         },
         showSaveAndSendButtonByDefault: true,
         isSendingEmails: true,
-        createWidgetData: (_, p) => p,
+        createWidgetData: (_, p, ir) => ({
+            ...p, ...ir, raw: dataToRawData<FormSP, Raw<FormSP>>(p), form: p,
+        }),
         title: (t, mode) =>
             mode == 'edit' ? t.sp.editSP : t.sp.title,
         onMount: async (d, p, _, ir) => {
             await startTechniciansListening();
             await startSparePartsListening();
-            if (!p.zasah.datum.value)
+            if (!p.zasah.datum.value) // Also in NSP
                 p.zasah.datum.setValue(d, nowISO());
-            if (!p.zasah.datumUvedeni.value && ir.uvedeniTC?.uvadeni?.date) {
-                p.zasah.datumUvedeni.setValue(d, ir.uvedeniTC.uvadeni.date);
+            if (!p.system.datumUvedeni.value && ir.uvedeniTC?.uvadeni?.date) {
+                p.system.datumUvedeni.setValue(d, ir.uvedeniTC.uvadeni.date);
             }
         },
         storeEffects: [
-            [(_, p, [$techniciansList, $currentUser], edit) => { // Also in NSP
+            [(d, p, [$techniciansList, $currentUser], edit) => { // Also in NSP
                 const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
-                if (!p.zasah.clovek.value) p.zasah.clovek.setValue(p, ja?.name ?? p.zasah.clovek.value);
+                if (!p.zasah.clovek.value) p.zasah.clovek.setValue(d, ja?.name ?? p.zasah.clovek.value);
                 p.zasah.clovek.show = () => p.zasah.clovek.value != ja?.name;
-                if (!p.zasah.inicialy.value) p.zasah.inicialy.setValue(p, ja?.initials ?? p.zasah.inicialy.value);
+                if (!p.zasah.inicialy.value) p.zasah.inicialy.setValue(d, ja?.initials ?? p.zasah.inicialy.value);
                 p.zasah.inicialy.show = () => p.zasah.inicialy.value != ja?.initials;
             }, [techniciansList, currentUser]],
         ],

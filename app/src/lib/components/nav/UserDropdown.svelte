@@ -1,10 +1,13 @@
 <script lang="ts">
     import authentication from '$lib/client/authentication.js';
     import { page } from '$app/state';
-    import { currentUser, logOut } from '$lib/client/auth.js';
+    import { currentUser, isUserAdmin, logOut } from '$lib/client/auth.js';
     import { responsiblePerson } from '$lib/client/realtime';
     import type { Translations } from '$lib/translations';
     import { goto } from '$app/navigation';
+    import { aA } from '$lib/helpers/stores';
+    import { relUrl } from '$lib/helpers/runes.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t }: { t: Translations } = $props();
     const ta = $derived(t.auth);
@@ -24,40 +27,43 @@
 
 <div class="dropdown ms-3">
     <button aria-label="User" class="btn btn-link nav-link" data-bs-toggle="dropdown">
-        <span class="material-icons fs-2">account_circle</span>
+        <Icon icon="account_circle" class="fs-2" />
     </button>
-    <ul class="dropdown-menu dropdown-menu-end">
-        {#if $currentUser?.displayName}
-            <li>
-                <span class="dropdown-item-text">
+    <div class="dropdown-menu dropdown-menu-end">
+        <div class="d-flex flex-column gap-3 px-3 pt-1">
+            {#if $currentUser?.displayName}
+                <h5 class="m-0">
                     {$currentUser?.displayName}
-                </span>
-            </li>
-        {/if}
-        <li>
-            <span class="dropdown-item-text">
+                </h5>
+            {/if}
+            <span>
                 {ta.email}:<br />{loggedInEmail}
             </span>
-        </li>
-        {#if $responsiblePerson}
-            <li>
-                <span class="dropdown-item-text">
+            {#if $responsiblePerson}
+                <span>
                     {ta.responsiblePerson}:<br />{$responsiblePerson}
                 </span>
-            </li>
-        {/if}
-        <li>
-            <hr class="dropdown-divider" />
-        </li>
-        <li>
-            <button class="dropdown-item text-warning" onclick={changePassword}>
+            {/if}
+        </div>
+        <hr class="my-3" />
+        <div class="d-flex flex-column gap-1 px-3 align-items-start">
+            <button class="btn btn-warning" onclick={changePassword}>
+                <Icon icon="password" />
                 {ta.changePassword}
             </button>
-        </li>
-        <li>
-            <button class="dropdown-item text-danger" onclick={logOut}>
+            <button class="btn btn-danger" onclick={logOut}>
+                <Icon icon="logout" />
                 {ta.toLogOut}
             </button>
-        </li>
-    </ul>
+        </div>
+        {#if $isUserAdmin}
+            <hr class="my-3" />
+            <div class="px-3 pb-1">
+                <a class="btn btn-info" href={relUrl('/admin')}>
+                    <Icon icon="admin_panel_settings" />
+                    Admin{$aA}
+                </a>
+            </div>
+        {/if}
+    </div>
 </div>

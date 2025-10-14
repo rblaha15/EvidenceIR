@@ -7,7 +7,7 @@ import {
     SwitchWidget,
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
-import { todayISO } from '$lib/helpers/date';
+import { dayISO } from '$lib/helpers/date';
 import { type FormUPS } from '$lib/forms/UPS/formUPS';
 
 const newYesNoWidget = <D>(args: {
@@ -26,7 +26,7 @@ const newYesNoWidget = <D>(args: {
 
 export default (): FormUPS => ({
     sol: {
-        nadpis: new TitleWidget({ text: t => t.sol.solarSystem }),
+        nadpis: new TitleWidget({ text: t => t.sol.solarSystem, level: 2 }),
         orientace: new InputWidget({ label: t => t.sol.collectorFieldOrientation }),
         sklon: new InputWidget({ label: t => t.sol.collectorSlope }),
         zasobnik: new InputWidget({ label: t => t.sol.storageTankType }),
@@ -50,7 +50,7 @@ export default (): FormUPS => ({
         izolacePotrubi: new CheckboxWidget({ label: t => t.sol.pipesIsolated }),
     },
     uvadeni: {
-        nadpis: new TitleWidget({ text: t => t.sol.commissioningSteps }),
+        nadpis: new TitleWidget({ text: t => t.sol.commissioningSteps, level: 2 }),
         tlakDoba: new CheckboxWidget({ label: t => t.sol.pressureCheckTime }),
         tlakTlak: new CheckboxWidget({ label: t => t.sol.pressureCheckPressure }),
         tlakUbytek: new CheckboxWidget({ label: t => t.sol.pressureCheckLoss }),
@@ -59,6 +59,6 @@ export default (): FormUPS => ({
         podminky: new CheckboxWidget({ label: t => t.sol.conditionsMet }),
         regulator: new CheckboxWidget({ label: t => t.sol.solarControllerSet }),
         vlastnik: new CheckboxWidget({ label: t => t.sol.ownerInformed }),
-        date: new InputWidget({ label: t => t.sol.dateOfCommission, type: 'date', text: todayISO() }),
+        date: new InputWidget({ label: t => t.sol.dateOfCommission, type: 'date', text: dayISO() }),
     },
 });

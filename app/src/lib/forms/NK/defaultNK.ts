@@ -30,7 +30,7 @@ const pool = (d: FormNK) => hp(d) && d.system.wantsPool.value;
 
 export default (): FormNK => ({
     contacts: {
-        title: new TitleWidget({ text: t => t.nk.contacts.contacts }),
+        title: new TitleWidget({ text: t => t.nk.contacts.contacts, level: 2 }),
         demandOrigin: new ChooserWidget({ options: origins.keys(), label: t => t.nk.contacts.demandOrigin, labels: t => t.nk.contacts.origins, }),
         demandSubject: new MultiCheckboxWidget({
             options: [`heatPump`, `fve`], label: t => t.nk.contacts.demandSubject, required: false, labels: t => t.nk.contacts.subjects,
@@ -61,8 +61,8 @@ export default (): FormNK => ({
         note: new InputWidget({ required: false, label: t => t.nk.note }),
     },
     photovoltaicPowerPlant: {
-        title: new TitleWidget({ show: fve, text: t => t.nk.fve.fve }),
-        titleCurrent: new TitleWidget({ show: fve, text: t => t.nk.fve.currentSituation }),
+        title: new TitleWidget({ show: fve, text: t => t.nk.fve.fve, level: 2 }),
+        titleCurrent: new TitleWidget({ show: fve, text: t => t.nk.fve.currentSituation, level: 3 }),
         currentHeating: new InputWidget({ show: fve, required: false, label: t => t.nk.fve.currentHeating }),
         currentHotWater: new InputWidget({ show: fve, required: false, label: t => t.nk.fve.currentHotWater }),
         currentTanks: new InputWidget({ show: fve, required: false, label: t => t.nk.fve.currentTanks }),
@@ -70,7 +70,7 @@ export default (): FormNK => ({
         breakerSize: new InputWidget({ show: fve, required: false, label: t => t.nk.fve.breakerSize }),
         tariff: new InputWidget({ show: fve, required: false, label: t => t.nk.fve.tariff }),
         breakerBoxLocation: new InputWidget({ show: fve, required: false, label: t => t.nk.fve.breakerBoxLocation }),
-        titleRequirements: new TitleWidget({ show: fve, text: t => t.nk.fve.requirements }),
+        titleRequirements: new TitleWidget({ show: fve, text: t => t.nk.fve.requirements, level: 3 }),
         requiredPower: new InputWidget({ show: fve, required: false, label: t => t.nk.fve.requiredPower }),
         locationBuildingType: new InputWidget({ show: fve, required: false, label: t => t.nk.fve.locationBuidingType }),
         info: new TextWidget({ show: fve, text: t => t.nk.fve.familyHouseEtc }),
@@ -116,7 +116,7 @@ export default (): FormNK => ({
         note: new InputWidget({ show: fve, required: false, label: t => t.nk.note }),
     },
     objectDetails: {
-        title: new TitleWidget({ show: hp, text: t => t.nk.objectDetail.objectDetail }),
+        title: new TitleWidget({ show: hp, text: t => t.nk.objectDetail.objectDetail, level: 2 }),
         heatLost: new InputWidget({
             show: hp, required: false, label: t => t.nk.objectDetail.heatLoss, suffix: t => t.units.kW, type: 'number', inputmode: 'decimal',
         }),
@@ -161,7 +161,7 @@ export default (): FormNK => ({
         note: new InputWidget({ show: hp, required: false, label: t => t.nk.note }),
     },
     system: {
-        title: new TitleWidget({ show: hp, text: t => t.nk.system.system }),
+        title: new TitleWidget({ show: hp, text: t => t.nk.system.system, level: 2 }),
         hPType: new RadioWidget({
             show: hp,
             required: false,
@@ -227,7 +227,7 @@ export default (): FormNK => ({
         note: new InputWidget({ show: hp, required: false, label: t => t.nk.note }),
     },
     pool: {
-        title: new TitleWidget({ show: pool, text: t => t.nk.pool.pool }),
+        title: new TitleWidget({ show: pool, text: t => t.nk.pool.pool, level: 2 }),
         usagePeriod: new RadioWidget({
             required: false,
             label: t => t.nk.pool.usagePeriod,
@@ -299,8 +299,8 @@ export default (): FormNK => ({
         note: new InputWidget({ show: pool, required: false, label: t => t.nk.note }),
     },
     additionalSources: {
-        title: new TitleWidget({ show: hp, text: t => t.nk.additionalSources.sources }),
-        heatingTitle: new TitleWidget({ show: hp, text: t => t.nk.additionalSources.heating }),
+        title: new TitleWidget({ show: hp, text: t => t.nk.additionalSources.sources, level: 2 }),
+        heatingTitle: new TitleWidget({ show: hp, text: t => t.nk.additionalSources.heating, level: 3 }),
         heatingHeatingElementInStore: new CheckboxWithChooserWidget({
             required: false, label: t => t.nk.additionalSources.heatingElement, chosen: `newNeuter`, show: hp,
             options: [`existing`, `newNeuter`],
@@ -331,7 +331,7 @@ export default (): FormNK => ({
             labels: t => t.nk.additionalSources,
         }),
         heatingOther: new InputWidget({ show: hp, required: false, label: t => t.nk.additionalSources.otherSource }),
-        hotWaterTitle: new TitleWidget({ show: hp, text: t => t.nk.additionalSources.hotWater }),
+        hotWaterTitle: new TitleWidget({ show: hp, text: t => t.nk.additionalSources.hotWater, level: 3 }),
         hotWaterHeatingElementInStore: new CheckboxWithChooserWidget({
             required: false,
             label: t => t.nk.additionalSources.heatingElement,
@@ -347,7 +347,7 @@ export default (): FormNK => ({
         note: new InputWidget({ show: hp, required: false, label: t => t.nk.note }),
     },
     accessories: {
-        title: new TitleWidget({ text: t => t.nk.accessories.accessories }),
+        title: new TitleWidget({ text: t => t.nk.accessories.accessories, level: 2 }),
         hose: new CheckboxWithChooserWidget({
             required: false,
             label: t => t.nk.accessories.hose,
@@ -389,7 +389,7 @@ export default (): FormNK => ({
                     { text: t.koNumber!, width: .1 },
                     { text: t.email, width: .5 },
                 ],
-            }), show: false, required: true, items: d => derived([usersList, currentUser], ([$users, $currentUser]) => {
+            }), show: false, required: true, items: (_, d) => derived([usersList, currentUser], ([$users, $currentUser]) => {
                 const withKO = $users.filter(p => p.koNumber && p.responsiblePerson);
                 const me = withKO.find(t => $currentUser?.email == t.email);
                 if (me) d.other.representative.setValue(d, me);

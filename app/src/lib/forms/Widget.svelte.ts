@@ -1,7 +1,9 @@
-import { get, type Translations } from '../translations';
+import type { Translations } from '../translations';
 import type { ClassValue, FullAutoFill, HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 import type { Untranslatable } from '$lib/translations/untranslatables';
 import type { Readable } from 'svelte/store';
+import type { DataOfPdf, Pdf as PdfType, PdfParameters } from '$lib/pdf/pdf';
+import type { Form } from '$lib/forms/Form';
 
 export type GetB<D> = Get<D, boolean>;
 export type GetBOrVal<D> = GetOrVal<D, boolean>;
@@ -13,6 +15,8 @@ export type GetTP<D> = GetT<D, Promise<string> | string>;
 export type GetTPOrVal<D> = GetTOrVal<D, Promise<string> | string>;
 export type GetR<D, U> = Get<D, Readable<U>>;
 export type GetROrVal<D, U> = GetOrVal<D, Readable<U>>;
+export type GetTR<D, U> = GetT<D, Readable<U>>;
+export type GetTROrVal<D, U> = GetTOrVal<D, Readable<U>>;
 
 export type Get<D, U> = (data: D) => U;
 export type GetT<D, U = string> = (t: Translations, data: D) => U;
@@ -37,9 +41,10 @@ export const STAR = '∗';
 export const labelAndStar = <D, U>(
     widget: Required<D, U, boolean>,
     data: D,
-    t: Translations
+    t: Translations,
+    getLabel: GetT<D> = widget.label,
 ) => {
-    const label = widget.label(t, data);
+    const label = getLabel(t, data);
     return label == '' ? '' : label + (!widget.required(data) ? '' : ` ${STAR}`);
 };
 
@@ -71,8 +76,12 @@ export abstract class Widget<D = never, U = any, H extends boolean = boolean> {
         const get = () => this.value;
         const set = (value: U) => this.setValue(data, value);
         return {
-            get value() { return get(); },
-            set value(value: U) { set(value); },
+            get value() {
+                return get();
+            },
+            set value(value: U) {
+                set(value);
+            },
         };
     };
 
@@ -85,7 +94,7 @@ export abstract class Widget<D = never, U = any, H extends boolean = boolean> {
 type K = string;
 type T<I extends K> = (t: Translations) => Record<Exclude<I, Untranslatable>, string>;
 
-export type SearchItemPiece = { readonly text: string, readonly width?: number };
+export type SearchItemPiece = { readonly text: string, readonly width?: number, readonly icon?: string };
 export type SearchItem = { readonly pieces: SearchItemPiece[], readonly href?: string, disabled?: boolean };
 export type Pair<I1 extends K, I2 extends K> = { readonly first: I1 | null; readonly second: I2 | null; };
 type Sides = (t: Translations) => ([string, string]);
@@ -93,12 +102,24 @@ export type Arr<I extends K> = readonly I[];
 export type Rec<I extends K> = Record<I, number>;
 export type ChI = { readonly checked: boolean; readonly text: string; };
 export type SeI<I extends K> = { readonly chosen: I; readonly text: string; };
+export type RaI<I extends K> = { readonly chosen: I | null; readonly text: string; };
 export type SeCh<I extends K> = { readonly chosen: I | null; readonly checked: boolean; };
 export type Files = readonly { fileName: string, uuid: string }[];
+export type InlinePdfPreviewData<D, P extends PdfType> = {
+    type: P,
+    data: DataOfPdf<P>,
+    form: Form<D>,
+} & PdfParameters<P>;
+export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
+export type Color = 'warning' | 'danger' | 'primary' | 'info' | 'secondary' | 'success'
+export type BtnColor = Color | `outline-${Color}`
 
 type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H };
 type ShowArgs<D> = { show?: GetBOrVal<D>; showInXML?: GetBOrVal<D> };
 type InfoArgs<D> = { text: GetTPOrVal<D>; class?: GetOrVal<D, ClassValue | undefined>; } & ShowArgs<D>;
+type BtnArgs<D> = { text: GetTOrVal<D>; color: GetOrVal<D, BtnColor>; icon?: GetOrVal<D, string | undefined>; onClick: Get<D, void> } & ShowArgs<D>;
+type TitleArgs = { level: HeadingLevel };
+type PdfArgs<D, P extends PdfType> = { pdfData: GetT<D, InlinePdfPreviewData<D, P>> } & Omit<ShowArgs<D>, 'showInXML'>;
 type ValueArgs<D, U, H> = {
     label: GetTOrVal<D>, onError?: GetTOrVal<D>; required?: GetBOrVal<D>; onValueSet?: (data: D, newValue: U) => void
 } & HideArgs<H> & ShowArgs<D>;
@@ -108,7 +129,11 @@ type FileArgs<D> = {
 };
 type ChooserArgs<D, I extends K> = { options: GetOrVal<D, Arr<I>>; chosen?: I | null; };
 type SecondChooserArgs<I extends K> = { options: Arr<I>; chosen?: I; text?: string; };
-type DoubleChooserArgs<D, I1 extends K, I2 extends K> = { options1: GetOrVal<D, Arr<I1>>; options2: GetOrVal<D, Arr<I2>>; chosen?: Pair<I1, I2>; };
+type DoubleChooserArgs<D, I1 extends K, I2 extends K> = {
+    options1: GetOrVal<D, Arr<I1>>;
+    options2: GetOrVal<D, Arr<I2>>;
+    chosen?: Pair<I1, I2>;
+};
 type LockArgs<D> = { lock?: GetBOrVal<D>; };
 type CompactArgs<D> = { compact?: GetBOrVal<D>; };
 type DoubleLockArgs<D> = { lock1?: GetBOrVal<D>; lock2?: GetBOrVal<D>; };
@@ -116,7 +141,7 @@ type SearchArgs<D, T> = {
     getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry?: () => string;
     inline?: GetBOrVal<D>;
-    items: GetROrVal<D, T[]>;
+    items: GetTROrVal<D, T[]>;
     type?: GetOrVal<D, HTMLInputTypeAttribute>;
     enterkeyhint?: GetOrVal<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode?: GetOrVal<D, HTMLInputAttributes['inputmode']>;
@@ -127,7 +152,13 @@ type CounterArgs<D> = { chosen: number; min: GetOrVal<D, number>; max: GetOrVal<
 type CountersArgs<D, I extends K> = { counts: Rec<I>; max: GetOrVal<D, number>; };
 type CheckArgs = { checked?: boolean; };
 type SwitchArgs<D> = { hasPositivity?: GetBOrVal<D>; options: Sides };
-type MultiChooserArgs<D, I extends K> = { options: GetOrVal<D, Arr<I>>; chosen?: Arr<I>; max?: GetOrVal<D, number> } & LabelsArgs<I>;
+type MultiChooserArgs<D, I extends K> = {
+    options: GetOrVal<D, Arr<I>>;
+    chosen?: Arr<I>;
+    weights?: (d: D, i: I) => number;
+    max?: GetOrVal<D, number>;
+    inverseSelection?: boolean;
+} & LabelsArgs<I>;
 type Input1Args<D> = {
     regex?: GetOrVal<D, RegExp>;
     capitalize?: GetBOrVal<D>;
@@ -150,6 +181,9 @@ type SuggestionsArgs<D> = {
 };
 
 type Info<D, U> = Widget<D, U> & { text: GetTP<D>; class: Get<D, ClassValue | undefined>; };
+type Btn<D, U> = Widget<D, U> & { text: GetT<D>; color: Get<D, BtnColor>; icon: Get<D, string | undefined>; onClick: Get<D, void> };
+type Title<D> = Widget<D, undefined> & { level: HeadingLevel; };
+type Pdf<D, P extends PdfType> = Widget<D, undefined> & { pdfData: GetT<D, InlinePdfPreviewData<D, P>> };
 type Required<D, U, H extends boolean> = Widget<D, U, H> & { required: GetB<D>; };
 type Labels<D, U, I extends string> = Widget<D, U> & { labels: T<I>; get: (t: Translations, v: I | null) => string; };
 type File<D> = Widget<D, Files> & { multiple: GetB<D>; max: Get<D, number>; accept: Get<D, string>; };
@@ -163,7 +197,7 @@ type Search<D, T> = Widget<D, T | null> & {
     getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry: () => string;
     inline: GetB<D>;
-    items: GetR<D, T[]>;
+    items: GetTR<D, T[]>;
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode: Get<D, HTMLInputAttributes['inputmode']>;
@@ -172,7 +206,7 @@ type Search<D, T> = Widget<D, T | null> & {
 type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; };
 type Counters<D, I extends K> = Widget<D, Rec<I>> & { max: Get<D, number> };
 type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: GetB<D>; };
-type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; };
+type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; inverseSelection: boolean; weights: (d: D, i: I) => number; };
 type Input1<D, U> = Widget<D, U> & {
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
@@ -194,11 +228,28 @@ type Suggestions<D> = Widget<D, string> & {
     suggestions: GetTAOrVal<D>;
 };
 
+const get = <I extends string>(l: Record<Exclude<I, Untranslatable>, string | undefined>, v: I | null): string =>
+    v ? l[v] ?? v ?? '' : ''
+
 const initInfo = function <D, U>(widget: Info<D, U>, args: InfoArgs<D>) {
     widget.text = toGetT(args.text);
     widget.show = toGetA(args.show ?? true);
     widget.class = toGetA(args.class);
     widget.showTextValue = toGetA(args.showInXML ?? (data => widget.show(data)));
+};
+const initBtn = function <D, U>(widget: Btn<D, U>, args: BtnArgs<D>) {
+    widget.text = toGetT(args.text);
+    widget.show = toGetA(args.show ?? true);
+    widget.color = toGetA(args.color);
+    widget.icon = toGetA(args.icon);
+    widget.onClick = toGetA(args.onClick);
+};
+const initTitle = function <D, U>(widget: Title<D>, args: TitleArgs) {
+    widget.level = args.level;
+};
+const initPdf = function <D, P extends PdfType>(widget: Pdf<D, P>, args: PdfArgs<D, P>) {
+    widget.pdfData = args.pdfData;
+    widget.show = toGetA(args.show ?? true);
 };
 const initValue = function <D, U, H extends boolean>(widget: Required<D, U, H>, args: ValueArgs<D, U, H>) {
     widget.label = toGetT(args.label);
@@ -207,7 +258,8 @@ const initValue = function <D, U, H extends boolean>(widget: Required<D, U, H>, 
     widget.hideInRawData = (args.hideInRawData ?? false) as H;
     widget.onError = toGetT(args.onError ?? (t => t.widget.requiredField));
     widget.required = toGetA(args.required ?? true);
-    widget.onValueSet = args.onValueSet ?? (() => {});
+    widget.onValueSet = args.onValueSet ?? (() => {
+    });
 };
 const initFile = function <D>(widget: File<D>, args: FileArgs<D>, defaultAccept: string = '*') {
     widget.multiple = toGetA(args.multiple ?? false);
@@ -232,7 +284,7 @@ const initLock = function <D, U>(widget: Lock<D, U>, args: LockArgs<D>) {
 };
 const initLabels = function <D, U, I extends string>(widget: Labels<D, U, I>, args: LabelsArgs<I>) {
     widget.labels = args.labels ?? (() => ({}) as Record<I, string>);
-    widget.get = (t, v) => get(widget.labels(t), v)
+    widget.get = (t, v) => get(widget.labels(t), v);
 };
 const initCompact = function <D, U>(widget: Compact<D, U>, args: CompactArgs<D>) {
     widget.compact = toGetA(args.compact ?? false);
@@ -243,7 +295,7 @@ const initDoubleLock = function <D, U>(widget: DoubleLock<D, U>, args: DoubleLoc
 };
 const initSearch = function <D, T>(widget: Search<D, T>, args: SearchArgs<D, T>) {
     widget._value = args.chosen ?? null;
-    widget.items = toGetA(args.items);
+    widget.items = toGetT(args.items);
     widget.getSearchItem = args.getSearchItem;
     widget.getXmlEntry = args.getXmlEntry ?? (() => JSON.stringify(widget.value));
     widget.type = toGetA(args.type ?? 'search');
@@ -272,6 +324,8 @@ const initMultiChooser = function <D, I extends K>(widget: MultiChooser<D, I>, a
     widget._value = args.chosen ?? [];
     widget.max = toGetA(args.max ?? Number.MAX_VALUE);
     widget.options = toGetA(args.options);
+    widget.inverseSelection = Boolean(args.inverseSelection);
+    widget.weights = args.weights ?? (() => 1);
 };
 const initInput1 = function <D, U>(widget: Input1<D, U>, args: Input1Args<D>) {
     widget.regex = toGetA(args.regex ?? /.*/);
@@ -301,14 +355,17 @@ export class TitleWidget<D> extends Widget<D, undefined, true> {
     show = $state() as GetB<D>;
     showTextValue = $state() as GetB<D>;
     _value = undefined;
-    onValueSet = () => {};
+    onValueSet = () => {
+    };
     hideInRawData = true as const;
     isError = () => false;
     class = $state() as Get<D, ClassValue>;
+    level = $state() as HeadingLevel;
 
-    constructor(args: InfoArgs<D>) {
+    constructor(args: InfoArgs<D> & TitleArgs) {
         super();
         initInfo(this, args);
+        initTitle(this, args);
     }
 }
 
@@ -319,7 +376,8 @@ export class TextWidget<D> extends Widget<D, undefined, true> {
     show = $state() as GetB<D>;
     showTextValue = $state() as GetB<D>;
     _value = undefined;
-    onValueSet = () => {};
+    onValueSet = () => {
+    };
     hideInRawData = true as const;
     isError = () => false;
     class = $state() as Get<D, ClassValue>;
@@ -327,6 +385,46 @@ export class TextWidget<D> extends Widget<D, undefined, true> {
     constructor(args: InfoArgs<D>) {
         super();
         initInfo(this, args);
+    }
+}
+
+export class InlinePdfPreviewWidget<D, P extends PdfType> extends Widget<D, undefined, true> {
+    label = () => '' as const;
+    onError = () => '' as const;
+    show = $state() as GetB<D>;
+    showTextValue = () => false as const;
+    _value = undefined;
+    onValueSet = () => {
+    };
+    hideInRawData = true as const;
+    isError = () => false;
+    pdfData = $state() as GetT<D, InlinePdfPreviewData<D, P>>;
+
+    constructor(args: PdfArgs<D, P>) {
+        super();
+        initPdf(this, args);
+    }
+}
+
+export class ButtonWidget<D> extends Widget<D, undefined, true> {
+    label = () => '' as const;
+    onError = () => '' as const;
+    show = $state() as GetB<D>;
+    showTextValue = () => false as const;
+    _value = undefined;
+    onValueSet = () => {
+    };
+    hideInRawData = true as const;
+    isError = () => false;
+
+    text = $state() as GetT<D>;
+    color = $state() as Get<D, BtnColor>;
+    icon = $state() as Get<D, string | undefined>;
+    onClick = $state() as Get<D, void>;
+
+    constructor(args: BtnArgs<D>) {
+        super();
+        initBtn(this, args);
     }
 }
 
@@ -392,7 +490,7 @@ export class SearchWidget<D, T, H extends boolean = false> extends Widget<D, T |
     inline = $state() as GetB<D>;
     getSearchItem = $state() as (item: T, t: Translations) => SearchItem;
     getXmlEntry = $state() as () => string;
-    items = $state() as GetR<D, T[]>;
+    items = $state() as GetTR<D, T[]>;
     type = $state() as Get<D, HTMLInputTypeAttribute>;
     enterkeyhint = $state() as Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
@@ -447,7 +545,7 @@ export class DoubleChooserWidget<D, I1 extends K, I2 extends K, H extends boolea
     onValueSet = $state() as (data: D, newValue: Pair<I1, I2>) => void;
     hideInRawData = $state() as H;
     isError = $state(
-        a => (this.value.first == null || (this.value.second == null && this.options2(a).length)) && this.required(a)
+        a => (this.value.first == null || (this.value.second == null && this.options2(a).length)) && this.required(a),
     ) as GetB<D>;
     required = $state() as GetB<D>;
     lock1 = $state() as GetB<D>;
@@ -532,6 +630,47 @@ export class RadioWidget<D, I extends K, H extends boolean = false> extends Widg
     }
 }
 
+export class RadioWithInputWidget<D, I extends K, H extends boolean = false> extends Widget<D, RaI<I>, H> {
+    label = $state() as GetT<D>;
+    otherLabel = $state() as GetT<D>;
+    onError = $state() as GetT<D>;
+    options = $state() as Get<D, Arr<I>>;
+    show = $state() as GetB<D>;
+    showTextValue = $state() as GetB<D>;
+    hideInRawData = $state() as H;
+    _value = $state() as RaI<I>;
+    onValueSet = $state() as (data: D, newValue: RaI<I>) => void;
+    isError = $state(a => (
+        this.value.chosen == null && this.required(a)
+    ) || (
+        this.value.chosen == this.options(a).at(-1)! && (
+            this.value.text == '' || !this.regex(a).test(this.value.text)
+        )
+    )) as GetB<D>;
+    required = $state() as GetB<D>;
+    lock = $state() as GetB<D>;
+
+    type = $state() as Get<D, HTMLInputTypeAttribute>;
+    enterkeyhint = $state() as Get<D, HTMLInputAttributes['enterkeyhint']>;
+    inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
+    autocapitalize = $state() as Get<D, HTMLInputAttributes['autocapitalize']>;
+    regex = $state() as Get<D, RegExp>;
+    labels = $state() as T<I>;
+    get = $state() as ((t: Translations, v: I | null) => string);
+    capitalize = $state() as GetB<D>;
+
+    constructor(args: ValueArgs<D, RaI<I>, H> & LockArgs<D> & Input1Args<D> & Input3Args<D> & ChooserArgs<D, I> & LabelsArgs<I> & { otherLabel: GetTOrVal<D> }) {
+        super();
+        initValue(this, args);
+        initLock(this, args);
+        initInput1(this, args);
+        initLabels(this, args);
+        this.otherLabel = toGetT(args.otherLabel);
+        this.options = toGetA(args.options);
+        this._value = { chosen: args.chosen ?? null, text: args.text ?? '' };
+    }
+}
+
 export class SwitchWidget<D, H extends boolean = false> extends Widget<D, boolean, H> {
     label = $state() as GetT<D>;
     onError = $state() as GetT<D>;
@@ -568,6 +707,8 @@ export class MultiCheckboxWidget<D, I extends K, H extends boolean = false> exte
     max = $state() as Get<D, number>;
     labels = $state() as T<I>;
     get = $state() as ((t: Translations, v: I | null) => string);
+    inverseSelection = $state() as boolean;
+    weights = $state() as (d: D, i: I) => number;
 
     constructor(args: ValueArgs<D, Arr<I>, H> & MultiChooserArgs<D, I> & LockArgs<D> & LabelsArgs<I>) {
         super();
@@ -587,7 +728,7 @@ export class InputWidget<D, H extends boolean = false> extends Widget<D, string,
     _value = $state() as string;
     onValueSet = $state() as (data: D, newValue: string) => void;
     isError = $state(
-        a => (this.value == '' && this.required(a)) || (this.value != '' && !this.regex(a).test(this.value))
+        a => (this.value == '' && this.required(a)) || (this.value != '' && !this.regex(a).test(this.value)),
     ) as GetB<D>;
     required = $state() as GetB<D>;
     lock = $state() as GetB<D>;
@@ -604,7 +745,8 @@ export class InputWidget<D, H extends boolean = false> extends Widget<D, string,
     autocapitalize = $state() as Get<D, HTMLInputAttributes['autocapitalize']>;
     suffix = $state() as GetTU<D>;
     autocomplete = $state() as Get<D, FullAutoFill>;
-    updateMaskValue = $state(() => {}) as (text: string) => void;
+    updateMaskValue = $state(() => {
+    }) as (text: string) => void;
     maskOptions = $state() as Get<D, Opts>;
     regex = $state() as Get<D, RegExp>;
     capitalize = $state() as GetB<D>;
@@ -628,7 +770,7 @@ export class ScannerWidget<D, H extends boolean = false> extends InputWidget<D, 
         processScannedText?: (text: string, data: D) => string
     }) {
         super(args);
-        this.processScannedText = args.processScannedText ?? (t => t)
+        this.processScannedText = args.processScannedText ?? (t => t);
     }
 }
 
@@ -688,7 +830,7 @@ export class InputWithChooserWidget<D, I extends K, H extends boolean = false> e
     _value = $state() as SeI<I>;
     onValueSet = $state() as (data: D, newValue: SeI<I>) => void;
     isError = $state(
-        a => (this.value.text == '' && this.required(a)) || (this.value.text != '' && !this.regex(a).test(this.value.text))
+        a => (this.value.text == '' && this.required(a)) || (this.value.text != '' && !this.regex(a).test(this.value.text)),
     ) as GetB<D>;
     required = $state() as GetB<D>;
     lock = $state() as GetB<D>;
@@ -704,7 +846,8 @@ export class InputWithChooserWidget<D, I extends K, H extends boolean = false> e
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
     autocapitalize = $state() as Get<D, HTMLInputAttributes['autocapitalize']>;
     autocomplete = $state() as Get<D, FullAutoFill>;
-    updateMaskValue = $state(() => {}) as (text: string) => void;
+    updateMaskValue = $state(() => {
+    }) as (text: string) => void;
     maskOptions = $state() as Get<D, Opts>;
     regex = $state() as Get<D, RegExp>;
     capitalize = $state() as GetB<D>;
@@ -734,7 +877,7 @@ export class CheckboxWithInputWidget<D, H extends boolean = false> extends Widge
     isError = $state(
         a => (this.value.text == '' && this.required(a)) ||
             (!this.value.checked && this.required(a)) ||
-            (this.value.text != '' && !this.regex(a).test(this.value.text))
+            (this.value.text != '' && !this.regex(a).test(this.value.text)),
     ) as GetB<D>;
     required = $state() as GetB<D>;
     lock = $state() as GetB<D>;
@@ -750,7 +893,8 @@ export class CheckboxWithInputWidget<D, H extends boolean = false> extends Widge
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
     autocapitalize = $state() as Get<D, HTMLInputAttributes['autocapitalize']>;
     autocomplete = $state() as Get<D, FullAutoFill>;
-    updateMaskValue = $state(() => {}) as (text: string) => void;
+    updateMaskValue = $state(() => {
+    }) as (text: string) => void;
     maskOptions = $state() as Get<D, Opts>;
     regex = $state() as Get<D, RegExp>;
     capitalize = $state() as GetB<D>;

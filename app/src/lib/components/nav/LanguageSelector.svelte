@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { languageCodes, type LanguageCode } from '$lib/languages';
+	import { type LanguageCode, languageCodes } from '$lib/languages';
 	import { languageNames } from '$lib/translations';
+	import Icon from '$lib/components/Icon.svelte';
 
     const {
         onChange, options = languageCodes, selected,
@@ -13,7 +14,7 @@
 
 <div class="dropdown">
 	<button class="btn py-2 px-2 dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
-        <span class="material-icons">language</span>
+		<Icon icon="language" />
 		<span class="mx-1">{selected.toUpperCase()}</span>
 	</button>
 	<ul class="dropdown-menu">
@@ -27,7 +28,7 @@
 				>
 					<span class="fs-6 me-2">{code.toUpperCase()}</span>
 					{languageNames[code]}
-                    <span class="material-icons ms-auto" class:d-none={selected !== code}>check</span>
+					<Icon icon="check" class={['ms-auto', selected === code ? 'd-inline' : 'd-none']} />
 				</button>
 			</li>
 		{/each}

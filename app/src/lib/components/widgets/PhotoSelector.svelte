@@ -3,6 +3,7 @@
     import { type Files, labelAndStar, type PhotoSelectorWidget } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { getFile, addFile, removeFile } from '$lib/components/widgets/File.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     interface Props {
         t: Translations;
@@ -74,7 +75,7 @@
                         <div class="d-flex flex-column gap-3 text-center">
                             <span style="word-break: break-all">{fileName}</span>
                             <button class="btn text-danger" onclick={remove(uuid)}>
-                                <span class="material-icons">delete</span>
+                                <Icon icon="delete" />
                                 {t.widget.remove_Photo}
                             </button>
                         </div>

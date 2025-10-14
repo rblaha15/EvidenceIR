@@ -3,7 +3,7 @@
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { type IRID } from '$lib/helpers/ir';
     import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
-    import { type Translations } from '$lib/translations';
+    import { getTranslations, type Translations } from '$lib/translations';
     import db, { type IR } from '$lib/data';
     import ServiceProtocols from './ServiceProtocols.svelte';
     import { cascadePumps } from '$lib/forms/IN/infoIN';
@@ -11,6 +11,12 @@
     import { goto } from '$app/navigation';
     import ChangeIRID from './ChangeIRID.svelte';
     import { aA, aR } from '$lib/helpers/stores';
+    import RKD from './RKD.svelte';
+    import Icon from '$lib/components/Icon.svelte';
+    import { createFileUrl, downloadFile } from '../../helpers';
+    import { xmlIN } from '$lib/forms/IN/xmlIN';
+    import { rawDataToData } from '$lib/forms/Form.js';
+    import defaultIN from '$lib/forms/IN/defaultIN';
 
     const { t, ir, lang, irid }: {
         t: Translations, ir: IR, lang: LanguageCode, irid: IRID,
@@ -20,6 +26,15 @@
     const remove = async () => {
         await db.deleteIR(irid!);
         await goto(iridUrl(`/detail?deleted`), { replaceState: true });
+    };
+
+    const download = async () => {
+        const xml = xmlIN(rawDataToData(defaultIN(), ir.evidence), getTranslations('cs'));
+        const blob = new Blob([xml], {
+            type: 'application/xml',
+        });
+        const url = await createFileUrl(blob);
+        downloadFile(url, `Evidence ${irid}.xml`);
     };
 </script>
 
@@ -106,33 +121,40 @@
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${ir.evidence.koncovyUzivatel.email}`)}
                tabindex="0">
-                <span class="material-icons">attach_email</span>
+                <Icon icon="attach_email" />
                 {td.sendDocuments}
             </a>
             <a class="btn btn-primary" href={relUrl(`/IN?view-irid=${irid}`)}
                tabindex="0">
-                <span class="material-icons">preview</span>
+                <Icon icon="preview" />
                 {td.viewFilledData}
             </a>
         </div>
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#if $isUserRegulusOrAdmin}
                 <a tabindex="0" class="btn btn-info" href={iridUrl('/users')}>
-                    <span class="material-icons">people</span>
+                    <Icon icon="people" />
                     {td.usersWithAccess}{$aR}
                 </a>
             {/if}
             <ChangeIRID {ir} {irid} {t} />
             <a class="btn btn-warning" href={relUrl(`/IN?edit-irid=${irid}`)}
                tabindex="0">
-                <span class="material-icons">edit_document</span>
+                <Icon icon="edit_document" />
                 {td.editInstallationData}
             </a>
             <button class="btn btn-danger d-block"
                     data-bs-target="#deleteModal" data-bs-toggle="modal">
-                <span class="material-icons">delete_forever</span>
+                <Icon icon="delete_forever" />
                 {td.deleteThisRecord}
             </button>
+
+            {#if $isUserRegulusOrAdmin}
+                <button class="btn btn-info d-block" onclick={download}>
+                    <Icon icon="download" />
+                    {td.downloadXML}{$aR}
+                </button>
+            {/if}
 
             <div aria-hidden="true" aria-labelledby="deleteModalLabel" class="modal fade" id="deleteModal" tabindex="-1">
                 <div class="modal-dialog">
@@ -142,7 +164,7 @@
                             <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
                         </div>
                         <div class="modal-body">
-                            <span class="material-icons">delete_forever</span>
+                            <Icon icon="delete_forever" />
                             {td.confirmDeletion}
                         </div>
                         <div class="modal-footer">
@@ -153,5 +175,7 @@
                 </div>
             </div>
         </div>
+
+        <RKD {ir} {irid} {t} />
     </div>
 </div>

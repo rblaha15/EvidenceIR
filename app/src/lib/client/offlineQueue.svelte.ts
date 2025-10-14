@@ -52,7 +52,7 @@ const get = async () => {
     if (!browser) return [];
     return (await (await db!).getAll('doWhenOnlineQueue'))!;
 }
-const clear = async () => {
+export const clearOfflineQueue = async () => {
     if (!browser) return;
     stored.set([]);
     await (await db!).clear('doWhenOnlineQueue');
@@ -75,7 +75,7 @@ export const addEmailToOfflineQueue = (message: EmailMessage) => {
 
 export const processOfflineQueue = async () => {
     const current = await get();
-    await clear();
+    await clearOfflineQueue();
     await current.map(async dwo => {
         if (dwo.type === 'email') {
             const { message } = dwo;
@@ -125,6 +125,7 @@ const functions: {
     addSolarSystemCommissioningProtocol: irid => ({ ir: irNumberFromIRID(irid) }),
     addPhotovoltaicSystemCommissioningProtocol: irid => ({ ir: irNumberFromIRID(irid) }),
     updateIRUsers: irid => ({ ir: irNumberFromIRID(irid) }),
+    updateRecommendationsSettings: irid => ({ ir: irNumberFromIRID(irid) }),
     addIndependentServiceProtocol: p => ({ sp: spWholeName(p) }),
     updateIndependentServiceProtocol: p => ({ sp: spWholeName(p) }),
     deleteIndependentProtocol: spid => ({ spid }),

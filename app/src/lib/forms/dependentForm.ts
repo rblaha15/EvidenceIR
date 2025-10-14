@@ -39,7 +39,7 @@ export const removeDependency = async <
         openPdf: openPdf ? async () => ({
             ...openPdf(), irid,
         } as OpenPdfOptions<P>) : undefined,
-        createWidgetData: data => createWidgetData(ir.evidence, data),
+        createWidgetData: data => createWidgetData(ir.evidence, data, ir),
         hideBackButton: () => false,
         onMount: (d, f, m) => onMount?.(d, f, m, ir),
     };

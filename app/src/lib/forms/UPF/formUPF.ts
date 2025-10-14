@@ -20,6 +20,7 @@ export type PhotovoltaicFieldGroup = {
 
 export interface FormUPF extends Form<FormUPF> {
     fields: {
+        title: TitleWidget<FormUPF>,
         count: CounterWidget<FormUPF>,
     },
     filed1: PhotovoltaicFieldGroup,

@@ -5,8 +5,7 @@
     P extends Pdf = Pdf,
 " lang="ts">
     // noinspection ES6UnusedImports
-    import { compareRawData, type Form } from '$lib/forms/Form';
-    import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
+    import { compareRawData, dataToRawData, type Form, type Raw, rawDataToData } from '$lib/forms/Form';
     // noinspection ES6UnusedImports
     import { type Pdf } from '$lib/pdf/pdf';
     import type { Translations } from '$lib/translations';
@@ -17,11 +16,13 @@
     import { storable } from '$lib/helpers/stores';
     import { dev } from '$app/environment';
     import type { IndependentFormInfo } from '$lib/forms/FormInfo';
-    import { runLoading } from '$lib/helpers/globals.js';
+    import { refreshTOC, runLoading } from '$lib/helpers/globals.js';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
     import { goto } from '$app/navigation';
     import { generatePdfPreviewUrl } from '../../routes/[[lang]]/helpers';
     import { relUrl } from '$lib/helpers/runes.svelte';
+    import { TitleWidget } from '$lib/forms/Widget.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t, formInfo, editData, viewData }: {
         t: Translations,
@@ -83,6 +84,15 @@
 
     const list = $derived(f.getValues().flatMap(obj => obj.getValues()));
     const d = $derived(createWidgetData(f));
+
+    $effect(() => {
+        list
+            .filter(w => w instanceof TitleWidget)
+            .filter(w => w.show(d))
+            .map(w => w.text(t, d))
+            .awaitAll()
+            .then(refreshTOC);
+    });
 
     const save = (send: boolean) => async () => {
         try {
@@ -159,7 +169,7 @@
 
 {#if mode !== 'loading'}
     {#if subtitle}
-        <h3 class="m-0">{subtitle(t, mode === 'edit')}</h3>
+        <h2 class="m-0" id="form-subtitle">{subtitle(t, mode === 'edit')}</h2>
     {/if}
 
     <FormHeader readonly={mode === 'view'} excelImport={excelImport ? {
@@ -167,7 +177,7 @@
     } : undefined} pdfImport={pdfImport ? {
         ...pdfImport, onImport: onImportPdf, isDangerous, defaultData: () => dataToRawData(defaultData())
     } : undefined} store={storedData} {t} title={title(t, mode)}
-    showBackButton={mode === 'view' || !hideBackButton?.(mode === 'edit')} />
+                showBackButton={mode === 'view' || !hideBackButton?.(mode === 'edit')} />
     {#each list as _, i}
         {#if mode === 'view'}
             <ReadonlyWidget widget={list[i]} {t} data={d} />
@@ -182,7 +192,9 @@
                     <button onclick={save(false)} class="mb-auto btn btn-success">{t.form.save}</button>
                 {/if}
                 {#if !result.load && (mode === 'edit' && isSendingEmails || $showSaveAndSendButtonByDefaultStore)}
-                    <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">{t.form.saveAndSend}</button>
+                    <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">
+                        <Icon icon="send" /> {t.form.saveAndSend}
+                    </button>
                 {/if}
                 {#if result.load}
                     <div class="spinner-border text-danger"></div>

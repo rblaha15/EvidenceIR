@@ -1,18 +1,18 @@
-import {
+import type {
     ChooserWidget,
     CounterWidget,
+    InlinePdfPreviewWidget,
     InputWidget,
     MultiCheckboxWidget,
     RadioWidget,
+    RadioWithInputWidget,
     SearchWidget,
-    TextWidget,
-    TitleWidget,
 } from '$lib/forms/Widget.svelte';
 import { type SparePart } from '$lib/client/realtime';
-import { type Form } from '$lib/forms/Form';
+import { type Form, type Raw } from '$lib/forms/Form';
+import type { IR } from '$lib/data';
 
-export type SparePartWidgetGroup<D extends Form<D>> = {
-    label: TextWidget<D>,
+export type SparePartWidgetGroup<D> = {
     dil: SearchWidget<D, SparePart, true>,
     name: InputWidget<D>;
     code: InputWidget<D>;
@@ -21,29 +21,45 @@ export type SparePartWidgetGroup<D extends Form<D>> = {
     mnozstvi: InputWidget<D>,
 }
 
-export type FormSP = GenericFormSP<FormSP>
+export interface FormSP extends GenericFormSP<DataSP>, Form<DataSP> {
+}
+
+export type DataSP = IR & FormSP & {
+    raw: Raw<FormSP>
+    form: FormSP
+}
+
+export type Operation =
+    | `regulusRoute`
+    | `commissioningTC`
+    | `commissioningSOL`
+    | `commissioningFVE`
+    | `yearlyHPCheck`
+    | `yearlySOLCheck`
+    | `extendedWarranty`
+    | `installationApproval`
+    | 'withoutCode';
 
 export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
+    system: {
+        datumUvedeni: InputWidget<D>;
+        zaruka: RadioWidget<D, `warrantyCommon` | `warrantyExtended`>,
+    }
     zasah: {
         datum: InputWidget<D>,
-        datumUvedeni: InputWidget<D>;
         clovek: InputWidget<D>,
         inicialy: InputWidget<D>,
-        zaruka: RadioWidget<D, `warrantyCommon` | `warrantyExtended`>,
         nahlasenaZavada: InputWidget<D>,
-        overflowFault: TextWidget<D>;
         popis: InputWidget<D>,
-        overflowIntervention: TextWidget<D>;
+        interventionDuration: InputWidget<D>,
     },
     ukony: {
-        nadpis: TitleWidget<D>,
-        doprava: InputWidget<D>,
+        ukony: MultiCheckboxWidget<D, Operation>,
         typPrace: RadioWidget<D, `assemblyWork` | `technicalAssistance` | `technicalAssistance12`>,
-        ukony: MultiCheckboxWidget<D, `regulusRoute` | `commissioningTC` | `commissioningSOL` | `commissioningFVE` | `yearlyHPCheck` | `yearlySOLCheck` | `extendedWarranty` | `installationApproval` | 'withoutCode'>,
         doba: InputWidget<D>,
+        doprava: InputWidget<D>,
     },
     nahradniDily: {
-        nadpis: TitleWidget<D>,
         pocet: CounterWidget<D>,
     },
     nahradniDil1: SparePartWidgetGroup<D>,
@@ -55,10 +71,14 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
     nahradniDil7: SparePartWidgetGroup<D>,
     nahradniDil8: SparePartWidgetGroup<D>,
     fakturace: {
-        nadpis: TitleWidget<D>,
+        invoiceParts: MultiCheckboxWidget<D, 'work' | Operation | `transportation`>,
+        discount: InputWidget<D>,
         hotove: ChooserWidget<D, 'yes' | 'no' | 'doNotInvoice'>,
-        komu: RadioWidget<D, 'investor' | `assemblyCompany`>,
+        komu: RadioWithInputWidget<D, 'investor' | `assemblyCompany` | 'commissioningCompany' | 'otherCompany'>,
         jak: RadioWidget<D, 'onPaper' | 'electronically'>,
+    },
+    other: {
+        preview: InlinePdfPreviewWidget<D, 'NSP'>
     },
 }
 
