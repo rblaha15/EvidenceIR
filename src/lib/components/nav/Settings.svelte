@@ -20,6 +20,7 @@
         await removeAllFiles();
         await clearLocalDatabase();
         await clearOfflineQueue();
+        await (await caches.keys()).map(name => caches.delete(name)).awaitAll();
         location.reload();
     };
 
