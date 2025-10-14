@@ -29,7 +29,7 @@ const de: PlainTranslations = {
             laterAccordingToTheProtocol: `Später, gemäß Protokoll`,
         },
         chosenCompany: `Ausgewählte Firma`,
-        setToAssemblyCompany: `Auf Montagefirma einstellen`,
+        copyAssemblyCompany: `Montagefirma kopieren`,
         commissioning: `Inbetriebnahme`,
         representativeName: `Name der Kontaktperson`,
         crn: `Steuer-ID`,

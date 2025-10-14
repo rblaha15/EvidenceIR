@@ -122,7 +122,7 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     ukony: {
         _title: new TitleWidget({ text: t => t.sp.billing, level: titleLevel }),
         ukony: new MultiCheckboxWidget({
-            label: (t, d) => t.sp.operations(3 - (d.ukony.ukony.value.includes('yearlyHPCheck') && hpCount(d) > 1 ? 1 : 0) + (d.ukony.typPrace.value ? 0 : 1)),
+            label: (t, d) => reduceOperations ? t.sp.operations : t.sp.operationsMax(3 - (d.ukony.ukony.value.includes('yearlyHPCheck') && hpCount(d) > 1 ? 1 : 0) + (d.ukony.typPrace.value ? 0 : 1)),
             max: d => d.ukony.typPrace.value ? 3 : 4, required: false, options: reduceOperations ? independentOperations : operations, labels, weights: (d, i) =>
                 i == 'yearlyHPCheck' && hpCount(d) > 1 ? 2 : 1,
         }),

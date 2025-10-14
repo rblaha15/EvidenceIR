@@ -229,7 +229,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
     uvedeni: {
         _title: new TitleWidget({ text: t => t.in.commissioning, level: 4 }),
         _setAsAssembly: new ButtonWidget<D>({
-            text: t => t.in.setToAssemblyCompany, color: 'secondary',
+            text: t => t.in.copyAssemblyCompany, color: 'secondary',
             onClick: d => {
                 d.uvedeni.company.setValue(d, d.montazka.company.value);
                 d.uvedeni.ico.setValue(d, d.montazka.ico.value);
