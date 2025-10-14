@@ -10,7 +10,7 @@
 
     let { t, widget = $bindable(), data }: Props = $props();
 
-    const weights = $derived(widget.weights);
+    const weights = $derived((i: I) => widget.weights(data, i));
     const count = $derived(widget.value.sumBy(weights));
     const options = $derived(widget.options(data));
     const value = $derived({

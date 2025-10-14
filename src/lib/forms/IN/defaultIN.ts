@@ -122,7 +122,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
     },
     bydliste: {
-        _title: new TitleWidget({ text: (t, d) => jeFO(d) ? t.in.residence : t.in.headquarters, level: 3 }),
+        _title: new TitleWidget({ text: (t, d) => jeFO(d) ? t.in.residence : t.in.headquarters, level: 4 }),
         ulice: new InputWidget({
             label: t => t.in.street,
             autocomplete: `section-user billing street-address`,
@@ -139,9 +139,9 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
     },
     mistoRealizace: {
-        _title: new TitleWidget({ text: t => t.in.realizationLocation, level: 3 }),
+        _title: new TitleWidget({ text: t => t.in.realizationLocation, level: 4 }),
         _setAsResidence: new ButtonWidget<D>({
-            text: (t, d) => jeFO(d) ? t.in.setPlaceAsResidence : t.in.setPlaceAsHeadquarters,
+            text: (t, d) => jeFO(d) ? t.in.copyResidence : t.in.copyHeadquarters,
             color: 'secondary', onClick: d => {
                 d.mistoRealizace.obec.setValue(d, d.bydliste.obec.value);
                 d.mistoRealizace.psc.setValue(d, d.bydliste.psc.value);
@@ -168,7 +168,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
     },
     montazka: {
         _titleCompanies: new TitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
-        _title: new TitleWidget({ text: t => t.in.assemblyCompany, level: 3 }),
+        _title: new TitleWidget({ text: t => t.in.assemblyCompany, level: 4 }),
         company: new SearchWidget<D, Company, true>({
             items: t => derived(assemblyCompanies, c => [unknownCompany(t), ...c]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
@@ -227,7 +227,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
     },
     uvedeni: {
-        _title: new TitleWidget({ text: t => t.in.commissioning, level: 3 }),
+        _title: new TitleWidget({ text: t => t.in.commissioning, level: 4 }),
         _setAsAssembly: new ButtonWidget<D>({
             text: t => t.in.setToAssemblyCompany, color: 'secondary',
             onClick: d => {
@@ -382,7 +382,7 @@ const heatPump = <const I extends TC>(i: I) => ({
 export default (): FormIN => ({
     ir: {
         nadpisSystem: new TitleWidget({ text: t => t.in.system, level: 2 }),
-        nadpis: new TitleWidget({ text: t => t.in.controller, level: 3 }),
+        nadpis: new TitleWidget({ text: t => t.in.controller, level: 4 }),
         typ: new DoubleChooserWidget({ // Code partially duplicated in ChangeIRID.svelte
             label: t => t.in.controllerType,
             options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
@@ -515,7 +515,7 @@ export default (): FormIN => ({
     tc: {
         nadpis: new TitleWidget({
             text: (t, d) => d.tc.pocet.value > 1 ? t.in.heatPumps : t.in.device.heatPump,
-            show: tc, level: 3,
+            show: tc, level: 4,
         }),
         poznamka: new TextWidget({
             text: t => t.in.pleaseFillInIrType, showInXML: false,
@@ -551,7 +551,7 @@ export default (): FormIN => ({
     },
     sol: {
         title: new TitleWidget({
-            text: t => t.in.device.solarCollector, show: sol, level: 3
+            text: t => t.in.device.solarCollector, show: sol, level: 4
         }),
         typ: new InputWidget({
             label: t => t.in.solarCollectorType, required: sol, show: sol,
@@ -561,7 +561,7 @@ export default (): FormIN => ({
         }),
     },
     rek: {
-        title: new TitleWidget({ text: t => t.in.device.ventilation, show: rek, level: 3 }),
+        title: new TitleWidget({ text: t => t.in.device.ventilation, show: rek, level: 4 }),
         typ: new InputWidget({
             label: t => t.in.recoveryVentilationUnitType,
             required: rek, show: rek,
@@ -570,7 +570,7 @@ export default (): FormIN => ({
     fve: {
         title: new TitleWidget({
             text: t => t.in.photovoltaicSystem,
-            show: fve, level: 3
+            show: fve, level: 4
         }),
         typ: new ChooserWidget({
             label: t => t.in.panelType, chosen: 'DG-450-B',
@@ -610,7 +610,7 @@ export default (): FormIN => ({
     jine: {
         title: new TitleWidget({
             text: t => t.in.device.other,
-            show: other, level: 3
+            show: other, level: 4
         }),
         popis: new InputWidget({
             label: t => t.in.description, required: other, show: other,

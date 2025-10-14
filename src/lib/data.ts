@@ -126,12 +126,13 @@ const mergedStore = (name: GetAsStoreFunction, args: Parameters<Database[GetAsSt
         // @ts-expect-error TS doesn't know it's a tuple
         return db[name](...args) as GetAsStoreFunctionReturnType;
     },
-    (_, $isOnline) =>
-        console.log('Got value from the', name, 'store from the', $isOnline ? 'online' : 'offline', 'database'),
+    (_, $isOnline) => {
+        // console.log('Got value from the', name, 'store from the', $isOnline ? 'online' : 'offline', 'database')
+    },
 );
 
 const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>): ReturnType<Database[F]> => {
-    console.log('Executing', name, 'with args', ...args);
+    // console.log('Executing', name, 'with args', ...args);
 
     if (isGetAsStoreFunction(name)) {
         return mergedStore(name, args as Parameters<Database[GetAsStoreFunction]>) as ReturnType<Database[F]>;

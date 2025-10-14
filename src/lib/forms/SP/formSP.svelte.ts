@@ -51,6 +51,7 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
         inicialy: InputWidget<D>,
         nahlasenaZavada: InputWidget<D>,
         popis: InputWidget<D>,
+        interventionDuration: InputWidget<D>,
     },
     ukony: {
         ukony: MultiCheckboxWidget<D, Operation>,
@@ -70,11 +71,11 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
     nahradniDil7: SparePartWidgetGroup<D>,
     nahradniDil8: SparePartWidgetGroup<D>,
     fakturace: {
-        hotove: ChooserWidget<D, 'yes' | 'no' | 'doNotInvoice'>,
-        komu: RadioWithInputWidget<D, 'investor' | `assemblyCompany` | 'otherCompany'>,
-        jak: RadioWidget<D, 'onPaper' | 'electronically'>,
         invoiceParts: MultiCheckboxWidget<D, 'work' | Operation | `transportation`>,
         discount: InputWidget<D>,
+        hotove: ChooserWidget<D, 'yes' | 'no' | 'doNotInvoice'>,
+        komu: RadioWithInputWidget<D, 'investor' | `assemblyCompany` | 'commissioningCompany' | 'otherCompany'>,
+        jak: RadioWidget<D, 'onPaper' | 'electronically'>,
     },
     other: {
         preview: InlinePdfPreviewWidget<D, 'NSP'>

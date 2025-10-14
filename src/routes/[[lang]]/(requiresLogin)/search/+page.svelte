@@ -22,7 +22,7 @@
         getSearchItem: i => ({
             href: i.t == 'SP' ? detailSpUrl(i.id) : detailIrUrl(i.id),
             pieces: [
-                { text: i.name, width: .4, icon: i.t == 'SP' ? 'format_list_bulleted' : 'maps_home_work' },
+                { text: i.name, width: .4 },
                 { text: i.label, width: .6 },
             ] as const,
         }),

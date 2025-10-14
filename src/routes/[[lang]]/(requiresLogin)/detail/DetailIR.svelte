@@ -150,7 +150,7 @@
             </button>
             <button class="btn btn-info d-block" onclick={download}>
                 <Icon icon="download" />
-                {td.downloadXML}
+                {td.downloadXML}{$aR}
             </button>
 
             <div aria-hidden="true" aria-labelledby="deleteModalLabel" class="modal fade" id="deleteModal" tabindex="-1">

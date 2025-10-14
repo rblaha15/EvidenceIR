@@ -15,7 +15,7 @@
     import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { dev } from '$app/environment';
     import { page } from '$app/state';
-    import { preferredLanguage } from '$lib/languages';
+    import { preferredLanguage, setUserPreferredLanguage } from '$lib/languages';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import type { EventHandler } from 'svelte/elements';
     import TableOfContents from '$lib/components/TableOfContents.svelte';
@@ -51,16 +51,17 @@
         processGoto(page.url);
     });
 
-    onMount(async () => {
-    });
-    onMount(async () => {
-        const currentLangLength = data.isLanguageFromUrl ? data.languageCode?.length ?? -1 : -1;
-        const path = page.url.pathname.slice(currentLangLength + 1);
-        if (path == '') {
+    const currentLangLength = $derived(data.isLanguageFromUrl ? data.languageCode?.length ?? -1 : -1);
+    const path = $derived(page.url.pathname.slice(currentLangLength + 1));
+
+    const fixUrl = async () => {
+        if (path == '/') {
             const isLoggedIn = await checkAuth();
-            await goto(relUrl(isLoggedIn ? initialRouteLoggedIn : initialRouteLoggedOut));
+            const route = isLoggedIn ? initialRouteLoggedIn : initialRouteLoggedOut;
+            const lang = data.isLanguageFromUrl ? data.languageCode : '?';
+            return await goto(relUrl(route, lang));
         }
-        if (!data.isLanguageFromUrl) await goto(
+        if (!data.isLanguageFromUrl) return await goto(
             '/' +
             preferredLanguage() +
             path +
@@ -68,6 +69,11 @@
             page.url.hash,
             { replaceState: true, invalidateAll: true },
         );
+        setUserPreferredLanguage(data.languageCode)
+    };
+    $effect(() => {
+        page.url;
+        fixUrl();
     });
 
     let error = $state<{ name: string; message: string; fileName: any; lineNumber: any; columnNumber: any }>();
