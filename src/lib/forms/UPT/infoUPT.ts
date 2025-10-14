@@ -9,6 +9,7 @@ import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { DataUPT, FormUPT } from '$lib/forms/UPT/formUPT';
+import { saveRKD } from '$lib/forms/RKD/formRKD';
 
 const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
     type: 'IR',
@@ -17,8 +18,9 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
     openPdf: () => ({
         link: 'UPT',
     }),
-    saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
+    saveData: async (irid, raw, _, f, editResult, t, __, ir) => {
         await db.addHeatPumpCommissioningProtocol(irid, raw);
+        await saveRKD(ir, f.checkRecommendations)
         if (await checkRegulusOrAdmin()) return;
 
         const user = get(currentUser)!;
@@ -38,7 +40,7 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
         return false;
     },
     showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
-    createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence }),
+    createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, rkd: uvedeni.checkRecommendations }),
     title: t => t.tc.title,
 });
 

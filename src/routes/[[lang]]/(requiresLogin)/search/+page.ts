@@ -55,7 +55,7 @@ export const load: PageLoad = async ({ parent }) => {
                 .map(([label, sps]) => ({
                     t: 'SP',
                     id: sps.map(sp => extractSPIDFromRawData(sp.zasah)),
-                    name: sps.length == 1 ? spName(sps[0].zasah) : sps.length < 4 ? ts.nFewProtocols({ n: `${sps.length}` }) : ts.nMoreProtocols({ n: `${sps.length}` }),
+                    name: sps.length == 1 ? spName(sps[0].zasah) : ts.nProtocols(sps.length, sps.map(sp => sp.zasah.inicialy.trim()).distinct().join(', ')),
                     label: label,
                 } satisfies Installation_PublicServiceProtocol)),
         );

@@ -1,6 +1,6 @@
 // noinspection JSNonASCIINames
 
-import { dateFromISO, todayISO } from '$lib/helpers/date';
+import { dateFromISO, dayISO } from '$lib/helpers/date';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import { endUserName } from '$lib/helpers/ir';
 import { range } from '$lib/extensions';
@@ -24,7 +24,7 @@ const pdfUPF: GetPdfData<'UPF'> = async ({ data: { evidence: e, uvedeniFVE, }, t
 /*    uvadecOsoba */ Text7: e.uvedeni.zastupce,
 /*      uvadecTel */ Text8: e.uvedeni.telefon,
 /*    uvadecEmail */ Text9: e.uvedeni.email,
-/*          datum */ Text10: dateFromISO(u.commissioning.date ?? todayISO()),
+/*          datum */ Text10: dateFromISO(u.commissioning.date ?? dayISO()),
         'Kombinované pole19': get(t.in.fve, e.fve.typ!),
         'Kombinované pole20': '450',
         Text11: e.fve.pocet,

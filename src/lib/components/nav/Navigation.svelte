@@ -3,23 +3,25 @@
     import { isOnline } from '$lib/client/realtime';
     import type { Translations } from '$lib/translations';
     import BaseNav from './BaseNav.svelte';
-    import LanguageSelector from './LanguageSelector.svelte';
-    import Settings from '$lib/components/nav/Settings.svelte';
     import UserDropdown from '$lib/components/nav/UserDropdown.svelte';
     import LoggedOutButtons from '$lib/components/nav/LoggedOutButtons.svelte';
     import { readableQueue } from '$lib/client/offlineQueue.svelte';
     import QueueModal from '$lib/components/nav/QueueModal.svelte';
     import SettingsModal from '$lib/components/nav/SettingsModal.svelte';
+    import { page } from '$app/state';
+    import TableOfContents from '$lib/components/TableOfContents.svelte';
+    import { hideNav } from '$lib/helpers/globals';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t }: { t: Translations } = $props();
-    const tn = $derived(t.nav)
+    const tn = $derived(t.nav);
 
     const isLoggedIn = $derived($currentUser != null);
 </script>
 
 {#snippet settings()}
     <button aria-label="Settings" class="btn btn-link nav-link ms-3" data-bs-target="#settings" data-bs-toggle="modal">
-        <span class="material-icons fs-2">settings</span>
+        <Icon icon="settings" class="fs-2" />
     </button>
 {/snippet}
 {#snippet queue()}
@@ -27,20 +29,35 @@
         <div class="ms-3">
             <button aria-label="Offline queue" class="btn btn-link nav-link text-warning-emphasis" data-bs-target="#queue"
                     data-bs-toggle="modal">
-                <span class="material-icons fs-2">sync_problem</span>
+                <Icon icon="sync_problem" class="fs-2" />
             </button>
         </div>
     {/if}
 {/snippet}
+{#snippet buttons()}
+    {@render queue()}
+    {@render settings()}
+    <UserDropdown {t} />
+{/snippet}
 {#snippet header()}
-    <!--suppress CheckImageSize -->
-    <img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
-    <span class="navbar-brand fw-semibold">{tn.appName}</span>
+    {#snippet header()}
+        <!--suppress CheckImageSize -->
+        <img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
+        <span class="fw-semibold">{tn.appName}</span>
+    {/snippet}
+
+    {#if $hideNav}
+        {@render header()}
+    {:else}
+        <a class="navbar-brand" href="/">
+            {@render header()}
+        </a>
+    {/if}
 {/snippet}
 
 <nav class="navbar navbar-expand-md gray flex-wrap">
     <div class="container-fluid">
-        {#if isLoggedIn}
+        {#if isLoggedIn && !$hideNav}
             <button
                 class="d-md-none me-2 btn nav-link btn-link"
                 data-bs-toggle="offcanvas"
@@ -48,40 +65,52 @@
                 aria-controls="NOC"
                 aria-label="Menu"
             >
-                <span class="material-icons fs-1">menu</span>
+                <Icon icon="menu" class="fs-1" />
             </button>
         {/if}
         {@render header()}
-        {#if !$isOnline}
-            <span class="material-icons">wifi_off</span>
+        {#if !$isOnline && !$hideNav}
+            <Icon icon="wifi_off" />
         {/if}
-        <div class="me-auto"></div>
-        {#if isLoggedIn}
-            <div class="d-flex flex-row ms-auto ms-md-0">
-                {@render queue()}
-                {@render settings()}
-                <UserDropdown {t} />
+        <div class="me-auto me-lg-3"></div>
+        {#if isLoggedIn && !$hideNav}
+            <div class="d-none d-md-flex d-lg-none flex-row ms-auto ms-md-0">
+                {@render buttons()}
             </div>
-            <div class="w-100"></div> <!-- Row break -->
+            <div class="d-none d-md-block d-lg-none w-100"></div> <!-- Row break -->
             <div class="d-none d-md-inline me-auto">
                 <BaseNav {t} />
+            </div>
+            <div class="d-flex d-md-none d-lg-flex flex-row ms-auto ms-md-0">
+                {@render buttons()}
             </div>
             <div class="d-md-none offcanvas offcanvas-start" tabindex="-1" id="NOC">
                 <div class="offcanvas-header">
                     {@render header()}
                     <button class="btn btn-link nav-link ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
-                        <span class="material-icons">close</span>
+                        <Icon icon="close" />
                     </button>
                 </div>
                 <div class="offcanvas-body">
                     <BaseNav {t} />
+                    {#if page.route.id?.includes('[form]')}
+                        <hr />
+                        {#key page.url.pathname + page.url.search}
+                            <div class="d-md-none toc">
+                                <TableOfContents {t} />
+                            </div>
+                        {/key}
+                    {/if}
                 </div>
             </div>
         {:else}
+            <div class="d-none d-md-inline me-auto"></div>
             {@render settings()}
-            <div class="d-flex flex-row">
-                <LoggedOutButtons {t} />
-            </div>
+            {#if !$hideNav}
+                <div class="d-flex flex-row">
+                    <LoggedOutButtons {t} />
+                </div>
+            {/if}
         {/if}
     </div>
 </nav>

@@ -10,7 +10,7 @@
     import type { Raw } from '$lib/forms/Form';
     import { extractSPIDFromRawData, spName } from '$lib/helpers/ir';
     import { aA } from '$lib/helpers/stores';
-    import type { ClassValue } from 'svelte/elements';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t, sp }: {
         t: Translations, sp: Raw<FormNSP>, lang: LanguageCode,
@@ -24,7 +24,7 @@
         db.deleteIndependentProtocol(spid);
         goto(spidUrl(`/detail?deleted`), { replaceState: true });
     }}>
-        <span class="material-icons">delete_forever</span>
+        <Icon icon="delete_forever" />
         {td.deleteProtocol}{$aA}
     </button>
 {/snippet}

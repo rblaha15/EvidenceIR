@@ -18,7 +18,7 @@
         InputWithChooserWidget,
         CheckboxWithInputWidget,
         PhotoSelectorWidget,
-        FileWidget,
+        FileWidget, InlinePdfPreviewWidget, RadioWithInputWidget, ButtonWidget,
     } from '$lib/forms/Widget.svelte.js';
     import Input from '$lib/components/widgets/Input.svelte';
     import DoubleChooser from '$lib/components/widgets/DoubleChooser.svelte';
@@ -37,6 +37,10 @@
     import CheckboxWithInput from '$lib/components/widgets/CheckboxWithInput.svelte'
     import PhotoSelector from "$lib/components/widgets/PhotoSelector.svelte";
     import File from "$lib/components/widgets/File.svelte";
+    import InlinePdfPreview from '$lib/components/widgets/InlinePdfPreview.svelte';
+    import Title from '$lib/components/widgets/Title.svelte';
+    import RadioWithInput from '$lib/components/widgets/RadioWithInput.svelte';
+    import Button from '$lib/components/widgets/Button.svelte';
 
     interface Props {
         t: Translations;
@@ -48,13 +52,15 @@
 </script>
 
 {#if widget instanceof TitleWidget && widget.show(data)}
-    {#await widget.text(t, data) then text}
-        {#if text}<h2 class={[widget.class(data), 'm-0']}>{text}</h2>{/if}
-    {/await}
+    <Title {widget} {t} {data} />
 {:else if widget instanceof TextWidget && widget.show(data)}
     {#await widget.text(t, data) then text}
         {#if text}<p class={[widget.class(data), 'm-0']}>{text}</p>{/if}
     {/await}
+{:else if widget instanceof InlinePdfPreviewWidget && widget.show(data)}
+    <InlinePdfPreview {widget} {t} {data} />
+{:else if widget instanceof ButtonWidget && widget.show(data)}
+    <Button {widget} {t} {data} />
 {:else if widget instanceof ScannerWidget && widget.show(data)}
     <Scanner bind:widget {t} {data} />
 {:else if widget instanceof InputWidget && widget.show(data)}
@@ -65,6 +71,8 @@
     <Chooser bind:widget {t} {data} />
 {:else if widget instanceof RadioWidget && widget.show(data)}
     <Radio bind:widget {t} {data} />
+{:else if widget instanceof RadioWithInputWidget && widget.show(data)}
+    <RadioWithInput bind:widget {t} {data} />
 {:else if widget instanceof SwitchWidget && widget.show(data)}
     <Switch bind:widget {t} {data} />
 {:else if widget instanceof MultiCheckboxWidget && widget.show(data)}

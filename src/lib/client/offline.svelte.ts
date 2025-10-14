@@ -44,13 +44,20 @@ const newDb = (uid: string) => openDB<DBSchema>(`offlineData_${uid}`, 1, {
 
 const db = async () => {
     const uid = get(currentUser)?.uid ?? 'anonymous';
-    console.log(uid);
+    // console.log(uid);
     return dbMap[uid] || (dbMap[uid] = await newDb(uid));
 };
 
-const mIR = (i: IR) => i
+const mIR = (i: IR) => i;
 const mSP = (s: Raw<FormNSP>) => s;
 const m = <T extends 'IR' | 'SP'>(type: T) => (v: Data<T>) => (type === 'IR' ? mIR(v as IR) : mSP(v as Raw<FormNSP>)) as Data<T>;
+
+export const clearLocalDatabase = async () => {
+    storedIR.set({})
+    storedSP.set({})
+    await (await db()).clear('IR');
+    await (await db()).clear('SP');
+};
 
 const odm = {
     put: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>, value: Data<T>) => {
@@ -142,6 +149,14 @@ export const offlineDatabase: Database = {
     }),
     updateIRUsers: async (irid, users) => odm.update('IR', irid, ir => {
         ir!.users = users;
+        return ir!;
+    }),
+    updateRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => odm.update('IR', irid, ir => {
+        ir!.yearlyHeatPumpCheckRecommendation = enabled ? {
+            state: 'waiting',
+            ...ir!.yearlyHeatPumpCheckRecommendation ?? {},
+            executingCompany: executingCompany!,
+        } : undefined;
         return ir!;
     }),
     addIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),

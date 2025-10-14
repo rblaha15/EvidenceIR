@@ -15,6 +15,10 @@
     import DetailNSP from './DetailNSP.svelte';
     import { aA, storable } from '$lib/helpers/stores';
     import NSP from '$lib/forms/NSP/infoNSP';
+    import IN from '$lib/forms/IN/infoIN';
+    import Icon from '$lib/components/Icon.svelte';
+    import type { FormIN } from '$lib/forms/IN/formIN';
+    import defaultIN from '$lib/forms/IN/defaultIN';
 
     const { t, sps, lang }: {
         t: Translations, sps: Raw<FormNSP>[], lang: LanguageCode,
@@ -38,6 +42,13 @@
         };
         storable<typeof sps[0]>(NSP.storeName()).set(newSP);
     };
+    const createCopyIN = () => {
+        const newIN = {
+            ...dataToRawData(defaultIN()),
+            ...sps[0].omit(...protocolGroups),
+        };
+        storable<Raw<FormIN>>(IN.storeName()).set(newIN);
+    };
 </script>
 
 <div class="d-flex flex-wrap gap-3 justify-content-between">
@@ -51,20 +62,25 @@
 
     <div class="d-flex flex-column gap-3 align-items-sm-start">
         <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${sps[0].koncovyUzivatel.email}`)} tabindex="0">
-            <span class="material-icons">attach_email</span>
+            <Icon icon="attach_email" />
             {td.sendDocuments}
         </a>
 
         <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>
-            <span class="material-icons">file_copy</span>
+            <Icon icon="file_copy" />
             {td.copyNSP}
         </a>
 
         {#if $isUserAdmin}
+            <a class="btn btn-warning" href={relUrl('/IN')} onclick={createCopyIN}>
+                <Icon icon="add_home_work" />
+                {td.copyNSPtoInstallation}{$aA}
+            </a>
+
             <div class="d-flex flex-column gap-1 align-items-sm-start">
                 <Widget widget={newIRID} {t} data={{}} />
                 <button class="btn btn-danger d-block" onclick={transfer}>
-                    <span class="material-icons">drive_file_move</span>
+                    <Icon icon="drive_file_move" />
                     {td.transferProtocols}{$aA}
                 </button>
             </div>

@@ -1,5 +1,6 @@
 import { friendlyCompanies, startCompaniesListening } from '$lib/client/realtime';
 import { get } from 'svelte/store';
+import { unknownCRN } from '$lib/forms/IN/formIN';
 
 export const regulusCRN = 45317020;
 
@@ -20,6 +21,8 @@ type RT = {
 
 export default {
     getNameAndAddress: async (crn: string, fetch: typeof window.fetch = window.fetch) => {
+        if (crn == unknownCRN) return undefined;
+
         if (crn.length == 10) {
             await startCompaniesListening()
             const fc = get(friendlyCompanies);
@@ -48,6 +51,8 @@ export default {
         return json as RT;
     },
     getName: async (crn: string, fetch: typeof window.fetch = window.fetch) => {
+        if (crn == unknownCRN) return undefined;
+
         if (crn.length == 10) {
             await startCompaniesListening()
             const fc = get(friendlyCompanies);

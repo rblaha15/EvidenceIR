@@ -1,6 +1,7 @@
 <script lang="ts">
     import { storableState } from '$lib/helpers/runes.svelte.js';
     import type { Translations } from '$lib/translations';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t }: { t: Translations } = $props();
 
@@ -34,7 +35,7 @@
         class="btn dropdown-toggle d-flex align-items-center"
         data-bs-toggle="dropdown"
     >
-        <span class="material-icons">{selectedIcon}</span>
+        <Icon icon={selectedIcon} />
     </button>
     <ul class="dropdown-menu">
         {#each themeSettings.zip(icons) as [theme, icon]}
@@ -49,9 +50,9 @@
                         document.querySelector<HTMLElement>('#bd-theme')?.focus();
                     }}
                 >
-                    <span class="material-icons me-2">{icon}</span>
+                    <Icon {icon} class="me-2" />
                     {t.theme[theme]}
-                    <span class="material-icons ms-auto" class:d-none={storedTheme.value !== theme}>check</span>
+                    <Icon icon="check" class={['ms-auto', storedTheme.value === theme ? 'd-inline' : 'd-none']} />
                 </button>
             </li>
         {/each}

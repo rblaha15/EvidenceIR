@@ -1,6 +1,7 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
     import {
+        ButtonWidget,
         CheckboxWidget,
         CheckboxWithChooserWidget,
         CheckboxWithInputWidget,
@@ -8,7 +9,7 @@
         CountersWidget,
         CounterWidget,
         DoubleChooserWidget,
-        FileWidget,
+        FileWidget, InlinePdfPreviewWidget,
         InputWidget,
         InputWithChooserWidget,
         InputWithSuggestionsWidget,
@@ -23,6 +24,8 @@
         type Widget,
     } from '$lib/forms/Widget.svelte';
     import { dateFromISO, datetimeFromISO } from '$lib/helpers/date';
+    import Title from '$lib/components/widgets/Title.svelte';
+    import { RadioWithInputWidget } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
         t: Translations;
@@ -34,13 +37,13 @@
 </script>
 
 {#if widget instanceof TitleWidget && widget.showTextValue(data)}
-    {#await widget.text(t, data) then text}
-        {#if text}<h2 class={[widget.class(data), 'm-0']}>{text}</h2>{/if}
-    {/await}
+    <Title {widget} {data} {t} />
 {:else if widget instanceof TextWidget && widget.showTextValue(data)}
     {#await widget.text(t, data) then text}
         {#if text}<p class={[widget.class(data), 'm-0']}>{text}</p>{/if}
     {/await}
+{:else if widget instanceof InlinePdfPreviewWidget} <!-- Not supported -->
+{:else if widget instanceof ButtonWidget} <!-- Not supported -->
 {:else if widget.showTextValue(data)}
     <p class="mb-0"><b>{widget.label(t, data)}</b>:
         {#if widget instanceof ScannerWidget}
@@ -59,10 +62,13 @@
             {widget.get(t, widget.value)}
         {:else if widget instanceof RadioWidget}
             {widget.get(t, widget.value)}
+        {:else if widget instanceof RadioWithInputWidget}
+            {widget.value.chosen === widget.options(data).at(-1) ? widget.value.text : widget.get(t, widget.value.chosen)}
         {:else if widget instanceof SwitchWidget}
             {widget.value ? widget.options(t)[1] : widget.options(t)[0]}
         {:else if widget instanceof MultiCheckboxWidget}
-            {widget.value.map(v => widget.get(t, v)).join(', ')}
+            {(widget.inverseSelection ? widget.options(data).filter(i => !widget.value.includes(i)) : widget.value)
+                .map(v => widget.get(t, v)).join(', ')}
         {:else if widget instanceof CheckboxWidget}
             {widget.value ? t.widget.yes : t.widget.no}
         {:else if widget instanceof CounterWidget}

@@ -71,6 +71,7 @@ export const generatePdf = async <P extends Pdf>(
     const addDoc = async <P extends Pdf>(o: GeneratePdfOptions<P>) => {
         const pdfData2 = await generatePdf<P>(o);
         const pdfDoc2 = await PDFDocument.load(pdfData2.pdfBytes);
+        pdfDoc2.getForm().flatten()
         const newPages = await pdfDoc.copyPages(pdfDoc2, pdfDoc2.getPageIndices());
         newPages.forEach(newPage => {
             pdfDoc.addPage(newPage);

@@ -1,6 +1,7 @@
 <script generics="D, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
     import { labelAndStar, type RadioWidget } from '$lib/forms/Widget.svelte.js';
+    import Icon from '$lib/components/Icon.svelte';
 
     interface Props {
         t: Translations;
@@ -23,19 +24,19 @@
         {labelAndStar(widget, data, t)}
         {#if !widget.required(data)}
             <button class="btn py-1 px-2 m-1" aria-label={t.widget.clearSelection} onclick={onClick(null)}>
-                <span class="material-icons">clear</span>
+                <Icon icon="clear" />
             </button>
         {/if}
     </div>
     <div class="input-group input-group-grid">
         {#each widget.options(data) as item}
             <button class="input-group-text input-group-input first" onclick={onClick(item)}
-                    aria-labelledby="label-{uid}-{item}" tabindex="-1"
+                    aria-labelledby="label-{uid}-{item}" tabindex="-1" disabled={widget.lock(data)}
             >
-                <input class="form-check-input m-0" type="radio" role="button"
+                <input class="form-check-input m-0" type="radio" role="button" disabled={widget.lock(data)}
                        bind:group={value.value} value={item} />
             </button>
-            <button onclick={onClick(item)} tabindex="-1"
+            <button onclick={onClick(item)} tabindex="-1" disabled={widget.lock(data)}
                     id="label-{uid}-{item}" class="input-group-text last"
             >{widget.get(t, item)}</button>
         {/each}

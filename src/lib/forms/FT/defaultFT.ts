@@ -10,7 +10,7 @@ import {
     optionsOutputsF,
     type OptionsOutputsF,
 } from '$lib/forms/FT/portsOptions';
-import { todayISO } from '$lib/helpers/date';
+import { dayISO } from '$lib/helpers/date';
 
 const args = <
     O extends OptionsInputsC | OptionsInputsB | OptionsOutputsF | OptionsOutputsB
@@ -30,7 +30,7 @@ const widgetOutputB = (label: string, onlyCTC = false, def: OptionsOutputsB = 'n
 
 export default (): FormFT => ({
     inputsC: {
-        title: new TitleWidget({ text: t => t.ft.inputs, class: 'fs-3' }),
+        title: new TitleWidget({ text: t => t.ft.inputs, level: 3 }),
         C2: widgetInputC('C2', false, 'AKU'),
         C3: widgetInputC('C3'),
         C4: widgetInputC('C4', false, 'TV'),
@@ -47,12 +47,12 @@ export default (): FormFT => ({
         UNI2_2: widgetInputC('2'),
     },
     inputsB: {
-        title: new TitleWidget({ text: ' ', class: 'fs-3' }),
+        title: new TitleWidget({ text: ' ', level: 3 }),
         B8: widgetInputB('B8', false, 'iPWM vstup čerpadlo TČ1'),
         B9: widgetInputB('B9'),
     },
     outputsF: {
-        title: new TitleWidget({ text: t => t.ft.outputs, class: 'fs-3' }),
+        title: new TitleWidget({ text: t => t.ft.outputs, level: 3 }),
         F2: widgetOutputF('F2'),
         F3: widgetOutputF('F3', true),
         F4: widgetOutputF('F4'),
@@ -66,7 +66,7 @@ export default (): FormFT => ({
         UNI2_DO2: widgetOutputF('DO2'),
     },
     outputsB: {
-        title: new TitleWidget({ text: ' ', class: 'fs-3' }),
+        title: new TitleWidget({ text: ' ', level: 3 }),
         B2: widgetOutputB('B2', false, 'PWM pro čerpadlo TČ1'),
         B3: widgetOutputB('B3'),
         labelUNI: new TextWidget({ text: t => t.ft.moduleUNI, class: 'fs-6' }),
@@ -76,6 +76,6 @@ export default (): FormFT => ({
     },
     info: {
         setBy: new InputWidget({ label: t => t.ft.setBy }),
-        date: new InputWidget({ label: t => t.ft.date, type: 'date', text: todayISO(), }),
+        date: new InputWidget({ label: t => t.ft.date, type: 'date', text: dayISO(), }),
     },
 })

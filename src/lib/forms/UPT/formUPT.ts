@@ -1,14 +1,17 @@
 import { CheckboxWidget, ChooserWidget, InputWidget, SwitchWidget, TitleWidget } from '../Widget.svelte.js';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { FormIN } from '../IN/formIN';
+import type { FormPartRKD } from '$lib/forms/RKD/formRKD';
 
 export type DataUPT = {
     uvedeni: FormUPT,
     evidence: Raw<FormIN>,
+    rkd: FormPartRKD<DataUPT>,
 }
 
 export interface FormUPT extends Form<DataUPT> {
     tc: {
+        nadpisSystem: TitleWidget<DataUPT>,
         nadpis: TitleWidget<DataUPT>,
         jisticTC: SwitchWidget<DataUPT>,
         jisticVJ: SwitchWidget<DataUPT>,
@@ -59,4 +62,5 @@ export interface FormUPT extends Form<DataUPT> {
         zaruka: CheckboxWidget<DataUPT>,
         date: InputWidget<DataUPT>,
     },
+    checkRecommendations: FormPartRKD<DataUPT>,
 }

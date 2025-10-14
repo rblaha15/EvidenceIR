@@ -2,7 +2,7 @@
     import { ChooserWidget, InputWidget } from '$lib/forms/Widget.svelte';
     import type { IRTypes } from '$lib/forms/IN/formIN';
     import { type Translations } from '$lib/translations';
-    import { time, todayISO } from '$lib/helpers/date';
+    import { time, dayISO } from '$lib/helpers/date';
     import { untrack } from 'svelte';
     import { doesNotHaveIRNumber, extractIRIDFromParts, type IRID, isMACAddressTypeIR10, supportsMACAddresses } from '$lib/helpers/ir';
     import db, { type IR } from '$lib/data';
@@ -10,6 +10,7 @@
     import { detailIrUrl } from '$lib/helpers/runes.svelte';
     import Widget from '$lib/components/Widget.svelte';
     import { isMACAddressTypeIR12 } from '$lib/helpers/ir.js';
+    import Icon from '$lib/components/Icon.svelte';
 
     const { t, ir, irid }: {
         t: Translations, ir: IR, irid: IRID,
@@ -25,7 +26,7 @@
         options: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
         onValueSet: (d, v) => {
             if (doesNotHaveIRNumber(v)) {
-                d.number.setValue(d, `${todayISO()} ${time()}`);
+                d.number.setValue(d, `${dayISO()} ${time()}`);
             }
         },
         labels: t => t.in.ir,
@@ -103,7 +104,7 @@
 
 {#if change === 'no'}
     <button class="btn btn-warning d-block" onclick={() => (change = 'input')}>
-        <span class="material-icons">drive_file_rename_outline</span>
+        <Icon icon="drive_file_rename_outline" />
         {td.changeController}
     </button>
 {:else if change === 'input'}

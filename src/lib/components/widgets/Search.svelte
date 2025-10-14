@@ -3,6 +3,7 @@
     import { labelAndStar, type SearchWidget } from '$lib/forms/Widget.svelte.js';
     import { browser } from '$app/environment';
     import type { ClassValue } from 'svelte/elements';
+    import Icon from '$lib/components/Icon.svelte';
 
     export const wordsToFilter = (s: string) => s
         .normalize('NFD')
@@ -25,7 +26,7 @@
         search = widget.value ? widget.getSearchItem(widget.value, t).pieces[0].text : '';
     });
 
-    const all = $derived(widget.items(data));
+    const all = $derived(widget.items(t, data));
     let filtered = $derived.by(() => {
         $all;
         search;
@@ -73,9 +74,12 @@
                 type={widget.type(data)}
                 value={hidden ? widget.value ? ' ' : '' : search}
             />
-            <label for="">{labelAndStar(widget, data, t)}</label>
+            <label for="">
+                <Icon icon="search" />
+                {labelAndStar(widget, data, t)}
+            </label>
             <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" class:d-none={!widget.value} onclick={onClick}>
-                <span class="material-icons">clear</span>
+                <Icon icon="clear" />
             </button>
         </label>
 
@@ -99,7 +103,10 @@
                         {#each searchItem.pieces as piece}
                             <p class="mb-0 w-md-100"
                                style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
-                            >{piece.text}</p>
+                            >
+                                <Icon icon={piece.icon} />
+                                {piece.text}
+                            </p>
                         {/each}
                     </a>
                 {:else}

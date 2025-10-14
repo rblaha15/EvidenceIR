@@ -1,4 +1,4 @@
-import {
+import type {
     CheckboxWidget,
     ChooserWidget,
     CounterWidget,
@@ -11,9 +11,24 @@ import {
     TextWidget,
     TitleWidget,
 } from '$lib/forms/Widget.svelte.js';
-import { type Company, type Technician } from '$lib/client/realtime';
+import { type Company } from '$lib/client/realtime';
 import { type Form } from '$lib/forms/Form';
 import { type Products } from '$lib/helpers/products';
+import { getTranslations, type Translations } from '$lib/translations';
+
+type CompanyWidgetGroup<D> = {
+    company: SearchWidget<D, Company, true>;
+    ico: InputWidget<D>;
+    chosen: TextWidget<D>;
+    zastupce: InputWidget<D>;
+    email: InputWidget<D>;
+    telefon: InputWidget<D>;
+}
+type AddressWidgetGroup<D> = {
+    obec: InputWidget<D>;
+    ulice: InputWidget<D>;
+    psc: InputWidget<D>;
+}
 
 export interface UserForm<D extends UserForm<D>> extends Form<D> {
     koncovyUzivatel: {
@@ -32,41 +47,10 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
         telefon: InputWidget<D>;
         email: InputWidget<D>;
     };
-    bydliste: {
-        nadpis: TitleWidget<D>;
-        obec: InputWidget<D>;
-        ulice: InputWidget<D>;
-        psc: InputWidget<D>;
-    };
-    mistoRealizace: {
-        nadpis: TitleWidget<D>;
-        jakoBydliste: CheckboxWidget<D, true>;
-        obec: InputWidget<D>;
-        ulice: InputWidget<D>;
-        psc: InputWidget<D>;
-    };
-    montazka: {
-        nadpis: TitleWidget<D>;
-        company: SearchWidget<D, Company, true>;
-        or: TextWidget<D>;
-        ico: InputWidget<D>;
-        chosen: TextWidget<D>;
-        zastupce: InputWidget<D>;
-        email: InputWidget<D>;
-        telefon: InputWidget<D>;
-    };
-    uvedeni: {
-        nadpis: TitleWidget<D>;
-        jakoMontazka: CheckboxWidget<D, true>;
-        company: SearchWidget<D, Company, true>;
-        or: TextWidget<D>;
-        ico: InputWidget<D>;
-        chosen: TextWidget<D>;
-        regulus: SearchWidget<D, Technician, true>;
-        zastupce: InputWidget<D>;
-        email: InputWidget<D>;
-        telefon: InputWidget<D>;
-    };
+    bydliste: AddressWidgetGroup<D>;
+    mistoRealizace: AddressWidgetGroup<D>;
+    montazka: CompanyWidgetGroup<D>;
+    uvedeni: CompanyWidgetGroup<D>;
 }
 
 export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL';
@@ -75,6 +59,8 @@ export type IRSubTypes = 'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6
 
 export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     ir: {
+        nadpisSystem: TitleWidget<FormIN>;
+        nadpis: TitleWidget<FormIN>;
         typ: DoubleChooserWidget<FormIN, IRTypes, IRSubTypes>;
         cislo: InputWidget<FormIN>;
         cisloBox: InputWidget<FormIN>;
@@ -144,10 +130,6 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     };
 }
 
-export const unknownCompany: Company = {
-    companyName: 'Neznámá',
-    email: 'neznama@montazni.fi',
-    crn: '99999999',
-    phone: '+420999999999',
-    representative: 'Neznámý montážník',
-};
+export const unknownCRN = '99999999';
+export const unknownCompany = (t: Translations = getTranslations('cs')): Company =>
+    ({ ...t.in.unknownCompany, crn: unknownCRN });
