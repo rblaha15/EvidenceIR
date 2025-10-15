@@ -113,9 +113,9 @@
             result = { load: true, red: false, text: t.form.saving };
             const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send, () => f = defaultData());
 
-            if (!dev) storedData.set(undefined);
-
             if (success) {
+                if (!dev) storedData.set(undefined);
+
                 result = openPdf || redirectLink
                     ? { text: t.form.redirecting, red: false, load: true }
                     : { text: '', red: false, load: false };
