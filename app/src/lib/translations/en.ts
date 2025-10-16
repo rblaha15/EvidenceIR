@@ -514,6 +514,8 @@ const en: PlainTranslations = {
         name: t`Yearly heat pump ${'n'} (${'cislo'}) checks`,
         fillOut: t`Fill out an yearly heat pump ${'n'} check`,
         year: `Year`,
+        checkYear: `Control sequence number (number of years since the heat pump commission)`,
+        yearAlreadyFilled: `This year is already filled`,
         pumpDetails: t`Heat pump ${'n'}: ${'model'} – ${'cislo'}`,
         no: `No`,
         yes: `Yes`,

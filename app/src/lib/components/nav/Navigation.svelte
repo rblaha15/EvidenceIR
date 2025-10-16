@@ -49,7 +49,7 @@
     {#if $hideNav}
         {@render header()}
     {:else}
-        <a class="navbar-brand" href="/">
+        <a class="navbar-brand d-flex align-content-center" href="/">
             {@render header()}
         </a>
     {/if}

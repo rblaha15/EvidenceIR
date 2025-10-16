@@ -23,12 +23,15 @@ import { type FormNK, origins } from './formNK';
 import { assemblyCompanies } from '$lib/helpers/companies';
 import { derived } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
+import { unknownCRN } from '$lib/forms/IN/formIN';
+import ares from '$lib/helpers/ares';
+import type { FormPlus } from '$lib/forms/Form';
 
 const fve = (d: FormNK) => d.contacts.demandSubject.value.includes(`fve`);
 const hp = (d: FormNK) => d.contacts.demandSubject.value.includes(`heatPump`);
 const pool = (d: FormNK) => hp(d) && d.system.wantsPool.value;
 
-export default (): FormNK => ({
+export default (): FormPlus<FormNK> => ({
     contacts: {
         title: new TitleWidget({ text: t => t.nk.contacts.contacts, level: 2 }),
         demandOrigin: new ChooserWidget({ options: origins.keys(), label: t => t.nk.contacts.demandOrigin, labels: t => t.nk.contacts.origins, }),
@@ -53,11 +56,19 @@ export default (): FormNK => ({
                 ],
             }), showInXML: false, required: false, hideInRawData: true,
             onValueSet: (d, company) => {
-                if (company)
+                if (company) {
                     d.contacts.assemblyCompanyCRN.setValue(d, company.crn);
+                    d.contacts.assemblyCompanySearch.setValue(d, null);
+                }
             },
         }),
         assemblyCompanyCRN: new InputWidget({ required: false, label: t => t.nk.contacts.crn, type: 'number', inputmode: 'numeric' }),
+        _chosen: new TextWidget({
+            text: async (t, d) => {
+                const company = await ares.getName(d.contacts.assemblyCompanyCRN.value);
+                return company ? `${t.in.chosenCompany}: ${company}` : '';
+            }, showInXML: false,
+        }),
         note: new InputWidget({ required: false, label: t => t.nk.note }),
     },
     photovoltaicPowerPlant: {
