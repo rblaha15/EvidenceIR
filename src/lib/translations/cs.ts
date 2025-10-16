@@ -456,6 +456,8 @@ export default {
         name: t`Roční kontroly TČ${'n'} (${'cislo'})`,
         fillOut: t`Udělat roční kontrolu TČ${'n'}`,
         year: `Rok`,
+        checkYear: `Pořadové číslo kontroly (počet let od uvedení TČ do provozu)`,
+        yearAlreadyFilled: `Tento rok je již vyplněný`,
         pumpDetails: t`TČ${'n'}: ${'model'} – ${'cislo'}`,
         no: `Ne`,
         yes: `Ano`,

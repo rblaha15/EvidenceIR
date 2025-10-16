@@ -41,7 +41,7 @@ declare global {
 
         entries<T extends Record<PropertyKey, unknown>>(
             this: T,
-        ): [keyof T, T[keyof T]][];
+        ): [keyof T extends string ? keyof T : string, T[keyof T]][];
 
         keys<T extends string>(
             this: { [_ in T]?: unknown },

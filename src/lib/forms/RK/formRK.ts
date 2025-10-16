@@ -1,4 +1,4 @@
-import { CheckboxWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
+import { CheckboxWidget, CounterWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
 import { type Form } from '$lib/forms/Form';
 
 export type DataRK = void
@@ -7,6 +7,7 @@ export interface FormRK extends Form<DataRK> {
     info: {
         osoba: InputWidget<DataRK>,
         datum: InputWidget<DataRK>,
+        year: CounterWidget<DataRK, true>,
     },
     kontrolniUkonyTepelnehoCerpadla: {
         nadpis: TitleWidget<DataRK>,

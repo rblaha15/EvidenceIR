@@ -1,6 +1,7 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
     import { CounterWidget } from '$lib/forms/Widget.svelte.js';
+    import Icon from '$lib/components/Icon.svelte';
 
     interface Props {
         t: Translations;
@@ -15,14 +16,22 @@
 
 <div class="d-flex gap-1 flex-column">
     <div class="input-group flex-nowrap" style="width: min-content">
-        <span class="input-group-text" style="width: max-content" id="label-{uid}">{widget.label(t, data)}</span>
-        <button class="btn btn-outline-primary" onclick={() => widget.mutateValue(data, v => v - 1)}
-                disabled={widget.value === widget.min(data)}
-        ><strong>-</strong></button>
+        <span class="input-group-text" id="label-{uid}" style="width: max-content">{widget.label(t, data)}</span>
+        {#if !widget.lock(data)}
+            <button class="btn btn-outline-primary" onclick={() => widget.mutateValue(data, v => v - 1)}
+                    disabled={widget.value === widget.min(data)}
+            >
+                <Icon icon="remove" />
+            </button>
+        {/if}
         <span class="input-group-text input-group-input">{widget.value}</span>
-        <button class="btn btn-outline-primary" onclick={() => widget.mutateValue(data, v => v + 1)}
-                disabled={widget.value === widget.max(data)}
-        ><strong>+</strong></button>
+        {#if !widget.lock(data)}
+            <button class="btn btn-outline-primary" disabled={widget.value === widget.max(data)}
+                    onclick={() => widget.mutateValue(data, v => v + 1)}
+            >
+                <Icon icon="add" />
+            </button>
+        {/if}
     </div>
 
     {#if widget.showError(data)}
