@@ -64,8 +64,8 @@
                     {#each cascadePumps(ir.evidence) as tc}
                         <PDFLink
                             name={t.rk.name(tc)} {t} link="RK" data={ir} pump={tc.N} {irid}
-                            disabled={!ir.kontrolyTC[tc.N]?.[1]} additionalButton={{
-                                show: !ir.kontrolyTC[tc.N]?.[4],
+                            disabled={!ir.kontrolyTC[tc.N]?.keys()?.length} additionalButton={{
+                                show: true,
                                 href: iridUrl(`/RK?pump=${tc.N}`),
                                 text: t.rk.fillOut(tc),
                             }} dropdownItems={$isUserAdmin ? ir.kontrolyTC[tc.N]?.keys().flatMap(y => [{

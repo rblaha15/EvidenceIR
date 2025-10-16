@@ -14,13 +14,14 @@ import type { TC } from '$lib/forms/IN/defaultIN';
 import { error } from '@sveltejs/kit';
 
 const infoRK = (() => {
-    let year = $state() as Year;
+    let defaultYear = $state() as Year;
+    let filledYears = $state() as Year[];
     const pump = (url: URL = page.url) => (url.searchParams.get('pump')?.toNumber() || error(400, 'Argument pump not valid or missing')) as TC;
 
     const info: FormInfo<DataRK, FormRK, [], 'RK'> = {
         type: 'IR',
         storeName: () => `stored_check-${pump()}`,
-        defaultData: defaultRK,
+        defaultData: () => defaultRK(defaultYear, filledYears),
         openPdf: () => ({
             link: 'RK',
             pump: pump(),
@@ -28,27 +29,43 @@ const infoRK = (() => {
         getEditData: (ir, url) => {
             const edit = (url.searchParams.get('edit-year')?.toNumber()) as Year | undefined;
             if (edit) {
-                year = edit
+                defaultYear = edit
                 return ir.kontrolyTC[pump(url)]![edit];
             }
         },
         getViewData: (ir, url) => {
+            const checks = ir.kontrolyTC[pump(url)] ?? {};
+            filledYears = checks.keys().map(y => Number(y) as Year);
+
             const view = (url.searchParams.get('view-year')?.toNumber()) as Year | undefined;
             if (view) {
-                year = view
+                defaultYear = view
                 return ir.kontrolyTC[pump(url)]![view];
             }
             else {
-                const checks = ir.kontrolyTC[pump(url)] ?? {};
-                year = checks?.[1]
-                    ? (Math.max(...checks.keys().map(Number)) + 1) as Year
+                defaultYear = filledYears.length
+                    ? (Math.max(...filledYears) + 1) as Year
                     : 1;
+                if (!ir.uvedeniTC) return undefined;
+                const commission = new Date(ir.uvedeniTC.uvadeni.date);
+                const today = new Date(new Date().toISOString().split('T')[0]);
+
+                const anniversaryThisYear =
+                    new Date(today.getFullYear(), commission.getMonth(), commission.getDate());
+                const anniversaryNextYear =
+                    new Date(today.getFullYear() + 1, commission.getMonth(), commission.getDate());
+
+                const nextAnniversary =
+                    today < anniversaryThisYear ? anniversaryThisYear : anniversaryNextYear;
+                const yearOfNextCheck = nextAnniversary.getFullYear() - commission.getFullYear();
+                if (yearOfNextCheck in filledYears) return undefined;
+                defaultYear = yearOfNextCheck as Year;
                 return undefined;
             }
         },
-        saveData: async (irid, raw, edit, _, editResult, t, __, ir) => {
+        saveData: async (irid, raw, edit, form, editResult, t, _, ir) => {
             const hp = pump();
-            await db.addHeatPumpCheck(irid, hp, year, raw);
+            await db.addHeatPumpCheck(irid, hp, form.info.year.value as Year, raw);
 
             if (await checkRegulusOrAdmin()) return;
 
@@ -74,10 +91,13 @@ const infoRK = (() => {
         title: t => t.rk.formTitle({ n: `${pump()}` }),
         createWidgetData: () => {
         },
-        subtitle: t => `${t.rk.year}: ${year.toString() ?? '…'}`,
-        onMount: async (d, k) => {
+        onMount: async (d, k, m) => {
             if (!k.info.datum.value)
                 k.info.datum.setValue(d, dayISO());
+            if (m != 'create') {
+                k.info.year.lock = () => true;
+                k.info.year.validate = () => true;
+            }
         },
     };
     return info;
