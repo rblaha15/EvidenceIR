@@ -148,7 +148,7 @@ type SearchArgs<D, T> = {
     autocapitalize?: GetOrVal<D, HTMLInputAttributes['autocapitalize']>;
     chosen?: null | T;
 };
-type CounterArgs<D> = { chosen: number; min: GetOrVal<D, number>; max: GetOrVal<D, number>; };
+type CounterArgs<D> = { chosen: number; min: GetOrVal<D, number>; max: GetOrVal<D, number>; validate?: (v: number, d: D) => boolean; };
 type CountersArgs<D, I extends K> = { counts: Rec<I>; max: GetOrVal<D, number>; };
 type CheckArgs = { checked?: boolean; };
 type SwitchArgs<D> = { hasPositivity?: GetBOrVal<D>; options: Sides };
@@ -203,7 +203,7 @@ type Search<D, T> = Widget<D, T | null> & {
     inputmode: Get<D, HTMLInputAttributes['inputmode']>;
     autocapitalize: Get<D, HTMLInputAttributes['autocapitalize']>;
 };
-type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; };
+type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; validate: (v: number, d: D) => boolean; };
 type Counters<D, I extends K> = Widget<D, Rec<I>> & { max: Get<D, number> };
 type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: GetB<D>; };
 type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; inverseSelection: boolean; weights: (d: D, i: I) => number; };
@@ -308,6 +308,7 @@ const initCounter = function <D>(widget: Counter<D>, args: CounterArgs<D>) {
     widget._value = args.chosen;
     widget.min = toGetA(args.min);
     widget.max = toGetA(args.max);
+    widget.validate = args.validate ?? (() => true);
 };
 const initCounters = function <D, I extends K>(widget: Counters<D, I>, args: CountersArgs<D, I>) {
     widget._value = args.counts;
@@ -573,13 +574,16 @@ export class CounterWidget<D, H extends boolean = false> extends Widget<D, numbe
     onValueSet = $state() as (data: D, newValue: number) => void;
     required = () => false;
     hideInRawData = $state() as H;
-    isError = $state(() => false) as GetB<D>;
+    isError = $state(d => !this.validate(this._value, d)) as GetB<D>;
+    lock = $state() as GetB<D>;
     min = $state() as Get<D, number>;
     max = $state() as Get<D, number>;
+    validate = $state() as (n: number, d: D) => boolean;
 
-    constructor(args: ValueArgs<D, number, H> & CounterArgs<D>) {
+    constructor(args: ValueArgs<D, number, H> & LockArgs<D> & CounterArgs<D>) {
         super();
         initValue(this, args);
+        initLock(this, args);
         initCounter(this, args);
     }
 }

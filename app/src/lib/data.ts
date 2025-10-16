@@ -17,7 +17,13 @@ import { flatDerived } from '$lib/helpers/stores';
 import type { FormFT } from '$lib/forms/FT/formFT';
 import '$lib/extensions';
 
-export type Year = 1 | 2 | 3 | 4;
+type Range<Arr extends number[] = [0]> = Arr['length'] extends 1000
+    ? Exclude<Arr[number], 0>
+    : Range<[...Arr, Arr['length']]>;
+
+type PositiveInteger = Range;
+
+export type Year = PositiveInteger;
 
 export type RecommendationState = 'waiting' | 'sentRecommendation' | 'sentRequest';
 
@@ -27,9 +33,7 @@ export type IR = {
     uvedeniSOL?: Raw<FormUPS>;
     uvedeniFVE?: Raw<FormUPF>;
     kontrolyTC: {
-        [P in TC]?: {
-            [R in Year]?: Raw<FormRK>;
-        }
+        [P in TC]?: Record<Year, Raw<FormRK>>;
     };
     users: string[];
     installationProtocols: Raw<FormSP>[];
