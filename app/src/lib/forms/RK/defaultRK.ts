@@ -1,10 +1,14 @@
-import { CheckboxWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte';
-import type { FormRK } from '$lib/forms/RK/formRK.js';
+import { CheckboxWidget, CounterWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte';
+import type { DataRK, FormRK } from '$lib/forms/RK/formRK.js';
 
-export default (): FormRK => ({
+export default (y: number, done: number[]): FormRK => ({
     info: {
         osoba: new InputWidget({ label: t => t.rk.performingPerson }),
         datum: new InputWidget({ label: t => t.rk.checkDate, type: 'date' }),
+        year: new CounterWidget<DataRK, true>({
+            label: t => t.rk.checkYear, min: 1, chosen: y, max: Number.POSITIVE_INFINITY, hideInRawData: true,
+            validate: v => !done.includes(v), onError: t => t.rk.yearAlreadyFilled,
+        })
     },
     kontrolniUkonyTepelnehoCerpadla: {
         nadpis: new TitleWidget({ text: t => t.rk.kontrolniUkonyTepelnehoCerpadla, level: 2 }),
