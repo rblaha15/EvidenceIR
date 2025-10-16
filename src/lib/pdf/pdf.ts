@@ -1,7 +1,7 @@
 import type { LanguageCode } from '$lib/languages';
 import { get, type Translations } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
-import type { IR } from '$lib/data';
+import type { IR, Year } from '$lib/data';
 import type { PdfGenerationData } from '$lib/pdf/pdfGeneration';
 import RK from '$lib/pdf/generators/pdfRK';
 import NN from '$lib/pdf/generators/pdfNN';
@@ -189,6 +189,7 @@ export type PdfArgs<P extends Pdf> = {
 type PdfParams = {
     RK: {
         pump: TC,
+        lastYear?: Year,
     },
     ZL: {
         pump: TC,

@@ -2,14 +2,15 @@ import { CheckboxWidget, RadioWidget, TextWidget, TitleWidget, Widget } from '$l
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import ares, { regulusCRN } from '$lib/helpers/ares';
-import { extractIRIDFromRawData, irName } from '$lib/helpers/ir';
+import { extractIRIDFromRawData, irName, irWholeName } from '$lib/helpers/ir';
 import db, { type IR } from '$lib/data';
-import { defaultAddresses, sendEmail } from '$lib/client/email';
+import { cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
+import MailRKD from '$lib/emails/MailRKD.svelte';
 
 export type DataRKD<D extends DataRKD<D>> = {
     evidence: Raw<FormIN>,
@@ -49,18 +50,26 @@ export const defaultRKD = <D extends DataRKD<D>>(): FormPartRKD<D> => ({
 
 export const saveRKD = async <D extends DataRKD<D>>(ir: IR, form: FormPartRKD<D>) => {
     const enabled = form.enabled.value;
+    const companyType = form.executingCompany.value;
     const irid = extractIRIDFromRawData(ir.evidence);
     await db.updateRecommendationsSettings(irid, enabled, form.executingCompany.value);
-    if (enabled == Boolean(ir.yearlyHeatPumpCheckRecommendation)) return;
+    if (enabled == Boolean(ir.yearlyHeatPumpCheckRecommendation) || companyType == ir.yearlyHeatPumpCheckRecommendation?.executingCompany) return;
 
+    const getCompany = async () => {
+        const crn = companyType == 'assembly' ? ir.evidence.montazka.ico : ir.evidence.uvedeni.ico;
+        const a = await ares.getName(crn, fetch);
+        return a ? `${a} (${crn})` : crn;
+    };
+    const company = companyType ? companyType == 'regulus' ? 'Firma Regulus' : await getCompany() : null;
+    const name = irWholeName(ir.evidence);
     const user = get(currentUser)!;
     const response = await sendEmail({
-        ...defaultAddresses(),
+        ...defaultAddresses(cervenka),
         subject: enabled
             ? `Zapnuto upozorňování na RK u ${irName(ir.evidence.ir)}`
             : `Zrušeno upozorňování na RK u ${irName(ir.evidence.ir)}`,
-        component: MailProtocol,
-        props: { name: user.email!, url: page.url.origin + detailIrUrl(irid) },
+        component: MailRKD,
+        props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), company, irWholeName: name },
     });
     console.log(response);
 }

@@ -158,7 +158,9 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
         Text39: get(ts, p.fakturace.hotove),
         Text40: ' ',
         Text41: p.fakturace.hotove == 'yes' ? ''
-            : p.fakturace.komu.chosen == 'otherCompany' ? p.fakturace.komu.text : get(ts, p.fakturace.komu.chosen),
+            : p.fakturace.komu.chosen == 'otherCompany' ? p.fakturace.komu.text
+                : p.fakturace.komu.chosen == 'commissioningCompany' ? (await ares.getName(p.uvedeni.ico) || p.uvedeni.ico)
+                    : get(ts, p.fakturace.komu.chosen),
         Text42: p.fakturace.hotove == 'no' ? get(ts, p.fakturace.jak) : '',
         Text43: {
             assemblyCompany: p.montazka.zastupce,
