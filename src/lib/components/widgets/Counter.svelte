@@ -15,11 +15,12 @@
 </script>
 
 <div class="d-flex gap-1 flex-column">
-    <div class="input-group flex-nowrap" style="width: min-content">
-        <span class="input-group-text" id="label-{uid}" style="width: max-content">{widget.label(t, data)}</span>
+    <div class="input-group d-flex flex-nowrap">
+        <span class="input-group-text" id="label-{uid}">{widget.label(t, data)}</span>
         {#if !widget.lock(data)}
             <button class="btn btn-outline-primary" onclick={() => widget.mutateValue(data, v => v - 1)}
                     disabled={widget.value === widget.min(data)}
+                    style="--bs-btn-padding-x: var(--bs-btn-padding-y)"
             >
                 <Icon icon="remove" />
             </button>
@@ -28,6 +29,7 @@
         {#if !widget.lock(data)}
             <button class="btn btn-outline-primary" disabled={widget.value === widget.max(data)}
                     onclick={() => widget.mutateValue(data, v => v + 1)}
+                    style="--bs-btn-padding-x: var(--bs-btn-padding-y)"
             >
                 <Icon icon="add" />
             </button>
