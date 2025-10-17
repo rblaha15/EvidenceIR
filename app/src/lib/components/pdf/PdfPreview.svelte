@@ -39,7 +39,7 @@
     {#each range(1, pageCount + 1) as pageNumber}
         <div class="d-flex gap-3 align-items-center flex-wrap-reverse">
             {#if pageCount > 1}
-                <h5 class="m-0">{t.page({ page: `${pageNumber}`, total: `${pageCount}` })}</h5>
+                <h5 class="m-0">{t.page(pageNumber, pageCount)}</h5>
             {/if}
             {#if pageNumber === 1}
                 <div class="flex-grow-1"></div>

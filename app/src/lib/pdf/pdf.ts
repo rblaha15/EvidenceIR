@@ -20,6 +20,7 @@ import type { FormIN } from '$lib/forms/IN/formIN';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
+import type { Template } from '$lib/helpers/templates';
 
 type AllPdf = {
     /** Roční kontrola TČ */
@@ -39,7 +40,9 @@ type AllPdf = {
     /** Servisní protokol */
     SP: 'IR'
     /** Doporučení pro úsporný provoz TČ */
-    TCI: 'IR'
+    TCI: ''
+    /** Jste spokojeni s tepelným čerpadlem Regulus? */
+    RS: ''
     /** Nezávislý servisní protokol */
     NSP: 'SP'
     /** Čestné prohlášení */
@@ -131,8 +134,14 @@ export const pdfInfo: PdfInfo = {
         getPdfData: UPF,
     },
     TCI: {
-        type: 'IR',
+        type: '',
         pdfName: 'TCI',
+        supportedLanguages: ['cs'],
+        title: _ => '',
+    },
+    RS: {
+        type: '',
+        pdfName: 'RS',
         supportedLanguages: ['cs'],
         title: _ => '',
     },
@@ -149,13 +158,13 @@ type PdfInfo = {
     [P in Pdf]: PdfArgs<P>
 };
 
-export type Pdf<T extends 'IR' | 'SP' = 'IR' | 'SP'> = {
+export type Pdf<T extends 'IR' | 'SP' | '' = 'IR' | 'SP' | ''> = {
     [P in keyof AllPdf]: AllPdf[P] extends T ? P : never
 }[keyof AllPdf];
 
 type TypeOfPdf<P extends Pdf> = AllPdf[P];
-export type DataOfPdf<P extends Pdf> = { IR: IR, SP: Raw<FormNSP> }[TypeOfPdf<P>];
-export type PdfID<P extends Pdf> = { IR: { irid: IRID; spid?: undefined }, SP: { spid: SPID; irid?: undefined } }[TypeOfPdf<P>];
+export type DataOfPdf<P extends Pdf> = { IR: IR, SP: Raw<FormNSP>, '': Record<never, never> }[TypeOfPdf<P>];
+export type PdfID<P extends Pdf> = { IR: { irid: IRID; spid?: undefined }, SP: { spid: SPID; irid?: undefined }, '': { spid?: undefined; irid?: undefined } }[TypeOfPdf<P>];
 
 export type OpenPdfOptions<P extends Pdf> = {
     link: P,

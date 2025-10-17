@@ -17,13 +17,7 @@ import { flatDerived } from '$lib/helpers/stores';
 import type { FormFT } from '$lib/forms/FT/formFT';
 import '$lib/extensions';
 
-type Range<Arr extends number[] = [0]> = Arr['length'] extends 1000
-    ? Exclude<Arr[number], 0>
-    : Range<[...Arr, Arr['length']]>;
-
-type PositiveInteger = Range;
-
-export type Year = PositiveInteger;
+export type Year = number;
 
 export type RecommendationState = 'waiting' | 'sentRecommendation' | 'sentRequest';
 

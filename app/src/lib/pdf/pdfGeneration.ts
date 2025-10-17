@@ -1,4 +1,4 @@
-import { PDFDocument, PDFDropdown, PDFName, PDFRef, PDFSignature, PDFTextField } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { getTranslations } from '$lib/translations';
 import { type GeneratePdfOptions, type Pdf } from '$lib/pdf/pdf';
@@ -71,7 +71,7 @@ export const generatePdf = async <P extends Pdf>(
     const addDoc = async <P extends Pdf>(o: GeneratePdfOptions<P>) => {
         const pdfData2 = await generatePdf<P>(o);
         const pdfDoc2 = await PDFDocument.load(pdfData2.pdfBytes);
-        pdfDoc2.getForm().flatten()
+        pdfDoc2.getForm().flatten();
         const newPages = await pdfDoc.copyPages(pdfDoc2, pdfDoc2.getPageIndices());
         newPages.forEach(newPage => {
             pdfDoc.addPage(newPage);
@@ -105,7 +105,7 @@ export const generatePdf = async <P extends Pdf>(
         else if (name.startsWith('Kombinované pole')) initDropdown(name, formData[name as `Kombinované pole${string}`]);
         else if (name.startsWith('Dropdown')) initDropdown(name, formData[name as `Dropdown${string}`]);
         else if (name.startsWith('Zaškrtávací pole')) initCheckbox(name, formData[name as `Zaškrtávací pole${string}`]);
-        else if (name.startsWith('_'))  {
+        else if (name.startsWith('_')) {
             const field = formData[name as `_${string}`];
             const name2 = name.slice(1);
             if (field.type == 'text') initText(name2, field.value);
@@ -163,9 +163,11 @@ export const generatePdf = async <P extends Pdf>(
 
     const pdfBytes = await pdfDoc.save(args.saveOptions);
 
-    const surname = irLabel(args.type == 'IR' ? (data as IR).evidence : data as Raw<FormNSP>).split(' ')[0];
-    const suffix = formData?.fileNameSuffix ?? (args.type == 'IR' ? (data as IR).evidence.ir.cislo : spName((data as Raw<FormNSP>).zasah));
-    const fileName = `${args.pdfName}_${surname} ${suffix}.pdf`;
+    const surname = args.type == '' ? ''
+        : irLabel(args.type == 'IR' ? (data as IR).evidence : data as Raw<FormNSP>).split(' ')[0];
+    const suffix = formData?.fileNameSuffix ?? (args.type == '' ? ''
+        : args.type == 'IR' ? (data as IR).evidence.ir.cislo : spName((data as Raw<FormNSP>).zasah));
+    const fileName = args.type == '' ? `${args.pdfName}.pdf` : `${args.pdfName}_${surname} ${suffix}.pdf`;
 
     return { fileName, pdfBytes };
 };

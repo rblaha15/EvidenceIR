@@ -29,7 +29,7 @@ export type IndependentFormInfo<
     defaultData: () => F;
     saveData: (raw: R, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, resetForm: () => void) => Promise<boolean | void>;
     storeData?: (data: F) => R;
-    createWidgetData: (data: F) => D;
+    createWidgetData: (data: F) => keyof Form extends keyof D ? Omit<D, keyof Form> : D;
     title: (t: Translations, mode: 'create' | 'edit' | 'view') => string;
     subtitle?: ((t: Translations, edit: boolean) => string) | undefined;
     /**

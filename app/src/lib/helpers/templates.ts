@@ -15,7 +15,7 @@ export type Template<T extends (number | string)[]> = {
 export const template = <T extends (number | string)[]>(strings: readonly string[], ...keys: T) =>
     [strings, keys] as STemplate<T>;
 
-type TranslationEntry = string | STemplate<(string | number)[]> | Record<string, unknown> | ((...args: unknown[]) => string);
+type TranslationEntry = string | STemplate<(string | number)[]> | Record<string, unknown> | ((...args: never[]) => string);
 type Translations = Record<string, TranslationEntry>
 
 const addParsingToTemplate = <T extends (string | number)[]>(v: STemplate<T>) => {

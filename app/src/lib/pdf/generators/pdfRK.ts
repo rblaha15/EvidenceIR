@@ -37,6 +37,11 @@ const pdfRK: GetPdfData<'RK'> = async ({ data, t, pump, lastYear, addDoc, lang }
     if (yearsLeft.length) await addDoc({
         data, lang, args: pdfInfo.RK, pump, lastYear: nextStartYear - 1 as Year,
     });
+    else if (lang == 'cs') await addDoc({
+        lang: 'cs',
+        args: pdfInfo.RS,
+        data: {},
+    })
 
     const montazka = await ares.getName(e.montazka.ico);
     const pumpInfo = cascadePumps(e)[pump - 1];
