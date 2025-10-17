@@ -48,7 +48,11 @@ export const cellsSP: ExcelImport<Raw<FormSP>>['cells'] = {
     },
     fakturace: {
         hotove: { address: [18, 43], transform: v => v == 'ANO' ? 'yes' : v == 'NE' ? 'no' : 'doNotInvoice' },
-        komu: { address: [18, 45], transform: v => v == 'Odběratel' ? 'investor' : 'assemblyCompany' },
+        komu: {
+            address: [18, 45], transform: v => ({
+                chosen: v == 'Odběratel' ? 'investor' : 'assemblyCompany', text: '',
+            }),
+        },
         jak: { address: [18, 46], transform: v => v == 'papírově' ? 'onPaper' : 'electronically' },
     },
 };
