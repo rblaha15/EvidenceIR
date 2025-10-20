@@ -149,6 +149,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         onImport: () => {},
     },
     isSendingEmails: true,
+    showSaveAndSendButtonByDefault: true,
     hideBackButton: edit => !edit,
 };
 export default infoIN;
