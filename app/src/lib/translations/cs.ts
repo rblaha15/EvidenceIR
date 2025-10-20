@@ -13,6 +13,7 @@ export default {
         somethingWentWrongContactUsHtml: `Omlouváme se, něco se nepovedlo, kontaktujte nás prosím na <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Chyba při ukládání formuláře" target="_blank">aplikace.regulus@gmail.com</a>`,
         save: `Uložit`,
         saveAndSend: `Uložit a odeslat emaily`,
+        saveAndSendAgain: `Uložit a znovu odeslat emaily`,
         back: `Zpět`,
         mandatoryFields: `povinná pole`,
         clearForm: `Vymazat data`,
