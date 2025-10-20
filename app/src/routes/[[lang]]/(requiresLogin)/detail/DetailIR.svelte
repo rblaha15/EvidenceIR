@@ -56,7 +56,12 @@
                             href: iridUrl('/UPT'),
                             text: t.tc.commission,
                             important: true,
-                        }}
+                        }} dropdownItems={$isUserRegulusOrAdmin ? [{
+                            color: 'warning',
+                            icon: 'edit_document',
+                            text: td.editProtocol + $aR,
+                            href: iridUrl(`/UPT/?edit`),
+                        }] : undefined}
                     />
                     {#each cascadePumps(ir.evidence) as tc}
                         <PDFLink name={t.zl.name(tc)} {t} link="ZL" data={ir} pump={tc.N} {irid} />
