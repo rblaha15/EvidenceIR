@@ -4,12 +4,13 @@ import db from '$lib/data';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
-import { irName } from '$lib/helpers/ir';
+import { type IRID, irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { DataUPT, FormUPT } from '$lib/forms/UPT/formUPT';
 import { saveRKD } from '$lib/forms/RKD/formRKD';
+import type { Widget } from '$lib/forms/Widget.svelte';
 
 const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
     type: 'IR',
@@ -18,15 +19,17 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
     openPdf: () => ({
         link: 'UPT',
     }),
-    saveData: async (irid, raw, _, f, editResult, t, __, ir) => {
+    saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
         await db.addHeatPumpCommissioningProtocol(irid, raw);
-        await saveRKD(ir, f.checkRecommendations)
+        if (!edit) await saveRKD(ir, f.checkRecommendations)
         if (await checkRegulusOrAdmin()) return;
 
         const user = get(currentUser)!;
         const response = await sendEmail({
             ...defaultAddresses(),
-            subject: `Vyplněno nové uvedení TČ do provozu k ${irName(ir.evidence.ir)}`,
+            subject: edit
+                ? `Změněno uvedení TČ do provozu k ${irName(ir.evidence.ir)}`
+                : `Vyplněno nové uvedení TČ do provozu k ${irName(ir.evidence.ir)}`,
             component: MailProtocol,
             props: { name: user.email!, url: page.url.origin + detailIrUrl(irid) },
         });
@@ -42,6 +45,17 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
     showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, rkd: uvedeni.checkRecommendations }),
     title: t => t.tc.title,
+    getEditData: (ir, url) =>
+        url.searchParams.has('edit') ? ir.uvedeniTC : undefined,
+    getViewData: (ir, url) =>
+        url.searchParams.has('view') ? ir.uvedeniTC : undefined,
+    onMount: async (_, data, mode) => {
+        if (mode != 'create') {
+            (data.checkRecommendations as Record<string, Widget>).getValues().forEach(e => {
+                e.show = () => false;
+            })
+        }
+    },
 });
 
 export default infoUPT;
