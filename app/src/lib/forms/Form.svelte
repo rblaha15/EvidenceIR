@@ -83,7 +83,7 @@
     });
 
     const list = $derived(f.getValues().flatMap(obj => obj.getValues()));
-    const d = $derived(createWidgetData(f));
+    const d = $derived(createWidgetData(f)) as D;
 
     $effect(() => {
         list
@@ -189,9 +189,15 @@
         <div class="d-flex gap-3 flex-wrap">
             {#if mode !== 'view'}
                 {#if !result.load && (mode === 'edit' && isSendingEmails || !$showSaveAndSendButtonByDefaultStore)}
-                    <button onclick={save(false)} class="mb-auto btn btn-success">{t.form.save}</button>
+                    <button onclick={save(false)} class="mb-auto btn btn-success">
+                        <Icon icon="save" /> {t.form.save}
+                    </button>
                 {/if}
-                {#if !result.load && (mode === 'edit' && isSendingEmails || $showSaveAndSendButtonByDefaultStore)}
+                {#if !result.load && (mode === 'edit' && isSendingEmails)}
+                    <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">
+                        <Icon icon="send" /> {t.form.saveAndSendAgain}
+                    </button>
+                {:else if !result.load && ($showSaveAndSendButtonByDefaultStore)}
                     <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">
                         <Icon icon="send" /> {t.form.saveAndSend}
                     </button>

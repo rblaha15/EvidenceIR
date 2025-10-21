@@ -13,6 +13,7 @@ const products = {
     heatPumpsRTC: [
         'RTC',
         'RTC 6i',
+        'RTC 12i',
         'RTC 13e',
         'RTC 20e',
         'RTC 15p',
