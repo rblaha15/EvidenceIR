@@ -14,6 +14,7 @@
     type D = { rkd: FormPartRKD<D>, evidence: IR['evidence'] }
 
     let loading = $state(false);
+    let error = $state(false);
 
     const f = $state<FormPartRKD<D>>(defaultRKD<D>());
     const data = $derived({ rkd: f, evidence: ir.evidence });
@@ -27,10 +28,16 @@
     const save = async () => {
         f.executingCompany.displayErrorVeto = true;
         if (f.executingCompany.isError(data)) return;
+        error = false;
         loading = true;
         const modal = (await import('bootstrap')).Modal.getInstance('#recommendationsModal');
-        await saveRKD(ir, f);
-        modal?.hide();
+        const success = await saveRKD(ir, f);
+        if (success)
+            modal?.hide();
+        else {
+            error = true;
+            loading = false;
+        }
     };
 </script>
 
@@ -38,6 +45,7 @@
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         <button class="btn btn-info d-block" data-bs-target="#recommendationsModal" data-bs-toggle="modal" onclick={() => {
             loading = false
+            error = false
             f.executingCompany.displayErrorVeto = false
         }}>
             <Icon icon="alarm" />
@@ -61,6 +69,9 @@
                     <Widget bind:widget={f.chosenCompany} {data} {t} />
                 </div>
                 <div class="modal-footer">
+                    {#if error}
+                        <div class="text-danger">{@html t.form.somethingWentWrongContactUsHtml}</div>
+                    {/if}
                     <div class="d-flex gap-1 align-items-center">
                         {#if loading}
                             <div class="spinner-border text-danger"></div>
