@@ -134,6 +134,13 @@
                 <Icon icon="preview" />
                 {td.viewFilledData}
             </a>
+            {#if $isUserAdmin}
+                <a tabindex="0" class="btn btn-secondary" target="_blank"
+                   href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fir~2F{irid}">
+                    <Icon icon="cloud_circle" />
+                    {td.openInDatabase}{$aA}
+                </a>
+            {/if}
         </div>
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#if $isUserRegulusOrAdmin}
@@ -155,7 +162,7 @@
             </button>
 
             {#if $isUserRegulusOrAdmin}
-                <button class="btn btn-info d-block" onclick={download}>
+                <button class="btn btn-secondary d-block" onclick={download}>
                     <Icon icon="download" />
                     {td.downloadXML}{$aR}
                 </button>

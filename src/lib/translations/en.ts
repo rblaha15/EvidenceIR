@@ -281,6 +281,7 @@ const en: PlainTranslations = {
         cancel: `Cancel`,
         confirmDeletion: `Do you really want to delete the installation record?`,
         usersWithAccess: `Users with access to this record`,
+        openInDatabase: `Open in the database`,
         newIRIDLabel: `IRID (from the URL address)`,
         copyNSP: `Copy installation information to a new protocol`,
         copyNSPtoInstallation: `Copy installation information to a new registration`,

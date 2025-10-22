@@ -17,7 +17,6 @@
     let status = $state<'loading' | 'accepted' | 'error'>('loading');
 
     onMount(async () => {
-        status = 'loading';
         const response = await fetch(`/api/recommend-rk`, {
             method: 'POST',
             body: JSON.stringify({ code: data.code, action: 'sendRequest' }),
