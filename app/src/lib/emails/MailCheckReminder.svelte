@@ -12,7 +12,7 @@
 
 <p>Jméno: {data.user}</p>
 <p>Místo instalace: {data.location}</p>
-<p>Kontrolu provede: {data.company[0].toLocaleLowerCase() + data.company.slice(1)}</p>
+<p>Kontrolu provede: {data.company}</p>
 
 <p>Pokud chcete prohlídku objednat, klikněte na tlačítko.</p>
 

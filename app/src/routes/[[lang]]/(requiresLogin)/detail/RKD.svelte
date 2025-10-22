@@ -5,6 +5,8 @@
     import { defaultRKD, type FormPartRKD, saveRKD } from '$lib/forms/RKD/formRKD';
     import Widget from '$lib/components/Widget.svelte';
     import Icon from '$lib/components/Icon.svelte';
+    import { isUserAdmin } from '$lib/client/auth';
+    import { aA } from '$lib/helpers/stores';
 
     const { t, ir }: {
         t: Translations, ir: IR, irid: IRID,
@@ -51,6 +53,13 @@
             <Icon icon="alarm" />
             {tr.settingsTitle}
         </button>
+        {#if $isUserAdmin && ir.yearlyHeatPumpCheckRecommendation?.code}
+            <a tabindex="0" class="btn btn-secondary" target="_blank"
+               href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Frk~2F{ir.yearlyHeatPumpCheckRecommendation?.code}">
+                <Icon icon="cloud_circle" />
+                {t.detail.openInDatabase}{$aA}
+            </a>
+        {/if}
     </div>
 
     <div aria-hidden="true" aria-labelledby="recommendationsModalLabel" class="modal fade" id="recommendationsModal" tabindex="-1">

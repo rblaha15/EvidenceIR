@@ -43,5 +43,11 @@
     }, {
         item: deleteButton,
         hide: !$isUserAdmin,
+    }, {
+        color: 'secondary',
+        icon: 'cloud_circle',
+        text: td.openInDatabase + $aA,
+        href: `https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fsp~2F${spid}`,
+        hide: !$isUserAdmin,
     }]}>
 </PDFLink>
