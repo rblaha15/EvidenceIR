@@ -1,6 +1,6 @@
 <script lang="ts">
-    type Props = { name: string, url: string, company: string | null }
-    const { name, url, company }: Props = $props();
+    type Props = { name: string, url: string, company: string | null, irWholeName: string }
+    const { name, url, company, irWholeName }: Props = $props();
 </script>
 
 <p>Instalace: {irWholeName}</p>
