@@ -179,6 +179,7 @@ const de: PlainTranslations = {
         cancel: `Abbrechen`,
         confirmDeletion: `Möchten Sie das Installationsprotokoll wirklich löschen?`,
         usersWithAccess: `Benutzer mit Zugriff auf dieses Protokoll`,
+        openInDatabase: `In der Datenbeis öffnen`,
         newIRIDLabel: `IRID (von URL)`,
         copyNSP: `Installationsinformationen in ein neues Protokoll kopieren`,
         copyNSPtoInstallation: `Installationsinformationen in ein neues Registrierung kopieren`,
