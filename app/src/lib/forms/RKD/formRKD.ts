@@ -5,7 +5,6 @@ import ares, { regulusCRN } from '$lib/helpers/ares';
 import { extractIRIDFromRawData, irName, irWholeName } from '$lib/helpers/ir';
 import db, { type IR } from '$lib/data';
 import { cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
-import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
@@ -53,7 +52,7 @@ export const saveRKD = async <D extends DataRKD<D>>(ir: IR, form: FormPartRKD<D>
     const companyType = form.executingCompany.value;
     const irid = extractIRIDFromRawData(ir.evidence);
     await db.updateRecommendationsSettings(irid, enabled, form.executingCompany.value);
-    if (enabled == Boolean(ir.yearlyHeatPumpCheckRecommendation) || companyType == ir.yearlyHeatPumpCheckRecommendation?.executingCompany) return;
+    if (enabled == Boolean(ir.yearlyHeatPumpCheckRecommendation) || companyType == ir.yearlyHeatPumpCheckRecommendation?.executingCompany) return true;
 
     const getCompany = async () => {
         const crn = companyType == 'assembly' ? ir.evidence.montazka.ico : ir.evidence.uvedeni.ico;
@@ -72,4 +71,6 @@ export const saveRKD = async <D extends DataRKD<D>>(ir: IR, form: FormPartRKD<D>
         props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), company, irWholeName: name },
     });
     console.log(response);
+
+    return response?.ok;
 }
