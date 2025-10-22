@@ -305,6 +305,7 @@ export default {
         cancel: `Zrušit`,
         confirmDeletion: `Opravdu chcete odstranit evidenci instalace?`,
         usersWithAccess: `Uživatelé s přístupem k této evidenci`,
+        openInDatabase: `Otevřít v databázi`,
         newIRIDLabel: `IRID (z URL adresy)`,
         copyNSP: `Kopírovat informace o instalaci do nového protokolu`,
         copyNSPtoInstallation: `Kopírovat informace o instalaci do nové registrace`,

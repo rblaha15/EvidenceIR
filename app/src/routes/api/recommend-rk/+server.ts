@@ -29,7 +29,7 @@ export const GET: RequestHandler = async ({ request, fetch }) => {
     if (!dev && request.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
         return new Response(null, { status: 401 });
     }
-    const appUrl = `https://evidenceir.vercel.app`;
+    const appUrl = dev ? 'http://localhost:5001': 'https://evidenceir.vercel.app';
 
     const irs = await getIRs();
 
@@ -59,7 +59,6 @@ export const GET: RequestHandler = async ({ request, fetch }) => {
         const lastFilledCheck = Math.max(
             ...ir.kontrolyTC.getValues().flatMap(tc => tc?.keys().map(Number)).filterNotUndefined(),
         ).let(m => m == -Infinity ? 0 : m);
-
 
         console.log({
             irid,
@@ -92,7 +91,7 @@ export const GET: RequestHandler = async ({ request, fetch }) => {
                     irid, user,
                     location: `${ir.evidence.mistoRealizace.ulice}, ${ir.evidence.mistoRealizace.psc} ${ir.evidence.mistoRealizace.obec}`,
                     company: companyType == 'regulus' ? 'Firma Regulus' : await getCompany(),
-                    companyEmail: companyType == 'regulus' ? 'ir@regulus.cz' : companyType == 'assembly' ? ir.evidence.montazka.email : ir.evidence.uvedeni.email,
+                    companyEmail: companyType == 'regulus' ? 'servis@regulus.cz' : companyType == 'assembly' ? ir.evidence.montazka.email : ir.evidence.uvedeni.email,
                 };
                 await createRK(code, data);
                 const link = `${appUrl}/request?code=${code}`;
@@ -163,6 +162,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
             html, text: htmlToText(html),
         });
         await removeRK(data.code);
+        await changeCode(info.irid, '');
         await changeState(info.irid, 'sentRequest');
         return new Response(email.response, { status: 200 });
     }
