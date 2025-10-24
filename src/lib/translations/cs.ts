@@ -397,7 +397,7 @@ export default {
         wasInstallationAccordingToManual: `Instalace a uvedení do provozu tepelného čerpadla byla provedena dle podmínek uvedených v návodu na montáž, připojení a obsluhu, instalačních podmínek a obecně platných norem`,
         wasControllerSetToParameters: `Regulátor tepelného čerpadla byl nastaven na předepsané parametry`,
         wasOwnerFamiliarizedWithFunction: `Vlastník nebo provozovatel byl seznámen se základní funkcí tep. čerpadla a jeho obsluhou`,
-        isExtendedWarrantyDesired: `Má vlastník TČ zájem o prodlouženou záruku?`,
+        isExtendedWarrantyDesired: `Má vlastník TČ zájem o prodlouženou příplatkovou záruku 10 let na kompresor?`,
         isInstallationInWarrantyConditions: `Instalace a uvedení do provozu jsou v souladu s podmínkami prodloužené záruky`,
         controlAndElectricalInstallation: `Regulace a elektroinstalace`,
         internetConnection: `Připojení k internetu`,

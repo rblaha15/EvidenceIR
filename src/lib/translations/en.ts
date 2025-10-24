@@ -498,6 +498,7 @@ const en: PlainTranslations = {
         otherCollector: `Other`,
         expansionTankInstalled: `expansion tank`,
         bufferTankInstalled: `buffer tank`,
+        isExtendedWarrantyDesired: `Is the owner of the heat pump interested in an extended 10-year warranty on the compressor?`,
     },
     sol: {
         ...cs.sol,
