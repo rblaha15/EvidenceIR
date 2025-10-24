@@ -185,7 +185,7 @@ const en: PlainTranslations = {
             company: `Juridical person`,
         },
         ir: {
-            fve: `None – photovoltaic system only`,
+            other: `Other (for photovoltaic or solar systems controlled by an external controller)`,
         },
         device: {
             heatPump: 'Heat pump',

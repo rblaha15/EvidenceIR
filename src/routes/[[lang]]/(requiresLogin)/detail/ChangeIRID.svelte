@@ -23,7 +23,7 @@
 
     let irType: ChooserWidget<D, IRTypes> = $state(new ChooserWidget({
         label: t => t.in.controllerType,
-        options: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
+        options: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'other'],
         onValueSet: (d, v) => {
             if (doesNotHaveIRNumber(v)) {
                 d.number.setValue(d, `${dayISO()} ${time()}`);

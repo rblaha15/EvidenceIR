@@ -527,7 +527,7 @@ export default {
     },
     in: {
         ir: {
-            fve: `Žádný – pouze FVE`,
+            other: `Jiný (pro FVE nebo SOL řízený externí regulací)`,
         },
         device: {
             heatPump: `Tepelné čerpadlo`,

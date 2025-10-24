@@ -67,7 +67,7 @@ const de: PlainTranslations = {
         assemblyCompany: `Montagefirma`,
         companyName: `Name`,
         ir: {
-            fve: `Keine – nur PV`,
+            other: `Andere (für PV oder SOL durch externe Regulierung gesteuert)`,
         },
         device: {
             heatPump: `Wärmepumpe`,

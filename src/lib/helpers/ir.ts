@@ -12,7 +12,7 @@ import type { FormNSP } from '$lib/forms/NSP/formNSP';
  * SRS1 T : Novák Jan - Brno
  */
 export const irWholeName = (evidence: Raw<FormIN>, includeEstablishment: boolean = true) =>
-    evidence.ir.typ.first == 'fve' ? irLabel(evidence, includeEstablishment)
+    evidence.ir.typ.first == 'other' ? irLabel(evidence, includeEstablishment)
         : `${irName(evidence.ir)} : ${irLabel(evidence, includeEstablishment)}`;
 
 /**
@@ -29,7 +29,7 @@ export const spWholeName = (sp: Raw<FormNSP>, includeEstablishment: boolean = tr
  * SRS1 T
  */
 export const irName = (ir: Raw<FormIN>['ir']) =>
-    ir.typ.first == 'fve' ? 'FVE'
+    ir.typ.first == 'other' ? 'Jiný'
         : ir.typ.first == 'SOREL' ? irType(ir.typ)
             : `${irType(ir.typ)} ${ir.cislo}`;
 
@@ -71,7 +71,7 @@ export const irType = (type: Raw<FormIN>['ir']['typ']) => ({
     'IR RegulusHBOX': `IR RegulusHBOX ` + type.second!,
     'IR RegulusHBOX K': `IR RegulusHBOX ` + type.second!,
     'SOREL': type.second!,
-    'fve': '',
+    'other': '',
 } as const)[type.first!];
 
 export const companyForms = [
@@ -139,9 +139,9 @@ export const endUserName2 = (k: Raw<FormIN>['koncovyUzivatel']) =>
  *
  * S: SOREL;
  *
- * F: FVE;
+ * F: Jiný;
  */
-export type IRType = '0' | '2' | '4' | '1'  | '3' | 'B' | 'S' | 'F';
+export type IRType = '0' | '2' | '4' | '1'  | '3' | 'B' | 'S' | 'O';
 /**
  * MAC IR:        2000A1406FFFF (13);
  *
@@ -170,7 +170,7 @@ const extractIRTypeFromFullIRType = (fullIRType: IRTypes): IRType => ({
     'IR RegulusHBOX': 'B',
     'IR RegulusHBOX K': 'B',
     'SOREL': 'S',
-    'fve': 'F',
+    'other': 'O',
 } as const)[fullIRType];
 
 export const extractIRIDFromParts = (fullIRType: IRTypes, irNumber: string): IRID =>
@@ -189,6 +189,6 @@ export const supportsOnlyCTC = (t: IRTypes | null) => t == 'IR 10' || t == 'IR 1
 export const supportsMACAddresses = (t: IRTypes | null) => t == 'IR 10' || t == 'IR 12' || t == 'IR 30';
 export const isMACAddressTypeIR12 = (t: IRTypes | null) => t == 'IR 12' || t == 'IR 30';
 export const isMACAddressTypeIR10 = (t: IRTypes | null) => t == 'IR 10';
-export const doesNotSupportHeatPumps = (t: IRTypes | null) => t == 'fve';
-export const doesNotHaveIRNumber = (t: IRTypes | null) => t == 'fve' || t == 'SOREL';
-export const supportsRemoteAccess = (t: IRTypes | null) => t != 'fve' && t != 'SOREL';
+export const doesNotSupportHeatPumps = (t: IRTypes | null) => t == 'other';
+export const doesNotHaveIRNumber = (t: IRTypes | null) => t == 'other' || t == 'SOREL';
+export const supportsRemoteAccess = (t: IRTypes | null) => t != 'other' && t != 'SOREL';
