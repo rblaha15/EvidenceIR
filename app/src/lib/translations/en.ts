@@ -61,6 +61,7 @@ const en: PlainTranslations = {
     units: {
         ...cs.units,
         MWhPerYear: 'MWh/year',
+        czk: 'CZK',
     },
     form: {
         successfullySent: `Successfully sent!`,
@@ -421,6 +422,8 @@ const en: PlainTranslations = {
         heatPumpCount: 'Count of heat pumps in the installation',
         intervention: 'Intervention',
         doNotInvoice: 'Do not invoice',
+        price: ({ sum, isFree, sumWithTax }) =>
+            isFree ? `Total price: Free` : `Total price (excl. VAT): ${sum.roundTo(2).toLocaleString()} CZK (${sumWithTax.roundTo(0).toLocaleString()} CZK incl. VAT)`,
         yes: 'Yes',
         no: 'No',
         investor: 'Investor',
