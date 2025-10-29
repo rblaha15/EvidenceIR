@@ -9,6 +9,8 @@ import { unknownCRN } from '$lib/forms/IN/formIN';
 import { inlineTooLong, invoiceableParts, multilineTooLong } from '$lib/forms/SP/defaultSP';
 import ares from '$lib/helpers/ares';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
+import type { Raw } from '$lib/forms/Form';
+import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte';
 
 const prices = {
     transportation: 12 / 1.21,
@@ -54,17 +56,15 @@ const fieldsPartsStart = 44;
 const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
     .associateWith((_, i) => fieldsPartsStart + i * 8);
 
-export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount }) => {
-    const ts = t.sp;
-    console.log(p);
-    const ip = invoiceableParts.associateWith(it => !p.fakturace.invoiceParts?.includes(it)).let(ip => ({
-        ...ip, yearlyHPInCascadeCheck: ip.yearlyHPCheck, commissioningHPInCascade: ip.commissioningTC,
-    }));
-    const assemblyCompany = await ares.getNameAndAddress(p.montazka.ico, fetch);
+export const calculateProtocolPrice = <D extends GenericFormSP<D>>(p: Raw<D>, pumpCount: number | undefined) => {
     const spareParts = [
         p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
         p.nahradniDil5, p.nahradniDil6, p.nahradniDil7, p.nahradniDil8,
     ].slice(0, p.nahradniDily.pocet);
+    const ip = invoiceableParts.associateWith(it => !p.fakturace.invoiceParts?.includes(it)).let(ip => ({
+        ...ip, yearlyHPInCascadeCheck: ip.yearlyHPCheck, commissioningHPInCascade: ip.commissioningTC,
+    }));
+
     const priceTransportation = ip.transportation ? prices.transportation * Number(p.ukony.doprava) : 0;
     const priceWork = p.ukony.typPrace && ip.work ? prices.work * Number(p.ukony.doba) : 0;
     const operationsWithCascades = p.ukony.ukony.flatMap(type => [
@@ -79,6 +79,28 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
     const priceOther = priceOperations + priceParts - discount;
     const sum = priceTransportation + priceWork + priceOther;
     const tax = p.ukony.typPrace == 'technicalAssistance12' ? 1.12 : 1.21;
+    const sumWithTax = sum * tax;
+    const isFree = sumWithTax < 1.0
+    return { spareParts, ip, priceTransportation, priceWork, operationsWithCascades, discount, priceOther, sum, tax, sumWithTax, isFree };
+};
+
+export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount }) => {
+    const ts = t.sp;
+    console.log(p);
+    const assemblyCompany = await ares.getNameAndAddress(p.montazka.ico, fetch);
+    const {
+        spareParts,
+        ip,
+        priceTransportation,
+        priceWork,
+        operationsWithCascades,
+        discount,
+        priceOther,
+        sum,
+        tax,
+        sumWithTax,
+        isFree,
+    } = calculateProtocolPrice(p, pumpCount);
     let response: Response;
     try {
         response = await fetch(`/signatures/${p.zasah.inicialy}.jpg`);
@@ -116,7 +138,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
         Text12: isUnknown ? null : p.montazka.email,
         Text13: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
         Text14: multilineTooLong(system) ? ts.seeSecondPage : system,
-        Text15: dateFromISO(p.zasah.datum),
+        Text15: '     ' + dateFromISO(p.zasah.datum),
         Text16: p.system.datumUvedeni ? dateFromISO(p.system.datumUvedeni) : null,
         Text17: p.zasah.clovek,
         'Zaškrtávací pole28': p.system.zaruka == `warrantyCommon`,
@@ -154,14 +176,14 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
         Text33: priceOther.roundTo(2).toLocaleString('cs') + ' Kč',
         Text34: sum.roundTo(2).toLocaleString('cs') + ' Kč',
         Text18: `${(tax * 100 - 100).toFixed(0)} %`,
-        Text35: (sum * tax).roundTo(2).toLocaleString('cs') + ' Kč',
-        Text39: get(ts, p.fakturace.hotove),
+        Text35: sumWithTax.roundTo(2).toLocaleString('cs') + ' Kč',
+        Text39: isFree ? 'Zdarma' : get(ts, p.fakturace.hotove),
         Text40: ' ',
-        Text41: p.fakturace.hotove == 'yes' ? ''
+        Text41: p.fakturace.hotove != 'no' || isFree ? ''
             : p.fakturace.komu.chosen == 'otherCompany' ? p.fakturace.komu.text
                 : p.fakturace.komu.chosen == 'commissioningCompany' ? (await ares.getName(p.uvedeni.ico) || p.uvedeni.ico)
                     : get(ts, p.fakturace.komu.chosen),
-        Text42: p.fakturace.hotove == 'no' ? get(ts, p.fakturace.jak) : '',
+        Text42: p.fakturace.hotove == 'no' && !isFree ? get(ts, p.fakturace.jak) : '',
         Text43: {
             assemblyCompany: p.montazka.zastupce,
             commissioningCompany: p.uvedeni.zastupce,

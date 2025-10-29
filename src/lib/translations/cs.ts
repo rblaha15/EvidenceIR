@@ -2,7 +2,6 @@
 
 import { template as t } from '$lib/helpers/templates';
 import '$lib/extensions';
-import { unknownCRN } from '$lib/forms/IN/formIN';
 
 export default {
     form: {
@@ -257,6 +256,8 @@ export default {
         heatPumpCount: 'Počet TČ v instalaci',
         intervention: 'Zásah',
         doNotInvoice: `Nefakturovat`,
+        price: ({ sum, isFree, sumWithTax }: { sum: number, isFree: boolean, sumWithTax: number }) =>
+            isFree ? `Konečná cena: Zdarma` : `Konečná cena (bez DPH): ${sum.roundTo(2).toLocaleString('cs')} Kč (${sumWithTax.roundTo(0).toLocaleString('cs')} Kč s DPH)`,
         no: `Ne`,
         yes: `Ano`,
         investor: `Investor`,
@@ -286,6 +287,7 @@ export default {
         l: 'l',
         degreeCelsius: '°C',
         degree: '°',
+        czk: 'Kč',
     },
     detail: {
         titleIR: 'Podrobnosti o instalaci',
