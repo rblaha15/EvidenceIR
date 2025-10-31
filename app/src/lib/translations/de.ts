@@ -67,7 +67,7 @@ const de: PlainTranslations = {
         assemblyCompany: `Montagefirma`,
         companyName: `Name`,
         ir: {
-            fve: `Keine – nur PV`,
+            other: `Andere (für PV oder SOL durch externe Regulierung gesteuert)`,
         },
         device: {
             heatPump: `Wärmepumpe`,
@@ -345,7 +345,7 @@ const de: PlainTranslations = {
         wasInstallationAccordingToManual: `Erfolgte die Installation und Inbetriebnahme der Wärmepumpe gemäß den in der Installations-, Anschluss- und Betriebsanleitung festgelegten Bedingungen, den Einbaubedingungen und den allgemein gültigen Normen?`,
         wasControllerSetToParameters: `Wurde die Regulationseinheit der WP auf die vorgeschriebenen Parameter eingestellt?`,
         wasOwnerFamiliarizedWithFunction: `Wurde der Besitzer in die Grundfunktionen der WP und ihre Bedienung eingewiesen?`,
-        isExtendedWarrantyDesired: `Hat der Eigentümer der Wärmepumpe Interesse an einer verlängerten Garantie?`,
+        isExtendedWarrantyDesired: `Ist der Besitzer der Wärmepumpe an einer erweiterten 10-Jahres-Garantie auf den Kompressor interessiert?`,
         isInstallationInWarrantyConditions: `Entsprechen die Installation und Inbetriebnahme den Bedingungen der verlängerten Garantie?`,
         cascadeSee: `Kaskade – siehe unten`,
         cascade: `Kaskade:`,

@@ -61,6 +61,7 @@ const en: PlainTranslations = {
     units: {
         ...cs.units,
         MWhPerYear: 'MWh/year',
+        czk: 'CZK',
     },
     form: {
         successfullySent: `Successfully sent!`,
@@ -185,7 +186,7 @@ const en: PlainTranslations = {
             company: `Juridical person`,
         },
         ir: {
-            fve: `None – photovoltaic system only`,
+            other: `Other (for photovoltaic or solar systems controlled by an external controller)`,
         },
         device: {
             heatPump: 'Heat pump',
@@ -421,6 +422,8 @@ const en: PlainTranslations = {
         heatPumpCount: 'Count of heat pumps in the installation',
         intervention: 'Intervention',
         doNotInvoice: 'Do not invoice',
+        price: ({ sum, isFree, sumWithTax }) =>
+            isFree ? `Total price: Free` : `Total price (excl. VAT): ${sum.roundTo(2).toLocaleString()} CZK (${sumWithTax.roundTo(0).toLocaleString()} CZK incl. VAT)`,
         yes: 'Yes',
         no: 'No',
         investor: 'Investor',
@@ -499,6 +502,7 @@ const en: PlainTranslations = {
         otherCollector: `Other`,
         expansionTankInstalled: `expansion tank`,
         bufferTankInstalled: `buffer tank`,
+        isExtendedWarrantyDesired: `Is the owner of the heat pump interested in an extended 10-year warranty on the compressor?`,
     },
     sol: {
         ...cs.sol,

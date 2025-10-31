@@ -2,7 +2,6 @@
 
 import { template as t } from '$lib/helpers/templates';
 import '$lib/extensions';
-import { unknownCRN } from '$lib/forms/IN/formIN';
 
 export default {
     form: {
@@ -257,6 +256,8 @@ export default {
         heatPumpCount: 'Počet TČ v instalaci',
         intervention: 'Zásah',
         doNotInvoice: `Nefakturovat`,
+        price: ({ sum, isFree, sumWithTax }: { sum: number, isFree: boolean, sumWithTax: number }) =>
+            isFree ? `Konečná cena: Zdarma` : `Konečná cena (bez DPH): ${sum.roundTo(2).toLocaleString('cs')} Kč (${sumWithTax.roundTo(0).toLocaleString('cs')} Kč s DPH)`,
         no: `Ne`,
         yes: `Ano`,
         investor: `Investor`,
@@ -286,6 +287,7 @@ export default {
         l: 'l',
         degreeCelsius: '°C',
         degree: '°',
+        czk: 'Kč',
     },
     detail: {
         titleIR: 'Podrobnosti o instalaci',
@@ -398,7 +400,7 @@ export default {
         wasInstallationAccordingToManual: `Instalace a uvedení do provozu tepelného čerpadla byla provedena dle podmínek uvedených v návodu na montáž, připojení a obsluhu, instalačních podmínek a obecně platných norem`,
         wasControllerSetToParameters: `Regulátor tepelného čerpadla byl nastaven na předepsané parametry`,
         wasOwnerFamiliarizedWithFunction: `Vlastník nebo provozovatel byl seznámen se základní funkcí tep. čerpadla a jeho obsluhou`,
-        isExtendedWarrantyDesired: `Má vlastník TČ zájem o prodlouženou záruku?`,
+        isExtendedWarrantyDesired: `Má vlastník TČ zájem o prodlouženou příplatkovou záruku 10 let na kompresor?`,
         isInstallationInWarrantyConditions: `Instalace a uvedení do provozu jsou v souladu s podmínkami prodloužené záruky`,
         controlAndElectricalInstallation: `Regulace a elektroinstalace`,
         internetConnection: `Připojení k internetu`,
@@ -528,7 +530,7 @@ export default {
     },
     in: {
         ir: {
-            fve: `Žádný – pouze FVE`,
+            other: `Jiný (pro FVE nebo SOL řízený externí regulací)`,
         },
         device: {
             heatPump: `Tepelné čerpadlo`,

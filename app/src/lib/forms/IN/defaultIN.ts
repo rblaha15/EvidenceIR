@@ -49,7 +49,7 @@ const rtc = (d: FormIN) => d.ir.typ.value.second == 'RTC';
 const subType = (d: FormIN) => d.ir.typ.value.second != null;
 
 const supportsRemoteAccessF = (f: FormIN) => supportsRemoteAccess(f.ir.typ.value.first)
-const irFVE = (d: FormIN) => d.ir.typ.value.first == 'fve';
+const irOther = (d: FormIN) => d.ir.typ.value.first == 'other';
 const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == 'DG-450-B';
 
 export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
@@ -385,7 +385,7 @@ export default (): FormIN => ({
         nadpis: new TitleWidget({ text: t => t.in.controller, level: 4 }),
         typ: new DoubleChooserWidget({ // Code partially duplicated in ChangeIRID.svelte
             label: t => t.in.controllerType,
-            options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'fve'],
+            options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'other'],
             options2: ({ ir: { typ: { value: { first: f } } } }) => (
                 supportsOnlyCTC(f) ? ['CTC']
                     : f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
@@ -410,8 +410,7 @@ export default (): FormIN => ({
                 if (doesNotSupportHeatPumps(v.first) && v.second) {
                     d.ir.typ.setValue(d, { ...v, second: null });
                 }
-                if (v.first == 'fve') {
-                    d.ir.chceVyplnitK.setValue(d, ['photovoltaicPowerPlant']);
+                if (v.first == 'other') {
                     d.fve.typ.setValue(d, 'DG-450-B');
                 }
             },
@@ -475,12 +474,11 @@ export default (): FormIN => ({
         }),
         chceVyplnitK: new MultiCheckboxWidget({
             label: t => t.in.whatToAddInfoTo,
-            options: d => irFVE(d)
-                ? ['photovoltaicPowerPlant']
+            options: d => irOther(d)
+                ? [`solarCollector`, 'photovoltaicPowerPlant']
                 : doesNotSupportHeatPumps(d.ir.typ.value.first)
                     ? [`solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'other']
                     : [`heatPump`, `solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'other'] as const,
-            lock: irFVE,
             required: false, showInXML: false, onValueSet: (d, v) => {
                 if (!v.includes('heatPump')) {
                     d.tc.typ.setValue(d, null);
@@ -574,8 +572,8 @@ export default (): FormIN => ({
         }),
         typ: new ChooserWidget({
             label: t => t.in.panelType, chosen: 'DG-450-B',
-            required: fve, show: fve, lock: irFVE,
-            options: d => irFVE(d) ? ['DG-450-B'] : ['DG-450-B', 'otherNotRegulusPanels'],
+            required: fve, show: fve, lock: irOther,
+            options: d => irOther(d) ? ['DG-450-B'] : ['DG-450-B', 'otherNotRegulusPanels'],
             labels: t => t.in.fve,
         }),
         pocet: new InputWidget({

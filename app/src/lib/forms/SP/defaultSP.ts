@@ -1,6 +1,7 @@
 import {
     ChooserWidget,
-    CounterWidget, type Get,
+    CounterWidget,
+    type Get,
     type GetT,
     type HeadingLevel,
     type InlinePdfPreviewData,
@@ -19,8 +20,9 @@ import type { Translations } from '$lib/translations';
 import { browser } from '$app/environment';
 import { derived } from 'svelte/store';
 import { generalizeServiceProtocol } from '$lib/pdf/pdf';
-import { type FormGroupPlus, type FormPlus } from '$lib/forms/Form';
+import { dataToRawData, type FormGroupPlus, type FormPlus } from '$lib/forms/Form';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
+import { calculateProtocolPrice } from '$lib/pdf/generators/pdfSP';
 
 const multilineLineLength = 670;
 const multilineMaxLength = multilineLineLength * 4;
@@ -57,11 +59,11 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
                 nd.name.setValue(d, part?.name ?? '');
                 nd.unitPrice.setValue(d, part?.unitPrice?.let(String) ?? '');
                 nd.dil._value = null;
-            }, getSearchItem: (i: SparePart) => ({
+            }, getSearchItem: (i: SparePart, t) => ({
                 pieces: [
                     { text: i.code.toString(), width: .08 },
                     { text: i.name, width: .8 },
-                    { text: i.unitPrice.roundTo(2).toLocaleString('cs') + ' Kč', width: .12 },
+                    { text: i.unitPrice.roundTo(2).toLocaleString('cs') + t.units.czk, width: .12 },
                 ] as const,
             }), showInXML: false,
         }),
@@ -72,7 +74,7 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
             label: t => t.sp.code, type: 'number', required: false, show,
         }),
         unitPrice: new InputWidget({
-            label: t => t.sp.unitPrice, type: 'number', required: show, show, suffix: 'Kč',
+            label: t => t.sp.unitPrice, type: 'number', required: show, show, suffix: t => t.units.czk,
         }),
         warehouse: new InputWidget({
             label: t => t.sp.warehouse, required: false, show,
@@ -97,12 +99,24 @@ const operations = [
 export const invoiceableParts = [
     'transportation' as const, 'work' as const, ...operations,
 ];
+
+const calculate = <D extends GenericFormSP<D>>(hpCount: Get<D, number>, d: D) =>
+    calculateProtocolPrice(dataToRawData(d), hpCount(d));
+const notFree = <D extends GenericFormSP<D>>(hpCount: Get<D, number>) =>
+    (d: D) => !calculate(hpCount, d).isFree;
+const notByCash = <D extends GenericFormSP<D>>(d: D) => d.fakturace.hotove.value == 'no';
+
 export const defaultGenericSP = <D extends GenericFormSP<D>>(
     getPdfData: GetT<D, Omit<InlinePdfPreviewData<D, 'NSP'>, 'type'>>, hpCount: Get<D, number>, titleLevel: HeadingLevel = 2, reduceOperations = false,
 ): FormPlus<GenericFormSP<D>> => ({
     system: {
         datumUvedeni: new InputWidget({ label: t => t.sp.commissioningDate, type: 'date', required: false }),
-        zaruka: new RadioWidget({ label: t => t.sp.warranty, options: [`warrantyCommon`, `warrantyExtended`], required: false, labels }),
+        zaruka: new RadioWidget({
+            label: t => t.sp.warranty, options: [`warrantyCommon`, `warrantyExtended`], required: false, labels,
+            onValueSet: (d, hasWarranty) => {
+                if (hasWarranty) d.fakturace.invoiceParts.setValue(d, invoiceableParts);
+            },
+        }),
     },
     zasah: {
         _title: new TitleWidget({ text: t => t.sp.intervention, level: titleLevel }),
@@ -122,9 +136,15 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     ukony: {
         _title: new TitleWidget({ text: t => t.sp.billing, level: titleLevel }),
         ukony: new MultiCheckboxWidget({
-            label: (t, d) => reduceOperations ? t.sp.operations : t.sp.operationsMax(3 - (d.ukony.ukony.value.includes('yearlyHPCheck') && hpCount(d) > 1 ? 1 : 0)  - (d.ukony.ukony.value.includes('commissioningTC') && hpCount(d) > 1 ? 1 : 0) + (d.ukony.typPrace.value ? 0 : 1)),
-            max: d => d.ukony.typPrace.value ? 3 : 4, required: false, options: reduceOperations ? independentOperations : operations, labels, weights: (d, i) =>
-                i == 'yearlyHPCheck' && hpCount(d) > 1 ? 2 : i == 'commissioningTC' && hpCount(d) > 1 ? 2 : 1,
+            label: (t, d) => reduceOperations ? t.sp.operations : t.sp.operationsMax(3 - (d.ukony.ukony.value.includes('yearlyHPCheck') && hpCount(d) > 1 ? 1 : 0) - (d.ukony.ukony.value.includes('commissioningTC') && hpCount(d) > 1 ? 1 : 0) + (d.ukony.typPrace.value ? 0 : 1)),
+            max: d => d.ukony.typPrace.value ? 3 : 4,
+            required: false,
+            options: reduceOperations ? independentOperations : operations,
+            labels,
+            weights: (d, i) =>
+                i == 'yearlyHPCheck' && hpCount(d) > 1
+                || i == 'commissioningTC' && hpCount(d) > 1
+                    ? 2 : 1,
         }),
         typPrace: new RadioWidget({
             label: t => t.sp.workType, required: false, labels, lock: d => d.ukony.ukony.value.sumBy(i => d.ukony.ukony.weights(d, i)) == 4,
@@ -164,17 +184,22 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
             ], labels, required: false,
         }),
         discount: new InputWidget({
-            label: t => t.sp.discountNoTax, type: 'number', onError: t => t.wrong.number, suffix: 'Kč', required: false,
+            label: t => t.sp.discountNoTax, type: 'number', onError: t => t.wrong.number, suffix: t => t.units.czk, required: false,
             lock: d => d.nahradniDily.pocet.value == 8,
         }),
-        hotove: new ChooserWidget({ label: t => t.sp.paidInCash, options: ['yes', 'no'] as ('yes' | 'no' | 'doNotInvoice')[], labels, chosen: 'no' }),
+        _price: new TextWidget({ text: (t, d) => t.sp.price(calculate(hpCount, d)), class: 'fs-5' }),
+        hotove: new ChooserWidget({
+            label: t => t.sp.paidInCash, options: ['yes', 'no'] as ('yes' | 'no' | 'doNotInvoice')[], labels, chosen: 'no',
+            required: notFree(hpCount), show: notFree(hpCount),
+        }),
         komu: new RadioWithInputWidget({
-            label: t => t.sp.whoToInvoice, options: ['investor', `assemblyCompany`, `commissioningCompany`, 'otherCompany'], labels,
-            required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no', otherLabel: t => t.sp.crnOrName,
+            label: t => t.sp.whoToInvoice, labels, otherLabel: t => t.sp.crnOrName,
+            options: ['investor', `assemblyCompany`, `commissioningCompany`, 'otherCompany'],
+            required: d => notByCash(d) && notFree(hpCount)(d), show: d => notByCash(d) && notFree(hpCount)(d),
         }),
         jak: new RadioWidget({
             label: t => t.sp.send, options: ['onPaper', 'electronically'], labels,
-            required: d => d.fakturace.hotove.value == 'no', show: d => d.fakturace.hotove.value == 'no',
+            required: d => notByCash(d) && notFree(hpCount)(d), show: d => notByCash(d) && notFree(hpCount)(d),
         }),
     },
     other: {
