@@ -131,7 +131,7 @@ Object.prototype.mapEntries = function <T extends Record<PropertyKey, unknown>, 
     this: T,
     callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U | undefined
 ) {
-    return this.entries().mapNotUndefined(([key, value], index, array) =>
+    return [...this.entries()].mapNotUndefined(([key, value], index, array) =>
         callback(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][])
     ).toRecord<U[0], U[1]>();
 };
