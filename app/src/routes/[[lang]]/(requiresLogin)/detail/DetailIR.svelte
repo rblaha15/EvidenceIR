@@ -93,6 +93,7 @@
                             important: true,
                         }}
                     />
+                    <PDFLink name={t.zls.name} {t} link="ZLS" data={ir} {irid} />
                 {/if}
                 {#if ir.evidence.ir.chceVyplnitK.includes('photovoltaicPowerPlant')}
                     <PDFLink

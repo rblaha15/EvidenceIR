@@ -4,7 +4,7 @@ export function today() {
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const yyyy = today.getFullYear();
 
-    return `${dd}. ${mm}. ${yyyy}`;
+    return `${dd}. ${mm}. ${yyyy}` as const;
 }
 
 export function dayISO(date: Date = new Date()) {
@@ -12,7 +12,7 @@ export function dayISO(date: Date = new Date()) {
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const yyyy = date.getFullYear();
 
-    return `${yyyy}-${mm}-${dd}`;
+    return `${yyyy}-${mm}-${dd}` as const;
 }
 
 export function time() {
@@ -20,7 +20,7 @@ export function time() {
     const hh = String(now.getHours()).padStart(2, '0');
     const mm = String(now.getMinutes()).padStart(2, '0');
 
-    return `${hh}:${mm}`;
+    return `${hh}:${mm}` as const;
 }
 
 export function nowISO() {
@@ -33,7 +33,7 @@ export function dateFromISO(dateISO: string) {
     const mm = parts[1];
     const yyyy = parts[0];
 
-    return `${dd}. ${mm}. ${yyyy}`;
+    return `${dd}. ${mm}. ${yyyy}` as const;
 }
 
 export function dateToISO(date: string) {
@@ -42,7 +42,7 @@ export function dateToISO(date: string) {
     const mm = parts[1].trim().padStart(2, '0');
     const yyyy = parts[2].trim().padStart(4, '2020');
 
-    return `${yyyy}-${mm}-${dd}`;
+    return `${yyyy}-${mm}-${dd}` as const;
 }
 
 export function timeFromISO(timeISO: string) {

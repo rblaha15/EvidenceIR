@@ -461,6 +461,10 @@ const en: PlainTranslations = {
         title: `Heat pump warranty`,
         name: t`Heat pump ${'n'} (${'cislo'}) warranty`,
     },
+    zls: {
+        title: `Solar system warranty`,
+        name: `Solar system warranty`,
+    },
     tc: {
         ...cs.tc,
         name: `Heat pump commissioning protocol`,
