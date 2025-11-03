@@ -247,6 +247,7 @@ const en: PlainTranslations = {
                 addIR: t`Registered a new controller (${'ir'})`,
                 deleteIR: t`Removed the record of the ${'ir'} controller`,
                 updateIRRecord: t`Changed the information of the ${'ir'} controller`,
+                addSolarSystemCheck: t`Created a yearly solar system check for year ${'year'} at the ${'ir'} controller`,
                 addHeatPumpCheck: t`Created a yearly heat pump check for the ${'pump'} heat pump for year ${'year'} at the ${'ir'} controller`,
                 addServiceProtocol: t`Created a service protocol ${'sp'} at the ${'ir'} controller`,
                 updateServiceProtocol: t`Edited the ${'sp'} service protocol at the ${'ir'} controller`,
@@ -466,7 +467,6 @@ const en: PlainTranslations = {
         name: `Solar system warranty`,
     },
     tc: {
-        ...cs.tc,
         name: `Heat pump commissioning protocol`,
         title: `Heat pump permanent commissioning protocol`,
         commission: 'Commission',
@@ -507,18 +507,20 @@ const en: PlainTranslations = {
         expansionTankInstalled: `expansion tank`,
         bufferTankInstalled: `buffer tank`,
         isExtendedWarrantyDesired: `Is the owner of the heat pump interested in an extended 10-year warranty on the compressor?`,
+        ...(['heatingSystemDescription', 'isAdditionalHeatingSourceConnected', 'typeAndPowerOfAdditionalHeatingSource', 'doesHeatPumpPrepareHotWater', 'volumeOfExpansionTankOfHeatingSystem', 'pressureOfExpansionTankOfHeatingSystem', 'pressureOfHeatingSystem', 'pressureOfExpansionTankForWater', 'isPoolHeatingManagedByHeatPump', 'controlAndElectricalInstallation', 'internetConnection', 'isElectricalBondingComplete', 'areElectricalDevicesTested', 'isBackupPowerSourceInstalled', 'primaryCircuit', 'typeOfPrimaryCircuit', 'typeOfAntifreezeMixture', 'onPrimaryCircuitInstalled', 'wasPrimaryCircuitTested', 'commissioningSteps', 'wasInstallationAccordingToManual', 'wasControllerSetToParameters', 'wasOwnerFamiliarizedWithFunction', 'isInstallationInWarrantyConditions'] as const)
+            .associateWith(k => cs.tc[k]),
     },
     sol: {
-        ...cs.sol,
         name: `Solar collector commissioning protocol`,
         title: `Solar collector permanent commissioning protocol`,
         commission: 'Commission',
         yes: `Yes`,
         no: `No`,
         dateOfCommission: `Commission date`,
+        ...(['solarSystem', 'collectorFieldOrientation', 'collectorSlope', 'storageTankType', 'accumulationTankType', 'exchangerType', 'solarControllerType', 'pumpGroupType', 'expansionTankSolar', 'volume', 'pressureOfSolarExpansionTank', 'pressureOfSolarSystemLiquid', 'pressureOfExpansionTankForWater', 'forVentingInstalled', 'heatTransferType', 'pipesMaterial', 'diameter', 'pipesLength', 'pipesIsolated', 'commissioningSteps', 'pressureCheckTime', 'pressureCheckPressure', 'pressureCheckLoss', 'venting', 'lightningProtection', 'conditionsMet', 'solarControllerSet', 'ownerInformed', 'airVentValve', 'airSeparator', 'nothing', 'other'] as const)
+            .associateWith(k => cs.sol[k]),
     },
     rkt: {
-        ...cs.rkt,
         title: `Description of operations during the preventive annual inspection of an air heat pump`,
         formTitle: t`Yearly heat pump ${'n'} checks`,
         name: t`Yearly heat pump ${'n'} (${'cislo'}) checks`,
@@ -551,6 +553,27 @@ const en: PlainTranslations = {
             },
             regulus: `Firma Regulus`,
         },
+        ...(['kontrolniElektroinstalace', 'kontrolniUkonyTepelnehoCerpadla', 'kontrolniUkonyRegulace', 'kontrolniUkonyOtopneSoustavy', 'kontrolaZasobnikuTv', 'kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace', 'kontrolaDotazeniSvorkovychSpoju', 'vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni', 'kontrolaSepnutiDohrevuSepnutiStykacePripadneRele', 'kontrolaChoduKompresoru', 'optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu', 'kontrolaOdvoduKondenzatu', 'kontrolaUchyceniVentilatoru', 'vycisteniVzduchovychCestJednotky', 'kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem', 'proveritZdaNicNebraniOptimalniCirkulaciVzduchu', 'kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu', 'kontrolaElektrickeCastiJednotkyTepelnehoCerpadla', 'kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin', 'kontrolaNastaveniParametruRegulatoru', 'preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni', 'stavPocitadlaCelkovychProvoznichHodinKompresoru', 'stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace', 'stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace', 'stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace', 'stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje', 'stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv', 'prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly', 'prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly', 'kontrolaFunkceObehovychCerpadel', 'vycisteniFiltruObehovychCerpadel', 'odvzdusneniZdrojeTc', 'kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych', 'kontrolaTesnostiOtopneSoustavy', 'kontrolaTlakuVExpanzniNadobeOtopneSoustavy', 'nastavenyTlakPriUvadeniDoProvozu', 'pripadneProvedteKontroluTlakuVOtopneSoustave', 'kontrolaMgAnodyVZasobnikuPripVymena', 'kontrolaPojistovacihoVentilu', 'pripadneProvedteKontroluTlakuVEnTepleVody'] as const)
+            .associateWith(k => cs.rkt[k]),
+    },
+    rks: {
+        title: `Description of operations during the preventive annual inspection of a solar system`,
+        formTitle: `Yearly solar system checks`,
+        name: `Yearly solar system checks`,
+        fillOut: `Fill out an yearly solar system check`,
+        year: `Year`,
+        checkYear: `Control sequence number (number of years since the solar system commission)`,
+        yearAlreadyFilled: `This year is already filled`,
+        systemDetails: t`Solar collector: ${'type'} – ${'count'}x`,
+        no: `No`,
+        yes: `Yes`,
+        performingPerson: `Performing person`,
+        checkDate: `Check date`,
+        note: `Note`,
+        recommendations: {
+        },
+        ...(['kontrolniUkonySolarnihoSystemu', 'kontrolaUpevneniKolektoru', 'vizualniKontrolaTesnostiSystemu', 'kontrolaStavuIzolacePotrubi', 'kontrolaDorustaniOkolStromuZDuvoduMoznehoZastineni', 'odvzdusneniSolarnihoSystemuKontrolaSeparatoru', 'kontrolaSpravnehoPrutoku', 'kontrolaMrazuvzdornostiKapalinyRefraktometrem', 'kontrolaTlakuKapalinyVSolarnimSystemuPripadneDoplneni', 'kontrolaTlakuVSolarniEnJehoPripadneDoplneni', 'kontrolaSolarniRegulace', 'kontrolaTeplotnichCidel', 'kontrolaNastaveniParametruRegulatoru', 'kontrolaChybovychHlaseniVRegulaciAJejichPricin', 'preventProskoleniObsluhyZHlediskaUdrzbyANastaveniRegulace', 'kontrolaElektroinstalce', 'kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace', 'kontrolaDotazeniSvorkovychSpoju', 'vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni', 'kontrolaSepnutiDohrevuSepnutiStykacePripadneRele', 'kontrolaZasobnikuTv', 'kontrolaMgAnodyVZasobnikuPripVymena', 'kontrolaPojistovacihoVentilu', 'pripadneProvedteKontroluTlakuVEnTepleVody'] as const)
+            .associateWith(k => cs.rks[k]),
     },
     od: {
         title: 'Send signed documents',
