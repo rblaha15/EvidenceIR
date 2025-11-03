@@ -73,6 +73,7 @@
                                 show: true,
                                 href: iridUrl(`/RKT?pump=${tc.N}`),
                                 text: t.rkt.fillOut(tc),
+                                important: ir.yearlyHeatPumpCheckRecommendation?.state === 'sentRequest',
                             }} dropdownItems={$isUserAdmin ? ir.kontrolyTC[tc.N]?.keys().flatMap(y => [{
                                 text: `${t.rkt.year} ${y}`,
                             }, {
