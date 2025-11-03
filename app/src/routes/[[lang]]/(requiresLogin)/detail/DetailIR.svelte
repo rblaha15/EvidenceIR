@@ -1,7 +1,7 @@
 <script lang="ts">
     import PDFLink from './PDFLink.svelte';
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
-    import { type IRID } from '$lib/helpers/ir';
+    import { type IRID, supportsRemoteAccess } from '$lib/helpers/ir';
     import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { getTranslations, type Translations } from '$lib/translations';
     import db, { type IR } from '$lib/data';
@@ -46,7 +46,7 @@
                 {#if ir.evidence.vzdalenyPristup.chce}
                     <PDFLink name={t.rr.name} {t} link="RR" data={ir} {irid} />
                 {/if}
-                {#if ir.evidence.ir.typ.first !== 'SOREL' && ir.evidence.ir.typ.first !== 'fve'}
+                {#if supportsRemoteAccess(ir.evidence.ir.typ.first)}
                     <PDFLink name={t.nn.title} {t} link="NN" data={ir} {irid} />
                 {/if}
                 {#if ir.evidence.ir.chceVyplnitK.includes('heatPump')}
