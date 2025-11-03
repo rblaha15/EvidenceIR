@@ -350,6 +350,10 @@ export default {
         title: `Záruční list tepelného čerpadla`,
         name: t`Záruční list TČ${'n'} (${'cislo'})`,
     },
+    zls: {
+        title: `Záruční list solárního systému`,
+        name: `Záruční list SOL`,
+    },
     tc: {
         name: `Protokol o instalaci TČ`,
         title: `Protokol o uvedení tepelného čerpadla do trvalého provozu`,

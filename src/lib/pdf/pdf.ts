@@ -6,6 +6,7 @@ import type { PdfGenerationData } from '$lib/pdf/pdfGeneration';
 import RKT from '$lib/pdf/generators/pdfRKT';
 import NN from '$lib/pdf/generators/pdfNN';
 import ZLT from '$lib/pdf/generators/pdfZLT';
+import ZLS from '$lib/pdf/generators/pdfZLS';
 import RR from '$lib/pdf/generators/pdfRR';
 import UPT from '$lib/pdf/generators/pdfUPT';
 import UPS from '$lib/pdf/generators/pdfUPS';
@@ -26,6 +27,8 @@ type AllPdf = {
     RKT: 'IR'
     /** Záruční list TČ */
     ZLT: 'IR'
+    /** Záruční list SOL */
+    ZLS: 'IR'
     /** Souhlas s RegulusRoute */
     RR: 'IR'
     /** Návod na přístup do IR  */
@@ -66,6 +69,13 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs', 'de'],
         title: t => t.zlt.title,
         getPdfData: ZLT,
+    },
+    ZLS: {
+        type: 'IR',
+        pdfName: 'ZLS',
+        supportedLanguages: ['cs', 'de'],
+        title: t => t.zls.title,
+        getPdfData: ZLS,
     },
     RR: {
         type: 'IR',
