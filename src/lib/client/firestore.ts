@@ -121,6 +121,14 @@ export const firestoreDatabase: Database = {
             return ir!;
         });
     },
+    addSolarSystemCheck: async (irid, year, check) => {
+        await updateDoc(irDoc(irid), `kontrolySOL.${year}`, check);
+        await odm.update('IR', irid, ir => {
+            ir!.kontrolySOL = ir!.kontrolySOL ?? {};
+            ir!.kontrolySOL[year] = check;
+            return ir!;
+        });
+    },
     addServiceProtocol: async (irid, protocol) => {
         const ir = await getSnp(irDoc(irid));
         ir!.installationProtocols.push(protocol);

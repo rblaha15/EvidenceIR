@@ -16,6 +16,7 @@ import { firestoreDatabase } from '$lib/client/firestore';
 import { flatDerived } from '$lib/helpers/stores';
 import type { FormFT } from '$lib/forms/FT/formFT';
 import '$lib/extensions';
+import type { FormRKS } from '$lib/forms/RKS/formRKS';
 
 export type Year = number;
 
@@ -29,6 +30,7 @@ export type IR = {
     kontrolyTC: {
         [P in TC]?: Record<Year, Raw<FormRKT>>;
     };
+    kontrolySOL?: Record<Year, Raw<FormRKS>>;
     users: string[];
     installationProtocols: Raw<FormSP>[];
     faceTable?: Raw<FormFT>;
@@ -90,6 +92,8 @@ export interface WriteDatabase {
 
     addHeatPumpCheck(irid: IRID, pump: TC, year: Year, check: Raw<FormRKT>): Promise<void>;
 
+    addSolarSystemCheck(irid: IRID, year: Year, check: Raw<FormRKS>): Promise<void>;
+
     addServiceProtocol(irid: IRID, protocol: Raw<FormSP>): Promise<void>;
 
     updateServiceProtocol(irid: IRID, index: number, protocol: Raw<FormSP>): Promise<void>;
@@ -144,7 +148,7 @@ const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>
 };
 
 const functions = [
-    'getIR', 'getAllIRs', 'getAllIRsAsStore', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
+    'getIR', 'getAllIRs', 'getAllIRsAsStore', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck', 'addSolarSystemCheck',
     'addServiceProtocol', 'updateServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
     'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'updateRecommendationsSettings', 'addIndependentServiceProtocol',
     'deleteIndependentProtocol', 'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols',

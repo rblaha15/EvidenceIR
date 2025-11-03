@@ -4,6 +4,7 @@ import type { SaveOptions } from 'pdf-lib';
 import type { IR, Year } from '$lib/data';
 import type { PdfGenerationData } from '$lib/pdf/pdfGeneration';
 import RKT from '$lib/pdf/generators/pdfRKT';
+import RKS from '$lib/pdf/generators/pdfRKS';
 import NN from '$lib/pdf/generators/pdfNN';
 import ZLT from '$lib/pdf/generators/pdfZLT';
 import ZLS from '$lib/pdf/generators/pdfZLS';
@@ -25,6 +26,8 @@ import { cascadePumps } from '$lib/forms/IN/infoIN';
 type AllPdf = {
     /** Roční kontrola TČ */
     RKT: 'IR'
+    /** Roční kontrola SOL */
+    RKS: 'IR'
     /** Záruční list TČ */
     ZLT: 'IR'
     /** Záruční list SOL */
@@ -62,6 +65,13 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs', 'de'],
         title: t => t.rkt.title,
         getPdfData: RKT,
+    },
+    RKS: {
+        type: 'IR',
+        pdfName: 'RKS',
+        supportedLanguages: ['cs', 'de'],
+        title: t => t.rks.title,
+        getPdfData: RKS,
     },
     ZLT: {
         type: 'IR',
@@ -207,6 +217,9 @@ export type PdfArgs<P extends Pdf> = {
 type PdfParams = {
     RKT: {
         pump: TC,
+        lastYear?: Year,
+    },
+    RKS: {
         lastYear?: Year,
     },
     ZLT: {

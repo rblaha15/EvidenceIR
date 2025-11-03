@@ -71,7 +71,7 @@
                             name={t.rkt.name(tc)} {t} link="RKT" data={ir} pump={tc.N} {irid}
                             disabled={!ir.kontrolyTC[tc.N]?.keys()?.length} additionalButton={{
                                 show: true,
-                                href: iridUrl(`/RK?pump=${tc.N}`),
+                                href: iridUrl(`/RKT?pump=${tc.N}`),
                                 text: t.rkt.fillOut(tc),
                             }} dropdownItems={$isUserAdmin ? ir.kontrolyTC[tc.N]?.keys().flatMap(y => [{
                                 text: `${t.rkt.year} ${y}`,
@@ -79,7 +79,7 @@
                                 color: 'warning',
                                 icon: 'edit_document',
                                 text: td.editCheck + $aA,
-                                href: iridUrl(`/RK/?pump=${tc.N}&edit-year=${y}`),
+                                href: iridUrl(`/RKT?pump=${tc.N}&edit-year=${y}`),
                             }]) : undefined}
                         />
                     {/each}
@@ -95,10 +95,25 @@
                             color: 'warning',
                             icon: 'edit_document',
                             text: td.editProtocol + $aR,
-                            href: iridUrl(`/UPS/?edit`),
+                            href: iridUrl(`/UPS?edit`),
                         }] : undefined}
                     />
                     <PDFLink name={t.zls.name} {t} link="ZLS" data={ir} {irid} />
+                    <PDFLink
+                        name={t.rks.name} {t} link="RKS" data={ir} {irid}
+                        disabled={!ir.kontrolySOL?.keys()?.length} additionalButton={{
+                            show: true,
+                            href: iridUrl(`/RKS`),
+                            text: t.rks.fillOut,
+                        }} dropdownItems={$isUserAdmin ? ir.kontrolySOL?.keys().flatMap(y => [{
+                            text: `${t.rks.year} ${y}`,
+                        }, {
+                            color: 'warning',
+                            icon: 'edit_document',
+                            text: td.editCheck + $aA,
+                            href: iridUrl(`/RKS?edit-year=${y}`),
+                        }]) : undefined}
+                    />
                 {/if}
                 {#if ir.evidence.ir.chceVyplnitK.includes('photovoltaicPowerPlant')}
                     <PDFLink
