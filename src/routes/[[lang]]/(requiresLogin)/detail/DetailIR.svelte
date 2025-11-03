@@ -86,12 +86,17 @@
                 {/if}
                 {#if ir.evidence.ir.chceVyplnitK.includes('solarCollector')}
                     <PDFLink
-                        disabled={!ir.uvedeniSOL}
-                        name={t.sol.name} {t} link="UPS" data={ir} {irid} additionalButton={{
+                        disabled={!ir.uvedeniSOL} name={t.sol.name} {t}
+                        link="UPS" data={ir} {irid} additionalButton={{
                             href: iridUrl('/UPS'),
                             text: t.sol.commission,
                             important: true,
-                        }}
+                        }} dropdownItems={$isUserRegulusOrAdmin ? [{
+                            color: 'warning',
+                            icon: 'edit_document',
+                            text: td.editProtocol + $aR,
+                            href: iridUrl(`/UPS/?edit`),
+                        }] : undefined}
                     />
                     <PDFLink name={t.zls.name} {t} link="ZLS" data={ir} {irid} />
                 {/if}
