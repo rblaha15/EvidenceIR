@@ -1,25 +1,26 @@
 import ares from '$lib/helpers/ares';
 import type { GetPdfData } from '$lib/pdf/pdf';
-import { cascadePumps } from '$lib/forms/IN/infoIN';
+import { today } from '$lib/helpers/date';
 
-const pdfZL: GetPdfData<'ZL'> = async ({ data: { evidence: e }, t, pump }) => {
+const pdfZLS: GetPdfData<'ZLS'> = async ({ data: { evidence: e, uvedeniSOL: u }, t }) => {
     const uvedeni = await ares.getNameAndAddress(e.uvedeni.ico, fetch);
     const montazka = await ares.getNameAndAddress(e.montazka.ico, fetch);
-    const { model, cislo } = cascadePumps(e)[pump - 1];
     return {
-        Text1: model,
-        Text2: cislo,
+        Text1: e.sol.typ,
+        Text2: e.sol.pocet,
         Text3: `${e.montazka.ico} — ${montazka?.obchodniJmeno ?? ''}`,
         Text4: montazka?.sidlo?.textovaAdresa ?? null,
-        Text5: `${e.montazka.email ?? ''} — ${e.montazka.telefon ?? ''}		${e.montazka.zastupce ?? ''}`,
+        Text5: `${e.montazka.email ?? ''} — ${e.montazka.telefon ?? ''}\t\t${e.montazka.zastupce ?? ''}`,
         Text6: `${e.uvedeni.ico} — ${uvedeni?.obchodniJmeno ?? ''} — ${uvedeni?.sidlo?.textovaAdresa ?? ''}`,
-        Text7: `${e.uvedeni.email ?? ''}  — ${e.uvedeni.telefon ?? ''} 		${e.uvedeni.zastupce ?? ''}`,
+        Text7: `${e.uvedeni.email ?? '' } — ${e.uvedeni.telefon ?? '' }\t\t${e.uvedeni.zastupce ?? ''}`,
+        Text8: u?.sol.tlakKapaliny || null,
+        Text10: u?.sol.tlakEnSol || null,
         Text9: montazka?.obchodniJmeno ?? null,
         Text11: e.uvedeni.zastupce,
-        Text12: '',
-        Text13: '',
-        Text14: null,
+        Text12: null,
+        Text13: null,
+        Text14: today(),
     };
 };
 
-export default pdfZL;
+export default pdfZLS;
