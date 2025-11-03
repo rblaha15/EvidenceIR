@@ -1,6 +1,6 @@
 import type { Raw } from '$lib/forms/Form';
 import type { FormIN } from '$lib/forms/IN/formIN';
-import type { FormRK } from '$lib/forms/RK/formRK.js';
+import type { FormRKT } from '$lib/forms/RKT/formRKT.js';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import { type Readable } from 'svelte/store';
 import type { FormUPS } from '$lib/forms/UPS/formUPS';
@@ -27,7 +27,7 @@ export type IR = {
     uvedeniSOL?: Raw<FormUPS>;
     uvedeniFVE?: Raw<FormUPF>;
     kontrolyTC: {
-        [P in TC]?: Record<Year, Raw<FormRK>>;
+        [P in TC]?: Record<Year, Raw<FormRKT>>;
     };
     users: string[];
     installationProtocols: Raw<FormSP>[];
@@ -88,7 +88,7 @@ export interface WriteDatabase {
 
     updateIRRecord(rawData: Raw<FormIN>): Promise<void>;
 
-    addHeatPumpCheck(irid: IRID, pump: TC, year: Year, check: Raw<FormRK>): Promise<void>;
+    addHeatPumpCheck(irid: IRID, pump: TC, year: Year, check: Raw<FormRKT>): Promise<void>;
 
     addServiceProtocol(irid: IRID, protocol: Raw<FormSP>): Promise<void>;
 

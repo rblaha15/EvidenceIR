@@ -64,17 +64,17 @@
                         }] : undefined}
                     />
                     {#each cascadePumps(ir.evidence) as tc}
-                        <PDFLink name={t.zl.name(tc)} {t} link="ZL" data={ir} pump={tc.N} {irid} />
+                        <PDFLink name={t.zlt.name(tc)} {t} link="ZLT" data={ir} pump={tc.N} {irid} />
                     {/each}
                     {#each cascadePumps(ir.evidence) as tc}
                         <PDFLink
-                            name={t.rk.name(tc)} {t} link="RK" data={ir} pump={tc.N} {irid}
+                            name={t.rkt.name(tc)} {t} link="RKT" data={ir} pump={tc.N} {irid}
                             disabled={!ir.kontrolyTC[tc.N]?.keys()?.length} additionalButton={{
                                 show: true,
                                 href: iridUrl(`/RK?pump=${tc.N}`),
-                                text: t.rk.fillOut(tc),
+                                text: t.rkt.fillOut(tc),
                             }} dropdownItems={$isUserAdmin ? ir.kontrolyTC[tc.N]?.keys().flatMap(y => [{
-                                text: `${t.rk.year} ${y}`,
+                                text: `${t.rkt.year} ${y}`,
                             }, {
                                 color: 'warning',
                                 icon: 'edit_document',

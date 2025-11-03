@@ -346,7 +346,7 @@ export default {
         passwordRegulusRoute: `Regulusroute1`,
         passwordController: `uzivatel`,
     },
-    zl: {
+    zlt: {
         title: `Záruční list tepelného čerpadla`,
         name: t`Záruční list TČ${'n'} (${'cislo'})`,
     },
@@ -454,7 +454,7 @@ export default {
         other: 'jiná',
         solarSystem: 'Solární systém',
     },
-    rk: {
+    rkt: {
         title: `Popis úkonů při provádění preventivní roční prohlídky vzduchového tepelného čerpadla`,
         formTitle: t`Roční kontroly TČ${'n'}`,
         name: t`Roční kontroly TČ${'n'} (${'cislo'})`,

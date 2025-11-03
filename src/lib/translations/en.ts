@@ -457,7 +457,7 @@ const en: PlainTranslations = {
         passwordRegulusRoute: `Regulusroute1`,
         passwordController: `uzivatel`,
     },
-    zl: {
+    zlt: {
         title: `Heat pump warranty`,
         name: t`Heat pump ${'n'} (${'cislo'}) warranty`,
     },
@@ -513,8 +513,8 @@ const en: PlainTranslations = {
         no: `No`,
         dateOfCommission: `Commission date`,
     },
-    rk: {
-        ...cs.rk,
+    rkt: {
+        ...cs.rkt,
         title: `Description of operations during the preventive annual inspection of an air heat pump`,
         formTitle: t`Yearly heat pump ${'n'} checks`,
         name: t`Yearly heat pump ${'n'} (${'cislo'}) checks`,

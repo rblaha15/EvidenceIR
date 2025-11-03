@@ -7,23 +7,23 @@ import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { dayISO } from '$lib/helpers/date';
-import { type DataRK, type FormRK } from '$lib/forms/RK/formRK.js';
-import defaultRK from '$lib/forms/RK/defaultRK';
+import { type DataRKT, type FormRKT } from '$lib/forms/RKT/formRKT.js';
+import defaultRK from '$lib/forms/RKT/defaultRKT';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { error } from '@sveltejs/kit';
 
-const infoRK = (() => {
+const infoRKT = (() => {
     let defaultYear = $state() as Year;
     let filledYears = $state() as Year[];
     const pump = (url: URL = page.url) => (url.searchParams.get('pump')?.toNumber() || error(400, 'Argument pump not valid or missing')) as TC;
 
-    const info: FormInfo<DataRK, FormRK, [], 'RK'> = {
+    const info: FormInfo<DataRKT, FormRKT, [], 'RKT'> = {
         type: 'IR',
         storeName: () => `stored_check-${pump()}`,
         defaultData: () => defaultRK(defaultYear, filledYears),
         openPdf: () => ({
-            link: 'RK',
+            link: 'RKT',
             pump: pump(),
         }),
         getEditData: (ir, url) => {
@@ -88,7 +88,7 @@ const infoRK = (() => {
             return false;
         },
         showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
-        title: t => t.rk.formTitle({ n: `${pump()}` }),
+        title: t => t.rkt.formTitle({ n: `${pump()}` }),
         createWidgetData: () => {
         },
         onMount: async (d, k, m) => {
@@ -102,4 +102,4 @@ const infoRK = (() => {
     };
     return info;
 })();
-export default infoRK;
+export default infoRKT;

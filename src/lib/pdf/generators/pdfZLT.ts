@@ -2,7 +2,7 @@ import ares from '$lib/helpers/ares';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 
-const pdfZL: GetPdfData<'ZL'> = async ({ data: { evidence: e }, t, pump }) => {
+const pdfZLT: GetPdfData<'ZLT'> = async ({ data: { evidence: e }, t, pump }) => {
     const uvedeni = await ares.getNameAndAddress(e.uvedeni.ico, fetch);
     const montazka = await ares.getNameAndAddress(e.montazka.ico, fetch);
     const { model, cislo } = cascadePumps(e)[pump - 1];
@@ -22,4 +22,4 @@ const pdfZL: GetPdfData<'ZL'> = async ({ data: { evidence: e }, t, pump }) => {
     };
 };
 
-export default pdfZL;
+export default pdfZLT;
