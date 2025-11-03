@@ -118,6 +118,7 @@ const functions: {
     deleteIR: irid => ({ ir: irNumberFromIRID(irid) }),
     updateIRRecord: e => ({ ir: irName(e.ir) }),
     addHeatPumpCheck: (irid, pump, year) => ({ ir: irNumberFromIRID(irid), pump: `${pump}`, year: `${year}` }),
+    addSolarSystemCheck: (irid, year) => ({ ir: irNumberFromIRID(irid), year: `${year}` }),
     addServiceProtocol: (irid, p) => ({ ir: irNumberFromIRID(irid), sp: spName(p.zasah) }),
     updateServiceProtocol: (irid, _, p) => ({ ir: irNumberFromIRID(irid), sp: spName(p.zasah) }),
     addFaceTable: irid => ({ ir: irNumberFromIRID(irid) }),

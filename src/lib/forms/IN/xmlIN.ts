@@ -66,7 +66,7 @@ Verze aplikace: ${appVersion} (${version}) (${dev ? 'DEV' : browser ? 'BROWSER' 
 <evidence>
 ${innerXML(data, t).let(xml => {
     const irid = extractIRIDFromParts(data.ir.typ.value.first!, data.ir.cislo.value);
-    const link = page.url.origin + detailIrUrl(irid);
+    const link = page.url.origin + detailIrUrl(irid, '?');
     const linkLine = `\n        <odkaz>${link}</odkaz>`;
     const lastNewLine = xml.lastIndexOf('\n')
     return xml.slice(0, lastNewLine) + linkLine + xml.slice(lastNewLine)

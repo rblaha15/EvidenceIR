@@ -123,6 +123,11 @@ export const offlineDatabase: Database = {
         ir!.kontrolyTC[pump][year] = check;
         return ir!;
     }),
+    addSolarSystemCheck: (irid, year, check) => odm.update('IR', irid, ir => {
+        ir!.kontrolySOL = ir!.kontrolySOL ?? {};
+        ir!.kontrolySOL[year] = check;
+        return ir!;
+    }),
     addServiceProtocol: (irid, protocol) => odm.update('IR', irid, ir => {
         ir!.installationProtocols.push(protocol);
         return ir!;

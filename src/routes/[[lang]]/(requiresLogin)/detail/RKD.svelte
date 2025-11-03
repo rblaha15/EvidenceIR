@@ -11,7 +11,7 @@
     const { t, ir }: {
         t: Translations, ir: IR, irid: IRID,
     } = $props();
-    const tr = $derived(t.rk.recommendations);
+    const tr = $derived(t.rkt.recommendations);
 
     type D = { rkd: FormPartRKD<D>, evidence: IR['evidence'] }
 

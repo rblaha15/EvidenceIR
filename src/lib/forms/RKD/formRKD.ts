@@ -24,17 +24,17 @@ export interface FormPartRKD<D extends DataRKD<D>> extends Record<string, Widget
 }
 
 export const defaultRKD = <D extends DataRKD<D>>(): FormPartRKD<D> => ({
-    title: new TitleWidget({ text: t => t.rk.recommendations.title, level: 2, showInXML: false }),
+    title: new TitleWidget({ text: t => t.rkt.recommendations.title, level: 2, showInXML: false }),
     enabled: new CheckboxWidget({
-        label: t => t.rk.recommendations.userWantsTo, hideInRawData: true, showInXML: false, required: false,
+        label: t => t.rkt.recommendations.userWantsTo, hideInRawData: true, showInXML: false, required: false,
     }),
     executingCompany: new RadioWidget({
         options: d => d.evidence.uvedeni.ico == `${regulusCRN}` ? ['assembly', 'regulus']
             : d.evidence.montazka.ico == `${regulusCRN}` ? ['regulus', 'commissioning'] : ['assembly', 'commissioning', 'regulus'],
-        label: t => t.rk.recommendations.executingCompany, showInXML: false, hideInRawData: true, labels: t => ({
+        label: t => t.rkt.recommendations.executingCompany, showInXML: false, hideInRawData: true, labels: t => ({
             assembly: t.in.assemblyCompany,
             commissioning: t.in.commissioningCompany,
-            regulus: t.rk.recommendations.regulus,
+            regulus: t.rkt.recommendations.regulus,
         }), show: d => d.rkd.enabled.value, required: d => d.rkd.enabled.value,
     }),
     chosenCompany: new TextWidget({

@@ -1,8 +1,7 @@
 import { endUserName } from '$lib/helpers/ir';
-import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
-import { type FormRK } from '$lib/forms/RK/formRK.js';
+import { dataToRawData, rawDataToData } from '$lib/forms/Form';
 import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
-import defaultRK from '$lib/forms/RK/defaultRK';
+import defaultRKT from '$lib/forms/RKT/defaultRKT';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import ares from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
@@ -22,9 +21,9 @@ const calculateCompressorRuntime = ({ runtimeHoursPerYear, startupCountPerYear }
     return (thisRuntimeHours - lastRuntimeHours) / (thisStartupCount - lastStartupCount) * 60;
 };
 
-const pdfRK: GetPdfData<'RK'> = async ({ data, t, pump, lastYear, addDoc, lang }) => {
+const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang }) => {
     const { kontrolyTC, evidence: e, uvedeniTC: u } = data;
-    const tk = t.rk;
+    const tk = t.rkt;
     const originalChecks = kontrolyTC[pump]!
     const maxYear = Math.max(...originalChecks.keys().map(Number));
     const allYears = range(1, maxYear + 1) as Year[];
@@ -35,7 +34,7 @@ const pdfRK: GetPdfData<'RK'> = async ({ data, t, pump, lastYear, addDoc, lang }
     const yearsLeft = nextStartYear <= maxYear ? range(nextStartYear, maxYear + 1) : [];
     const checks = years.associateWith(y => originalChecks[y]);
     if (yearsLeft.length) await addDoc({
-        data, lang, args: pdfInfo.RK, pump, lastYear: nextStartYear - 1 as Year,
+        data, lang, args: pdfInfo.RKT, pump, lastYear: nextStartYear - 1 as Year,
     });
     else if (lang == 'cs') await addDoc({
         lang: 'cs',
@@ -72,7 +71,7 @@ const pdfRK: GetPdfData<'RK'> = async ({ data, t, pump, lastYear, addDoc, lang }
     };
     const veci = checks.mapTo((rok, kontrola, i) => {
         if (!kontrola) return [];
-        const k = dataToRawData(rawDataToData(defaultRK(rok, []), kontrola)); // seřazení informací
+        const k = dataToRawData(rawDataToData(defaultRKT(rok, []), kontrola)); // seřazení informací
         k.kontrolniUkonyRegulace.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly = calculateCompressorRuntime(argsHP, rok).roundTo().toLocaleString('cs');
         k.kontrolniUkonyRegulace.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly = calculateCompressorRuntime(argsHW, rok).roundTo().toLocaleString('cs');
         const array = k.omit('info', 'poznamky').getValues().flatMap(obj => obj.getValues());
@@ -106,4 +105,4 @@ const pdfRK: GetPdfData<'RK'> = async ({ data, t, pump, lastYear, addDoc, lang }
         ...veci,
     };
 };
-export default pdfRK;
+export default pdfRKT;

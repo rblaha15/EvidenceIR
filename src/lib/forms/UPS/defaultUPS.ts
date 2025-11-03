@@ -8,7 +8,7 @@ import {
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
 import { dayISO } from '$lib/helpers/date';
-import { type FormUPS } from '$lib/forms/UPS/formUPS';
+import { type FormUPS, type HeatTransferFluidType } from '$lib/forms/UPS/formUPS';
 
 const newYesNoWidget = <D>(args: {
     label: GetTOrVal<D>,
@@ -35,14 +35,17 @@ export default (): FormUPS => ({
         solRegulator: new InputWidget({ label: t => t.sol.solarControllerType }),
         cerpadloaSkupina: new InputWidget({ label: t => t.sol.pumpGroupType }),
         expanznkaSolarni: newYesNoWidget({ label: t => t.sol.expansionTankSolar, required: true }),
-        objem: new InputWidget({ label: t => t.sol.volume }),
+        objem: new InputWidget({ label: t => t.sol.volume, required: d => d.uvedeni.sol.expanznkaSolarni.value }),
+        tlakEnSol: new InputWidget({ label: t => t.sol.pressureOfSolarExpansionTank, suffix: t => t.units.bar }),
+        tlakKapaliny: new InputWidget({ label: t => t.sol.pressureOfSolarSystemLiquid, suffix: t => t.units.bar }),
+        tlakEnTv: new InputWidget({ label: t => t.sol.pressureOfExpansionTankForWater, suffix: t => t.units.bar }),
         ovzdusneni: new ChooserWidget({
             label: t => t.sol.forVentingInstalled, labels: t => t.sol,
             options: ['airVentValve', 'airSeparator', 'nothing'],
         }),
         teplonosnaKapalina: new ChooserWidget({
             label: t => t.sol.heatTransferType, labels: t => t.sol,
-            options: ['Solarten Super', 'Solarten HT', 'other'],
+            options: ['Solarten Super' as HeatTransferFluidType, 'other'],
         }),
         potrubi: new InputWidget({ label: t => t.sol.pipesMaterial }),
         prumer: new InputWidget({ label: t => t.sol.diameter }),

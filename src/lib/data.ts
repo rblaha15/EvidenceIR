@@ -1,6 +1,6 @@
 import type { Raw } from '$lib/forms/Form';
 import type { FormIN } from '$lib/forms/IN/formIN';
-import type { FormRK } from '$lib/forms/RK/formRK.js';
+import type { FormRKT } from '$lib/forms/RKT/formRKT.js';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import { type Readable } from 'svelte/store';
 import type { FormUPS } from '$lib/forms/UPS/formUPS';
@@ -16,6 +16,7 @@ import { firestoreDatabase } from '$lib/client/firestore';
 import { flatDerived } from '$lib/helpers/stores';
 import type { FormFT } from '$lib/forms/FT/formFT';
 import '$lib/extensions';
+import type { FormRKS } from '$lib/forms/RKS/formRKS';
 
 export type Year = number;
 
@@ -27,8 +28,9 @@ export type IR = {
     uvedeniSOL?: Raw<FormUPS>;
     uvedeniFVE?: Raw<FormUPF>;
     kontrolyTC: {
-        [P in TC]?: Record<Year, Raw<FormRK>>;
+        [P in TC]?: Record<Year, Raw<FormRKT>>;
     };
+    kontrolySOL?: Record<Year, Raw<FormRKS>>;
     users: string[];
     installationProtocols: Raw<FormSP>[];
     faceTable?: Raw<FormFT>;
@@ -88,7 +90,9 @@ export interface WriteDatabase {
 
     updateIRRecord(rawData: Raw<FormIN>): Promise<void>;
 
-    addHeatPumpCheck(irid: IRID, pump: TC, year: Year, check: Raw<FormRK>): Promise<void>;
+    addHeatPumpCheck(irid: IRID, pump: TC, year: Year, check: Raw<FormRKT>): Promise<void>;
+
+    addSolarSystemCheck(irid: IRID, year: Year, check: Raw<FormRKS>): Promise<void>;
 
     addServiceProtocol(irid: IRID, protocol: Raw<FormSP>): Promise<void>;
 
@@ -144,7 +148,7 @@ const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>
 };
 
 const functions = [
-    'getIR', 'getAllIRs', 'getAllIRsAsStore', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
+    'getIR', 'getAllIRs', 'getAllIRsAsStore', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck', 'addSolarSystemCheck',
     'addServiceProtocol', 'updateServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
     'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'updateRecommendationsSettings', 'addIndependentServiceProtocol',
     'deleteIndependentProtocol', 'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols',
