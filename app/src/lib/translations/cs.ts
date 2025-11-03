@@ -393,7 +393,6 @@ export default {
         volumeOfExpansionTankOfHeatingSystem: `Objem expanzní nádoby otopného systému`,
         pressureOfExpansionTankOfHeatingSystem: `Nastavený tlak v expanzní nádobě otopného systému`,
         pressureOfHeatingSystem: `Nastavený tlak v otopném systému`,
-        volumeOfExpansionTankForWater: `Objem expanzní nádoby pitné vody`,
         pressureOfExpansionTankForWater: `Nastavený tlak v expanzní nádobě pitné vody`,
         isPoolHeatingManagedByHeatPump: `Prostřednictvím tepelného čerpadla je také řešen ohřev bazénu`,
         heatingSystemDescription: `Popis systému`,

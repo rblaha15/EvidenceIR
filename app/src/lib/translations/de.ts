@@ -316,7 +316,6 @@ const de: PlainTranslations = {
         volumeOfExpansionTankOfHeatingSystem: `Volumen des Ausdehnungsgefäßes des Heizungsystems`,
         pressureOfExpansionTankOfHeatingSystem: `Einstelldruck im Ausdehnungsgefäß des Heizungsystems`,
         pressureOfHeatingSystem: `Einstelldruck im Heizungsystem`,
-        volumeOfExpansionTankForWater: `Volumen des Trinkwasserausdehnungsgefäßes`,
         pressureOfExpansionTankForWater: `Einstelldruck im Trinkwasserausdehnungsgefäß`,
         isPoolHeatingManagedByHeatPump: `Wird auch die Poolheizung durch die Wärmepumpe geregelt?`,
         controlAndElectricalInstallation: `Regulierung und Verkabelung`,
