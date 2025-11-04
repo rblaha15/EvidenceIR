@@ -9,6 +9,8 @@ import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { DataUPS, FormUPS } from '$lib/forms/UPS/formUPS';
 import defaultUPS from './defaultUPS';
+import { saveDK } from '$lib/forms/DK/formDK';
+import type { Widget } from '$lib/forms/Widget.svelte';
 
 const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
     type: 'IR',
@@ -17,8 +19,9 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
     openPdf: () => ({
         link: 'UPS',
     }),
-    saveData: async (irid, raw, edit, _, editResult, t, __, ir) => {
+    saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
         await db.addSolarSystemCommissioningProtocol(irid, raw);
+        if (!edit) await saveDK(ir, f.checkRecommendations, 'SOL')
         if (await checkRegulusOrAdmin()) return;
 
         const user = get(currentUser)!;
@@ -40,11 +43,19 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
         return false;
     },
     showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
-    createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence }),
+    createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations }),
     title: t => t.sol.title,
     getEditData: (ir, url) =>
         url.searchParams.has('edit') ? ir.uvedeniSOL : undefined,
     getViewData: (ir, url) =>
         url.searchParams.has('view') ? ir.uvedeniSOL : undefined,
+    onMount: async (_, data, mode) => {
+        if (mode != 'create') {
+            (data.checkRecommendations as Record<string, Widget>).getValues().forEach(e => {
+                e.show = () => false;
+            })
+        }
+    },
 });
+
 export default infoUPS;

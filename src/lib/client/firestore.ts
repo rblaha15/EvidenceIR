@@ -171,6 +171,16 @@ export const firestoreDatabase: Database = {
         await updateDoc(irDoc(irid), `yearlyHeatPumpCheckRecommendation`, ir!.yearlyHeatPumpCheckRecommendation ?? deleteField());
         await odm.put('IR', irid, ir!);
     },
+    updateSolarSystemRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => {
+        const ir = await getSnp(irDoc(irid));
+        ir!.yearlySolarSystemCheckRecommendation = enabled ? {
+            state: 'waiting',
+            ...ir!.yearlySolarSystemCheckRecommendation ?? {},
+            executingCompany: executingCompany!,
+        } : undefined;
+        await updateDoc(irDoc(irid), `yearlySolarSystemCheckRecommendation`, ir!.yearlySolarSystemCheckRecommendation ?? deleteField());
+        await odm.put('IR', irid, ir!);
+    },
     addIndependentServiceProtocol: async protocol => {
         const spid = extractSPIDFromRawData(protocol.zasah);
         await setDoc(spDoc(spid), protocol);

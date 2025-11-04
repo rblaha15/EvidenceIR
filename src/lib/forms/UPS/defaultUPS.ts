@@ -9,6 +9,7 @@ import {
 } from '$lib/forms/Widget.svelte';
 import { dayISO } from '$lib/helpers/date';
 import { type FormUPS, type HeatTransferFluidType } from '$lib/forms/UPS/formUPS';
+import { defaultDK } from '$lib/forms/DK/formDK';
 
 const newYesNoWidget = <D>(args: {
     label: GetTOrVal<D>,
@@ -64,4 +65,5 @@ export default (): FormUPS => ({
         vlastnik: new CheckboxWidget({ label: t => t.sol.ownerInformed }),
         date: new InputWidget({ label: t => t.sol.dateOfCommission, type: 'date', text: dayISO() }),
     },
+    checkRecommendations: defaultDK('SOL'),
 });

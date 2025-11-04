@@ -2,14 +2,14 @@
     import type { Translations } from '$lib/translations';
     import { type IR } from '$lib/data';
     import type { IRID } from '$lib/helpers/ir';
-    import { defaultDK, type FormPartDK, saveDKT } from '$lib/forms/DK/formDK';
+    import { defaultDK, type FormPartDK, saveDK } from '$lib/forms/DK/formDK';
     import Widget from '$lib/components/Widget.svelte';
     import Icon from '$lib/components/Icon.svelte';
     import { isUserAdmin } from '$lib/client/auth';
     import { aA } from '$lib/helpers/stores';
 
     const { t, ir, type }: {
-        t: Translations, ir: IR, irid: IRID, type: 'TC' | 'SOL'
+        t: Translations, ir: IR, irid: IRID, type: 'TČ' | 'SOL'
     } = $props();
     const tr = $derived(t.dk);
 
@@ -20,10 +20,10 @@
 
     const f = $state<FormPartDK<D>>(defaultDK<D>(type));
     const data = $derived({ dk: f, evidence: ir.evidence });
-    const settings = $derived(ir.yearlyHeatPumpCheckRecommendation); // TODO
+    const settings = $derived(type == 'TČ' ? ir.yearlyHeatPumpCheckRecommendation : ir.yearlySolarSystemCheckRecommendation);
 
     $effect(() => {
-        f.enabled.setValue(data, !settings);
+        f.enabled.setValue(data, Boolean(settings));
         f.executingCompany.setValue(data, settings?.executingCompany ?? null);
     });
 
@@ -32,8 +32,8 @@
         if (f.executingCompany.isError(data)) return;
         error = false;
         loading = true;
-        const modal = (await import('bootstrap')).Modal.getInstance('#recommendationsModal');
-        const success = await saveDKT(ir, f); // TODO
+        const modal = (await import('bootstrap')).Modal.getInstance(`#recommendations${type}Modal`);
+        const success = await saveDK(ir, f, type);
         if (success)
             modal?.hide();
         else {
@@ -43,9 +43,9 @@
     };
 </script>
 
-{#if type === 'TC' && ir.uvedeniTC || type === 'SOL' && ir.uvedeniSOL}
+{#if type === 'TČ' && ir.uvedeniTC || type === 'SOL' && ir.uvedeniSOL}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
-        <button class="btn btn-info d-block" data-bs-target="#recommendationsModal" data-bs-toggle="modal" onclick={() => {
+        <button class="btn btn-info d-block" data-bs-target="#recommendations{type}Modal" data-bs-toggle="modal" onclick={() => {
             loading = false
             error = false
             f.executingCompany.displayErrorVeto = false
@@ -62,11 +62,11 @@
         {/if}
     </div>
 
-    <div aria-hidden="true" aria-labelledby="recommendationsModalLabel" class="modal fade" id="recommendationsModal" tabindex="-1">
+    <div aria-hidden="true" aria-labelledby="recommendations{type}ModalLabel" class="modal fade" id="recommendations{type}Modal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="recommendationsModalLabel">
+                    <h1 class="modal-title fs-5" id="recommendations{type}ModalLabel">
                         <Icon icon="alarm" />
                         {tr.settingsTitle(type)}
                     </h1>
