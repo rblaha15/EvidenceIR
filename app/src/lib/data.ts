@@ -22,6 +22,12 @@ export type Year = number;
 
 export type RecommendationState = 'waiting' | 'sentRecommendation' | 'sentRequest';
 
+export type RecommendationSettings = {
+    executingCompany: 'assembly' | 'commissioning' | 'regulus',
+    state: RecommendationState,
+    code?: string,
+};
+
 export type IR = {
     evidence: Raw<FormIN>;
     uvedeniTC?: Raw<FormUPT>;
@@ -34,16 +40,8 @@ export type IR = {
     users: string[];
     installationProtocols: Raw<FormSP>[];
     faceTable?: Raw<FormFT>;
-    yearlyHeatPumpCheckRecommendation?: {
-        executingCompany: 'assembly' | 'commissioning' | 'regulus',
-        state: RecommendationState,
-        code?: string,
-    }
-    yearlySolarSystemCheckRecommendation?: {
-        executingCompany: 'assembly' | 'commissioning' | 'regulus',
-        state: RecommendationState,
-        code?: string,
-    }
+    yearlyHeatPumpCheckRecommendation?: RecommendationSettings;
+    yearlySolarSystemCheckRecommendation?: RecommendationSettings;
 };
 
 export type RecommendationData = {
@@ -52,6 +50,7 @@ export type RecommendationData = {
     company: string;
     companyEmail: string;
     location: string;
+    type: 'TČ' | 'SOL',
 };
 
 /**
@@ -115,6 +114,8 @@ export interface WriteDatabase {
 
     updateHeatPumpRecommendationsSettings(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
 
+    updateSolarSystemRecommendationsSettings(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
+
     addIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
 
     updateIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
@@ -153,9 +154,10 @@ const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>
 };
 
 const functions = [
-    'getIR', 'getAllIRs', 'getAllIRsAsStore', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck', 'addSolarSystemCheck',
-    'addServiceProtocol', 'updateServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
-    'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'updateHeatPumpRecommendationsSettings', 'addIndependentServiceProtocol',
+    'getIR', 'getAllIRs', 'getAllIRsAsStore', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
+    'addSolarSystemCheck', 'addServiceProtocol', 'updateServiceProtocol', 'addHeatPumpCommissioningProtocol',
+    'addSolarSystemCommissioningProtocol', 'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers',
+    'updateHeatPumpRecommendationsSettings', 'updateSolarSystemRecommendationsSettings', 'addIndependentServiceProtocol',
     'deleteIndependentProtocol', 'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols',
     'getAllIndependentProtocolsAsStore', 'addFaceTable', 'updateIndependentServiceProtocol',
 ] as const satisfies (keyof Database)[];

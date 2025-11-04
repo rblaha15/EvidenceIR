@@ -27,8 +27,12 @@ export const removeRK = (code: string) =>
 export const getIRs = () =>
     irCollection.get().then(s => s.docs.map(d => d.data()));
 
-export const changeState = (irid: IRID, value: RecommendationState) =>
-    irCollection.doc(irid).update('yearlyHeatPumpCheckRecommendation.state', value);
+export const changeState = (irid: IRID, value: RecommendationState, type: 'TČ' | 'SOL') => {
+    const field = type == 'TČ' ? 'yearlyHeatPumpCheckRecommendation' : 'yearlySolarSystemCheckRecommendation';
+    return irCollection.doc(irid).update(field + '.state', value);
+};
 
-export const changeCode = (irid: IRID, code: string) =>
-    irCollection.doc(irid).update('yearlyHeatPumpCheckRecommendation.code', code);
+export const changeCode = (irid: IRID, code: string, type: 'TČ' | 'SOL') => {
+    const field = type == 'TČ' ? 'yearlyHeatPumpCheckRecommendation' : 'yearlySolarSystemCheckRecommendation';
+    return irCollection.doc(irid).update(field + '.code', code);
+};

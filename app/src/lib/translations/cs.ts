@@ -188,7 +188,8 @@ export default {
                 addSolarSystemCommissioningProtocol: t`Vytvořen protokol o uvedení SOL do provozu u IR ${'ir'}`,
                 addPhotovoltaicSystemCommissioningProtocol: t`Vytvořen protokol o uvedení FVE do provozu u IR ${'ir'}`,
                 updateIRUsers: t`Změněn seznam uživatelů s přístupem k ${'ir'}`,
-                updateHeatPumpRecommendationsSettings: t`Upraveno nastavení připomínání ročních kontrol u ${'ir'}`,
+                updateHeatPumpRecommendationsSettings: t`Upraveno nastavení připomínání ročních kontrol TČ u ${'ir'}`,
+                updateSolarSystemRecommendationsSettings: t`Upraveno nastavení připomínání ročních kontrol SOL u ${'ir'}`,
                 addIndependentServiceProtocol: t`Vytvořen nezávislý servisní protokol ${'sp'}`,
                 updateIndependentServiceProtocol: t`Upraven nezávislý servisní protokol ${'sp'}`,
                 deleteIndependentProtocol: t`Odstraněn nezávislý servisní protokol ${'spid'}`,
@@ -463,10 +464,10 @@ export default {
         solarSystem: 'Solární systém',
     },
     dk: {
-        settingsTitle: (type: 'TC' | 'SOL') => `Nastavení RK ${type == 'TC' ? 'TČ' : 'SOL'}`,
+        settingsTitle: (type: 'TČ' | 'SOL') => `Nastavení RK ${type}`,
         title: `Upozorňování na roční kontroly`,
-        userWantsTo: (type: 'TC' | 'SOL') =>
-            `Koncový zákazník chce být upozorňován přes email na blížící se čas objednání roční kontroly ${type == 'TC' ? 'TČ' : 'SOL'}`,
+        userWantsTo: (type: 'TČ' | 'SOL') =>
+            `Koncový zákazník chce být upozorňován přes email na blížící se čas objednání roční kontroly ${type}`,
         executingCompany: `Provádějící firma`,
         save: `Uložit`,
         cancel: `Zrušit`,

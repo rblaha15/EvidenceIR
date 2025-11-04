@@ -164,6 +164,14 @@ export const offlineDatabase: Database = {
         } : undefined;
         return ir!;
     }),
+    updateSolarSystemRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => odm.update('IR', irid, ir => {
+        ir!.yearlySolarSystemCheckRecommendation = enabled ? {
+            state: 'waiting',
+            ...ir!.yearlySolarSystemCheckRecommendation ?? {},
+            executingCompany: executingCompany!,
+        } : undefined;
+        return ir!;
+    }),
     addIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),
     updateIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),
     deleteIndependentProtocol: spid => odm.delete('SP', spid),
