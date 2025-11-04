@@ -256,7 +256,7 @@ const en: PlainTranslations = {
                 addSolarSystemCommissioningProtocol: t`Created a solar system commissioning protocol at the ${'ir'} controller`,
                 addPhotovoltaicSystemCommissioningProtocol: t`Created a photovoltaic system commissioning protocol at the ${'ir'} controller`,
                 updateIRUsers: t`Updated the list of users with access to the ${'ir'} controller`,
-                updateRecommendationsSettings: t`Updated the yearly check recommendation settings at the ${'ir'} controller`,
+                updateHeatPumpRecommendationsSettings: t`Updated the yearly check recommendation settings at the ${'ir'} controller`,
                 addIndependentServiceProtocol: t`Created a new independent service protocol ${'sp'}`,
                 updateIndependentServiceProtocol: t`Updated the ${'sp'} independent service protocol`,
                 deleteIndependentProtocol: t`Removed the ${'spid'} independent service protocol`,
@@ -520,6 +520,26 @@ const en: PlainTranslations = {
         ...(['solarSystem', 'collectorFieldOrientation', 'collectorSlope', 'storageTankType', 'accumulationTankType', 'exchangerType', 'solarControllerType', 'pumpGroupType', 'expansionTankSolar', 'volume', 'pressureOfSolarExpansionTank', 'pressureOfSolarSystemLiquid', 'pressureOfExpansionTankForWater', 'forVentingInstalled', 'heatTransferType', 'pipesMaterial', 'diameter', 'pipesLength', 'pipesIsolated', 'commissioningSteps', 'pressureCheckTime', 'pressureCheckPressure', 'pressureCheckLoss', 'venting', 'lightningProtection', 'conditionsMet', 'solarControllerSet', 'ownerInformed', 'airVentValve', 'airSeparator', 'nothing', 'other'] as const)
             .associateWith(k => cs.sol[k]),
     },
+    dk: {
+        settingsTitle: `RK Settings`,
+        title: `Notifying of yearly checks`,
+        userWantsTo: type =>
+            `The end user wants to be notifies over email of the approaching time to order an yearly ${type == 'TC' ? 'heat pump' : 'solar system'} check`,
+        executingCompany: `Inspecting company`,
+        save: `Save`,
+        cancel: `Cancel`,
+        requestPage: {
+            codeMissingError: `Request code not specified`,
+            codeInvalidError: `Request code invalid`,
+            title: `Yearly check request`,
+            requestSent: `Request sent.`,
+            youCanCloseThisTab: `You can now close this tab.`,
+            sending: `Sending…`,
+            somethingWentWrong: `Something went wrong. :\\`,
+            unknownErrorHtml: `Please try again or contact us at <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=An error when requesting an yearly check" target="_blank">aplikace.regulus@gmail.com</a>.`,
+        },
+        regulus: `Firma Regulus`,
+    },
     rkt: {
         title: `Description of operations during the preventive annual inspection of an air heat pump`,
         formTitle: t`Yearly heat pump ${'n'} checks`,
@@ -534,25 +554,6 @@ const en: PlainTranslations = {
         performingPerson: `Performing person`,
         checkDate: `Check date`,
         note: `Note`,
-        recommendations: {
-            settingsTitle: `RK Settings`,
-            title: `Notifying of yearly checks`,
-            userWantsTo: `The end user wants to be notifies over email of the approaching time to order an yearly heating system check`,
-            executingCompany: `Inspecting company`,
-            save: `Save`,
-            cancel: `Cancel`,
-            requestPage: {
-                codeMissingError: `Request code not specified`,
-                codeInvalidError: `Request code invalid`,
-                title: `Yearly check request`,
-                requestSent: `Request sent.`,
-                youCanCloseThisTab: `You can now close this tab.`,
-                sending: `Sending…`,
-                somethingWentWrong: `Something went wrong. :\\`,
-                unknownErrorHtml: `Please try again or contact us at <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=An error when requesting an yearly check" target="_blank">aplikace.regulus@gmail.com</a>.`,
-            },
-            regulus: `Firma Regulus`,
-        },
         ...(['kontrolniElektroinstalace', 'kontrolniUkonyTepelnehoCerpadla', 'kontrolniUkonyRegulace', 'kontrolniUkonyOtopneSoustavy', 'kontrolaZasobnikuTv', 'kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace', 'kontrolaDotazeniSvorkovychSpoju', 'vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni', 'kontrolaSepnutiDohrevuSepnutiStykacePripadneRele', 'kontrolaChoduKompresoru', 'optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu', 'kontrolaOdvoduKondenzatu', 'kontrolaUchyceniVentilatoru', 'vycisteniVzduchovychCestJednotky', 'kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem', 'proveritZdaNicNebraniOptimalniCirkulaciVzduchu', 'kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu', 'kontrolaElektrickeCastiJednotkyTepelnehoCerpadla', 'kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin', 'kontrolaNastaveniParametruRegulatoru', 'preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni', 'stavPocitadlaCelkovychProvoznichHodinKompresoru', 'stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace', 'stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace', 'stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace', 'stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje', 'stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv', 'prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly', 'prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly', 'kontrolaFunkceObehovychCerpadel', 'vycisteniFiltruObehovychCerpadel', 'odvzdusneniZdrojeTc', 'kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych', 'kontrolaTesnostiOtopneSoustavy', 'kontrolaTlakuVExpanzniNadobeOtopneSoustavy', 'nastavenyTlakPriUvadeniDoProvozu', 'pripadneProvedteKontroluTlakuVOtopneSoustave', 'kontrolaMgAnodyVZasobnikuPripVymena', 'kontrolaPojistovacihoVentilu', 'pripadneProvedteKontroluTlakuVEnTepleVody'] as const)
             .associateWith(k => cs.rkt[k]),
     },
@@ -570,8 +571,6 @@ const en: PlainTranslations = {
         performingPerson: `Performing person`,
         checkDate: `Check date`,
         note: `Note`,
-        recommendations: {
-        },
         ...(['kontrolniUkonySolarnihoSystemu', 'kontrolaUpevneniKolektoru', 'vizualniKontrolaTesnostiSystemu', 'kontrolaStavuIzolacePotrubi', 'kontrolaDorustaniOkolStromuZDuvoduMoznehoZastineni', 'odvzdusneniSolarnihoSystemuKontrolaSeparatoru', 'kontrolaSpravnehoPrutoku', 'kontrolaMrazuvzdornostiKapalinyRefraktometrem', 'kontrolaTlakuKapalinyVSolarnimSystemuPripadneDoplneni', 'kontrolaTlakuVSolarniEnJehoPripadneDoplneni', 'kontrolaSolarniRegulace', 'kontrolaTeplotnichCidel', 'kontrolaNastaveniParametruRegulatoru', 'kontrolaChybovychHlaseniVRegulaciAJejichPricin', 'preventProskoleniObsluhyZHlediskaUdrzbyANastaveniRegulace', 'kontrolaElektroinstalce', 'kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace', 'kontrolaDotazeniSvorkovychSpoju', 'vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni', 'kontrolaSepnutiDohrevuSepnutiStykacePripadneRele', 'kontrolaZasobnikuTv', 'kontrolaMgAnodyVZasobnikuPripVymena', 'kontrolaPojistovacihoVentilu', 'pripadneProvedteKontroluTlakuVEnTepleVody'] as const)
             .associateWith(k => cs.rks[k]),
     },

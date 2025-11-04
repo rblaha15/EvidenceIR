@@ -39,6 +39,11 @@ export type IR = {
         state: RecommendationState,
         code?: string,
     }
+    yearlySolarSystemCheckRecommendation?: {
+        executingCompany: 'assembly' | 'commissioning' | 'regulus',
+        state: RecommendationState,
+        code?: string,
+    }
 };
 
 export type RecommendationData = {
@@ -108,7 +113,7 @@ export interface WriteDatabase {
 
     updateIRUsers(irid: IRID, users: string[]): Promise<void>;
 
-    updateRecommendationsSettings(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
+    updateHeatPumpRecommendationsSettings(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
 
     addIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
 
@@ -150,7 +155,7 @@ const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>
 const functions = [
     'getIR', 'getAllIRs', 'getAllIRsAsStore', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck', 'addSolarSystemCheck',
     'addServiceProtocol', 'updateServiceProtocol', 'addHeatPumpCommissioningProtocol', 'addSolarSystemCommissioningProtocol',
-    'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'updateRecommendationsSettings', 'addIndependentServiceProtocol',
+    'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'updateHeatPumpRecommendationsSettings', 'addIndependentServiceProtocol',
     'deleteIndependentProtocol', 'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols',
     'getAllIndependentProtocolsAsStore', 'addFaceTable', 'updateIndependentServiceProtocol',
 ] as const satisfies (keyof Database)[];

@@ -210,6 +210,6 @@
             </div>
         </div>
 
-        <RKD {ir} {irid} {t} />
+        <RKD {ir} {irid} {t} type="TC" />
     </div>
 </div>

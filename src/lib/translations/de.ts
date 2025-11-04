@@ -486,7 +486,6 @@ const de: PlainTranslations = {
         fillOut: t`Jährliche Überprüfung der Wärmepumpe ${'n'} durchführen`,
         note: `Notiz`,
         pumpDetails: t`WP${'n'}: ${'model'} – ${'cislo'}`,
-        recommendations: en.rkt.recommendations,
     },
 };
 export default de;

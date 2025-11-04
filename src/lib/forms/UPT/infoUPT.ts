@@ -4,12 +4,12 @@ import db from '$lib/data';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
-import { type IRID, irName } from '$lib/helpers/ir';
+import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { DataUPT, FormUPT } from '$lib/forms/UPT/formUPT';
-import { saveRKD } from '$lib/forms/RKD/formRKD';
+import { saveDKT } from '$lib/forms/DK/formDK';
 import type { Widget } from '$lib/forms/Widget.svelte';
 
 const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
@@ -21,7 +21,7 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
     }),
     saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
         await db.addHeatPumpCommissioningProtocol(irid, raw);
-        if (!edit) await saveRKD(ir, f.checkRecommendations)
+        if (!edit) await saveDKT(ir, f.checkRecommendations)
         if (await checkRegulusOrAdmin()) return;
 
         const user = get(currentUser)!;
@@ -43,7 +43,7 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
         return false;
     },
     showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
-    createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, rkd: uvedeni.checkRecommendations }),
+    createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations }),
     title: t => t.tc.title,
     getEditData: (ir, url) =>
         url.searchParams.has('edit') ? ir.uvedeniTC : undefined,
