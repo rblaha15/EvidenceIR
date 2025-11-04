@@ -161,7 +161,7 @@ export const firestoreDatabase: Database = {
         await updateDoc(irDoc(irid), `users`, users);
         await odm.update('IR', irid, ir => ({ ...ir!, users: users }));
     },
-    updateRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => {
+    updateHeatPumpRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => {
         const ir = await getSnp(irDoc(irid));
         ir!.yearlyHeatPumpCheckRecommendation = enabled ? {
             state: 'waiting',

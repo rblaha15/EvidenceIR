@@ -156,7 +156,7 @@ export const offlineDatabase: Database = {
         ir!.users = users;
         return ir!;
     }),
-    updateRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => odm.update('IR', irid, ir => {
+    updateHeatPumpRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => odm.update('IR', irid, ir => {
         ir!.yearlyHeatPumpCheckRecommendation = enabled ? {
             state: 'waiting',
             ...ir!.yearlyHeatPumpCheckRecommendation ?? {},

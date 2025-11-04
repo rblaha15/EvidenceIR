@@ -81,34 +81,38 @@ export const GET: RequestHandler = async ({ request, fetch }) => {
             if (daysSinceAnniversary >= 333 && lastFilledCheck < yearOfNextCheck) {
                 const code = crypto.randomUUID();
                 const companyType = ir.yearlyHeatPumpCheckRecommendation.executingCompany;
-                const getCompany = async () => {
-                    const crn = companyType == 'assembly' ? ir.evidence.montazka.ico : ir.evidence.uvedeni.ico;
-                    const a = await ares.getName(crn, fetch);
-                    return a ? `${a} (${crn})` : crn;
-                };
-                const user = endUserName(ir.evidence.koncovyUzivatel);
-                const data = {
-                    irid, user,
-                    location: `${ir.evidence.mistoRealizace.ulice}, ${ir.evidence.mistoRealizace.psc} ${ir.evidence.mistoRealizace.obec}`,
-                    company: companyType == 'regulus' ? 'Firma Regulus' : await getCompany(),
-                    companyEmail: companyType == 'regulus' ? 'servis@regulus.cz' : companyType == 'assembly' ? ir.evidence.montazka.email : ir.evidence.uvedeni.email,
-                };
-                await createRK(code, data);
-                const link = `${appUrl}/request?code=${code}`;
-                const { body: html } = render(MailCheckReminder, {
-                    props: {
-                        link, data,
-                    },
-                });
-                await sendEmail({
-                    from: SENDER(),
-                    to: { name: user, address: dev ? 'radek.blaha.15@gmail.com' : ir.evidence.koncovyUzivatel.email },
-                    replyTo: { name: 'David Červenka', address: 'david.cervenka@regulus.cz' },
-                    subject: 'Upozornění na roční kontrolu tepelného čerpadla',
-                    html, text: htmlToText(html),
-                });
-                await changeCode(irid, code);
-                await changeState(irid, 'sentRecommendation');
+                if (companyType == 'regulus') {
+                    await changeState(irid, 'sentRequest');
+                } else {
+                    const getCompany = async () => {
+                        const crn = companyType == 'assembly' ? ir.evidence.montazka.ico : ir.evidence.uvedeni.ico;
+                        const a = await ares.getName(crn, fetch);
+                        return a ? `${a} (${crn})` : crn;
+                    };
+                    const user = endUserName(ir.evidence.koncovyUzivatel);
+                    const data = {
+                        irid, user,
+                        location: `${ir.evidence.mistoRealizace.ulice}, ${ir.evidence.mistoRealizace.psc} ${ir.evidence.mistoRealizace.obec}`,
+                        company: await getCompany(),
+                        companyEmail: companyType == 'assembly' ? ir.evidence.montazka.email : ir.evidence.uvedeni.email,
+                    };
+                    await createRK(code, data);
+                    const link = `${appUrl}/request?code=${code}`;
+                    const { body: html } = render(MailCheckReminder, {
+                        props: {
+                            link, data,
+                        },
+                    });
+                    await sendEmail({
+                        from: SENDER(),
+                        to: { name: user, address: dev ? 'radek.blaha.15@gmail.com' : ir.evidence.koncovyUzivatel.email },
+                        replyTo: { name: 'David Červenka', address: 'david.cervenka@regulus.cz' },
+                        subject: 'Upozornění na roční kontrolu tepelného čerpadla',
+                        html, text: htmlToText(html),
+                    });
+                    await changeCode(irid, code);
+                    await changeState(irid, 'sentRecommendation');
+                }
             }
         } else if (state == 'sentRecommendation') {
             if (anniversaryThisYear <= today) {
