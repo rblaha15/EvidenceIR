@@ -1,10 +1,12 @@
 import { CheckboxWidget, ChooserWidget, InputWidget, SwitchWidget, TitleWidget } from '../Widget.svelte.js';
 import type { Form, Raw } from '$lib/forms/Form';
 import type { FormIN } from '$lib/forms/IN/formIN';
+import type { FormPartDK } from '$lib/forms/DK/formDK';
 
 export type DataUPS = {
     uvedeni: FormUPS,
     evidence: Raw<FormIN>,
+    dk: FormPartDK<DataUPS>,
 }
 
 export type HeatTransferFluidType = 'Solarten Super' | 'Solarten HT'
@@ -43,4 +45,5 @@ export interface FormUPS extends Form<DataUPS> {
         vlastnik: CheckboxWidget<DataUPS>,
         date: InputWidget<DataUPS>,
     },
+    checkRecommendations: FormPartDK<DataUPS>,
 }

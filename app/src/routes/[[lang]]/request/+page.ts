@@ -9,7 +9,7 @@ export const load: PageLoad = async ({ url, parent, fetch }) => {
     if (!browser) return null;
     const code = url.searchParams.get('code');
 
-    const t = (await parent()).translations.rk.recommendations.requestPage;
+    const t = (await parent()).translations.dk.requestPage;
 
     try {
         setTitle(t.title, false, true);
@@ -35,7 +35,7 @@ export const load: PageLoad = async ({ url, parent, fetch }) => {
         };
     } catch (e) {
         console.error(e)
-        const t = (await parent()).translations.rk.recommendations.requestPage;
+        const t = (await parent()).translations.dk.requestPage;
 
         error(400, t.codeInvalidError);
     }

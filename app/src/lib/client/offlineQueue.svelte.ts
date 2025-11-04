@@ -127,6 +127,7 @@ const functions: {
     addPhotovoltaicSystemCommissioningProtocol: irid => ({ ir: irNumberFromIRID(irid) }),
     updateIRUsers: irid => ({ ir: irNumberFromIRID(irid) }),
     updateHeatPumpRecommendationsSettings: irid => ({ ir: irNumberFromIRID(irid) }),
+    updateSolarSystemRecommendationsSettings: irid => ({ ir: irNumberFromIRID(irid) }),
     addIndependentServiceProtocol: p => ({ sp: spWholeName(p) }),
     updateIndependentServiceProtocol: p => ({ sp: spWholeName(p) }),
     deleteIndependentProtocol: spid => ({ spid }),

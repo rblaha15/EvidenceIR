@@ -256,7 +256,8 @@ const en: PlainTranslations = {
                 addSolarSystemCommissioningProtocol: t`Created a solar system commissioning protocol at the ${'ir'} controller`,
                 addPhotovoltaicSystemCommissioningProtocol: t`Created a photovoltaic system commissioning protocol at the ${'ir'} controller`,
                 updateIRUsers: t`Updated the list of users with access to the ${'ir'} controller`,
-                updateHeatPumpRecommendationsSettings: t`Updated the yearly check recommendation settings at the ${'ir'} controller`,
+                updateHeatPumpRecommendationsSettings: t`Updated the yearly heat pump check recommendation settings at the ${'ir'} controller`,
+                updateSolarSystemRecommendationsSettings: t`Updated the yearly solar system check recommendation settings at the ${'ir'} controller`,
                 addIndependentServiceProtocol: t`Created a new independent service protocol ${'sp'}`,
                 updateIndependentServiceProtocol: t`Updated the ${'sp'} independent service protocol`,
                 deleteIndependentProtocol: t`Removed the ${'spid'} independent service protocol`,
@@ -521,10 +522,10 @@ const en: PlainTranslations = {
             .associateWith(k => cs.sol[k]),
     },
     dk: {
-        settingsTitle: `RK Settings`,
+        settingsTitle: type => `RK Settings ${type}`,
         title: `Notifying of yearly checks`,
         userWantsTo: type =>
-            `The end user wants to be notifies over email of the approaching time to order an yearly ${type == 'TC' ? 'heat pump' : 'solar system'} check`,
+            `The end user wants to be notifies over email of the approaching time to order an yearly ${type == 'TČ' ? 'heat pump' : 'solar system'} check`,
         executingCompany: `Inspecting company`,
         save: `Save`,
         cancel: `Cancel`,

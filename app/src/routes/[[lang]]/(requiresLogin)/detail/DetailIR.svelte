@@ -106,6 +106,7 @@
                             show: true,
                             href: iridUrl(`/RKS`),
                             text: t.rks.fillOut,
+                            important: ir.yearlySolarSystemCheckRecommendation?.state === 'sentRequest',
                         }} dropdownItems={$isUserAdmin ? ir.kontrolySOL?.keys().flatMap(y => [{
                             text: `${t.rks.year} ${y}`,
                         }, {
@@ -210,6 +211,7 @@
             </div>
         </div>
 
-        <RKD {ir} {irid} {t} type="TC" />
+        <RKD {ir} {irid} {t} type="TČ" />
+        <RKD {ir} {irid} {t} type="SOL" />
     </div>
 </div>
