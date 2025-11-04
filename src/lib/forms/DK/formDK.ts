@@ -24,7 +24,7 @@ export interface FormPartDK<D extends DataDK<D>> extends Record<string, Widget<D
 }
 
 export const defaultDK = <D extends DataDK<D>>(
-    type: 'TC' | 'SOL',
+    type: 'TČ' | 'SOL',
 ): FormPartDK<D> => ({
     title: new TitleWidget({ text: t => t.dk.title, level: 2, showInXML: false }),
     enabled: new CheckboxWidget({
@@ -50,12 +50,16 @@ export const defaultDK = <D extends DataDK<D>>(
     })
 })
 
-export const saveDKT = async <D extends DataDK<D>>(ir: IR, form: FormPartDK<D>) => {
+export const saveDK = async <D extends DataDK<D>>(ir: IR, form: FormPartDK<D>, type: 'TČ' | 'SOL') => {
     const enabled = form.enabled.value;
     const companyType = form.executingCompany.value;
     const irid = extractIRIDFromRawData(ir.evidence);
-    await db.updateHeatPumpRecommendationsSettings(irid, enabled, form.executingCompany.value);
-    if (enabled == Boolean(ir.yearlyHeatPumpCheckRecommendation) || companyType == ir.yearlyHeatPumpCheckRecommendation?.executingCompany) return true;
+    if (type == 'TČ')
+        await db.updateHeatPumpRecommendationsSettings(irid, enabled, form.executingCompany.value);
+    else
+        await db.updateSolarSystemRecommendationsSettings(irid, enabled, form.executingCompany.value);
+    const settings = type == 'TČ' ? ir.yearlyHeatPumpCheckRecommendation : ir.yearlySolarSystemCheckRecommendation;
+    if (enabled == Boolean(settings) || companyType == settings?.executingCompany) return true;
 
     const getCompany = async () => {
         const crn = companyType == 'assembly' ? ir.evidence.montazka.ico : ir.evidence.uvedeni.ico;
@@ -68,8 +72,8 @@ export const saveDKT = async <D extends DataDK<D>>(ir: IR, form: FormPartDK<D>) 
     const response = await sendEmail({
         ...defaultAddresses(cervenka),
         subject: enabled
-            ? `Zapnuto upozorňování na RK TČ u ${irName(ir.evidence.ir)}`
-            : `Zrušeno upozorňování na RK TČ u ${irName(ir.evidence.ir)}`,
+            ? `Zapnuto upozorňování na RK ${type} u ${irName(ir.evidence.ir)}`
+            : `Zrušeno upozorňování na RK ${type} u ${irName(ir.evidence.ir)}`,
         component: MailDK,
         props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), company, irWholeName: name },
     });

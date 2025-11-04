@@ -9,7 +9,7 @@ import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { DataUPT, FormUPT } from '$lib/forms/UPT/formUPT';
-import { saveDKT } from '$lib/forms/DK/formDK';
+import { saveDK } from '$lib/forms/DK/formDK';
 import type { Widget } from '$lib/forms/Widget.svelte';
 
 const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
@@ -21,7 +21,7 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
     }),
     saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
         await db.addHeatPumpCommissioningProtocol(irid, raw);
-        if (!edit) await saveDKT(ir, f.checkRecommendations)
+        if (!edit) await saveDK(ir, f.checkRecommendations, 'TČ')
         if (await checkRegulusOrAdmin()) return;
 
         const user = get(currentUser)!;
