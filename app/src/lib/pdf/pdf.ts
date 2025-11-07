@@ -122,6 +122,7 @@ export const pdfInfo: PdfInfo = {
         title: t => t.sp.title,
         getPdfData: SP,
         requiredRegulus: true,
+        doNotFlatten: true,
     },
     NSP: {
         type: 'SP',
@@ -130,6 +131,7 @@ export const pdfInfo: PdfInfo = {
         title: t => t.sp.title,
         requiredRegulus: true,
         getPdfData: NSP,
+        doNotFlatten: true,
     },
     CP: {
         type: 'SP',
@@ -137,6 +139,7 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs'],
         title: _ => '',
         getPdfData: CP,
+        doNotFlatten: true,
     },
     PS: {
         type: 'SP',
@@ -212,6 +215,7 @@ export type PdfArgs<P extends Pdf> = {
     requiredAdmin?: boolean;
     requiredRegulus?: boolean;
     getPdfData?: GetPdfData<P>;
+    doNotFlatten?: boolean,
 };
 
 type PdfParams = {
