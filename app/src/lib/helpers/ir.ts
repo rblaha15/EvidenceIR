@@ -191,3 +191,4 @@ export const isMACAddressTypeIR10 = (t: IRTypes | null) => t == 'IR 10';
 export const doesNotSupportHeatPumps = (t: IRTypes | null) => t == 'other';
 export const doesNotHaveIRNumber = (t: IRTypes | null) => t == 'other' || t == 'SOREL';
 export const supportsRemoteAccess = (t: IRTypes | null) => t != 'other' && t != 'SOREL';
+export const isBox = (t: IRTypes | null) => Boolean(t?.includes('BOX'));

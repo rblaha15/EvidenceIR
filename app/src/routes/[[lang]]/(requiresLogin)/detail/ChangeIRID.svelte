@@ -1,95 +1,72 @@
 <script lang="ts">
-    import { ChooserWidget, InputWidget } from '$lib/forms/Widget.svelte';
-    import type { IRTypes } from '$lib/forms/IN/formIN';
+    import { DoubleChooserWidget, InputWidget } from '$lib/forms/Widget.svelte';
+    import type { IRSubTypes, IRTypes } from '$lib/forms/IN/formIN';
     import { type Translations } from '$lib/translations';
-    import { time, dayISO } from '$lib/helpers/date';
     import { untrack } from 'svelte';
-    import { doesNotHaveIRNumber, extractIRIDFromParts, type IRID, isMACAddressTypeIR10, supportsMACAddresses } from '$lib/helpers/ir';
+    import { extractIRIDFromParts, type IRID } from '$lib/helpers/ir';
     import db, { type IR } from '$lib/data';
     import { goto } from '$app/navigation';
     import { detailIrUrl } from '$lib/helpers/runes.svelte';
     import Widget from '$lib/components/Widget.svelte';
-    import { isMACAddressTypeIR12 } from '$lib/helpers/ir.js';
     import Icon from '$lib/components/Icon.svelte';
+    import { irTypeAndNumber } from '$lib/forms/IN/defaultIN';
 
     const { t, ir, irid }: {
         t: Translations, ir: IR, irid: IRID,
-    } = $props()
+    } = $props();
     const td = $derived(t.detail);
 
     let change: 'no' | 'input' | 'sending' | 'fail' | 'unchanged' = $state('no');
 
-    type D = { type: ChooserWidget<D, IRTypes>, number: InputWidget<D> };
+    type D = { ir: { typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>, cislo: InputWidget<D> } };
 
-    let irType: ChooserWidget<D, IRTypes> = $state(new ChooserWidget({
-        label: t => t.in.controllerType,
-        options: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'other'],
-        onValueSet: (d, v) => {
-            if (doesNotHaveIRNumber(v)) {
-                d.number.setValue(d, `${dayISO()} ${time()}`);
-            }
-        },
-        labels: t => t.in.ir,
-    }));
-    let irNumber: InputWidget<D> = $state(new InputWidget({
-        label: t => t.in.serialNumber,
-        onError: t => t.wrong.number,
-        regex: d => doesNotHaveIRNumber(d.type.value)
-            ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
-            : isMACAddressTypeIR12(d.type.value)
-                ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
-                : isMACAddressTypeIR10(d.type.value)
-                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
-                    : /[A-Z][1-9OND] [0-9]{4}/,
-        capitalize: true,
-        maskOptions: d => ({
-            mask: doesNotHaveIRNumber(d.type.value) ? `0000-00-00T00:00` :
-                !supportsMACAddresses(d.type.value) ? 'Z9 0000'
-                    : d.number.value.length == 0 ? 'X'
-                        : d.number.value[0] == '0'
-                            ? isMACAddressTypeIR10(d.type.value)
-                                ? 'NN:NA:14:N6:FF:FF'
-                                : 'NN:NA:14:N9:FF:FF'
-                            : 'Z9 0000',
-            definitions: {
-                X: /[0A-Za-z]/,
-                N: /0/,
-                A: /[Aa]/,
-                6: /[69]/,
-                1: /1/,
-                4: /4/,
-                F: /[0-9A-Fa-f]/,
-                Z: /[A-Za-z]/,
-                9: /[1-9ONDond]/,
-            },
-        }),
-        show: d => !doesNotHaveIRNumber(d.type.value),
-    }));
+    const alsoChangeDefault = {
+        setAirToWater: false,
+        resetBoxNumber: false,
+        resetRemoteAccess: false,
+        setFVEType: false,
+    };
+    let alsoChange = $state(alsoChangeDefault);
 
-    const d = $derived({ number: irNumber, type: irType });
+    const part = irTypeAndNumber<D>({
+        setAirToWater: _ => alsoChange.setAirToWater = true,
+        resetBoxNumber: _ => alsoChange.resetBoxNumber = true,
+        resetRemoteAccess: _ => alsoChange.resetRemoteAccess = true,
+        setFVEType: _ => alsoChange.setFVEType = true,
+    });
+
+    const d = $derived({ ir: part });
 
     $effect(() => {
         if (!ir) return;
         untrack(() => {
-            irNumber.setValue(d, ir.evidence.ir.cislo);
-            irType.setValue(d, ir.evidence.ir.typ.first);
+            part.typ.setValue(d, ir.evidence.ir.typ);
+            part.cislo.setValue(d, ir.evidence.ir.cislo);
         });
     });
 
     const changeController = async () => {
         try {
-            irNumber.displayErrorVeto = true;
-            irType.displayErrorVeto = true;
-            if (irNumber.showError(d) || irType.showError(d)) return;
-            const newNumber = irNumber.value;
-            const newType = irType.value;
-            const newIRID = extractIRIDFromParts(newType!, newNumber);
-            if (irid! == newIRID) return change = 'unchanged';
+            part.typ.displayErrorVeto = true;
+            part.cislo.displayErrorVeto = true;
+            if (part.typ.showError(d) || part.cislo.showError(d)) return;
+            const newNumber = part.cislo.value;
+            const newType = part.typ.value;
+            const newIRID = extractIRIDFromParts(newType.first!, newNumber);
+            if (irid! == newIRID) {
+                alsoChange = alsoChangeDefault
+                return change = 'unchanged';
+            }
             change = 'sending';
             const record = (await db.getIR(irid!))!;
             record.evidence.ir.cislo = newNumber;
-            record.evidence.ir.typ.first = newType;
+            record.evidence.ir.typ = newType;
+            if (alsoChange.setAirToWater) record.evidence.tc.typ = 'airToWater';
+            if (alsoChange.resetBoxNumber) record.evidence.ir.cisloBox = '';
+            if (alsoChange.resetRemoteAccess) record.evidence.vzdalenyPristup.chce = false;
+            if (alsoChange.setFVEType) record.evidence.fve.typ = 'DG-450-B';
             await db.addIR(record);
+            alsoChange = alsoChangeDefault
             const newRecord = await db.getIR(newIRID);
             if (!newRecord?.evidence) return change = 'fail';
             await db.deleteIR(irid!);
@@ -109,8 +86,8 @@
     </button>
 {:else if change === 'input'}
     <div class="d-flex flex-column gap-3 w-100">
-        <Widget bind:widget={irType} data={d} {t} />
-        <Widget bind:widget={irNumber} data={d} {t} />
+        <Widget bind:widget={part.typ} data={d} {t} />
+        <Widget bind:widget={part.cislo} data={d} {t} />
         <div class="d-flex gap-3">
             <button class="btn btn-danger" onclick={changeController}>{td.confirm}</button>
             <button class="btn btn-secondary" onclick={() => (change = 'no')}>{td.cancel}</button>
