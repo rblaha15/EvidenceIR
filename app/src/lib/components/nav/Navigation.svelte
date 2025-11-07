@@ -12,6 +12,7 @@
     import TableOfContents from '$lib/components/TableOfContents.svelte';
     import { hideNav } from '$lib/helpers/globals';
     import Icon from '$lib/components/Icon.svelte';
+    import { relUrl } from '$lib/helpers/runes.svelte';
 
     const { t }: { t: Translations } = $props();
     const tn = $derived(t.nav);
@@ -19,6 +20,11 @@
     const isLoggedIn = $derived($currentUser != null);
 </script>
 
+{#snippet help()}
+    <a href={relUrl('/help')} class="btn btn-link nav-link ms-3" tabindex="0" aria-label={t.nn.title}>
+        <Icon icon="help" class="fs-2" />
+    </a>
+{/snippet}
 {#snippet settings()}
     <button aria-label="Settings" class="btn btn-link nav-link ms-3" data-bs-target="#settings" data-bs-toggle="modal">
         <Icon icon="settings" class="fs-2" />
@@ -36,6 +42,7 @@
 {/snippet}
 {#snippet buttons()}
     {@render queue()}
+    {@render help()}
     {@render settings()}
     <UserDropdown {t} />
 {/snippet}
