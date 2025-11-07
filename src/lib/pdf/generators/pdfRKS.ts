@@ -29,9 +29,9 @@ const pdfRKS: GetPdfData<'RKS'> = async ({ data, t, lastYear, addDoc, lang }) =>
             `${t.in.realizationLocation}: ${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}\n` +
             `${t.in.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}\n` +
             tk.systemDetails({ type: e.sol.typ, count: e.sol.pocet }),
-        Text30: u ? u.sol.tlakKapaliny + ' ' + t.units.bar : null,
-        Text31: u ? u.sol.tlakEnSol + ' ' + t.units.bar : null,
-        Text32: u ? u.sol.tlakEnTv + ' ' + t.units.bar : null,
+        Text30: u?.sol.tlakKapaliny ? u.sol.tlakKapaliny + ' ' + t.units.bar : null,
+        Text31: u?.sol.tlakEnSol ? u.sol.tlakEnSol + ' ' + t.units.bar : null,
+        Text32: u?.sol.tlakEnTv ? u.sol.tlakEnTv + ' ' + t.units.bar : null,
         Text141: checks
             .mapValues((_, k) => k?.poznamky?.poznamka)
             .filterValues((_, p) => Boolean(p))
@@ -41,14 +41,14 @@ const pdfRKS: GetPdfData<'RKS'> = async ({ data, t, lastYear, addDoc, lang }) =>
             .mapEntries((k, v) => [k == 'Text150.3' ? 'Text150.3.0' : k, v]),
         ...range(6).associate(i => [`Text151.${i}`, `${years[i]}.`] as const),
     };
-    const veci = checks.mapTo((rok, kontrola) => {
+    const veci = checks.mapTo((rok, kontrola, column) => {
         if (!kontrola) return [];
         const k = dataToRawData(rawDataToData(defaultRKS(rok, []), kontrola)); // seřazení informací
         const array = k.omit('info', 'poznamky').getValues().flatMap(obj => obj.getValues());
         const start = 2
 
         return array.map((v, i) => [
-            `Text${start + i}.${rok - 1}`, typeof v == 'boolean' ? v ? tk.yes : tk.no : v,
+            `Text${start + i}.${column}`, typeof v == 'boolean' ? v ? tk.yes : tk.no : v,
         ] as [`Text${number}.${number}`, string]);
     }).flat().toRecord();
 
