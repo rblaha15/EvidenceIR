@@ -344,7 +344,7 @@ export default {
         title: `Souhlas se zpřístupněním regulátoru IR službě RegulusRoute`,
         agreeWIthRRPrice: `Souhlasím s jednorázovou cenou 1000 Kč včetně DPH za tuto službu.`,
     },
-    nn: {
+    nnr: {
         title: `Návod na přístup do regulátoru IR`,
         passwordRegulusRoute: `Regulusroute1`,
         passwordController: `uzivatel`,

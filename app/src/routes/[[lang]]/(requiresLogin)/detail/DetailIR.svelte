@@ -47,7 +47,7 @@
                     <PDFLink name={t.rr.name} {t} link="RR" data={ir} {irid} />
                 {/if}
                 {#if supportsRemoteAccess(ir.evidence.ir.typ.first)}
-                    <PDFLink name={t.nn.title} {t} link="NN" data={ir} {irid} />
+                    <PDFLink name={t.nnr.title} {t} link="NNR" data={ir} {irid} />
                 {/if}
                 {#if ir.evidence.ir.typ.second === 'TRS6 K'}
                     <PDFLink name={t.nnt.title} {t} link="NNT" data={ir} />
