@@ -29,7 +29,7 @@
 
 <PdfPreview args={data.fileLang} {t} url={data.url}>
     <div class="d-flex align-items-center"><span class="me-1">{t.fileLanguage}:</span>
-        <LanguageSelector onChange={code =>
+        <LanguageSelector readonly={supportedLanguages.length < 2} onChange={code =>
             goto(createLink(code), { replaceState: true, invalidateAll: true })
         } options={supportedLanguages} selected={data.fileLang} />
     </div>

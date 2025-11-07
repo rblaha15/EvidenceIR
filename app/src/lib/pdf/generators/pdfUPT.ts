@@ -12,7 +12,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc, lang }) => {
     const pumps = cascadePumps(e);
     const isCascade = Boolean(e.tc.model2);
 
-    if (lang == 'cs') await addDoc({
+    await addDoc({
         lang: 'cs',
         args: pdfInfo.TCI,
         data: {},
