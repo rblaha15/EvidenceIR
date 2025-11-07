@@ -36,7 +36,7 @@ const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang
     if (yearsLeft.length) await addDoc({
         data, lang, args: pdfInfo.RKT, pump, lastYear: nextStartYear - 1 as Year,
     });
-    else if (lang == 'cs') await addDoc({
+    await addDoc({
         lang: 'cs',
         args: pdfInfo.RS,
         data: {},

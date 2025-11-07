@@ -349,6 +349,9 @@ export default {
         passwordRegulusRoute: `Regulusroute1`,
         passwordController: `uzivatel`,
     },
+    nnt: {
+        title: `Uživatelský průvodce pro RegulusBIO`,
+    },
     zlt: {
         title: `Záruční list tepelného čerpadla`,
         name: t`Záruční list TČ${'n'} (${'cislo'})`,

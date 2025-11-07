@@ -36,6 +36,8 @@ type AllPdf = {
     RR: 'IR'
     /** Návod na přístup do IR  */
     NN: 'IR'
+    /** Uživatelský průvodce pro RegulusBIO  */
+    NNT: ''
     /** Uvedení TČ do provozu */
     UPT: 'IR'
     /** Uvedení SOL do provozu */
@@ -100,6 +102,12 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs'],
         title: t => t.nn.title,
         getPdfData: NN,
+    },
+    NNT: {
+        type: '',
+        pdfName: 'NNT',
+        supportedLanguages: ['cs'],
+        title: t => t.nnt.title,
     },
     UPT: {
         type: 'IR',

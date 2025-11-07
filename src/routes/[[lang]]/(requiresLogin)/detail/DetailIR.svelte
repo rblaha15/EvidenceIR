@@ -49,6 +49,9 @@
                 {#if supportsRemoteAccess(ir.evidence.ir.typ.first)}
                     <PDFLink name={t.nn.title} {t} link="NN" data={ir} {irid} />
                 {/if}
+                {#if ir.evidence.ir.typ.second === 'TRS6 K'}
+                    <PDFLink name={t.nnt.title} {t} link="NNT" data={ir} />
+                {/if}
                 {#if ir.evidence.ir.chceVyplnitK.includes('heatPump')}
                     <PDFLink
                         disabled={!ir.uvedeniTC} name={t.tc.name} {t} link="UPT"
