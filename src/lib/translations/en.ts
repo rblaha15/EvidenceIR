@@ -454,10 +454,13 @@ const en: PlainTranslations = {
         title: `Consent to making the IR controller available to the RegulusRoute service`,
         agreeWIthRRPrice: `I agree with the one-time price of CZK 1000 incl. VAT for this service.`,
     },
-    nn: {
+    nnr: {
         title: `Guide to access the IR controller`,
         passwordRegulusRoute: `Regulusroute1`,
         passwordController: `uzivatel`,
+    },
+    nnt: {
+        title: `User Guide for RegulusBIO`,
     },
     zlt: {
         title: `Heat pump warranty`,
