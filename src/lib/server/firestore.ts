@@ -2,12 +2,19 @@ import type { IR, RecommendationData, RecommendationState } from '$lib/data';
 import { app } from '$lib/server/firebase';
 import { getFirestore, QueryDocumentSnapshot, type WithFieldValue } from 'firebase-admin/firestore';
 import type { IRID } from '$lib/helpers/ir';
+import type { DataNSP } from '$lib/forms/NSP/formNSP';
+import type { Raw } from '$lib/forms/Form';
 
 const firestore = app ? getFirestore(app) : getFirestore();
 
 const irCollection = firestore.collection('ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
     fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR,
+});
+
+const spCollection = firestore.collection('sp').withConverter<Raw<DataNSP>>({
+    toFirestore: (modelObject: WithFieldValue<Raw<DataNSP>>) => modelObject,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<DataNSP>,
 });
 
 const rkCollection = firestore.collection('rkt').withConverter<RecommendationData>({
@@ -36,3 +43,11 @@ export const changeCode = (irid: IRID, code: string, type: 'TČ' | 'SOL') => {
     const field = type == 'TČ' ? 'yearlyHeatPumpCheckRecommendation' : 'yearlySolarSystemCheckRecommendation';
     return irCollection.doc(irid).update(field + '.code', code);
 };
+
+export const getAllIRs = () => irCollection.get().then(
+    snapshot => snapshot.docs.map(snapshot => snapshot.data()),
+);
+
+export const getAllSPs = () => spCollection.get().then(
+    snapshot => snapshot.docs.map(snapshot => snapshot.data()),
+);
