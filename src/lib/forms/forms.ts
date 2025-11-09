@@ -3,7 +3,8 @@ import type { Pdf } from '$lib/pdf/pdf';
 import NSP from '$lib/forms/NSP/infoNSP';
 import IN from '$lib/forms/IN/infoIN';
 import OD from '$lib/forms/OD/infoOD';
-import RK from '$lib/forms/RK/infoRK.svelte';
+import RKT from '$lib/forms/RKT/infoRKT.svelte';
+import RKS from '$lib/forms/RKS/infoRKS.svelte';
 import SP from '$lib/forms/SP/infoSP.svelte';
 import type { FormInfo, IndependentFormInfo } from '$lib/forms/FormInfo';
 import UPS from '$lib/forms/UPS/infoUPS';
@@ -13,7 +14,7 @@ import NK from '$lib/forms/NK/infoNK';
 import FT from '$lib/forms/FT/infoFT';
 
 const all = {
-    SP, UPT, UPS, RK, OD, NSP, IN, NK, UPF, FT,
+    SP, UPT, UPS, RKT, RKS, OD, NSP, IN, NK, UPF, FT,
 };
 type All = typeof all;
 

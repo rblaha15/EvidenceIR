@@ -7,47 +7,43 @@ import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { dayISO } from '$lib/helpers/date';
-import { type DataRK, type FormRK } from '$lib/forms/RK/formRK.js';
-import defaultRK from '$lib/forms/RK/defaultRK';
+import defaultRKS from '$lib/forms/RKS/defaultRKS';
 import type { FormInfo } from '$lib/forms/FormInfo';
-import type { TC } from '$lib/forms/IN/defaultIN';
-import { error } from '@sveltejs/kit';
+import type { DataRKS, FormRKS } from '$lib/forms/RKS/formRKS';
 
-const infoRK = (() => {
+const infoRKS = (() => {
     let defaultYear = $state() as Year;
     let filledYears = $state() as Year[];
-    const pump = (url: URL = page.url) => (url.searchParams.get('pump')?.toNumber() || error(400, 'Argument pump not valid or missing')) as TC;
 
-    const info: FormInfo<DataRK, FormRK, [], 'RK'> = {
+    const info: FormInfo<DataRKS, FormRKS, [], 'RKS'> = {
         type: 'IR',
-        storeName: () => `stored_check-${pump()}`,
-        defaultData: () => defaultRK(defaultYear, filledYears),
+        storeName: () => `stored_check`,
+        defaultData: () => defaultRKS(defaultYear, filledYears),
         openPdf: () => ({
-            link: 'RK',
-            pump: pump(),
+            link: 'RKS',
         }),
         getEditData: (ir, url) => {
             const edit = (url.searchParams.get('edit-year')?.toNumber()) as Year | undefined;
             if (edit) {
                 defaultYear = edit
-                return ir.kontrolyTC[pump(url)]![edit];
+                return ir.kontrolySOL![edit];
             }
         },
         getViewData: (ir, url) => {
-            const checks = ir.kontrolyTC[pump(url)] ?? {};
+            const checks = ir.kontrolySOL ?? {};
             filledYears = checks.keys().map(y => Number(y) as Year);
 
             const view = (url.searchParams.get('view-year')?.toNumber()) as Year | undefined;
             if (view) {
                 defaultYear = view
-                return ir.kontrolyTC[pump(url)]![view];
+                return ir.kontrolySOL![view];
             }
             else {
                 defaultYear = filledYears.length
                     ? (Math.max(...filledYears) + 1) as Year
                     : 1;
-                if (!ir.uvedeniTC) return undefined;
-                const commission = new Date(ir.uvedeniTC.uvadeni.date);
+                if (!ir.uvedeniSOL) return undefined;
+                const commission = new Date(ir.uvedeniSOL.uvadeni.date);
                 const today = new Date(new Date().toISOString().split('T')[0]);
 
                 const anniversaryThisYear =
@@ -64,8 +60,7 @@ const infoRK = (() => {
             }
         },
         saveData: async (irid, raw, edit, form, editResult, t, _, ir) => {
-            const hp = pump();
-            await db.addHeatPumpCheck(irid, hp, form.info.year.value as Year, raw);
+            await db.addSolarSystemCheck(irid, form.info.year.value as Year, raw);
 
             if (await checkRegulusOrAdmin()) return;
 
@@ -73,8 +68,8 @@ const infoRK = (() => {
             const response = await sendEmail({
                 ...defaultAddresses(),
                 subject: edit
-                    ? `Vyplněna nová roční kontrola TČ${hp} k ${irName(ir.evidence.ir)}`
-                    : `Upravena roční kontrola TČ${hp} k ${irName(ir.evidence.ir)}`,
+                    ? `Vyplněna nová roční kontrola SOL k ${irName(ir.evidence.ir)}`
+                    : `Upravena roční kontrola SOL k ${irName(ir.evidence.ir)}`,
                 component: MailProtocol,
                 props: { name: user.email!, url: page.url.origin + detailIrUrl(irid) },
             });
@@ -88,7 +83,7 @@ const infoRK = (() => {
             return false;
         },
         showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
-        title: t => t.rk.formTitle({ n: `${pump()}` }),
+        title: t => t.rks.formTitle,
         createWidgetData: () => {
         },
         onMount: async (d, k, m) => {
@@ -102,4 +97,5 @@ const infoRK = (() => {
     };
     return info;
 })();
-export default infoRK;
+
+export default infoRKS;

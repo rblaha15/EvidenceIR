@@ -428,7 +428,7 @@ Array.prototype.awaitAll = function() {
 } as typeof Array.prototype.awaitAll;
 
 Array.prototype.groupBy = function(ks) {
-    return Object.groupBy(this, ks);
+    return { ...Object.groupBy(this, ks) };
 } as typeof Array.prototype.groupBy;
 
 Array.prototype.distinctBy = function <T, K>(

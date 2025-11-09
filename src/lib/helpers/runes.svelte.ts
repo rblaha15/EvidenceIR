@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import { page } from '$app/state';
 import type { IRID, SPID } from '$lib/helpers/ir';
-import type { LanguageCode as LC } from '$lib/languages';
+import type { LanguageCode as LC } from '$lib/languageCodes';
 
 class Effect<T> {
     value = $state() as T;

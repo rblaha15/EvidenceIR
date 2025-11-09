@@ -18,6 +18,8 @@
     import { regulusCRN } from '$lib/helpers/ares';
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
+    import StatsGetter from './StatsGetter.svelte';
+    import BackupDownloader from './BackupDownloader.svelte';
 
     interface BaseTabDefinition {
         title: string,
@@ -173,6 +175,22 @@
                 },
             },
         } satisfies TableDefinition<SparePart>,
+        stats: {
+            title: 'Statistiky',
+            contentType: 'custom',
+            contentOptions: {
+                component: StatsGetter,
+            },
+            longerTitle: 'Statistiky vytvořených servisních protokolů',
+        },
+        backup: {
+            title: 'Záloha',
+            contentType: 'custom',
+            contentOptions: {
+                component: BackupDownloader,
+            },
+            longerTitle: 'Stáhnout zálohu databáze',
+        },
     };
 
     $effect(() => {
@@ -218,7 +236,7 @@
             tabindex="0"
         >
             <div class="d-flex flex-column gap-3">
-                <h2 class="m-0">{t.title}</h2>
+                <h2 class="m-0">{t.longerTitle}</h2>
                 {#if t.contentType === 'table'}
                     <AdminTable options={t.tableOptions} id={tab} />
                 {:else if t.contentType === 'custom'}

@@ -316,7 +316,6 @@ const de: PlainTranslations = {
         volumeOfExpansionTankOfHeatingSystem: `Volumen des Ausdehnungsgefäßes des Heizungsystems`,
         pressureOfExpansionTankOfHeatingSystem: `Einstelldruck im Ausdehnungsgefäß des Heizungsystems`,
         pressureOfHeatingSystem: `Einstelldruck im Heizungsystem`,
-        volumeOfExpansionTankForWater: `Volumen des Trinkwasserausdehnungsgefäßes`,
         pressureOfExpansionTankForWater: `Einstelldruck im Trinkwasserausdehnungsgefäß`,
         isPoolHeatingManagedByHeatPump: `Wird auch die Poolheizung durch die Wärmepumpe geregelt?`,
         controlAndElectricalInstallation: `Regulierung und Verkabelung`,
@@ -424,7 +423,7 @@ const de: PlainTranslations = {
         info2B: t` Eine Kopie wird an den Kunden unter ${'customer'} und an Sie unter ${'user'} gesendet.`,
         info3: ` Wenn Sie dem Kunden keine E-Mail senden möchten, entfernen Sie seine Adresse aus dem obigen Feld.`,
     },
-    zl: {
+    zlt: {
         title: `Garantieschreiben für Wärmepumpe`,
         name: t`Garantie für die Wärmepumpe ${'n'} (${'cislo'})`,
     },
@@ -433,7 +432,7 @@ const de: PlainTranslations = {
         title: `Zustimmung zur Bereitstellung des IR-Controllers RegulusRoute`,
         agreeWIthRRPrice: `Ich stimme dem einmaligen Preis von 50 € inklusive MwSt. für diese Dienstleistung zu.`,
     },
-    rk: {
+    rkt: {
         kontrolniElektroinstalace: 'Verkabelung der Steuerung',
         kontrolniUkonyTepelnehoCerpadla: 'Aufgaben zur Inspektion von Wärmepumpen',
         kontrolniUkonyRegulace: 'Regulierungskontrolle',
@@ -487,7 +486,6 @@ const de: PlainTranslations = {
         fillOut: t`Jährliche Überprüfung der Wärmepumpe ${'n'} durchführen`,
         note: `Notiz`,
         pumpDetails: t`WP${'n'}: ${'model'} – ${'cislo'}`,
-        recommendations: en.rk.recommendations,
     },
 };
 export default de;

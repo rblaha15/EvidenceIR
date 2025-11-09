@@ -1,14 +1,14 @@
 <script lang="ts">
     import type { RecommendationData } from '$lib/data';
     const {
-        link, data,
+        link, data
     }: {
         link: string,
         data: RecommendationData,
     } = $props();
 </script>
 
-<p>Dobrý den,<br />blíží se termín pro provedení roční kontroly Vašeho tepelného čerpadla.</p>
+<p>Dobrý den,<br />blíží se termín pro provedení roční kontroly Vašeho {data.type === 'TČ' ? 'tepelného čerpadla' : 'solárního systému'} Regulus.</p>
 
 <p>Jméno: {data.user}</p>
 <p>Místo instalace: {data.location}</p>
