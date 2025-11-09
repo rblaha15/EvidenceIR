@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { type LanguageCode, languageCodes } from '$lib/languages';
     import { languageNames } from '$lib/translations';
     import Icon from '$lib/components/Icon.svelte';
+    import languageCodes, { type LanguageCode } from '$lib/languageCodes';
 
     const {
         onChange, options = languageCodes, selected, readonly,

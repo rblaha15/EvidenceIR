@@ -1,7 +1,6 @@
 <script lang="ts">
     import { type IRID, spName } from '$lib/helpers/ir';
     import db, { type IR } from '$lib/data';
-    import type { LanguageCode } from '$lib/languages';
     import type { Translations } from '$lib/translations';
     import { iridUrl } from '$lib/helpers/runes.svelte';
     import PDFLink from './PDFLink.svelte';
@@ -10,6 +9,7 @@
     import { invalidateAll } from '$app/navigation';
     import { aR } from '$lib/helpers/stores';
     import Icon from '$lib/components/Icon.svelte';
+    import type { LanguageCode } from '$lib/languageCodes';
 
     const {
         irid, ir, lang, t,
@@ -28,6 +28,7 @@
                 komu: { chosen: null, text: '' },
                 jak: null,
                 invoiceParts: [],
+                discount: '',
             },
             zasah: {
                 ...p.zasah,

@@ -7,7 +7,6 @@
     import db, { type IR } from '$lib/data';
     import ServiceProtocols from './ServiceProtocols.svelte';
     import { cascadePumps } from '$lib/forms/IN/infoIN';
-    import type { LanguageCode } from '$lib/languages';
     import { goto } from '$app/navigation';
     import ChangeIRID from './ChangeIRID.svelte';
     import { aA, aR } from '$lib/helpers/stores';
@@ -17,6 +16,7 @@
     import { xmlIN } from '$lib/forms/IN/xmlIN';
     import { rawDataToData } from '$lib/forms/Form.js';
     import defaultIN from '$lib/forms/IN/defaultIN';
+    import type { LanguageCode } from '$lib/languageCodes';
 
     const { t, ir, lang, irid }: {
         t: Translations, ir: IR, lang: LanguageCode, irid: IRID,

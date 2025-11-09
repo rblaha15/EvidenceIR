@@ -1,5 +1,4 @@
 import { type IRID, type SPID, spids } from '$lib/helpers/ir';
-import { languageCodes } from '$lib/languages';
 import { forms } from '$lib/forms/forms.js';
 import { type OpenPdfOptions, type Pdf, pdfInfo } from '$lib/pdf/pdf';
 import db, { type IR } from '$lib/data';
@@ -8,6 +7,7 @@ import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { relUrl } from '$lib/helpers/runes.svelte';
 import { page } from '$app/state';
 import { derived, readable, type Readable } from 'svelte/store';
+import languageCodes from '$lib/languageCodes';
 
 export const extractIDs = (url: URL) => ({
     irid: url.searchParams.get('irid') as IRID | null,

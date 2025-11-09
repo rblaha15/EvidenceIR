@@ -52,7 +52,7 @@
     });
 
     const currentLangLength = $derived(data.isLanguageFromUrl ? data.languageCode?.length ?? -1 : -1);
-    const path = $derived(page.url.pathname.slice(currentLangLength + 1));
+    const path = $derived(page.url.pathname.slice(currentLangLength + 1) || '/');
 
     const fixUrl = async () => {
         if (path == '/') {
@@ -70,13 +70,15 @@
             { replaceState: true, invalidateAll: true },
         );
         setUserPreferredLanguage(data.languageCode)
+        document.documentElement.lang = data.languageCode
     };
     $effect(() => {
         page.url;
         fixUrl();
     });
 
-    let error = $state<{ name: string; message: string; fileName: any; lineNumber: any; columnNumber: any }>();
+    type E = { name: string; message: string; fileName: any; lineNumber: any; columnNumber: any };
+    let error = $state<E>();
 
     const handleError: EventHandler<PromiseRejectionEvent, Window> = e => {
         const r = e.reason as Error;
@@ -97,28 +99,30 @@
     <title>{dev ? '(dev) ' : ''}SEIR :: {$title}</title>
 </svelte:head>
 
-{#await checkAuth()}
-    {#if !error}
-        <div class="spinner-border text-danger m-3"></div>
-    {:else}
-        <div class="alert alert-danger m-3 d-flex flex-column gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <Icon icon="error_outline" />
-                <h4 class="alert-heading m-0">{error.name}</h4>
-            </div>
-            <p class="m-0">
-                {#each error.message.split('\n') as line, i}
-                    {#if i !== 0}<br />{/if}
-                    {line}
-                {/each}
-            </p>
-            {#if error.fileName || error.lineNumber || error.columnNumber}
-                <hr class="m-0" />
-                <p class="w-100 text-end m-0">{error.fileName}:{error.lineNumber}:{error.columnNumber}</p>
-            {/if}
+{#snippet loading()}
+    <div class="spinner-border text-danger m-3"></div>
+{/snippet}
+
+{#snippet errorAlert(error: E)}
+    <div class="alert alert-danger m-3 d-flex flex-column gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <Icon icon="error_outline" />
+            <h4 class="alert-heading m-0">{error.name}</h4>
         </div>
-    {/if}
-{:then _}
+        <p class="m-0">
+            {#each error.message.split('\n') as line, i}
+                {#if i !== 0}<br />{/if}
+                {line}
+            {/each}
+        </p>
+        {#if error.fileName || error.lineNumber || error.columnNumber}
+            <hr class="m-0" />
+            <p class="w-100 text-end m-0">{error.fileName}:{error.lineNumber}:{error.columnNumber}</p>
+        {/if}
+    </div>
+{/snippet}
+
+{#snippet content()}
     <div class="d-flex flex-column h-100">
         <Navigation {t} />
         <div class="flex-grow-1 mb-2 overflow-y-scroll">
@@ -154,4 +158,18 @@
             </main>
         </div>
     </div>
-{/await}
+{/snippet}
+
+{#if !data.isLanguageFromUrl || path === '/'}
+    {@render loading()}
+{:else}
+    {#await checkAuth()}
+        {#if !error}
+            {@render loading()}
+        {:else}
+            {@render errorAlert(error)}
+        {/if}
+    {:then _}
+        {@render content()}
+    {/await}
+{/if}

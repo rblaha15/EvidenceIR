@@ -1,12 +1,12 @@
 <script lang="ts">
     import type { PageProps } from './$types';
     import { downloadFile } from '../../../helpers';
-    import { type LanguageCode } from '$lib/languages';
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
     import LanguageSelector from '$lib/components/nav/LanguageSelector.svelte';
     import PdfPreview from '$lib/components/pdf/PdfPreview.svelte';
     import Icon from '$lib/components/Icon.svelte';
+    import type { LanguageCode } from '$lib/languageCodes';
 
     const {
         data,
