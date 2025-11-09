@@ -1,9 +1,9 @@
 <script lang="ts">
     import type { STemplate, Template } from '$lib/helpers/templates.js';
-    import { languageCodes } from '$lib/languages';
     import { getTranslations, type Translate, type Translations } from '$lib/translations';
     import cs from '$lib/translations/cs';
     import isString from 'lodash.isstring';
+    import languageCodes from '$lib/languageCodes';
 
     type TranslationEntry1 = string | STemplate<(string | number)[]> | Record<string, unknown> | ((...args: unknown[]) => string);
     type Translations1 = Record<string, TranslationEntry1>

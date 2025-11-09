@@ -29,13 +29,16 @@ export const spWholeName = (sp: Raw<FormNSP>, includeEstablishment: boolean = tr
  * SRS1 T
  */
 export const irName = (ir: Raw<FormIN>['ir']) =>
-    ir.typ.first == 'other' ? 'Jiný'
+    ir.typ.first == 'other'
+        ? ir.chceVyplnitK.includes('solarCollector') ? 'SOL'
+            : ir.chceVyplnitK.includes('photovoltaicPowerPlant') ? 'FVE'
+                : 'Jiný'
         : ir.typ.first == 'SOREL' ? irType(ir.typ)
             : `${irType(ir.typ)} ${ir.cislo}`;
 
 export const irNumberFromIRID = (irid: IRID) =>
-    irid[0] == 'S' ? 'SOREL'
-        : irid[0] == 'F' ? 'FVE'
+    type(irid) == 'S' ? 'SOREL'
+        : type(irid) == 'O' ? '?'
             : !isMacIRID(irid) ? `${irid.slice(1, 3)} ${irid.slice(3, 7)}`
                 : `00:0A:0${irid[6]}:${irid[7] + irid[8]}:${irid[9] + irid[10]}:${irid[11] + irid[12]}`;
 
@@ -124,24 +127,18 @@ export const endUserName = (k: Raw<FormIN>['koncovyUzivatel']) =>
 export const endUserName2 = (k: Raw<FormIN>['koncovyUzivatel']) =>
     k.typ == 'company' ? k.nazev : `${k.prijmeni} ${k.jmeno}`;
 
-/**
- * 0: IR 10;
- *
- * 2: IR 12;
- *
- * 4: IR 14;
- *
- * 1: IR 30;
- *
- * 3: IR 34;
- *
- * B: BOX/HBOX/HBOXK;
- *
- * S: SOREL;
- *
- * F: Jiný;
- */
-export type IRType = '0' | '2' | '4' | '1'  | '3' | 'B' | 'S' | 'O';
+type IRTypeDescriptions = {
+    '0': 'IR 10';
+    '2': 'IR 12';
+    '4': 'IR 14';
+    '1': 'IR 30';
+    '3': 'IR 34';
+    'B': 'BOX/HBOX/HBOXK';
+    'S': 'SOREL';
+    'O': 'Jiný';
+}
+
+export type IRType = keyof IRTypeDescriptions;
 /**
  * MAC IR:        2000A1406FFFF (13);
  *
@@ -154,6 +151,8 @@ export type IRID = `${IRType}${string}`;
  * SP ID: RB-2024-12-31-23-59;
  */
 export type SPID = `${string}-${string}-${string}`;
+
+const type = (irid: IRID) => irid[0] as IRType;
 
 export const spids = (spids: string) => spids.split(' ') as SPID[];
 
@@ -192,3 +191,4 @@ export const isMACAddressTypeIR10 = (t: IRTypes | null) => t == 'IR 10';
 export const doesNotSupportHeatPumps = (t: IRTypes | null) => t == 'other';
 export const doesNotHaveIRNumber = (t: IRTypes | null) => t == 'other' || t == 'SOREL';
 export const supportsRemoteAccess = (t: IRTypes | null) => t != 'other' && t != 'SOREL';
+export const isBox = (t: IRTypes | null) => Boolean(t?.includes('BOX'));

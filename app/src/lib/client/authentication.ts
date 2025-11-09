@@ -1,4 +1,4 @@
-import type { LanguageCode } from '$lib/languages';
+import type { LanguageCode } from '$lib/languageCodes';
 
 export type AuthTypes = {
     createUser: {

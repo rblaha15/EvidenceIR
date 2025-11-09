@@ -12,13 +12,14 @@ import {
     TextWidget,
     TitleWidget,
 } from '../Widget.svelte.js';
-import { type FormIN, unknownCompany, unknownCRN, type UserForm } from './formIN';
+import { type FormIN, type IRSubTypes, type IRTypes, unknownCompany, unknownCRN, type UserForm } from './formIN';
 import { type Company, type Technician, techniciansList } from '$lib/client/realtime';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 import {
     companyForms,
     doesNotHaveIRNumber,
     doesNotSupportHeatPumps,
+    isBox,
     isCompanyFormInvalid,
     isMACAddressTypeIR10,
     isMACAddressTypeIR12,
@@ -27,7 +28,7 @@ import {
     supportsRemoteAccess,
     typBOX,
 } from '$lib/helpers/ir';
-import { time, dayISO } from '$lib/helpers/date';
+import { dayISO, time } from '$lib/helpers/date';
 import products, { type Products } from '$lib/helpers/products';
 import type { Translations } from '$lib/translations';
 import { derived } from 'svelte/store';
@@ -48,7 +49,7 @@ const ctc = (d: FormIN) => d.ir.typ.value.second == 'CTC';
 const rtc = (d: FormIN) => d.ir.typ.value.second == 'RTC';
 const subType = (d: FormIN) => d.ir.typ.value.second != null;
 
-const supportsRemoteAccessF = (f: FormIN) => supportsRemoteAccess(f.ir.typ.value.first)
+const supportsRemoteAccessF = (f: FormIN) => supportsRemoteAccess(f.ir.typ.value.first);
 const irOther = (d: FormIN) => d.ir.typ.value.first == 'other';
 const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == 'DG-450-B';
 
@@ -379,77 +380,103 @@ const heatPump = <const I extends TC>(i: I) => ({
     [K in `cislo${I}`]: ScannerWidget<FormIN>;
 });
 
+export const irTypeAndNumber = <D extends {
+    ir: {
+        typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>,
+        cislo: InputWidget<D>,
+    }
+}>(
+    { setAirToWater, resetRemoteAccess, resetBoxNumber, setFVEType }: {
+        setAirToWater?: (d: D) => void,
+        resetRemoteAccess?: (d: D) => void,
+        resetBoxNumber?: (d: D) => void,
+        setFVEType?: (d: D) => void
+    },
+): {
+    typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>,
+    cislo: InputWidget<D>,
+} => ({
+    typ: new DoubleChooserWidget({
+        label: t => t.in.controllerType,
+        options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'other'],
+        options2: ({ ir: { typ: { value: { first: f } } } }) => (
+            supportsOnlyCTC(f) ? ['CTC']
+                : f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
+                    : doesNotSupportHeatPumps(f) ? []
+                        : ['CTC', 'RTC']
+        ),
+        onValueSet: (d, v) => {
+            if (v.second == 'RTC') {
+                setAirToWater?.(d);
+            }
+            if (doesNotHaveIRNumber(v.first)) {
+                d.ir.cislo.setValue(d, `${dayISO()} ${time()}`);
+                resetRemoteAccess?.(d);
+            }
+            if (isBox(v.first)) {
+                resetBoxNumber?.(d);
+            }
+            if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
+                d.ir.typ.setValue(d, { ...v, second: null });
+            }
+            if (supportsOnlyCTC(v.first) && v.second != 'CTC') {
+                d.ir.typ.setValue(d, { ...v, second: 'CTC' });
+            }
+            if (doesNotSupportHeatPumps(v.first) && v.second) {
+                d.ir.typ.setValue(d, { ...v, second: null });
+            }
+            if (v.first == 'other') {
+                setFVEType?.(d);
+            }
+        },
+        labels: t => t.in.ir,
+    }),
+    cislo: new InputWidget({
+        label: t => t.in.serialNumber,
+        onError: t => t.wrong.number,
+        regex: d => doesNotHaveIRNumber(d.ir.typ.value.first)
+            ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
+            : isMACAddressTypeIR12(d.ir.typ.value.first)
+                ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
+                : isMACAddressTypeIR10(d.ir.typ.value.first)
+                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
+                    : /[A-Z][1-9OND] [0-9]{4}/,
+        capitalize: true,
+        maskOptions: d => ({
+            mask: doesNotHaveIRNumber(d.ir.typ.value.first) ? `0000-00-00T00:00` :
+                !supportsMACAddresses(d.ir.typ.value.first) ? 'Z8 0000'
+                    : d.ir.cislo.value.length == 0 ? 'X'
+                        : d.ir.cislo.value[0] == '0'
+                            ? isMACAddressTypeIR10(d.ir.typ.value.first)
+                                ? 'NN:NA:14:N6:FF:FF'
+                                : 'NN:NA:14:N9:FF:FF'
+                            : 'Z8 0000',
+            definitions: {
+                X: /[0A-Za-z]/,
+                N: /0/,
+                A: /[Aa]/,
+                6: /6/,
+                9: /9/,
+                1: /1/,
+                4: /4/,
+                F: /[0-9A-Fa-f]/,
+                Z: /[A-Za-z]/,
+                8: /[1-9ONDond]/,
+            },
+        }),
+        show: d => !doesNotHaveIRNumber(d.ir.typ.value.first),
+    }),
+});
+
 export default (): FormIN => ({
     ir: {
         nadpisSystem: new TitleWidget({ text: t => t.in.system, level: 2 }),
         nadpis: new TitleWidget({ text: t => t.in.controller, level: 4 }),
-        typ: new DoubleChooserWidget({ // Code partially duplicated in ChangeIRID.svelte
-            label: t => t.in.controllerType,
-            options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'other'],
-            options2: ({ ir: { typ: { value: { first: f } } } }) => (
-                supportsOnlyCTC(f) ? ['CTC']
-                    : f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
-                        : doesNotSupportHeatPumps(f) ? []
-                            : ['CTC', 'RTC']
-            ),
-            onValueSet: (d, v) => {
-                if (v.second == 'RTC') {
-                    d.tc.typ.setValue(d, 'airToWater');
-                }
-                if (doesNotHaveIRNumber(v.first)) {
-                    d.ir.cislo.setValue(d, `${dayISO()} ${time()}`);
-                    d.ir.cisloBox.setValue(d, '');
-                    d.vzdalenyPristup.chce.setValue(d, false);
-                }
-                if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
-                    d.ir.typ.setValue(d, { ...v, second: null });
-                }
-                if (supportsOnlyCTC(v.first) && v.second != 'CTC') {
-                    d.ir.typ.setValue(d, { ...v, second: 'CTC' });
-                }
-                if (doesNotSupportHeatPumps(v.first) && v.second) {
-                    d.ir.typ.setValue(d, { ...v, second: null });
-                }
-                if (v.first == 'other') {
-                    d.fve.typ.setValue(d, 'DG-450-B');
-                }
-            },
-            labels: t => t.in.ir,
-        }),
-        cislo: new InputWidget({ // Code partially duplicated in ChangeIRID.svelte
-            label: t => t.in.serialNumber,
-            onError: t => t.wrong.number,
-            regex: d => doesNotHaveIRNumber(d.ir.typ.value.first)
-                ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
-                : isMACAddressTypeIR12(d.ir.typ.value.first)
-                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
-                    : isMACAddressTypeIR10(d.ir.typ.value.first)
-                        ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
-                        : /[A-Z][1-9OND] [0-9]{4}/,
-            capitalize: true,
-            maskOptions: d => ({
-                mask: doesNotHaveIRNumber(d.ir.typ.value.first) ? `0000-00-00T00:00` :
-                    !supportsMACAddresses(d.ir.typ.value.first) ? 'Z8 0000'
-                        : d.ir.cislo.value.length == 0 ? 'X'
-                            : d.ir.cislo.value[0] == '0'
-                                ? isMACAddressTypeIR10(d.ir.typ.value.first)
-                                    ? 'NN:NA:14:N6:FF:FF'
-                                    : 'NN:NA:14:N9:FF:FF'
-                                : 'Z8 0000',
-                definitions: {
-                    X: /[0A-Za-z]/,
-                    N: /0/,
-                    A: /[Aa]/,
-                    6: /6/,
-                    9: /9/,
-                    1: /1/,
-                    4: /4/,
-                    F: /[0-9A-Fa-f]/,
-                    Z: /[A-Za-z]/,
-                    8: /[1-9ONDond]/,
-                },
-            }),
-            show: d => !doesNotHaveIRNumber(d.ir.typ.value.first),
+        ...irTypeAndNumber<FormIN>({
+            setAirToWater: d => d.tc.typ.setValue(d, 'airToWater'),
+            resetBoxNumber: d => d.ir.cisloBox.setValue(d, ''),
+            resetRemoteAccess: d => d.vzdalenyPristup.chce.setValue(d, false),
+            setFVEType: d => d.fve.typ.setValue(d, 'DG-450-B'),
         }),
         cisloBox: new InputWidget({
             label: t => t.in.serialNumberIndoor,
@@ -465,12 +492,12 @@ export default (): FormIN => ({
                     'S': /[0-9-]/,
                 },
             }),
-            show: d => d.ir.typ.value.first?.includes(`BOX`) ?? false,
-            required: d => d.ir.typ.value.first?.includes(`BOX`) ?? false,
+            show: d => isBox(d.ir.typ.value.first),
+            required: d => isBox(d.ir.typ.value.first),
         }),
         boxType: new TextWidget({
             text: (t, d) => t.in.recognised_BOX([typBOX(d.ir.cisloBox.value) ?? '']), showInXML: false,
-            show: d => (d.ir.typ.value.first?.includes(`BOX`) ?? false) && typBOX(d.ir.cisloBox.value) != undefined,
+            show: d => isBox(d.ir.typ.value.first) && typBOX(d.ir.cisloBox.value) != undefined,
         }),
         chceVyplnitK: new MultiCheckboxWidget({
             label: t => t.in.whatToAddInfoTo,
@@ -549,7 +576,7 @@ export default (): FormIN => ({
     },
     sol: {
         title: new TitleWidget({
-            text: t => t.in.device.solarCollector, show: sol, level: 4
+            text: t => t.in.device.solarCollector, show: sol, level: 4,
         }),
         typ: new InputWidget({
             label: t => t.in.solarCollectorType, required: sol, show: sol,
@@ -568,7 +595,7 @@ export default (): FormIN => ({
     fve: {
         title: new TitleWidget({
             text: t => t.in.photovoltaicSystem,
-            show: fve, level: 4
+            show: fve, level: 4,
         }),
         typ: new ChooserWidget({
             label: t => t.in.panelType, chosen: 'DG-450-B',
@@ -608,7 +635,7 @@ export default (): FormIN => ({
     jine: {
         title: new TitleWidget({
             text: t => t.in.device.other,
-            show: other, level: 4
+            show: other, level: 4,
         }),
         popis: new InputWidget({
             label: t => t.in.description, required: other, show: other,

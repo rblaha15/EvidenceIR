@@ -1,4 +1,3 @@
-import { type LanguageCode } from '$lib/languages';
 import cs from '$lib/translations/cs';
 import de from '$lib/translations/de';
 import en from '$lib/translations/en';
@@ -6,6 +5,7 @@ import sk from '$lib/translations/sk';
 import '$lib/extensions';
 import { addParsing, type AddParsing } from '$lib/helpers/templates';
 import type { Untranslatable } from '$lib/translations/untranslatables';
+import type { LanguageCode } from '$lib/languageCodes';
 
 export const get = <I extends string>(l: Record<Exclude<I, Untranslatable>, string | undefined>, v: I | null): string =>
     v ? l[v] ?? v ?? '' : ''

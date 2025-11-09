@@ -4,7 +4,6 @@
     import Widget from '$lib/components/Widget.svelte';
     import db from '$lib/data';
     import { goto } from '$app/navigation';
-    import type { LanguageCode } from '$lib/languages';
     import { type Translations } from '$lib/translations';
     import { defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
     import { dataToRawData, type Raw } from '$lib/forms/Form';
@@ -19,6 +18,7 @@
     import Icon from '$lib/components/Icon.svelte';
     import type { FormIN } from '$lib/forms/IN/formIN';
     import defaultIN from '$lib/forms/IN/defaultIN';
+    import type { LanguageCode } from '$lib/languageCodes';
 
     const { t, sps, lang }: {
         t: Translations, sps: Raw<FormNSP>[], lang: LanguageCode,

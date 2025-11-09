@@ -1,14 +1,11 @@
 import { get, readonly } from 'svelte/store';
 import { storable } from './helpers/stores';
-
-export const languageCodes = ['cs', 'en', 'de', 'sk'] as const;
+import languageCodes, { type LanguageCode } from '$lib/languageCodes';
 
 export const isLanguageCode = (code: unknown): code is LanguageCode => (languageCodes as readonly unknown[]).includes(code);
 
 export const asLanguageCodeOrNull = (code: unknown) =>
     isLanguageCode(code) ? code : null;
-
-export type LanguageCode = typeof languageCodes[number]
 
 export const defaultLanguage: LanguageCode = 'en';
 

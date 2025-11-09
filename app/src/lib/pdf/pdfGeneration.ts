@@ -66,12 +66,11 @@ export const generatePdf = async <P extends Pdf>(
     pdfDoc.setTitle(args.title(t));
 
     const form = pdfDoc.getForm();
-    const fields = form.getFields();
 
     const addDoc = async <P extends Pdf>(o: GeneratePdfOptions<P>) => {
         const pdfData2 = await generatePdf<P>(o);
         const pdfDoc2 = await PDFDocument.load(pdfData2.pdfBytes);
-        pdfDoc2.getForm().flatten();
+        if (!o.args.doNotFlatten) pdfDoc2.getForm().flatten();
         const newPages = await pdfDoc.copyPages(pdfDoc2, pdfDoc2.getPageIndices());
         newPages.forEach(newPage => {
             pdfDoc.addPage(newPage);
@@ -129,19 +128,21 @@ export const generatePdf = async <P extends Pdf>(
         });
     }).awaitAll();
 
-    // fields.forEach(field => {
-    //     const type = field.constructor.name;
-    //     const name = field.getName();
-    //     if (field instanceof PDFTextField) {
-    //         const f = form.getTextField(name);
-    //         f.setText(name);
-    //     }
-    //     if (field instanceof PDFDropdown) {
-    //         const f = form.getDropdown(name);
-    //         f.select(name);
-    //     }
-    //     console.log(`${type}: ${name}`);
-    // });
+    /*const fields = form.getFields();
+    const { PDFTextField, PDFDropdown } = await import('pdf-lib');
+    fields.forEach(field => {
+        const type = field.constructor.name;
+        const name = field.getName();
+        if (field instanceof PDFTextField) {
+            const f = form.getTextField(name);
+            f.setText(name);
+        }
+        if (field instanceof PDFDropdown) {
+            const f = form.getDropdown(name);
+            f.select(name);
+        }
+        console.log(`${type}: ${name}`);
+    });*/
 
     const url = 'https://pdf-lib.js.org/assets/ubuntu/Ubuntu-R.ttf';
     const fontBytes = await fetch(url).then((res) => res.arrayBuffer());
@@ -159,7 +160,7 @@ export const generatePdf = async <P extends Pdf>(
     //         form.removeField(field);
     //     }
     // });
-    // form.flatten();
+    if (!args.doNotFlatten) form.flatten();
 
     const pdfBytes = await pdfDoc.save(args.saveOptions);
 

@@ -1,11 +1,12 @@
-import type { LanguageCode } from '$lib/languages';
 import { get, type Translations } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
 import type { IR, Year } from '$lib/data';
 import type { PdfGenerationData } from '$lib/pdf/pdfGeneration';
-import RK from '$lib/pdf/generators/pdfRK';
+import RKT from '$lib/pdf/generators/pdfRKT';
+import RKS from '$lib/pdf/generators/pdfRKS';
 import NN from '$lib/pdf/generators/pdfNN';
-import ZL from '$lib/pdf/generators/pdfZL';
+import ZLT from '$lib/pdf/generators/pdfZLT';
+import ZLS from '$lib/pdf/generators/pdfZLS';
 import RR from '$lib/pdf/generators/pdfRR';
 import UPT from '$lib/pdf/generators/pdfUPT';
 import UPS from '$lib/pdf/generators/pdfUPS';
@@ -20,17 +21,25 @@ import type { FormIN } from '$lib/forms/IN/formIN';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
-import type { Template } from '$lib/helpers/templates';
+import type { LanguageCode } from '$lib/languageCodes';
 
 type AllPdf = {
     /** Roční kontrola TČ */
-    RK: 'IR'
+    RKT: 'IR'
+    /** Roční kontrola SOL */
+    RKS: 'IR'
     /** Záruční list TČ */
-    ZL: 'IR'
+    ZLT: 'IR'
+    /** Záruční list SOL */
+    ZLS: 'IR'
     /** Souhlas s RegulusRoute */
     RR: 'IR'
+    /** Návod SEIR  */
+    NN: ''
     /** Návod na přístup do IR  */
-    NN: 'IR'
+    NNR: 'IR'
+    /** Uživatelský průvodce pro RegulusBIO  */
+    NNT: ''
     /** Uvedení TČ do provozu */
     UPT: 'IR'
     /** Uvedení SOL do provozu */
@@ -54,19 +63,33 @@ type AllPdf = {
 }
 
 export const pdfInfo: PdfInfo = {
-    RK: {
+    RKT: {
         type: 'IR',
-        pdfName: 'RK',
+        pdfName: 'RKT',
         supportedLanguages: ['cs', 'de'],
-        title: t => t.rk.title,
-        getPdfData: RK,
+        title: t => t.rkt.title,
+        getPdfData: RKT,
     },
-    ZL: {
+    RKS: {
         type: 'IR',
-        pdfName: 'ZL',
+        pdfName: 'RKS',
         supportedLanguages: ['cs', 'de'],
-        title: t => t.zl.title,
-        getPdfData: ZL,
+        title: t => t.rks.title,
+        getPdfData: RKS,
+    },
+    ZLT: {
+        type: 'IR',
+        pdfName: 'ZLT',
+        supportedLanguages: ['cs', 'de'],
+        title: t => t.zlt.title,
+        getPdfData: ZLT,
+    },
+    ZLS: {
+        type: 'IR',
+        pdfName: 'ZLS',
+        supportedLanguages: ['cs', 'de'],
+        title: t => t.zls.title,
+        getPdfData: ZLS,
     },
     RR: {
         type: 'IR',
@@ -76,11 +99,23 @@ export const pdfInfo: PdfInfo = {
         getPdfData: RR,
     },
     NN: {
-        type: 'IR',
+        type: '',
         pdfName: 'NN',
         supportedLanguages: ['cs'],
         title: t => t.nn.title,
+    },
+    NNR: {
+        type: 'IR',
+        pdfName: 'NNR',
+        supportedLanguages: ['cs'],
+        title: t => t.nnr.title,
         getPdfData: NN,
+    },
+    NNT: {
+        type: '',
+        pdfName: 'NNT',
+        supportedLanguages: ['cs'],
+        title: t => t.nnt.title,
     },
     UPT: {
         type: 'IR',
@@ -103,6 +138,7 @@ export const pdfInfo: PdfInfo = {
         title: t => t.sp.title,
         getPdfData: SP,
         requiredRegulus: true,
+        doNotFlatten: true,
     },
     NSP: {
         type: 'SP',
@@ -111,6 +147,7 @@ export const pdfInfo: PdfInfo = {
         title: t => t.sp.title,
         requiredRegulus: true,
         getPdfData: NSP,
+        doNotFlatten: true,
     },
     CP: {
         type: 'SP',
@@ -118,6 +155,7 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs'],
         title: _ => '',
         getPdfData: CP,
+        doNotFlatten: true,
     },
     PS: {
         type: 'SP',
@@ -193,14 +231,18 @@ export type PdfArgs<P extends Pdf> = {
     requiredAdmin?: boolean;
     requiredRegulus?: boolean;
     getPdfData?: GetPdfData<P>;
+    doNotFlatten?: boolean,
 };
 
 type PdfParams = {
-    RK: {
+    RKT: {
         pump: TC,
         lastYear?: Year,
     },
-    ZL: {
+    RKS: {
+        lastYear?: Year,
+    },
+    ZLT: {
         pump: TC,
     },
     SP: {

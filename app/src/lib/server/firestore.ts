@@ -2,6 +2,8 @@ import type { IR, RecommendationData, RecommendationState } from '$lib/data';
 import { app } from '$lib/server/firebase';
 import { getFirestore, QueryDocumentSnapshot, type WithFieldValue } from 'firebase-admin/firestore';
 import type { IRID } from '$lib/helpers/ir';
+import type { DataNSP } from '$lib/forms/NSP/formNSP';
+import type { Raw } from '$lib/forms/Form';
 
 const firestore = app ? getFirestore(app) : getFirestore();
 
@@ -10,7 +12,12 @@ const irCollection = firestore.collection('ir').withConverter<IR>({
     fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR,
 });
 
-const rkCollection = firestore.collection('rk').withConverter<RecommendationData>({
+const spCollection = firestore.collection('sp').withConverter<Raw<DataNSP>>({
+    toFirestore: (modelObject: WithFieldValue<Raw<DataNSP>>) => modelObject,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<DataNSP>,
+});
+
+const rkCollection = firestore.collection('rkt').withConverter<RecommendationData>({
     toFirestore: (modelObject: WithFieldValue<RecommendationData>) => modelObject,
     fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as RecommendationData,
 });
@@ -27,8 +34,20 @@ export const removeRK = (code: string) =>
 export const getIRs = () =>
     irCollection.get().then(s => s.docs.map(d => d.data()));
 
-export const changeState = (irid: IRID, value: RecommendationState) =>
-    irCollection.doc(irid).update('yearlyHeatPumpCheckRecommendation.state', value);
+export const changeState = (irid: IRID, value: RecommendationState, type: 'TČ' | 'SOL') => {
+    const field = type == 'TČ' ? 'yearlyHeatPumpCheckRecommendation' : 'yearlySolarSystemCheckRecommendation';
+    return irCollection.doc(irid).update(field + '.state', value);
+};
 
-export const changeCode = (irid: IRID, code: string) =>
-    irCollection.doc(irid).update('yearlyHeatPumpCheckRecommendation.code', code);
+export const changeCode = (irid: IRID, code: string, type: 'TČ' | 'SOL') => {
+    const field = type == 'TČ' ? 'yearlyHeatPumpCheckRecommendation' : 'yearlySolarSystemCheckRecommendation';
+    return irCollection.doc(irid).update(field + '.code', code);
+};
+
+export const getAllIRs = () => irCollection.get().then(
+    snapshot => snapshot.docs.map(snapshot => snapshot.data()),
+);
+
+export const getAllSPs = () => spCollection.get().then(
+    snapshot => snapshot.docs.map(snapshot => snapshot.data()),
+);

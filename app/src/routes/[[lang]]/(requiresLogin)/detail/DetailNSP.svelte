@@ -4,13 +4,13 @@
     import { isUserAdmin } from '$lib/client/auth';
     import db from '$lib/data';
     import { goto } from '$app/navigation';
-    import type { LanguageCode } from '$lib/languages';
     import { type Translations } from '$lib/translations';
     import { type FormNSP } from '$lib/forms/NSP/formNSP';
     import type { Raw } from '$lib/forms/Form';
     import { extractSPIDFromRawData, spName } from '$lib/helpers/ir';
     import { aA } from '$lib/helpers/stores';
     import Icon from '$lib/components/Icon.svelte';
+    import type { LanguageCode } from '$lib/languageCodes';
 
     const { t, sp }: {
         t: Translations, sp: Raw<FormNSP>, lang: LanguageCode,

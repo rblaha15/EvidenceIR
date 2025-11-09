@@ -121,6 +121,14 @@ export const firestoreDatabase: Database = {
             return ir!;
         });
     },
+    addSolarSystemCheck: async (irid, year, check) => {
+        await updateDoc(irDoc(irid), `kontrolySOL.${year}`, check);
+        await odm.update('IR', irid, ir => {
+            ir!.kontrolySOL = ir!.kontrolySOL ?? {};
+            ir!.kontrolySOL[year] = check;
+            return ir!;
+        });
+    },
     addServiceProtocol: async (irid, protocol) => {
         const ir = await getSnp(irDoc(irid));
         ir!.installationProtocols.push(protocol);
@@ -153,7 +161,7 @@ export const firestoreDatabase: Database = {
         await updateDoc(irDoc(irid), `users`, users);
         await odm.update('IR', irid, ir => ({ ...ir!, users: users }));
     },
-    updateRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => {
+    updateHeatPumpRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => {
         const ir = await getSnp(irDoc(irid));
         ir!.yearlyHeatPumpCheckRecommendation = enabled ? {
             state: 'waiting',
@@ -161,6 +169,16 @@ export const firestoreDatabase: Database = {
             executingCompany: executingCompany!,
         } : undefined;
         await updateDoc(irDoc(irid), `yearlyHeatPumpCheckRecommendation`, ir!.yearlyHeatPumpCheckRecommendation ?? deleteField());
+        await odm.put('IR', irid, ir!);
+    },
+    updateSolarSystemRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => {
+        const ir = await getSnp(irDoc(irid));
+        ir!.yearlySolarSystemCheckRecommendation = enabled ? {
+            state: 'waiting',
+            ...ir!.yearlySolarSystemCheckRecommendation ?? {},
+            executingCompany: executingCompany!,
+        } : undefined;
+        await updateDoc(irDoc(irid), `yearlySolarSystemCheckRecommendation`, ir!.yearlySolarSystemCheckRecommendation ?? deleteField());
         await odm.put('IR', irid, ir!);
     },
     addIndependentServiceProtocol: async protocol => {

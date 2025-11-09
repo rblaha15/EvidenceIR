@@ -123,6 +123,11 @@ export const offlineDatabase: Database = {
         ir!.kontrolyTC[pump][year] = check;
         return ir!;
     }),
+    addSolarSystemCheck: (irid, year, check) => odm.update('IR', irid, ir => {
+        ir!.kontrolySOL = ir!.kontrolySOL ?? {};
+        ir!.kontrolySOL[year] = check;
+        return ir!;
+    }),
     addServiceProtocol: (irid, protocol) => odm.update('IR', irid, ir => {
         ir!.installationProtocols.push(protocol);
         return ir!;
@@ -151,10 +156,18 @@ export const offlineDatabase: Database = {
         ir!.users = users;
         return ir!;
     }),
-    updateRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => odm.update('IR', irid, ir => {
+    updateHeatPumpRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => odm.update('IR', irid, ir => {
         ir!.yearlyHeatPumpCheckRecommendation = enabled ? {
             state: 'waiting',
             ...ir!.yearlyHeatPumpCheckRecommendation ?? {},
+            executingCompany: executingCompany!,
+        } : undefined;
+        return ir!;
+    }),
+    updateSolarSystemRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => odm.update('IR', irid, ir => {
+        ir!.yearlySolarSystemCheckRecommendation = enabled ? {
+            state: 'waiting',
+            ...ir!.yearlySolarSystemCheckRecommendation ?? {},
             executingCompany: executingCompany!,
         } : undefined;
         return ir!;

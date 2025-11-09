@@ -1,13 +1,12 @@
 <script lang="ts">
     import PDFLink from './PDFLink.svelte';
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
-    import { type IRID } from '$lib/helpers/ir';
+    import { type IRID, supportsRemoteAccess } from '$lib/helpers/ir';
     import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { getTranslations, type Translations } from '$lib/translations';
     import db, { type IR } from '$lib/data';
     import ServiceProtocols from './ServiceProtocols.svelte';
     import { cascadePumps } from '$lib/forms/IN/infoIN';
-    import type { LanguageCode } from '$lib/languages';
     import { goto } from '$app/navigation';
     import ChangeIRID from './ChangeIRID.svelte';
     import { aA, aR } from '$lib/helpers/stores';
@@ -17,6 +16,7 @@
     import { xmlIN } from '$lib/forms/IN/xmlIN';
     import { rawDataToData } from '$lib/forms/Form.js';
     import defaultIN from '$lib/forms/IN/defaultIN';
+    import type { LanguageCode } from '$lib/languageCodes';
 
     const { t, ir, lang, irid }: {
         t: Translations, ir: IR, lang: LanguageCode, irid: IRID,
@@ -46,8 +46,11 @@
                 {#if ir.evidence.vzdalenyPristup.chce}
                     <PDFLink name={t.rr.name} {t} link="RR" data={ir} {irid} />
                 {/if}
-                {#if ir.evidence.ir.typ.first !== 'SOREL' && ir.evidence.ir.typ.first !== 'fve'}
-                    <PDFLink name={t.nn.title} {t} link="NN" data={ir} {irid} />
+                {#if supportsRemoteAccess(ir.evidence.ir.typ.first)}
+                    <PDFLink name={t.nnr.title} {t} link="NNR" data={ir} {irid} />
+                {/if}
+                {#if ir.evidence.ir.typ.second === 'TRS6 K'}
+                    <PDFLink name={t.nnt.title} {t} link="NNT" data={ir} />
                 {/if}
                 {#if ir.evidence.ir.chceVyplnitK.includes('heatPump')}
                     <PDFLink
@@ -64,34 +67,57 @@
                         }] : undefined}
                     />
                     {#each cascadePumps(ir.evidence) as tc}
-                        <PDFLink name={t.zl.name(tc)} {t} link="ZL" data={ir} pump={tc.N} {irid} />
+                        <PDFLink name={t.zlt.name(tc)} {t} link="ZLT" data={ir} pump={tc.N} {irid} />
                     {/each}
                     {#each cascadePumps(ir.evidence) as tc}
                         <PDFLink
-                            name={t.rk.name(tc)} {t} link="RK" data={ir} pump={tc.N} {irid}
+                            name={t.rkt.name(tc)} {t} link="RKT" data={ir} pump={tc.N} {irid}
                             disabled={!ir.kontrolyTC[tc.N]?.keys()?.length} additionalButton={{
                                 show: true,
-                                href: iridUrl(`/RK?pump=${tc.N}`),
-                                text: t.rk.fillOut(tc),
+                                href: iridUrl(`/RKT?pump=${tc.N}`),
+                                text: t.rkt.fillOut(tc),
+                                important: ir.yearlyHeatPumpCheckRecommendation?.state === 'sentRequest',
                             }} dropdownItems={$isUserAdmin ? ir.kontrolyTC[tc.N]?.keys().flatMap(y => [{
-                                text: `${t.rk.year} ${y}`,
+                                text: `${t.rkt.year} ${y}`,
                             }, {
                                 color: 'warning',
                                 icon: 'edit_document',
                                 text: td.editCheck + $aA,
-                                href: iridUrl(`/RK/?pump=${tc.N}&edit-year=${y}`),
+                                href: iridUrl(`/RKT?pump=${tc.N}&edit-year=${y}`),
                             }]) : undefined}
                         />
                     {/each}
                 {/if}
                 {#if ir.evidence.ir.chceVyplnitK.includes('solarCollector')}
                     <PDFLink
-                        disabled={!ir.uvedeniSOL}
-                        name={t.sol.name} {t} link="UPS" data={ir} {irid} additionalButton={{
+                        disabled={!ir.uvedeniSOL} name={t.sol.name} {t}
+                        link="UPS" data={ir} {irid} additionalButton={{
                             href: iridUrl('/UPS'),
                             text: t.sol.commission,
                             important: true,
-                        }}
+                        }} dropdownItems={$isUserRegulusOrAdmin ? [{
+                            color: 'warning',
+                            icon: 'edit_document',
+                            text: td.editProtocol + $aR,
+                            href: iridUrl(`/UPS?edit`),
+                        }] : undefined}
+                    />
+                    <PDFLink name={t.zls.name} {t} link="ZLS" data={ir} {irid} />
+                    <PDFLink
+                        name={t.rks.name} {t} link="RKS" data={ir} {irid}
+                        disabled={!ir.kontrolySOL?.keys()?.length} additionalButton={{
+                            show: true,
+                            href: iridUrl(`/RKS`),
+                            text: t.rks.fillOut,
+                            important: ir.yearlySolarSystemCheckRecommendation?.state === 'sentRequest',
+                        }} dropdownItems={$isUserAdmin ? ir.kontrolySOL?.keys().flatMap(y => [{
+                            text: `${t.rks.year} ${y}`,
+                        }, {
+                            color: 'warning',
+                            icon: 'edit_document',
+                            text: td.editCheck + $aA,
+                            href: iridUrl(`/RKS?edit-year=${y}`),
+                        }]) : undefined}
                     />
                 {/if}
                 {#if ir.evidence.ir.chceVyplnitK.includes('photovoltaicPowerPlant')}
@@ -188,6 +214,7 @@
             </div>
         </div>
 
-        <RKD {ir} {irid} {t} />
+        <RKD {ir} {irid} {t} type="TČ" />
+        <RKD {ir} {irid} {t} type="SOL" />
     </div>
 </div>

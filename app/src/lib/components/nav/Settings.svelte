@@ -5,12 +5,13 @@
     import { removeAllFiles } from '$lib/components/widgets/File.svelte';
     import { browser, dev, version } from '$app/environment';
     import { page } from '$app/state';
-    import { currentPreferredDocumentLanguage, type LanguageCode, setUserPreferredLanguage } from '$lib/languages';
+    import { currentPreferredDocumentLanguage, setUserPreferredLanguage } from '$lib/languages';
     import { goto } from '$app/navigation';
     import { setUserPreferredDocumentLanguage } from '$lib/languages.js';
     import { hideNav } from '$lib/helpers/globals';
     import { clearLocalDatabase } from '$lib/client/offline.svelte';
     import { clearOfflineQueue } from '$lib/client/offlineQueue.svelte';
+    import type { LanguageCode } from '$lib/languageCodes';
 
     const { t }: { t: Translations } = $props();
     const ts = $derived(t.nav.settings);

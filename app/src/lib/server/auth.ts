@@ -1,7 +1,8 @@
 import { getAuth, type CreateRequest, type DecodedIdToken, type UpdateRequest } from "firebase-admin/auth";
 import { app } from "./firebase";
 import "$lib/extensions"
-import type { LanguageCode } from "$lib/languages";
+
+import type { LanguageCode } from '$lib/languageCodes';
 
 const auth = getAuth(app);
 

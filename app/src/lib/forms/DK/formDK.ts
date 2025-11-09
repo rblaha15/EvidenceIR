@@ -9,50 +9,57 @@ import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
-import MailRKD from '$lib/emails/MailRKD.svelte';
+import MailDK from '$lib/emails/MailDK.svelte';
 
-export type DataRKD<D extends DataRKD<D>> = {
+export type DataDK<D extends DataDK<D>> = {
     evidence: Raw<FormIN>,
-    rkd: FormPartRKD<D>,
+    dk: FormPartDK<D>,
 }
 
-export interface FormPartRKD<D extends DataRKD<D>> extends Record<string, Widget<D, any, true>> {
+export interface FormPartDK<D extends DataDK<D>> extends Record<string, Widget<D, any, true>> {
     title: TitleWidget<D>,
     enabled: CheckboxWidget<D, true>,
     executingCompany: RadioWidget<D, 'assembly' | 'commissioning' | 'regulus', true>,
     chosenCompany: TextWidget<D>,
 }
 
-export const defaultRKD = <D extends DataRKD<D>>(): FormPartRKD<D> => ({
-    title: new TitleWidget({ text: t => t.rk.recommendations.title, level: 2, showInXML: false }),
+export const defaultDK = <D extends DataDK<D>>(
+    type: 'TČ' | 'SOL',
+): FormPartDK<D> => ({
+    title: new TitleWidget({ text: t => t.dk.title, level: 2, showInXML: false }),
     enabled: new CheckboxWidget({
-        label: t => t.rk.recommendations.userWantsTo, hideInRawData: true, showInXML: false, required: false,
+        label: t => t.dk.userWantsTo(type), hideInRawData: true, showInXML: false, required: false,
     }),
     executingCompany: new RadioWidget({
         options: d => d.evidence.uvedeni.ico == `${regulusCRN}` ? ['assembly', 'regulus']
-            : d.evidence.montazka.ico == `${regulusCRN}` ? ['regulus', 'commissioning'] : ['assembly', 'commissioning', 'regulus'],
-        label: t => t.rk.recommendations.executingCompany, showInXML: false, hideInRawData: true, labels: t => ({
+            : d.evidence.montazka.ico == `${regulusCRN}` ? ['regulus', 'commissioning']
+                : ['assembly', 'commissioning', 'regulus'],
+        label: t => t.dk.executingCompany, showInXML: false, hideInRawData: true, labels: t => ({
             assembly: t.in.assemblyCompany,
             commissioning: t.in.commissioningCompany,
-            regulus: t.rk.recommendations.regulus,
-        }), show: d => d.rkd.enabled.value, required: d => d.rkd.enabled.value,
+            regulus: t.dk.regulus,
+        }), show: d => d.dk.enabled.value, required: d => d.dk.enabled.value,
     }),
     chosenCompany: new TextWidget({
-        show: d => d.rkd.enabled.value && (d.rkd.executingCompany.value == 'assembly' || d.rkd.executingCompany.value == 'commissioning'),
+        show: d => d.dk.enabled.value && (d.dk.executingCompany.value == 'assembly' || d.dk.executingCompany.value == 'commissioning'),
         showInXML: false, text: async (t, d) => {
-            const crn = d.rkd.executingCompany.value == 'assembly' ? d.evidence.montazka.ico : d.evidence.uvedeni.ico;
+            const crn = d.dk.executingCompany.value == 'assembly' ? d.evidence.montazka.ico : d.evidence.uvedeni.ico;
             const company = await ares.getName(crn);
             return company ? `${t.in.chosenCompany}: ${company}` : '';
         },
     })
 })
 
-export const saveRKD = async <D extends DataRKD<D>>(ir: IR, form: FormPartRKD<D>) => {
+export const saveDK = async <D extends DataDK<D>>(ir: IR, form: FormPartDK<D>, type: 'TČ' | 'SOL') => {
     const enabled = form.enabled.value;
     const companyType = form.executingCompany.value;
     const irid = extractIRIDFromRawData(ir.evidence);
-    await db.updateRecommendationsSettings(irid, enabled, form.executingCompany.value);
-    if (enabled == Boolean(ir.yearlyHeatPumpCheckRecommendation) || companyType == ir.yearlyHeatPumpCheckRecommendation?.executingCompany) return true;
+    if (type == 'TČ')
+        await db.updateHeatPumpRecommendationsSettings(irid, enabled, form.executingCompany.value);
+    else
+        await db.updateSolarSystemRecommendationsSettings(irid, enabled, form.executingCompany.value);
+    const settings = type == 'TČ' ? ir.yearlyHeatPumpCheckRecommendation : ir.yearlySolarSystemCheckRecommendation;
+    if (enabled == Boolean(settings) || companyType == settings?.executingCompany) return true;
 
     const getCompany = async () => {
         const crn = companyType == 'assembly' ? ir.evidence.montazka.ico : ir.evidence.uvedeni.ico;
@@ -65,9 +72,9 @@ export const saveRKD = async <D extends DataRKD<D>>(ir: IR, form: FormPartRKD<D>
     const response = await sendEmail({
         ...defaultAddresses(cervenka),
         subject: enabled
-            ? `Zapnuto upozorňování na RK u ${irName(ir.evidence.ir)}`
-            : `Zrušeno upozorňování na RK u ${irName(ir.evidence.ir)}`,
-        component: MailRKD,
+            ? `Zapnuto upozorňování na RK ${type} u ${irName(ir.evidence.ir)}`
+            : `Zrušeno upozorňování na RK ${type} u ${irName(ir.evidence.ir)}`,
+        component: MailDK,
         props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), company, irWholeName: name },
     });
     console.log(response);
