@@ -4,6 +4,7 @@
 /// <reference lib="webworker" />
 
 import { build, files, version, prerendered } from '$service-worker';
+import languageCodes from '$lib/languageCodes';
 
 // Create a unique cache name for this deployment
 const CACHE = `cache-${version}`;
@@ -12,6 +13,7 @@ const ASSETS = [
 	...build,
 	...files,
 	...prerendered,
+    ...[...languageCodes, ''].map(lang => `/${lang}`),
 	'https://pdf-lib.js.org/assets/ubuntu/Ubuntu-R.ttf',
 ];
 

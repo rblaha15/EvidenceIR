@@ -1,4 +1,3 @@
-import type { LanguageCode } from '$lib/languages';
 import { get, type Translations } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
 import type { IR, Year } from '$lib/data';
@@ -22,6 +21,7 @@ import type { FormIN } from '$lib/forms/IN/formIN';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
+import type { LanguageCode } from '$lib/languageCodes';
 
 type AllPdf = {
     /** Roční kontrola TČ */
