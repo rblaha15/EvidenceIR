@@ -20,8 +20,8 @@
     const search = async () => {
         const token = await getToken();
         const response = await fetch(`/api/stats?from=${from.value}&to=${to.value}&token=${token}`);
-        currentRange = [dateFromISO(from.value), dateFromISO(to.value)];
         results = await response.json();
+        currentRange = [dateFromISO(from.value), dateFromISO(to.value)];
     };
 </script>
 
