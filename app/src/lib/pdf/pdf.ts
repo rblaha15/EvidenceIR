@@ -123,6 +123,7 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs', 'de'],
         title: t => t.tc.title,
         getPdfData: UPT,
+        doNotFlatten: true,
     },
     UPS: {
         type: 'IR',
