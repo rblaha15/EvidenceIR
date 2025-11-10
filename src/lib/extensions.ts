@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // noinspection JSUnusedGlobalSymbols
 
+import "core-js/proposals/array-grouping-v2"
+
 declare global {
     interface ObjectConstructor {
         recursiveKeys(o: Record<string, unknown>): string[];
