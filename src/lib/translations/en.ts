@@ -252,7 +252,7 @@ const en: PlainTranslations = {
                 addServiceProtocol: t`Created a service protocol ${'sp'} at the ${'ir'} controller`,
                 updateServiceProtocol: t`Edited the ${'sp'} service protocol at the ${'ir'} controller`,
                 addFaceTable: t`Set the optional inputs and outputs at the ${'ir'} controller`,
-                addHeatPumpCommissioningProtocol: t`Created a heat pump commissioning protocol at the ${'ir'} controller`,
+                updateHeatPumpCommissioningProtocol: t`Created a heat pump commissioning protocol at the ${'ir'} controller`,
                 addSolarSystemCommissioningProtocol: t`Created a solar system commissioning protocol at the ${'ir'} controller`,
                 addPhotovoltaicSystemCommissioningProtocol: t`Created a photovoltaic system commissioning protocol at the ${'ir'} controller`,
                 updateIRUsers: t`Updated the list of users with access to the ${'ir'} controller`,

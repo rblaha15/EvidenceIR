@@ -43,7 +43,7 @@
     };
 </script>
 
-{#if type === 'TČ' && ir.uvedeniTC || type === 'SOL' && ir.uvedeniSOL}
+{#if type === 'TČ' && ir.uvedeniTC.uvadeni.date || type === 'SOL' && ir.uvedeniSOL}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         <button class="btn btn-info d-block" data-bs-target="#recommendations{type}Modal" data-bs-toggle="modal" onclick={() => {
             loading = false

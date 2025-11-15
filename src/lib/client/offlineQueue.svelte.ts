@@ -122,7 +122,7 @@ const functions: {
     addServiceProtocol: (irid, p) => ({ ir: irNumberFromIRID(irid), sp: spName(p.zasah) }),
     updateServiceProtocol: (irid, _, p) => ({ ir: irNumberFromIRID(irid), sp: spName(p.zasah) }),
     addFaceTable: irid => ({ ir: irNumberFromIRID(irid) }),
-    addHeatPumpCommissioningProtocol: irid => ({ ir: irNumberFromIRID(irid) }),
+    updateHeatPumpCommissioningProtocol: irid => ({ ir: irNumberFromIRID(irid) }),
     addSolarSystemCommissioningProtocol: irid => ({ ir: irNumberFromIRID(irid) }),
     addPhotovoltaicSystemCommissioningProtocol: irid => ({ ir: irNumberFromIRID(irid) }),
     updateIRUsers: irid => ({ ir: irNumberFromIRID(irid) }),

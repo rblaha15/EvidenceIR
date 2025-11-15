@@ -46,7 +46,7 @@ const infoRKT = (() => {
                 defaultYear = filledYears.length
                     ? (Math.max(...filledYears) + 1) as Year
                     : 1;
-                if (!ir.uvedeniTC) return undefined;
+                if (!ir.uvedeniTC.uvadeni.date) return undefined;
                 const commission = new Date(ir.uvedeniTC.uvadeni.date);
                 const today = new Date(new Date().toISOString().split('T')[0]);
 
