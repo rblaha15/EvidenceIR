@@ -54,7 +54,7 @@
                 {/if}
                 {#if ir.evidence.ir.chceVyplnitK.includes('heatPump')}
                     <PDFLink
-                        disabled={!ir.uvedeniTC} name={t.tc.name} {t} link="UPT"
+                        disabled={!ir.uvedeniTC.uvadeni.typZaruky} name={t.tc.name} {t} link="UPT"
                         data={ir} {irid} additionalButton={{
                             href: iridUrl('/UPT'),
                             text: t.tc.commission,

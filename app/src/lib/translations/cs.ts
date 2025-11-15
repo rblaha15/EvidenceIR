@@ -184,7 +184,7 @@ export default {
                 addServiceProtocol: t`Vytvořen servisní protokol ${'sp'} u IR ${'ir'}`,
                 updateServiceProtocol: t`Upraven servisní protokol ${'sp'} u IR ${'ir'}`,
                 addFaceTable: t`Nastaveny volitelné vstupy a výstupy IR ${'ir'}`,
-                addHeatPumpCommissioningProtocol: t`Vytvořen protokol o uvedení TČ do provozu u IR ${'ir'}`,
+                updateHeatPumpCommissioningProtocol: t`Vytvořen protokol o uvedení TČ do provozu u IR ${'ir'}`,
                 addSolarSystemCommissioningProtocol: t`Vytvořen protokol o uvedení SOL do provozu u IR ${'ir'}`,
                 addPhotovoltaicSystemCommissioningProtocol: t`Vytvořen protokol o uvedení FVE do provozu u IR ${'ir'}`,
                 updateIRUsers: t`Změněn seznam uživatelů s přístupem k ${'ir'}`,
