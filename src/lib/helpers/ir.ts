@@ -72,7 +72,7 @@ export const irType = (type: Raw<FormIN>['ir']['typ']) => ({
     'IR 34': 'IR34' + type.second!,
     'IR RegulusBOX': `IR RegulusBOX ` + type.second!,
     'IR RegulusHBOX': `IR RegulusHBOX ` + type.second!,
-    'IR RegulusHBOX K': `IR RegulusHBOX ` + type.second!,
+    'IR RegulusHBOX K': `IR RegulusHBOXK ` + type.second!,
     'SOREL': type.second!,
     'other': '',
 } as const)[type.first!];
