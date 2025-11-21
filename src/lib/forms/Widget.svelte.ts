@@ -127,11 +127,13 @@ type LabelsArgs<I extends string> = Exclude<I, Untranslatable> extends never ? {
 type FileArgs<D> = {
     multiple?: GetBOrVal<D>; max?: GetOrVal<D, number>; accept?: GetOrVal<D, string>;
 };
-type ChooserArgs<D, I extends K> = { options: GetOrVal<D, Arr<I>>; chosen?: I | null; };
+type ChooserArgs<D, I extends K> = { options: GetOrVal<D, Arr<I>>; otherOptions?: GetOrVal<D, Arr<I>>; chosen?: I | null; };
 type SecondChooserArgs<I extends K> = { options: Arr<I>; chosen?: I; text?: string; };
 type DoubleChooserArgs<D, I1 extends K, I2 extends K> = {
     options1: GetOrVal<D, Arr<I1>>;
     options2: GetOrVal<D, Arr<I2>>;
+    otherOptions1?: GetOrVal<D, Arr<I1>>;
+    otherOptions2?: GetOrVal<D, Arr<I2>>;
     chosen?: Pair<I1, I2>;
 };
 type LockArgs<D> = { lock?: GetBOrVal<D>; };
@@ -190,9 +192,14 @@ type File<D> = Widget<D, Files> & { multiple: GetB<D>; max: Get<D, number>; acce
 type Lock<D, U> = Widget<D, U> & { lock: GetB<D>; };
 type Compact<D, U> = Widget<D, U> & { compact: GetB<D>; };
 type DoubleLock<D, U> = Widget<D, U> & { lock1: GetB<D>; lock2: GetB<D>; };
-type Chooser<D, I extends K> = Widget<D, I | null> & { options: Get<D, Arr<I>> };
+type Chooser<D, I extends K> = Widget<D, I | null> & { options: Get<D, Arr<I>>; otherOptions: Get<D, Arr<I>> };
 type SecondChooser<D, I extends K> = Widget<D, SeI<I>> & { options: Arr<I> };
-type DoubleChooser<D, I1 extends K, I2 extends K> = Widget<D, Pair<I1, I2>> & { options1: Get<D, Arr<I1>>; options2: Get<D, Arr<I2>>; };
+type DoubleChooser<D, I1 extends K, I2 extends K> = Widget<D, Pair<I1, I2>> & {
+    options1: Get<D, Arr<I1>>;
+    options2: Get<D, Arr<I2>>;
+    otherOptions1: Get<D, Arr<I1>>;
+    otherOptions2: Get<D, Arr<I2>>;
+};
 type Search<D, T> = Widget<D, T | null> & {
     getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry: () => string;
@@ -268,6 +275,7 @@ const initFile = function <D>(widget: File<D>, args: FileArgs<D>, defaultAccept:
 };
 const initChooser = function <D, I extends K>(widget: Chooser<D, I>, args: ChooserArgs<D, I>) {
     widget.options = toGetA(args.options);
+    widget.otherOptions = toGetA(args.otherOptions ?? []);
     widget._value = args.chosen ?? null;
 };
 const initSecondChooser = function <D, I extends K>(widget: SecondChooser<D, I>, args: SecondChooserArgs<I>) {
@@ -277,6 +285,8 @@ const initSecondChooser = function <D, I extends K>(widget: SecondChooser<D, I>,
 const initDoubleChooser = function <D, I1 extends K, I2 extends K>(widget: DoubleChooser<D, I1, I2>, args: DoubleChooserArgs<D, I1, I2>) {
     widget.options1 = toGetA(args.options1);
     widget.options2 = toGetA(args.options2);
+    widget.otherOptions1 = toGetA(args.otherOptions1 ?? []);
+    widget.otherOptions2 = toGetA(args.otherOptions2 ?? []);
     widget._value = args.chosen ?? { first: null, second: null };
 };
 const initLock = function <D, U>(widget: Lock<D, U>, args: LockArgs<D>) {
@@ -442,6 +452,7 @@ export class ChooserWidget<D, I extends K, H extends boolean = false> extends Wi
     lock = $state() as GetB<D>;
     compact = $state() as GetB<D>;
     options = $state() as Get<D, Arr<I>>;
+    otherOptions = $state() as Get<D, Arr<I>>;
     labels = $state() as T<I>;
     get = $state() as ((t: Translations, v: I | null) => string);
 
@@ -553,6 +564,8 @@ export class DoubleChooserWidget<D, I1 extends K, I2 extends K, H extends boolea
     lock2 = $state() as GetB<D>;
     options1 = $state() as Get<D, Arr<I1>>;
     options2 = $state() as Get<D, Arr<I2>>;
+    otherOptions1 = $state() as Get<D, Arr<I1>>;
+    otherOptions2 = $state() as Get<D, Arr<I2>>;
     labels = $state() as T<I1 | I2>;
     get = $state() as ((t: Translations, v: I1 | I2 | null) => string);
 
@@ -622,6 +635,7 @@ export class RadioWidget<D, I extends K, H extends boolean = false> extends Widg
     required = $state() as GetB<D>;
     lock = $state() as GetB<D>;
     options = $state() as Get<D, Arr<I>>;
+    otherOptions = $state() as Get<D, Arr<I>>;
     labels = $state() as T<I>;
     get = $state() as ((t: Translations, v: I | null) => string);
 

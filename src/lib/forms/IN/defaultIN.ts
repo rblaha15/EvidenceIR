@@ -398,13 +398,14 @@ export const irTypeAndNumber = <D extends {
 } => ({
     typ: new DoubleChooserWidget({
         label: t => t.in.controllerType,
-        options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'other'],
+        options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
         options2: ({ ir: { typ: { value: { first: f } } } }) => (
             supportsOnlyCTC(f) ? ['CTC']
                 : f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
                     : doesNotSupportHeatPumps(f) ? []
                         : ['CTC', 'RTC']
         ),
+        otherOptions1: ['IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'other'],
         onValueSet: (d, v) => {
             if (v.second == 'RTC') {
                 setAirToWater?.(d);

@@ -310,9 +310,9 @@ const en: PlainTranslations = {
     widget: {
         requiredField: 'This field is required',
         notChosen: 'Not chosen',
+        otherOptions: `Other options`,
         scanBarcode: 'Scan barcode from the heat pump',
         scanCode: 'Scan barcode',
-
         yes: 'Yes',
         no: 'No',
         clearSelection: `Clear selection`,

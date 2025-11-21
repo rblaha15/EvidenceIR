@@ -52,6 +52,7 @@ export default {
         selectFiles: 'Vybrat soubory',
         remove_File: 'Odstranit',
         notChosen: `Nevybráno`,
+        otherOptions: `Další možnosti`,
     },
     pdf: {
         fileLanguage: `Jazyk dokumentu`,

@@ -358,6 +358,7 @@ const de: PlainTranslations = {
     },
     widget: {
         notChosen: `Nicht ausgewählt`,
+        otherOptions: `Andere möglichkeiten`,
         requiredField: `Dieses Feld ist erforderlich`,
         scanCode: `Code scannen`,
         scanBarcode: `Scannen Sie den Barcode von der Wärmepumpe`,
@@ -407,7 +408,7 @@ const de: PlainTranslations = {
         title: `Protokoll zur Inbetriebnahme der Solaranlage`,
         commission: 'Inbetriebnahme erfassen',
     },
-    nn: {
+    nnr: {
         title: `Anweisungen zum Zugriff auf den IR-Controller`,
         passwordRegulusRoute: `Regulusroute1`,
         passwordController: `uzivatel`,
