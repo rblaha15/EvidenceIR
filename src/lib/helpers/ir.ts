@@ -26,6 +26,8 @@ export const spWholeName = (sp: Raw<FormNSP>, includeEstablishment: boolean = tr
  *
  * IR RegulusBOX CTC R8 2547
  *
+ * EcoZenith 1234-1234-1234
+ *
  * SRS1 T
  */
 export const irName = (ir: Raw<FormIN>['ir']) =>
@@ -39,11 +41,12 @@ export const irName = (ir: Raw<FormIN>['ir']) =>
 export const irNumberFromIRID = (irid: IRID) =>
     type(irid) == 'S' ? 'SOREL'
         : type(irid) == 'O' ? '?'
-            : !isMacIRID(irid) ? `${irid.slice(1, 3)} ${irid.slice(3, 7)}`
-                : `00:0A:0${irid[6]}:${irid[7] + irid[8]}:${irid[9] + irid[10]}:${irid[11] + irid[12]}`;
+            : type(irid) == 'C' ? `${irid.slice(1, 5)}-${irid.slice(5, 9)}-${irid.slice(9, 13)}`
+                : !isMacIRID(irid) ? `${irid.slice(1, 3)} ${irid.slice(3, 7)}`
+                    : `00:0A:0${irid[6]}:${irid[7] + irid[8]}:${irid[9] + irid[10]}:${irid[11] + irid[12]}`;
 
 /**
- * RB 2024/12/31-23
+ * RB 2024/12/31-23:59
  */
 export const spName = (zasah: Raw<GenericFormSP<never>>['zasah']) => {
     const datum = zasah.datum.split('T')[0].replaceAll('-', '/');
@@ -63,6 +66,8 @@ export const spName = (zasah: Raw<GenericFormSP<never>>['zasah']) => {
  * IR RegulusBOX CTC
  *
  * SRS1 T
+ *
+ * EcoZenith
  */
 export const irType = (type: Raw<FormIN>['ir']['typ']) => ({
     'IR 10': 'IR10CTC400',
@@ -74,6 +79,7 @@ export const irType = (type: Raw<FormIN>['ir']['typ']) => ({
     'IR RegulusHBOX': `IR RegulusHBOX ` + type.second!,
     'IR RegulusHBOX K': `IR RegulusHBOX ` + type.second!,
     'SOREL': type.second!,
+    'ctc': type.second!,
     'other': '',
 } as const)[type.first!];
 
@@ -135,6 +141,7 @@ type IRTypeDescriptions = {
     '3': 'IR 34';
     'B': 'BOX/HBOX/HBOXK';
     'S': 'SOREL';
+    'C': 'CTC';
     'O': 'Jiný';
 }
 
@@ -143,6 +150,8 @@ export type IRType = keyof IRTypeDescriptions;
  * MAC IR:        2000A1406FFFF (13);
  *
  * Moderní IR ID: 4A12345 (7);
+ *
+ * CTC:           C123412341234 (13);
  *
  * ID SOREL/FVE:  S202412312359 (13);
  */
@@ -169,6 +178,7 @@ const extractIRTypeFromFullIRType = (fullIRType: IRTypes): IRType => ({
     'IR RegulusHBOX': 'B',
     'IR RegulusHBOX K': 'B',
     'SOREL': 'S',
+    'ctc': 'C',
     'other': 'O',
 } as const)[fullIRType];
 
@@ -184,11 +194,12 @@ export const extractSPIDFromRawData = (zasah: Raw<GenericFormSP<never>['zasah']>
     return `${technik}-${datum}-${hodina}-${minuta}`;
 };
 
-export const supportsOnlyCTC = (t: IRTypes | null) => t == 'IR 10' || t == 'IR 12' || t == 'IR 30';
+export const supportsOnlyCTC = (t: IRTypes | null) => t == 'IR 10' || t == 'IR 12' || t == 'IR 30' || t == 'ctc';
 export const supportsMACAddresses = (t: IRTypes | null) => t == 'IR 10' || t == 'IR 12' || t == 'IR 30';
 export const isMACAddressTypeIR12 = (t: IRTypes | null) => t == 'IR 12' || t == 'IR 30';
 export const isMACAddressTypeIR10 = (t: IRTypes | null) => t == 'IR 10';
+export const isCTC = (t: IRTypes | null) => t == 'ctc';
 export const doesNotSupportHeatPumps = (t: IRTypes | null) => t == 'other';
 export const doesNotHaveIRNumber = (t: IRTypes | null) => t == 'other' || t == 'SOREL';
-export const supportsRemoteAccess = (t: IRTypes | null) => t != 'other' && t != 'SOREL';
+export const supportsRemoteAccess = (t: IRTypes | null) => t != 'other' && t != 'SOREL' && t != 'ctc';
 export const isBox = (t: IRTypes | null) => Boolean(t?.includes('BOX'));
