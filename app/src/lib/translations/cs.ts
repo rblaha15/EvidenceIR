@@ -587,6 +587,7 @@ export default {
     in: {
         ir: {
             other: `Jiný (pro FVE nebo SOL řízený externí regulací)`,
+            ctc: `Regulátory CTC`,
         },
         device: {
             heatPump: `Tepelné čerpadlo`,
