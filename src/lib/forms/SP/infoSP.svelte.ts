@@ -13,6 +13,7 @@ import { type DataSP, type FormSP } from '$lib/forms/SP/formSP.svelte';
 import defaultSP from '$lib/forms/SP/defaultSP';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
+import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
 
 const infoSP = (() => {
     let i = $state() as number;
@@ -107,6 +108,10 @@ const infoSP = (() => {
             },
             cells: cellsSP,
             sheetFilter: n => n.includes('Protokol'),
+        },
+        pdfImport: {
+            onImport: () => {},
+            fields: fieldsNSP,
         },
         requiredRegulus: true,
     };

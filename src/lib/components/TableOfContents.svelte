@@ -73,6 +73,7 @@
                 .filter(e =>
                     e.checkVisibility() &&
                     !e.classList.contains('toc-title') &&
+                    !e.classList.contains('modal-title') &&
                     e.id !== 'main-title' &&
                     e.id !== 'form-subtitle',
                 );
