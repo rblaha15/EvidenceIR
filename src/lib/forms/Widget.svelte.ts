@@ -95,7 +95,12 @@ type K = string;
 type T<I extends K> = (t: Translations) => Record<Exclude<I, Untranslatable>, string>;
 
 export type SearchItemPiece = { readonly text: string, readonly width?: number, readonly icon?: string };
-export type SearchItem = { readonly pieces: SearchItemPiece[], readonly href?: string, disabled?: boolean };
+export type SearchItem = {
+    readonly pieces: SearchItemPiece[],
+    readonly href?: string,
+    readonly disabled?: boolean,
+    readonly otherSearchParts?: string[],
+};
 export type Pair<I1 extends K, I2 extends K> = { readonly first: I1 | null; readonly second: I2 | null; };
 type Sides = (t: Translations) => ([string, string]);
 export type Arr<I extends K> = readonly I[];
@@ -117,7 +122,9 @@ export type BtnColor = Color | `outline-${Color}`
 type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H };
 type ShowArgs<D> = { show?: GetBOrVal<D>; showInXML?: GetBOrVal<D> };
 type InfoArgs<D> = { text: GetTPOrVal<D>; class?: GetOrVal<D, ClassValue | undefined>; } & ShowArgs<D>;
-type BtnArgs<D> = { text: GetTOrVal<D>; color: GetOrVal<D, BtnColor>; icon?: GetOrVal<D, string | undefined>; onClick: Get<D, void> } & ShowArgs<D>;
+type BtnArgs<D> =
+    { text: GetTOrVal<D>; color: GetOrVal<D, BtnColor>; icon?: GetOrVal<D, string | undefined>; onClick: Get<D, void> }
+    & ShowArgs<D>;
 type TitleArgs = { level: HeadingLevel };
 type PdfArgs<D, P extends PdfType> = { pdfData: GetT<D, InlinePdfPreviewData<D, P>> } & Omit<ShowArgs<D>, 'showInXML'>;
 type ValueArgs<D, U, H> = {
@@ -213,7 +220,12 @@ type Search<D, T> = Widget<D, T | null> & {
 type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; validate: (v: number, d: D) => boolean; };
 type Counters<D, I extends K> = Widget<D, Rec<I>> & { max: Get<D, number> };
 type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: GetB<D>; };
-type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; inverseSelection: boolean; weights: (d: D, i: I) => number; };
+type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & {
+    options: Get<D, Arr<I>>;
+    max: Get<D, number>;
+    inverseSelection: boolean;
+    weights: (d: D, i: I) => number;
+};
 type Input1<D, U> = Widget<D, U> & {
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
@@ -236,7 +248,7 @@ type Suggestions<D> = Widget<D, string> & {
 };
 
 const get = <I extends string>(l: Record<Exclude<I, Untranslatable>, string | undefined>, v: I | null): string =>
-    v ? l[v] ?? v ?? '' : ''
+    v ? l[v] ?? v ?? '' : '';
 
 const initInfo = function <D, U>(widget: Info<D, U>, args: InfoArgs<D>) {
     widget.text = toGetT(args.text);
@@ -677,7 +689,9 @@ export class RadioWithInputWidget<D, I extends K, H extends boolean = false> ext
     get = $state() as ((t: Translations, v: I | null) => string);
     capitalize = $state() as GetB<D>;
 
-    constructor(args: ValueArgs<D, RaI<I>, H> & LockArgs<D> & Input1Args<D> & Input3Args<D> & ChooserArgs<D, I> & LabelsArgs<I> & { otherLabel: GetTOrVal<D> }) {
+    constructor(args: ValueArgs<D, RaI<I>, H> & LockArgs<D> & Input1Args<D> & Input3Args<D> & ChooserArgs<D, I> & LabelsArgs<I> & {
+        otherLabel: GetTOrVal<D>
+    }) {
         super();
         initValue(this, args);
         initLock(this, args);
