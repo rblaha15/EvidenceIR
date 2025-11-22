@@ -190,6 +190,7 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs'],
         title: t => t.ft.title,
         getPdfData: FT,
+        doNotFlatten: true,
     },
 };
 

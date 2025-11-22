@@ -53,7 +53,7 @@ const fieldsOperations = [
 ];
 
 const fieldsPartsStart = 44;
-const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
+export const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
     .associateWith((_, i) => fieldsPartsStart + i * 8);
 
 export const calculateProtocolPrice = <D extends GenericFormSP<D>>(p: Raw<D>, pumpCount: number | undefined) => {
@@ -175,10 +175,9 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
         Text32: priceWork.roundTo(2).toLocaleString('cs') + ' Kč',
         Text33: priceOther.roundTo(2).toLocaleString('cs') + ' Kč',
         Text34: sum.roundTo(2).toLocaleString('cs') + ' Kč',
-        Text18: `${(tax * 100 - 100).toFixed(0)} %`,
+        Text18: (tax * 100 - 100).toFixed(0) + ' %',
         Text35: sumWithTax.roundTo(2).toLocaleString('cs') + ' Kč',
         Text39: isFree ? 'Zdarma' : get(ts, p.fakturace.hotove),
-        Text40: ' ',
         Text41: p.fakturace.hotove != 'no' || isFree ? ''
             : p.fakturace.komu.chosen == 'otherCompany' ? p.fakturace.komu.text
                 : p.fakturace.komu.chosen == 'commissioningCompany' ? (await ares.getName(p.uvedeni.ico) || p.uvedeni.ico)
