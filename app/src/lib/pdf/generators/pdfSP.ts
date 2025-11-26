@@ -24,7 +24,7 @@ const prices = {
     commissioningFVE: 2_000 / 1.21,
     yearlyHPCheck: 3_000 / 1.21,
     yearlyHPInCascadeCheck: 1_200 / 1.21,
-    yearlySOLCheck: 150 / 1.21,
+    yearlySOLCheck: 1_500 / 1.21,
     withoutCode: 0,
 } as const;
 
@@ -80,7 +80,7 @@ export const calculateProtocolPrice = <D extends GenericFormSP<D>>(p: Raw<D>, pu
     const sum = priceTransportation + priceWork + priceOther;
     const tax = p.ukony.typPrace == 'technicalAssistance12' ? 1.12 : 1.21;
     const sumWithTax = sum * tax;
-    const isFree = sumWithTax < 1.0
+    const isFree = sumWithTax < 1.0;
     return { spareParts, ip, priceTransportation, priceWork, operationsWithCascades, discount, priceOther, sum, tax, sumWithTax, isFree };
 };
 
@@ -136,7 +136,9 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
         Text10: isUnknown ? null : assemblyCompany?.sidlo.textovaAdresa ?? null,
         Text11: isUnknown ? null : p.montazka.telefon,
         Text12: isUnknown ? null : p.montazka.email,
-        Text13: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
+        Text13: p.koncovyUzivatel.pobocka
+            ? `${p.koncovyUzivatel.pobocka}, ${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`
+            : `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
         Text14: multilineTooLong(system) ? ts.seeSecondPage : system,
         Text15: '     ' + dateFromISO(p.zasah.datum),
         Text16: p.system.datumUvedeni ? dateFromISO(p.system.datumUvedeni) : null,
@@ -186,7 +188,10 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
         Text43: {
             assemblyCompany: p.montazka.zastupce,
             commissioningCompany: p.uvedeni.zastupce,
-            investor: endUserName(p.koncovyUzivatel),
+            investor: {
+                individual: endUserName(p.koncovyUzivatel),
+                company: p.koncovyUzivatel.kontaktniOsoba,
+            }[p.koncovyUzivatel.typ!],
             otherCompany: p.fakturace.komu.text,
         }[p.fakturace.komu.chosen ?? 'investor'],
         images: signature ? [{ x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 }] : [],

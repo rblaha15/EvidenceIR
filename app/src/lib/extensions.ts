@@ -41,9 +41,9 @@ declare global {
             [K in keyof T]: T[K] | never;
         };
 
-        entries<K extends string, V>(
-            this: Record<K, V>,
-        ): [K, V][];
+        entries<T extends Record<string, unknown>>(
+            this: T,
+        ): [keyof T, T[keyof T]][];
 
         keys<T extends string>(
             this: { [_ in T]?: unknown },

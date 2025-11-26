@@ -191,7 +191,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
         _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN }),
         ico: new InputWidget({
-            label: t => t.in.crn,
+            label: t => t.in.crnToARES,
             onError: t => t.wrong.crn,
             regex: /^\d{8}(\d{2})?$/,
             maskOptions: {
@@ -260,7 +260,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
         _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN }),
         ico: new InputWidget({
-            label: t => t.in.crn,
+            label: t => t.in.crnToARES,
             onError: t => t.wrong.crn,
             regex: /^\d{8}(\d{2})?$/,
             maskOptions: {
