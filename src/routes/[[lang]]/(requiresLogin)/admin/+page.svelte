@@ -8,7 +8,7 @@
         type SparePart,
         sparePartsList,
         type Technician,
-        techniciansList,
+        techniciansList, accumulationTanks, waterTanks, solarCollectors,
     } from '$lib/client/realtime';
     import { type Component, untrack } from 'svelte';
     import { setTitle } from '$lib/helpers/globals.js';
@@ -26,9 +26,9 @@
         longerTitle?: string,
     }
 
-    interface TableDefinition<T extends Record<string, unknown>> extends BaseTabDefinition {
+    interface TableDefinition<T, K extends string = keyof T & string> extends BaseTabDefinition {
         contentType: 'table',
-        tableOptions: TableOptions<T>,
+        tableOptions: TableOptions<T, K>,
     }
 
     interface CustomDefinition extends BaseTabDefinition {
@@ -175,6 +175,63 @@
                 },
             },
         } satisfies TableDefinition<SparePart>,
+        accumulationTanks: {
+            title: 'Nádrže',
+            longerTitle: 'Seznam akumulačních nádrží',
+            contentType: 'table',
+            tableOptions: {
+                fileType: 'csv',
+                fileName: 'nadrze',
+                store: accumulationTanks,
+                construct: ([name]) => name ?? '',
+                deconstruct: name => [name],
+                key: t => t,
+                instructions: [
+                    'Vložte .csv soubor se seznamem akumulačních nádrží, který obsahuje záhlaví (1. řádek) a jeden sloupec s názvy.',
+                ],
+                columns: {
+                    name: { header: 'Název', cellType: 'header', getValue: t => t },
+                },
+            },
+        } satisfies TableDefinition<string, 'name'>,
+        waterTanks: {
+            title: 'Zásobníky',
+            longerTitle: 'Seznam zásobníků',
+            contentType: 'table',
+            tableOptions: {
+                fileType: 'csv',
+                fileName: 'zasobniky',
+                store: waterTanks,
+                construct: ([name]) => name ?? '',
+                deconstruct: name => [name],
+                key: t => t,
+                instructions: [
+                    'Vložte .csv soubor se seznamem zásobníků, který obsahuje záhlaví (1. řádek) a jeden sloupec s názvy.',
+                ],
+                columns: {
+                    name: { header: 'Název', cellType: 'header', getValue: t => t },
+                },
+            },
+        } satisfies TableDefinition<string, 'name'>,
+        solarCollectors: {
+            title: 'Kolektory',
+            longerTitle: 'Seznam solárních kolektorů',
+            contentType: 'table',
+            tableOptions: {
+                fileType: 'csv',
+                fileName: 'kolektory',
+                store: solarCollectors,
+                construct: ([name]) => name ?? '',
+                deconstruct: name => [name],
+                key: t => t,
+                instructions: [
+                    'Vložte .csv soubor se seznamem solárních kolektorů, který obsahuje záhlaví (1. řádek) a jeden sloupec s názvy.',
+                ],
+                columns: {
+                    name: { header: 'Název', cellType: 'header', getValue: t => t },
+                },
+            },
+        } satisfies TableDefinition<string, 'name'>,
         stats: {
             title: 'Statistiky',
             contentType: 'custom',

@@ -87,7 +87,7 @@
 					if (textarea) widget.setValue(data, maybeCapitalized(textarea.value, widget));
 				}}
                 disabled={widget.lock(data)}
-                style="height: 100px"
+                style="height: 150px"
             ></textarea>
             {:else if options !== undefined}
                 <input

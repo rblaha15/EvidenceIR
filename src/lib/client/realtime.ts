@@ -49,6 +49,9 @@ const firmyRef = ref(realtime, '/companies');
 const lidiRef = ref(realtime, '/people');
 const techniciRef = ref(realtime, '/technicians');
 const dilyRef = ref(realtime, '/spareParts');
+const nadrzeRef = ref(realtime, '/accumulationTanks');
+const zasobnikyRef = ref(realtime, '/waterTanks');
+const kolektoryRef = ref(realtime, '/solarCollectors');
 const connectedRef = ref(realtime, '.info/connected');
 
 const _isOnline = writable(false);
@@ -161,5 +164,32 @@ export const startSparePartsListening = async () => {
 	const { onValue } = await import('firebase/database');
 	return onValue(dilyRef, (data) => {
 		sparePartsList.set((data.val() as SparePart[]) ?? []);
+	});
+};
+
+export const accumulationTanks = writable([] as string[]);
+
+export const startAccumulationTanksListening = async () => {
+	const { onValue } = await import('firebase/database');
+	return onValue(nadrzeRef, (data) => {
+        accumulationTanks.set((data.val() as string[]) ?? []);
+	});
+};
+
+export const waterTanks = writable([] as string[]);
+
+export const startWaterTanksListening = async () => {
+	const { onValue } = await import('firebase/database');
+	return onValue(zasobnikyRef, (data) => {
+        waterTanks.set((data.val() as string[]) ?? []);
+	});
+};
+
+export const solarCollectors = writable([] as string[]);
+
+export const startSolarCollectorsListening = async () => {
+	const { onValue } = await import('firebase/database');
+	return onValue(kolektoryRef, (data) => {
+        solarCollectors.set((data.val() as string[]) ?? []);
 	});
 };

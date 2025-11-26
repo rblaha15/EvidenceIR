@@ -87,34 +87,40 @@
     });
 </script>
 
-<h4 class="toc-title">{t.form.toc.title}</h4>
+{#snippet header(item: T)}
+    <li>
+        <a
+            href="#{item.id}"
+            class={{active: item.id === currentSection}}
+            data-sveltekit-replacestate="true"
+            onclick={e => {
+                e.preventDefault()
+                replaceState(new URL(page.url).also(u => u.hash = `#${item.id}`).toString(), {})
+                const anchor = document.getElementById(item.id)
+                if (anchor) main.scrollTo({
+                    top: anchor.offsetTop - sectionOffset,
+                    behavior: 'smooth',
+                })
+            }}
+        >{item.text}</a>
+    </li>
+{/snippet}
 
-<nav>
-    {#snippet nav(items: A)}
-        <ul>
-            {#each items as item}
-                {#if Array.isArray(item)}
-                    {@render nav(item)}
-                {:else}
-                    <li>
-                        <a
-                            href="#{item.id}"
-                            class={{active: item.id === currentSection}}
-                            data-sveltekit-replacestate="true"
-                            onclick={e => {
-                                e.preventDefault()
-                                replaceState(new URL(page.url).also(u => u.hash = `#${item.id}`).toString(), {})
-                                const anchor = document.getElementById(item.id)
-                                if (anchor) main.scrollTo({
-                                    top: anchor.offsetTop - sectionOffset,
-                                    behavior: 'smooth',
-                                })
-                            }}
-                        >{item.text}</a>
-                    </li>
-                {/if}
-            {/each}
-        </ul>
-    {/snippet}
-    {@render nav(groupNested(sections))}
-</nav>
+{#snippet nav(items: A)}
+    <ul>
+        {#each items as item}
+            {#if Array.isArray(item)}
+                {@render nav(item)}
+            {:else}
+                {@render header(item)}
+            {/if}
+        {/each}
+    </ul>
+{/snippet}
+
+{#if sections.length}
+    <h4 class="toc-title">{t.form.toc.title}</h4>
+    <nav>
+        {@render nav(groupNested(sections))}
+    </nav>
+{/if}
