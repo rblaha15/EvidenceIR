@@ -1,7 +1,10 @@
 import {
     getIsOnline,
     responsiblePerson,
+    startAccumulationTanksListening,
+    startSolarCollectorsListening,
     startTechniciansListening,
+    startWaterTanksListening,
 } from '$lib/client/realtime';
 import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
@@ -41,7 +44,13 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
 
         const user = get(currentUser)!;
 
-        const newIr = { evidence: raw, kontrolyTC: {}, users: [user.email!], installationProtocols: [] };
+        const newIr = {
+            evidence: raw,
+            kontrolyTC: {},
+            users: [user.email!],
+            installationProtocols: [],
+            uvedeniTC: { uvadeni: { date: '' } },
+        };
         if (edit) await db.updateIRRecord(raw);
         else await db.addIR(newIr);
 
@@ -65,8 +74,8 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
             }],
             component: MailRRoute,
             props: { e: raw, montazka, uvadec, t: cs, origin: page.url.origin, user },
-        }) : null
-        console.log(response1)
+        }) : null;
+        console.log(response1);
 
         const response2 = await sendEmail({
             ...defaultAddresses(),
@@ -90,7 +99,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
             component: MailSDaty,
             props: { data, t: cs, user, origin: page.url.origin },
         });
-        console.log(response3)
+        console.log(response3);
 
         if (!response2.ok) editResult({
             text: t.form.emailNotSent({ status: String(response1!.status), statusText: response1!.statusText }),
@@ -98,7 +107,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
             load: false,
         });
 
-        return true
+        return true;
     },
     redirectLink: async raw => detailIrUrl(extractIRIDFromRawData(raw)),
     createWidgetData: d => d,
@@ -119,6 +128,9 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
     },
     onMount: async (_, data, mode) => {
         await startTechniciansListening();
+        await startSolarCollectorsListening();
+        await startAccumulationTanksListening();
+        await startWaterTanksListening();
 
         data.ir.cislo.lock = () => mode == 'edit';
         data.ir.typ.lock1 = () => mode == 'edit';
@@ -146,7 +158,8 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
     excelImport: {
         cells: cellsIN,
         sheet: 'ZADÁNÍ',
-        onImport: () => {},
+        onImport: () => {
+        },
     },
     isSendingEmails: true,
     showSaveAndSendButtonByDefault: true,

@@ -52,44 +52,6 @@ const products = {
         'RegulusHBOX 212',
         'RegulusHBOX K 106',
     ],
-    thermalStores: {
-        DUO: [
-            '-',
-            'P',
-            'PR',
-            'K',
-            'K P',
-            'K PR',
-        ],
-        HSK: [
-            'P',
-            'P+',
-            'PR',
-            'PR+',
-            'PV',
-            'PB',
-            'TV',
-        ],
-        PS: [
-            'E+',
-            'ES+',
-            'N+',
-            'N25',
-            'K+',
-            '2F',
-            'WF',
-        ],
-    },
-    waterTanks: [
-        'NBC',
-        'RGC',
-        'RDC',
-        'R2DC',
-        'R0BC',
-        'RBC',
-        'RBC HP',
-        'R2BC',
-    ],
 } as const
 
 export default products;
@@ -98,7 +60,4 @@ type AllProducts = typeof products;
 export type Products = {
     heatPumps: AllProducts['heatPumpsRTC'][number] | AllProducts['heatPumpsAirToWaterCTC'][number] | AllProducts['heatPumpsGroundToWater'][number]
     indoorUnits: AllProducts['indoorUnits'][number]
-    thermalStores1: keyof AllProducts['thermalStores']
-    thermalStores2: AllProducts['thermalStores'][Products['thermalStores1']][number]
-    waterTanks: AllProducts['waterTanks'][number]
 };

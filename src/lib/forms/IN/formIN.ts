@@ -1,20 +1,21 @@
-import type {
-    CheckboxWidget,
-    ChooserWidget,
-    CounterWidget,
-    DoubleChooserWidget,
-    InputWidget,
-    MultiCheckboxWidget,
-    RadioWidget,
-    ScannerWidget,
-    SearchWidget,
-    TextWidget,
-    TitleWidget,
+import {
+    type CheckboxWidget,
+    type ChooserWidget,
+    type CounterWidget,
+    type DoubleChooserWidget,
+    type InputWidget, InputWithSuggestionsWidget,
+    type MultiCheckboxWidget,
+    type RadioWidget,
+    type ScannerWidget,
+    type SearchWidget,
+    type TextWidget,
+    type TitleWidget,
 } from '$lib/forms/Widget.svelte.js';
 import { type Company } from '$lib/client/realtime';
 import { type Form } from '$lib/forms/Form';
 import { type Products } from '$lib/helpers/products';
 import { getTranslations, type Translations } from '$lib/translations';
+import type { DataUPT } from '$lib/forms/UPT/formUPT';
 
 type CompanyWidgetGroup<D> = {
     company: SearchWidget<D, Company, true>;
@@ -65,7 +66,7 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         cislo: InputWidget<FormIN>;
         cisloBox: InputWidget<FormIN>;
         boxType: TextWidget<FormIN>;
-        chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `ventilation` | 'photovoltaicPowerPlant' | 'other'>;
+        chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `accumulation` | 'waterStorage' | `ventilation` | 'photovoltaicPowerPlant' | 'other'>;
     };
     tc: {
         nadpis: TitleWidget<FormIN>;
@@ -95,8 +96,14 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     };
     sol: {
         title: TitleWidget<FormIN>;
-        typ: InputWidget<FormIN>;
+        typ: InputWithSuggestionsWidget<FormIN>;
         pocet: InputWidget<FormIN>;
+    };
+    tanks: {
+        title: TitleWidget<FormIN>;
+        accumulation: InputWithSuggestionsWidget<FormIN>;
+        water: InputWithSuggestionsWidget<FormIN>;
+        anode: RadioWidget<FormIN, 'magnesium' | 'electronic'>;
     };
     rek: {
         title: TitleWidget<FormIN>;

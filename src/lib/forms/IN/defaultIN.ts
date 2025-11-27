@@ -4,7 +4,7 @@ import {
     ChooserWidget,
     CounterWidget,
     DoubleChooserWidget,
-    InputWidget,
+    InputWidget, InputWithSuggestionsWidget,
     MultiCheckboxWidget,
     RadioWidget,
     ScannerWidget,
@@ -13,7 +13,7 @@ import {
     TitleWidget,
 } from '../Widget.svelte.js';
 import { type FormIN, type IRSubTypes, type IRTypes, unknownCompany, unknownCRN, type UserForm } from './formIN';
-import { type Company, type Technician, techniciansList } from '$lib/client/realtime';
+import { accumulationTanks, type Company, solarCollectors, type Technician, techniciansList, waterTanks } from '$lib/client/realtime';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 import {
     companyForms,
@@ -42,6 +42,8 @@ const po = (d: UserForm<never>) => !jeFO(d);
 
 const tc = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`heatPump`);
 const sol = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`solarCollector`);
+const aku = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`accumulation`);
+const zas = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`waterStorage`);
 const rek = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`ventilation`);
 const fve = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`photovoltaicPowerPlant`);
 const other = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`other`);
@@ -54,6 +56,7 @@ const supportsRemoteAccessF = (f: FormIN) => supportsRemoteAccess(f.ir.typ.value
 const irOther = (d: FormIN) => d.ir.typ.value.first == 'other';
 const irCTC = (d: FormIN) => d.ir.typ.value.first == 'ctc';
 const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == 'DG-450-B';
+const akuDuo = (d: FormIN) => aku(d) && d.tanks.accumulation.value.toUpperCase().startsWith('DUO');
 
 export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
     koncovyUzivatel: {
@@ -515,11 +518,14 @@ export default (): FormIN => ({
         }),
         chceVyplnitK: new MultiCheckboxWidget({
             label: t => t.in.whatToAddInfoTo,
-            options: d => irOther(d) ? [`solarCollector`, 'photovoltaicPowerPlant']
-                : irCTC(d) ? [`heatPump`]
-                    : doesNotSupportHeatPumps(d.ir.typ.value.first)
-                        ? ['solarCollector', 'ventilation', `photovoltaicPowerPlant`, 'other']
-                        : [`heatPump`, `solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'other'] as const,
+            options: d => [
+                ...irOther(d) || doesNotSupportHeatPumps(d.ir.typ.value.first) ? [] : ['heatPump'] as const,
+                ...irCTC(d) ? [] : ['solarCollector'] as const,
+                ...['accumulation', 'waterStorage'] as const,
+                ...irCTC(d) || irOther(d) ? [] : ['ventilation'] as const,
+                ...irCTC(d) ? [] : ['photovoltaicPowerPlant'] as const,
+                ...irCTC(d) || irOther(d) ? [] : ['other'] as const,
+            ],
             required: false, showInXML: false, onValueSet: (d, v) => {
                 if (!v.includes('heatPump')) {
                     d.tc.typ.setValue(d, null);
@@ -530,6 +536,12 @@ export default (): FormIN => ({
                 if (!v.includes('solarCollector')) {
                     d.sol.typ.setValue(d, '');
                     d.sol.pocet.setValue(d, '');
+                }
+                if (!v.includes('accumulation')) {
+                    d.tanks.accumulation.setValue(d, '');
+                }
+                if (!v.includes('waterStorage')) {
+                    d.tanks.water.setValue(d, '');
                 }
                 if (!v.includes('ventilation')) {
                     d.rek.typ.setValue(d, '');
@@ -547,7 +559,7 @@ export default (): FormIN => ({
                 if (!v.includes('other')) {
                     d.jine.popis.setValue(d, '');
                 }
-            }, labels: t => t.in.device, lock: irCTC,
+            }, labels: t => t.in.device,
         }),
     },
     tc: {
@@ -591,11 +603,26 @@ export default (): FormIN => ({
         title: new TitleWidget({
             text: t => t.in.device.solarCollector, show: sol, level: 4,
         }),
-        typ: new InputWidget({
-            label: t => t.in.solarCollectorType, required: sol, show: sol,
+        typ: new InputWithSuggestionsWidget({
+            label: t => t.in.solarCollectorType, required: sol, show: sol, suggestions: solarCollectors,
         }),
         pocet: new InputWidget({
             label: t => t.in.solarCollectorCount, type: `number`, required: sol, show: sol,
+        }),
+    },
+    tanks: {
+        title: new TitleWidget({
+            text: t => t.tc.tanks, level: 4, show: d => aku(d) || zas(d),
+        }),
+        accumulation: new InputWithSuggestionsWidget({
+            label: t => t.tc.typeOfAccumulationTank, show: aku, required: aku, suggestions: accumulationTanks,
+        }),
+        water: new InputWithSuggestionsWidget({
+            label: t => t.tc.typeOfStorageTank, show: zas, required: zas, suggestions: waterTanks,
+        }),
+        anode: new RadioWidget({
+            label: t => t.tc.anodeRod.label, show: d => zas(d) || akuDuo(d), required: d => zas(d) || akuDuo(d),
+            options: ['magnesium', 'electronic'], labels: t => t.tc.anodeRod,
         }),
     },
     rek: {

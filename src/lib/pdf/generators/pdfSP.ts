@@ -198,9 +198,9 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
     } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };
 
-export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols, uvedeniTC: u }, t, addDoc, index, lang }) =>
+export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols }, t, addDoc, index, lang }) =>
     pdfNSP({
-        data: generalizeServiceProtocol(e, installationProtocols[index], u, t), t, addDoc, lang,
+        data: generalizeServiceProtocol(e, installationProtocols[index], t), t, addDoc, lang,
         pumpCount: cascadePumps(e).length,
     });
 export default pdfSP;
