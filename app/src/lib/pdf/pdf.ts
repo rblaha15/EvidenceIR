@@ -266,10 +266,10 @@ export const generalizeServiceProtocol = (
         popis:
             irName(e.ir) +
             (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +
-            (u.nadrze?.akumulacka || u.nadrze?.zasobnik ? '\n' : '') +
-            (u.nadrze?.akumulacka ? `Nádrž: ${u.nadrze.akumulacka}` : '') +
-            (u.nadrze?.akumulacka && u.nadrze?.zasobnik ? '; ' : '') +
-            (u.nadrze?.zasobnik ? `Zásobník: ${u.nadrze.zasobnik}` : '') +
+            (u?.nadrze?.akumulacka || u?.nadrze?.zasobnik ? '\n' : '') +
+            (u?.nadrze?.akumulacka ? `Nádrž: ${u.nadrze.akumulacka}` : '') +
+            (u?.nadrze?.akumulacka && u?.nadrze?.zasobnik ? '; ' : '') +
+            (u?.nadrze?.zasobnik ? `Zásobník: ${u.nadrze.zasobnik}` : '') +
             (e.ir.chceVyplnitK.includes('solarCollector') ? `\nSOL: ${e.sol.typ} – ${e.sol.pocet}x` : '') +
             (e.rek?.typ ? `\nREK: ${e.rek.typ}` : '') +
             (e.fve?.pocet ? `\nFVE: ${get(t.in.fve, e.fve.typ)} – ${e.fve.pocet}x` : '') +
