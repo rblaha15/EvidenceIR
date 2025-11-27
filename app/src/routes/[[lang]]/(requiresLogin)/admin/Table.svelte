@@ -1,15 +1,15 @@
-<script generics="T extends Record<string, unknown>" lang="ts">
+<script generics="T, K extends string = keyof T & string" lang="ts">
     import { page } from '$app/state';
     import type { TableOptions } from './AdminTable.svelte';
 
-    interface Props<T extends Record<string, unknown>> {
+    interface Props<T, K extends string = keyof T & string> {
         items?: T[];
         itemsWithColors?: [T, string][];
-        options: TableOptions<T>;
+        options: TableOptions<T, K>;
         id: string;
     }
 
-    let { items, itemsWithColors, options, id }: Props<T> = $props();
+    let { items, itemsWithColors, options, id }: Props<T, K> = $props();
     const { key, columns } = options;
 
     let colors = $state() as string[];
@@ -24,6 +24,9 @@
             throw 'No items';
         }
     });
+
+    const itemText = <Key extends K>(key: Key, column: typeof columns[Key], item: T) =>
+        column.getValue?.(item) ?? (column.transformValue ?? (s => `${s}`))(item[key as keyof T & Key])
 </script>
 
 <div class="overflow-x-auto">
@@ -43,9 +46,9 @@
             >
                 {#each columns.entries() ?? [] as [key, column]}
                     {#if column.cellType === 'header'}
-                        <th>{@html (column.transformValue ?? (s => s))(item[key])}</th>
+                        <th>{@html itemText(key, column, item)}</th>
                     {:else}
-                        <td>{@html (column.transformValue ?? (s => s))(item[key])}</td>
+                        <td>{@html itemText(key, column, item)}</td>
                     {/if}
                 {/each}
             </tr>

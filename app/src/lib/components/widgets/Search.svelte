@@ -32,8 +32,11 @@
         search;
         return $all?.filter((item) =>
             wordsToFilter(search).every(
-                filter => widget.getSearchItem(item, t).pieces.some(piece =>
-                    wordsToFilter(piece.text).some(word => word.includes(filter)),
+                filter => widget.getSearchItem(item, t).let(i => [
+                    ...i.pieces.map(p => p.text),
+                    ...i.otherSearchParts ?? [],
+                ]).some(piece =>
+                    wordsToFilter(piece).some(word => word.includes(filter)),
                 ),
             ),
         ) ?? [];

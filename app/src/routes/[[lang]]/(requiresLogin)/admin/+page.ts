@@ -3,7 +3,10 @@ import { checkAdmin, checkAuth } from '$lib/client/auth';
 import { browser } from '$app/environment';
 import { error } from '@sveltejs/kit';
 import { langEntryGenerator } from '../../helpers';
-import { startCompaniesListening, startUsersListening, startSparePartsListening, startTechniciansListening } from '$lib/client/realtime';
+import {
+    startCompaniesListening, startUsersListening, startSparePartsListening, startTechniciansListening,
+    startAccumulationTanksListening, startWaterTanksListening, startSolarCollectorsListening,
+} from '$lib/client/realtime';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
@@ -14,6 +17,9 @@ export const load: PageLoad = async () => {
     await startCompaniesListening();
     await startTechniciansListening();
     await startSparePartsListening();
+    await startAccumulationTanksListening();
+    await startWaterTanksListening();
+    await startSolarCollectorsListening();
 };
 
 export const prerender = true;

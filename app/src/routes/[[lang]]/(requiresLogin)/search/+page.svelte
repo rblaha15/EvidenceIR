@@ -25,6 +25,10 @@
                 { text: i.name, width: .4 },
                 { text: i.label, width: .6 },
             ] as const,
+            otherSearchParts: [
+                ...i.t == 'SP' ? i.id : [i.id],
+                ...i.sps,
+            ],
         }),
         onValueSet: (_, i) => {
             if (i) goto(i.t == 'SP' ? detailSpUrl(i.id) : detailIrUrl(i.id));

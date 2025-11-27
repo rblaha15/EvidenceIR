@@ -2,13 +2,17 @@ const products = {
     heatPumpsAirToWaterCTC: [
         'EcoAir 614M',
         'EcoAir 622M',
+        'EcoAir 712M',
+        'EcoAir 720M',
+
         'EcoAir 406',
         'EcoAir 408',
         'EcoAir 410',
         'EcoAir 415',
         'EcoAir 420',
-        'EcoAir 712M',
-        'EcoAir 720M',
+        'EcoAir 105',
+        'EcoAir 107',
+        'EcoAir 110',
     ],
     heatPumpsRTC: [
         'RTC',
@@ -31,6 +35,16 @@ const products = {
         'EcoPart 414',
         'EcoPart 417',
         'EcoPart 435',
+    ],
+    heatPumpCentralls: [
+        'EcoHeat 406',
+        'EcoHeat 408',
+        'EcoHeat 410',
+        'EcoPart 412',
+        'EcoHeat 306',
+        'EcoHeat 308',
+        'EcoHeat 310',
+        'EcoHeat 312',
     ],
     indoorUnits: [
         'RegulusBOX',

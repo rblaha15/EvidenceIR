@@ -80,21 +80,23 @@ export const generatePdf = async <P extends Pdf>(
 
     const initText = (name: string, value: string | null) => {
         const field = form.getTextField(name);
-        field.setText(value?.toString() ?? '');
+        field.setText(value?.toString() ?? ' ');
         field.disableSpellChecking();
-        if (value != null) field.enableReadOnly();
+        if (!value) field.setText(' ');
     };
     const initDropdown = (name: string, value: string | null) => {
         const field = form.getDropdown(name);
+        if (!field.getOptions().includes(value ?? ''))
+            field.addOptions(value ?? '')
         field.select(value ?? '');
         field.disableSpellChecking();
-        if (value != null) field.enableReadOnly();
+        // if (value == null) field.select('');
     };
     const initCheckbox = (name: string, value: boolean | null) => {
         const field = form.getCheckBox(name);
         if (value == true) field.check();
         if (value == false) field.uncheck();
-        if (value != null) field.enableReadOnly();
+        // if (value != null) field.enableReadOnly();
     };
 
     const fieldDefinitions = formData.omit('images', 'fileNameSuffix');

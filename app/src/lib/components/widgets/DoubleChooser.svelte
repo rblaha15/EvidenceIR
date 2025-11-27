@@ -2,7 +2,8 @@
     import { onMount } from 'svelte';
     import type { Action } from 'svelte/action';
     import type { Translations } from '$lib/translations';
-    import { type DoubleChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
+    import { type Arr, type DoubleChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
+    import type { ChangeEventHandler } from 'svelte/elements';
 
     interface Props {
         t: Translations;
@@ -12,35 +13,75 @@
 
     let { t, widget = $bindable(), data }: Props = $props();
 
-    const onChange1 = (
-        e: Event & {
-            currentTarget: HTMLSelectElement;
-        }
-    ) =>
-        widget.mutateValue(data, v => ({ ...v, first: e.currentTarget.value as I1 }));
-    const onChange2 = (
-        e: Event & {
-            currentTarget: HTMLSelectElement;
-        }
-    ) =>
-        widget.mutateValue(data, v => ({ ...v, second: e.currentTarget.value as I2 }));
+    let other1 = $state([] as Arr<I1>);
+    let options1 = $state([] as Arr<I1>);
+    const onChange1: ChangeEventHandler<HTMLSelectElement> = e => {
+        const target = e.currentTarget;
+        const value = target.value;
+        if (value === 'otherOptions') {
+            e.preventDefault();
+            options1 = [...options1, ...other1];
+            other1 = [];
+            setTimeout(() => target.showPicker())
+        } else widget.mutateValue(data, v => ({ ...v, first: value as I1 }));
+    };
+    $effect(() => {
+        options1 = widget.options1(data);
+        other1 = widget.otherOptions1(data);
+        new Promise(r => r(undefined)).then(() => {
+            if (widget.value.first && other1.includes(widget.value.first)) {
+                options1 = [...options1, ...other1];
+                other1 = [];
+            }
+        })
+    });
+
+    let other2 = $state([] as Arr<I2>);
+    let options2 = $state([] as Arr<I2>);
+    const onChange2: ChangeEventHandler<HTMLSelectElement> = e => {
+        const target = e.currentTarget;
+        const value = target.value;
+        if (value === 'otherOptions') {
+            e.preventDefault();
+            options2 = [...options2, ...other2];
+            other2 = [];
+            setTimeout(() => target.showPicker())
+        } else widget.mutateValue(data, v => ({ ...v, second: value as I2 }));
+    };
+    $effect(() => {
+        options2 = widget.options2(data);
+        other2 = widget.otherOptions2(data);
+        new Promise(r => r(undefined)).then(() => {
+            if (widget.value.second && other2.includes(widget.value.second)) {
+                options2 = [...options2, ...other2];
+                other2 = [];
+            }
+        })
+    });
 
     let mounted = false;
-    onMount(() => (mounted = true));
-    const Select: Action<HTMLSelectElement> = (e) => {
-        if (mounted && !e.disabled) e.showPicker();
+    onMount(() => mounted = true);
+    const Select: Action<HTMLSelectElement> = target => {
+        if (mounted && !target.disabled) target.showPicker();
     };
 </script>
+
+{#snippet showGroups(other: (Arr<I1> | Arr<I2>), options: (Arr<I1> | Arr<I2>))}
+    <option class="d-none" value='notChosen'>{t.widget.notChosen}</option>
+    {#each options as option}
+        <option value={option}>{widget.get(t, option)}</option>
+    {/each}
+    {#if other.length}
+        <option value='otherOptions'>{t.widget.otherOptions}…</option>
+    {/if}
+{/snippet}
 
 <div class="d-flex gap-1 flex-column">
     <div class="input-group">
         <label class="form-floating d-block left">
-            <select class="form-select" value={widget.value.first ?? 'notChosen'}
-                    disabled={widget.lock1(data)} onchange={onChange1}>
-                <option class="d-none" value="notChosen">{t.widget.notChosen}</option>
-                {#each widget.options1(data) as moznost}
-                    <option value={moznost}>{widget.get(t, moznost)}</option>
-                {/each}
+            <select class="form-select" disabled={widget.lock1(data)}
+                    onchange={onChange1} value={widget.value.first ?? 'notChosen'}>
+                {@render showGroups(other1, options1)}
             </select>
             <label for="">{labelAndStar(widget, data, t)}</label>
         </label>
@@ -53,10 +94,7 @@
                 onchange={onChange2}
                 use:Select
             >
-                <option class="d-none" value="notChosen">{t.widget.notChosen}</option>
-                {#each widget.options2(data) as moznost}
-                    <option value={moznost}>{widget.get(t, moznost)}</option>
-                {/each}
+                {@render showGroups(other2, options2)}
             </select>
         {/if}
     </div>

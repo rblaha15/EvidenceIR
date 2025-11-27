@@ -19,11 +19,13 @@ export type Installation_PublicServiceProtocol = {
     id: IRID,
     label: string,
     name: string,
+    sps: string[],
 } | {
     t: 'SP',
     id: SPID[],
     label: string,
     name: string,
+    sps: [],
 }
 
 export const load: PageLoad = async ({ parent }) => {
@@ -41,6 +43,7 @@ export const load: PageLoad = async ({ parent }) => {
                 id: extractIRIDFromRawData(ir.evidence),
                 name: irName(ir.evidence.ir),
                 label: irLabel(ir.evidence),
+                sps: ir.installationProtocols.map(p => spName(p.zasah)),
             } satisfies Installation_PublicServiceProtocol))
             .filter(i => i.id),
     );
@@ -57,6 +60,7 @@ export const load: PageLoad = async ({ parent }) => {
                     id: sps.map(sp => extractSPIDFromRawData(sp.zasah)),
                     name: sps.length == 1 ? spName(sps[0].zasah) : ts.nProtocols(sps.length, sps.map(sp => sp.zasah.inicialy.trim()).distinct().join(', ')),
                     label: label,
+                    sps: [],
                 } satisfies Installation_PublicServiceProtocol)),
         );
 

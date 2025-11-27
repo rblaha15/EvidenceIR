@@ -33,6 +33,7 @@ const de: PlainTranslations = {
         commissioning: `Inbetriebnahme`,
         representativeName: `Name der Kontaktperson`,
         crn: `Steuer-ID`,
+        crnToARES: `Steuer-ID`,
         zip: `Postleitzahl`,
         town: `Stadt`,
         realizationLocation: `Ort der Ausführung`,
@@ -68,6 +69,7 @@ const de: PlainTranslations = {
         companyName: `Name`,
         ir: {
             other: `Andere (für PV oder SOL durch externe Regulierung gesteuert)`,
+            ctc: `CTC-Regler`,
         },
         device: {
             heatPump: `Wärmepumpe`,
@@ -358,6 +360,7 @@ const de: PlainTranslations = {
     },
     widget: {
         notChosen: `Nicht ausgewählt`,
+        otherOptions: `Andere möglichkeiten`,
         requiredField: `Dieses Feld ist erforderlich`,
         scanCode: `Code scannen`,
         scanBarcode: `Scannen Sie den Barcode von der Wärmepumpe`,
@@ -407,7 +410,7 @@ const de: PlainTranslations = {
         title: `Protokoll zur Inbetriebnahme der Solaranlage`,
         commission: 'Inbetriebnahme erfassen',
     },
-    nn: {
+    nnr: {
         title: `Anweisungen zum Zugriff auf den IR-Controller`,
         passwordRegulusRoute: `Regulusroute1`,
         passwordController: `uzivatel`,
@@ -416,7 +419,7 @@ const de: PlainTranslations = {
         title: 'Unterschriebene Dokumente senden',
         signedPdfDocuments: 'PDF-Dateien mit unterschriebenen Dokumenten',
         photosFromTheInstallation: 'Installationsfotos',
-        noteToEmail: 'Notiz (per E-Mail)',
+        emailBody: 'Der Körper der E-Mail',
         customerEmail: 'E-Mail-Adresse des Kunden',
         info1: t`Die Anwendung sendet eine E-Mail mit Dokumenten, ggf. Bildern und einer Notiz an ${0} und ${1}.`,
         info2A: t` Eine Kopie wird an Sie unter ${'user'} gesendet.`,

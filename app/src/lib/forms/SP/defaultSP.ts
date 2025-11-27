@@ -57,7 +57,8 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
                 const nd = dil(d);
                 nd.code.setValue(d, part?.code?.let(String) ?? '');
                 nd.name.setValue(d, part?.name ?? '');
-                nd.unitPrice.setValue(d, part?.unitPrice?.let(String) ?? '');
+                if (d.system.zaruka.value) nd.unitPrice.setValue(d, '0');
+                else nd.unitPrice.setValue(d, part?.unitPrice?.let(String) ?? '');
                 nd.dil._value = null;
             }, getSearchItem: (i: SparePart, t) => ({
                 pieces: [
@@ -113,8 +114,9 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
         datumUvedeni: new InputWidget({ label: t => t.sp.commissioningDate, type: 'date', required: false }),
         zaruka: new RadioWidget({
             label: t => t.sp.warranty, options: [`warrantyCommon`, `warrantyExtended`], required: false, labels,
-            onValueSet: (d, hasWarranty) => {
-                if (hasWarranty) d.fakturace.invoiceParts.setValue(d, invoiceableParts);
+            onValueSet: (d, warranty) => {
+                if (warranty == 'warrantyCommon') d.fakturace.invoiceParts.setValue(d, invoiceableParts);
+                else d.fakturace.invoiceParts.setValue(d, []);
             },
         }),
     },
