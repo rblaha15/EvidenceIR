@@ -19,11 +19,6 @@ export interface FormUPT extends Form<DataUPT> {
         kondenzator: CheckboxWidget<DataUPT>,
         filtr: CheckboxWidget<DataUPT>,
     },
-    nadrze: {
-        nadpis: TitleWidget<DataUPT>,
-        akumulacka: InputWidget<DataUPT>,
-        zasobnik: InputWidget<DataUPT>,
-    },
     os: {
         nadpis: TitleWidget<DataUPT>,
         tvori: ChooserWidget<DataUPT, `radiators` | `underfloorHeating` | `combinationHeating` | `otherHeatingSystem`>,

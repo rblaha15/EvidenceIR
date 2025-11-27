@@ -59,6 +59,7 @@
                 const text = ev.target?.result as string | null;
                 newData = (text ?? '')
                     .split('\n')
+                    .map(row => row.trim().replace(/  +/g, ' '))
                     .filter(row => row != '')
                     .map(row => row.split(';').map(col => col != '' ? col : undefined))
                     .map(construct);

@@ -389,6 +389,11 @@ export default {
         tanks: `Nádrže`,
         typeOfAccumulationTank: `Typ akumulační nádrže`,
         typeOfStorageTank: `Typ zásobníku`,
+        anodeRod: {
+            label: `Anoda`,
+            magnesium: `Hořčíková`,
+            electronic: `Elektronická`,
+        },
         heatingSystem: `Otopný systém`,
         heatingSystemConsistsOf: `Otopný systém tvoří`,
         radiators: `Radiátory`,
@@ -592,6 +597,8 @@ export default {
         device: {
             heatPump: `Tepelné čerpadlo`,
             solarCollector: `Solární kolektor`,
+            accumulation: `Akumulační nádrž`,
+            waterStorage: `Zásobník`,
             ventilation: `Větrání s rekuperací tepla`,
             photovoltaicPowerPlant: 'Fotovoltaická elektrárna',
             other: 'Jiné zařízení',
