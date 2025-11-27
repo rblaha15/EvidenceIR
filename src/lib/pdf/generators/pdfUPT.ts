@@ -4,10 +4,12 @@ import { endUserName, irType, typBOX } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { get } from '$lib/translations';
 import ares from '$lib/helpers/ares';
+import type { Raw } from '$lib/forms/Form';
+import type { FormUPT } from '$lib/forms/UPT/formUPT';
 
 const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc, lang }) => {
     const { evidence: e, uvedeniTC } = data
-    const u = uvedeniTC!;
+    const u = uvedeniTC as Raw<FormUPT>;
     const tu = t.tc
     const pumps = cascadePumps(e);
     const isCascade = Boolean(e.tc.model2);
@@ -39,8 +41,8 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc, lang }) => {
         Text18: u.os.tcTv ? tu.additionalHotWaterSource : tu.mainHotWaterSource,
         Text19: e.tc.typ == 'airToWater' ? u.tc.kondenzator ? tu.yes : tu.no : '—',
         Text20: u.tc.filtr ? tu.yes : tu.no,
-        Text21: u.nadrze.akumulacka,
-        Text22: u.nadrze.zasobnik,
+        Text21: e.tanks.accumulation,
+        Text22: e.tanks.water,
         Text23: u.os.tvori == 'otherHeatingSystem' ? u.os.popis : get(tu, u.os.tvori!),
         Text24: u.os.dzTop ? tu.yes : tu.no,
         Text25: u.os.dzTop ? u.os.typDzTop : '—',

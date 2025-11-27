@@ -218,7 +218,7 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
 });
 
 export default (): FormSP => defaultGenericSP((t, d) => ({
-    data: generalizeServiceProtocol(d.evidence, d.raw, d.uvedeniTC, t),
+    data: generalizeServiceProtocol(d.evidence, d.raw, t),
     form: d.form,
     pumpCount: cascadePumps(d.evidence).length,
 }), d => cascadePumps(d.evidence).length);
