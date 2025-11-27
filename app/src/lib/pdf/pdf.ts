@@ -130,7 +130,7 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'UPS',
         supportedLanguages: ['cs'],
         title: t => t.sol.title,
-        getPdfData: UPS,,
+        getPdfData: UPS,
         doNotFlatten: true,
     },
     SP: {
