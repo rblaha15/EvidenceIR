@@ -13,6 +13,8 @@
     const maybeCapitalized = (value: string, widget: InputWithSuggestionsWidget<D>): string =>
         widget.capitalize(data) ? value.toUpperCase() : value;
 
+    const suggestions = $derived(widget.suggestions(t, data));
+
     let input = $state<HTMLInputElement>();
 
     const uid = $props.id();
@@ -36,7 +38,7 @@
             }}
             />
             <datalist id="datalist-{uid}">
-                {#each widget.suggestions(t, data) as suggestion}
+                {#each $suggestions as suggestion}
                     <option value={suggestion}>{suggestion}</option>
                 {/each}
             </datalist>
