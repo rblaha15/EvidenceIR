@@ -15,6 +15,7 @@ import { extractSPIDFromRawData, type SPID, spName } from '$lib/helpers/ir';
 import db from '$lib/data';
 import { type DataNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
+import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
 
 const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], User | null]], 'NSP'> = {
     type: '',
@@ -86,6 +87,10 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
             f.zasah.inicialy.show = () => f.zasah.inicialy.value != ja?.initials;
         }, [techniciansList, currentUser]],
     ],
+    pdfImport: {
+        onImport: () => {},
+        fields: fieldsNSP,
+    },
     requiredRegulus: true,
     hideBackButton: edit => !edit,
 };

@@ -13,6 +13,8 @@ export type GetTU<D> = GetT<D, string | undefined>;
 export type GetTUOrVal<D> = GetTOrVal<D, string | undefined>;
 export type GetTP<D> = GetT<D, Promise<string> | string>;
 export type GetTPOrVal<D> = GetTOrVal<D, Promise<string> | string>;
+export type GetTAR<D> = GetT<D, Readable<string[]>>;
+export type GetTAROrVal<D> = GetTOrVal<D, Readable<string[]>>;
 export type GetR<D, U> = Get<D, Readable<U>>;
 export type GetROrVal<D, U> = GetOrVal<D, Readable<U>>;
 export type GetTR<D, U> = GetT<D, Readable<U>>;
@@ -95,7 +97,12 @@ type K = string;
 type T<I extends K> = (t: Translations) => Record<Exclude<I, Untranslatable>, string>;
 
 export type SearchItemPiece = { readonly text: string, readonly width?: number, readonly icon?: string };
-export type SearchItem = { readonly pieces: SearchItemPiece[], readonly href?: string, disabled?: boolean };
+export type SearchItem = {
+    readonly pieces: SearchItemPiece[],
+    readonly href?: string,
+    readonly disabled?: boolean,
+    readonly otherSearchParts?: string[],
+};
 export type Pair<I1 extends K, I2 extends K> = { readonly first: I1 | null; readonly second: I2 | null; };
 type Sides = (t: Translations) => ([string, string]);
 export type Arr<I extends K> = readonly I[];
@@ -117,7 +124,9 @@ export type BtnColor = Color | `outline-${Color}`
 type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H };
 type ShowArgs<D> = { show?: GetBOrVal<D>; showInXML?: GetBOrVal<D> };
 type InfoArgs<D> = { text: GetTPOrVal<D>; class?: GetOrVal<D, ClassValue | undefined>; } & ShowArgs<D>;
-type BtnArgs<D> = { text: GetTOrVal<D>; color: GetOrVal<D, BtnColor>; icon?: GetOrVal<D, string | undefined>; onClick: Get<D, void> } & ShowArgs<D>;
+type BtnArgs<D> =
+    { text: GetTOrVal<D>; color: GetOrVal<D, BtnColor>; icon?: GetOrVal<D, string | undefined>; onClick: Get<D, void> }
+    & ShowArgs<D>;
 type TitleArgs = { level: HeadingLevel };
 type PdfArgs<D, P extends PdfType> = { pdfData: GetT<D, InlinePdfPreviewData<D, P>> } & Omit<ShowArgs<D>, 'showInXML'>;
 type ValueArgs<D, U, H> = {
@@ -127,11 +136,13 @@ type LabelsArgs<I extends string> = Exclude<I, Untranslatable> extends never ? {
 type FileArgs<D> = {
     multiple?: GetBOrVal<D>; max?: GetOrVal<D, number>; accept?: GetOrVal<D, string>;
 };
-type ChooserArgs<D, I extends K> = { options: GetOrVal<D, Arr<I>>; chosen?: I | null; };
+type ChooserArgs<D, I extends K> = { options: GetOrVal<D, Arr<I>>; otherOptions?: GetOrVal<D, Arr<I>>; chosen?: I | null; };
 type SecondChooserArgs<I extends K> = { options: Arr<I>; chosen?: I; text?: string; };
 type DoubleChooserArgs<D, I1 extends K, I2 extends K> = {
     options1: GetOrVal<D, Arr<I1>>;
     options2: GetOrVal<D, Arr<I2>>;
+    otherOptions1?: GetOrVal<D, Arr<I1>>;
+    otherOptions2?: GetOrVal<D, Arr<I2>>;
     chosen?: Pair<I1, I2>;
 };
 type LockArgs<D> = { lock?: GetBOrVal<D>; };
@@ -177,7 +188,7 @@ type Input3Args<D> = {
     suffix?: GetTUOrVal<D>;
 };
 type SuggestionsArgs<D> = {
-    suggestions: GetTAOrVal<D>;
+    suggestions: GetTAROrVal<D>;
 };
 
 type Info<D, U> = Widget<D, U> & { text: GetTP<D>; class: Get<D, ClassValue | undefined>; };
@@ -190,9 +201,14 @@ type File<D> = Widget<D, Files> & { multiple: GetB<D>; max: Get<D, number>; acce
 type Lock<D, U> = Widget<D, U> & { lock: GetB<D>; };
 type Compact<D, U> = Widget<D, U> & { compact: GetB<D>; };
 type DoubleLock<D, U> = Widget<D, U> & { lock1: GetB<D>; lock2: GetB<D>; };
-type Chooser<D, I extends K> = Widget<D, I | null> & { options: Get<D, Arr<I>> };
+type Chooser<D, I extends K> = Widget<D, I | null> & { options: Get<D, Arr<I>>; otherOptions: Get<D, Arr<I>> };
 type SecondChooser<D, I extends K> = Widget<D, SeI<I>> & { options: Arr<I> };
-type DoubleChooser<D, I1 extends K, I2 extends K> = Widget<D, Pair<I1, I2>> & { options1: Get<D, Arr<I1>>; options2: Get<D, Arr<I2>>; };
+type DoubleChooser<D, I1 extends K, I2 extends K> = Widget<D, Pair<I1, I2>> & {
+    options1: Get<D, Arr<I1>>;
+    options2: Get<D, Arr<I2>>;
+    otherOptions1: Get<D, Arr<I1>>;
+    otherOptions2: Get<D, Arr<I2>>;
+};
 type Search<D, T> = Widget<D, T | null> & {
     getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry: () => string;
@@ -206,7 +222,12 @@ type Search<D, T> = Widget<D, T | null> & {
 type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; validate: (v: number, d: D) => boolean; };
 type Counters<D, I extends K> = Widget<D, Rec<I>> & { max: Get<D, number> };
 type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: GetB<D>; };
-type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & { options: Get<D, Arr<I>>; max: Get<D, number>; inverseSelection: boolean; weights: (d: D, i: I) => number; };
+type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & {
+    options: Get<D, Arr<I>>;
+    max: Get<D, number>;
+    inverseSelection: boolean;
+    weights: (d: D, i: I) => number;
+};
 type Input1<D, U> = Widget<D, U> & {
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
@@ -225,11 +246,11 @@ type Input3<D> = Widget<D, string> & {
     suffix: GetTU<D>;
 }
 type Suggestions<D> = Widget<D, string> & {
-    suggestions: GetTAOrVal<D>;
+    suggestions: GetTAR<D>;
 };
 
 const get = <I extends string>(l: Record<Exclude<I, Untranslatable>, string | undefined>, v: I | null): string =>
-    v ? l[v] ?? v ?? '' : ''
+    v ? l[v] ?? v ?? '' : '';
 
 const initInfo = function <D, U>(widget: Info<D, U>, args: InfoArgs<D>) {
     widget.text = toGetT(args.text);
@@ -268,6 +289,7 @@ const initFile = function <D>(widget: File<D>, args: FileArgs<D>, defaultAccept:
 };
 const initChooser = function <D, I extends K>(widget: Chooser<D, I>, args: ChooserArgs<D, I>) {
     widget.options = toGetA(args.options);
+    widget.otherOptions = toGetA(args.otherOptions ?? []);
     widget._value = args.chosen ?? null;
 };
 const initSecondChooser = function <D, I extends K>(widget: SecondChooser<D, I>, args: SecondChooserArgs<I>) {
@@ -277,6 +299,8 @@ const initSecondChooser = function <D, I extends K>(widget: SecondChooser<D, I>,
 const initDoubleChooser = function <D, I1 extends K, I2 extends K>(widget: DoubleChooser<D, I1, I2>, args: DoubleChooserArgs<D, I1, I2>) {
     widget.options1 = toGetA(args.options1);
     widget.options2 = toGetA(args.options2);
+    widget.otherOptions1 = toGetA(args.otherOptions1 ?? []);
+    widget.otherOptions2 = toGetA(args.otherOptions2 ?? []);
     widget._value = args.chosen ?? { first: null, second: null };
 };
 const initLock = function <D, U>(widget: Lock<D, U>, args: LockArgs<D>) {
@@ -442,6 +466,7 @@ export class ChooserWidget<D, I extends K, H extends boolean = false> extends Wi
     lock = $state() as GetB<D>;
     compact = $state() as GetB<D>;
     options = $state() as Get<D, Arr<I>>;
+    otherOptions = $state() as Get<D, Arr<I>>;
     labels = $state() as T<I>;
     get = $state() as ((t: Translations, v: I | null) => string);
 
@@ -514,7 +539,7 @@ export class InputWithSuggestionsWidget<D, H extends boolean = false> extends Wi
     hideInRawData = $state() as H;
     isError = $state(a => this.value == null && this.required(a)) as GetB<D>;
     required = $state() as GetB<D>;
-    suggestions = $state() as GetTA<D>;
+    suggestions = $state() as GetTAR<D>;
     type = $state() as Get<D, HTMLInputTypeAttribute>;
     enterkeyhint = $state() as Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
@@ -553,6 +578,8 @@ export class DoubleChooserWidget<D, I1 extends K, I2 extends K, H extends boolea
     lock2 = $state() as GetB<D>;
     options1 = $state() as Get<D, Arr<I1>>;
     options2 = $state() as Get<D, Arr<I2>>;
+    otherOptions1 = $state() as Get<D, Arr<I1>>;
+    otherOptions2 = $state() as Get<D, Arr<I2>>;
     labels = $state() as T<I1 | I2>;
     get = $state() as ((t: Translations, v: I1 | I2 | null) => string);
 
@@ -622,6 +649,7 @@ export class RadioWidget<D, I extends K, H extends boolean = false> extends Widg
     required = $state() as GetB<D>;
     lock = $state() as GetB<D>;
     options = $state() as Get<D, Arr<I>>;
+    otherOptions = $state() as Get<D, Arr<I>>;
     labels = $state() as T<I>;
     get = $state() as ((t: Translations, v: I | null) => string);
 
@@ -663,7 +691,9 @@ export class RadioWithInputWidget<D, I extends K, H extends boolean = false> ext
     get = $state() as ((t: Translations, v: I | null) => string);
     capitalize = $state() as GetB<D>;
 
-    constructor(args: ValueArgs<D, RaI<I>, H> & LockArgs<D> & Input1Args<D> & Input3Args<D> & ChooserArgs<D, I> & LabelsArgs<I> & { otherLabel: GetTOrVal<D> }) {
+    constructor(args: ValueArgs<D, RaI<I>, H> & LockArgs<D> & Input1Args<D> & Input3Args<D> & ChooserArgs<D, I> & LabelsArgs<I> & {
+        otherLabel: GetTOrVal<D>
+    }) {
         super();
         initValue(this, args);
         initLock(this, args);

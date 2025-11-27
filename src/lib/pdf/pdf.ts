@@ -191,6 +191,7 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs'],
         title: t => t.ft.title,
         getPdfData: FT,
+        doNotFlatten: true,
     },
 };
 
@@ -257,7 +258,7 @@ type PdfParams = {
 export type PdfParameters<P extends Pdf> = P extends keyof PdfParams ? PdfParams[P] : {};
 
 export const generalizeServiceProtocol = (
-    e: Raw<FormIN>, p: Raw<FormSP>, u: Raw<FormUPT> | undefined, t: Translations,
+    e: Raw<FormIN>, p: Raw<FormSP>, u: IR['uvedeniTC'], t: Translations,
 ) => ({
     ...e,
     ...p,

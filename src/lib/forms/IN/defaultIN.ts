@@ -21,6 +21,7 @@ import {
     doesNotSupportHeatPumps,
     isBox,
     isCompanyFormInvalid,
+    isCTC,
     isMACAddressTypeIR10,
     isMACAddressTypeIR12,
     supportsMACAddresses,
@@ -45,12 +46,13 @@ const rek = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`ventilation`);
 const fve = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`photovoltaicPowerPlant`);
 const other = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`other`);
 
-const ctc = (d: FormIN) => d.ir.typ.value.second == 'CTC';
+const ctc = (d: FormIN) => d.ir.typ.value.first == 'ctc' || d.ir.typ.value.second == 'CTC';
 const rtc = (d: FormIN) => d.ir.typ.value.second == 'RTC';
 const subType = (d: FormIN) => d.ir.typ.value.second != null;
 
 const supportsRemoteAccessF = (f: FormIN) => supportsRemoteAccess(f.ir.typ.value.first);
 const irOther = (d: FormIN) => d.ir.typ.value.first == 'other';
+const irCTC = (d: FormIN) => d.ir.typ.value.first == 'ctc';
 const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == 'DG-450-B';
 
 export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
@@ -189,7 +191,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
         _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN }),
         ico: new InputWidget({
-            label: t => t.in.crn,
+            label: t => t.in.crnToARES,
             onError: t => t.wrong.crn,
             regex: /^\d{8}(\d{2})?$/,
             maskOptions: {
@@ -258,7 +260,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
         _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN }),
         ico: new InputWidget({
-            label: t => t.in.crn,
+            label: t => t.in.crnToARES,
             onError: t => t.wrong.crn,
             regex: /^\d{8}(\d{2})?$/,
             maskOptions: {
@@ -386,11 +388,12 @@ export const irTypeAndNumber = <D extends {
         cislo: InputWidget<D>,
     }
 }>(
-    { setAirToWater, resetRemoteAccess, resetBoxNumber, setFVEType }: {
+    { setAirToWater, resetRemoteAccess, resetBoxNumber, setFVEType, setHP }: {
         setAirToWater?: (d: D) => void,
         resetRemoteAccess?: (d: D) => void,
         resetBoxNumber?: (d: D) => void,
         setFVEType?: (d: D) => void
+        setHP?: (d: D) => void
     },
 ): {
     typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>,
@@ -398,19 +401,23 @@ export const irTypeAndNumber = <D extends {
 } => ({
     typ: new DoubleChooserWidget({
         label: t => t.in.controllerType,
-        options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'other'],
+        options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
         options2: ({ ir: { typ: { value: { first: f } } } }) => (
-            supportsOnlyCTC(f) ? ['CTC']
-                : f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
-                    : doesNotSupportHeatPumps(f) ? []
-                        : ['CTC', 'RTC']
+            f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
+                : f == 'ctc' ? ['EcoEl', 'EcoZenith']
+                    : supportsOnlyCTC(f) ? ['CTC']
+                        : doesNotSupportHeatPumps(f) ? []
+                            : ['CTC', 'RTC']
         ),
+        otherOptions1: ['IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc', 'other'],
         onValueSet: (d, v) => {
             if (v.second == 'RTC') {
                 setAirToWater?.(d);
             }
             if (doesNotHaveIRNumber(v.first)) {
                 d.ir.cislo.setValue(d, `${dayISO()} ${time()}`);
+            }
+            if (!supportsRemoteAccess(v.first)) {
                 resetRemoteAccess?.(d);
             }
             if (isBox(v.first)) {
@@ -419,11 +426,14 @@ export const irTypeAndNumber = <D extends {
             if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
                 d.ir.typ.setValue(d, { ...v, second: null });
             }
-            if (supportsOnlyCTC(v.first) && v.second != 'CTC') {
+            if (v.first != 'ctc' && supportsOnlyCTC(v.first) && v.second != 'CTC') {
                 d.ir.typ.setValue(d, { ...v, second: 'CTC' });
             }
             if (doesNotSupportHeatPumps(v.first) && v.second) {
                 d.ir.typ.setValue(d, { ...v, second: null });
+            }
+            if (v.first == 'ctc') {
+                setHP?.(d);
             }
             if (v.first == 'other') {
                 setFVEType?.(d);
@@ -436,21 +446,24 @@ export const irTypeAndNumber = <D extends {
         onError: t => t.wrong.number,
         regex: d => doesNotHaveIRNumber(d.ir.typ.value.first)
             ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
-            : isMACAddressTypeIR12(d.ir.typ.value.first)
-                ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
-                : isMACAddressTypeIR10(d.ir.typ.value.first)
-                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
-                    : /[A-Z][1-9OND] [0-9]{4}/,
+            : isCTC(d.ir.typ.value.first)
+                ? /[0-9]{4}-[0-9]{4}-[0-9]{4}/
+                : isMACAddressTypeIR12(d.ir.typ.value.first)
+                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
+                    : isMACAddressTypeIR10(d.ir.typ.value.first)
+                        ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
+                        : /[A-Z][1-9OND] [0-9]{4}/,
         capitalize: true,
         maskOptions: d => ({
-            mask: doesNotHaveIRNumber(d.ir.typ.value.first) ? `0000-00-00T00:00` :
-                !supportsMACAddresses(d.ir.typ.value.first) ? 'Z8 0000'
-                    : d.ir.cislo.value.length == 0 ? 'X'
-                        : d.ir.cislo.value[0] == '0'
-                            ? isMACAddressTypeIR10(d.ir.typ.value.first)
-                                ? 'NN:NA:14:N6:FF:FF'
-                                : 'NN:NA:14:N9:FF:FF'
-                            : 'Z8 0000',
+            mask: doesNotHaveIRNumber(d.ir.typ.value.first) ? `0000-00-00T00:00`
+                : isCTC(d.ir.typ.value.first) ? `0000-0000-0000`
+                    : !supportsMACAddresses(d.ir.typ.value.first) ? 'Z8 0000'
+                        : d.ir.cislo.value.length == 0 ? 'X'
+                            : d.ir.cislo.value[0] == '0'
+                                ? isMACAddressTypeIR10(d.ir.typ.value.first)
+                                    ? 'NN:NA:14:N6:FF:FF'
+                                    : 'NN:NA:14:N9:FF:FF'
+                                : 'Z8 0000',
             definitions: {
                 X: /[0A-Za-z]/,
                 N: /0/,
@@ -477,6 +490,7 @@ export default (): FormIN => ({
             resetBoxNumber: d => d.ir.cisloBox.setValue(d, ''),
             resetRemoteAccess: d => d.vzdalenyPristup.chce.setValue(d, false),
             setFVEType: d => d.fve.typ.setValue(d, 'DG-450-B'),
+            setHP: d => d.ir.chceVyplnitK.setValue(d, ['heatPump']),
         }),
         cisloBox: new InputWidget({
             label: t => t.in.serialNumberIndoor,
@@ -501,11 +515,11 @@ export default (): FormIN => ({
         }),
         chceVyplnitK: new MultiCheckboxWidget({
             label: t => t.in.whatToAddInfoTo,
-            options: d => irOther(d)
-                ? [`solarCollector`, 'photovoltaicPowerPlant']
-                : doesNotSupportHeatPumps(d.ir.typ.value.first)
-                    ? [`solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'other']
-                    : [`heatPump`, `solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'other'] as const,
+            options: d => irOther(d) ? [`solarCollector`, 'photovoltaicPowerPlant']
+                : irCTC(d) ? [`heatPump`]
+                    : doesNotSupportHeatPumps(d.ir.typ.value.first)
+                        ? ['solarCollector', 'ventilation', `photovoltaicPowerPlant`, 'other']
+                        : [`heatPump`, `solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'other'] as const,
             required: false, showInXML: false, onValueSet: (d, v) => {
                 if (!v.includes('heatPump')) {
                     d.tc.typ.setValue(d, null);
@@ -533,8 +547,7 @@ export default (): FormIN => ({
                 if (!v.includes('other')) {
                     d.jine.popis.setValue(d, '');
                 }
-            },
-            labels: t => t.in.device,
+            }, labels: t => t.in.device, lock: irCTC,
         }),
     },
     tc: {

@@ -20,7 +20,7 @@ import { type Company, type Person, usersList } from '$lib/client/realtime';
 import products from '$lib/helpers/products';
 import { type FormNK, origins } from './formNK';
 import { assemblyCompanies } from '$lib/helpers/companies';
-import { derived } from 'svelte/store';
+import { derived, readable } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
 import ares from '$lib/helpers/ares';
 import type { FormPlus } from '$lib/forms/Form';
@@ -86,10 +86,10 @@ export default (): FormPlus<FormNK> => ({
         info: new TextWidget({ show: fve, text: t => t.nk.fve.familyHouseEtc }),
         lightningRod: new CheckboxWidget({ show: fve, required: false, label: t => t.nk.fve.lightningRod }),
         roofMaterial: new InputWithSuggestionsWidget({
-            suggestions: t => [
+            suggestions: t => readable([
                 t.nk.fve.tile, t.nk.fve.metalSheetFolded, t.nk.fve.metalSheetTrapezoidal,
                 t.nk.fve.foil, t.nk.fve.asphaltShingle,
-            ], label: t => t.nk.fve.roofMaterial, required: false, show: fve,
+            ]), label: t => t.nk.fve.roofMaterial, required: false, show: fve,
         }),
         tileType: new InputWidget({
             required: false, label: t => t.nk.fve.tileType, show: d => fve(d) && languageCodes.map(

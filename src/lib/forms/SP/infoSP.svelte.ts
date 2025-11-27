@@ -1,10 +1,4 @@
-import {
-    getIsOnline,
-    startSparePartsListening,
-    startTechniciansListening,
-    type Technician,
-    techniciansList,
-} from '$lib/client/realtime';
+import { getIsOnline, startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
 import type { User } from 'firebase/auth';
 import { page } from '$app/state';
 import { spName } from '$lib/helpers/ir';
@@ -19,6 +13,7 @@ import { type DataSP, type FormSP } from '$lib/forms/SP/formSP.svelte';
 import defaultSP from '$lib/forms/SP/defaultSP';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
+import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
 
 const infoSP = (() => {
     let i = $state() as number;
@@ -49,7 +44,6 @@ const infoSP = (() => {
         },
         saveData: async (irid, raw, edit, _, editResult, t, send) => {
             const name = spName(raw.zasah);
-
             const ir = (await db.getIR(irid))!;
 
             if (!edit && getIsOnline() && ir.installationProtocols.some(p => spName(p.zasah) == name)) {
@@ -59,6 +53,9 @@ const infoSP = (() => {
 
             if (edit) await db.updateServiceProtocol(irid, i, raw);
             else await db.addServiceProtocol(irid, raw);
+
+            if (!ir.uvedeniTC.uvadeni.date) await db.updateHeatPumpCommissioningProtocol
+            (irid, { uvadeni: { date: raw.system.datumUvedeni } });
 
             if (edit && !send) return true;
 
@@ -90,7 +87,7 @@ const infoSP = (() => {
             await startSparePartsListening();
             if (!p.zasah.datum.value) // Also in NSP
                 p.zasah.datum.setValue(d, nowISO());
-            if (!p.system.datumUvedeni.value && ir.uvedeniTC?.uvadeni?.date) {
+            if (!p.system.datumUvedeni.value && ir.uvedeniTC.uvadeni.date) {
                 p.system.datumUvedeni.setValue(d, ir.uvedeniTC.uvadeni.date);
             }
         },
@@ -111,6 +108,10 @@ const infoSP = (() => {
             },
             cells: cellsSP,
             sheetFilter: n => n.includes('Protokol'),
+        },
+        pdfImport: {
+            onImport: () => {},
+            fields: fieldsNSP,
         },
         requiredRegulus: true,
     };
