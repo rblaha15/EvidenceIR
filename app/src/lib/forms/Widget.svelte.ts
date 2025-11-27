@@ -13,6 +13,8 @@ export type GetTU<D> = GetT<D, string | undefined>;
 export type GetTUOrVal<D> = GetTOrVal<D, string | undefined>;
 export type GetTP<D> = GetT<D, Promise<string> | string>;
 export type GetTPOrVal<D> = GetTOrVal<D, Promise<string> | string>;
+export type GetTAR<D> = GetT<D, Readable<string[]>>;
+export type GetTAROrVal<D> = GetTOrVal<D, Readable<string[]>>;
 export type GetR<D, U> = Get<D, Readable<U>>;
 export type GetROrVal<D, U> = GetOrVal<D, Readable<U>>;
 export type GetTR<D, U> = GetT<D, Readable<U>>;
@@ -186,7 +188,7 @@ type Input3Args<D> = {
     suffix?: GetTUOrVal<D>;
 };
 type SuggestionsArgs<D> = {
-    suggestions: GetTAOrVal<D>;
+    suggestions: GetTAROrVal<D>;
 };
 
 type Info<D, U> = Widget<D, U> & { text: GetTP<D>; class: Get<D, ClassValue | undefined>; };
@@ -244,7 +246,7 @@ type Input3<D> = Widget<D, string> & {
     suffix: GetTU<D>;
 }
 type Suggestions<D> = Widget<D, string> & {
-    suggestions: GetTAOrVal<D>;
+    suggestions: GetTAR<D>;
 };
 
 const get = <I extends string>(l: Record<Exclude<I, Untranslatable>, string | undefined>, v: I | null): string =>
@@ -537,7 +539,7 @@ export class InputWithSuggestionsWidget<D, H extends boolean = false> extends Wi
     hideInRawData = $state() as H;
     isError = $state(a => this.value == null && this.required(a)) as GetB<D>;
     required = $state() as GetB<D>;
-    suggestions = $state() as GetTA<D>;
+    suggestions = $state() as GetTAR<D>;
     type = $state() as Get<D, HTMLInputTypeAttribute>;
     enterkeyhint = $state() as Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
