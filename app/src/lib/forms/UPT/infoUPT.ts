@@ -11,6 +11,7 @@ import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { DataUPT, FormUPT } from '$lib/forms/UPT/formUPT';
 import { saveDK } from '$lib/forms/DK/formDK';
 import type { Widget } from '$lib/forms/Widget.svelte';
+import type { Raw } from '$lib/forms/Form';
 
 const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
     type: 'IR',
@@ -20,7 +21,7 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
         link: 'UPT',
     }),
     saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
-        await db.addHeatPumpCommissioningProtocol(irid, raw);
+        await db.updateHeatPumpCommissioningProtocol(irid, raw);
         if (!edit) await saveDK(ir, f.checkRecommendations, 'TČ')
         if (await checkRegulusOrAdmin()) return;
 
@@ -42,13 +43,17 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
         });
         return false;
     },
-    showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
+    buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
+        hideSave: !edit && !regulus,
+        saveAndSend: !edit && !regulus,
+        saveAndSendAgain: edit && !regulus,
+    })),
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations }),
     title: t => t.tc.title,
     getEditData: (ir, url) =>
-        url.searchParams.has('edit') ? ir.uvedeniTC : undefined,
+        url.searchParams.has('edit') ? (ir.uvedeniTC as Raw<FormUPT>) : undefined,
     getViewData: (ir, url) =>
-        url.searchParams.has('view') ? ir.uvedeniTC : undefined,
+        url.searchParams.has('view') ? (ir.uvedeniTC as Raw<FormUPT>) : undefined,
     onMount: async (_, data, mode) => {
         if (mode != 'create') {
             (data.checkRecommendations as Record<string, Widget>).getValues().forEach(e => {

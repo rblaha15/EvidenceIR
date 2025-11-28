@@ -41,8 +41,6 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
             load: false,
         });
     },
-    showSaveAndSendButtonByDefault: true,
-    isSendingEmails: true,
     redirectLink: async raw => detailSpUrl([extractSPIDFromRawData(raw.zasah)]),
     openPdf: async raw => ({
         link: 'NSP',
@@ -92,7 +90,12 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
         fields: fieldsNSP,
     },
     requiredRegulus: true,
-    hideBackButton: edit => !edit,
+    buttons: edit => ({
+        hideBack: !edit,
+        hideSave: !edit,
+        saveAndSendAgain: edit,
+        saveAndSend: !edit,
+    }),
 };
 
 export default infoNSP;

@@ -37,7 +37,11 @@ const infoUPF: FormInfo<FormUPF, FormUPF, [], 'UPF'> = ({
         });
         return false;
     },
-    showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
+    buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
+        hideSave: !edit && !regulus,
+        saveAndSend: !edit && !regulus,
+        saveAndSendAgain: edit && !regulus,
+    })),
     createWidgetData: (_, u) => u,
     title: t => t.fve.title,
 });

@@ -85,7 +85,7 @@ Změny ve verzi 2.3 oproti verzi 2.2:
     <tc>
         <typ>${get(t.nk.system, d.system.hPType)}</typ>
         <model>${get(t.nk.system, d.system.hPModel)}</model>
-        <nadrz>${get(t.nk.system, d.system.thermalStoreType.first)} ${get(t.nk.system, d.system.thermalStoreType.second)} ${d.system.thermalStoreVolume}</nadrz>
+        <nadrz>${d.system.thermalStore}</nadrz>
         <vnitrni_jednotka>${get(t.nk.system, d.system.indoorUnitType)}</vnitrni_jednotka>
     </tc>
     <zdrojeTop>
@@ -96,7 +96,7 @@ Změny ve verzi 2.3 oproti verzi 2.2:
         <jiny_zdroj>${d.additionalSources.heatingOther}</jiny_zdroj>
     </zdrojeTop>
     <tv>
-        <zasobnik>${get(t.nk.system, d.system.waterTankType)} ${d.system.waterTankVolume}</zasobnik>
+        <zasobnik>${d.system.waterTank}</zasobnik>
         <cirkulace>${d.system.hotWaterCirculation ? t.nk.yes : t.nk.no}</cirkulace>
     </tv>
     <zdrojeTV>
