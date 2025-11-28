@@ -66,6 +66,7 @@ const en: PlainTranslations = {
     form: {
         successfullySent: `Successfully sent!`,
         save: 'Save',
+        send: 'Send emails',
         saveAndSend: 'Save & send emails',
         saveAndSendAgain: 'Save & send emails again',
         saving: 'Saving...',

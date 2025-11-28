@@ -11,11 +11,11 @@
     import type { Translations } from '$lib/translations';
     import FormHeader from '$lib/forms/FormHeader.svelte';
     import { onMount, untrack } from 'svelte';
-    import { derived as derivedStore, readable } from 'svelte/store';
+    import { derived as derivedStore, type Readable, readable } from 'svelte/store';
     import WidgetComponent from '$lib/components/Widget.svelte';
     import { storable } from '$lib/helpers/stores';
     import { dev } from '$app/environment';
-    import type { IndependentFormInfo } from '$lib/forms/FormInfo';
+    import { type ButtonKey, buttonKeys, type IndependentFormInfo } from '$lib/forms/FormInfo';
     import { refreshTOC, runLoading } from '$lib/helpers/globals.js';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
     import { goto } from '$app/navigation';
@@ -43,11 +43,9 @@
         storeData,
         excelImport,
         pdfImport,
-        isSendingEmails,
         openPdf,
         redirectLink,
-        hideBackButton,
-        showSaveAndSendButtonByDefault,
+        buttons,
     } = formInfo;
 
     const storedData = storable<Raw<F>>(storeName());
@@ -164,7 +162,11 @@
     };
 
     const isDangerous = $derived(compareRawData(dataToRawData(f), dataToRawData(untrack(defaultData))));
-    const showSaveAndSendButtonByDefaultStore = $derived(typeof showSaveAndSendButtonByDefault == 'boolean' ? readable(showSaveAndSendButtonByDefault) : showSaveAndSendButtonByDefault);
+    const buttonsStore: Readable<{ [B in ButtonKey]: boolean }> = $derived.by(() => {
+        const b = buttons?.(mode == 'edit') ?? {};
+        const br = 'subscribe' in b ? b : readable(b);
+        return derivedStore(br, br => buttonKeys.associateWith(k => br[k] ?? false));
+    });
 </script>
 
 {#if mode !== 'loading'}
@@ -177,7 +179,7 @@
     } : undefined} pdfImport={pdfImport ? {
         ...pdfImport, onImport: onImportPdf, isDangerous, defaultData: () => dataToRawData(defaultData())
     } : undefined} store={storedData} {t} title={title(t, mode)}
-                showBackButton={mode === 'view' || !hideBackButton?.(mode === 'edit')} />
+                showBackButton={mode === 'view' || !$buttonsStore.hideBack} />
     {#each list as _, i}
         {#if mode === 'view'}
             <ReadonlyWidget widget={list[i]} {t} data={d} />
@@ -188,24 +190,30 @@
     <div class="d-flex flex-column flex-sm-row align-items-start gap-3">
         <div class="d-flex gap-3 flex-wrap">
             {#if mode !== 'view'}
-                {#if !result.load && (mode === 'edit' && isSendingEmails || !$showSaveAndSendButtonByDefaultStore)}
+                {#if !result.load && !$buttonsStore.hideSave}
                     <button onclick={save(false)} class="mb-auto btn btn-success">
                         <Icon icon="save" /> {t.form.save}
                     </button>
                 {/if}
-                {#if !result.load && (mode === 'edit' && isSendingEmails)}
+                {#if !result.load && $buttonsStore.saveAndSendAgain}
                     <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">
-                        <Icon icon="send" /> {t.form.saveAndSendAgain}
+                        <Icon icon="save" /> <Icon icon="send" /> {t.form.saveAndSendAgain}
                     </button>
-                {:else if !result.load && ($showSaveAndSendButtonByDefaultStore)}
+                {/if}
+                {#if !result.load && $buttonsStore.saveAndSend}
                     <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">
-                        <Icon icon="send" /> {t.form.saveAndSend}
+                        <Icon icon="save" /> <Icon icon="send" /> {t.form.saveAndSend}
+                    </button>
+                {/if}
+                {#if !result.load && $buttonsStore.send}
+                    <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">
+                        <Icon icon="send" /> {t.form.send}
                     </button>
                 {/if}
                 {#if result.load}
                     <div class="spinner-border text-danger"></div>
                 {/if}
-                {#if !result.load && !hideBackButton?.(mode === 'edit')}
+                {#if !result.load && !$buttonsStore.hideBack}
                     <button type="button" class="mb-auto btn btn-secondary" onclick={() => history.back()}>
                         {t.form.back}
                     </button>

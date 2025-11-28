@@ -21,6 +21,7 @@ export const removeDependency = async <
         getEditData,
         getViewData,
         onMount,
+        buttons,
     } = formInfo;
 
     const ir = await db.getIR(irid!) ?? error(400, { message: 'IR not found' });
@@ -40,7 +41,10 @@ export const removeDependency = async <
             ...openPdf(), irid,
         } as OpenPdfOptions<P>) : undefined,
         createWidgetData: data => createWidgetData(ir.evidence, data, ir),
-        hideBackButton: () => false,
+        buttons: e => ({
+            ...buttons?.(e),
+            hideBack: false,
+        }),
         onMount: (d, f, m) => onMount?.(d, f, m, ir),
     };
 };

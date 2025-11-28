@@ -16,6 +16,8 @@ export type Effect<
 ]
 
 export type Result = { text: string, red: boolean, load: boolean };
+export const buttonKeys = ['hideBack', 'hideSave', 'saveAndSend', 'saveAndSendAgain', 'send'] as const
+export type ButtonKey = typeof buttonKeys[number]
 
 export type IndependentFormInfo<
     D,
@@ -48,9 +50,7 @@ export type IndependentFormInfo<
     pdfImport?: Omit<PdfImport<R>, 'defaultData'> & {
         onImport: (data: D, form: F) => void;
     };
-    hideBackButton?: (edit: boolean) => boolean;
-    isSendingEmails?: boolean;
-    showSaveAndSendButtonByDefault?: boolean | Readable<boolean>;
+    buttons?: (edit: boolean) => MaybeReadable<{ [B in ButtonKey]?: boolean; }>;
     redirectLink?: (raw: R) => Promise<string>;
     openPdf?: (raw: R) => Promise<OpenPdfOptions<P>>;
     requiredRegulus?: boolean;

@@ -82,7 +82,11 @@ const infoRKS = (() => {
             });
             return false;
         },
-        showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
+        buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
+            hideSave: !edit && !regulus,
+            saveAndSend: !edit && !regulus,
+            saveAndSendAgain: edit && !regulus,
+        })),
         title: t => t.rks.formTitle,
         createWidgetData: () => {
         },

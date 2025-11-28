@@ -206,6 +206,7 @@ const de: PlainTranslations = {
         somethingWentWrongContactUsHtml: `Entschuldigung, etwas ist schiefgelaufen, bitte kontaktieren Sie uns unter <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Fehler beim Speichern eines Formulars" target="_blank">aplikace.regulus@gmail.com</a>`,
         youHaveAMistake: t`Im Formular liegt ein Fehler vor. Bitte überprüfen Sie die eingegebenen Informationen. Falsche Felder: ${'fields'}`,
         saving: `Speichern...`,
+        send: `E-Mails senden`,
         saveAndSend: `Speichern und E-Mails senden`,
         saveAndSendAgain: `Speichern und E-Mails nochmals senden`,
         save: `Speichern`,

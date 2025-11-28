@@ -75,8 +75,11 @@ const infoSP = (() => {
                 load: false,
             });
         },
-        showSaveAndSendButtonByDefault: true,
-        isSendingEmails: true,
+        buttons: edit => ({
+            hideSave: !edit,
+            saveAndSendAgain: edit,
+            saveAndSend: !edit,
+        }),
         createWidgetData: (_, p, ir) => ({
             ...p, ...ir, raw: dataToRawData<FormSP, Raw<FormSP>>(p), form: p,
         }),

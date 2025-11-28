@@ -8,7 +8,7 @@ import {
 } from '$lib/client/realtime';
 import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
-import db from '$lib/data';
+import db, { createInstallation } from '$lib/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
@@ -161,9 +161,12 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         onImport: () => {
         },
     },
-    isSendingEmails: true,
-    showSaveAndSendButtonByDefault: true,
-    hideBackButton: edit => !edit,
+    buttons: edit => ({
+        hideBack: !edit,
+        hideSave: !edit,
+        saveAndSendAgain: edit,
+        saveAndSend: !edit,
+    }),
 };
 export default infoIN;
 

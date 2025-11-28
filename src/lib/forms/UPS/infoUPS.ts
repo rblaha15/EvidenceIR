@@ -42,7 +42,11 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
         });
         return false;
     },
-    showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
+    buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
+        hideSave: !edit && !regulus,
+        saveAndSend: !edit && !regulus,
+        saveAndSendAgain: edit && !regulus,
+    })),
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations }),
     title: t => t.sol.title,
     getEditData: (ir, url) =>
