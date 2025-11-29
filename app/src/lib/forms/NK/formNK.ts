@@ -17,7 +17,7 @@ import {
     TitleWidget,
 } from '$lib/forms/Widget.svelte.js';
 import { type Company, type Person } from '$lib/client/realtime';
-import { type Products } from '$lib/helpers/products';
+import { type HeatPump, type IndoorUnit } from '$lib/helpers/products';
 
 export const origins = {
     'questionEmail': '_dotazEmail',
@@ -103,8 +103,8 @@ export interface FormNK extends Form<FormNK> {
     system: {
         title: TitleWidget<FormNK>
         hPType: RadioWidget<FormNK, `airToWater` | `groundToWater`>
-        hPModel: ChooserWidget<FormNK, `iDoNotKnow` | Products['heatPumps']>
-        indoorUnitType: ChooserWidget<FormNK, `indoorUnitNone` | Products['indoorUnits']>
+        hPModel: ChooserWidget<FormNK, `iDoNotKnow` | HeatPump>
+        indoorUnitType: ChooserWidget<FormNK, `indoorUnitNone` | IndoorUnit>
         thermalStore: InputWithSuggestionsWidget<FormNK>
         waterTank: InputWithSuggestionsWidget<FormNK>
         heatingSystem: ChooserWidget<FormNK, `iDoNotKnow` | `heatingSystem1circuit` | `heatingSystem2circuits` | `heatingSystem3circuits` | `heatingSystemInvertor` | `heatingSystemOther`>
