@@ -5,6 +5,7 @@
     import { irLabel, irNumberFromIRID, irWholeName } from '$lib/helpers/ir';
     import DetailIR from './DetailIR.svelte';
     import DetailNSPs from './DetailNSPs.svelte';
+    import Icon from '$lib/components/Icon.svelte';
 
     let { data }: PageProps = $props();
     const { irid, spids, ir, sps, languageCode: lang, translations: t } = $derived(data);
@@ -17,7 +18,12 @@
 
 <div class="d-flex flex-column gap-5">
     {#if $ir || $sps.length}
-        <h3 class="m-0">{$sps.length ? irLabel($sps[0]) : $ir ? irWholeName($ir.evidence) : ''}</h3>
+        <h3 class="m-0">
+            {#if $ir?.isDraft}
+                <Icon icon="design_services" class="text-warning" />
+            {/if}
+            {$sps.length ? irLabel($sps[0]) : $ir ? irWholeName($ir.evidence) : ''}
+        </h3>
     {:else}
         <h3 class="m-0">
             {#if irid}

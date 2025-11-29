@@ -105,10 +105,8 @@ export interface FormNK extends Form<FormNK> {
         hPType: RadioWidget<FormNK, `airToWater` | `groundToWater`>
         hPModel: ChooserWidget<FormNK, `iDoNotKnow` | Products['heatPumps']>
         indoorUnitType: ChooserWidget<FormNK, `indoorUnitNone` | Products['indoorUnits']>
-        thermalStoreType: DoubleChooserWidget<FormNK, 'storeNone' | Products['thermalStores1'], Products['thermalStores2']>
-        thermalStoreVolume: InputWidget<FormNK>
-        waterTankType: ChooserWidget<FormNK, `tankNone` | Products['waterTanks']>
-        waterTankVolume: InputWidget<FormNK>
+        thermalStore: InputWithSuggestionsWidget<FormNK>
+        waterTank: InputWithSuggestionsWidget<FormNK>
         heatingSystem: ChooserWidget<FormNK, `iDoNotKnow` | `heatingSystem1circuit` | `heatingSystem2circuits` | `heatingSystem3circuits` | `heatingSystemInvertor` | `heatingSystemOther`>
         hotWaterCirculation: CheckboxWidget<FormNK>
         wantsPool: CheckboxWidget<FormNK>

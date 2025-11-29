@@ -22,7 +22,7 @@
         getSearchItem: i => ({
             href: i.t == 'SP' ? detailSpUrl(i.id) : detailIrUrl(i.id),
             pieces: [
-                { text: i.name, width: .4 },
+                { text: i.name, width: .4, icon: i.draft ? 'design_services' : undefined, iconColor: i.draft ? 'warning' : undefined },
                 { text: i.label, width: .6 },
             ] as const,
             otherSearchParts: [

@@ -96,7 +96,13 @@ export abstract class Widget<D = never, U = any, H extends boolean = boolean> {
 type K = string;
 type T<I extends K> = (t: Translations) => Record<Exclude<I, Untranslatable>, string>;
 
-export type SearchItemPiece = { readonly text: string, readonly width?: number, readonly icon?: string };
+export type SearchItemPiece = {
+    readonly text: string,
+    readonly width?: number,
+    readonly icon?: string,
+    readonly color?: Color,
+    readonly iconColor?: Color,
+};
 export type SearchItem = {
     readonly pieces: SearchItemPiece[],
     readonly href?: string,

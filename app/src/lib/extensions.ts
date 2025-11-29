@@ -2,6 +2,7 @@
 // noinspection JSUnusedGlobalSymbols
 
 import "core-js/proposals/array-grouping-v2"
+import type { Readable } from 'svelte/store';
 
 declare global {
     interface ObjectConstructor {
@@ -522,6 +523,10 @@ declare global {
 String.prototype.toNumber = function(this: string) {
     return Number(this);
 };
+
+declare global {
+    type MaybeReadable<T> = T | Readable<T>
+}
 
 // TLM
 

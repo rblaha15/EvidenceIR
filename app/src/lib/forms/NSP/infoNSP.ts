@@ -41,8 +41,6 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
             load: false,
         });
     },
-    showSaveAndSendButtonByDefault: true,
-    isSendingEmails: true,
     redirectLink: async raw => detailSpUrl([extractSPIDFromRawData(raw.zasah)]),
     openPdf: async raw => ({
         link: 'NSP',
@@ -65,14 +63,14 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
         const spid = url.searchParams.get('edit-spid') as SPID | null;
         if (!spid) return undefined;
 
-        return await db.getIndependentProtocol(spid);
+        return { raw: await db.getIndependentProtocol(spid) };
     },
     getViewData: async url => {
         const spid = url.searchParams.get('view-spid') as SPID | null;
         if (!spid) return undefined;
 
         const sp = await db.getIndependentProtocol(spid);
-        return !sp ? undefined : sp;
+        return !sp ? undefined : { raw: sp };
     },
     storeEffects: [
         [(_, data, [$isUserRegulusOrAdmin]) => { // From IN
@@ -92,7 +90,12 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
         fields: fieldsNSP,
     },
     requiredRegulus: true,
-    hideBackButton: edit => !edit,
+    buttons: edit => ({
+        hideBack: !edit,
+        hideSave: !edit,
+        saveAndSendAgain: edit,
+        saveAndSend: !edit,
+    }),
 };
 
 export default infoNSP;

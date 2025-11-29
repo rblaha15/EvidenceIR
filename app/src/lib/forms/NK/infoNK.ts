@@ -16,7 +16,7 @@ const infoNK: IndependentFormInfo<FormNK, FormNK> = {
     type: '',
     storeName: () => 'stored_demand',
     defaultData: defaultNK,
-    saveData: async (raw, _, form, editResult, t, __, resetForm) => {
+    saveData: async (raw, _1, form, editResult, t, _2, _3, _4, resetForm) => {
         const user = get(currentUser)!;
 
         const name = raw.contacts.name;
@@ -65,9 +65,11 @@ const infoNK: IndependentFormInfo<FormNK, FormNK> = {
     onMount: async () => {
         await startUsersListening();
     },
-    isSendingEmails: true,
-    showSaveAndSendButtonByDefault: true,
     requiredRegulus: true,
-    hideBackButton: _ => true,
+    buttons: _ => ({
+        hideBack: true,
+        hideSave: true,
+        send: true,
+    }),
 };
 export default infoNK;
