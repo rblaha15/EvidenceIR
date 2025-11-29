@@ -41,7 +41,7 @@
         <option value={option}>{widget.get(t, option)}</option>
     {/each}
     {#if other.length}
-        <option value='otherOptions'>{t.widget.selectPhoto}</option>
+        <option value='otherOptions'>{t.widget.otherOptions}…</option>
     {/if}
 {/snippet}
 
