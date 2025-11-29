@@ -51,10 +51,12 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
             load: false,
         });
     },
-    showSaveAndSendButtonByDefault: true,
     createWidgetData: f => f,
     title: t => t.od.title,
-    isSendingEmails: true,
+    buttons: _ => ({
+        hideSave: true,
+        send: true,
+    }),
     redirectLink: async _ => (page.url.searchParams.get('redirect') ?? initialRouteLoggedIn)
 };
 
