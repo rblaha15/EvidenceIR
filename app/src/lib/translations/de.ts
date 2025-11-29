@@ -69,7 +69,7 @@ const de: PlainTranslations = {
         companyName: `Name`,
         ir: {
             other: `Andere (für PV oder SOL durch externe Regulierung gesteuert)`,
-            ctc: `CTC-Regler`,
+            ctc: `CTC-Heizzentralen`,
         },
         device: {
             heatPump: `Wärmepumpe`,

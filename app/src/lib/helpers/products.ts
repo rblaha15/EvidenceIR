@@ -55,6 +55,6 @@ export const indoorUnits = [
     'RegulusHBOX K 106',
 ] as const;
 
-const allPumps = [...heatPumps.airToWaterRTC.flat(), ...heatPumps.airToWaterCTC.flat(), ...heatPumps.groundToWaterCTC.flat()];
+const allPumps = [...heatPumps.airToWaterRTC.flat(), ...heatPumps.airToWaterCTC.flat(), ...heatPumps.groundToWaterCTC.flat(), ...heatPumps.multiEnergyCTC.flat()];
 export type HeatPump = typeof allPumps[number]
 export type IndoorUnit = typeof indoorUnits[number]
