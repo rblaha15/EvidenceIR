@@ -30,7 +30,7 @@ import {
     typBOX,
 } from '$lib/helpers/ir';
 import { dayISO, time } from '$lib/helpers/date';
-import products, { type Products } from '$lib/helpers/products';
+import { type HeatPump, heatPumps } from '$lib/helpers/products';
 import type { Translations } from '$lib/translations';
 import { derived } from 'svelte/store';
 import { assemblyCompanies, commissioningCompanies } from '$lib/helpers/companies';
@@ -335,14 +335,18 @@ export const ordinal = (tg: Translations['countsGenitive'], i: TC) =>
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
 
 const heatPump = <const I extends TC>(i: I) => ({
-    [`model${i == 1 ? '' : i as B}`]: new ChooserWidget<FormIN, Products['heatPumps']>({
+    [`model${i == 1 ? '' : i as B}`]: new ChooserWidget<FormIN, HeatPump>({
         label: (t, d) => cap(t.in.heatPumpModel([d.tc.pocet.value == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
         options: d =>
-            rtc(d)
-                ? products.heatPumpsRTC
+            rtc(d) ? heatPumps.airToWaterRTC[0]
                 : d.tc.typ.value == 'airToWater'
-                    ? products.heatPumpsAirToWaterCTC
-                    : products.heatPumpsGroundToWater,
+                    ? heatPumps.airToWaterCTC[0]
+                    : heatPumps.groundToWaterCTC[0],
+        otherOptions: d =>
+            rtc(d) ? heatPumps.airToWaterRTC[1]
+                : d.tc.typ.value == 'airToWater'
+                    ? heatPumps.airToWaterCTC[1]
+                    : heatPumps.groundToWaterCTC[1],
         required: d => tc(d) && i <= d.tc.pocet.value,
         show: d =>
             subType(d) &&
@@ -377,10 +381,10 @@ const heatPump = <const I extends TC>(i: I) => ({
         processScannedText: t => t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
     }),
 }) as I extends 1 ? {
-    model: ChooserWidget<FormIN, Products['heatPumps']>;
+    model: ChooserWidget<FormIN, HeatPump>;
     cislo: ScannerWidget<FormIN>;
 } : ({
-    [K in `model${I}`]: ChooserWidget<FormIN, Products['heatPumps']>;
+    [K in `model${I}`]: ChooserWidget<FormIN, HeatPump>;
 } & {
     [K in `cislo${I}`]: ScannerWidget<FormIN>;
 });
