@@ -321,7 +321,7 @@ export default {
         copyNSP: `Kopírovat informace o instalaci do nového protokolu`,
         copyNSPtoInstallation: `Kopírovat informace o instalaci do nové registrace`,
         copySP: `Chcete vytvořit kopii pro vykázání servisního zásahu více osob?`,
-        transferProtocols: `Převést protokoly k IR (neodstraní se)`,
+        transferProtocols: `Převést protokoly k instalaci (neodstraní se)`,
         deleteProtocol: `Odstranit protokol`,
         duplicate: `Duplikovat`,
         yes: `Ano`,
