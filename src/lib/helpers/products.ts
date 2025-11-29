@@ -1,10 +1,10 @@
-const products = {
-    heatPumpsAirToWaterCTC: [
+export const heatPumps = {
+    airToWaterCTC: [[
         'EcoAir 614M',
         'EcoAir 622M',
         'EcoAir 712M',
         'EcoAir 720M',
-
+    ], [
         'EcoAir 406',
         'EcoAir 408',
         'EcoAir 410',
@@ -13,8 +13,8 @@ const products = {
         'EcoAir 105',
         'EcoAir 107',
         'EcoAir 110',
-    ],
-    heatPumpsRTC: [
+    ]],
+    airToWaterRTC: [[
         'RTC',
         'RTC 6i',
         'RTC 12i',
@@ -23,9 +23,10 @@ const products = {
         'RTC 15p',
         'RTC 25p',
         'RTC 40p',
+    ], [
         'airTHERM 10',
-    ],
-    heatPumpsGroundToWater: [
+    ]],
+    groundToWaterCTC: [[
         'EcoPart 612M',
         'EcoPart 616M',
         'EcoPart 406',
@@ -35,8 +36,8 @@ const products = {
         'EcoPart 414',
         'EcoPart 417',
         'EcoPart 435',
-    ],
-    heatPumpCentralls: [
+    ], []],
+    multiEnergyCTC: [[
         'EcoHeat 406',
         'EcoHeat 408',
         'EcoHeat 410',
@@ -45,19 +46,15 @@ const products = {
         'EcoHeat 308',
         'EcoHeat 310',
         'EcoHeat 312',
-    ],
-    indoorUnits: [
-        'RegulusBOX',
-        'RegulusHBOX 112',
-        'RegulusHBOX 212',
-        'RegulusHBOX K 106',
-    ],
-} as const
+    ], []],
+} as const;
+export const indoorUnits = [
+    'RegulusBOX',
+    'RegulusHBOX 112',
+    'RegulusHBOX 212',
+    'RegulusHBOX K 106',
+] as const;
 
-export default products;
-
-type AllProducts = typeof products;
-export type Products = {
-    heatPumps: AllProducts['heatPumpsRTC'][number] | AllProducts['heatPumpsAirToWaterCTC'][number] | AllProducts['heatPumpsGroundToWater'][number]
-    indoorUnits: AllProducts['indoorUnits'][number]
-};
+const allPumps = [...heatPumps.airToWaterRTC.flat(), ...heatPumps.airToWaterCTC.flat(), ...heatPumps.groundToWaterCTC.flat(), ...heatPumps.multiEnergyCTC.flat()];
+export type HeatPump = typeof allPumps[number]
+export type IndoorUnit = typeof indoorUnits[number]

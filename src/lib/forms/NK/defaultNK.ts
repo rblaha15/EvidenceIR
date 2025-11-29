@@ -17,7 +17,7 @@ import {
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
 import { accumulationTanks, type Company, type Person, usersList, waterTanks } from '$lib/client/realtime';
-import products from '$lib/helpers/products';
+import { heatPumps, indoorUnits } from '$lib/helpers/products';
 import { type FormNK, origins } from './formNK';
 import { assemblyCompanies } from '$lib/helpers/companies';
 import { derived, readable } from 'svelte/store';
@@ -185,7 +185,7 @@ export default (): FormPlus<FormNK> => ({
             label: t => t.nk.system.heatPumpModel,
             show: hp,
             options: d => [`iDoNotKnow`, ...d.system.hPType.value == 'airToWater'
-                ? [...products.heatPumpsRTC, ...products.heatPumpsAirToWaterCTC] : products.heatPumpsGroundToWater],
+                ? [...heatPumps.airToWaterRTC.flat(), ...heatPumps.airToWaterCTC.flat()] : heatPumps.groundToWaterCTC.flat()],
             chosen: `iDoNotKnow`,
             labels: t => t.nk.system,
         }),
@@ -193,7 +193,7 @@ export default (): FormPlus<FormNK> => ({
             required: false,
             label: t => t.nk.system.indoorUnitType,
             chosen: `indoorUnitNone`,
-            options: [`indoorUnitNone`, ...products.indoorUnits],
+            options: [`indoorUnitNone`, ...indoorUnits],
             show: hp,
             labels: t => t.nk.system,
         }),

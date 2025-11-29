@@ -190,7 +190,7 @@ const en: PlainTranslations = {
         },
         ir: {
             other: `Other (for photovoltaic or solar systems controlled by an external controller)`,
-            ctc: `CTC controllers`,
+            ctc: `CTC multi-energy thermal stores`,
         },
         device: {
             heatPump: 'Heat pump',
