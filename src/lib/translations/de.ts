@@ -191,7 +191,7 @@ const de: PlainTranslations = {
         copyNSP: `Installationsinformationen in ein neues Protokoll kopieren`,
         copyNSPtoInstallation: `Installationsinformationen in ein neues Registrierung kopieren`,
         copySP: `Möchten Sie eine Kopie erstellen, um Serviceeingriffe mehreren Personen zu melden?`,
-        transferProtocols: `Protokolle in IR konvertieren (werden nicht gelöscht)`,
+        transferProtocols: `Protokolle in Installation konvertieren (werden nicht gelöscht)`,
         deleteProtocol: `Protokoll löschen`,
         duplicate: `Duplizieren`,
         yes: `Ja`,

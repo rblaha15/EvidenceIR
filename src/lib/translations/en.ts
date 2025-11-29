@@ -298,7 +298,7 @@ const en: PlainTranslations = {
         copyNSP: `Copy installation information to a new protocol`,
         copyNSPtoInstallation: `Copy installation information to a new registration`,
         copySP: `Do you want to create a copy for reporting service intervention by multiple persons?`,
-        transferProtocols: `Transfer the protocols to a controller (won't be deleted)`,
+        transferProtocols: `Transfer the protocols to an installation (won't be deleted)`,
         deleteProtocol: `Delete the protocol`,
         duplicate: `Duplicate`,
         yes: `Yes`,
