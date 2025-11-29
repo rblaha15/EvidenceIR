@@ -20,12 +20,14 @@ export type Installation_PublicServiceProtocol = {
     label: string,
     name: string,
     sps: string[],
+    draft: boolean,
 } | {
     t: 'SP',
     id: SPID[],
     label: string,
     name: string,
     sps: [],
+    draft: boolean,
 }
 
 export const load: PageLoad = async ({ parent }) => {
@@ -44,6 +46,7 @@ export const load: PageLoad = async ({ parent }) => {
                 name: irName(ir.evidence.ir),
                 label: irLabel(ir.evidence),
                 sps: ir.installationProtocols.map(p => spName(p.zasah)),
+                draft: ir.isDraft,
             } satisfies Installation_PublicServiceProtocol))
             .filter(i => i.id),
     );
@@ -61,6 +64,7 @@ export const load: PageLoad = async ({ parent }) => {
                     name: sps.length == 1 ? spName(sps[0].zasah) : ts.nProtocols(sps.length, sps.map(sp => sp.zasah.inicialy.trim()).distinct().join(', ')),
                     label: label,
                     sps: [],
+                    draft: false,
                 } satisfies Installation_PublicServiceProtocol)),
         );
 
@@ -72,7 +76,8 @@ export const load: PageLoad = async ({ parent }) => {
             [installations, protocols],
             ([$installations, $protocols]) =>
                 [...$installations ?? [], ...$protocols ?? []]
-                    .toSorted((a, b) => a.label.localeCompare(b.label)),
+                    .toSorted((a, b) => a.label.localeCompare(b.label))
+                    .toSorted((a, b) => (b.draft ? 1 : 0) - (a.draft ? 1 : 0)),
         ),
     };
 };

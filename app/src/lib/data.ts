@@ -40,6 +40,7 @@ type FakeUvedeni = {
 
 
 export type IR = {
+    isDraft: boolean;
     evidence: Raw<FormIN>;
     uvedeniTC: Raw<FormUPT> | FakeUvedeni;
     uvedeniSOL?: Raw<FormUPS>;
@@ -54,6 +55,19 @@ export type IR = {
     yearlyHeatPumpCheckRecommendation?: RecommendationSettings;
     yearlySolarSystemCheckRecommendation?: RecommendationSettings;
 };
+
+export const createInstallation = (
+    raw: Raw<FormIN>,
+    userEmail: string,
+    isDraft: boolean,
+) => ({
+    isDraft,
+    evidence: raw,
+    kontrolyTC: {},
+    users: [userEmail],
+    installationProtocols: [],
+    uvedeniTC: { uvadeni: { date: '' } },
+} satisfies IR)
 
 export type RecommendationData = {
     irid: IRID;

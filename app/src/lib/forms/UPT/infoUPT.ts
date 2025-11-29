@@ -51,9 +51,9 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations }),
     title: t => t.tc.title,
     getEditData: (ir, url) =>
-        url.searchParams.has('edit') ? (ir.uvedeniTC as Raw<FormUPT>) : undefined,
+        url.searchParams.has('edit') ? { raw: ir.uvedeniTC as Raw<FormUPT> } : undefined,
     getViewData: (ir, url) =>
-        url.searchParams.has('view') ? (ir.uvedeniTC as Raw<FormUPT>) : undefined,
+        url.searchParams.has('view') ? { raw: ir.uvedeniTC as Raw<FormUPT> } : undefined,
     onMount: async (_, data, mode) => {
         if (mode != 'create') {
             (data.checkRecommendations as Record<string, Widget>).getValues().forEach(e => {

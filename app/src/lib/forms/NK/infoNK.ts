@@ -16,7 +16,7 @@ const infoNK: IndependentFormInfo<FormNK, FormNK> = {
     type: '',
     storeName: () => 'stored_demand',
     defaultData: defaultNK,
-    saveData: async (raw, _, form, editResult, t, __, resetForm) => {
+    saveData: async (raw, _1, form, editResult, t, _2, _3, _4, resetForm) => {
         const user = get(currentUser)!;
 
         const name = raw.contacts.name;

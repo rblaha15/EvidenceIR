@@ -1,5 +1,5 @@
 import type { OpenPdfOptions, Pdf } from '$lib/pdf/pdf';
-import type { Form, Raw } from '$lib/forms/Form';
+import type { Form } from '$lib/forms/Form';
 import type { IRID } from '$lib/helpers/ir';
 import db from '$lib/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte.js';
@@ -11,8 +11,8 @@ export const removeDependency = async <
     F extends Form<D>,
     S extends unknown[][],
     P extends Pdf<'IR'> = Pdf<'IR'>,
-    R extends Raw<F> = Raw<F>,
->(formInfo: FormInfo<D, F, S, P, R>, irid: IRID): Promise<IndependentFormInfo<D, F, S, P, R>> => {
+    O extends Record<string, unknown> = Record<never, unknown>,
+>(formInfo: FormInfo<D, F, S, P, O>, irid: IRID): Promise<IndependentFormInfo<D, F, S, P, O>> => {
     const {
         storeName,
         openPdf,
@@ -21,7 +21,6 @@ export const removeDependency = async <
         getEditData,
         getViewData,
         onMount,
-        buttons,
     } = formInfo;
 
     const ir = await db.getIR(irid!) ?? error(400, { message: 'IR not found' });
@@ -29,22 +28,18 @@ export const removeDependency = async <
     return {
         ...formInfo,
         type: '',
-        storeName: () => `${storeName()}_${irid}`,
-        getEditData: async url => getEditData?.(ir, url),
+        storeName: (o) => `${storeName(o)}_${irid}`,
+        getEditData: async (url, o) => getEditData?.(ir, url, o),
         getViewData: async url => getViewData?.(ir, url),
-        saveData: async (raw, edit, data, editResult, t, send) => {
-            const result = await saveData(irid!, raw, edit, data, editResult, t, send, ir);
+        saveData: async (raw, edit, data, editResult, t, send, _draft, other) => {
+            const result = await saveData(irid!, raw, edit, data, editResult, t, send, ir, other);
             return result != false;
         },
         redirectLink: async () => detailIrUrl(),
-        openPdf: openPdf ? async () => ({
-            ...openPdf(), irid,
+        openPdf: openPdf ? async (_raw, other) => ({
+            ...openPdf(other), irid,
         } as OpenPdfOptions<P>) : undefined,
-        createWidgetData: data => createWidgetData(ir.evidence, data, ir),
-        buttons: e => ({
-            ...buttons?.(e),
-            hideBack: false,
-        }),
-        onMount: (d, f, m) => onMount?.(d, f, m, ir),
+        createWidgetData: (data, other) => createWidgetData(ir.evidence, data, ir, other),
+        onMount: (d, f, m, o) => onMount?.(d, f, m, ir, o),
     };
 };

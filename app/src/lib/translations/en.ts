@@ -66,6 +66,7 @@ const en: PlainTranslations = {
     form: {
         successfullySent: `Successfully sent!`,
         save: 'Save',
+        saveAsDraft: 'Save as a draft',
         send: 'Send emails',
         saveAndSend: 'Save & send emails',
         saveAndSendAgain: 'Save & send emails again',
@@ -274,6 +275,9 @@ const en: PlainTranslations = {
         changeController: 'Change controller serial number',
         changeWentWrong: 'Something went wrong. Refresh the page and try again.',
         successfullyDeleted: `Record successfully deleted.`,
+        documents: `Documents`,
+        recordManagement: `Record management`,
+        draftManagement: `Draft management`,
         titleIR: 'Installation details',
         titleNSP: 'Service protocol',
         titleNSPs: 'Service protocols',

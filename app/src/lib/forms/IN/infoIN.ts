@@ -27,11 +27,25 @@ import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import MailXML from '$lib/emails/MailXML.svelte';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
 
-const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string | null]]> = {
+const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string | null]], never, { draft: boolean }> = {
     type: '',
     storeName: () => 'stored_data',
     defaultData: () => defaultIN(),
-    saveData: async (raw, edit, data, editResult, t, send) => {
+    saveData: async (raw, edit, data, editResult, t, send, draft) => {
+        const errors = [data.ir.cislo, data.ir.typ]
+            .filter(w => w.isError(data))
+            .map(w => w.label(t, data));
+        if (errors.length) {
+            data.ir.cislo.displayErrorVeto = true;
+            data.ir.typ.displayErrorVeto = true;
+            editResult({
+                red: true,
+                text: t.form.youHaveAMistake({ fields: errors.join(', ') }),
+                load: false,
+            });
+            return false
+        }
+
         const irid = extractIRIDFromRawData(raw);
 
         if (!edit && irid && getIsOnline() && await db.existsIR(irid)) {
@@ -44,17 +58,11 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
 
         const user = get(currentUser)!;
 
-        const newIr = {
-            evidence: raw,
-            kontrolyTC: {},
-            users: [user.email!],
-            installationProtocols: [],
-            uvedeniTC: { uvadeni: { date: '' } },
-        };
+        const newIr = createInstallation(raw, user.email!, draft);
         if (edit) await db.updateIRRecord(raw);
         else await db.addIR(newIr);
 
-        const doNotSend = edit && !send;
+        const doNotSend = (edit && !send) || draft;
 
         if (doNotSend) return true;
 
@@ -114,17 +122,17 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
     title: (t, mode) => mode == 'edit' ? t.in.editing : mode == 'view' ? t.detail.titleIR : t.in.title,
     getEditData: async url => {
         const irid = url.searchParams.get('edit-irid') as IRID | null;
-        if (!irid) return undefined;
+        if (!irid) return { other: { draft: false } };
 
         const ir = await db.getIR(irid);
-        return !ir ? undefined : ir.evidence;
+        return !ir ? { other: { draft: false } } : { raw: ir.evidence, other: { draft: ir.isDraft } };
     },
     getViewData: async url => {
         const irid = url.searchParams.get('view-irid') as IRID | null;
-        if (!irid) return undefined;
+        if (!irid) return { other: { draft: false } };
 
         const ir = await db.getIR(irid);
-        return !ir ? undefined : ir.evidence;
+        return !ir ? { other: { draft: false } } : { raw: ir.evidence, other: { draft: ir.isDraft } };
     },
     onMount: async (_, data, mode) => {
         await startTechniciansListening();
@@ -161,11 +169,12 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         onImport: () => {
         },
     },
-    buttons: edit => ({
+    buttons: (edit, { draft }) => ({
         hideBack: !edit,
-        hideSave: !edit,
-        saveAndSendAgain: edit,
-        saveAndSend: !edit,
+        hideSave: !edit || draft,
+        saveAndSendAgain: edit && !draft,
+        saveAndSend: !edit || draft,
+        saveAsDraft: !edit || draft,
     }),
 };
 export default infoIN;
