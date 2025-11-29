@@ -13,9 +13,8 @@ import {
 } from '$lib/forms/Widget.svelte.js';
 import { type Company } from '$lib/client/realtime';
 import { type Form } from '$lib/forms/Form';
-import { type Products } from '$lib/helpers/products';
+import { type HeatPump } from '$lib/helpers/products';
 import { getTranslations, type Translations } from '$lib/translations';
-import type { DataUPT } from '$lib/forms/UPT/formUPT';
 
 type CompanyWidgetGroup<D> = {
     company: SearchWidget<D, Company, true>;
@@ -73,25 +72,25 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         poznamka: TextWidget<FormIN>;
         typ: RadioWidget<FormIN, 'airToWater' | 'groundToWater'>;
         pocet: CounterWidget<FormIN, true>;
-        model: ChooserWidget<FormIN, Products['heatPumps']>;
+        model: ChooserWidget<FormIN, HeatPump>;
         cislo: ScannerWidget<FormIN>;
-        model2: ChooserWidget<FormIN, Products['heatPumps']>;
+        model2: ChooserWidget<FormIN, HeatPump>;
         cislo2: ScannerWidget<FormIN>;
-        model3: ChooserWidget<FormIN, Products['heatPumps']>;
+        model3: ChooserWidget<FormIN, HeatPump>;
         cislo3: ScannerWidget<FormIN>;
-        model4: ChooserWidget<FormIN, Products['heatPumps']>;
+        model4: ChooserWidget<FormIN, HeatPump>;
         cislo4: ScannerWidget<FormIN>;
-        model5: ChooserWidget<FormIN, Products['heatPumps']>;
+        model5: ChooserWidget<FormIN, HeatPump>;
         cislo5: ScannerWidget<FormIN>;
-        model6: ChooserWidget<FormIN, Products['heatPumps']>;
+        model6: ChooserWidget<FormIN, HeatPump>;
         cislo6: ScannerWidget<FormIN>;
-        model7: ChooserWidget<FormIN, Products['heatPumps']>;
+        model7: ChooserWidget<FormIN, HeatPump>;
         cislo7: ScannerWidget<FormIN>;
-        model8: ChooserWidget<FormIN, Products['heatPumps']>;
+        model8: ChooserWidget<FormIN, HeatPump>;
         cislo8: ScannerWidget<FormIN>;
-        model9: ChooserWidget<FormIN, Products['heatPumps']>;
+        model9: ChooserWidget<FormIN, HeatPump>;
         cislo9: ScannerWidget<FormIN>;
-        model10: ChooserWidget<FormIN, Products['heatPumps']>;
+        model10: ChooserWidget<FormIN, HeatPump>;
         cislo10: ScannerWidget<FormIN>;
     };
     sol: {

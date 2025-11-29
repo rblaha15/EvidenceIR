@@ -1,16 +1,17 @@
 import type { OptionsInputsB, OptionsInputsC, OptionsOutputsB, OptionsOutputsF } from '$lib/forms/FT/portsOptions';
 import type { IRSubTypes, UntranslatableIRTypes } from '$lib/forms/IN/formIN';
-import type { Products } from '$lib/helpers/products';
 import type { HeatingCableLength, HoseLength, RoomUnitType } from '$lib/forms/NK/formNK';
 import type { HeatTransferFluidType } from '$lib/forms/UPS/formUPS';
 import type { PanelOrientations } from '$lib/forms/UPF/formUPF';
+import type { HeatPump, IndoorUnit } from '$lib/helpers/products';
 
 export type US = string & { untranslatable: true }
 
 export type Untranslatable =
     | ''
     | US
-    | Products[keyof Products]
+    | HeatPump
+    | IndoorUnit
     | OptionsInputsC
     | OptionsInputsB
     | OptionsOutputsF
