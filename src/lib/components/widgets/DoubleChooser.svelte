@@ -1,5 +1,5 @@
 <script generics="D, I1 extends string, I2 extends string" lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount, untrack } from 'svelte';
     import type { Action } from 'svelte/action';
     import type { Translations } from '$lib/translations';
     import { type Arr, type DoubleChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
@@ -28,7 +28,7 @@
     $effect(() => {
         options1 = widget.options1(data);
         other1 = widget.otherOptions1(data);
-        new Promise(r => r(undefined)).then(() => {
+        untrack(() => {
             if (widget.value.first && other1.includes(widget.value.first)) {
                 options1 = [...options1, ...other1];
                 other1 = [];
@@ -51,7 +51,7 @@
     $effect(() => {
         options2 = widget.options2(data);
         other2 = widget.otherOptions2(data);
-        new Promise(r => r(undefined)).then(() => {
+        untrack(() => {
             if (widget.value.second && other2.includes(widget.value.second)) {
                 options2 = [...options2, ...other2];
                 other2 = [];
