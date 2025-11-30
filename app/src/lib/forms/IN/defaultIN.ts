@@ -336,6 +336,9 @@ export const ordinal = (tg: Translations['countsGenitive'], i: TC) =>
     ['', tg.first, tg.second, tg.third, tg.fourth, tg.fifth, tg.sixth, tg.seventh, tg.eighth, tg.ninth, tg.tenth][i];
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
 
+const model = <I>(d: FormIN, i: I) => {
+    return d.tc[`model${i == 1 ? '' : i as B}`];
+};
 const heatPump = <const I extends TC>(i: I) => ({
     [`model${i == 1 ? '' : i as B}`]: new ChooserWidget<FormIN, HeatPump>({
         label: (t, d) => cap(t.in.heatPumpModel([d.tc.pocet.value == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
@@ -358,20 +361,21 @@ const heatPump = <const I extends TC>(i: I) => ({
             tc(d) &&
             i <= d.tc.pocet.value,
         onValueSet: (d, v) => {
-            if (v != null && !d.tc[`model${i == 1 ? '' : i as B}`].options(d).includes(v)) {
-                d.tc[`model${i == 1 ? '' : i as B}`].setValue(d, null);
+            if (v != null && ![...model(d, i).options(d), ...model(d, i).otherOptions(d)].includes(v)) {
+                model(d, i).setValue(d, null);
             }
         },
+        labels: t => ({ prototype: t.tc.prototype }),
     }),
     [`cislo${i == 1 ? '' : i as B}`]: new ScannerWidget<FormIN>({
         label: (t, d) => cap(t.in.heatPumpManufactureNumber([d.tc.pocet.value == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
         onError: t => t.wrong.number,
-        regex: d => ctc(d)
+        regex: d => model(d, i).value == 'prototype' ? /.*/ : ctc(d)
             ? /^\d{4}-\d{4}-\d{4}$/
             : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
         capitalize: true,
-        required: d => tc(d) && i <= d.tc.pocet.value,
-        maskOptions: d => ({
+        required: d => tc(d) && i <= d.tc.pocet.value && model(d, i).also(console.log).value != 'prototype',
+        maskOptions: d => model(d, i).value == 'prototype' ? undefined : ({
             mask: ctc(d) ? `0000-0000-0000` : `AA0000-AA-0000`,
             definitions: {
                 A: /[A-Za-z]/,
@@ -382,7 +386,9 @@ const heatPump = <const I extends TC>(i: I) => ({
             (rtc(d) || d.tc.typ.value != null) &&
             tc(d) &&
             i <= d.tc.pocet.value,
-        processScannedText: t => t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
+        processScannedText: (t, d) =>
+            model(d, i).value == 'prototype' ? t.replaceAll(/[^0-9A-Z]/g, '')
+                : t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
     }),
 }) as I extends 1 ? {
     model: ChooserWidget<FormIN, HeatPump>;

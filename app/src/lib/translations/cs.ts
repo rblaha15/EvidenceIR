@@ -439,6 +439,7 @@ export default {
         surfaceCollector: `Plošný kolektor`,
         otherCollector: `Jiné`,
         dateOfCommission: `Datum uvedení`,
+        prototype: 'Jiné – vzorek',
     },
     sol: {
         name: `Protokol o instalaci SOL`,

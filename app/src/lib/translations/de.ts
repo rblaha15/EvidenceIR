@@ -369,6 +369,7 @@ const de: PlainTranslations = {
         yes: `ja`,
         no: `nein`,
         pumpDetails: t`WP${'n'}: ${'model'} – ${'cislo'}`,
+        prototype: 'Andere – Prototyp',
     },
     widget: {
         notChosen: `Nicht ausgewählt`,
