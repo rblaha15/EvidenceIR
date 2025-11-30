@@ -603,10 +603,13 @@ const en: PlainTranslations = {
         emailBody: 'Email body',
         otherCopies: 'Other ccs',
         customerEmail: 'Customer email address',
-        info1: t`The app will send an email with the documents, optionally with the photos and the note to ${0} and ${1}.`,
-        info2A: t`A copy will be send to you, to ${'user'}.`,
-        info2B: t`A copy will be send to the customer to ${'customer'} and to you, to ${'user'}.`,
-        info3: `If you don't want to send the email to the customer, remove their address from the above filed.`,
+        info1: t`The app will send an email with the documents, optionally with the photos and the note to ${0} and ${1}. A copy will be send to `,
+        info2A: t`the customer to ${'customer'}`,
+        info2B: t`to ${'ccs'}`,
+        info2C: t`to you, to ${'user'}`,
+        info3: `.`,
+        and: `, and `,
+        info4: ` If you don't want to send the email to the customer, remove their address from the below filed.`,
     },
 }
 
