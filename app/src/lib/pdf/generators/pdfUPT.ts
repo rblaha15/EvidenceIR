@@ -20,6 +20,10 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc, lang }) => {
         data: {},
     })
 
+    const cascadeText = !isCascade ? '' : tu.cascade + '\n' + pumps
+        .map(tu.pumpDetails).chunk(3)
+        .map(g => g.join('; ')).join('\n');
+    const noteText = u.uvadeni.note ? `Poznámka: ${u.uvadeni.note}` : '';
     return ({
         Text1: endUserName(e.koncovyUzivatel),
         Text2: e.koncovyUzivatel.telefon,
@@ -67,9 +71,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc, lang }) => {
         Text44: u.uvadeni.vlastnik ? tu.yes : tu.no,
         Text45: get(tu, u.uvadeni.typZaruky!),
         Text46: u.uvadeni.typZaruky?.includes('extendedWarranty') ?? false ? u.uvadeni.zaruka ? tu.yes : tu.no : '—',
-        Text47: !isCascade ? '' : tu.cascade + '\n' + pumps
-            .map(tu.pumpDetails).chunk(3)
-            .map(g => g.join('; ')).join('\n'),
+        Text47: [cascadeText, noteText].filter(Boolean).join('\n'),
     });
 };
 export default pdfUPT;
