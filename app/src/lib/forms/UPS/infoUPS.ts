@@ -43,7 +43,7 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
         return false;
     },
     buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
-        hideSave: !edit && !regulus,
+        hideSave: !regulus,
         saveAndSend: !edit && !regulus,
         saveAndSendAgain: edit && !regulus,
     })),

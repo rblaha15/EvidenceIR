@@ -2,6 +2,7 @@
     import type { Translations } from '$lib/translations';
     import { type Arr, type ChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
+    import { untrack } from 'svelte';
 
     interface Props {
         t: Translations;
@@ -26,7 +27,7 @@
     $effect(() => {
         options = widget.options(data);
         other = widget.otherOptions(data);
-        new Promise(r => r(undefined)).then(() => {
+        untrack(() => {
             if (widget.value && other.includes(widget.value)) {
                 options = [...options, ...other];
                 other = [];
