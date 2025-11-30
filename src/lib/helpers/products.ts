@@ -25,6 +25,7 @@ export const heatPumps = {
         'RTC 40p',
     ], [
         'airTHERM 10',
+        'prototype',
     ]],
     groundToWaterCTC: [[
         'EcoPart 612M',
