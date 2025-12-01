@@ -21,18 +21,22 @@
     type D = { ir: { typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>, cislo: InputWidget<D> } };
 
     const alsoChangeDefault = {
-        setAirToWater: false,
+        setPumpType: null as 'airToWater' | 'groundToWater' | null,
+        setPumpNumber: null as string | null,
         resetBoxNumber: false,
         resetRemoteAccess: false,
         setFVEType: false,
+        setHP: false,
     };
     let alsoChange = $state(alsoChangeDefault);
 
     const part = irTypeAndNumber<D>({
-        setAirToWater: _ => alsoChange.setAirToWater = true,
+        setPumpType: (_, v) => alsoChange.setPumpType = v,
+        setPumpNumber: (_, v) => alsoChange.setPumpNumber = v,
         resetBoxNumber: _ => alsoChange.resetBoxNumber = true,
         resetRemoteAccess: _ => alsoChange.resetRemoteAccess = true,
         setFVEType: _ => alsoChange.setFVEType = true,
+        setHP: _ => alsoChange.setHP = true,
     });
 
     const d = $derived({ ir: part });
@@ -53,24 +57,27 @@
             const newNumber = part.cislo.value;
             const newType = part.typ.value;
             const newIRID = extractIRIDFromParts(newType.first!, newNumber);
-            if (irid! == newIRID) {
-                alsoChange = alsoChangeDefault
-                return change = 'unchanged';
-            }
             change = 'sending';
             const record = (await db.getIR(irid!))!;
             record.evidence.ir.cislo = newNumber;
             record.evidence.ir.typ = newType;
-            if (alsoChange.setAirToWater) record.evidence.tc.typ = 'airToWater';
+            if (alsoChange.setPumpType) record.evidence.tc.typ = alsoChange.setPumpType;
+            if (alsoChange.setPumpNumber) record.evidence.tc.cislo = alsoChange.setPumpNumber;
             if (alsoChange.resetBoxNumber) record.evidence.ir.cisloBox = '';
             if (alsoChange.resetRemoteAccess) record.evidence.vzdalenyPristup.chce = false;
             if (alsoChange.setFVEType) record.evidence.fve.typ = 'DG-450-B';
-            await db.addIR(record);
-            alsoChange = alsoChangeDefault
-            const newRecord = await db.getIR(newIRID);
-            if (!newRecord?.evidence) return change = 'fail';
-            await db.deleteIR(irid!);
-            await goto(detailIrUrl(newIRID), { replaceState: true, invalidateAll: true });
+            if (alsoChange.setHP) record.evidence.ir.chceVyplnitK = ['heatPump'];
+            if (irid! == newIRID) {
+                await db.updateIRRecord(record.evidence);
+                alsoChange = alsoChangeDefault;
+            } else {
+                await db.addIR(record);
+                alsoChange = alsoChangeDefault;
+                const newRecord = await db.getIR(newIRID);
+                if (!newRecord?.evidence) return change = 'fail';
+                await db.deleteIR(irid!);
+                await goto(detailIrUrl(newIRID), { replaceState: true, invalidateAll: true });
+            }
             change = 'no';
         } catch (e) {
             console.log(e);
@@ -98,8 +105,6 @@
         <span>{td.saving}</span>
         <div class="spinner-border text-danger"></div>
     </div>
-{:else if change === 'unchanged'}
-    <p class="text-danger">Tento regulátor již existuje!</p>
 {:else if change === 'fail'}
     <p class="text-danger">{td.changeWentWrong}</p>
 {/if}

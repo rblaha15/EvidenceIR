@@ -5,6 +5,7 @@ import {
     CounterWidget,
     DoubleChooserWidget,
     InputWidget,
+    InputWithSuggestionsWidget,
     MultiCheckboxWidget,
     RadioWidget,
     ScannerWidget,
@@ -13,7 +14,7 @@ import {
     TitleWidget,
 } from '../Widget.svelte.js';
 import { type FormIN, type IRSubTypes, type IRTypes, unknownCompany, unknownCRN, type UserForm } from './formIN';
-import { type Company, type Technician, techniciansList } from '$lib/client/realtime';
+import { accumulationTanks, type Company, solarCollectors, type Technician, techniciansList, waterTanks } from '$lib/client/realtime';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 import {
     companyForms,
@@ -21,6 +22,7 @@ import {
     doesNotSupportHeatPumps,
     isBox,
     isCompanyFormInvalid,
+    isCTC,
     isMACAddressTypeIR10,
     isMACAddressTypeIR12,
     supportsMACAddresses,
@@ -29,7 +31,7 @@ import {
     typBOX,
 } from '$lib/helpers/ir';
 import { dayISO, time } from '$lib/helpers/date';
-import products, { type Products } from '$lib/helpers/products';
+import { type HeatPump, heatPumps } from '$lib/helpers/products';
 import type { Translations } from '$lib/translations';
 import { derived } from 'svelte/store';
 import { assemblyCompanies, commissioningCompanies } from '$lib/helpers/companies';
@@ -41,17 +43,22 @@ const po = (d: UserForm<never>) => !jeFO(d);
 
 const tc = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`heatPump`);
 const sol = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`solarCollector`);
+const aku = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`accumulation`);
+const zas = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`waterStorage`);
 const rek = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`ventilation`);
 const fve = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`photovoltaicPowerPlant`);
 const other = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`other`);
 
-const ctc = (d: FormIN) => d.ir.typ.value.second == 'CTC';
+const ctc = (d: FormIN) => d.ir.typ.value.first == 'ctc' || d.ir.typ.value.second == 'CTC';
 const rtc = (d: FormIN) => d.ir.typ.value.second == 'RTC';
+const ecoHeat = <D extends { ir: FormGroupIR<D>; }>(d: D) => d.ir.typ.value.second == 'EcoHeat';
 const subType = (d: FormIN) => d.ir.typ.value.second != null;
 
 const supportsRemoteAccessF = (f: FormIN) => supportsRemoteAccess(f.ir.typ.value.first);
 const irOther = (d: FormIN) => d.ir.typ.value.first == 'other';
+const irCTC = (d: FormIN) => d.ir.typ.value.first == 'ctc';
 const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == 'DG-450-B';
+const akuDuo = (d: FormIN) => aku(d) && d.tanks.accumulation.value.toUpperCase().startsWith('DUO');
 
 export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
     koncovyUzivatel: {
@@ -60,12 +67,12 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
             label: '', chosen: `individual`, showInXML: false,
             options: [`individual`, `company`], labels: t => t.in.userType,
         }),
-        prijmeni: new InputWidget({
-            label: t => t.in.surname, autocomplete: `section-user billing family-name`, show: fo, required: fo,
-        }),
         jmeno: new InputWidget({
             label: t => t.in.name, show: fo, required: fo,
             autocomplete: `section-user billing given-name`,
+        }),
+        prijmeni: new InputWidget({
+            label: t => t.in.surname, autocomplete: `section-user billing family-name`, show: fo, required: fo,
         }),
         narozeni: new InputWidget({
             label: t => t.in.birthday, onError: t => t.wrong.date,
@@ -189,7 +196,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
         _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN }),
         ico: new InputWidget({
-            label: t => t.in.crn,
+            label: t => t.in.crnToARES,
             onError: t => t.wrong.crn,
             regex: /^\d{8}(\d{2})?$/,
             maskOptions: {
@@ -258,7 +265,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
         _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN }),
         ico: new InputWidget({
-            label: t => t.in.crn,
+            label: t => t.in.crnToARES,
             onError: t => t.wrong.crn,
             regex: /^\d{8}(\d{2})?$/,
             maskOptions: {
@@ -329,15 +336,24 @@ export const ordinal = (tg: Translations['countsGenitive'], i: TC) =>
     ['', tg.first, tg.second, tg.third, tg.fourth, tg.fifth, tg.sixth, tg.seventh, tg.eighth, tg.ninth, tg.tenth][i];
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
 
+const model = <I>(d: FormIN, i: I) => {
+    return d.tc[`model${i == 1 ? '' : i as B}`];
+};
 const heatPump = <const I extends TC>(i: I) => ({
-    [`model${i == 1 ? '' : i as B}`]: new ChooserWidget<FormIN, Products['heatPumps']>({
+    [`model${i == 1 ? '' : i as B}`]: new ChooserWidget<FormIN, HeatPump>({
         label: (t, d) => cap(t.in.heatPumpModel([d.tc.pocet.value == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
         options: d =>
-            rtc(d)
-                ? products.heatPumpsRTC
-                : d.tc.typ.value == 'airToWater'
-                    ? products.heatPumpsAirToWaterCTC
-                    : products.heatPumpsGroundToWater,
+            rtc(d) ? heatPumps.airToWaterRTC[0]
+                : ecoHeat(d) ? heatPumps.multiEnergyCTC[0]
+                    : d.tc.typ.value == 'airToWater'
+                        ? heatPumps.airToWaterCTC[0]
+                        : heatPumps.groundToWaterCTC[0],
+        otherOptions: d =>
+            rtc(d) ? heatPumps.airToWaterRTC[1]
+                : ecoHeat(d) ? heatPumps.multiEnergyCTC[1]
+                    : d.tc.typ.value == 'airToWater'
+                        ? heatPumps.airToWaterCTC[1]
+                        : heatPumps.groundToWaterCTC[1],
         required: d => tc(d) && i <= d.tc.pocet.value,
         show: d =>
             subType(d) &&
@@ -345,72 +361,86 @@ const heatPump = <const I extends TC>(i: I) => ({
             tc(d) &&
             i <= d.tc.pocet.value,
         onValueSet: (d, v) => {
-            if (v != null && !d.tc[`model${i == 1 ? '' : i as B}`].options(d).includes(v)) {
-                d.tc[`model${i == 1 ? '' : i as B}`].setValue(d, null);
+            if (v != null && ![...model(d, i).options(d), ...model(d, i).otherOptions(d)].includes(v)) {
+                model(d, i).setValue(d, null);
             }
         },
+        labels: t => ({ prototype: t.tc.prototype }),
     }),
     [`cislo${i == 1 ? '' : i as B}`]: new ScannerWidget<FormIN>({
         label: (t, d) => cap(t.in.heatPumpManufactureNumber([d.tc.pocet.value == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
         onError: t => t.wrong.number,
-        regex: d => ctc(d)
+        regex: d => model(d, i).value == 'prototype' ? /.*/ : ctc(d)
             ? /^\d{4}-\d{4}-\d{4}$/
             : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
         capitalize: true,
-        required: d => tc(d) && i <= d.tc.pocet.value,
-        maskOptions: d => ({
+        required: d => tc(d) && i <= d.tc.pocet.value && model(d, i).also(console.log).value != 'prototype',
+        maskOptions: d => model(d, i).value == 'prototype' ? undefined : ({
             mask: ctc(d) ? `0000-0000-0000` : `AA0000-AA-0000`,
             definitions: {
                 A: /[A-Za-z]/,
             },
-        }),
+        }), lock: ecoHeat,
         show: d =>
             subType(d) &&
             (rtc(d) || d.tc.typ.value != null) &&
             tc(d) &&
             i <= d.tc.pocet.value,
-        processScannedText: t => t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
+        processScannedText: (t, d) =>
+            model(d, i).value == 'prototype' ? t.replaceAll(/[^0-9A-Z]/g, '')
+                : t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
     }),
 }) as I extends 1 ? {
-    model: ChooserWidget<FormIN, Products['heatPumps']>;
+    model: ChooserWidget<FormIN, HeatPump>;
     cislo: ScannerWidget<FormIN>;
 } : ({
-    [K in `model${I}`]: ChooserWidget<FormIN, Products['heatPumps']>;
+    [K in `model${I}`]: ChooserWidget<FormIN, HeatPump>;
 } & {
     [K in `cislo${I}`]: ScannerWidget<FormIN>;
 });
 
-export const irTypeAndNumber = <D extends {
-    ir: {
-        typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>,
-        cislo: InputWidget<D>,
-    }
-}>(
-    { setAirToWater, resetRemoteAccess, resetBoxNumber, setFVEType }: {
-        setAirToWater?: (d: D) => void,
+interface FormGroupIR<D extends { ir: FormGroupIR<D> }> {
+    typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>,
+    cislo: InputWidget<D>,
+}
+
+export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
+    { setPumpType, setPumpCount, setPumpNumber, resetRemoteAccess, resetBoxNumber, setFVEType, setHP }: {
+        setPumpType?: (d: D, type: 'airToWater' | 'groundToWater') => void,
+        setPumpCount?: (d: D, count: number) => void,
+        setPumpNumber?: (d: D, number: string) => void,
         resetRemoteAccess?: (d: D) => void,
         resetBoxNumber?: (d: D) => void,
         setFVEType?: (d: D) => void
+        setHP?: (d: D) => void
     },
-): {
-    typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>,
-    cislo: InputWidget<D>,
-} => ({
+): FormGroupIR<D> => ({
     typ: new DoubleChooserWidget({
         label: t => t.in.controllerType,
-        options1: ['IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K', 'IR 34', 'IR 30', 'IR 14', 'IR 12', 'IR 10', 'SOREL', 'other'],
+        options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
+        otherOptions1: ['IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc', 'other'],
         options2: ({ ir: { typ: { value: { first: f } } } }) => (
-            supportsOnlyCTC(f) ? ['CTC']
-                : f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
-                    : doesNotSupportHeatPumps(f) ? []
-                        : ['CTC', 'RTC']
+            f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
+                : f == 'ctc' ? ['EcoEl', 'EcoZenith', 'EcoHeat']
+                    : supportsOnlyCTC(f) ? ['CTC']
+                        : doesNotSupportHeatPumps(f) ? []
+                            : ['CTC', 'RTC']
         ),
         onValueSet: (d, v) => {
             if (v.second == 'RTC') {
-                setAirToWater?.(d);
+                setPumpType?.(d, 'airToWater');
+            }
+            if (v.second == 'CTC') {
+                setPumpType?.(d, 'airToWater');
+            }
+            if (v.second == 'EcoHeat') {
+                setPumpType?.(d, 'groundToWater');
+                setPumpCount?.(d, 1);
             }
             if (doesNotHaveIRNumber(v.first)) {
                 d.ir.cislo.setValue(d, `${dayISO()} ${time()}`);
+            }
+            if (!supportsRemoteAccess(v.first)) {
                 resetRemoteAccess?.(d);
             }
             if (isBox(v.first)) {
@@ -419,11 +449,14 @@ export const irTypeAndNumber = <D extends {
             if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
                 d.ir.typ.setValue(d, { ...v, second: null });
             }
-            if (supportsOnlyCTC(v.first) && v.second != 'CTC') {
+            if (v.first != 'ctc' && supportsOnlyCTC(v.first) && v.second != 'CTC') {
                 d.ir.typ.setValue(d, { ...v, second: 'CTC' });
             }
             if (doesNotSupportHeatPumps(v.first) && v.second) {
                 d.ir.typ.setValue(d, { ...v, second: null });
+            }
+            if (v.first == 'ctc') {
+                setHP?.(d);
             }
             if (v.first == 'other') {
                 setFVEType?.(d);
@@ -436,21 +469,24 @@ export const irTypeAndNumber = <D extends {
         onError: t => t.wrong.number,
         regex: d => doesNotHaveIRNumber(d.ir.typ.value.first)
             ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
-            : isMACAddressTypeIR12(d.ir.typ.value.first)
-                ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
-                : isMACAddressTypeIR10(d.ir.typ.value.first)
-                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
-                    : /[A-Z][1-9OND] [0-9]{4}/,
+            : isCTC(d.ir.typ.value.first)
+                ? /[0-9]{4}-[0-9]{4}-[0-9]{4}/
+                : isMACAddressTypeIR12(d.ir.typ.value.first)
+                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
+                    : isMACAddressTypeIR10(d.ir.typ.value.first)
+                        ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
+                        : /[A-Z][1-9OND] [0-9]{4}/,
         capitalize: true,
         maskOptions: d => ({
-            mask: doesNotHaveIRNumber(d.ir.typ.value.first) ? `0000-00-00T00:00` :
-                !supportsMACAddresses(d.ir.typ.value.first) ? 'Z8 0000'
-                    : d.ir.cislo.value.length == 0 ? 'X'
-                        : d.ir.cislo.value[0] == '0'
-                            ? isMACAddressTypeIR10(d.ir.typ.value.first)
-                                ? 'NN:NA:14:N6:FF:FF'
-                                : 'NN:NA:14:N9:FF:FF'
-                            : 'Z8 0000',
+            mask: doesNotHaveIRNumber(d.ir.typ.value.first) ? `0000-00-00T00:00`
+                : isCTC(d.ir.typ.value.first) ? `0000-0000-0000`
+                    : !supportsMACAddresses(d.ir.typ.value.first) ? 'Z8 0000'
+                        : d.ir.cislo.value.length == 0 ? 'X'
+                            : d.ir.cislo.value[0] == '0'
+                                ? isMACAddressTypeIR10(d.ir.typ.value.first)
+                                    ? 'NN:NA:14:N6:FF:FF'
+                                    : 'NN:NA:14:N9:FF:FF'
+                                : 'Z8 0000',
             definitions: {
                 X: /[0A-Za-z]/,
                 N: /0/,
@@ -463,8 +499,11 @@ export const irTypeAndNumber = <D extends {
                 Z: /[A-Za-z]/,
                 8: /[1-9ONDond]/,
             },
-        }),
-        show: d => !doesNotHaveIRNumber(d.ir.typ.value.first),
+        }), onValueSet: (d, v) => {
+            if (ecoHeat(d)) {
+                setPumpNumber?.(d, v)
+            }
+        }, show: d => !doesNotHaveIRNumber(d.ir.typ.value.first),
     }),
 });
 
@@ -473,10 +512,13 @@ export default (): FormIN => ({
         nadpisSystem: new TitleWidget({ text: t => t.in.system, level: 2 }),
         nadpis: new TitleWidget({ text: t => t.in.controller, level: 4 }),
         ...irTypeAndNumber<FormIN>({
-            setAirToWater: d => d.tc.typ.setValue(d, 'airToWater'),
+            setPumpType: (d, t) => d.tc.typ.setValue(d, t),
+            setPumpNumber: (d, n) => d.tc.cislo.setValue(d, n.also(console.log)),
+            setPumpCount: (d, c) => d.tc.pocet.setValue(d, c),
             resetBoxNumber: d => d.ir.cisloBox.setValue(d, ''),
             resetRemoteAccess: d => d.vzdalenyPristup.chce.setValue(d, false),
             setFVEType: d => d.fve.typ.setValue(d, 'DG-450-B'),
+            setHP: d => d.ir.chceVyplnitK.setValue(d, ['heatPump']),
         }),
         cisloBox: new InputWidget({
             label: t => t.in.serialNumberIndoor,
@@ -501,11 +543,14 @@ export default (): FormIN => ({
         }),
         chceVyplnitK: new MultiCheckboxWidget({
             label: t => t.in.whatToAddInfoTo,
-            options: d => irOther(d)
-                ? [`solarCollector`, 'photovoltaicPowerPlant']
-                : doesNotSupportHeatPumps(d.ir.typ.value.first)
-                    ? [`solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'other']
-                    : [`heatPump`, `solarCollector`, `ventilation`, `photovoltaicPowerPlant`, 'other'] as const,
+            options: d => [
+                ...irOther(d) || doesNotSupportHeatPumps(d.ir.typ.value.first) ? [] : ['heatPump'] as const,
+                ...irCTC(d) ? [] : ['solarCollector'] as const,
+                ...['accumulation', 'waterStorage'] as const,
+                ...irCTC(d) || irOther(d) ? [] : ['ventilation'] as const,
+                ...irCTC(d) ? [] : ['photovoltaicPowerPlant'] as const,
+                ...irCTC(d) || irOther(d) ? [] : ['other'] as const,
+            ],
             required: false, showInXML: false, onValueSet: (d, v) => {
                 if (!v.includes('heatPump')) {
                     d.tc.typ.setValue(d, null);
@@ -516,6 +561,12 @@ export default (): FormIN => ({
                 if (!v.includes('solarCollector')) {
                     d.sol.typ.setValue(d, '');
                     d.sol.pocet.setValue(d, '');
+                }
+                if (!v.includes('accumulation')) {
+                    d.tanks.accumulation.setValue(d, '');
+                }
+                if (!v.includes('waterStorage')) {
+                    d.tanks.water.setValue(d, '');
                 }
                 if (!v.includes('ventilation')) {
                     d.rek.typ.setValue(d, '');
@@ -533,8 +584,7 @@ export default (): FormIN => ({
                 if (!v.includes('other')) {
                     d.jine.popis.setValue(d, '');
                 }
-            },
-            labels: t => t.in.device,
+            }, labels: t => t.in.device,
         }),
     },
     tc: {
@@ -549,16 +599,22 @@ export default (): FormIN => ({
         typ: new RadioWidget({
             label: (t, d) => d.tc.pocet.value > 1 ? t.in.heatPumpsType : t.in.heatPumpType,
             options: [`airToWater`, `groundToWater`], required: tc,
-            show: d => ctc(d) && tc(d),
-            labels: t => t.in.tc,
+            lock: d => ecoHeat(d) || rtc(d), show: tc,
+            labels: t => t.in.tc, onValueSet: d => {
+                TCNumbers.forEach(i => {
+                    const f = d.tc[`model${i}`];
+                    if (f.value && ![...f.options(d), ...f.otherOptions(d)].includes(f.value))
+                        f.setValue(d, null);
+                });
+            }
         }),
-        pocet: new CounterWidget({
+        pocet: new CounterWidget<FormIN, true>({
             label: t => t.in.hpCount, min: 1, max: 10, chosen: 1, hideInRawData: true,
             onValueSet: (d, p) => {
                 TCNumbers.slice(p).forEach(i =>
                     d.tc[`model${i}`].setValue(d, null),
                 );
-            },
+            }, lock: ecoHeat,
             show: d => subType(d) &&
                 (rtc(d) || d.tc.typ.value != null) &&
                 tc(d),
@@ -578,11 +634,26 @@ export default (): FormIN => ({
         title: new TitleWidget({
             text: t => t.in.device.solarCollector, show: sol, level: 4,
         }),
-        typ: new InputWidget({
-            label: t => t.in.solarCollectorType, required: sol, show: sol,
+        typ: new InputWithSuggestionsWidget({
+            label: t => t.in.solarCollectorType, required: sol, show: sol, suggestions: solarCollectors,
         }),
         pocet: new InputWidget({
             label: t => t.in.solarCollectorCount, type: `number`, required: sol, show: sol,
+        }),
+    },
+    tanks: {
+        title: new TitleWidget({
+            text: t => t.tc.tanks, level: 4, show: d => aku(d) || zas(d),
+        }),
+        accumulation: new InputWithSuggestionsWidget({
+            label: t => t.tc.typeOfAccumulationTank, show: aku, required: aku, suggestions: accumulationTanks,
+        }),
+        water: new InputWithSuggestionsWidget({
+            label: t => t.tc.typeOfStorageTank, show: zas, required: zas, suggestions: waterTanks,
+        }),
+        anode: new RadioWidget({
+            label: t => t.tc.anodeRod.label, show: d => zas(d) || akuDuo(d), required: d => zas(d) || akuDuo(d),
+            options: ['magnesium', 'electronic'], labels: t => t.tc.anodeRod,
         }),
     },
     rek: {

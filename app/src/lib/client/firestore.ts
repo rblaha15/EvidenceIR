@@ -141,7 +141,7 @@ export const firestoreDatabase: Database = {
         await updateDoc(irDoc(irid), `installationProtocols`, ir!.installationProtocols);
         await odm.put('IR', irid, ir!);
     },
-    addHeatPumpCommissioningProtocol: async (irid, protocol) => {
+    updateHeatPumpCommissioningProtocol: async (irid, protocol) => {
         await updateDoc(irDoc(irid), `uvedeniTC`, protocol);
         await odm.update('IR', irid, ir => ({ ...ir!, uvedeniTC: protocol }));
     },

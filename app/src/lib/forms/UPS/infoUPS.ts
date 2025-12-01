@@ -42,13 +42,17 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
         });
         return false;
     },
-    showSaveAndSendButtonByDefault: derived(isUserRegulusOrAdmin, i => !i),
+    buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
+        hideSave: !regulus,
+        saveAndSend: !edit && !regulus,
+        saveAndSendAgain: edit && !regulus,
+    })),
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations }),
     title: t => t.sol.title,
     getEditData: (ir, url) =>
-        url.searchParams.has('edit') ? ir.uvedeniSOL : undefined,
+        url.searchParams.has('edit') ? { raw: ir.uvedeniSOL } : undefined,
     getViewData: (ir, url) =>
-        url.searchParams.has('view') ? ir.uvedeniSOL : undefined,
+        url.searchParams.has('view') ? { raw: ir.uvedeniSOL } : undefined,
     onMount: async (_, data, mode) => {
         if (mode != 'create') {
             (data.checkRecommendations as Record<string, Widget>).getValues().forEach(e => {

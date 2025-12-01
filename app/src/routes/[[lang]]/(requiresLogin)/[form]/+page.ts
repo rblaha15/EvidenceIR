@@ -13,7 +13,7 @@ export const load: PageLoad = async ({ params, url }) => {
 
     if (!forms.includes(formName)) return error(404);
 
-    if (!browser) return { irid: null, spid: null, form: undefined };
+    if (!browser) return { irid: null, spid: null, form: undefined, other: {} };
 
     await checkAuth()
 
@@ -28,14 +28,17 @@ export const load: PageLoad = async ({ params, url }) => {
 
     const independentForm = form.type == '' ? form : await removeDependency(form, id.irid!);
 
-    const viewData = await independentForm.getViewData?.(url);
-    const editData = await independentForm.getEditData?.(url);
+
+    const { raw: viewData, other: viewOther } = await independentForm.getViewData?.(url) ?? {};
+    const { raw: editData, other: editOther } = await independentForm.getEditData?.(url, viewOther) ?? {};
+    const other = { ...viewOther, ...editOther };
 
     return {
         ...id,
         formInfo: independentForm,
         viewData,
         editData,
+        other,
     } as const;
 };
 

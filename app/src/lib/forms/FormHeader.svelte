@@ -47,12 +47,13 @@
 
     let inputExcel = $state() as HTMLInputElement;
     let inputPdf = $state() as HTMLInputElement;
+    let closeBtn = $state() as HTMLButtonElement;
     let fileExcel = $state<File>();
     let filePdf = $state<File>();
     let sheetWidget = $state(new ChooserWidget({
         options: [] as US[], show: (d): boolean => sheetWidget.options(d).length > 1, label: t => t.form.import.workbookSheet,
     }));
-    let error = $state(false);
+    let error = $state('');
 
     $effect(() => {
         if (fileExcel) readSheetNames(fileExcel).then(names => {
@@ -67,26 +68,30 @@
     });
 
     const confirmExcel = async () => {
-        error = false;
+        error = '';
         if (!excelImport || !fileExcel) return;
         const rows = await readXlsxFile(fileExcel, { ...excelImport, sheet: sheetWidget.value! });
         console.log(rows);
         try {
             excelImport.onImport(processExcel<R>(excelImport, rows));
-        } catch {
-            error = true;
+            closeBtn.click();
+        } catch (e) {
+            console.error(e);
+            error = e?.toString() || '';
         }
     };
 
     const confirmPdf = async () => {
-        error = false;
+        error = '';
         if (!pdfImport || !filePdf) return;
         const pdfDoc = await PDFDocument.load(await filePdf.bytes());
         const form = pdfDoc.getForm();
         try {
             pdfImport.onImport(processPdf<R>(pdfImport, form));
-        } catch {
-            error = true;
+            closeBtn.click();
+        } catch (e) {
+            console.error(e);
+            error = e?.toString() || '';
         }
     };
 </script>
@@ -200,12 +205,19 @@
                     {/if}
                 {/if}
                 {#if error}
-                    <p class="text-error">{tfi.somethingWentWrong}</p>
+                    <div class="alert alert-danger d-flex flex-column gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <Icon icon="error_outline" />
+                            <h4 class="alert-heading m-0">{tfi.somethingWentWrong}</h4>
+                        </div>
+                        <p class="m-0">{error}</p>
+                    </div>
                 {/if}
             </div>
 
             <div class="modal-footer">
                 <button
+                    bind:this={closeBtn}
                     class="btn btn-info"
                     data-bs-dismiss="modal"
                     type="button">{tfi.cancel}</button
@@ -215,7 +227,6 @@
                         class="btn"
                         class:btn-danger={excelImport.isDangerous}
                         class:btn-success={!excelImport.isDangerous}
-                        data-bs-dismiss="modal"
                         onclick={confirmExcel}
                         type="button">{tfi.confirm}</button
                     >
@@ -225,7 +236,6 @@
                         class="btn"
                         class:btn-danger={pdfImport.isDangerous}
                         class:btn-success={!pdfImport.isDangerous}
-                        data-bs-dismiss="modal"
                         onclick={confirmPdf}
                         type="button">{tfi.confirm}</button
                     >

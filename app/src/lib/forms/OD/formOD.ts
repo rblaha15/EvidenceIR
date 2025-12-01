@@ -5,8 +5,8 @@ export interface FormOD extends Form<FormOD> {
     all: {
         documents: FileWidget<FormOD>,
         photos: PhotoSelectorWidget<FormOD>,
-        note: InputWidget<FormOD>,
+        body: InputWidget<FormOD>,
         userEmail: InputWidget<FormOD>,
-        info: TextWidget<FormOD>,
+        otherCopies: InputWidget<FormOD>,
     },
 }

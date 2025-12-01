@@ -1,7 +1,7 @@
 <script lang="ts" module>
     import type { Readable } from 'svelte/store';
 
-    export interface TableOptions<T extends Record<string, unknown>> {
+    export interface TableOptions<T, K extends string = keyof T & string> {
         fileType: 'xlsx' | 'csv';
         fileName: string;
         store: Readable<T[]>;
@@ -10,11 +10,15 @@
         key: (value: T) => string;
         instructions: string[];
         columns: {
-            [K in keyof T]: {
+            [Key in K]: ({
                 header: string;
                 cellType?: 'data' | 'header';
-                transformValue?: (value: T[K]) => string;
-            };
+                transformValue?: Key extends keyof T ? (value: T[Key]) => string : undefined;
+            } & (Key extends keyof T ? {
+                getValue?: (value: T) => string;
+            } : {
+                getValue: (value: T) => string;
+            }));
         };
     }
 </script>
@@ -55,6 +59,7 @@
                 const text = ev.target?.result as string | null;
                 newData = (text ?? '')
                     .split('\n')
+                    .map(row => row.trim().replace(/  +/g, ' '))
                     .filter(row => row != '')
                     .map(row => row.split(';').map(col => col != '' ? col : undefined))
                     .map(construct);
@@ -82,7 +87,7 @@
             const headers = columns.mapTo((_, c) => ({ value: c.header }));
             writeXlsxFile([headers, ...rows], {
                 fileName: `${fileName}.xlsx`,
-            })
+            });
         }
     };
 
@@ -196,8 +201,8 @@
 </div>
 
 <input
-    bind:this={input}
     accept={fileType === 'csv' ? 'text/csv' : '.xls,.xlsx,.xlsm,.xlsb'}
+    bind:this={input}
     class="d-none"
     onchange={onFileSelected}
     type="file"

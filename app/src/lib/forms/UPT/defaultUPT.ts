@@ -40,11 +40,6 @@ export default (): FormUPT => ({
         }),
         filtr: new CheckboxWidget({ required: false, label: t => t.tc.isCirculationPumpFilterInstalled }),
     },
-    nadrze: {
-        nadpis: new TitleWidget({ text: t => t.tc.tanks, level: 3 }),
-        akumulacka: new InputWidget({ label: t => t.tc.typeOfAccumulationTank, required: false }),
-        zasobnik: new InputWidget({ label: t => t.tc.typeOfStorageTank, required: false }),
-    },
     os: {
         nadpis: new TitleWidget({ text: t => t.tc.heatingSystem, level: 3 }),
         tvori: new ChooserWidget({
@@ -150,7 +145,7 @@ export default (): FormUPT => ({
             required: false, label: t => t.tc.isInstallationInWarrantyConditions,
             show: d => d.uvedeni.uvadeni.typZaruky.value == 'yes',
         }),
-        date: new InputWidget({ label: t => t.tc.dateOfCommission, type: 'date', text: (new Date()).toISOString().split('T')[0] }),
+        date: new InputWidget({ label: t => t.tc.dateOfCommission, type: 'date' }),
     },
-    checkRecommendations: defaultDK('TC'),
+    checkRecommendations: defaultDK('TČ'),
 });

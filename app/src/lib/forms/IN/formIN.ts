@@ -1,19 +1,19 @@
-import type {
-    CheckboxWidget,
-    ChooserWidget,
-    CounterWidget,
-    DoubleChooserWidget,
-    InputWidget,
-    MultiCheckboxWidget,
-    RadioWidget,
-    ScannerWidget,
-    SearchWidget,
-    TextWidget,
-    TitleWidget,
+import {
+    type CheckboxWidget,
+    type ChooserWidget,
+    type CounterWidget,
+    type DoubleChooserWidget,
+    type InputWidget, InputWithSuggestionsWidget,
+    type MultiCheckboxWidget,
+    type RadioWidget,
+    type ScannerWidget,
+    type SearchWidget,
+    type TextWidget,
+    type TitleWidget,
 } from '$lib/forms/Widget.svelte.js';
 import { type Company } from '$lib/client/realtime';
 import { type Form } from '$lib/forms/Form';
-import { type Products } from '$lib/helpers/products';
+import { type HeatPump } from '$lib/helpers/products';
 import { getTranslations, type Translations } from '$lib/translations';
 
 type CompanyWidgetGroup<D> = {
@@ -54,8 +54,8 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
 }
 
 export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL';
-export type IRTypes = UntranslatableIRTypes | 'other';
-export type IRSubTypes = 'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6 EP' | 'STDC E' | 'TRS3' | 'TRS4' | 'TRS5' | 'TRS6 K';
+export type IRTypes = UntranslatableIRTypes | 'ctc' | 'other';
+export type IRSubTypes = 'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6 EP' | 'STDC E' | 'TRS3' | 'TRS4' | 'TRS5' | 'TRS6 K' | 'EcoEl' | 'EcoZenith' | 'EcoHeat';
 
 export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     ir: {
@@ -65,38 +65,44 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         cislo: InputWidget<FormIN>;
         cisloBox: InputWidget<FormIN>;
         boxType: TextWidget<FormIN>;
-        chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `ventilation` | 'photovoltaicPowerPlant' | 'other'>;
+        chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `accumulation` | 'waterStorage' | `ventilation` | 'photovoltaicPowerPlant' | 'other'>;
     };
     tc: {
         nadpis: TitleWidget<FormIN>;
         poznamka: TextWidget<FormIN>;
         typ: RadioWidget<FormIN, 'airToWater' | 'groundToWater'>;
         pocet: CounterWidget<FormIN, true>;
-        model: ChooserWidget<FormIN, Products['heatPumps']>;
+        model: ChooserWidget<FormIN, HeatPump>;
         cislo: ScannerWidget<FormIN>;
-        model2: ChooserWidget<FormIN, Products['heatPumps']>;
+        model2: ChooserWidget<FormIN, HeatPump>;
         cislo2: ScannerWidget<FormIN>;
-        model3: ChooserWidget<FormIN, Products['heatPumps']>;
+        model3: ChooserWidget<FormIN, HeatPump>;
         cislo3: ScannerWidget<FormIN>;
-        model4: ChooserWidget<FormIN, Products['heatPumps']>;
+        model4: ChooserWidget<FormIN, HeatPump>;
         cislo4: ScannerWidget<FormIN>;
-        model5: ChooserWidget<FormIN, Products['heatPumps']>;
+        model5: ChooserWidget<FormIN, HeatPump>;
         cislo5: ScannerWidget<FormIN>;
-        model6: ChooserWidget<FormIN, Products['heatPumps']>;
+        model6: ChooserWidget<FormIN, HeatPump>;
         cislo6: ScannerWidget<FormIN>;
-        model7: ChooserWidget<FormIN, Products['heatPumps']>;
+        model7: ChooserWidget<FormIN, HeatPump>;
         cislo7: ScannerWidget<FormIN>;
-        model8: ChooserWidget<FormIN, Products['heatPumps']>;
+        model8: ChooserWidget<FormIN, HeatPump>;
         cislo8: ScannerWidget<FormIN>;
-        model9: ChooserWidget<FormIN, Products['heatPumps']>;
+        model9: ChooserWidget<FormIN, HeatPump>;
         cislo9: ScannerWidget<FormIN>;
-        model10: ChooserWidget<FormIN, Products['heatPumps']>;
+        model10: ChooserWidget<FormIN, HeatPump>;
         cislo10: ScannerWidget<FormIN>;
     };
     sol: {
         title: TitleWidget<FormIN>;
-        typ: InputWidget<FormIN>;
+        typ: InputWithSuggestionsWidget<FormIN>;
         pocet: InputWidget<FormIN>;
+    };
+    tanks: {
+        title: TitleWidget<FormIN>;
+        accumulation: InputWithSuggestionsWidget<FormIN>;
+        water: InputWithSuggestionsWidget<FormIN>;
+        anode: RadioWidget<FormIN, 'magnesium' | 'electronic'>;
     };
     rek: {
         title: TitleWidget<FormIN>;
