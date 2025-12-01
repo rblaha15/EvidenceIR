@@ -76,7 +76,7 @@ const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT', { defaultYear: Year, filled
         return false;
     },
     buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
-        hideSave: !edit && !regulus,
+        hideSave: !regulus,
         saveAndSend: !edit && !regulus,
         saveAndSendAgain: edit && !regulus,
     })),

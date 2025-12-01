@@ -104,7 +104,7 @@ const s = (s: string) => s ? `(${s}) ` : '';
  */
 export const irLabel = <D extends UserForm<D>>(evidence: Raw<UserForm<D>>, includeEstablishment: boolean = true) => evidence.koncovyUzivatel.typ == `company`
     ? `${removeCompanyForm(evidence.koncovyUzivatel.nazev)} ${s(includeEstablishment ? evidence.koncovyUzivatel.pobocka : '')}- ${evidence.mistoRealizace.obec}`
-    : `${evidence.koncovyUzivatel.prijmeni} ${evidence.koncovyUzivatel.jmeno} - ${evidence.mistoRealizace.obec}`;
+    : `${evidence.koncovyUzivatel.prijmeni.split(',')[0]?.trim() || ''} ${evidence.koncovyUzivatel.jmeno.split('.').at(-1)?.trim() || ''} - ${evidence.mistoRealizace.obec}`;
 
 export const typBOX = (cisloBOX: string) => ({
     '18054': 'BOX 12 CTC 3/3',
