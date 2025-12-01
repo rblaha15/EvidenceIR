@@ -13,7 +13,7 @@ import { saveDK } from '$lib/forms/DK/formDK';
 import type { Widget } from '$lib/forms/Widget.svelte';
 import type { Raw } from '$lib/forms/Form';
 
-const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
+const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
     type: 'IR',
     storeName: () => 'stored_heat_pump_commission',
     defaultData: defaultUPT,
@@ -22,7 +22,7 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
     }),
     saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
         await db.updateHeatPumpCommissioningProtocol(irid, raw);
-        if (!edit) await saveDK(ir, f.checkRecommendations, 'TČ')
+        if (!edit) await saveDK(ir, f.checkRecommendations, 'TČ');
         if (await checkRegulusOrAdmin()) return;
 
         const user = get(currentUser)!;
@@ -44,7 +44,7 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
         return false;
     },
     buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
-        hideSave: !edit && !regulus,
+        hideSave: !regulus,
         saveAndSend: !edit && !regulus,
         saveAndSendAgain: edit && !regulus,
     })),
@@ -54,13 +54,13 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = ({
         url.searchParams.has('edit') ? { raw: ir.uvedeniTC as Raw<FormUPT> } : undefined,
     getViewData: (ir, url) =>
         url.searchParams.has('view') ? { raw: ir.uvedeniTC as Raw<FormUPT> } : undefined,
-    onMount: async (_, data, mode) => {
-        if (mode != 'create') {
-            (data.checkRecommendations as Record<string, Widget>).getValues().forEach(e => {
-                e.show = () => false;
-            })
-        }
+    onMount: async (data, form, mode, ir) => {
+        if (mode == 'create')
+            form.uvadeni.date.setValue(data, ir.uvedeniTC?.uvadeni?.date || new Date().toISOString().split('T')[0]);
+        else (form.checkRecommendations as Record<string, Widget>).getValues().forEach(e => {
+            e.show = () => false;
+        });
     },
-});
+};
 
 export default infoUPT;

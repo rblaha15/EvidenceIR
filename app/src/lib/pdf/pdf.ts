@@ -267,10 +267,10 @@ export const generalizeServiceProtocol = (
         popis:
             irName(e.ir) +
             (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +
-            (e.tanks.accumulation || e.tanks.water ? '\n' : '') +
-            (e.tanks.accumulation ? `Nádrž: ${e.tanks.accumulation}` : '') +
-            (e.tanks.accumulation && e.tanks.water ? '; ' : '') +
-            (e.tanks.water ? `Zásobník: ${e.tanks.water}` : '') +
+            (e.tanks?.accumulation || e.tanks?.water ? '\n' : '') +
+            (e.tanks?.accumulation ? `Nádrž: ${e.tanks.accumulation}` : '') +
+            (e.tanks?.accumulation && e.tanks?.water ? '; ' : '') +
+            (e.tanks?.water ? `Zásobník: ${e.tanks.water}` : '') +
             (e.ir.chceVyplnitK.includes('solarCollector') ? `\nSOL: ${e.sol.typ} – ${e.sol.pocet}x` : '') +
             (e.rek?.typ ? `\nREK: ${e.rek.typ}` : '') +
             (e.fve?.pocet ? `\nFVE: ${get(t.in.fve, e.fve.typ)} – ${e.fve.pocet}x` : '') +

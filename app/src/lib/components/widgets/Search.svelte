@@ -5,11 +5,14 @@
     import type { ClassValue } from 'svelte/elements';
     import Icon from '$lib/components/Icon.svelte';
 
-    export const wordsToFilter = (s: string) => s
+    export const textToFilter = (s: string) => s
         .normalize('NFD')
         .replace(/\p{Diacritic}/gu, '')
-        .toLowerCase()
-        .split(' ');
+        .toLowerCase();
+
+    export const wordsToFilter = (s: string) => textToFilter(s)
+        .split(' ')
+        .map(it => it.replace('+', ' '));
 
     interface Props {
         t: Translations;
@@ -36,7 +39,7 @@
                     ...i.pieces.map(p => p.text),
                     ...i.otherSearchParts ?? [],
                 ]).some(piece =>
-                    wordsToFilter(piece).some(word => word.includes(filter)),
+                    wordsToFilter(piece).some(word => word.includes(filter)) || textToFilter(piece).includes(filter),
                 ),
             ),
         ) ?? [];

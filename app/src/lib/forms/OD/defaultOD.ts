@@ -5,15 +5,22 @@ import { currentUser } from '$lib/client/auth';
 import { get } from 'svelte/store';
 import type { FormGroupPlus, FormPlus } from '$lib/forms/Form';
 
+const joinWithLastAnd = (l: string[], and: string) =>
+    [l.slice(0, -1).join(', '), l.at(-1)].filter(Boolean).join(and)
+
 export default (): FormPlus<FormOD> => ({
     all: {
         _info: new TextWidget({
             text: (t, d) =>
                 t.od.info1(cervenka) +
-                (d.all.userEmail.value
-                    ? t.od.info2B({ user: get(currentUser)!.email!, customer: d.all.userEmail.value })
-                    : t.od.info2A({ user: get(currentUser)!.email! })) +
-                (d.all.userEmail.value ? t.od.info3 : ''),
+                joinWithLastAnd([
+                    d.all.userEmail.value ? t.od.info2A({ customer: d.all.userEmail.value }) : '',
+                    !d.all.otherCopies.value ? '' : t.od.info2B({
+                        ccs: joinWithLastAnd(d.all.otherCopies.value.split(',').map(t => t.trim()), t.od.and)
+                    }), t.od.info2C({ user: get(currentUser)!.email! }),
+                ].filter(Boolean), t.od.and) +
+                t.od.info3 +
+                (d.all.userEmail.value ? t.od.info4 : ''),
         }),
         documents: new FileWidget({ label: t => t.od.signedPdfDocuments, multiple: true, max: 5, accept: 'application/pdf' }),
         photos: new PhotoSelectorWidget({ label: t => t.od.photosFromTheInstallation, multiple: true, max: 5, required: false }),

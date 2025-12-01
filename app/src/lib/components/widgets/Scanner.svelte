@@ -25,6 +25,7 @@
     }: Props = $props();
 
     const onClick = async () => {
+        if (widget.lock(data)) return;
         const devices = await Html5Qrcode.getCameras();
 
         if (devices && devices.length) html5QrCode
@@ -58,6 +59,7 @@
             data-bs-toggle="modal"
             onclick={onClick}
             type="button"
+            disabled={widget.lock(data)}
         >
             {t.widget.scanBarcode}
         </button>
