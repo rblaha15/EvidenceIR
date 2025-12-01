@@ -21,7 +21,8 @@
     type D = { ir: { typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>, cislo: InputWidget<D> } };
 
     const alsoChangeDefault = {
-        setAirToWater: false,
+        setPumpType: null as 'airToWater' | 'groundToWater' | null,
+        setPumpNumber: null as string | null,
         resetBoxNumber: false,
         resetRemoteAccess: false,
         setFVEType: false,
@@ -30,7 +31,8 @@
     let alsoChange = $state(alsoChangeDefault);
 
     const part = irTypeAndNumber<D>({
-        setAirToWater: _ => alsoChange.setAirToWater = true,
+        setPumpType: (_, v) => alsoChange.setPumpType = v,
+        setPumpNumber: (_, v) => alsoChange.setPumpNumber = v,
         resetBoxNumber: _ => alsoChange.resetBoxNumber = true,
         resetRemoteAccess: _ => alsoChange.resetRemoteAccess = true,
         setFVEType: _ => alsoChange.setFVEType = true,
@@ -59,7 +61,8 @@
             const record = (await db.getIR(irid!))!;
             record.evidence.ir.cislo = newNumber;
             record.evidence.ir.typ = newType;
-            if (alsoChange.setAirToWater) record.evidence.tc.typ = 'airToWater';
+            if (alsoChange.setPumpType) record.evidence.tc.typ = alsoChange.setPumpType;
+            if (alsoChange.setPumpNumber) record.evidence.tc.cislo = alsoChange.setPumpNumber;
             if (alsoChange.resetBoxNumber) record.evidence.ir.cisloBox = '';
             if (alsoChange.resetRemoteAccess) record.evidence.vzdalenyPristup.chce = false;
             if (alsoChange.setFVEType) record.evidence.fve.typ = 'DG-450-B';

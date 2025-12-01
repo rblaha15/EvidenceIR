@@ -51,7 +51,7 @@ const other = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`other`);
 
 const ctc = (d: FormIN) => d.ir.typ.value.first == 'ctc' || d.ir.typ.value.second == 'CTC';
 const rtc = (d: FormIN) => d.ir.typ.value.second == 'RTC';
-const ecoHeat = (d: FormIN) => d.ir.typ.value.second == 'EcoHeat';
+const ecoHeat = <D extends { ir: FormGroupIR<D>; }>(d: D) => d.ir.typ.value.second == 'EcoHeat';
 const subType = (d: FormIN) => d.ir.typ.value.second != null;
 
 const supportsRemoteAccessF = (f: FormIN) => supportsRemoteAccess(f.ir.typ.value.first);
@@ -380,7 +380,7 @@ const heatPump = <const I extends TC>(i: I) => ({
             definitions: {
                 A: /[A-Za-z]/,
             },
-        }),
+        }), lock: ecoHeat,
         show: d =>
             subType(d) &&
             (rtc(d) || d.tc.typ.value != null) &&
@@ -405,8 +405,10 @@ interface FormGroupIR<D extends { ir: FormGroupIR<D> }> {
 }
 
 export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
-    { setPumpType, resetRemoteAccess, resetBoxNumber, setFVEType, setHP }: {
+    { setPumpType, setPumpCount, setPumpNumber, resetRemoteAccess, resetBoxNumber, setFVEType, setHP }: {
         setPumpType?: (d: D, type: 'airToWater' | 'groundToWater') => void,
+        setPumpCount?: (d: D, count: number) => void,
+        setPumpNumber?: (d: D, number: string) => void,
         resetRemoteAccess?: (d: D) => void,
         resetBoxNumber?: (d: D) => void,
         setFVEType?: (d: D) => void
@@ -428,8 +430,12 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
             if (v.second == 'RTC') {
                 setPumpType?.(d, 'airToWater');
             }
+            if (v.second == 'CTC') {
+                setPumpType?.(d, 'airToWater');
+            }
             if (v.second == 'EcoHeat') {
                 setPumpType?.(d, 'groundToWater');
+                setPumpCount?.(d, 1);
             }
             if (doesNotHaveIRNumber(v.first)) {
                 d.ir.cislo.setValue(d, `${dayISO()} ${time()}`);
@@ -493,8 +499,11 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
                 Z: /[A-Za-z]/,
                 8: /[1-9ONDond]/,
             },
-        }),
-        show: d => !doesNotHaveIRNumber(d.ir.typ.value.first),
+        }), onValueSet: (d, v) => {
+            if (ecoHeat(d)) {
+                setPumpNumber?.(d, v)
+            }
+        }, show: d => !doesNotHaveIRNumber(d.ir.typ.value.first),
     }),
 });
 
@@ -504,6 +513,8 @@ export default (): FormIN => ({
         nadpis: new TitleWidget({ text: t => t.in.controller, level: 4 }),
         ...irTypeAndNumber<FormIN>({
             setPumpType: (d, t) => d.tc.typ.setValue(d, t),
+            setPumpNumber: (d, n) => d.tc.cislo.setValue(d, n.also(console.log)),
+            setPumpCount: (d, c) => d.tc.pocet.setValue(d, c),
             resetBoxNumber: d => d.ir.cisloBox.setValue(d, ''),
             resetRemoteAccess: d => d.vzdalenyPristup.chce.setValue(d, false),
             setFVEType: d => d.fve.typ.setValue(d, 'DG-450-B'),
@@ -588,16 +599,22 @@ export default (): FormIN => ({
         typ: new RadioWidget({
             label: (t, d) => d.tc.pocet.value > 1 ? t.in.heatPumpsType : t.in.heatPumpType,
             options: [`airToWater`, `groundToWater`], required: tc,
-            show: d => ctc(d) && tc(d), lock: d => ecoHeat(d),
-            labels: t => t.in.tc,
+            lock: d => ecoHeat(d) || rtc(d), show: tc,
+            labels: t => t.in.tc, onValueSet: d => {
+                TCNumbers.forEach(i => {
+                    const f = d.tc[`model${i}`];
+                    if (f.value && ![...f.options(d), ...f.otherOptions(d)].includes(f.value))
+                        f.setValue(d, null);
+                });
+            }
         }),
-        pocet: new CounterWidget({
+        pocet: new CounterWidget<FormIN, true>({
             label: t => t.in.hpCount, min: 1, max: 10, chosen: 1, hideInRawData: true,
             onValueSet: (d, p) => {
                 TCNumbers.slice(p).forEach(i =>
                     d.tc[`model${i}`].setValue(d, null),
                 );
-            },
+            }, lock: ecoHeat,
             show: d => subType(d) &&
                 (rtc(d) || d.tc.typ.value != null) &&
                 tc(d),
