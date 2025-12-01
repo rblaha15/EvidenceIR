@@ -10,16 +10,11 @@ type PdfFieldValue<T extends PdfFieldType> = {
 type GetFieldValue = <T extends PdfFieldType>(type: T, name: string) => PdfFieldValue<T>;
 
 type PdfDataTransformation<U> = { getData: (getValue: GetFieldValue) => U };
-type PdfSimpleTransformation<U> =
-    (string extends U
-        ? { type: 'text', name: string, transform?: (rawValue: string) => U }
-        : { type: 'text', name: string, transform: (rawValue: string) => U }) |
-    (string extends U
-        ? { type: 'dropdown', name: string, transform?: (rawValue: string) => U }
-        : { type: 'dropdown', name: string, transform: (rawValue: string) => U }) |
-    (boolean extends U
-        ? { type: 'checkbox', name: string, transform?: (rawValue: boolean) => U }
-        : { type: 'checkbox', name: string, transform: (rawValue: boolean) => U })
+type PdfSimpleTransformation<U> = {
+    [T in PdfFieldType]: PdfFieldValue<T> extends U
+        ? { type: T, name: string, transform?: (rawValue: PdfFieldValue<T>) => U }
+        : { type: T, name: string, transform: (rawValue: PdfFieldValue<T>) => U }
+}[PdfFieldType]
 type PdfConstant<U> = { constant: U };
 
 export type SimplePdfImport<U> = PdfConstant<U> | PdfSimpleTransformation<U> | PdfDataTransformation<U>
@@ -42,7 +37,7 @@ const parseSimpleImport = <U>(i: SimplePdfImport<U>): PdfDataTransformation<U> =
 
 const get = (pdfForm: PDFForm) =>
     <T extends PdfFieldType>(type: T, name: string) => {
-        if (type == 'text') return pdfForm.getTextField(name).getText()! as PdfFieldValue<T>;
+        if (type == 'text') return (pdfForm.getTextField(name).getText() || '') as PdfFieldValue<T>;
         if (type == 'dropdown') return pdfForm.getDropdown(name).getSelected()[0]! as PdfFieldValue<T>;
         if (type == 'checkbox') return pdfForm.getCheckBox(name).isChecked() as PdfFieldValue<T>;
         throw new Error('Unknown field type');
@@ -53,7 +48,8 @@ export const processPdf = <R extends Raw<Form>>(info: PdfImport<R>, pdfForm: PDF
     const data = info.defaultData();
     info.fields.forEachEntry((k1, section) => {
         section?.forEachEntry((k2, i) => {
-            if (i) data[k1][k2] = parseSimpleImport(i).getData(getValue);
+            if (i && data[k1])
+                data[k1][k2] = parseSimpleImport(i).getData(getValue);
         });
     });
     return data;

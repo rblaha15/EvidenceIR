@@ -1,4 +1,4 @@
-import type { Raw } from '$lib/forms/Form';
+import type { Raw, RawForm } from '$lib/forms/Form';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { FormRKT } from '$lib/forms/RKT/formRKT.js';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
@@ -28,9 +28,21 @@ export type RecommendationSettings = {
     code?: string,
 };
 
+type FakeUvedeni = {
+    [K1 in keyof RawForm<FormUPT>]?: {
+        [K2 in keyof Omit<Raw<FormUPT[K1]>, 'date'>]?: undefined
+    }
+} & {
+    uvadeni: {
+        date: string
+    }
+};
+
+
 export type IR = {
+    isDraft: boolean;
     evidence: Raw<FormIN>;
-    uvedeniTC?: Raw<FormUPT>;
+    uvedeniTC: Raw<FormUPT> | FakeUvedeni;
     uvedeniSOL?: Raw<FormUPS>;
     uvedeniFVE?: Raw<FormUPF>;
     kontrolyTC: {
@@ -43,6 +55,19 @@ export type IR = {
     yearlyHeatPumpCheckRecommendation?: RecommendationSettings;
     yearlySolarSystemCheckRecommendation?: RecommendationSettings;
 };
+
+export const createInstallation = (
+    raw: Raw<FormIN>,
+    userEmail: string,
+    isDraft: boolean,
+) => ({
+    isDraft,
+    evidence: raw,
+    kontrolyTC: {},
+    users: [userEmail],
+    installationProtocols: [],
+    uvedeniTC: { uvadeni: { date: '' } },
+} satisfies IR)
 
 export type RecommendationData = {
     irid: IRID;
@@ -102,7 +127,7 @@ export interface WriteDatabase {
 
     updateServiceProtocol(irid: IRID, index: number, protocol: Raw<FormSP>): Promise<void>;
 
-    addHeatPumpCommissioningProtocol(irid: IRID, protocol: Raw<FormUPT>): Promise<void>;
+    updateHeatPumpCommissioningProtocol(irid: IRID, protocol: IR['uvedeniTC']): Promise<void>;
 
     addSolarSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPS>): Promise<void>;
 
@@ -155,7 +180,7 @@ const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>
 
 const functions = [
     'getIR', 'getAllIRs', 'getAllIRsAsStore', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
-    'addSolarSystemCheck', 'addServiceProtocol', 'updateServiceProtocol', 'addHeatPumpCommissioningProtocol',
+    'addSolarSystemCheck', 'addServiceProtocol', 'updateServiceProtocol', 'updateHeatPumpCommissioningProtocol',
     'addSolarSystemCommissioningProtocol', 'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers',
     'updateHeatPumpRecommendationsSettings', 'updateSolarSystemRecommendationsSettings', 'addIndependentServiceProtocol',
     'deleteIndependentProtocol', 'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols',

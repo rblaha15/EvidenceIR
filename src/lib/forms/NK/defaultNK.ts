@@ -16,11 +16,11 @@ import {
     TextWidget,
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
-import { type Company, type Person, usersList } from '$lib/client/realtime';
-import products from '$lib/helpers/products';
+import { accumulationTanks, type Company, type Person, usersList, waterTanks } from '$lib/client/realtime';
+import { heatPumps, indoorUnits } from '$lib/helpers/products';
 import { type FormNK, origins } from './formNK';
 import { assemblyCompanies } from '$lib/helpers/companies';
-import { derived } from 'svelte/store';
+import { derived, readable } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
 import ares from '$lib/helpers/ares';
 import type { FormPlus } from '$lib/forms/Form';
@@ -86,10 +86,10 @@ export default (): FormPlus<FormNK> => ({
         info: new TextWidget({ show: fve, text: t => t.nk.fve.familyHouseEtc }),
         lightningRod: new CheckboxWidget({ show: fve, required: false, label: t => t.nk.fve.lightningRod }),
         roofMaterial: new InputWithSuggestionsWidget({
-            suggestions: t => [
+            suggestions: t => readable([
                 t.nk.fve.tile, t.nk.fve.metalSheetFolded, t.nk.fve.metalSheetTrapezoidal,
                 t.nk.fve.foil, t.nk.fve.asphaltShingle,
-            ], label: t => t.nk.fve.roofMaterial, required: false, show: fve,
+            ]), label: t => t.nk.fve.roofMaterial, required: false, show: fve,
         }),
         tileType: new InputWidget({
             required: false, label: t => t.nk.fve.tileType, show: d => fve(d) && languageCodes.map(
@@ -185,7 +185,7 @@ export default (): FormPlus<FormNK> => ({
             label: t => t.nk.system.heatPumpModel,
             show: hp,
             options: d => [`iDoNotKnow`, ...d.system.hPType.value == 'airToWater'
-                ? [...products.heatPumpsRTC, ...products.heatPumpsAirToWaterCTC] : products.heatPumpsGroundToWater],
+                ? [...heatPumps.airToWaterRTC.flat(), ...heatPumps.airToWaterCTC.flat()] : heatPumps.groundToWaterCTC.flat()],
             chosen: `iDoNotKnow`,
             labels: t => t.nk.system,
         }),
@@ -193,38 +193,15 @@ export default (): FormPlus<FormNK> => ({
             required: false,
             label: t => t.nk.system.indoorUnitType,
             chosen: `indoorUnitNone`,
-            options: [`indoorUnitNone`, ...products.indoorUnits],
+            options: [`indoorUnitNone`, ...indoorUnits],
             show: hp,
             labels: t => t.nk.system,
         }),
-        thermalStoreType: new DoubleChooserWidget({
-            required: false,
-            label: t => t.nk.system.storeType,
-            chosen: { first: `storeNone`, second: null },
-            options1: [`storeNone`, ...products.thermalStores.keys()],
-            show: hp,
-            options2: d => products.thermalStores[d.system.thermalStoreType.value.first as keyof typeof products.thermalStores] ?? [],
-            onValueSet: (d, v) => {
-                const second = d.system.thermalStoreType.options2(d)[0];
-                if (second) d.system.thermalStoreType._value = { ...v, second };
-            },
-            labels: t => t.nk.system,
+        thermalStore: new InputWithSuggestionsWidget({
+            label: t => t.tc.typeOfStorageTank, show: hp, required: false, suggestions: accumulationTanks,
         }),
-        thermalStoreVolume: new InputWidget({
-            required: false, label: t => t.nk.system.storeVolume, suffix: t => t.units.dm3, type: 'number', inputmode: 'numeric',
-            show: d => hp(d) && d.system.thermalStoreType.value.first != `storeNone`,
-        }),
-        waterTankType: new ChooserWidget({
-            required: false,
-            label: t => t.nk.system.tankType,
-            chosen: `tankNone`,
-            options: [`tankNone`, ...products.waterTanks],
-            show: hp,
-            labels: t => t.nk.system,
-        }),
-        waterTankVolume: new InputWidget({
-            required: false, label: t => t.nk.system.tankVolume, suffix: t => t.units.dm3, type: 'number', inputmode: 'numeric',
-            show: d => hp(d) && d.system.waterTankType.value != `tankNone`,
+        waterTank: new InputWithSuggestionsWidget({
+            label: t => t.tc.typeOfStorageTank, show: hp, required: false, suggestions: waterTanks,
         }),
         heatingSystem: new ChooserWidget({
             required: false, label: t => t.nk.system.heatingSystem, show: hp, chosen: `iDoNotKnow`, options: [

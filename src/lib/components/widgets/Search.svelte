@@ -5,11 +5,14 @@
     import type { ClassValue } from 'svelte/elements';
     import Icon from '$lib/components/Icon.svelte';
 
-    export const wordsToFilter = (s: string) => s
+    export const textToFilter = (s: string) => s
         .normalize('NFD')
         .replace(/\p{Diacritic}/gu, '')
-        .toLowerCase()
-        .split(' ');
+        .toLowerCase();
+
+    export const wordsToFilter = (s: string) => textToFilter(s)
+        .split(' ')
+        .map(it => it.replace('+', ' '));
 
     interface Props {
         t: Translations;
@@ -32,8 +35,11 @@
         search;
         return $all?.filter((item) =>
             wordsToFilter(search).every(
-                filter => widget.getSearchItem(item, t).pieces.some(piece =>
-                    wordsToFilter(piece.text).some(word => word.includes(filter)),
+                filter => widget.getSearchItem(item, t).let(i => [
+                    ...i.pieces.map(p => p.text),
+                    ...i.otherSearchParts ?? [],
+                ]).some(piece =>
+                    wordsToFilter(piece).some(word => word.includes(filter)) || textToFilter(piece).includes(filter),
                 ),
             ),
         ) ?? [];
@@ -101,10 +107,10 @@
                         }}
                     >
                         {#each searchItem.pieces as piece}
-                            <p class="mb-0 w-md-100"
+                            <p class={['mb-0 w-md-100', `text-${piece.color}`]}
                                style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                             >
-                                <Icon icon={piece.icon} />
+                                <Icon icon={piece.icon} class="text-{piece.iconColor}" />
                                 {piece.text}
                             </p>
                         {/each}
@@ -122,9 +128,12 @@
                     class="list-group-item-action list-group-item d-flex flex-column flex-md-row align-items-md-center rt-0"
                 >
                     {#each searchItem.pieces as piece, j}
-                        <p class="mb-0 me-1 d-md-block" class:d-none={j !== 0}
+                        <p class={['mb-0 me-1 d-md-block', `text-${piece.color}`, { 'd-none': j !== 0 }]}
                            style="color: var(--bs-body-color); flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
-                        >{piece.text}</p>
+                        >
+                            <Icon icon={piece.icon} class="text-{piece.iconColor}" />
+                            {piece.text}
+                        </p>
                     {/each}
                 </div>
             </div>

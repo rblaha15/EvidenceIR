@@ -136,7 +136,7 @@ export const offlineDatabase: Database = {
         ir!.installationProtocols[index] = protocol;
         return ir!;
     }),
-    addHeatPumpCommissioningProtocol: async (irid, protocol) => odm.update('IR', irid, ir => {
+    updateHeatPumpCommissioningProtocol: async (irid, protocol) => odm.update('IR', irid, ir => {
         ir!.uvedeniTC = protocol;
         return ir!;
     }),

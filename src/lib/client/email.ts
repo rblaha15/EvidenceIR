@@ -21,23 +21,34 @@ export type EmailOptions<Props extends Record<string, unknown>> = {
     bcc?: AddressLike;
     subject: string;
     attachments?: AttachmentLike[];
+} & ({
     component: Component<Props, Record<string, unknown>, '' | keyof Props>;
     props: Props;
-}
+    text?: undefined,
+    html?: undefined,
+} | {
+    text: string,
+    html?: string,
+    component?: undefined,
+    props?: undefined,
+})
 export type EmailMessage = Omit<EmailOptions<never>, 'component' | 'props'> & {
     text: string, html: string,
 }
 
 export const sendEmail = async <Props extends Record<string, unknown>>(options: EmailOptions<Props>) => {
-    const div = document.createElement('div');
-    mount(options.component, {
-        target: div,
-        props: options.props,
-    });
-    const html = div.innerHTML;
     const message: EmailMessage = {
-        ...options.omit('props', 'component'), html, text: htmlToText(html),
+        ...options.omit('props', 'component'), html: options?.html ?? '', text: options.text ?? '',
     };
+    if (options.component) {
+        const div = document.createElement('div');
+        mount(options.component, {
+            target: div,
+            props: options.props,
+        });
+        message.html = div.innerHTML;
+    }
+    message.text = message.text ?? htmlToText(message.html);
 
     if (!getIsOnline()) {
         addEmailToOfflineQueue(message);

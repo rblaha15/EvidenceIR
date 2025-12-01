@@ -3,6 +3,7 @@
     F extends Form<D>,
     S extends unknown[][],
     P extends Pdf = Pdf,
+    O extends Record<string, unknown> = Record<never, unknown>,
 " lang="ts">
     // noinspection ES6UnusedImports
     import { compareRawData, dataToRawData, type Form, type Raw, rawDataToData } from '$lib/forms/Form';
@@ -11,11 +12,11 @@
     import type { Translations } from '$lib/translations';
     import FormHeader from '$lib/forms/FormHeader.svelte';
     import { onMount, untrack } from 'svelte';
-    import { derived as derivedStore, readable } from 'svelte/store';
+    import { derived as derivedStore, type Readable, readable } from 'svelte/store';
     import WidgetComponent from '$lib/components/Widget.svelte';
     import { storable } from '$lib/helpers/stores';
     import { dev } from '$app/environment';
-    import type { IndependentFormInfo } from '$lib/forms/FormInfo';
+    import { type ButtonKey, buttonKeys, type IndependentFormInfo } from '$lib/forms/FormInfo';
     import { refreshTOC, runLoading } from '$lib/helpers/globals.js';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
     import { goto } from '$app/navigation';
@@ -24,11 +25,12 @@
     import { TitleWidget } from '$lib/forms/Widget.svelte';
     import Icon from '$lib/components/Icon.svelte';
 
-    const { t, formInfo, editData, viewData }: {
+    const { t, formInfo, editData, viewData, other }: {
         t: Translations,
-        formInfo: IndependentFormInfo<D, F, S, P>,
+        formInfo: IndependentFormInfo<D, F, S, P, O>,
         editData: Raw<F> | undefined,
         viewData: Raw<F> | undefined,
+        other: O,
     } = $props();
 
     const {
@@ -43,17 +45,15 @@
         storeData,
         excelImport,
         pdfImport,
-        isSendingEmails,
         openPdf,
         redirectLink,
-        hideBackButton,
-        showSaveAndSendButtonByDefault,
+        buttons,
     } = formInfo;
 
-    const storedData = storable<Raw<F>>(storeName());
+    const storedData = storable<Raw<F>>(storeName(other));
     let mode: 'create' | 'edit' | 'loading' | 'view' = $state('loading');
 
-    let f: F = $state(defaultData());
+    let f: F = $state(defaultData(other));
     onMount(async () => {
         await runLoading(async () => {
             if (viewData) {
@@ -69,7 +69,7 @@
                 mode = 'create';
         });
 
-        await mountEffect?.(d, f, mode as 'create' | 'edit' | 'view');
+        await mountEffect?.(d, f, mode as 'create' | 'edit' | 'view', other);
 
         storeEffects?.forEach(([callback, stores]) => {
             derivedStore(stores, values => values).subscribe(values => callback(d, f, values, mode == 'edit', t));
@@ -83,7 +83,7 @@
     });
 
     const list = $derived(f.getValues().flatMap(obj => obj.getValues()));
-    const d = $derived(createWidgetData(f)) as D;
+    const d = $derived(createWidgetData(f, other)) as D;
 
     $effect(() => {
         list
@@ -94,11 +94,11 @@
             .then(refreshTOC);
     });
 
-    const save = (send: boolean) => async () => {
+    const save = (send: boolean, draft: boolean) => async () => {
         try {
             const raw = dataToRawData(f);
             const errors = list.filter(w => w.isError(d) && w.show(d)).map(w => w.label(t, d));
-            if (errors.length > 0) {
+            if (errors.length > 0 && !draft) {
                 for (const i in list) {
                     list[i].displayErrorVeto = true;
                 }
@@ -111,7 +111,7 @@
             }
 
             result = { load: true, red: false, text: t.form.saving };
-            const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send, () => f = defaultData());
+            const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send, draft, other, () => f = defaultData(other));
 
             if (success) {
                 if (!dev) storedData.set(undefined);
@@ -121,7 +121,7 @@
                     : { text: '', red: false, load: false };
 
                 if (openPdf) {
-                    const o = await openPdf(raw);
+                    const o = await openPdf(raw, other);
                     const url = generatePdfPreviewUrl(o);
                     const gotoUrl = new URL(relUrl('/detail'), url.origin);
                     url.searchParams.get('irid')?.also(u => gotoUrl.searchParams.set('irid', u));
@@ -129,7 +129,7 @@
                     gotoUrl.searchParams.set('goto', url.pathname + url.search);
                     await goto(gotoUrl, { replaceState: true });
                 } else if (redirectLink)
-                    await goto(await redirectLink(raw), { replaceState: true });
+                    await goto(await redirectLink(raw, other), { replaceState: true });
             }
         } catch (e) {
             console.error(e);
@@ -143,7 +143,7 @@
 
     $effect(() => {
         if (mode == 'create') {
-            storedData.set((storeData ?? dataToRawData)(f));
+            storedData.set((storeData ?? dataToRawData)(f, other));
         }
     });
 
@@ -152,7 +152,7 @@
         for (const i in list) {
             list[i].displayErrorVeto = true;
         }
-        excelImport!.onImport(d, f);
+        excelImport!.onImport(d, f, other);
     };
 
     const onImportPdf = (newData: Raw<F>) => {
@@ -160,11 +160,15 @@
         for (const i in list) {
             list[i].displayErrorVeto = true;
         }
-        pdfImport!.onImport(d, f);
+        pdfImport!.onImport(d, f, other);
     };
 
-    const isDangerous = $derived(compareRawData(dataToRawData(f), dataToRawData(untrack(defaultData))));
-    const showSaveAndSendButtonByDefaultStore = $derived(typeof showSaveAndSendButtonByDefault == 'boolean' ? readable(showSaveAndSendButtonByDefault) : showSaveAndSendButtonByDefault);
+    const isDangerous = $derived(compareRawData(dataToRawData(f), dataToRawData(untrack(() => defaultData(other)))));
+    const buttonsStore: Readable<{ [B in ButtonKey]: boolean }> = $derived.by(() => {
+        const b = buttons?.(mode == 'edit', other) ?? {};
+        const br = 'subscribe' in b ? b : readable(b);
+        return derivedStore(br, br => buttonKeys.associateWith(k => br[k] ?? false));
+    });
 </script>
 
 {#if mode !== 'loading'}
@@ -173,11 +177,11 @@
     {/if}
 
     <FormHeader readonly={mode === 'view'} excelImport={excelImport ? {
-        ...excelImport, onImport: onImportExcel, isDangerous, defaultData: () => dataToRawData(defaultData())
+        ...excelImport, onImport: onImportExcel, isDangerous, defaultData: () => dataToRawData(defaultData(other))
     } : undefined} pdfImport={pdfImport ? {
-        ...pdfImport, onImport: onImportPdf, isDangerous, defaultData: () => dataToRawData(defaultData())
-    } : undefined} store={storedData} {t} title={title(t, mode)}
-                showBackButton={mode === 'view' || !hideBackButton?.(mode === 'edit')} />
+        ...pdfImport, onImport: onImportPdf, isDangerous, defaultData: () => dataToRawData(defaultData(other))
+    } : undefined} store={storedData} {t} title={title(t, mode, other)}
+                showBackButton={mode === 'view' || !$buttonsStore.hideBack} />
     {#each list as _, i}
         {#if mode === 'view'}
             <ReadonlyWidget widget={list[i]} {t} data={d} />
@@ -188,24 +192,35 @@
     <div class="d-flex flex-column flex-sm-row align-items-start gap-3">
         <div class="d-flex gap-3 flex-wrap">
             {#if mode !== 'view'}
-                {#if !result.load && (mode === 'edit' && isSendingEmails || !$showSaveAndSendButtonByDefaultStore)}
-                    <button onclick={save(false)} class="mb-auto btn btn-success">
+                {#if !result.load && !$buttonsStore.hideSave}
+                    <button onclick={save(false, false)} class="mb-auto btn btn-success">
                         <Icon icon="save" /> {t.form.save}
                     </button>
                 {/if}
-                {#if !result.load && (mode === 'edit' && isSendingEmails)}
-                    <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">
-                        <Icon icon="send" /> {t.form.saveAndSendAgain}
+                {#if !result.load && $buttonsStore.saveAndSendAgain}
+                    <button onclick={save(true, false)} class="mb-auto btn btn-success text-nowrap">
+                        <Icon icon="save" /> <Icon icon="send" /> {t.form.saveAndSendAgain}
                     </button>
-                {:else if !result.load && ($showSaveAndSendButtonByDefaultStore)}
-                    <button onclick={save(true)} class="mb-auto btn btn-success text-nowrap">
-                        <Icon icon="send" /> {t.form.saveAndSend}
+                {/if}
+                {#if !result.load && $buttonsStore.saveAndSend}
+                    <button onclick={save(true, false)} class="mb-auto btn btn-success text-nowrap">
+                        <Icon icon="save" /> <Icon icon="send" /> {t.form.saveAndSend}
+                    </button>
+                {/if}
+                {#if !result.load && $buttonsStore.send}
+                    <button onclick={save(true, false)} class="mb-auto btn btn-success text-nowrap">
+                        <Icon icon="send" /> {t.form.send}
+                    </button>
+                {/if}
+                {#if !result.load && $buttonsStore.saveAsDraft}
+                    <button onclick={save(false, true)} class="mb-auto btn btn-secondary text-nowrap">
+                        <Icon icon="design_services" /> {t.form.saveAsDraft}
                     </button>
                 {/if}
                 {#if result.load}
                     <div class="spinner-border text-danger"></div>
                 {/if}
-                {#if !result.load && !hideBackButton?.(mode === 'edit')}
+                {#if !result.load && !$buttonsStore.hideBack}
                     <button type="button" class="mb-auto btn btn-secondary" onclick={() => history.back()}>
                         {t.form.back}
                     </button>

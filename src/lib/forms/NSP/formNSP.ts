@@ -1,7 +1,7 @@
 import type { UserForm } from '$lib/forms/IN/formIN';
 import { type GenericFormSP } from '$lib/forms/SP/formSP.svelte';
 import { dataToRawData, type Form, type FormPlus } from '$lib/forms/Form';
-import { CounterWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte';
+import { InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte';
 import { userData } from '$lib/forms/IN/defaultIN';
 import { multilineTooLong, defaultGenericSP } from '$lib/forms/SP/defaultSP';
 

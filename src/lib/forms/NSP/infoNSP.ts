@@ -15,6 +15,7 @@ import { extractSPIDFromRawData, type SPID, spName } from '$lib/helpers/ir';
 import db from '$lib/data';
 import { type DataNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
+import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
 
 const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], User | null]], 'NSP'> = {
     type: '',
@@ -40,8 +41,6 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
             load: false,
         });
     },
-    showSaveAndSendButtonByDefault: true,
-    isSendingEmails: true,
     redirectLink: async raw => detailSpUrl([extractSPIDFromRawData(raw.zasah)]),
     openPdf: async raw => ({
         link: 'NSP',
@@ -64,14 +63,14 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
         const spid = url.searchParams.get('edit-spid') as SPID | null;
         if (!spid) return undefined;
 
-        return await db.getIndependentProtocol(spid);
+        return { raw: await db.getIndependentProtocol(spid) };
     },
     getViewData: async url => {
         const spid = url.searchParams.get('view-spid') as SPID | null;
         if (!spid) return undefined;
 
         const sp = await db.getIndependentProtocol(spid);
-        return !sp ? undefined : sp;
+        return !sp ? undefined : { raw: sp };
     },
     storeEffects: [
         [(_, data, [$isUserRegulusOrAdmin]) => { // From IN
@@ -86,8 +85,17 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
             f.zasah.inicialy.show = () => f.zasah.inicialy.value != ja?.initials;
         }, [techniciansList, currentUser]],
     ],
+    pdfImport: {
+        onImport: () => {},
+        fields: fieldsNSP,
+    },
     requiredRegulus: true,
-    hideBackButton: edit => !edit,
+    buttons: edit => ({
+        hideBack: !edit,
+        hideSave: !edit,
+        saveAndSendAgain: edit,
+        saveAndSend: !edit,
+    }),
 };
 
 export default infoNSP;

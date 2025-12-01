@@ -1,13 +1,21 @@
 import type { Company, Person, SparePart, Technician } from '$lib/client/realtime';
 import { checkAdmin, checkToken, createUser, getUserByEmail, getUsersByEmail, removeUsers } from '$lib/server/auth';
-import { people, removePerson, setCompanies, setPersonDetails, setSpareParts, setTechnicians } from '$lib/server/realtime';
+import {
+    people,
+    removePerson,
+    setAccumulationTanks,
+    setCompanies,
+    setPersonDetails, setSolarCollectors,
+    setSpareParts,
+    setTechnicians, setWaterTanks,
+} from '$lib/server/realtime';
 import type { RequestHandler } from './$types';
 import { error } from '@sveltejs/kit';
 import { UserRecord } from 'firebase-admin/auth';
 
 export const POST: RequestHandler = async ({ request, url }) => {
     const t = url.searchParams.get('token');
-    const typ = url.searchParams.get('type') as 'users' | 'companies' | 'technicians' | 'spareParts' | null;
+    const typ = url.searchParams.get('type') as 'users' | 'companies' | 'technicians' | 'spareParts' | 'accumulationTanks' | 'waterTanks' | 'solarCollectors' | null;
 
     if (!typ) error(400, 'Bad Request');
 
@@ -57,6 +65,15 @@ export const POST: RequestHandler = async ({ request, url }) => {
     } else if (typ == 'spareParts') {
         const { array }: { array: SparePart[] } = await request.json();
         await setSpareParts(array);
+    } else if (typ == 'accumulationTanks') {
+        const { array }: { array: string[] } = await request.json();
+        await setAccumulationTanks(array);
+    } else if (typ == 'waterTanks') {
+        const { array }: { array: string[] } = await request.json();
+        await setWaterTanks(array);
+    } else if (typ == 'solarCollectors') {
+        const { array }: { array: string[] } = await request.json();
+        await setSolarCollectors(array);
     }
 
     return new Response(null, {
