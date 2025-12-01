@@ -146,6 +146,7 @@ export default (): FormUPT => ({
             show: d => d.uvedeni.uvadeni.typZaruky.value == 'yes',
         }),
         date: new InputWidget({ label: t => t.tc.dateOfCommission, type: 'date' }),
+        note: new InputWidget({ label: t => t.in.note, required: false }),
     },
     checkRecommendations: defaultDK('TČ'),
 });
