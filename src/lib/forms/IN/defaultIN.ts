@@ -67,12 +67,12 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
             label: '', chosen: `individual`, showInXML: false,
             options: [`individual`, `company`], labels: t => t.in.userType,
         }),
-        prijmeni: new InputWidget({
-            label: t => t.in.surname, autocomplete: `section-user billing family-name`, show: fo, required: fo,
-        }),
         jmeno: new InputWidget({
             label: t => t.in.name, show: fo, required: fo,
             autocomplete: `section-user billing given-name`,
+        }),
+        prijmeni: new InputWidget({
+            label: t => t.in.surname, autocomplete: `section-user billing family-name`, show: fo, required: fo,
         }),
         narozeni: new InputWidget({
             label: t => t.in.birthday, onError: t => t.wrong.date,
