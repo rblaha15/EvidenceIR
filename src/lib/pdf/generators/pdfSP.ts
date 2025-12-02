@@ -122,7 +122,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
     return {
         fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
         Text1: spName(p.zasah),
-        Text29: p.koncovyUzivatel.typ == 'company' ? `${t.in.companyName}:` : `${t.in.name} a ${t.in.surname.toLowerCase()}:`,
+        Text29: p.koncovyUzivatel.typ == 'company' ? `${t.in.companyName}:` : `Jméno a příjmení:`,
         Text2: endUserName(p.koncovyUzivatel),
         Text30: p.koncovyUzivatel.typ == 'company' ? t.in.crn : t.in.birthday,
         Text3: p.koncovyUzivatel.typ == 'company'
@@ -181,7 +181,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
         Text35: sumWithTax.roundTo(2).toLocaleString('cs') + ' Kč',
         Text39: isFree ? 'Zdarma' : get(ts, p.fakturace.hotove),
         Text41: p.fakturace.hotove != 'no' || isFree ? ''
-            : p.fakturace.komu.chosen == 'otherCompany' ? p.fakturace.komu.text
+            : p.fakturace.komu.chosen == 'otherCompany' ? detectCRN(p.fakturace.komu.text)
                 : p.fakturace.komu.chosen == 'commissioningCompany' ? (await ares.getName(p.uvedeni.ico) || p.uvedeni.ico)
                     : get(ts, p.fakturace.komu.chosen),
         Text42: p.fakturace.hotove == 'no' && !isFree ? get(ts, p.fakturace.jak) : '',
@@ -192,11 +192,13 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
                 individual: endUserName(p.koncovyUzivatel),
                 company: p.koncovyUzivatel.kontaktniOsoba,
             }[p.koncovyUzivatel.typ!],
-            otherCompany: p.fakturace.komu.text,
+            otherCompany: detectCRN(p.fakturace.komu.text),
         }[p.fakturace.komu.chosen ?? 'investor'],
         images: signature ? [{ x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 }] : [],
     } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };
+
+const detectCRN = (text: string) => /^[0-9]{8}$/.test(text) ? `IČO: ${text}` : text
 
 export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols }, t, addDoc, index, lang }) =>
     pdfNSP({
