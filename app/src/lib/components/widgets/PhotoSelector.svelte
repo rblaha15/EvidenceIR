@@ -22,14 +22,9 @@
     const onchange: ChangeEventHandler<HTMLInputElement> = async e => {
         const selectedFiles = e.currentTarget.files;
         if (selectedFiles) {
-            const photos = await [...selectedFiles].map(file => new Promise<Files[number]>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    if (typeof reader.result != 'string') return reject();
-                    addFile(reader.result).then(uuid => resolve({ fileName: file.name, uuid }));
-                };
-                reader.readAsDataURL(file);
-            })).awaitAll();
+            const photos = await [...selectedFiles].map(file =>
+                addFile(file).then(uuid => ({ fileName: file.name, uuid }))
+            ).awaitAll();
 
             widget.mutateValue(data, v => [...v, ...photos].slice(0, max));
             if (e.currentTarget) e.currentTarget.value = '';

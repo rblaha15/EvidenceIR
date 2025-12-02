@@ -117,7 +117,7 @@ export interface WriteDatabase {
 
     deleteIR(irid: IRID): Promise<void>;
 
-    updateIRRecord(rawData: Raw<FormIN>): Promise<void>;
+    updateIRRecord(rawData: Raw<FormIN>, isDraft: boolean): Promise<void>;
 
     addHeatPumpCheck(irid: IRID, pump: TC, year: Year, check: Raw<FormRKT>): Promise<void>;
 

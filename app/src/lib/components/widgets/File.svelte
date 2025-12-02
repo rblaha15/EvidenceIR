@@ -6,7 +6,7 @@
     const db = browser ? openDB<{
         files: {
             key: string;
-            value: string;
+            value: File;
         };
     }>('file-selector', 1, {
         upgrade: db => {
@@ -15,7 +15,7 @@
         },
     }) : undefined;
 
-    export const addFile = (file: string) =>
+    export const addFile = (file: File) =>
         uuid().also(async id => await (await db!).add('files', file, id));
     export const removeFile = async (id: string) =>
         await (await db!).delete('files', id);
@@ -47,16 +47,9 @@
     const onchange: ChangeEventHandler<HTMLInputElement> = async e => {
         const selectedFiles = e.currentTarget.files;
         if (selectedFiles) {
-            const files = await [...selectedFiles].map(file => new Promise<Files[number]>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = async () => {
-                    if (typeof reader.result != 'string') reject();
-                    else addFile(reader.result).then(uuid =>
-                        resolve({ fileName: file.name, uuid }),
-                    );
-                };
-                reader.readAsDataURL(file);
-            })).awaitAll();
+            const files = await [...selectedFiles].map(file =>
+                addFile(file).then(uuid => ({ fileName: file.name, uuid }))
+            ).awaitAll();
 
             widget.mutateValue(data, v => [...v, ...files].slice(0, max));
             if (e.currentTarget) e.currentTarget.value = '';

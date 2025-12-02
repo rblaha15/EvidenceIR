@@ -1,7 +1,6 @@
-import type { EmailMessage } from '$lib/client/email';
+import { type EmailOptions, sendEmailAndUploadAttachments } from '$lib/client/email';
 import { type Database, isWriteFunction, type WriteFunction } from '$lib/data';
 import { derived, writable } from 'svelte/store';
-import { getToken } from '$lib/client/auth';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { irName, irNumberFromIRID, irWholeName, spName, spWholeName } from '$lib/helpers/ir';
 import { isOnline } from './realtime';
@@ -17,7 +16,7 @@ type DoWhenOnlineDatabase<F extends keyof Database = keyof Database> = {
 }
 type DoWhenOnlineEmail = {
     type: 'email',
-    message: EmailMessage,
+    message: EmailOptions,
 };
 type DoWhenOnline<F extends keyof Database = keyof Database> =
     DoWhenOnlineDatabase<F> | DoWhenOnlineEmail;
@@ -67,7 +66,7 @@ export const addToOfflineQueue = <F extends keyof Database = keyof Database>(
     // doWhenOnlineQueue.update(q => [...q, { functionName, args, type: 'database' }]);
 };
 
-export const addEmailToOfflineQueue = (message: EmailMessage) => {
+export const addEmailToOfflineQueue = (message: EmailOptions) => {
     console.log('Adding email', message, 'to the offline queue');
     add({ message, type: 'email' })
     // doWhenOnlineQueue.update(q => [...q, { message, type: 'email' }]);
@@ -80,14 +79,7 @@ export const processOfflineQueue = async () => {
         if (dwo.type === 'email') {
             const { message } = dwo;
             console.log('Sending email', message, 'from the offline queue');
-            const token = await getToken();
-            await fetch(`/api/sendEmail?token=${token}`, {
-                method: 'POST',
-                body: JSON.stringify({ message }),
-                headers: {
-                    'content-type': 'application/json',
-                },
-            });
+            await sendEmailAndUploadAttachments(message)
         } else {
             const { args, functionName } = dwo;
             console.log('Executing', functionName, 'with args', ...args, 'from the offline queue');

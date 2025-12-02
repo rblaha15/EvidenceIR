@@ -59,10 +59,11 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         const user = get(currentUser)!;
 
         const newIr = createInstallation(raw, user.email!, draft);
-        if (edit) await db.updateIRRecord(raw);
+        if (edit) await db.updateIRRecord(raw, draft);
         else await db.addIR(newIr);
 
         const doNotSend = (edit && !send) || draft;
+        const edited = edit && !draft;
 
         if (doNotSend) return true;
 
@@ -75,11 +76,11 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         const response1 = raw.vzdalenyPristup.chce ? await sendEmail({
             ...defaultAddresses(cervenka),
             subject: `Založení RegulusRoute k ${irName(raw.ir)}`,
-            attachments: [{
-                content: [...pdf.pdfBytes],
-                contentType: 'application/pdf',
-                filename: pdf.fileName,
-            }],
+            attachments: [new File(
+                [pdf.pdfBytes],
+                pdf.fileName,
+                { type: 'application/pdf' }
+            )],
             component: MailRRoute,
             props: { e: raw, montazka, uvadec, t: cs, origin: page.url.origin, user },
         }) : null;
@@ -87,21 +88,21 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
 
         const response2 = await sendEmail({
             ...defaultAddresses(),
-            subject: edit
+            subject: edited
                 ? `Úprava evidence regulátoru ${irName(raw.ir)}`
                 : `Založení evidence regulátoru ${irName(raw.ir)}`,
-            attachments: [{
-                content: xmlIN(data, cs),
-                contentType: 'application/xml',
-                filename: `Evidence ${irid}.xml`,
-            }],
+            attachments: [new File(
+                [xmlIN(data, cs)],
+                `Evidence ${irid}.xml`,
+                { type: 'application/xml' },
+            )],
             component: MailXML,
             props: { e: raw, origin: page.url.origin, user },
         });
 
         const response3 = await sendEmail({
             ...defaultAddresses('blahova@regulus.cz', true),
-            subject: edit
+            subject: edited
                 ? `Úprava evidence regulátoru ${irName(raw.ir)}`
                 : `Nově zaevidovaný regulátor ${irName(raw.ir)}`,
             component: MailSDaty,

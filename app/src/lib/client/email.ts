@@ -1,4 +1,3 @@
-import type { Address, Attachment } from 'nodemailer/lib/mailer';
 import { currentUser, getToken } from './auth';
 import { htmlToText } from 'html-to-text';
 import { type Component, mount } from 'svelte';
@@ -7,69 +6,110 @@ import { get } from 'svelte/store';
 import type { User } from 'firebase/auth';
 import { getIsOnline } from '$lib/client/realtime';
 import { addEmailToOfflineQueue } from '$lib/client/offlineQueue.svelte';
-import type { Readable } from 'node:stream';
+import { upload } from "@vercel/blob/client";
 
-export type AttachmentLike = Omit<Attachment, 'content'> & {
-    content?: number[] | string | Buffer<ArrayBufferLike> | Readable | undefined,
+export type Address = {
+    name: string;
+    address: string;
 };
 export type AddressLike = Address | string | (Address | string)[];
-export type EmailOptions<Props extends Record<string, unknown>> = {
+export type BaseEmailOptions = {
     from: Address | string;
     replyTo?: AddressLike;
     to?: AddressLike;
     cc?: AddressLike;
     bcc?: AddressLike;
     subject: string;
-    attachments?: AttachmentLike[];
-} & ({
+    attachments?: File[];
+}
+
+export type ComponentEmailOptions<Props extends Record<string, unknown>> = BaseEmailOptions & {
     component: Component<Props, Record<string, unknown>, '' | keyof Props>;
     props: Props;
-    text?: undefined,
-    html?: undefined,
+}
+
+export type HtmlEmailOptions = BaseEmailOptions & ({
+    text: string, html?: string,
 } | {
-    text: string,
-    html?: string,
-    component?: undefined,
-    props?: undefined,
+    text?: string, html: string,
 })
-export type EmailMessage = Omit<EmailOptions<never>, 'component' | 'props'> & {
+
+export type EmailOptions = BaseEmailOptions & {
     text: string, html: string,
 }
 
-export const sendEmail = async <Props extends Record<string, unknown>>(options: EmailOptions<Props>) => {
-    const message: EmailMessage = {
-        ...options.omit('props', 'component'), html: options?.html ?? '', text: options.text ?? '',
+export type EmailMessage = Omit<EmailOptions, 'attachments'> & {
+    attachments?: {
+        path: string;
+        filename: string;
+        contentType: string;
+        contentDisposition: 'attachment' | 'inline';
+    }[];
+}
+
+export const sendEmail = async <Props extends Record<string, unknown>>(options: ComponentEmailOptions<Props>) => {
+    const div = document.createElement('div');
+    mount(options.component, {
+        target: div,
+        props: options.props,
+    });
+    const newOptions: HtmlEmailOptions = {
+        ...options,
+        html: div.innerHTML,
     };
-    if (options.component) {
-        const div = document.createElement('div');
-        mount(options.component, {
-            target: div,
-            props: options.props,
-        });
-        message.html = div.innerHTML;
+    return await sendHtmlEmail(newOptions);
+};
+
+export const sendHtmlEmail = async (options: HtmlEmailOptions) => {
+    const newOptions: EmailOptions = {
+        ...options,
+        html: options.html ?? '',
+        text: options.text ?? htmlToText(options.html ?? ''),
     }
-    message.text = message.text ?? htmlToText(message.html);
 
     if (!getIsOnline()) {
-        addEmailToOfflineQueue(message);
+        addEmailToOfflineQueue(newOptions);
         return new Response('OK', {
             status: 200,
         });
     }
 
+    return await sendEmailAndUploadAttachments(newOptions);
+};
+
+export const sendEmailAndUploadAttachments = async (options: EmailOptions) => {
+    const message: EmailMessage = {
+        ...options, attachments: await options.attachments?.map(async (a, i) => {
+            const result = await upload(a.name, a, {
+                access: 'public',
+                contentType: a.type,
+                onUploadProgress: ({ percentage }) => {
+                    console.log('Attachment', i, percentage)
+                },
+                handleUploadUrl: '/api/upload-handler',
+            });
+            console.log(result);
+            return {
+                path: result.url,
+                filename: a.name,
+                contentType: result.contentType,
+                contentDisposition: result.contentDisposition.split(';')[0] as 'attachment' | 'inline',
+            };
+        }).awaitAll(),
+    };
+
     const token = await getToken();
     return await fetch(`/api/sendEmail?token=${token}`, {
         method: 'POST',
-        body: JSON.stringify({ message }),
+        body: JSON.stringify(message),
         headers: {
             'content-type': 'application/json',
         },
     });
 };
 
-export const receiver = 'seir@regulus.cz' as const satisfies AddressLike
-export const cervenka = ['david.cervenka@regulus.cz', 'jakub.cervenka@regulus.cz'] as const satisfies AddressLike
-
+export const receiver = 'seir@regulus.cz' as const satisfies AddressLike;
+export const cervenka = ['david.cervenka@regulus.cz', 'jakub.cervenka@regulus.cz'] as const satisfies AddressLike;
 
 export const SENDER = (name?: string): Address => ({
     name: name ? name + ' (Regulus SEIR)' : 'Regulus SEIR',
@@ -89,4 +129,4 @@ export const defaultAddresses = (recipient: AddressLike = receiver, sendCopy: bo
         to: dev ? 'radek.blaha.15@gmail.com' : recipient,
         cc: dev || !sendCopy ? undefined : user,
     });
-}
+};
