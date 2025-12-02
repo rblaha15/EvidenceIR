@@ -114,9 +114,9 @@ export const offlineDatabase: Database = {
     addIR: ir => odm.put('IR', extractIRIDFromRawData(ir.evidence), ir),
     deleteIR: irid => odm.delete('IR', irid),
     existsIR: async irid => irid in get(storedIR),
-    updateIRRecord: rawData => {
+    updateIRRecord: (rawData, isDraft) => {
         const irid = extractIRIDFromRawData(rawData);
-        return odm.update('IR', irid, ir => ({ ...ir!, evidence: rawData }));
+        return odm.update('IR', irid, ir => ({ ...ir!, evidence: rawData, isDraft }));
     },
     addHeatPumpCheck: (irid, pump, year, check) => odm.update('IR', irid, ir => {
         ir!.kontrolyTC[pump] = ir!.kontrolyTC[pump] ?? {};

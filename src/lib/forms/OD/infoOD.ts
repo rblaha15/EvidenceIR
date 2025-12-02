@@ -4,7 +4,7 @@ import defaultOD from './defaultOD';
 import { page } from '$app/state';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
-import { cervenka, defaultAddresses, sendEmail, userAddress } from '$lib/client/email';
+import { cervenka, defaultAddresses, sendHtmlEmail, userAddress } from '$lib/client/email';
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import { dev } from '$app/environment';
 import { initialRouteLoggedIn } from '$lib/helpers/globals';
@@ -19,33 +19,29 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
             d, !name ? `Dobrý den,\nv příloze naleznete podepsané dokumenty ze servisního zásahu.`
                 : `Dobrý den,\nv příloze naleznete podepsané dokumenty ze servisního zásahu.\nS pozdravem,\n${name}`,
         );
-        f.all.userEmail.setValue(d, page.url.searchParams.get('user') ?? '')
+        f.all.userEmail.setValue(d, page.url.searchParams.get('user') ?? '');
     },
     saveData: async (raw, _1, _2, editResult, t) => {
         const user = userAddress(get(currentUser)!);
 
-        const response = await sendEmail({
+        const fileIds = [...raw.all.documents, ...raw.all.photos].map(photo => photo.uuid);
+
+        const response = await sendHtmlEmail({
             ...defaultAddresses(cervenka, false, user.name || undefined),
             cc: dev ? undefined : raw.all.userEmail ? [
-                user, raw.all.userEmail, ...raw.all.otherCopies.split(',').map(t => t.trim())
+                user, raw.all.userEmail, ...raw.all.otherCopies.split(',').map(t => t.trim()),
             ] : user,
             subject: `Podepsané dokumenty`,
-            attachments: (await [...raw.all.documents, ...raw.all.photos]
-                .map(async file => ({
-                    filename: file.fileName,
-                    path: await getFile(file.uuid),
-                }))
-                .awaitAll())
-                .mapNotUndefined(file => file.path ? file : undefined),
+            attachments:
+                (await fileIds.map(getFile).awaitAll())
+                    .filterNotUndefined(),
             text: raw.all.body,
         });
 
         if (response!.ok) {
-            await [...raw.all.documents, ...raw.all.photos].map(photo => photo.uuid)
-                .map(removeFile).awaitAll()
+            await fileIds.map(removeFile).awaitAll();
             return true;
-        }
-        else editResult({
+        } else editResult({
             text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
             red: true,
             load: false,
@@ -57,7 +53,7 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
         hideSave: true,
         send: true,
     }),
-    redirectLink: async _ => (page.url.searchParams.get('redirect') ?? initialRouteLoggedIn)
+    redirectLink: async _ => (page.url.searchParams.get('redirect') ?? initialRouteLoggedIn),
 };
 
 export default infoOD;

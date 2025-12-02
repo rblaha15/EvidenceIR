@@ -108,10 +108,11 @@ export const firestoreDatabase: Database = {
             else throw e;
         }
     },
-    updateIRRecord: async rawData => {
+    updateIRRecord: async (rawData, isDraft) => {
         const irid = extractIRIDFromRawData(rawData);
         await updateDoc(irDoc(irid), `evidence`, rawData);
-        await odm.update('IR', irid, ir => ({ ...ir!, evidence: rawData }));
+        await updateDoc(irDoc(irid), `isDraft`, isDraft);
+        await odm.update('IR', irid, ir => ({ ...ir!, evidence: rawData, isDraft }));
     },
     addHeatPumpCheck: async (irid, pump, year, check) => {
         await updateDoc(irDoc(irid), `kontrolyTC.${pump}.${year}`, check);

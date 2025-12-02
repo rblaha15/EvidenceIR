@@ -7,7 +7,6 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import xml from '$lib/forms/NK/xmlNK';
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
-import type { Attachment } from 'nodemailer/lib/mailer';
 import MailDemand from '$lib/emails/MailDemand.svelte';
 import type { FormNK } from '$lib/forms/NK/formNK';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
@@ -30,18 +29,15 @@ const infoNK: IndependentFormInfo<FormNK, FormNK> = {
         const response = await sendEmail({
             ...defaultAddresses(page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz', true, user.displayName || undefined),
             subject: `Poptávka z aplikace – OSOBA: ${name} ${surname}`,
-            attachments: [{
-                content: xml(raw, user, cs),
-                contentType: 'application/xml',
-                filename: `Dotazník ${name} ${surname}.xml`,
-            }, ...(await photoIds
-                .map(id => getFile(id))
-                .awaitAll())
-                .filterNotUndefined()
-                .map((photo, i) => <Attachment>{
-                    path: photo,
-                    filename: `Fotka ${i + 1}`,
-                })],
+            attachments: [new File(
+                [xml(raw, user, cs)],
+                `Dotazník ${name} ${surname}.xml`,
+                { type: 'application/xml' },
+            ), ...(
+                await photoIds.map(getFile).awaitAll()
+            ).filterNotUndefined().map((file, i) =>
+                new File([file], `Fotka ${i + 1}`, { type: file.type }),
+            )],
             component: MailDemand,
             props: { user: user.displayName || user.email!, t: cs, data: form },
         });

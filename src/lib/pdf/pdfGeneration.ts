@@ -41,13 +41,21 @@ export const generatePdfUrl = async <P extends Pdf>(
     o: GeneratePdfOptions<P>,
     fetch: typeof window.fetch = window.fetch,
 ) => {
+    const file = await generatePdfFile(o, fetch);
+
+    const url = await createFileUrl(file);
+    return { url, fileName: file.name };
+};
+
+export const generatePdfFile = async <P extends Pdf>(
+    o: GeneratePdfOptions<P>,
+    fetch: typeof window.fetch = window.fetch,
+) => {
     const pdfData = await generatePdf(o, fetch);
 
-    const blob = new Blob([pdfData.pdfBytes], {
+    return new File([pdfData.pdfBytes], pdfData.fileName, {
         type: 'application/pdf',
-    });
-    const url = await createFileUrl(blob);
-    return { url, fileName: pdfData.fileName };
+    })
 };
 
 export const generatePdf = async <P extends Pdf>(
