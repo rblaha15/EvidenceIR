@@ -3,6 +3,7 @@ import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { dev } from '$app/environment';
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig: FirebaseOptions = {
 	apiKey: 'AIzaSyCKu8Z4wx55DfrZdYtKvrqvwZ2Y6nQvx24',
@@ -23,6 +24,8 @@ export const firestore = getFirestore(app)
 export const realtime = getDatabase(app);
 
 export const auth = getAuth(app);
+
+export const analytics = () => getAnalytics(app);
 
 declare global {
 	/**

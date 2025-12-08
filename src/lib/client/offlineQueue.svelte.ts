@@ -1,5 +1,5 @@
 import { type EmailOptions, sendEmailAndUploadAttachments } from '$lib/client/email';
-import { type Database, isWriteFunction, type WriteFunction } from '$lib/data';
+import { isWriteFunction, type WriteFunction } from '$lib/data';
 import { derived, writable } from 'svelte/store';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { irName, irNumberFromIRID, irWholeName, spName, spWholeName } from '$lib/helpers/ir';
@@ -8,6 +8,7 @@ import type { Translations } from '$lib/translations';
 import type { Template, TemplateArgs } from '$lib/helpers/templates';
 import { browser } from '$app/environment';
 import { openDB } from 'idb';
+import type { Database } from '$lib/Database';
 
 type DoWhenOnlineDatabase<F extends keyof Database = keyof Database> = {
     type: 'database'

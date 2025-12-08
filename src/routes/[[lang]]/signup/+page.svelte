@@ -6,6 +6,8 @@
 	import FormDefaults from '$lib/components/FormDefaults.svelte';
     import { initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
 	import { goto } from '$app/navigation';
+    import { logEvent } from 'firebase/analytics';
+    import { analytics } from '../../../hooks.client';
 
 	const { data }: PageProps = $props();
 	const t = $derived(data.translations.auth);
@@ -45,6 +47,7 @@
 			redirect,
 			mode: 'register'
 		});
+        logEvent(analytics(), 'sign_up', { email });
 		await goto(link);
 	};
 
