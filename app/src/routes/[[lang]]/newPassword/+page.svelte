@@ -9,6 +9,8 @@
     import { initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
 	import { relUrl } from '$lib/helpers/runes.svelte';
 	import { goto } from '$app/navigation';
+    import { logEvent } from 'firebase/analytics';
+    import { analytics } from '../../../hooks.client';
 
 	const { data }: PageProps = $props();
 	const t = $derived(data.translations.auth);
@@ -62,9 +64,10 @@
 			await authentication('enableUser', { email });
 		}
 		await changePassword(oobCode!, password)
-			.then(() =>
-				goto(relUrl(`/login?email=${email}&done=${originalMode}&redirect=${redirect}`))
-			)
+			.then(async () => {
+                logEvent(analytics(), 'change_password', { mode: originalMode, email });
+                await goto(relUrl(`/login?email=${email}&done=${originalMode}&redirect=${redirect}`));
+            })
 			.catch((e) => {
 				console.log(e.code);
 				if (e.code == 'auth/network-request-failed') {

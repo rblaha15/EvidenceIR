@@ -13,16 +13,19 @@ import {
     where,
     type WithFieldValue,
 } from 'firebase/firestore';
+import { logEvent } from 'firebase/analytics';
 import type { Raw } from '$lib/forms/Form';
 import { get, readonly, writable } from 'svelte/store';
 import { checkRegulusOrAdmin, currentUser, userInfo } from './auth';
-import { firestore } from '../../hooks.client';
+import { analytics, firestore } from '../../hooks.client';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
-import { type Database, type IR } from '$lib/data';
+import { type IR } from '$lib/data';
 import { offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
 import { deleteField, Query } from '@firebase/firestore';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { flatDerived } from '$lib/helpers/stores';
+import { browser } from '$app/environment';
+import { type Database, databaseMethods } from '$lib/Database';
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
@@ -69,7 +72,7 @@ const getSnps = async <T>(reference: Query<T>) => {
     }
 };
 
-export const firestoreDatabase: Database = {
+const baseDatabase: Database = {
     getIR: irid => getSnp(irDoc(irid))
         .thenAlso(v => odm.putOrDelete('IR', irid, v)),
     getAllIRs: async () => {
@@ -206,4 +209,15 @@ export const firestoreDatabase: Database = {
     getAllIndependentProtocolsAsStore: () => getAllAsStore(spCollection).also(r =>
         r.subscribe(v => v != 'loading' ? odm.putAll('SP', v.associateBy(v => extractSPIDFromRawData(v.zasah))) : 0),
     ),
+};
+
+export const firestoreDatabase: Database = databaseMethods.associateWith(name =>
+    (...args: Parameters<Database[typeof name]>) => {
+        logEvent(analytics(), 'fetch_database', { name, args });
+        const func = baseDatabase[name];
+        // @ts-expect-error TS doesn't know it's a tuple
+        return func(...args);
+    },
+) as {
+    [F in typeof databaseMethods[number]]: Database[F];
 };

@@ -1,10 +1,11 @@
-import type { Database, IR } from '$lib/data';
+import type { IR } from '$lib/data';
 import { derived, get, writable } from 'svelte/store';
 import { type DBSchema as DBS, type IDBPDatabase, openDB } from 'idb';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
 import type { Raw } from '$lib/forms/Form';
 import { currentUser } from '$lib/client/auth';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import type { Database } from '$lib/Database';
 
 interface DBSchema extends DBS {
     IR: {

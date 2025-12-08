@@ -5,18 +5,18 @@ import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import { type Readable } from 'svelte/store';
 import type { FormUPS } from '$lib/forms/UPS/formUPS';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
-import type { IRID, SPID } from '$lib/helpers/ir';
+import type { IRID } from '$lib/helpers/ir';
 import { getIsOnline, isOnline } from '$lib/client/realtime';
 import { offlineDatabase } from '$lib/client/offline.svelte.js';
-import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
 import { addToOfflineQueue } from '$lib/client/offlineQueue.svelte';
 import type { TC } from '$lib/forms/IN/defaultIN';
-import { firestoreDatabase } from '$lib/client/firestore';
 import { flatDerived } from '$lib/helpers/stores';
 import type { FormFT } from '$lib/forms/FT/formFT';
 import '$lib/extensions';
 import type { FormRKS } from '$lib/forms/RKS/formRKS';
+import { firestoreDatabase } from '$lib/client/firestore';
+import { type Database, databaseMethods, type ReadDatabase, type WriteDatabase } from '$lib/Database';
 
 export type Year = number;
 
@@ -67,7 +67,7 @@ export const createInstallation = (
     users: [userEmail],
     installationProtocols: [],
     uvedeniTC: { uvadeni: { date: '' } },
-} satisfies IR)
+} satisfies IR);
 
 export type RecommendationData = {
     irid: IRID;
@@ -77,79 +77,6 @@ export type RecommendationData = {
     location: string;
     type: 'TČ' | 'SOL',
 };
-
-/**
- * Supported actions:
- * - get
- * - getAll
- * - get*AsStore
- * - getAll*AsStore
- * - exists
- */
-export interface ReadDatabase {
-    getIR(irid: IRID): Promise<IR | undefined>;
-
-    getAllIRs(): Promise<IR[]>;
-
-    getAllIRsAsStore(): Readable<IR[] | 'loading'>;
-
-    getIRAsStore(irid: IRID): Readable<IR | undefined | 'loading'>;
-
-    existsIR(irid: IRID): Promise<boolean>;
-
-    getIndependentProtocol(spid: SPID): Promise<Raw<FormNSP> | undefined>;
-
-    getIndependentProtocolAsStore(spid: SPID): Readable<Raw<FormNSP> | undefined | 'loading'>;
-
-    getAllIndependentProtocols(): Promise<Raw<FormNSP>[]>;
-
-    getAllIndependentProtocolsAsStore(): Readable<Raw<FormNSP>[] | 'loading'>;
-}
-
-/**
- * Supported actions:
- * - add
- * - delete
- * - update
- */
-export interface WriteDatabase {
-    addIR(ir: IR): Promise<void>;
-
-    deleteIR(irid: IRID): Promise<void>;
-
-    updateIRRecord(rawData: Raw<FormIN>, isDraft: boolean): Promise<void>;
-
-    addHeatPumpCheck(irid: IRID, pump: TC, year: Year, check: Raw<FormRKT>): Promise<void>;
-
-    addSolarSystemCheck(irid: IRID, year: Year, check: Raw<FormRKS>): Promise<void>;
-
-    addServiceProtocol(irid: IRID, protocol: Raw<FormSP>): Promise<void>;
-
-    updateServiceProtocol(irid: IRID, index: number, protocol: Raw<FormSP>): Promise<void>;
-
-    updateHeatPumpCommissioningProtocol(irid: IRID, protocol: IR['uvedeniTC']): Promise<void>;
-
-    addSolarSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPS>): Promise<void>;
-
-    addPhotovoltaicSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPF>): Promise<void>;
-
-    addFaceTable(irid: IRID, faceTable: Raw<FormFT>): Promise<void>;
-
-    updateIRUsers(irid: IRID, users: string[]): Promise<void>;
-
-    updateHeatPumpRecommendationsSettings(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
-
-    updateSolarSystemRecommendationsSettings(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
-
-    addIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
-
-    updateIndependentServiceProtocol(protocol: Raw<FormNSP>): Promise<void>;
-
-    deleteIndependentProtocol(spid: SPID): Promise<void>;
-}
-
-export interface Database extends ReadDatabase, WriteDatabase {
-}
 
 type GetAsStoreFunctionReturnType = ReturnType<Database[GetAsStoreFunction]> extends Readable<infer T> ? Readable<T> : never;
 const mergedStore = (name: GetAsStoreFunction, args: Parameters<Database[GetAsStoreFunction]>): GetAsStoreFunctionReturnType => flatDerived(
@@ -178,15 +105,6 @@ const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>
     }
 };
 
-const functions = [
-    'getIR', 'getAllIRs', 'getAllIRsAsStore', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
-    'addSolarSystemCheck', 'addServiceProtocol', 'updateServiceProtocol', 'updateHeatPumpCommissioningProtocol',
-    'addSolarSystemCommissioningProtocol', 'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers',
-    'updateHeatPumpRecommendationsSettings', 'updateSolarSystemRecommendationsSettings', 'addIndependentServiceProtocol',
-    'deleteIndependentProtocol', 'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols',
-    'getAllIndependentProtocolsAsStore', 'addFaceTable', 'updateIndependentServiceProtocol',
-] as const satisfies (keyof Database)[];
-
 export type WriteFunction = keyof WriteDatabase;
 export const isWriteFunction = (name: keyof Database): name is WriteFunction =>
     ['add', 'update', 'delete'].some(prefix => name.startsWith(prefix));
@@ -197,10 +115,10 @@ export type GetAsStoreFunction = {
 export const isGetAsStoreFunction = (name: keyof Database): name is GetAsStoreFunction =>
     name.endsWith('AsStore');
 
-const db: Database = functions.associateWith(name =>
+const db: Database = databaseMethods.associateWith(name =>
     (...args: Parameters<Database[typeof name]>) => decide(name, args),
 ) as {
-    [F in typeof functions[number]]: Database[F];
+    [F in typeof databaseMethods[number]]: Database[F];
 };
 
 export default db;

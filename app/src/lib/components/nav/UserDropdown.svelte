@@ -8,6 +8,8 @@
     import { aA } from '$lib/helpers/stores';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import Icon from '$lib/components/Icon.svelte';
+    import { logEvent } from 'firebase/analytics';
+    import { analytics } from '../../../hooks.client';
 
     const { t }: { t: Translations } = $props();
     const ta = $derived(t.auth);
@@ -51,7 +53,10 @@
                 <Icon icon="password" />
                 {ta.changePassword}
             </button>
-            <button class="btn btn-danger" onclick={logOut}>
+            <button class="btn btn-danger" onclick={() => {
+                logEvent(analytics(), 'logout', { email: loggedInEmail });
+                logOut();
+            }}>
                 <Icon icon="logout" />
                 {ta.toLogOut}
             </button>

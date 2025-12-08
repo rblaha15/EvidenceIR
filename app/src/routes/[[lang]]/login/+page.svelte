@@ -10,6 +10,8 @@
 	import { get } from 'svelte/store';
 	import { relUrl } from '$lib/helpers/runes.svelte';
 	import { goto } from '$app/navigation';
+    import { logEvent } from 'firebase/analytics';
+    import { analytics } from '../../../hooks.client';
 
 	const { data }: PageProps = $props();
 	const t = $derived(data.translations.auth);
@@ -36,14 +38,14 @@
 	async function signIn() {
 		error = '';
 		await logIn(email, password)
-			.then(c =>
-				setName(
+			.then(async c => {
+                logEvent(analytics(), 'login', { email });
+                await setName(
                     get(techniciansList).find(t => t.email == c.user.email)?.name
-                    ?? get(usersList).find(t => t.email == c.user.email)?.responsiblePerson
-                ).then(() =>
-					goto(page.url.origin + relUrl(redirect))
-				)
-			)
+                    ?? get(usersList).find(t => t.email == c.user.email)?.responsiblePerson,
+                )
+                await goto(page.url.origin + relUrl(redirect));
+            })
 			.catch(e => {
 				console.log(e.code);
 				if (e.code == 'auth/network-request-failed') {
