@@ -52,13 +52,19 @@ const getSnp = async <T>(reference: DocumentReference<T>) => {
 };
 const getAsStore = <T>(reference: DocumentReference<T>) => {
     const currentState = writable<T | undefined | 'loading'>('loading');
-    onSnapshot(reference, data => currentState.set(data.exists() ? data.data() : undefined));
+    onSnapshot(reference, data => {
+        logEvent(analytics(), 'snapshot')
+        currentState.set(data.exists() ? data.data() : undefined);
+    });
     return readonly(currentState);
 };
 const getAllAsStore = <T>(reference: Query<T>) => {
     const currentState = writable<T[] | 'loading'>('loading');
-    onSnapshot(reference, snps => currentState.set(snps.docs
-        .mapNotUndefined(snp => snp.exists() ? snp.data() : undefined)), console.error);
+    onSnapshot(reference, snps => {
+        logEvent(analytics(), 'snapshot_all')
+        currentState.set(snps.docs
+            .mapNotUndefined(snp => snp.exists() ? snp.data() : undefined));
+    }, console.error);
     return readonly(currentState);
 };
 const getSnps = async <T>(reference: Query<T>) => {
