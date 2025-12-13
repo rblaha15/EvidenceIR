@@ -24,7 +24,6 @@ import { offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
 import { deleteField, Query } from '@firebase/firestore';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { flatDerived } from '$lib/helpers/stores';
-import { browser } from '$app/environment';
 import { type Database, databaseMethods } from '$lib/Database';
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({

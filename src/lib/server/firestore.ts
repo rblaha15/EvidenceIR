@@ -17,7 +17,7 @@ const spCollection = firestore.collection('sp').withConverter<Raw<DataNSP>>({
     fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<DataNSP>,
 });
 
-const rkCollection = firestore.collection('rkt').withConverter<RecommendationData>({
+const rkCollection = firestore.collection('rk').withConverter<RecommendationData>({
     toFirestore: (modelObject: WithFieldValue<RecommendationData>) => modelObject,
     fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as RecommendationData,
 });
