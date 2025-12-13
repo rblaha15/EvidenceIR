@@ -5,7 +5,7 @@ import ares from '$lib/helpers/ares';
 import { sendEmail } from '$lib/server/email';
 import { cervenka, SENDER } from '$lib/client/email';
 import { htmlToText } from 'html-to-text';
-import type { IR, RecommendationData, RecommendationSettings, RecommendationState } from '$lib/data';
+import type { IR, RecommendationData, RecommendationSettings } from '$lib/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { RequestHandler } from './$types';
 import MailCheckReminder from '$lib/emails/MailCheckReminder.svelte';
@@ -111,7 +111,7 @@ const processRecommendations = async ({ today, commission, ir, irid, settings, t
         }
     } else if (settings.state == 'sentRequest') {
         if (anniversaryThisYear <= today) {
-            if (lastFilledCheck == yearOfNextCheck - 2) {
+            if (lastFilledCheck <= yearOfNextCheck - 2) {
                 await sendReminder({ ir, irid, settings, type, fetch, appUrl });
             }
             await goToTheNextYear(irid, type);
