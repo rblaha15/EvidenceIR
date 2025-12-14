@@ -2,10 +2,11 @@
     import type { PageProps } from './$types';
     import { page } from '$app/state';
     import { setTitle } from '$lib/helpers/globals.js';
-    import { irLabel, irNumberFromIRID, irWholeName } from '$lib/helpers/ir';
+    import { irLabel, irNumberFromIRID, irWholeName, isSPDeleted } from '$lib/helpers/ir';
     import DetailIR from './DetailIR.svelte';
     import DetailNSPs from './DetailNSPs.svelte';
     import Icon from '$lib/components/Icon.svelte';
+    import { detailIrUrl } from '$lib/helpers/runes.svelte';
 
     let { data }: PageProps = $props();
     const { irid, spids, ir, sps, languageCode: lang, translations: t } = $derived(data);
@@ -17,12 +18,16 @@
 </script>
 
 <div class="d-flex flex-column gap-5">
-    {#if $ir || $sps.length}
+    {#if $ir && !$ir.deleted}
         <h3 class="m-0">
-            {#if $ir?.isDraft}
+            {#if $ir.isDraft}
                 <Icon icon="design_services" class="text-warning" />
             {/if}
-            {$sps.length ? irLabel($sps[0]) : $ir ? irWholeName($ir.evidence) : ''}
+            {irWholeName($ir.evidence)}
+        </h3>
+    {:else if $sps.length && !isSPDeleted($sps[0])}
+        <h3 class="m-0">
+            {irLabel($sps[0])}
         </h3>
     {:else}
         <h3 class="m-0">
@@ -48,10 +53,20 @@
             {/if}
         </div>
     {/if}
-    {#if spids && $sps.length}
+    {#if $ir && $ir.deleted}
+        <div>{td.sorrySomethingWentWrong}</div>
+        <div>
+            {#if $ir.movedTo}
+                {@html td.movedIRHtml({ link: detailIrUrl($ir.movedTo) })}
+            {:else}
+                {td.deletedIR}
+            {/if}
+        </div>
+    {/if}
+    {#if spids && $sps.length && !isSPDeleted($sps[0])}
         <DetailNSPs {t} {lang} sps={$sps} />
     {/if}
-    {#if irid && $ir}
+    {#if irid && $ir && !$ir.deleted}
         <DetailIR {t} {lang} ir={$ir} {irid} />
     {/if}
 </div>

@@ -4,7 +4,6 @@ import {
     DocumentReference,
     getDoc,
     getDocs,
-    onSnapshot,
     query,
     type QueryDocumentSnapshot,
     serverTimestamp,
@@ -16,7 +15,7 @@ import {
 } from 'firebase/firestore';
 import { logEvent } from 'firebase/analytics';
 import type { Raw } from '$lib/forms/Form';
-import { get, readonly, writable } from 'svelte/store';
+import { get } from 'svelte/store';
 import { checkRegulusOrAdmin, currentUser } from './auth';
 import { analytics, firestore } from '../../hooks.client';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, irWholeName, type SPID } from '$lib/helpers/ir';
@@ -49,14 +48,6 @@ const getSnp = async <T>(reference: DocumentReference<T>) => {
         console.error(e);
         return undefined;
     }
-};
-const getAsStore = <T>(reference: DocumentReference<T>) => {
-    const currentState = writable<T | undefined | 'loading'>('loading');
-    onSnapshot(reference, data => {
-        logEvent(analytics(), 'snapshot');
-        currentState.set(data.exists() ? data.data() : undefined);
-    });
-    return readonly(currentState);
 };
 const getSnps = async <T>(reference: Query<T>) => {
     try {
@@ -110,15 +101,16 @@ const baseDatabase: Database = {
         );
         return await getSnps(q) as Deleted<IRID>[];
     },
-    getIRAsStore: irid => getAsStore(irDoc(irid))
-        .also(r => r.subscribe(v => v != 'loading' ? odm.putOrDelete('IR', irid, v) : 0)),
     addIR: async ir => {
         const irid = extractIRIDFromRawData(ir.evidence);
         await setDoc(irDoc(irid), ir);
         await odm.put('IR', irid, ir);
     },
     deleteIR: async (irid, movedTo) => {
-        const deleted: Deleted<IRID> = { deleted: true, deletedAt: serverTimestamp() as Timestamp, id: irid, movedTo };
+        const deleted: Deleted<IRID> = {
+            deleted: true, deletedAt: serverTimestamp() as Timestamp, id: irid,
+            ...movedTo ? { movedTo } : {},
+        };
         await updateDoc(irDoc(irid), deleted);
         await odm.update('IR', irid, ir => ({ ...ir, ...deleted }));
     },
@@ -239,9 +231,6 @@ const baseDatabase: Database = {
     },
     getIndependentProtocol: spid => getSnp(spDoc(spid))
         .thenAlso(v => odm.putOrDelete('SP', spid, v)),
-    getIndependentProtocolAsStore: spid => getAsStore(spDoc(spid)).also(r =>
-        r.subscribe(v => v != 'loading' ? odm.putOrDelete('SP', spid, v) : 0),
-    ),
     getChangedIndependentProtocols: async lastUpdatedAt => await getSnps(query(
         spCollection,
         where('deleted', '!=', true),
