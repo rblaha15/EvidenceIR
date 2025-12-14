@@ -3,6 +3,7 @@ import type { Raw } from '$lib/forms/Form';
 import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
 
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import type { Deleted, IR } from '$lib/data';
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno
@@ -193,6 +194,12 @@ export const extractSPIDFromRawData = (zasah: Raw<GenericFormSP<never>['zasah']>
     const technik = zasah.inicialy.trim();
     return `${technik}-${datum}-${hodina}-${minuta}`;
 };
+export const extractIRID = (ir: IR | Deleted<IRID>): IRID =>
+    ir.deleted ? ir.id : extractIRIDFromRawData(ir.evidence);
+export const isSPDeleted = (sp: Raw<FormNSP> | Deleted<SPID>): sp is Deleted<SPID> =>
+    'deleted' in sp && Boolean(sp.deleted);
+export const extractSPID = (sp: Raw<FormNSP> | Deleted<SPID>): SPID =>
+    isSPDeleted(sp) ? sp.id as SPID : extractSPIDFromRawData(sp.zasah);
 
 export const supportsOnlyCTC = (t: IRTypes | null) => t == 'IR 10' || t == 'IR 12' || t == 'IR 30' || t == 'ctc';
 export const supportsMACAddresses = (t: IRTypes | null) => t == 'IR 10' || t == 'IR 12' || t == 'IR 30';
