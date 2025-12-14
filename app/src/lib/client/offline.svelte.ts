@@ -85,8 +85,8 @@ const odm = {
             ).awaitAll();
             await tx.done;
         });
-        if (type === 'IR') storedIR.update(ir => ({ ...ir, ...values }));
-        if (type === 'SP') storedSP.update(sp => ({ ...sp, ...values }));
+        if (type === 'IR') storedIR.set(values);
+        if (type === 'SP') storedSP.set(values);
     },
     update: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>, update: (value: (Data<T>)) => Data<T>) => {
         const tx = (await db()).transaction(type, 'readwrite');
@@ -113,7 +113,6 @@ export const offlineDatabase: Database = {
     getIR: irid => odm.get('IR', irid),
     getChangedIRs: async () => [],
     getDeletedIRs: async () => [],
-    getIRAsStore: irid => derived(storedIR, irs => irs[irid]),
     addIR: ir => odm.put('IR', extractIRIDFromRawData(ir.evidence), ir),
     deleteIR: async (irid, movedTo) => {
         const deleted: Deleted<IRID> = { deleted: true, deletedAt: serverTimestamp() as Timestamp, id: irid, movedTo };
@@ -196,7 +195,11 @@ export const offlineDatabase: Database = {
         await odm.update('SP', spid, sp => ({ ...sp, ...deleted }));
     },
     getIndependentProtocol: spid => odm.get('SP', spid),
-    getIndependentProtocolAsStore: spid => derived(storedSP, sps => sps[spid]),
     getChangedIndependentProtocols: async () => [],
     getDeletedIndependentProtocols: async () => [],
 };
+
+export const getOfflineStoreIR = (irid: IRID) =>
+    derived(storedIR, irs => irs[irid]);
+export const getOfflineStoreIndependentProtocol = (spid: SPID) =>
+    derived(storedSP, sps => sps[spid]);

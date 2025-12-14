@@ -48,7 +48,7 @@ export const load: PageLoad = async ({ parent }) => {
 
     const installations = derived(
         await getAllIRs(),
-        $irs => $irs
+        $irs => $irs == 'loading' ? null : $irs
             .filter(ir => !ir.deleted)
             .map(ir => ({
                 t: 'IR',
@@ -66,7 +66,7 @@ export const load: PageLoad = async ({ parent }) => {
         ? readable([])
         : derived(
             await getAllIndependentProtocols(),
-            $sps => Object.entries($sps
+            $sps => $sps == 'loading' ? null : Object.entries($sps
                 .mapNotUndefined(sp => isSPDeleted(sp) ? undefined : sp)
                 .groupBy(sp => irLabel(sp)))
                 .map(([label, sps]) => ({

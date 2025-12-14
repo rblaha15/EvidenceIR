@@ -75,7 +75,7 @@
                 alsoChange = alsoChangeDefault;
                 const newRecord = await db.getIR(newIRID);
                 if (!newRecord?.evidence) return change = 'fail';
-                await db.deleteIR(irid!);
+                await db.deleteIR(irid!, newIRID);
                 await goto(detailIrUrl(newIRID), { replaceState: true, invalidateAll: true });
             }
             change = 'no';

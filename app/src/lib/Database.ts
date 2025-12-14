@@ -18,23 +18,15 @@ import type { Timestamp } from 'firebase/firestore';
  * - get
  * - getChanged
  * - getDeleted
- * - get*AsStore
  * - exists
  */
 export interface ReadDatabase {
     getIR(irid: IRID): Promise<IR | Deleted<IRID> | undefined>;
-
     getChangedIRs(lastUpdatedAt: Timestamp | null): Promise<IR[]>;
     getDeletedIRs(lastUpdatedAt: Timestamp | null): Promise<Deleted<IRID>[]>;
-
-    getIRAsStore(irid: IRID): Readable<IR | Deleted<IRID> | undefined | 'loading'>;
-
     existsIR(irid: IRID): Promise<boolean>;
 
     getIndependentProtocol(spid: SPID): Promise<Raw<FormNSP> | Deleted<SPID> | undefined>;
-
-    getIndependentProtocolAsStore(spid: SPID): Readable<Raw<FormNSP> | Deleted<SPID> | undefined | 'loading'>;
-
     getChangedIndependentProtocols(lastUpdatedAt: Timestamp | null): Promise<Raw<FormNSP>[]>;
     getDeletedIndependentProtocols(lastUpdatedAt: Timestamp | null): Promise<Deleted<SPID>[]>;
 }
@@ -85,10 +77,10 @@ export interface Database extends ReadDatabase, WriteDatabase {
 }
 
 export const databaseMethods = [
-    'getIR', 'getChangedIRs', 'getDeletedIRs', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
+    'getIR', 'getChangedIRs', 'getDeletedIRs', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
     'addSolarSystemCheck', 'addServiceProtocol', 'updateServiceProtocol', 'updateHeatPumpCommissioningProtocol',
     'addSolarSystemCommissioningProtocol', 'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers',
     'updateHeatPumpRecommendationsSettings', 'updateSolarSystemRecommendationsSettings', 'addIndependentServiceProtocol',
-    'deleteIndependentProtocol', 'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getChangedIndependentProtocols',
+    'deleteIndependentProtocol', 'getIndependentProtocol', 'getChangedIndependentProtocols',
     'getDeletedIndependentProtocols', 'addFaceTable', 'updateIndependentServiceProtocol',
 ] as const satisfies (keyof Database)[];

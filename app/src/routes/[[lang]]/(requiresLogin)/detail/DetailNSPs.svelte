@@ -2,12 +2,12 @@
     import { detailIrUrl, detailSpUrl, relUrl } from '$lib/helpers/runes.svelte';
     import { isUserAdmin } from '$lib/client/auth';
     import Widget from '$lib/components/Widget.svelte';
-    import db from '$lib/data';
+    import db, { type Deleted } from '$lib/data';
     import { goto } from '$app/navigation';
     import { type Translations } from '$lib/translations';
     import { defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
     import { dataToRawData, type Raw } from '$lib/forms/Form';
-    import type { IRID } from '$lib/helpers/ir';
+    import { type IRID, isSPDeleted, type SPID } from '$lib/helpers/ir';
     import { InputWidget } from '$lib/forms/Widget.svelte';
     import defaultSP from '$lib/forms/SP/defaultSP';
     import type { FormSP } from '$lib/forms/SP/formSP.svelte';
@@ -21,7 +21,7 @@
     import type { LanguageCode } from '$lib/languageCodes';
 
     const { t, sps, lang }: {
-        t: Translations, sps: Raw<FormNSP>[], lang: LanguageCode,
+        t: Translations, sps: [Raw<FormNSP>, ...(Raw<FormNSP> | Deleted<SPID>)[]], lang: LanguageCode,
     } = $props();
     const td = $derived(t.detail);
 
@@ -31,7 +31,10 @@
         label: t => t.detail.newIRIDLabel,
     });
     const transfer = async () => {
-        await sps.map(sp => db.addServiceProtocol(newIRID.value as IRID, sp.pick(...protocolGroups) as Raw<FormSP>)).awaitAll();
+        await sps
+            .map(sp => isSPDeleted(sp) ? undefined : sp).filterNotUndefined()
+            .map(sp => db.addServiceProtocol(newIRID.value as IRID, sp.pick(...protocolGroups) as Raw<FormSP>))
+            .awaitAll();
         await goto(detailIrUrl(newIRID.value as IRID), { replaceState: true });
     };
 
@@ -40,14 +43,14 @@
             ...dataToRawData(defaultNSP()),
             ...sps[0].omit(...protocolGroups),
         };
-        storable<typeof sps[0]>(NSP.storeName()).set(newSP);
+        storable<typeof sps[0]>(NSP.storeName({})).set(newSP);
     };
     const createCopyIN = () => {
         const newIN = {
             ...dataToRawData(defaultIN()),
             ...sps[0].omit(...protocolGroups),
         };
-        storable<Raw<FormIN>>(IN.storeName()).set(newIN);
+        storable<Raw<FormIN>>(IN.storeName({ draft: false })).set(newIN);
     };
 </script>
 
@@ -55,7 +58,14 @@
     <div class="d-flex flex-column gap-3">
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#each sps as sp}
-                <DetailNSP {sp} {lang} {t} />
+                {#if !isSPDeleted(sp)}
+                    <DetailNSP {sp} {lang} {t} />
+                {:else}
+                    <div class="d-flex gap-3 align-items-center flex-wrap">
+                        <span>{sp.id.replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}</span>
+                        <span>{td.deletedNSP}</span>
+                    </div>
+                {/if}
             {/each}
         </div>
     </div>
