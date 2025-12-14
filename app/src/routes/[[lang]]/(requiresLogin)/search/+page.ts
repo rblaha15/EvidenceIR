@@ -1,7 +1,15 @@
 import type { EntryGenerator, PageLoad } from './$types';
 import { langEntryGenerator } from '../../helpers';
-import db from '$lib/data';
-import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, irLabel, irName, type SPID, spName } from '$lib/helpers/ir';
+import {
+    extractIRIDFromRawData,
+    extractSPIDFromRawData,
+    type IRID,
+    irLabel,
+    irName,
+    isSPDeleted,
+    type SPID,
+    spName,
+} from '$lib/helpers/ir';
 import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { browser } from '$app/environment';
 import { derived, readable } from 'svelte/store';
@@ -9,6 +17,7 @@ import { error } from '@sveltejs/kit';
 import '$lib/extensions';
 import { getTranslations } from '$lib/translations';
 import { waitUntil } from '$lib/helpers/stores';
+import { getAllIndependentProtocols, getAllIRs } from '$lib/client/incrementalUpdates';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
@@ -38,8 +47,9 @@ export const load: PageLoad = async ({ parent }) => {
     const ts = getTranslations(data.languageCode).search;
 
     const installations = derived(
-        db.getAllIRsAsStore(),
-        $irs => $irs == 'loading' ? null : $irs
+        await getAllIRs(),
+        $irs => $irs
+            .filter(ir => !ir.deleted)
             .map(ir => ({
                 t: 'IR',
                 id: extractIRIDFromRawData(ir.evidence),
@@ -55,8 +65,9 @@ export const load: PageLoad = async ({ parent }) => {
     const protocols = !await checkRegulusOrAdmin()
         ? readable([])
         : derived(
-            db.getAllIndependentProtocolsAsStore(),
-            $sps => $sps == 'loading' ? null : Object.entries($sps
+            await getAllIndependentProtocols(),
+            $sps => Object.entries($sps
+                .mapNotUndefined(sp => isSPDeleted(sp) ? undefined : sp)
                 .groupBy(sp => irLabel(sp)))
                 .map(([label, sps]) => ({
                     t: 'SP',

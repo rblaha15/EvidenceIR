@@ -10,34 +10,33 @@ import type { FormUPF } from '$lib/forms/UPF/formUPF';
 import type { FormFT } from '$lib/forms/FT/formFT';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { Readable } from 'svelte/store';
-import type { IR, Year } from '$lib/data';
+import type { Deleted, IR, Year } from '$lib/data';
+import type { Timestamp } from 'firebase/firestore';
 
 /**
  * Supported actions:
  * - get
- * - getAll
+ * - getChanged
+ * - getDeleted
  * - get*AsStore
- * - getAll*AsStore
  * - exists
  */
 export interface ReadDatabase {
-    getIR(irid: IRID): Promise<IR | undefined>;
+    getIR(irid: IRID): Promise<IR | Deleted<IRID> | undefined>;
 
-    getAllIRs(): Promise<IR[]>;
+    getChangedIRs(lastUpdatedAt: Timestamp | null): Promise<IR[]>;
+    getDeletedIRs(lastUpdatedAt: Timestamp | null): Promise<Deleted<IRID>[]>;
 
-    getAllIRsAsStore(): Readable<IR[] | 'loading'>;
-
-    getIRAsStore(irid: IRID): Readable<IR | undefined | 'loading'>;
+    getIRAsStore(irid: IRID): Readable<IR | Deleted<IRID> | undefined | 'loading'>;
 
     existsIR(irid: IRID): Promise<boolean>;
 
-    getIndependentProtocol(spid: SPID): Promise<Raw<FormNSP> | undefined>;
+    getIndependentProtocol(spid: SPID): Promise<Raw<FormNSP> | Deleted<SPID> | undefined>;
 
-    getIndependentProtocolAsStore(spid: SPID): Readable<Raw<FormNSP> | undefined | 'loading'>;
+    getIndependentProtocolAsStore(spid: SPID): Readable<Raw<FormNSP> | Deleted<SPID> | undefined | 'loading'>;
 
-    getAllIndependentProtocols(): Promise<Raw<FormNSP>[]>;
-
-    getAllIndependentProtocolsAsStore(): Readable<Raw<FormNSP>[] | 'loading'>;
+    getChangedIndependentProtocols(lastUpdatedAt: Timestamp | null): Promise<Raw<FormNSP>[]>;
+    getDeletedIndependentProtocols(lastUpdatedAt: Timestamp | null): Promise<Deleted<SPID>[]>;
 }
 
 /**
@@ -49,7 +48,7 @@ export interface ReadDatabase {
 export interface WriteDatabase {
     addIR(ir: IR): Promise<void>;
 
-    deleteIR(irid: IRID): Promise<void>;
+    deleteIR(irid: IRID, movedTo?: IRID): Promise<void>;
 
     updateIRRecord(rawData: Raw<FormIN>, isDraft: boolean): Promise<void>;
 
@@ -86,10 +85,10 @@ export interface Database extends ReadDatabase, WriteDatabase {
 }
 
 export const databaseMethods = [
-    'getIR', 'getAllIRs', 'getAllIRsAsStore', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
+    'getIR', 'getChangedIRs', 'getDeletedIRs', 'getIRAsStore', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
     'addSolarSystemCheck', 'addServiceProtocol', 'updateServiceProtocol', 'updateHeatPumpCommissioningProtocol',
     'addSolarSystemCommissioningProtocol', 'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers',
     'updateHeatPumpRecommendationsSettings', 'updateSolarSystemRecommendationsSettings', 'addIndependentServiceProtocol',
-    'deleteIndependentProtocol', 'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getAllIndependentProtocols',
-    'getAllIndependentProtocolsAsStore', 'addFaceTable', 'updateIndependentServiceProtocol',
+    'deleteIndependentProtocol', 'getIndependentProtocol', 'getIndependentProtocolAsStore', 'getChangedIndependentProtocols',
+    'getDeletedIndependentProtocols', 'addFaceTable', 'updateIndependentServiceProtocol',
 ] as const satisfies (keyof Database)[];

@@ -4,6 +4,7 @@ import {
     type Get,
     type GetT,
     type HeadingLevel,
+    HiddenValueWidget,
     type InlinePdfPreviewData,
     InlinePdfPreviewWidget,
     InputWidget,
@@ -123,6 +124,8 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     zasah: {
         _title: new TitleWidget({ text: t => t.sp.intervention, level: titleLevel }),
         datum: new InputWidget({ label: t => t.sp.interventionDate, type: 'datetime-local' }),
+        createdAt: new HiddenValueWidget(),
+        changedAt: new HiddenValueWidget(),
         clovek: new InputWidget({ label: t => t.sp.technicianName, show: false }),
         inicialy: new InputWidget({ label: t => t.sp.technicianInitials, show: false, showInXML: false }),
         nahlasenaZavada: new InputWidget({ label: t => t.sp.reportedFault, required: false }),

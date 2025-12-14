@@ -5,7 +5,7 @@ import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import { type Readable } from 'svelte/store';
 import type { FormUPS } from '$lib/forms/UPS/formUPS';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
-import type { IRID } from '$lib/helpers/ir';
+import type { IRID, SPID } from '$lib/helpers/ir';
 import { getIsOnline, isOnline } from '$lib/client/realtime';
 import { offlineDatabase } from '$lib/client/offline.svelte.js';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
@@ -13,6 +13,7 @@ import { addToOfflineQueue } from '$lib/client/offlineQueue.svelte';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { flatDerived } from '$lib/helpers/stores';
 import type { FormFT } from '$lib/forms/FT/formFT';
+import { serverTimestamp, Timestamp } from 'firebase/firestore';
 import '$lib/extensions';
 import type { FormRKS } from '$lib/forms/RKS/formRKS';
 import { firestoreDatabase } from '$lib/client/firestore';
@@ -38,9 +39,19 @@ type FakeUvedeni = {
     }
 };
 
+export type Deleted<ID extends IRID | SPID = IRID | SPID> = {
+    deleted: true;
+    deletedAt: Timestamp;
+    id: ID;
+    movedTo?: ID;
+}
 
 export type IR = {
     isDraft: boolean;
+    deleted: false;
+    createdAt?: Timestamp;
+    changedAt: Timestamp;
+    keysChangedAt: Timestamp;
     evidence: Raw<FormIN>;
     uvedeniTC: Raw<FormUPT> | FakeUvedeni;
     uvedeniSOL?: Raw<FormUPS>;
@@ -67,6 +78,10 @@ export const createInstallation = (
     users: [userEmail],
     installationProtocols: [],
     uvedeniTC: { uvadeni: { date: '' } },
+    deleted: false,
+    createdAt: serverTimestamp() as Timestamp,
+    changedAt: serverTimestamp() as Timestamp,
+    keysChangedAt: serverTimestamp() as Timestamp,
 } satisfies IR);
 
 export type RecommendationData = {
