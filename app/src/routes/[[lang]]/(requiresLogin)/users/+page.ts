@@ -4,7 +4,8 @@ import { error } from '@sveltejs/kit';
 import { extractIDs, langEntryGenerator } from '../../helpers';
 import type { EntryGenerator, PageLoad } from './$types';
 import { startUsersListening } from '$lib/client/realtime';
-import db, { type IR } from '$lib/data';
+import { type IR } from '$lib/data';
+import { getStoreIR } from '$lib/client/incrementalUpdates';
 import { waitUntil } from '$lib/helpers/stores';
 import type { Readable } from 'svelte/store';
 
@@ -21,7 +22,7 @@ export const load: PageLoad = async ({ url }) => {
 
     await startUsersListening()
 
-    const store = db.getIRAsStore(id.irid);
+    const store = getStoreIR(id.irid);
 
     await waitUntil(store, p => p != 'loading')
 
