@@ -16,7 +16,7 @@ import type { Deleted, IR } from '$lib/data';
 type Millis = number;
 export const getAllIRs = async () => {
     const store = writable<(IR | Deleted<IRID>)[] | 'loading'>('loading');
-    const lastUpdatedAtIR = storable<Millis>('lastUpdatedAtIR', 500);
+    const lastUpdatedAtIR = storable<Millis>('lastUpdatedAtIR2', 500);
     const lastUpdatedAtMillis = get(lastUpdatedAtIR);
     const lastUpdatedAt = lastUpdatedAtMillis ? Timestamp.fromMillis(lastUpdatedAtMillis) : null;
     if (lastUpdatedAtMillis == 500) await clearLocalDatabase();
