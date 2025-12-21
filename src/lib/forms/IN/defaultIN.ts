@@ -372,13 +372,20 @@ const heatPump = <const I extends TC>(i: I) => ({
         onError: t => t.wrong.number,
         regex: d => model(d, i).value == 'prototype' ? /.*/ : ctc(d)
             ? /^\d{4}-\d{4}-\d{4}$/
-            : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
+            : model(d, i).value == 'airTHERM 10'
+                ? /^\d{9}T$/
+                : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
         capitalize: true,
         required: d => tc(d) && i <= d.tc.pocet.value && model(d, i).also(console.log).value != 'prototype',
         maskOptions: d => model(d, i).value == 'prototype' ? undefined : ({
-            mask: ctc(d) ? `0000-0000-0000` : `AA0000-AA-0000`,
+            mask: ctc(d)
+                ? `0000-0000-0000`
+                : model(d, i).value == 'airTHERM 10'
+                    ? `000000000T`
+                    : `AA0000-AA-0000`,
             definitions: {
                 A: /[A-Za-z]/,
+                T: /T/,
             },
         }), lock: ecoHeat,
         show: d =>
