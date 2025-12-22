@@ -39,7 +39,8 @@
                     ...i.pieces.map(p => p.text),
                     ...i.otherSearchParts ?? [],
                 ]).some(piece =>
-                    wordsToFilter(piece).some(word => word.includes(filter)) || textToFilter(piece).includes(filter),
+                    wordsToFilter(piece).some(word => word.includes(filter)) ||
+                    (filter.startsWith('!') ? textToFilter(piece).startsWith(filter.slice(1)) : textToFilter(piece).includes(filter)),
                 ),
             ),
         ) ?? [];
