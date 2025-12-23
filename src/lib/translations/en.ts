@@ -514,6 +514,7 @@ const en: PlainTranslations = {
             label: `Anode rod`,
             magnesium: `Magnesium`,
             electronic: `Electronic`,
+            none: `None`,
         },
         heatingSystem: `Heating system`,
         heatingSystemConsistsOf: `Heating system consists of`,

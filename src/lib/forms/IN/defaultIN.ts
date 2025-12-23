@@ -665,7 +665,7 @@ export default (): FormIN => ({
         }),
         anode: new RadioWidget({
             label: t => t.tc.anodeRod.label, show: d => zas(d) || akuDuo(d), required: d => zas(d) || akuDuo(d),
-            options: ['magnesium', 'electronic'], labels: t => t.tc.anodeRod,
+            options: ['magnesium', 'electronic', 'none'], labels: t => t.tc.anodeRod,
         }),
     },
     rek: {

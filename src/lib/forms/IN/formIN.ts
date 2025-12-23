@@ -115,7 +115,7 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         title: TitleWidget<FormIN>;
         accumulation: InputWithSuggestionsWidget<FormIN>;
         water: InputWithSuggestionsWidget<FormIN>;
-        anode: RadioWidget<FormIN, 'magnesium' | 'electronic'>;
+        anode: RadioWidget<FormIN, 'magnesium' | 'electronic' | 'none'>;
     };
     rek: {
         title: TitleWidget<FormIN>;

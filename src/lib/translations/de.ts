@@ -318,6 +318,7 @@ const de: PlainTranslations = {
             label: `Anode`,
             magnesium: `Magnesium`,
             electronic: `Elektronische`,
+            none: `keine`,
         },
         heatingSystem: `Heizungsystem und Warmwasseraufbereitung`,
         heatingSystemConsistsOf: `Heizungsystem`,
