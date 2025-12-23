@@ -42,6 +42,7 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
     saveData: async (irid, raw, edit, _, editResult, t, send, __, { i }) => {
         const name = spName(raw.zasah);
         const ir = (await db.getIR(irid))!;
+        if (ir.deleted) return false
 
         if (!edit && getIsOnline() && ir.installationProtocols.some(p => spName(p.zasah) == name)) {
             editResult({ text: 'SP již existuje.', red: true, load: false });
@@ -62,7 +63,7 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
                 ? `Upravený servisní protokol: ${name}`
                 : `Nový servisní protokol: ${name}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, url: page.url.origin + detailIrUrl(irid) },
+            props: { name: raw.zasah.clovek, url: page.url.origin + detailIrUrl(irid), discountReason: raw.fakturace.discountReason },
         });
 
         if (response!.ok) return true;

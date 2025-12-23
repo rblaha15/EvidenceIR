@@ -274,6 +274,7 @@ export default {
         otherCompany: 'Jiná firma',
         discount: 'Sleva',
         discountNoTax: 'Sleva (bez DPH)',
+        discountReason: 'Důvod slevy',
         crnOrName: 'IČO nebo název/jméno',
     },
     units: {
