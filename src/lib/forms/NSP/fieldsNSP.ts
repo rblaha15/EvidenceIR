@@ -82,7 +82,7 @@ export const fieldsNSP: PdfImport<Raw<FormNSP>>['fields'] = {
         typPrace: {
             type: 'dropdown', name: 'Kombinované pole32', transform: a => {
                 const cs = getTranslations('cs');
-                return (['technicalAssistance', 'assemblyWork', 'technicalAssistance12'] as const)
+                return (['technicalAssistance', 'assemblyWork', 'assemblyWork12'] as const)
                     .associateBy(v => cs.sp[v])[a];
             },
         },

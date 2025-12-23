@@ -31,7 +31,7 @@ const prices = {
 const codes = {
     assemblyWork: 18261,
     technicalAssistance: 12510,
-    technicalAssistance12: 20482,
+    assemblyWork12: 20486,
     regulusRoute: 14343,
     installationApproval: 14846,
     extendedWarranty: 14847,
@@ -78,7 +78,7 @@ export const calculateProtocolPrice = <D extends GenericFormSP<D>>(p: Raw<D>, pu
     const discount = Math.min(p.fakturace.discount?.toNumber() ?? 0, priceWithoutDiscount);
     const priceOther = priceOperations + priceParts - discount;
     const sum = priceTransportation + priceWork + priceOther;
-    const tax = p.ukony.typPrace == 'technicalAssistance12' ? 1.12 : 1.21;
+    const tax = p.ukony.typPrace == 'assemblyWork12' ? 1.12 : 1.21;
     const sumWithTax = sum * tax;
     const isFree = sumWithTax < 1.0;
     return { spareParts, ip, priceTransportation, priceWork, operationsWithCascades, discount, priceOther, sum, tax, sumWithTax, isFree };

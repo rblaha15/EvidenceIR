@@ -225,7 +225,7 @@ export default {
         yearlySOLCheck: `Roční kontrola SOL`,
         technicalAssistance: `Technická pomoc`,
         assemblyWork: `Montážní práce`,
-        technicalAssistance12: `Technická pomoc – 12% DPH`,
+        assemblyWork12: `Montážní práce – 12% DPH`,
         pumpDetails: t`TČ${'n'}: ${'model'} – ${'cislo'}`,
         seeSecondPage: `Viz druhá strana`,
         interventionDate: 'Datum a čas zásahu',
