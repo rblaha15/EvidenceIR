@@ -42,6 +42,7 @@
         const newSP = {
             ...dataToRawData(defaultNSP()),
             ...sps[0].omit(...protocolGroups),
+            ...sps[0].pick('system'),
         };
         storable<typeof sps[0]>(NSP.storeName({})).set(newSP);
     };
