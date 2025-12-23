@@ -449,6 +449,7 @@ const en: PlainTranslations = {
         textTooLong: 'Warning: Text is too long for it to fit in the reserved field in the protocol, so so it will be written on a second page of the document.',
         discount: 'Discount',
         discountNoTax: 'Discount (excl. VAT)',
+        discountReason: 'Discount reason',
         crnOrName: 'CRN or name',
     },
     ft: {
