@@ -19,6 +19,7 @@
     import type { FormIN } from '$lib/forms/IN/formIN';
     import defaultIN from '$lib/forms/IN/defaultIN';
     import type { LanguageCode } from '$lib/languageCodes';
+    import { endUserEmails } from '$lib/helpers/ir.ts';
 
     const { t, sps, lang }: {
         t: Translations, sps: [Raw<FormNSP>, ...(Raw<FormNSP> | Deleted<SPID>)[]], lang: LanguageCode,
@@ -71,7 +72,7 @@
     </div>
 
     <div class="d-flex flex-column gap-3 align-items-sm-start">
-        <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${sps[0].koncovyUzivatel.email}`)} tabindex="0">
+        <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].koncovyUzivatel).join(';')}`)} tabindex="0">
             <Icon icon="attach_email" />
             {td.sendDocuments}
         </a>
