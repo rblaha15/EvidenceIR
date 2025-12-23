@@ -4,6 +4,7 @@ import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
 
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { Deleted, IR } from '$lib/data';
+import { separatorsRegExp } from '$lib/forms/IN/defaultIN';
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno
@@ -127,6 +128,9 @@ export const typBOX = (cisloBOX: string) => ({
     '20528': 'HBOX K 106 RTC 3/1S',
     '20631': 'HBOX K 106 RTC 3/1S EN',
 })[cisloBOX.slice(0, 5)];
+
+export const endUserEmails = (k: Raw<FormIN>['koncovyUzivatel']) =>
+    k.email.split(separatorsRegExp).map(t => t.trim());
 
 export const endUserName = (k: Raw<FormIN>['koncovyUzivatel']) =>
     k.typ == 'company' ? k.nazev : `${k.jmeno} ${k.prijmeni}`;
