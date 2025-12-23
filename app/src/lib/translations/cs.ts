@@ -401,6 +401,7 @@ export default {
             label: `Anoda`,
             magnesium: `Hořčíková`,
             electronic: `Elektronická`,
+            none: `Žádná`,
         },
         heatingSystem: `Otopný systém`,
         heatingSystemConsistsOf: `Otopný systém tvoří`,
