@@ -55,7 +55,20 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
 
 export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL';
 export type IRTypes = UntranslatableIRTypes | 'ctc' | 'other';
-export type IRSubTypes = 'RTC' | 'CTC' | 'SRS1 T' | 'SRS2 TE' | 'SRS3 E' | 'SRS6 EP' | 'STDC E' | 'TRS3' | 'TRS4' | 'TRS5' | 'TRS6 K' | 'EcoEl' | 'EcoZenith' | 'EcoHeat';
+type ControllersSOREL =
+    | 'SRS1 T'
+    | 'SRS2 TE'
+    | 'SRS3 E'
+    | 'SRS6 EP'
+    | 'STDC E'
+    | 'TRS3'
+    | 'TRS4'
+    | 'TRS5'
+    | 'TRS6 K'
+    | 'DeltaSol BS, ES'
+    | 'DeltaSol M, MX';
+type ControllersCTC = 'EcoEl' | 'EcoZenith' | 'EcoHeat' | 'EcoLogic EXT';
+export type IRSubTypes = 'RTC' | 'CTC' | ControllersSOREL | ControllersCTC;
 
 export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     ir: {
