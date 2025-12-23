@@ -153,7 +153,7 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
         }),
         typPrace: new RadioWidget({
             label: t => t.sp.workType, required: false, labels, lock: d => d.ukony.ukony.value.sumBy(i => d.ukony.ukony.weights(d, i)) == 4,
-            options: [`assemblyWork`, `technicalAssistance`, `technicalAssistance12`],
+            options: [`assemblyWork`, `technicalAssistance`, `assemblyWork12`],
         }),
         doba: new InputWidget({
             label: t => t.sp.billedTime, type: 'number',
