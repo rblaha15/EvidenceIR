@@ -60,6 +60,11 @@ const irCTC = (d: FormIN) => d.ir.typ.value.first == 'ctc';
 const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == 'DG-450-B';
 const akuDuo = (d: FormIN) => aku(d) && d.tanks.accumulation.value.toUpperCase().startsWith('DUO');
 
+export const separatorsRegExp = /[ ,;\/]/
+export const phoneRegExp = /(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}/
+export const emailRegExp = /[\w.-]+@([\w-]+\.)+[\w-]{2,4}/
+export const multiple = (r: RegExp) => new RegExp(`${r.source}(?: ?${separatorsRegExp.source} ?${r.source})*`)
+
 export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
     koncovyUzivatel: {
         nadpis: new TitleWidget({ text: t => t.in.endUser, level: 2 }),
@@ -120,12 +125,12 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         kontaktniOsoba: new InputWidget({ label: t => t.in.contactPerson, required: false, show: po }),
         telefon: new InputWidget({
             label: t => t.in.phone, onError: t => t.wrong.phone,
-            regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
+            regex: multiple(phoneRegExp),
             type: `tel`, autocomplete: `section-user billing mobile tel`,
         }),
         email: new InputWidget({
             label: t => t.in.email, onError: t => t.wrong.email,
-            regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
+            regex: multiple(emailRegExp),
             type: `email`, autocomplete: `section-user billing mobile email`,
         }),
     },
@@ -219,7 +224,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         email: new InputWidget({
             label: t => t.in.email,
             onError: t => t.wrong.email,
-            regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
+            regex: emailRegExp,
             autocomplete: `section-assembly billing work email`,
             show: d => d.montazka.company.value?.crn != unknownCRN,
             required: false, showInXML: true,
@@ -227,7 +232,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         telefon: new InputWidget({
             label: t => t.in.phone,
             onError: t => t.wrong.phone,
-            regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
+            regex: phoneRegExp,
             type: 'tel',
             autocomplete: `section-assembly billing work tel`,
             show: d => d.montazka.company.value?.crn != unknownCRN,
@@ -308,7 +313,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         email: new InputWidget({
             label: t => t.in.email,
             onError: t => t.wrong.email,
-            regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
+            regex: emailRegExp,
             showInXML: true,
             show: d => d.uvedeni.company.value?.crn != unknownCRN,
             required: false,
@@ -317,7 +322,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         telefon: new InputWidget({
             label: t => t.in.phone,
             onError: t => t.wrong.phone,
-            regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
+            regex: phoneRegExp,
             type: 'tel',
             showInXML: true,
             show: d => d.uvedeni.company.value?.crn != unknownCRN,

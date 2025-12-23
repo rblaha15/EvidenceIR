@@ -1,7 +1,7 @@
 <script lang="ts">
     import { type FormIN, type IRTypes } from '$lib/forms/IN/formIN';
     import { get, type Translations } from '$lib/translations';
-	import { irName, irLabel, extractIRIDFromParts } from '$lib/helpers/ir';
+    import { irName, irLabel, extractIRIDFromParts, endUserEmails } from '$lib/helpers/ir';
 	import type { Raw } from '$lib/forms/Form';
 	import { detailIrUrl } from '$lib/helpers/runes.svelte';
     import type { User } from 'firebase/auth';
@@ -33,8 +33,9 @@
         'IR RegulusBOX': 'CP-2972',
         'IR RegulusHBOX': 'CP-2972',
         'IR RegulusHBOX K': 'CP-2972',
-        'SOREL': '', // Shouldn't happen - see defaultIN.ts: supportsRemoteAccess
-        'fve': '', // Shouldn't happen - see defaultIN.ts: supportsRemoteAccess
+        'SOREL': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
+        'other': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
+        'ctc': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
     } as const)[e.ir.typ.first!];
 
     const irid = extractIRIDFromParts(e.ir.typ.first!, e.ir.cislo);
@@ -63,10 +64,10 @@
 	<p><b>Jméno:</b> {e.koncovyUzivatel.jmeno}</p>
 	<p><b>Příjmení:</b> {e.koncovyUzivatel.prijmeni}</p>
 {/if}
-<p><b>Přihlášení:</b> {e.koncovyUzivatel.email}</p>
+<p><b>Přihlášení:</b> {endUserEmails(e.koncovyUzivatel)[0]}</p>
 <p><b>Heslo:</b> Regulusroute1</p>
 <p><b>Telefon:</b> {e.koncovyUzivatel.telefon}</p>
-<p><b>Email:</b> {e.koncovyUzivatel.email}</p>
+<p><b>Email:</b> {endUserEmails(e.koncovyUzivatel)[0]}</p>
 
 <h2>Montážní firma</h2>
 {#if montazka != null}
