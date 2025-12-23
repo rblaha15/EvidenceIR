@@ -58,7 +58,7 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
     },
     ukony: {
         ukony: MultiCheckboxWidget<D, Operation>,
-        typPrace: RadioWidget<D, `assemblyWork` | `technicalAssistance` | `technicalAssistance12`>,
+        typPrace: RadioWidget<D, `assemblyWork` | `technicalAssistance` | `assemblyWork12`>,
         doba: InputWidget<D>,
         doprava: InputWidget<D>,
     },
