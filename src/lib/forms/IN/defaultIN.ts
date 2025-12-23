@@ -432,8 +432,8 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
         options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
         otherOptions1: ['IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc', 'other'],
         options2: ({ ir: { typ: { value: { first: f } } } }) => (
-            f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
-                : f == 'ctc' ? ['EcoEl', 'EcoZenith', 'EcoHeat']
+            f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K', 'DeltaSol BS, ES', 'DeltaSol M, MX']
+                : f == 'ctc' ? ['EcoEl', 'EcoZenith', 'EcoHeat', 'EcoLogic EXT']
                     : supportsOnlyCTC(f) ? ['CTC']
                         : doesNotSupportHeatPumps(f) ? []
                             : ['CTC', 'RTC']
