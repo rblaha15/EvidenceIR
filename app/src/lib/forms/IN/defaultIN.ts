@@ -60,6 +60,11 @@ const irCTC = (d: FormIN) => d.ir.typ.value.first == 'ctc';
 const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == 'DG-450-B';
 const akuDuo = (d: FormIN) => aku(d) && d.tanks.accumulation.value.toUpperCase().startsWith('DUO');
 
+export const separatorsRegExp = /[ ,;\/]/
+export const phoneRegExp = /(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}/
+export const emailRegExp = /[\w.-]+@([\w-]+\.)+[\w-]{2,4}/
+export const multiple = (r: RegExp) => new RegExp(`${r.source}(?: ?${separatorsRegExp.source} ?${r.source})*`)
+
 export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
     koncovyUzivatel: {
         nadpis: new TitleWidget({ text: t => t.in.endUser, level: 2 }),
@@ -120,12 +125,12 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         kontaktniOsoba: new InputWidget({ label: t => t.in.contactPerson, required: false, show: po }),
         telefon: new InputWidget({
             label: t => t.in.phone, onError: t => t.wrong.phone,
-            regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
+            regex: multiple(phoneRegExp),
             type: `tel`, autocomplete: `section-user billing mobile tel`,
         }),
         email: new InputWidget({
             label: t => t.in.email, onError: t => t.wrong.email,
-            regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
+            regex: multiple(emailRegExp),
             type: `email`, autocomplete: `section-user billing mobile email`,
         }),
     },
@@ -219,7 +224,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         email: new InputWidget({
             label: t => t.in.email,
             onError: t => t.wrong.email,
-            regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
+            regex: emailRegExp,
             autocomplete: `section-assembly billing work email`,
             show: d => d.montazka.company.value?.crn != unknownCRN,
             required: false, showInXML: true,
@@ -227,7 +232,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         telefon: new InputWidget({
             label: t => t.in.phone,
             onError: t => t.wrong.phone,
-            regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
+            regex: phoneRegExp,
             type: 'tel',
             autocomplete: `section-assembly billing work tel`,
             show: d => d.montazka.company.value?.crn != unknownCRN,
@@ -308,7 +313,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         email: new InputWidget({
             label: t => t.in.email,
             onError: t => t.wrong.email,
-            regex: /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
+            regex: emailRegExp,
             showInXML: true,
             show: d => d.uvedeni.company.value?.crn != unknownCRN,
             required: false,
@@ -317,7 +322,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         telefon: new InputWidget({
             label: t => t.in.phone,
             onError: t => t.wrong.phone,
-            regex: /^(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}$/,
+            regex: phoneRegExp,
             type: 'tel',
             showInXML: true,
             show: d => d.uvedeni.company.value?.crn != unknownCRN,
@@ -427,8 +432,8 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
         options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
         otherOptions1: ['IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc', 'other'],
         options2: ({ ir: { typ: { value: { first: f } } } }) => (
-            f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K']
-                : f == 'ctc' ? ['EcoEl', 'EcoZenith', 'EcoHeat']
+            f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K', 'DeltaSol BS, ES', 'DeltaSol M, MX']
+                : f == 'ctc' ? ['EcoEl', 'EcoZenith', 'EcoHeat', 'EcoLogic EXT']
                     : supportsOnlyCTC(f) ? ['CTC']
                         : doesNotSupportHeatPumps(f) ? []
                             : ['CTC', 'RTC']
@@ -660,7 +665,7 @@ export default (): FormIN => ({
         }),
         anode: new RadioWidget({
             label: t => t.tc.anodeRod.label, show: d => zas(d) || akuDuo(d), required: d => zas(d) || akuDuo(d),
-            options: ['magnesium', 'electronic'], labels: t => t.tc.anodeRod,
+            options: ['magnesium', 'electronic', 'none'], labels: t => t.tc.anodeRod,
         }),
     },
     rek: {

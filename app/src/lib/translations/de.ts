@@ -69,7 +69,7 @@ const de: PlainTranslations = {
         companyName: `Name`,
         ir: {
             other: `Andere (für PV oder SOL durch externe Regulierung gesteuert)`,
-            ctc: `CTC-Heizzentralen`,
+            ctc: `CTC-Heizzentralen und -Regler`,
         },
         device: {
             heatPump: `Wärmepumpe`,
@@ -175,7 +175,10 @@ const de: PlainTranslations = {
         sorrySomethingWentWrong: `Leider ist ein Fehler aufgetreten.`,
         successfullyDeleted: `Datensatz erfolgreich gelöscht`,
         linkInvalidIR: `Entweder existiert das Installationsprotokoll nicht oder Sie haben keinen Zugriff darauf.`,
+        deletedIR: `Dieses Installationsprotokoll wurde gelöscht.`,
+        movedIRHtml: t`Dieses Installationsprotokoll wurde an <a href="${'link'}">eine neue Adresse</a> verschoben.`,
         linkInvalidNSP: `Entweder existiert das Protokoll nicht oder Sie haben keinen Zugriff darauf.`,
+        deletedNSP: `Dieses Protokoll wurde gelöscht.`,
         sendDocuments: `Signierte Dokumente senden`,
         viewFilledData: `Ausgefüllte Daten anzeigen`,
         editCheck: `Überprüfungen bearbeiten`,
@@ -315,6 +318,7 @@ const de: PlainTranslations = {
             label: `Anode`,
             magnesium: `Magnesium`,
             electronic: `Elektronische`,
+            none: `keine`,
         },
         heatingSystem: `Heizungsystem und Warmwasseraufbereitung`,
         heatingSystemConsistsOf: `Heizungsystem`,

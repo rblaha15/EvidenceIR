@@ -153,7 +153,7 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
         }),
         typPrace: new RadioWidget({
             label: t => t.sp.workType, required: false, labels, lock: d => d.ukony.ukony.value.sumBy(i => d.ukony.ukony.weights(d, i)) == 4,
-            options: [`assemblyWork`, `technicalAssistance`, `technicalAssistance12`],
+            options: [`assemblyWork`, `technicalAssistance`, `assemblyWork12`],
         }),
         doba: new InputWidget({
             label: t => t.sp.billedTime, type: 'number',
@@ -189,8 +189,12 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
             ], labels, required: false,
         }),
         discount: new InputWidget({
-            label: t => t.sp.discountNoTax, type: 'number', onError: t => t.wrong.number, suffix: t => t.units.czk, required: false,
+            label: t => t.sp.discountNoTax, inputmode: 'numeric', onError: t => t.wrong.number, suffix: t => t.units.czk, required: false,
             lock: d => d.nahradniDily.pocet.value == 8,
+        }),
+        discountReason: new InputWidget({
+            label: t => t.sp.discountReason, required: false,
+            show: d => Boolean(d.fakturace.discount.value),
         }),
         _price: new TextWidget({ text: (t, d) => t.sp.price(calculate(hpCount, d)), class: 'fs-5' }),
         hotove: new ChooserWidget({

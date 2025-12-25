@@ -1,6 +1,6 @@
 import { dev } from '$app/environment';
 import { changeCode, changeState, createRK, getIRs, getRK, removeRK } from '$lib/server/firestore';
-import { endUserName, extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
+import { endUserEmails, endUserName, extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import ares from '$lib/helpers/ares';
 import { sendEmail } from '$lib/server/email';
 import { cervenka, SENDER } from '$lib/client/email';
@@ -148,7 +148,7 @@ const sendRecommendation = async ({ ir, irid, settings, type, fetch, appUrl }: S
     });
     await sendEmail({
         from: SENDER(),
-        to: { name: user, address: dev ? 'radek.blaha.15@gmail.com' : ir.evidence.koncovyUzivatel.email },
+        to: dev ? 'radek.blaha.15@gmail.com' : endUserEmails(ir.evidence.koncovyUzivatel).map(address => ({ name: user, address  })),
         replyTo: { name: 'David Červenka', address: 'david.cervenka@regulus.cz' },
         subject: `Upozornění na roční kontrolu ${data.type === 'TČ' ? 'tepelného čerpadla' : 'solárního systému'} Regulus`,
         html, text: htmlToText(html),
