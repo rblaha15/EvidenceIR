@@ -225,7 +225,7 @@ export default {
         yearlySOLCheck: `Roční kontrola SOL`,
         technicalAssistance: `Technická pomoc`,
         assemblyWork: `Montážní práce`,
-        technicalAssistance12: `Technická pomoc – 12% DPH`,
+        assemblyWork12: `Montážní práce – 12% DPH`,
         pumpDetails: t`TČ${'n'}: ${'model'} – ${'cislo'}`,
         seeSecondPage: `Viz druhá strana`,
         interventionDate: 'Datum a čas zásahu',
@@ -274,6 +274,7 @@ export default {
         otherCompany: 'Jiná firma',
         discount: 'Sleva',
         discountNoTax: 'Sleva (bez DPH)',
+        discountReason: 'Důvod slevy',
         crnOrName: 'IČO nebo název/jméno',
     },
     units: {
@@ -401,6 +402,7 @@ export default {
             label: `Anoda`,
             magnesium: `Hořčíková`,
             electronic: `Elektronická`,
+            none: `Žádná`,
         },
         heatingSystem: `Otopný systém`,
         heatingSystemConsistsOf: `Otopný systém tvoří`,
@@ -601,7 +603,7 @@ export default {
     in: {
         ir: {
             other: `Jiný (pro FVE nebo SOL řízený externí regulací)`,
-            ctc: `Centrály CTC`,
+            ctc: `Regulátory a centrály CTC`,
         },
         device: {
             heatPump: `Tepelné čerpadlo`,

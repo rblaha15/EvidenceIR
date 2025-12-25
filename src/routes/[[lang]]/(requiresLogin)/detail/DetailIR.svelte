@@ -1,6 +1,6 @@
 <script lang="ts">
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
-    import { type IRID } from '$lib/helpers/ir';
+    import { endUserEmails, type IRID } from '$lib/helpers/ir';
     import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { getTranslations, type Translations } from '$lib/translations';
     import db, { type IR } from '$lib/data';
@@ -57,7 +57,7 @@
         <h4 class="m-0">{ir.isDraft ? td.draftManagement : td.recordManagement}</h4>
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#if !ir.isDraft}
-                <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${ir.evidence.koncovyUzivatel.email}`)}
+                <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.evidence.koncovyUzivatel).join(';')}`)}
                    tabindex="0">
                     <Icon icon="attach_email" />
                     {td.sendDocuments}

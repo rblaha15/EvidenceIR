@@ -11,7 +11,7 @@ import { nowISO } from '$lib/helpers/date';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { extractSPIDFromRawData, type SPID, spName } from '$lib/helpers/ir';
+import { extractSPIDFromRawData, isSPDeleted, type SPID, spName } from '$lib/helpers/ir';
 import db from '$lib/data';
 import { type DataNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
@@ -31,7 +31,7 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
             ...defaultAddresses(),
             subject: `Nový servisní protokol: ${spName(raw.zasah)}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, url: page.url.origin + detailSpUrl([extractSPIDFromRawData(raw.zasah)]) },
+            props: { name: raw.zasah.clovek, url: page.url.origin + detailSpUrl([extractSPIDFromRawData(raw.zasah)]), discountReason: raw.fakturace.discountReason },
         });
 
         if (response!.ok) return true;
@@ -63,14 +63,15 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[boolean], [Technician[], 
         const spid = url.searchParams.get('edit-spid') as SPID | null;
         if (!spid) return undefined;
 
-        return { raw: await db.getIndependentProtocol(spid) };
+        const sp = await db.getIndependentProtocol(spid);
+        return !sp || isSPDeleted(sp) ? undefined : { raw: sp };
     },
     getViewData: async url => {
         const spid = url.searchParams.get('view-spid') as SPID | null;
         if (!spid) return undefined;
 
         const sp = await db.getIndependentProtocol(spid);
-        return !sp ? undefined : { raw: sp };
+        return !sp || isSPDeleted(sp) ? undefined : { raw: sp };
     },
     storeEffects: [
         [(_, data, [$isUserRegulusOrAdmin]) => { // From IN

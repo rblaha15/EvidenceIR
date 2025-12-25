@@ -8,6 +8,7 @@ import { cervenka, defaultAddresses, sendHtmlEmail, userAddress } from '$lib/cli
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import { dev } from '$app/environment';
 import { initialRouteLoggedIn } from '$lib/helpers/globals';
+import { separatorsRegExp } from '$lib/forms/IN/defaultIN';
 
 const infoOD: IndependentFormInfo<FormOD, FormOD> = {
     type: '',
@@ -28,9 +29,11 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
 
         const response = await sendHtmlEmail({
             ...defaultAddresses(cervenka, false, user.name || undefined),
-            cc: dev ? undefined : raw.all.userEmail ? [
-                user, raw.all.userEmail, ...raw.all.otherCopies.split(',').map(t => t.trim()),
-            ] : user,
+            cc: dev ? undefined : [
+                user,
+                ...(raw.all.userEmail ? raw.all.userEmail.split(separatorsRegExp).map(t => t.trim()) : []),
+                ...(raw.all.otherCopies ? raw.all.otherCopies.split(separatorsRegExp).map(t => t.trim()) : []),
+            ],
             subject: `Podepsané dokumenty`,
             attachments:
                 (await fileIds.map(getFile).awaitAll())
