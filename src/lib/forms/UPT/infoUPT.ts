@@ -12,6 +12,7 @@ import type { DataUPT, FormUPT } from '$lib/forms/UPT/formUPT';
 import { saveDK } from '$lib/forms/DK/formDK';
 import type { Widget } from '$lib/forms/Widget.svelte';
 import type { Raw } from '$lib/forms/Form';
+import { grantPoints } from '$lib/client/loyaltyProgram';
 
 const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
     type: 'IR',
@@ -23,6 +24,9 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
     saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
         await db.updateHeatPumpCommissioningProtocol(irid, raw);
         if (!edit) await saveDK(ir, f.checkRecommendations, 'TČ');
+
+        await grantPoints({ type: 'heatPumpCommission', irid });
+
         if (await checkRegulusOrAdmin()) return;
 
         const user = get(currentUser)!;

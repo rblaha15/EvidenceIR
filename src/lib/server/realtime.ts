@@ -2,6 +2,7 @@ import { getDatabase } from "firebase-admin/database"
 import { app } from "./firebase"
 import type { Company, Person, SparePart, Technician } from '$lib/client/realtime';
 import '$lib/extensions'
+import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 
 const realtime = getDatabase(app)
 
@@ -12,6 +13,7 @@ const dilyRef = realtime.ref('/spareParts');
 const nadrzeRef = realtime.ref('/accumulationTanks');
 const zasobnikyRef = realtime.ref('/waterTanks');
 const kolektoryRef = realtime.ref('/solarCollectors');
+const loyaltyProgramRef = realtime.ref('/loyaltyProgram');
 
 export const setCompanies = (companies: Company[]) => firmyRef.set(Object.fromEntries(companies.map(defined).map(c => [c.crn, c] as const)))
 export const setTechnicians = (technicians: Technician[]) => techniciRef.set(technicians);
@@ -23,8 +25,13 @@ export const setSolarCollectors = (tanks: string[]) => kolektoryRef.set(tanks);
 export const setPersonDetails = (userId: string, person: Person) => lidiRef.child(userId).set(defined(person))
 export const removePerson = (userId: string) => lidiRef.child(userId).remove()
 
-export const people = async () => ((await lidiRef.get()).val() as Record<string, Person>).getValues() ?? []
+export const people = async () => ((await lidiRef.get()).val() as Record<string, Person>) ?? {}
 export const technicians = async () => (await techniciRef.get()).val() as Technician[] ?? []
+
+export const getLoyaltyProgramData = async (userId: string) =>
+    ((await loyaltyProgramRef.child(userId).get()).val() as LoyaltyProgramUserData | null) || { points: 0, history: [] }
+export const setLoyaltyProgramData = (userId: string, data: LoyaltyProgramUserData) =>
+    loyaltyProgramRef.child(userId).set(data)
 
 const defined = <T extends Record<PropertyKey, unknown>>(obj: T): T =>
     obj.filterValues((_, v) => v != null) as T

@@ -51,3 +51,9 @@ export const getAllIRs = () => irCollection.get().then(
 export const getAllSPs = () => spCollection.get().then(
     snapshot => snapshot.docs.map(snapshot => snapshot.data()),
 );
+
+export const getIR = (irid: IRID) => irCollection.doc(irid).get().then(s => s.data());
+export const setCreatedIRBy = (irid: IRID, createdBy: IR['createdBy']) =>
+    irCollection.doc(irid).update('createdBy', createdBy);
+export const setGrantedCommission = (irid: IRID) =>
+    irCollection.doc(irid).update('loyaltyProgram.grantedCommission', true);

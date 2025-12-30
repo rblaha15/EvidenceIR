@@ -10,6 +10,8 @@ const en: PlainTranslations = {
         nProtocols: (n, p) => `${n} protocols (${p})`,
     },
     auth: {
+        loyaltyProgram: 'Loyalty program',
+        currentPointBalance: 'Current point balance',
         password: 'Password',
         confirmPassword: 'Confirm password',
         checkInternet: 'Check your Internet connection!',
@@ -249,6 +251,7 @@ const en: PlainTranslations = {
             description: `You are offline and have performed several changes in the app data. You can view and edit all of the edited information in the app as usual, but they will NOT be sent to the serer until you open the app WITH AN INTERNET CONNECTION!`,
             changes: `Performed, unsent changes:`,
             unsentEmail: t`Unsent email: ${'subject'}`,
+            unverifiedLoyaltyPoints: t`Unassigned loyalty points`,
             f: {
                 addIR: t`Registered a new controller (${'ir'})`,
                 deleteIR: t`Removed the record of the ${'ir'} controller`,
