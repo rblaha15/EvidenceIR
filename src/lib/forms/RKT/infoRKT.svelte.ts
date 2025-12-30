@@ -12,6 +12,7 @@ import defaultRKT from '$lib/forms/RKT/defaultRKT';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { error } from '@sveltejs/kit';
+import { grantPoints } from '$lib/client/loyaltyProgram';
 
 const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT', { defaultYear: Year, filledYears: Year[], pump: TC }> = {
     type: 'IR',
@@ -53,7 +54,10 @@ const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT', { defaultYear: Year, filled
         }
     },
     saveData: async (irid, raw, edit, form, editResult, t, _, ir, { pump }) => {
-        await db.addHeatPumpCheck(irid, pump, form.info.year.value as Year, raw);
+        const year = form.info.year.value as Year;
+        await db.addHeatPumpCheck(irid, pump, year, raw);
+
+        await grantPoints({ type: 'heatPumpYearlyCheck', irid, pump, year });
 
         if (await checkRegulusOrAdmin()) return;
 

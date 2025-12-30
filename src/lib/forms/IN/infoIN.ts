@@ -26,6 +26,7 @@ import { type FormIN } from '$lib/forms/IN/formIN';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import MailXML from '$lib/emails/MailXML.svelte';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
+import { grantPoints } from '$lib/client/loyaltyProgram';
 
 const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string | null]], never, { draft: boolean }> = {
     type: '',
@@ -61,6 +62,8 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         const newIr = createInstallation(raw, user.email!, draft);
         if (edit) await db.updateIRRecord(raw, draft);
         else await db.addIR(newIr);
+
+        if (!draft) await grantPoints({ type: raw.vzdalenyPristup.chce ? 'connectRegulusRoute' : 'disconnectRegulusRoute', irid });
 
         const doNotSend = (edit && !send) || draft;
         const edited = edit && !draft;
@@ -126,14 +129,14 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         if (!irid) return { other: { draft: false } };
 
         const ir = await db.getIR(irid);
-        return !ir ? { other: { draft: false } } : { raw: ir.evidence, other: { draft: ir.isDraft } };
+        return !ir || ir.deleted ? { other: { draft: false } } : { raw: ir.evidence, other: { draft: ir.isDraft } };
     },
     getViewData: async url => {
         const irid = url.searchParams.get('view-irid') as IRID | null;
         if (!irid) return { other: { draft: false } };
 
         const ir = await db.getIR(irid);
-        return !ir ? { other: { draft: false } } : { raw: ir.evidence, other: { draft: ir.isDraft } };
+        return !ir || ir.deleted ? { other: { draft: false } } : { raw: ir.evidence, other: { draft: ir.isDraft } };
     },
     onMount: async (_, data, mode) => {
         await startTechniciansListening();

@@ -7,24 +7,29 @@ export function today() {
     return `${dd}. ${mm}. ${yyyy}` as const;
 }
 
-export function dayISO(date: Date = new Date()) {
-    const dd = String(date.getDate()).padStart(2, '0');
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const yyyy = date.getFullYear();
+export function dayISO(utc: Boolean = false) {
+    const date = new Date();
+    const d = utc ? date.getUTCDate() : date.getDate();
+    const m = utc ? date.getUTCMonth() : date.getMonth();
+    const dd = String(d).padStart(2, '0');
+    const mm = String(m + 1).padStart(2, '0');
+    const yyyy = utc ? date.getUTCFullYear() : date.getFullYear();
 
     return `${yyyy}-${mm}-${dd}` as const;
 }
 
-export function time() {
+export function time(utc: Boolean = false) {
     const now = new Date();
-    const hh = String(now.getHours()).padStart(2, '0');
-    const mm = String(now.getMinutes()).padStart(2, '0');
+    const h = utc ? now.getUTCHours() : now.getHours();
+    const m = utc ? now.getUTCMinutes() : now.getMinutes();
+    const hh = String(h).padStart(2, '0');
+    const mm = String(m).padStart(2, '0');
 
     return `${hh}:${mm}` as const;
 }
 
-export function nowISO() {
-    return `${dayISO()}T${time()}`;
+export function nowISO(utc: Boolean = false) {
+    return `${dayISO(utc)}T${time(utc)}`;
 }
 
 export function dateFromISO(dateISO: string) {
