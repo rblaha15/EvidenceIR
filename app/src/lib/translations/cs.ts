@@ -72,6 +72,8 @@ export default {
         nProtocols: (n: number, p: string) => n < 5 ? `${n} protokoly (${p})` : `${n} protokolů (${p})`,
     },
     auth: {
+        loyaltyProgram: 'Věrnostní program',
+        currentPointBalance: 'Aktuální stav bodů',
         signUp: `Registrace`,
         toSignUp: `Registrovat`,
         logIn: `Přihlášení`,
@@ -178,6 +180,7 @@ export default {
             description: `Jste offline a provedli jste několik změn v datech aplikace. Tyto upravené informace můžete standartně zobrazit a upravovat v aplikaci, ale NEODEŠLOU se na server, dokud aplikaci nezapnete S PŘIPOJENÍM K INTERNETU!`,
             changes: `Provedené, neodeslané změny:`,
             unsentEmail: t`Neodeslaný email: ${'subject'}`,
+            unverifiedLoyaltyPoints: t`Nepřipočtené věrnostní body`,
             f: {
                 addIR: t`Zaevidován nový regulátor (${'ir'})`,
                 deleteIR: t`Odstraněna evidence IR ${'ir'}`,

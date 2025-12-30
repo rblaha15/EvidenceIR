@@ -1,8 +1,8 @@
 <script lang="ts">
     import authentication from '$lib/client/authentication.js';
     import { page } from '$app/state';
-    import { currentUser, isUserAdmin, logOut } from '$lib/client/auth.js';
-    import { responsiblePerson } from '$lib/client/realtime';
+    import { currentUser, isUserAdmin, isUserRegulusOrAdmin, logOut } from '$lib/client/auth.js';
+    import { getLoyaltyProgramDataStore, responsiblePerson } from '$lib/client/realtime';
     import type { Translations } from '$lib/translations';
     import { goto } from '$app/navigation';
     import { aA } from '$lib/helpers/stores';
@@ -10,6 +10,9 @@
     import Icon from '$lib/components/Icon.svelte';
     import { logEvent } from 'firebase/analytics';
     import { analytics } from '../../../hooks.client';
+    import { readable } from 'svelte/store';
+    import { type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
+    import { onMount } from 'svelte';
 
     const { t }: { t: Translations } = $props();
     const ta = $derived(t.auth);
@@ -25,6 +28,11 @@
         });
         await goto(link, { replaceState: true });
     };
+
+    let store = $state(readable<LoyaltyProgramUserData | null>(null))
+    onMount(async () => {
+        store = await getLoyaltyProgramDataStore()
+    })
 </script>
 
 <div class="dropdown ms-3">
@@ -46,7 +54,19 @@
                     {ta.responsiblePerson}:<br />{$responsiblePerson}
                 </span>
             {/if}
+            {#if $currentUser?.uid && $isUserAdmin}
+                <span>
+                    UID:{$aA}<br />{$currentUser?.uid}
+                </span>
+            {/if}
         </div>
+        {#if !$isUserRegulusOrAdmin && $store && new Date() >= new Date(2026, 0, 1)}
+            <hr class="my-3" />
+            <div class="d-flex flex-column gap-3 px-3">
+                <h6 class="m-0">{ta.loyaltyProgram}</h6>
+                <span>{ta.currentPointBalance}: {$store.points}</span>
+            </div>
+        {/if}
         <hr class="my-3" />
         <div class="d-flex flex-column gap-1 px-3 align-items-start">
             <button class="btn btn-warning" onclick={changePassword}>

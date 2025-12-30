@@ -122,6 +122,8 @@ const de: PlainTranslations = {
         },
     },
     auth: {
+        loyaltyProgram: 'Treueprogramm',
+        currentPointBalance: 'Aktueller Punktestand',
         password: `Passwort`,
         confirmPassword: `Passwort bestätigen`,
         checkInternet: `Überprüfen Sie die Internetverbindung!`,
@@ -267,6 +269,7 @@ const de: PlainTranslations = {
             description: `Sie sind offline und haben mehrere Änderungen an den Anwendungsdaten vorgenommen. Sie können diese geänderten Informationen standardmäßig in der Anwendung anzeigen und bearbeiten. Sie werden jedoch erst an den Server gesendet, wenn Sie die Anwendung MIT EINER INTERNETVERBINDUNG starten!`,
             changes: `Vorgenommene Änderungen, nicht gesendet:`,
             unsentEmail: t`Nicht gesendete E-Mail: ${'subject'}`,
+            unverifiedLoyaltyPoints: t`Nicht zugewiesene Treuepunkte`,
             f: en.nav.offlineQueue.f,
         },
     },

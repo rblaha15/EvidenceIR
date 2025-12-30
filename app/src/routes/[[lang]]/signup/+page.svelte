@@ -8,6 +8,7 @@
 	import { goto } from '$app/navigation';
     import { logEvent } from 'firebase/analytics';
     import { analytics } from '../../../hooks.client';
+    import { grantPoints } from '$lib/client/loyaltyProgram';
 
 	const { data }: PageProps = $props();
 	const t = $derived(data.translations.auth);
@@ -47,6 +48,7 @@
 			redirect,
 			mode: 'register'
 		});
+        await grantPoints({ type: 'registration' });
         logEvent(analytics(), 'sign_up', { email });
 		await goto(link);
 	};
