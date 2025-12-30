@@ -65,6 +65,14 @@ export type IR = {
     faceTable?: Raw<FormFT>;
     yearlyHeatPumpCheckRecommendation?: RecommendationSettings;
     yearlySolarSystemCheckRecommendation?: RecommendationSettings;
+    createdBy?: {
+        uid: string;
+        email: string;
+        isFake?: boolean;
+    };
+    loyaltyProgram?: {
+        grantedCommission?: boolean;
+    };
 };
 
 export const createInstallation = (

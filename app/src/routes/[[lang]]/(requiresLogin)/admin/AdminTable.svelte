@@ -95,7 +95,7 @@
         loading = true;
 
         const token = await getToken();
-        const response = await fetch(`/api/aktualizovat?type=${id}&token=${token}`, {
+        const response = await fetch(`/api/update-data?type=${id}&token=${token}`, {
             method: 'POST',
             body: JSON.stringify({
                 array: newData,
