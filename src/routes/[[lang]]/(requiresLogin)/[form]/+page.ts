@@ -1,10 +1,10 @@
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
-import { type FormName, forms, getForm } from '$lib/forms/forms.js';
+import { type FormName, forms, getForm } from '$lib/forms/forms';
 import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { browser } from '$app/environment';
-import { extractIDs, langAndFormEntryGenerator } from '../../helpers';
 import { removeDependency } from '$lib/forms/dependentForm.js';
+import { extractIDs, langAndFormEntryGenerator } from '$lib/helpers/paths';
 
 export const entries: EntryGenerator = langAndFormEntryGenerator;
 

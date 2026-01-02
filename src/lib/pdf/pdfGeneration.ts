@@ -6,7 +6,7 @@ import { irLabel, spName } from '$lib/helpers/ir';
 import type { Raw } from '$lib/forms/Form';
 import { type IR } from '../data';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
-import { createFileUrl } from '../../routes/[[lang]]/helpers';
+import { createFileUrl } from '$lib/helpers/files';
 
 type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Dropdown' | '_'
 

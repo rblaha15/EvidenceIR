@@ -1,13 +1,13 @@
 import { browser } from '$app/environment';
 import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { error } from '@sveltejs/kit';
-import { extractIDs, langEntryGenerator } from '../../helpers';
 import type { EntryGenerator, PageLoad } from './$types';
 import { startUsersListening } from '$lib/client/realtime';
 import { type IR } from '$lib/data';
 import { getStoreIR } from '$lib/client/incrementalUpdates';
 import { waitUntil } from '$lib/helpers/stores';
 import type { Readable } from 'svelte/store';
+import { extractIDs, langEntryGenerator } from '$lib/helpers/paths';
 
 export const entries: EntryGenerator = langEntryGenerator;
 

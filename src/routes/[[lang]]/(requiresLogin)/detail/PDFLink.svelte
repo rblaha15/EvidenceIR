@@ -2,10 +2,10 @@
     import type { Translations } from '$lib/translations';
     import { type DataOfPdf, type OpenPdfOptions, type Pdf } from '$lib/pdf/pdf';
     import type { Snippet } from 'svelte';
-    import { generatePdfPreviewUrl } from '../../helpers';
     import { currentPreferredDocumentLanguage } from '$lib/languages';
     import type { Color } from '$lib/forms/Widget.svelte';
     import Icon from '$lib/components/Icon.svelte';
+    import { generatePdfPreviewUrl } from '$lib/helpers/files';
 
     type Props<P extends Pdf> = OpenPdfOptions<P> & {
         data: DataOfPdf<P>;

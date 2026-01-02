@@ -27,6 +27,7 @@ export const getForm = <
     F extends Form<D>,
     S extends unknown[][] = [],
     P extends Pdf = Pdf,
+    O extends Record<string, unknown> = Record<never, unknown>,
 >(name: N | string) => all[name as N] as unknown as {
     IR: P extends Pdf<'IR'> ? FormInfo<D, F, S, P, O> : never;
     '': IndependentFormInfo<D, F, S, P, O>;

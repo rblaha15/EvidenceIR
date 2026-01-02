@@ -1,7 +1,6 @@
 import { browser } from '$app/environment';
 import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { error } from '@sveltejs/kit';
-import { extractIDs, getData, langAndPdfEntryGenerator } from '../../../helpers';
 import type { EntryGenerator, PageLoad } from './$types';
 import { setTitle } from '$lib/helpers/globals';
 import { type Pdf, type PdfArgs, pdfInfo, type PdfParameters } from '$lib/pdf/pdf';
@@ -11,6 +10,8 @@ import { isSPDeleted } from '$lib/helpers/ir';
 import type { IR } from '$lib/data';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { Raw } from '$lib/forms/Form';
+import { extractIDs, langAndPdfEntryGenerator } from '$lib/helpers/paths';
+import { getData } from '$lib/helpers/getData';
 
 export const entries: EntryGenerator = langAndPdfEntryGenerator;
 

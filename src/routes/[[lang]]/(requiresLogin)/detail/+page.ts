@@ -1,5 +1,4 @@
 import type { EntryGenerator, PageLoad } from './$types';
-import { extractIDs, getDataAsStore, langEntryGenerator } from '../../helpers';
 import { error } from '@sveltejs/kit';
 import { browser } from '$app/environment';
 import { checkAuth } from '$lib/client/auth';
@@ -10,6 +9,8 @@ import type { IRID, SPID } from '$lib/helpers/ir';
 import type { Deleted, IR } from '$lib/data';
 import type { Raw } from '$lib/forms/Form';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import { extractIDs, langEntryGenerator } from '$lib/helpers/paths';
+import { getDataAsStore } from '$lib/helpers/getData';
 
 export const entries: EntryGenerator = langEntryGenerator;
 

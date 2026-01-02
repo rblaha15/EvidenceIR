@@ -20,10 +20,10 @@
     import { refreshTOC, runLoading } from '$lib/helpers/globals.js';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
     import { goto } from '$app/navigation';
-    import { generatePdfPreviewUrl } from '../../routes/[[lang]]/helpers';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { TitleWidget } from '$lib/forms/Widget.svelte';
     import Icon from '$lib/components/Icon.svelte';
+    import { generatePdfPreviewUrl } from '$lib/helpers/files';
 
     const { t, formInfo, editData, viewData, other }: {
         t: Translations,

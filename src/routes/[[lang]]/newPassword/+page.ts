@@ -2,7 +2,8 @@ import { browser } from '$app/environment';
 import { verifyCode } from '$lib/client/auth';
 import { redirect } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
-import { langEntryGenerator } from '../helpers';
+
+import { langEntryGenerator } from '$lib/helpers/paths';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
