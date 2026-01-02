@@ -10,6 +10,7 @@ const en: PlainTranslations = {
         nProtocols: (n, p) => `${n} protocols (${p})`,
     },
     auth: {
+        rewards: 'Loyalty points rewards',
         loyaltyProgram: 'Loyalty program',
         currentPointBalance: 'Current point balance',
         password: 'Password',
