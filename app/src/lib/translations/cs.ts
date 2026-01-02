@@ -72,6 +72,7 @@ export default {
         nProtocols: (n: number, p: string) => n < 5 ? `${n} protokoly (${p})` : `${n} protokolů (${p})`,
     },
     auth: {
+        rewards: 'Odměny za věrnostní body',
         loyaltyProgram: 'Věrnostní program',
         currentPointBalance: 'Aktuální stav bodů',
         signUp: `Registrace`,

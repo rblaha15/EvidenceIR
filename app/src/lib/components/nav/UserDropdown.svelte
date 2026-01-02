@@ -29,15 +29,15 @@
         await goto(link, { replaceState: true });
     };
 
-    let store = $state(readable<LoyaltyProgramUserData | null>(null))
+    let store = $state(readable<LoyaltyProgramUserData | null>(null));
     onMount(async () => {
-        store = await getLoyaltyProgramDataStore()
-    })
+        store = await getLoyaltyProgramDataStore();
+    });
 </script>
 
 <div class="dropdown ms-3">
     <button aria-label="User" class="btn btn-link nav-link" data-bs-toggle="dropdown">
-        <Icon icon="account_circle" class="fs-2" />
+        <Icon class="fs-2" icon="account_circle" />
     </button>
     <div class="dropdown-menu dropdown-menu-end">
         <div class="d-flex flex-column gap-3 px-3 pt-1">
@@ -62,9 +62,13 @@
         </div>
         {#if !$isUserRegulusOrAdmin && $store}
             <hr class="my-3" />
-            <div class="d-flex flex-column gap-3 px-3">
+            <div class="d-flex flex-column gap-1 px-3 align-items-start">
                 <h6 class="m-0">{ta.loyaltyProgram}</h6>
-                <span>{ta.currentPointBalance}: {$store.points}</span>
+                <span>{ta.currentPointBalance}: {$store.points}</span>
+                <a class="btn btn-secondary" href={relUrl('/rewards')}>
+                    <Icon icon="loyalty" />
+                    {ta.rewards}
+                </a>
             </div>
         {/if}
         <hr class="my-3" />
