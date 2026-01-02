@@ -450,7 +450,8 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
                 setPumpCount?.(d, 1);
             }
             if (doesNotHaveIRNumber(v.first)) {
-                d.ir.cislo.setValue(d, `${dayISO()} ${time()}`);
+                if (!d.ir.cislo.lock(d))
+                    d.ir.cislo.setValue(d, `${dayISO()}T${time()}`);
             }
             if (!supportsRemoteAccess(v.first)) {
                 resetRemoteAccess?.(d);
@@ -480,7 +481,7 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
         label: t => t.in.serialNumber,
         onError: t => t.wrong.number,
         regex: d => doesNotHaveIRNumber(d.ir.typ.value.first)
-            ? /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/
+            ? /[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9]{2}:[0-9]{2}/
             : isCTC(d.ir.typ.value.first)
                 ? /[0-9]{4}-[0-9]{4}-[0-9]{4}/
                 : isMACAddressTypeIR12(d.ir.typ.value.first)
