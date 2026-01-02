@@ -1,4 +1,4 @@
-import type { FormIN, IRTypes, UserForm } from '$lib/forms/IN/formIN';
+import type { FormIN, IRSubTypes, IRTypes, UserForm } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
 
@@ -211,6 +211,6 @@ export const isMACAddressTypeIR12 = (t: IRTypes | null) => t == 'IR 12' || t == 
 export const isMACAddressTypeIR10 = (t: IRTypes | null) => t == 'IR 10';
 export const isCTC = (t: IRTypes | null) => t == 'ctc';
 export const doesNotSupportHeatPumps = (t: IRTypes | null) => t == 'other';
-export const doesNotHaveIRNumber = (t: IRTypes | null) => t == 'other' || t == 'SOREL';
+export const doesNotHaveIRNumber = (t: IR['evidence']['ir']['typ']) => t.first == 'other' || t.first == 'SOREL' || (t.first == 'ctc' && t.second == 'EcoLogic EXT');
 export const supportsRemoteAccess = (t: IRTypes | null) => t != 'other' && t != 'SOREL' && t != 'ctc';
 export const isBox = (t: IRTypes | null) => Boolean(t?.includes('BOX'));
