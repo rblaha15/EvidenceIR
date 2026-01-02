@@ -60,7 +60,7 @@
                 </span>
             {/if}
         </div>
-        {#if !$isUserRegulusOrAdmin && $store && new Date() >= new Date(2026, 0, 1)}
+        {#if !$isUserRegulusOrAdmin && $store}
             <hr class="my-3" />
             <div class="d-flex flex-column gap-3 px-3">
                 <h6 class="m-0">{ta.loyaltyProgram}</h6>
