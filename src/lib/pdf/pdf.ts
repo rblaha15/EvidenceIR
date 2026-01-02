@@ -104,6 +104,12 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs'],
         title: t => t.nn.title,
     },
+    RBP: {
+        type: '',
+        pdfName: 'RBP',
+        supportedLanguages: ['cs'],
+        title: t => t.auth.rewards,
+    },
     NNR: {
         type: 'IR',
         pdfName: 'NNR',
