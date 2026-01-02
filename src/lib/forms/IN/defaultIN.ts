@@ -449,7 +449,7 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
                 setPumpType?.(d, 'groundToWater');
                 setPumpCount?.(d, 1);
             }
-            if (doesNotHaveIRNumber(v.first)) {
+            if (doesNotHaveIRNumber(v)) {
                 if (!d.ir.cislo.lock(d))
                     d.ir.cislo.setValue(d, `${dayISO()}T${time()}`);
             }
@@ -480,7 +480,7 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
     cislo: new InputWidget({
         label: t => t.in.serialNumber,
         onError: t => t.wrong.number,
-        regex: d => doesNotHaveIRNumber(d.ir.typ.value.first)
+        regex: d => doesNotHaveIRNumber(d.ir.typ.value)
             ? /[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9]{2}:[0-9]{2}/
             : isCTC(d.ir.typ.value.first)
                 ? /[0-9]{4}-[0-9]{4}-[0-9]{4}/
@@ -491,7 +491,7 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
                         : /[A-Z][1-9OND] [0-9]{4}/,
         capitalize: true,
         maskOptions: d => ({
-            mask: doesNotHaveIRNumber(d.ir.typ.value.first) ? `0000-00-00T00:00`
+            mask: doesNotHaveIRNumber(d.ir.typ.value) ? `0000-00-00T00:00`
                 : isCTC(d.ir.typ.value.first) ? `0000-0000-0000`
                     : !supportsMACAddresses(d.ir.typ.value.first) ? 'Z8 0000'
                         : d.ir.cislo.value.length == 0 ? 'X'
@@ -516,7 +516,7 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
             if (ecoHeat(d)) {
                 setPumpNumber?.(d, v)
             }
-        }, show: d => !doesNotHaveIRNumber(d.ir.typ.value.first),
+        }, show: d => !doesNotHaveIRNumber(d.ir.typ.value),
     }),
 });
 
