@@ -122,6 +122,7 @@ const de: PlainTranslations = {
         },
     },
     auth: {
+        rewards: 'Treuepunkte-Prämien',
         loyaltyProgram: 'Treueprogramm',
         currentPointBalance: 'Aktueller Punktestand',
         password: `Passwort`,
