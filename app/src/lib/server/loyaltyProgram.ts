@@ -23,7 +23,7 @@ export const processLoyaltyReward = async (
     data: LoyaltyProgramTrigger,
     user: DecodedIdToken,
 ) => {
-    if (checkRegulusOrAdmin(user) || new Date() < new Date(2026, 0, 1)) return
+    if (checkRegulusOrAdmin(user)) return
     const timestamp = nowISO(true);
     if (isType(data, 'registration')) {
         const current = await getLoyaltyProgramData(user.uid);
