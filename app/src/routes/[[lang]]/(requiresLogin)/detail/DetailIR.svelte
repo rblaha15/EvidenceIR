@@ -10,12 +10,12 @@
     import { aA, aR } from '$lib/helpers/stores';
     import RKD from './RKD.svelte';
     import Icon from '$lib/components/Icon.svelte';
-    import { createFileUrl, downloadFile } from '../../helpers';
     import { xmlIN } from '$lib/forms/IN/xmlIN';
     import { rawDataToData } from '$lib/forms/Form.js';
     import defaultIN from '$lib/forms/IN/defaultIN';
     import type { LanguageCode } from '$lib/languageCodes';
     import DocumentsIR from './DocumentsIR.svelte';
+    import { createFileUrl, downloadFile } from '$lib/helpers/files';
 
     const { t, ir, lang, irid }: {
         t: Translations, ir: IR, lang: LanguageCode, irid: IRID,

@@ -1,5 +1,6 @@
 import type { EntryGenerator } from './$types';
-import { langEntryGenerator } from '../helpers';
+
+import { langEntryGenerator } from '$lib/helpers/paths';
 
 export const entries: EntryGenerator = langEntryGenerator;
 

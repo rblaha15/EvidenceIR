@@ -5,8 +5,8 @@
     import type { Raw } from '$lib/forms/Form';
     import type { DataNSP } from '$lib/forms/NSP/formNSP';
     import JSZip from 'jszip';
-    import { createFileUrl, downloadFile } from '../../helpers';
     import { dayISO } from '$lib/helpers/date';
+    import { createFileUrl, downloadFile } from '$lib/helpers/files';
 
     const download = async () => {
         const token = await getToken();

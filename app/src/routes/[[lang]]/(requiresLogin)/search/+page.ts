@@ -1,5 +1,4 @@
 import type { EntryGenerator, PageLoad } from './$types';
-import { langEntryGenerator } from '../../helpers';
 import {
     extractIRIDFromRawData,
     extractSPIDFromRawData,
@@ -18,6 +17,7 @@ import '$lib/extensions';
 import { getTranslations } from '$lib/translations';
 import { waitUntil } from '$lib/helpers/stores';
 import { getAllIndependentProtocols, getAllIRs } from '$lib/client/incrementalUpdates';
+import { langEntryGenerator } from '$lib/helpers/paths';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
