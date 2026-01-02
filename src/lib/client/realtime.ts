@@ -200,19 +200,25 @@ const pointsStores: Record<string, Readable<LoyaltyProgramUserData | null>> = {}
 
 export const getLoyaltyProgramDataStore = async () => {
     const user = getFromStore(currentUser);
+    console.log({ user });
     if (!user) return readable(null);
+    console.log({ regulus: await checkRegulusOrAdmin() });
     if (await checkRegulusOrAdmin()) return readable(null);
     const uid = user.uid;
+    console.log({ uid });
     if (!uid) return readable(null);
+    console.log({ pointsStores });
     if (!pointsStores[uid]) {
         const store = writable<LoyaltyProgramUserData | null>(null);
         const { onValue, child } = await import('firebase/database');
         onValue(
             child(loyaltyProgramRef, uid),
             data => {
+                console.log({ data: data.val() });
                 store.set((data.val() as LoyaltyProgramUserData) || { points: 0, history: [] });
             },
         );
+        console.log(store);
         pointsStores[uid] = store;
     }
     return pointsStores[uid];

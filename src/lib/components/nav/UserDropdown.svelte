@@ -10,7 +10,7 @@
     import Icon from '$lib/components/Icon.svelte';
     import { logEvent } from 'firebase/analytics';
     import { analytics } from '../../../hooks.client';
-    import { readable } from 'svelte/store';
+    import { get, readable } from 'svelte/store';
     import { type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
     import { onMount } from 'svelte';
 
@@ -32,6 +32,8 @@
     let store = $state(readable<LoyaltyProgramUserData | null>(null))
     onMount(async () => {
         store = await getLoyaltyProgramDataStore()
+        console.log(store)
+        console.log(get(store))
     })
 </script>
 
