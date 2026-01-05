@@ -20,6 +20,7 @@ import {
     companyForms,
     doesNotHaveIRNumber,
     doesNotSupportHeatPumps,
+    hasIndoorUnit,
     isBox,
     isCompanyFormInvalid,
     isCTC,
@@ -51,6 +52,7 @@ const other = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`other`);
 
 const ctc = (d: FormIN) => d.ir.typ.value.first == 'ctc' || d.ir.typ.value.second == 'CTC';
 const rtc = (d: FormIN) => d.ir.typ.value.second == 'RTC';
+const inTHERM = (d: FormIN) => d.ir.typ.value.first == 'IR inTHERM';
 const ecoHeat = <D extends { ir: FormGroupIR<D>; }>(d: D) => d.ir.typ.value.second == 'EcoHeat';
 const subType = (d: FormIN) => d.ir.typ.value.second != null;
 
@@ -60,10 +62,10 @@ const irCTC = (d: FormIN) => d.ir.typ.value.first == 'ctc';
 const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == 'DG-450-B';
 const akuDuo = (d: FormIN) => aku(d) && d.tanks.accumulation.value.toUpperCase().startsWith('DUO');
 
-export const separatorsRegExp = /[ ,;\/]/
-export const phoneRegExp = /(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}/
-export const emailRegExp = /[\w.-]+@([\w-]+\.)+[\w-]{2,4}/
-export const multiple = (r: RegExp) => new RegExp(`${r.source}(?: ?${separatorsRegExp.source} ?${r.source})*`)
+export const separatorsRegExp = /[ ,;\/]/;
+export const phoneRegExp = /(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}/;
+export const emailRegExp = /[\w.-]+@([\w-]+\.)+[\w-]{2,4}/;
+export const multiple = (r: RegExp) => new RegExp(`${r.source}(?: ?${separatorsRegExp.source} ?${r.source})*`);
 
 export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
     koncovyUzivatel: {
@@ -348,17 +350,19 @@ const heatPump = <const I extends TC>(i: I) => ({
     [`model${i == 1 ? '' : i as B}`]: new ChooserWidget<FormIN, HeatPump>({
         label: (t, d) => cap(t.in.heatPumpModel([d.tc.pocet.value == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
         options: d =>
-            rtc(d) ? heatPumps.airToWaterRTC[0]
-                : ecoHeat(d) ? heatPumps.multiEnergyCTC[0]
-                    : d.tc.typ.value == 'airToWater'
-                        ? heatPumps.airToWaterCTC[0]
-                        : heatPumps.groundToWaterCTC[0],
+            inTHERM(d) ? ['airTHERM 10']
+                : rtc(d) ? heatPumps.airToWaterRTC[0]
+                    : ecoHeat(d) ? heatPumps.multiEnergyCTC[0]
+                        : d.tc.typ.value == 'airToWater'
+                            ? heatPumps.airToWaterCTC[0]
+                            : heatPumps.groundToWaterCTC[0],
         otherOptions: d =>
-            rtc(d) ? heatPumps.airToWaterRTC[1]
-                : ecoHeat(d) ? heatPumps.multiEnergyCTC[1]
-                    : d.tc.typ.value == 'airToWater'
-                        ? heatPumps.airToWaterCTC[1]
-                        : heatPumps.groundToWaterCTC[1],
+            inTHERM(d) ? []
+                : rtc(d) ? heatPumps.airToWaterRTC[1]
+                    : ecoHeat(d) ? heatPumps.multiEnergyCTC[1]
+                        : d.tc.typ.value == 'airToWater'
+                            ? heatPumps.airToWaterCTC[1]
+                            : heatPumps.groundToWaterCTC[1],
         required: d => tc(d) && i <= d.tc.pocet.value,
         show: d =>
             subType(d) &&
@@ -369,7 +373,7 @@ const heatPump = <const I extends TC>(i: I) => ({
             if (v != null && ![...model(d, i).options(d), ...model(d, i).otherOptions(d)].includes(v)) {
                 model(d, i).setValue(d, null);
             }
-        },
+        }, lock: inTHERM,
         labels: t => ({ prototype: t.tc.prototype }),
     }),
     [`cislo${i == 1 ? '' : i as B}`]: new ScannerWidget<FormIN>({
@@ -417,8 +421,9 @@ interface FormGroupIR<D extends { ir: FormGroupIR<D> }> {
 }
 
 export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
-    { setPumpType, setPumpCount, setPumpNumber, resetRemoteAccess, resetBoxNumber, setFVEType, setHP }: {
+    { setPumpType, setPumpModel, setPumpCount, setPumpNumber, resetRemoteAccess, resetBoxNumber, setFVEType, setHP }: {
         setPumpType?: (d: D, type: 'airToWater' | 'groundToWater') => void,
+        setPumpModel?: (d: D, model: HeatPump) => void,
         setPumpCount?: (d: D, count: number) => void,
         setPumpNumber?: (d: D, number: string) => void,
         resetRemoteAccess?: (d: D) => void,
@@ -430,13 +435,14 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
     typ: new DoubleChooserWidget({
         label: t => t.in.controllerType,
         options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
-        otherOptions1: ['IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc', 'other'],
+        otherOptions1: ['IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc', 'IR inTHERM', 'other'],
         options2: ({ ir: { typ: { value: { first: f } } } }) => (
             f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K', 'DeltaSol BS, ES', 'DeltaSol M, MX']
                 : f == 'ctc' ? ['EcoEl', 'EcoZenith', 'EcoHeat', 'EcoLogic EXT']
-                    : supportsOnlyCTC(f) ? ['CTC']
-                        : doesNotSupportHeatPumps(f) ? []
-                            : ['CTC', 'RTC']
+                    : f == 'IR inTHERM' ? ['inTHERM 10']
+                        : supportsOnlyCTC(f) ? ['CTC']
+                            : doesNotSupportHeatPumps(f) ? []
+                                : ['CTC', 'RTC']
         ),
         onValueSet: (d, v) => {
             if (v.second == 'RTC') {
@@ -456,7 +462,7 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
             if (!supportsRemoteAccess(v.first)) {
                 resetRemoteAccess?.(d);
             }
-            if (isBox(v.first)) {
+            if (hasIndoorUnit(v.first)) {
                 resetBoxNumber?.(d);
             }
             if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
@@ -464,6 +470,15 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
             }
             if (v.first != 'ctc' && supportsOnlyCTC(v.first) && v.second != 'CTC') {
                 d.ir.typ.setValue(d, { ...v, second: 'CTC' });
+            }
+            if (v.first == 'IR inTHERM' && v.second != 'inTHERM 10') {
+                d.ir.typ.setValue(d, { ...v, second: 'inTHERM 10' });
+            }
+            if (v.first == 'IR inTHERM' && v.second != 'inTHERM 10') {
+                setHP?.(d);
+                setPumpCount?.(d, 1);
+                setPumpType?.(d, 'groundToWater');
+                setPumpModel?.(d, 'airTHERM 10');
             }
             if (doesNotSupportHeatPumps(v.first) && v.second) {
                 d.ir.typ.setValue(d, { ...v, second: null });
@@ -514,7 +529,7 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
             },
         }), onValueSet: (d, v) => {
             if (ecoHeat(d)) {
-                setPumpNumber?.(d, v)
+                setPumpNumber?.(d, v);
             }
         }, show: d => !doesNotHaveIRNumber(d.ir.typ.value),
     }),
@@ -526,6 +541,7 @@ export default (): FormIN => ({
         nadpis: new TitleWidget({ text: t => t.in.controller, level: 4 }),
         ...irTypeAndNumber<FormIN>({
             setPumpType: (d, t) => d.tc.typ.setValue(d, t),
+            setPumpModel: (d, m) => d.tc.model.setValue(d, m),
             setPumpNumber: (d, n) => d.tc.cislo.setValue(d, n.also(console.log)),
             setPumpCount: (d, c) => d.tc.pocet.setValue(d, c),
             resetBoxNumber: d => d.ir.cisloBox.setValue(d, ''),
@@ -536,19 +552,22 @@ export default (): FormIN => ({
         cisloBox: new InputWidget({
             label: t => t.in.serialNumberIndoor,
             onError: t => t.wrong.number,
-            regex: d => d.ir.cisloBox.value.length < 6 ? /[0-9]{5}[0-9-]/ : d.ir.cisloBox.value[5] == '-'
-                ? /[0-9]{5}-[0-9]-[0-9]{4}-[0-9]{3}/
-                : /[0-9]{7}-[0-9]{7}/,
+            regex: d => inTHERM(d) ? /^\d{9}T$/
+                : d.ir.cisloBox.value.length < 6 ? /[0-9]{5}[0-9-]/
+                    : d.ir.cisloBox.value[5] == '-' ? /[0-9]{5}-[0-9]-[0-9]{4}-[0-9]{3}/
+                        : /[0-9]{7}-[0-9]{7}/,
             maskOptions: d => ({
-                mask: d.ir.cisloBox.value.length < 6 ? `00000S` : d.ir.cisloBox.value[5] == '-'
-                    ? `00000-0-0000-000`
-                    : `0000000-0000000`,
+                mask: inTHERM(d) ? '000000000T'
+                    : d.ir.cisloBox.value.length < 6 ? `00000S`
+                        : d.ir.cisloBox.value[5] == '-' ? `00000-0-0000-000`
+                            : `0000000-0000000`,
                 definitions: {
                     'S': /[0-9-]/,
+                    'T': /T/,
                 },
             }),
-            show: d => isBox(d.ir.typ.value.first),
-            required: d => isBox(d.ir.typ.value.first),
+            show: d => hasIndoorUnit(d.ir.typ.value.first),
+            required: d => hasIndoorUnit(d.ir.typ.value.first),
         }),
         boxType: new TextWidget({
             text: (t, d) => t.in.recognised_BOX([typBOX(d.ir.cisloBox.value) ?? '']), showInXML: false,
@@ -612,14 +631,14 @@ export default (): FormIN => ({
         typ: new RadioWidget({
             label: (t, d) => d.tc.pocet.value > 1 ? t.in.heatPumpsType : t.in.heatPumpType,
             options: [`airToWater`, `groundToWater`], required: tc,
-            lock: d => ecoHeat(d) || rtc(d), show: tc,
+            lock: d => ecoHeat(d) || rtc(d) || inTHERM(d), show: tc,
             labels: t => t.in.tc, onValueSet: d => {
                 TCNumbers.forEach(i => {
                     const f = d.tc[`model${i}`];
                     if (f.value && ![...f.options(d), ...f.otherOptions(d)].includes(f.value))
                         f.setValue(d, null);
                 });
-            }
+            },
         }),
         pocet: new CounterWidget<FormIN, true>({
             label: t => t.in.hpCount, min: 1, max: 10, chosen: 1, hideInRawData: true,
@@ -627,7 +646,7 @@ export default (): FormIN => ({
                 TCNumbers.slice(p).forEach(i =>
                     d.tc[`model${i}`].setValue(d, null),
                 );
-            }, lock: ecoHeat,
+            }, lock: d => ecoHeat(d) || inTHERM(d),
             show: d => subType(d) &&
                 (rtc(d) || d.tc.typ.value != null) &&
                 tc(d),
