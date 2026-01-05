@@ -53,7 +53,7 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
     uvedeni: CompanyWidgetGroup<D>;
 }
 
-export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL';
+export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL' | 'IR inTHERM';
 export type IRTypes = UntranslatableIRTypes | 'ctc' | 'other';
 type ControllersSOREL =
     | 'SRS1 T'
@@ -68,7 +68,7 @@ type ControllersSOREL =
     | 'DeltaSol BS, ES'
     | 'DeltaSol M, MX';
 type ControllersCTC = 'EcoEl' | 'EcoZenith' | 'EcoHeat' | 'EcoLogic EXT';
-export type IRSubTypes = 'RTC' | 'CTC' | ControllersSOREL | ControllersCTC;
+export type IRSubTypes = 'RTC' | 'CTC' | ControllersSOREL | ControllersCTC | 'inTHERM 10';
 
 export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     ir: {
