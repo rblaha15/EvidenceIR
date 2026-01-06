@@ -477,7 +477,7 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
             if (v.first == 'IR inTHERM' && v.second != 'inTHERM 10') {
                 setHP?.(d);
                 setPumpCount?.(d, 1);
-                setPumpType?.(d, 'groundToWater');
+                setPumpType?.(d, 'airToWater');
                 setPumpModel?.(d, 'airTHERM 10');
             }
             if (doesNotSupportHeatPumps(v.first) && v.second) {
