@@ -86,7 +86,6 @@ export const calculateProtocolPrice = <D extends GenericFormSP<D>>(p: Raw<D>, pu
 
 export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount }) => {
     const ts = t.sp;
-    console.log(p);
     const assemblyCompany = await ares.getNameAndAddress(p.montazka.ico, fetch);
     const {
         spareParts,

@@ -72,15 +72,15 @@
 
 <div class="d-flex gap-1 flex-column">
     <div class="input-group">
-        <label class="form-floating d-block">
+        <label class={["d-block w-100", {'form-floating': !widget.placeholder(t, data)}]}>
             {#if widget.textArea(data)}
             <textarea
                 autocomplete={widget.autocomplete(data)}
                 inputmode={widget.inputmode(data)}
                 enterkeyhint={widget.enterkeyhint(data)}
                 autocapitalize={widget.autocapitalize(data)}
-                placeholder={labelAndStar(widget, data, t)}
-                class="form-control"
+                placeholder={widget.placeholder(t, data) || labelAndStar(widget, data, t)}
+                class={['form-control', "lh-base"]}
                 bind:this={textarea}
                 value={widget.value}
                 oninput={() => {
@@ -96,7 +96,7 @@
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
                     autocomplete={widget.autocomplete(data)}
-                    placeholder={labelAndStar(widget, data, t)}
+                    placeholder={widget.placeholder(t, data) || labelAndStar(widget, data, t)}
                     class="form-control"
                     bind:this={input}
                     disabled={widget.lock(data)}
@@ -108,7 +108,7 @@
                     enterkeyhint={widget.enterkeyhint(data)}
                     autocapitalize={widget.autocapitalize(data)}
                     autocomplete={widget.autocomplete(data)}
-                    placeholder={labelAndStar(widget, data, t)}
+                    placeholder={widget.placeholder(t, data) || labelAndStar(widget, data, t)}
                     class="form-control"
                     bind:this={input}
                     value={widget.value}
@@ -118,7 +118,9 @@
                     disabled={widget.lock(data)}
                 />
             {/if}
-            <label for="">{labelAndStar(widget, data, t)}</label>
+            {#if widget.label(t, data)}
+                <label for="">{labelAndStar(widget, data, t)}</label>
+            {/if}
             <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1"
                     class:d-none={!widget.value || widget.type(data) !== 'date' || widget.required(data)} onclick={onClick}>
                 <Icon icon="clear" />

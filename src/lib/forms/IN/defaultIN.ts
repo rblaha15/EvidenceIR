@@ -381,7 +381,7 @@ const heatPump = <const I extends TC>(i: I) => ({
                 ? /^\d{9}T$/
                 : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
         capitalize: true,
-        required: d => tc(d) && i <= d.tc.pocet.value && model(d, i).also(console.log).value != 'prototype',
+        required: d => tc(d) && i <= d.tc.pocet.value && model(d, i).value != 'prototype',
         maskOptions: d => model(d, i).value == 'prototype' ? undefined : ({
             mask: ctc(d)
                 ? `0000-0000-0000`
@@ -526,7 +526,7 @@ export default (): FormIN => ({
         nadpis: new TitleWidget({ text: t => t.in.controller, level: 4 }),
         ...irTypeAndNumber<FormIN>({
             setPumpType: (d, t) => d.tc.typ.setValue(d, t),
-            setPumpNumber: (d, n) => d.tc.cislo.setValue(d, n.also(console.log)),
+            setPumpNumber: (d, n) => d.tc.cislo.setValue(d, n),
             setPumpCount: (d, c) => d.tc.pocet.setValue(d, c),
             resetBoxNumber: d => d.ir.cisloBox.setValue(d, ''),
             resetRemoteAccess: d => d.vzdalenyPristup.chce.setValue(d, false),

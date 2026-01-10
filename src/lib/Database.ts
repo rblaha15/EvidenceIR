@@ -12,6 +12,7 @@ import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { Readable } from 'svelte/store';
 import type { Deleted, IR, Year } from '$lib/data';
 import type { Timestamp } from 'firebase/firestore';
+import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
 
 /**
  * Supported actions:
@@ -44,7 +45,7 @@ export interface WriteDatabase {
 
     updateIRRecord(rawData: Raw<FormIN>, isDraft: boolean): Promise<void>;
 
-    addHeatPumpCheck(irid: IRID, pump: TC, year: Year, check: Raw<FormRKT>): Promise<void>;
+    addHeatPumpCheck(irid: IRID, pump: TC, year: Year, check: Raw<FormRKT | FormRKTL>): Promise<void>;
 
     addSolarSystemCheck(irid: IRID, year: Year, check: Raw<FormRKS>): Promise<void>;
 
