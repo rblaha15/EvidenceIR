@@ -1,4 +1,4 @@
-import { CheckboxWidget, CounterWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
+import { CheckboxWidget, CounterWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
 import { type Form } from '$lib/forms/Form';
 
 export type DataRKT = void
@@ -9,54 +9,45 @@ export interface FormRKT extends Form<DataRKT> {
         datum: InputWidget<DataRKT>,
         year: CounterWidget<DataRKT, true>,
     },
-    kontrolniUkonyTepelnehoCerpadla: {
-        nadpis: TitleWidget<DataRKT>,
-        kontrolaChoduKompresoru: CheckboxWidget<DataRKT>,
-        optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu: CheckboxWidget<DataRKT>,
-        kontrolaOdvoduKondenzatu: CheckboxWidget<DataRKT>,
-        kontrolaUchyceniVentilatoru: CheckboxWidget<DataRKT>,
-        vycisteniVzduchovychCestJednotky: CheckboxWidget<DataRKT>,
-        kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem: CheckboxWidget<DataRKT>,
-        proveritZdaNicNebraniOptimalniCirkulaciVzduchu: CheckboxWidget<DataRKT>,
-        kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu: CheckboxWidget<DataRKT>,
-        kontrolaElektrickeCastiJednotkyTepelnehoCerpadla: CheckboxWidget<DataRKT>,
+    kontrolaTepelnehoCerpadla: {
+        kontrolaVenkovniJednotky: CheckboxWidget<DataRKT>,
+        kontrolaElektrickeCasti: CheckboxWidget<DataRKT>,
+        kontrolaChladivoveCasti: CheckboxWidget<DataRKT>,
     },
-    kontrolniUkonyRegulace: {
-        nadpis: TitleWidget<DataRKT>,
+    kontrolaPrimarnihoOkruhu: {
+        kontrola: CheckboxWidget<DataRKT>,
+    },
+    kontrolaRegulace: {
         kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: CheckboxWidget<DataRKT>,
-        kontrolaNastaveniParametruRegulatoru: CheckboxWidget<DataRKT>,
-        preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni: CheckboxWidget<DataRKT>,
-        stavPocitadlaCelkovychProvoznichHodinKompresoru: InputWidget<DataRKT>
-        stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace: InputWidget<DataRKT>
-        stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace: InputWidget<DataRKT>
-        stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace: InputWidget<DataRKT>
-        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje: InputWidget<DataRKT>
-        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv: InputWidget<DataRKT>
-        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: InputWidget<DataRKT>
-        prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly: InputWidget<DataRKT>
+        celkoveProvozniHodinyKompresoru: InputWidget<DataRKT>,
+        provozniHodinyKompresoruDoTepleVody: InputWidget<DataRKT>,
+        celkovyPocetStartuKompresoru: InputWidget<DataRKT>,
+        pocetStartuKompresoruDoTepleVody: InputWidget<DataRKT>,
+        celkoveProvozniHodinyDoplnkovehoZdroje: InputWidget<DataRKT>,
+        celkoveProvozniHodinyDoplnkovehoZdrojeTepleVody: InputWidget<DataRKT>,
+        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: InputWidget<DataRKT>,
+        prumernaDobaChoduKompresoruDoTepleVodyMinOdPosledniKontroly: InputWidget<DataRKT>,
     },
-    kontrolniElektroinstalace: {
-        nadpis: TitleWidget<DataRKT>,
-        kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace: CheckboxWidget<DataRKT>,
+    kontrolaElektroinstalaceKomponentRegulus: {
         kontrolaDotazeniSvorkovychSpoju: CheckboxWidget<DataRKT>,
-        vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni: CheckboxWidget<DataRKT>,
-        kontrolaSepnutiDohrevuSepnutiStykacePripadneRele: CheckboxWidget<DataRKT>,
+        vizualniKontrolaVsechPristupnychVodicuVInstalaci: CheckboxWidget<DataRKT>,
     },
-    kontrolniUkonyOtopneSoustavy: {
-        nadpis: TitleWidget<DataRKT>,
-        kontrolaFunkceObehovychCerpadel: CheckboxWidget<DataRKT>,
-        vycisteniFiltruObehovychCerpadel: CheckboxWidget<DataRKT>,
-        odvzdusneniZdrojeTc: CheckboxWidget<DataRKT>,
-        kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych: CheckboxWidget<DataRKT>,
+    kontrolaOtopneSoustavy: {
+        vycisteniFiltruInstalaceTepelnehoCerpadla: CheckboxWidget<DataRKT>,
         kontrolaTesnostiOtopneSoustavy: CheckboxWidget<DataRKT>,
-        kontrolaTlakuVExpanzniNadobeOtopneSoustavy: CheckboxWidget<DataRKT>,
-        pripadneProvedteKontroluTlakuVOtopneSoustave: CheckboxWidget<DataRKT>,
+        kontrolaPojistovacichVentilu: CheckboxWidget<DataRKT>,
+        kontrolaPojistovacichVentiluPoznamka: InputWidget<DataRKT>,
+        kontrolaTlakuVOtopneSoustavePriUPT: InputWidget<DataRKT, true>,
+        kontrolaTlakuVOtopneSoustave: InputWidget<DataRKT>,
     },
-    kontrolaZasobnikuTv: {
-        nadpis: TitleWidget<DataRKT>,
-        kontrolaMgAnodyVZasobnikuPripVymena: CheckboxWidget<DataRKT>,
-        kontrolaPojistovacihoVentilu: CheckboxWidget<DataRKT>,
-        pripadneProvedteKontroluTlakuVEnTepleVody: CheckboxWidget<DataRKT>,
+    kontrolaTlakuExpanznichNadob: {
+        expanzniNadobaOtopneSoustavyPriUPT: InputWidget<DataRKT, true>,
+        expanzniNadobaOtopneSoustavy: InputWidget<DataRKT>,
+        expanzniNadobaPitneVodyPriUPT: InputWidget<DataRKT, true>,
+        expanzniNadobaPitneVody: InputWidget<DataRKT>,
+    },
+    funkcniTest: {
+        provozniZkouska: CheckboxWidget<DataRKT>,
     },
     poznamky: {
         poznamka: InputWidget<DataRKT>,

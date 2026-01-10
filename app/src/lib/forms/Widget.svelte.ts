@@ -168,6 +168,7 @@ type SearchArgs<D, T> = {
 type CounterArgs<D> = { chosen: number; min: GetOrVal<D, number>; max: GetOrVal<D, number>; validate?: (v: number, d: D) => boolean; };
 type CountersArgs<D, I extends K> = { counts: Rec<I>; max: GetOrVal<D, number>; };
 type CheckArgs = { checked?: boolean; };
+type SingleCheckboxArgs<D> = { descriptionItems?: GetTAOrVal<D>; };
 type SwitchArgs<D> = { hasPositivity?: GetBOrVal<D>; options: Sides };
 type MultiChooserArgs<D, I extends K> = {
     options: GetOrVal<D, Arr<I>>;
@@ -183,6 +184,7 @@ type Input1Args<D> = {
     enterkeyhint?: GetOrVal<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode?: GetOrVal<D, HTMLInputAttributes['inputmode']>;
     autocapitalize?: GetOrVal<D, HTMLInputAttributes['autocapitalize']>;
+    placeholder?: GetTOrVal<D>;
 };
 type Input2Args<D> = {
     textArea?: GetBOrVal<D>;
@@ -228,6 +230,7 @@ type Search<D, T> = Widget<D, T | null> & {
 type Counter<D> = Widget<D, number> & { min: Get<D, number>; max: Get<D, number>; validate: (v: number, d: D) => boolean; };
 type Counters<D, I extends K> = Widget<D, Rec<I>> & { max: Get<D, number> };
 type Switch<D> = Widget<D, boolean> & { options: Sides; hasPositivity: GetB<D>; };
+type SingleCheckbox<D> = Widget<D, boolean> & { descriptionItems: GetTA<D>; };
 type MultiChooser<D, I extends K> = Widget<D, Arr<I>> & {
     options: Get<D, Arr<I>>;
     max: Get<D, number>;
@@ -241,6 +244,7 @@ type Input1<D, U> = Widget<D, U> & {
     autocapitalize: Get<D, HTMLInputAttributes['autocapitalize']>;
     regex: Get<D, RegExp>;
     capitalize: GetB<D>;
+    placeholder: GetT<D>;
 };
 type Input2<D, U> = Widget<D, U> & {
     textArea: GetB<D>;
@@ -351,6 +355,9 @@ const initSwitch = function <D>(widget: Switch<D>, args: SwitchArgs<D>) {
 const initCheck = function <D>(widget: Widget<D, boolean>, args: CheckArgs) {
     widget._value = args.checked ?? false;
 };
+const initSingleCheckbox = function <D>(widget: SingleCheckbox<D>, args: SingleCheckboxArgs<D>) {
+    widget.descriptionItems = toGetT(args.descriptionItems ?? []);
+};
 const initMultiChooser = function <D, I extends K>(widget: MultiChooser<D, I>, args: MultiChooserArgs<D, I>) {
     widget._value = args.chosen ?? [];
     widget.max = toGetA(args.max ?? Number.MAX_VALUE);
@@ -365,6 +372,7 @@ const initInput1 = function <D, U>(widget: Input1<D, U>, args: Input1Args<D>) {
     widget.enterkeyhint = toGetA(args.enterkeyhint);
     widget.inputmode = toGetA(args.inputmode);
     widget.autocapitalize = toGetA(args.autocapitalize);
+    widget.placeholder = toGetT(args.placeholder ?? '');
 };
 const initInput2 = function <D, U>(widget: Input2<D, U>, args: Input2Args<D>) {
     widget.textArea = toGetA(args.textArea ?? false);
@@ -553,6 +561,7 @@ export class InputWithSuggestionsWidget<D, H extends boolean = false> extends Wi
     suffix = $state() as GetTU<D>;
     regex = $state() as Get<D, RegExp>;
     capitalize = $state() as GetB<D>;
+    placeholder = $state() as GetT<D>;
 
     setValue(data: D, value: string) {
         this._value = value;
@@ -696,6 +705,7 @@ export class RadioWithInputWidget<D, I extends K, H extends boolean = false> ext
     labels = $state() as T<I>;
     get = $state() as ((t: Translations, v: I | null) => string);
     capitalize = $state() as GetB<D>;
+    placeholder = $state() as GetT<D>;
 
     constructor(args: ValueArgs<D, RaI<I>, H> & LockArgs<D> & Input1Args<D> & Input3Args<D> & ChooserArgs<D, I> & LabelsArgs<I> & {
         otherLabel: GetTOrVal<D>
@@ -791,6 +801,7 @@ export class InputWidget<D, H extends boolean = false> extends Widget<D, string,
     regex = $state() as Get<D, RegExp>;
     capitalize = $state() as GetB<D>;
     textArea = $state() as GetB<D>;
+    placeholder = $state() as GetT<D>;
 
     constructor(args: ValueArgs<D, string, H> & LockArgs<D> & Input1Args<D> & Input2Args<D> & Input3Args<D>) {
         super();
@@ -894,6 +905,7 @@ export class InputWithChooserWidget<D, I extends K, H extends boolean = false> e
     textArea = $state() as GetB<D>;
     labels = $state() as T<I>;
     get = $state() as ((t: Translations, v: I | null) => string);
+    placeholder = $state() as GetT<D>;
 
     constructor(args: ValueArgs<D, SeI<I>, H> & LockArgs<D> & Input1Args<D> & Input2Args<D> & Input3Args<D> & SecondChooserArgs<I> & LabelsArgs<I>) {
         super();
@@ -939,6 +951,7 @@ export class CheckboxWithInputWidget<D, H extends boolean = false> extends Widge
     regex = $state() as Get<D, RegExp>;
     capitalize = $state() as GetB<D>;
     textArea = $state() as GetB<D>;
+    placeholder = $state() as GetT<D>;
 
     constructor(args: ValueArgs<D, ChI, H> & LockArgs<D> & Input1Args<D> & Input2Args<D> & Input3Args<D> & CheckArgs) {
         super();
@@ -961,12 +974,14 @@ export class CheckboxWidget<D, H extends boolean = false> extends Widget<D, bool
     required = $state() as GetB<D>;
     isError = $state(a => !this.value && this.required(a)) as GetB<D>;
     lock = $state() as GetB<D>;
+    descriptionItems = $state() as GetTA<D>;
 
-    constructor(args: ValueArgs<D, boolean, H> & LockArgs<D> & CheckArgs) {
+    constructor(args: ValueArgs<D, boolean, H> & LockArgs<D> & CheckArgs & SingleCheckboxArgs<D>) {
         super();
         initValue(this, args);
         initLock(this, args);
         initCheck(this, args);
+        initSingleCheckbox(this, args);
     }
 }
 

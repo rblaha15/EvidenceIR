@@ -53,7 +53,8 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
         args: pdf,
         lang: language,
         data: pdf.type == 'IR' ? data.ir! as IR : data.sps[0]! as Raw<FormNSP>,
-    }, fetch);
+        fetch,
+    });
 
     const pageData = await parent();
     const t = pageData.translations;

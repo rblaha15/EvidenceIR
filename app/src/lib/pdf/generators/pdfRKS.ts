@@ -66,6 +66,6 @@ const pdfRKS: GetPdfData<'RKS'> = async ({ data, t, lastYear, addDoc, lang }) =>
         ...start,
         ...metadata,
         ...veci,
-    }.also(console.log);
+    };
 };
 export default pdfRKS;
