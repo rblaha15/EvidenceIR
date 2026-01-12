@@ -21,7 +21,7 @@ const en: PlainTranslations = {
         tooManyRequests: 'Too many requests! Please wait a bit',
         somethingWentWrong: 'Something went wrong :\\',
         passwordTooWeak: 'Password is too weak!',
-        pleaseUseBusinessEmail: 'Please use your business email.',
+        pleaseUseBusinessEmail: 'This email is not yet in our database, please contact your sales representative.',
         emailInUse: 'This account already exists',
         passwordsDoNotMatch: "Passwords don't match!",
         save: 'Save',
