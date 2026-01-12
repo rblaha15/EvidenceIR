@@ -83,7 +83,7 @@ export default {
         dontHaveAccount: `Nemáte účet?`,
         logInNeeded: `Pro zobrazení a vyplnění formuláře je nutné se přihlásit!`,
         useNameSurnameEmail: 'Prosím, použijte email se jménem i příjmením',
-        pleaseUseBusinessEmail: `Prosím zadejte Váš firemní email`,
+        pleaseUseBusinessEmail: `Tento email zatím není v naší databázi, kontaktujte prosím svého obchodního zástupce.`,
         passwordTooWeak: `Heslo je příliš slabé!`,
         emailInUse: `Tento účet již existuje`,
         passwordsDoNotMatch: `Hesla se neshodují!`,
