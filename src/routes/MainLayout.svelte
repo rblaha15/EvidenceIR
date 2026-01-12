@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { LayoutData } from './$types';
-    import { checkAuth } from '$lib/client/auth';
+    import { checkAuth, userInfo } from '$lib/client/auth';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import { onMount, type Snippet } from 'svelte';
     import {
@@ -20,6 +20,8 @@
     import type { EventHandler } from 'svelte/elements';
     import TableOfContents from '$lib/components/TableOfContents.svelte';
     import Icon from '$lib/components/Icon.svelte';
+    import { analytics } from '../hooks.client';
+    import { setUserId } from '@firebase/analytics';
 
     interface Props {
         data: LayoutData;
@@ -91,6 +93,10 @@
             columnNumber: 'columnNumber' in r ? r.columnNumber || '' : '',
         };
     };
+
+    $effect(() => {
+        setUserId(analytics(), $userInfo?.uid || null);
+    })
 </script>
 
 <svelte:window onunhandledrejection={handleError} />

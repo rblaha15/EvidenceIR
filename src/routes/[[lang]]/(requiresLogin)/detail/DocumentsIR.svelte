@@ -24,7 +24,7 @@
 {#if ir.evidence.ir.typ.second === 'TRS6 K'}
     <PDFLink name={t.nnt.title} {t} link="NNT" data={ir} />
 {/if}
-{#if ir.evidence.ir.chceVyplnitK.includes('heatPump')}
+{#if ir.evidence.ir.chceVyplnitK.includes('heatPump') && ir.evidence.tc.model !== 'airTHERM 10'}
     <PDFLink
         disabled={!ir.uvedeniTC?.uvadeni?.typZaruky} name={t.tc.name} {t} link="UPT"
         data={ir} {irid} additionalButton={{
