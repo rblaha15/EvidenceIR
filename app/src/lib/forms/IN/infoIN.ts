@@ -28,7 +28,7 @@ import MailXML from '$lib/emails/MailXML.svelte';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
 import { grantPoints } from '$lib/client/loyaltyProgram';
 
-const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string | null]], never, { draft: boolean }> = {
+const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [string | null]], never, { draft: boolean }> = {
     type: '',
     storeName: () => 'stored_data',
     defaultData: () => defaultIN(),
@@ -151,10 +151,6 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         data.tc.pocet.setValue(data, count == 0 ? 1 : count);
     },
     storeEffects: [
-        [(_, data, [$isUserRegulusOrAdmin]) => { // Also in NSP
-            data.koncovyUzivatel.company.show = d => $isUserRegulusOrAdmin && d.koncovyUzivatel.typ.value == 'company';
-            data.koncovyUzivatel.or.show = d => $isUserRegulusOrAdmin && d.koncovyUzivatel.typ.value == 'company';
-        }, [isUserRegulusOrAdmin]],
         [(_, data, [$isUserRegulusOrAdmin]) => {
             data.vzdalenyPristup.plati.options = () => $isUserRegulusOrAdmin
                 ? ['laterAccordingToTheProtocol', 'doNotInvoice', 'assemblyCompany', 'endCustomer']

@@ -215,6 +215,9 @@ const en: PlainTranslations = {
             phone: '+420999999999',
             representative: 'Neznámý montážník',
         },
+        searchCompany: 'Search: name or CRN...',
+        searchInARES: 'Search in the Czech Administrative register of economic entities (ARES)',
+        notFound: 'Unfortunately, no company was found for your search.',
     },
     wrong: {
         number: 'Invalid number format',
