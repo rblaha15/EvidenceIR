@@ -38,7 +38,10 @@ export const heatPumps = {
         'EcoPart 414',
         'EcoPart 417',
         'EcoPart 435',
-    ], []],
+    ], [
+        'EcoPart 10,5',
+        'EcoPart 12',
+    ]],
     multiEnergyCTC: [[
         'EcoHeat 406',
         'EcoHeat 408',
@@ -48,7 +51,13 @@ export const heatPumps = {
         'EcoHeat 308',
         'EcoHeat 310',
         'EcoHeat 312',
-    ], []],
+    ], [
+        'EcoHeat 5',
+        'EcoHeat 7,5',
+        'EcoHeat 8,5',
+        'EcoHeat 10,5',
+        'EcoHeat 12',
+    ]],
 } as const;
 export const indoorUnits = [
     'RegulusBOX',
