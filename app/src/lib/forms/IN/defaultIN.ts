@@ -189,6 +189,8 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
                 ] : [
                     { text: i.crn, width: .2 },
                     { text: i.companyName, width: .8 },
+                ], otherSearchParts: [
+                    i.representative || '',
                 ],
             }), showInXML: false, required: false, hideInRawData: true,
             onValueSet: (d, company) => {
@@ -258,6 +260,8 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
                 ] : [
                     { text: i.crn, width: .2 },
                     { text: i.companyName, width: .8 },
+                ], otherSearchParts: [
+                    i.representative || '',
                 ],
             }), showInXML: false, required: false, hideInRawData: true,
             onValueSet: (d, company) => {
