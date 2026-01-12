@@ -4,6 +4,9 @@
     import { getTranslations } from '$lib/translations';
     import { getToken } from '$lib/client/auth';
     import { dateFromISO, dayISO } from '$lib/helpers/date';
+    import { adminDescriptions, type LoyaltyPointRewardType, type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
+    import { detailIrUrl } from '$lib/helpers/runes.svelte';
+    import { datetimeFromISO } from '$lib/helpers/date.ts';
 
     let from = $state(new InputWidget({
         type: 'date', label: 'Od (včetně)', text: dayISO(),
@@ -17,11 +20,19 @@
     let results = $state<Record<string, number>>({});
     let currentRange = $state<[string, string]>(['', '']);
 
+    let resultsLP = $state<Record<string, LoyaltyProgramUserData>>({});
+
     const search = async () => {
         const token = await getToken();
-        const response = await fetch(`/api/stats?from=${from.value}&to=${to.value}&token=${token}`);
+        const response = await fetch(`/api/stats?from=${from.value}&to=${to.value}&token=${token}&type=protocols`);
         results = await response.json();
         currentRange = [dateFromISO(from.value), dateFromISO(to.value)];
+    };
+
+    const searchLP = async () => {
+        const token = await getToken();
+        const response = await fetch(`/api/stats?token=${token}&type=loyalty`);
+        resultsLP = await response.json();
     };
 </script>
 
@@ -50,4 +61,25 @@
             <li>{technician}: {count}</li>
         {/each}
     </ul>
+{/if}
+
+<h2>Statistiky a historie věrnostních bodů uživatelů</h2>
+
+<button class="btn btn-primary" onclick={searchLP}>
+    Vyhledat
+</button>
+
+{#if resultsLP.entries().length}
+    {#each resultsLP.entries() as [email, data]}
+        <details>
+            <summary><a href="#users-{email}">{email}</a>: {data.points.toLocaleString('cs')}</summary>
+            {#each data.history as entry}
+                {#if entry.type === 'other'}
+                    <p class="m-0">{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note}</p>
+                {:else}
+                    <p class="m-0">{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {adminDescriptions[entry.type]} {#if entry.irid}u <a href="{detailIrUrl(entry.irid)}">{entry.irid}</a>{/if} {#if entry.note}({entry.note}){/if}</p>
+                {/if}
+            {/each}
+        </details>
+    {/each}
 {/if}
