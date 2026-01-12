@@ -86,44 +86,41 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
             regex: /^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?[0-9]{4}$/,
             autocomplete: `bday`, required: false, show: fo,
         }),
-        company: new SearchWidget<D, Company, true>({
-            items: derived(assemblyCompanies, c => c.filter(c => companyForms.some(f => c.companyName.endsWith(f)))),
-            label: t => t.in.searchCompanyInList, getSearchItem: i => ({
-                pieces: [
-                    { text: i.crn, width: .2 },
-                    { text: i.companyName, width: .8 },
-                ],
-            }), showInXML: false, required: false, hideInRawData: true, show: false,
-            onValueSet: (d, company) => {
-                d.koncovyUzivatel.nazev.setValue(d, company?.companyName ?? '');
-                d.koncovyUzivatel.ico.setValue(d, company?.crn ?? '');
-                d.koncovyUzivatel.kontaktniOsoba.setValue(d, company?.representative ?? '');
-                d.koncovyUzivatel.telefon.setValue(d, company?.phone ?? '');
-                d.koncovyUzivatel.email.setValue(d, company?.email ?? '');
-                if (company?.crn) ares.getNameAndAddress(company.crn).then(ares => {
-                    const s = ares?.sidlo;
+        searchText: new InputWidget<D, true>({
+            label: t => t.in.searchCompany, required: false, show: po, showInXML: false, hideInRawData: true,
+        }),
+        searchButton: new ButtonWidget({
+            text: t => t.in.searchInARES, color: 'secondary', icon: 'search', show: po, showInXML: false,
+            onClick: (d: D) => {
+                d.koncovyUzivatel.searchFailText.show = () => false;
+                ares.search(d.koncovyUzivatel.searchText.value).then(ares => {
+                    const c = ares?.ekonomickeSubjekty?.[0]
+                    if (!c) d.koncovyUzivatel.searchFailText.show = po;
+                    d.koncovyUzivatel.nazev.setValue(d, c?.obchodniJmeno ?? '');
+                    d.koncovyUzivatel.ico.setValue(d, c?.ico ?? '');
+                    d.koncovyUzivatel.kontaktniOsoba.setValue(d, '');
+                    d.koncovyUzivatel.telefon.setValue(d, '');
+                    d.koncovyUzivatel.email.setValue(d, '');
+                    const s = c?.sidlo;
                     d.bydliste.psc.setValue(d, s?.psc?.toString() ?? s?.pscTxt ?? '');
                     d.bydliste.obec.setValue(d, [s?.nazevObce, s?.nazevCastiObce].filterNotUndefined().join(' - '));
                     d.bydliste.ulice.setValue(d, [s?.nazevUlice, [s?.cisloDomovni, s?.cisloOrientacni?.let(o => o + (s?.cisloOrientacniPismeno ?? ''))].filterNotUndefined().join('/')].filterNotUndefined().join(' '));
-                }); else {
-                    d.bydliste.psc.setValue(d, '');
-                    d.bydliste.obec.setValue(d, '');
-                    d.bydliste.ulice.setValue(d, '');
-                }
+                });
             },
         }),
-        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: false }),
+        searchFailText: new TextWidget({ text: t => t.in.notFound, showInXML: false, show: false }),
+        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: po }),
+        ico: new InputWidget({
+            label: t => t.in.crn, onError: t => t.wrong.crn,
+            regex: /^\d{8}(\d{2})?$/, required: po, show: po,
+            maskOptions: { mask: `00000000[00]` },
+        }),
         nazev: new InputWidget({ label: t => t.in.companyName, show: po, required: po }),
         wrongFormat: new TextWidget({
             text: t => t.wrong.company, showInXML: false,
             show: d => !jeFO(d) && isCompanyFormInvalid(d.koncovyUzivatel.nazev.value),
         }),
         pobocka: new InputWidget({ label: t => t.in.establishment, required: false, show: po }),
-        ico: new InputWidget({
-            label: t => t.in.crn, onError: t => t.wrong.crn,
-            regex: /^\d{8}(\d{2})?$/, required: po, show: po,
-            maskOptions: { mask: `00000000[00]` },
-        }),
         kontaktniOsoba: new InputWidget({ label: t => t.in.contactPerson, required: false, show: po }),
         telefon: new InputWidget({
             label: t => t.in.phone, onError: t => t.wrong.phone,

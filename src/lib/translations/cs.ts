@@ -709,6 +709,9 @@ export default {
             phone: '+420999999999',
             representative: 'Neznámý montážník',
         },
+        searchCompany: 'Vyhledávání: název nebo IČO...',
+        searchInARES: 'Vyhledat v ARES MFČR',
+        notFound: 'Bohužel, pro zadaný výraz nebyla nalezena žádná osoba.',
     },
     od: {
         title: 'Odeslat podepsané dokumenty',
