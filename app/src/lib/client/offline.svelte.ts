@@ -46,7 +46,6 @@ const newDb = (uid: string) => openDB<DBSchema>(`offlineData_${uid}`, 1, {
 
 const db = async () => {
     const uid = get(currentUser)?.uid ?? 'anonymous';
-    // console.log(uid);
     return dbMap[uid] || (dbMap[uid] = await newDb(uid));
 };
 
