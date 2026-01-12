@@ -120,6 +120,9 @@ const de: PlainTranslations = {
             phone: '+499999999999',
             representative: 'Unbekannter Installateur',
         },
+        searchCompany: 'Suche: Name oder Steuer-ID...',
+        searchInARES: 'Suche im tschechischen Verwaltungsregister der Wirtschaftseinheiten (ARES)',
+        notFound: 'Leider wurde für Ihren Suchbegriff kein Unternehmen gefunden.',
     },
     auth: {
         rewards: 'Treuepunkte-Prämien',
@@ -132,7 +135,7 @@ const de: PlainTranslations = {
         tooManyRequests: `Zu viele Anfragen! Bitte warten Sie einen Moment`,
         somethingWentWrong: `Etwas ist schiefgelaufen :\\`,
         passwordTooWeak: `Das Passwort ist zu schwach!`,
-        pleaseUseBusinessEmail: `Bitte verwenden Sie Ihre Firmen-E-Mail-Adresse`,
+        pleaseUseBusinessEmail: `Diese E-Mail-Adresse ist noch nicht in unserer Datenbank. Bitte kontaktieren Sie Ihren Vertriebsmitarbeiter.`,
         emailInUse: `Dieses Konto existiert bereits`,
         passwordsDoNotMatch: `Passwörter stimmen nicht überein!`,
         save: `Speichern`,

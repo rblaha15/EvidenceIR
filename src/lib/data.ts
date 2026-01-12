@@ -18,6 +18,7 @@ import '$lib/extensions';
 import type { FormRKS } from '$lib/forms/RKS/formRKS';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { type Database, databaseMethods, type ReadDatabase, type WriteDatabase } from '$lib/Database';
+import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
 
 export type Year = number;
 
@@ -57,7 +58,7 @@ export type IR = {
     uvedeniSOL?: Raw<FormUPS>;
     uvedeniFVE?: Raw<FormUPF>;
     kontrolyTC: {
-        [P in TC]?: Record<Year, Raw<FormRKT>>;
+        [P in TC]?: Record<Year, Raw<FormRKT | FormRKTL>>;
     };
     kontrolySOL?: Record<Year, Raw<FormRKS>>;
     users: string[];
