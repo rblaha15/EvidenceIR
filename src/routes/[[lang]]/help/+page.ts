@@ -16,7 +16,8 @@ export const load: PageLoad = async ({ parent, fetch }) => {
         args: pdfInfo.NN,
         lang: 'cs',
         data: {},
-    }, fetch);
+        fetch,
+    });
 
     const pageData = await parent();
     const t = pageData.translations;
