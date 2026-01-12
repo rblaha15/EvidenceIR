@@ -82,7 +82,7 @@ export const irType = (type: Raw<FormIN>['ir']['typ']) => ({
     'IR RegulusHBOX K': `IR RegulusHBOXK ` + type.second!,
     'SOREL': type.second!,
     'ctc': type.second!,
-    'IR inTHERM': 'IR inTHERM',
+    'Thermona': 'Thermona inTHERM',
     'other': '',
 } as const)[type.first!];
 
@@ -148,7 +148,7 @@ type IRTypeDescriptions = {
     'B': 'BOX/HBOX/HBOXK';
     'S': 'SOREL';
     'C': 'CTC';
-    'T': 'IR inTHERM';
+    'T': 'Thermona inTHERM';
     'O': 'Jiný';
 }
 
@@ -186,7 +186,7 @@ const extractIRTypeFromFullIRType = (fullIRType: IRTypes): IRType => ({
     'IR RegulusHBOX K': 'B',
     'SOREL': 'S',
     'ctc': 'C',
-    'IR inTHERM': 'T',
+    'Thermona': 'T',
     'other': 'O',
 } as const)[fullIRType];
 
@@ -215,6 +215,6 @@ export const isMACAddressTypeIR10 = (t: IRTypes | null) => t == 'IR 10';
 export const isCTC = (t: IRTypes | null) => t == 'ctc';
 export const doesNotSupportHeatPumps = (t: IRTypes | null) => t == 'other';
 export const doesNotHaveIRNumber = (t: IR['evidence']['ir']['typ']) => t.first == 'other' || t.first == 'SOREL' || (t.first == 'ctc' && t.second == 'EcoLogic EXT');
-export const supportsRemoteAccess = (t: IRTypes | null) => t != 'other' && t != 'SOREL' && t != 'ctc' && t != 'IR inTHERM';
+export const supportsRemoteAccess = (t: IRTypes | null) => t != 'other' && t != 'SOREL' && t != 'ctc' && t != 'Thermona';
 export const isBox = (t: IRTypes | null) => t == 'IR RegulusBOX' || t == 'IR RegulusHBOX' || t == 'IR RegulusHBOX K';
-export const hasIndoorUnit = (t: IRTypes | null) => isBox(t) || t == 'IR inTHERM';
+export const hasIndoorUnit = (t: IRTypes | null) => isBox(t) || t == 'Thermona';
