@@ -458,7 +458,7 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
             }
             if (doesNotHaveIRNumber(v)) {
                 if (!d.ir.cislo.lock(d))
-                    d.ir.cislo.setValue(d, `${dayISO()}T${time()}`);
+                    setTimeout(() => d.ir.cislo.setValue(d, `${dayISO()}T${time()}`));
             }
             if (!supportsRemoteAccess(v.first)) {
                 resetRemoteAccess?.(d);
@@ -520,6 +520,7 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
                 X: /[0A-Za-z]/,
                 N: /0/,
                 A: /[Aa]/,
+                T: /[T ]/,
                 6: /6/,
                 9: /9/,
                 1: /1/,
