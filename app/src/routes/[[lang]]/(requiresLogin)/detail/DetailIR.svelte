@@ -16,6 +16,8 @@
     import type { LanguageCode } from '$lib/languageCodes';
     import DocumentsIR from './DocumentsIR.svelte';
     import { createFileUrl, downloadFile } from '$lib/helpers/files';
+    import { datetimeFromISO } from '$lib/helpers/date';
+    import { Timestamp } from 'firebase/firestore';
 
     const { t, ir, lang, irid }: {
         t: Translations, ir: IR, lang: LanguageCode, irid: IRID,
@@ -133,5 +135,21 @@
 
         <RKD {ir} {irid} {t} type="TČ" />
         <RKD {ir} {irid} {t} type="SOL" />
+
+        {#if $isUserAdmin}
+            <div class="d-flex flex-column gap-1 align-items-sm-start">
+                {#if ir.createdBy && !ir.createdBy.isFake}
+                    <span>Vytvořil: {ir.createdBy.email}{$aA}</span>
+                {/if}
+                {#if ir.createdAt && !('_seconds' in ir.createdAt)}
+                    {@const date = new Timestamp(ir.createdAt.seconds, ir.createdAt.nanoseconds).toDate()}
+                    <span>Vytvořeno: {datetimeFromISO(date.toISOString())} UTC{$aA}</span>
+                {/if}
+                {#if ir.changedAt && !('_seconds' in ir.changedAt)}
+                    {@const date = new Timestamp(ir.changedAt.seconds, ir.changedAt.nanoseconds).toDate()}
+                    <span>Změněno: {datetimeFromISO(date.toISOString())} UTC{$aA}</span>
+                {/if}
+            </div>
+        {/if}
     </div>
 </div>
