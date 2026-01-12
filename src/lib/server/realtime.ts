@@ -28,6 +28,9 @@ export const removePerson = (userId: string) => lidiRef.child(userId).remove()
 export const people = async () => ((await lidiRef.get()).val() as Record<string, Person>) ?? {}
 export const technicians = async () => (await techniciRef.get()).val() as Technician[] ?? []
 
+export const getAllLoyaltyProgramData = async () =>
+    (await loyaltyProgramRef.get()).val() as Record<string, LoyaltyProgramUserData>
+
 export const getLoyaltyProgramData = async (userId: string) =>
     ((await loyaltyProgramRef.child(userId).get()).val() as LoyaltyProgramUserData | null) || { points: 0, history: [] }
 export const setLoyaltyProgramData = (userId: string, data: LoyaltyProgramUserData) =>

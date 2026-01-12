@@ -76,3 +76,13 @@ export type LoyaltyProgramUserData = {
     points: Points;
     history: (LoyaltyProgramPointsTransaction)[];
 };
+
+export const adminDescriptions: Record<LoyaltyPointRewardType, string> = {
+    registration: 'Registrace',
+    connectRegulusRoute: 'Připojen RegulusRoute',
+    heatPumpAssembly: 'Montáž TČ',
+    heatPumpInCascadeAssembly: 'Montáž TČ v kaskádě',
+    heatPumpCommission: 'Uvedení TČ do provozu',
+    heatPumpInCascadeCommission: 'Uvedení TČ v kaskádě do provozu',
+    heatPumpYearlyCheck: 'Roční kontrola TČ',
+}
