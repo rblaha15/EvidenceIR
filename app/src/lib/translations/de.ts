@@ -120,6 +120,9 @@ const de: PlainTranslations = {
             phone: '+499999999999',
             representative: 'Unbekannter Installateur',
         },
+        searchCompany: 'Suche: Name oder Steuer-ID...',
+        searchInARES: 'Suche im tschechischen Verwaltungsregister der Wirtschaftseinheiten (ARES)',
+        notFound: 'Leider wurde für Ihren Suchbegriff kein Unternehmen gefunden.',
     },
     auth: {
         rewards: 'Treuepunkte-Prämien',

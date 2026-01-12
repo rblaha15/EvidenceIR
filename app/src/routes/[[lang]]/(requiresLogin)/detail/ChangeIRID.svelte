@@ -10,6 +10,7 @@
     import Widget from '$lib/components/Widget.svelte';
     import Icon from '$lib/components/Icon.svelte';
     import { irTypeAndNumber } from '$lib/forms/IN/defaultIN';
+    import type { HeatPump } from '$lib/helpers/products';
 
     const { t, ir, irid }: {
         t: Translations, ir: IR, irid: IRID,
@@ -22,6 +23,7 @@
 
     const alsoChangeDefault = {
         setPumpType: null as 'airToWater' | 'groundToWater' | null,
+        setPumpModel: null as HeatPump | null,
         setPumpNumber: null as string | null,
         resetBoxNumber: false,
         resetRemoteAccess: false,
@@ -32,6 +34,7 @@
 
     const part = irTypeAndNumber<D>({
         setPumpType: (_, v) => alsoChange.setPumpType = v,
+        setPumpModel: (_, v) => alsoChange.setPumpModel = v,
         setPumpNumber: (_, v) => alsoChange.setPumpNumber = v,
         resetBoxNumber: _ => alsoChange.resetBoxNumber = true,
         resetRemoteAccess: _ => alsoChange.resetRemoteAccess = true,
@@ -58,23 +61,24 @@
             const newType = part.typ.value;
             const newIRID = extractIRIDFromParts(newType.first!, newNumber);
             change = 'sending';
-            const record = (await db.getIR(irid!))!;
+            const record = await db.getIR(irid!) as IR;
             record.evidence.ir.cislo = newNumber;
             record.evidence.ir.typ = newType;
             if (alsoChange.setPumpType) record.evidence.tc.typ = alsoChange.setPumpType;
+            if (alsoChange.setPumpModel) record.evidence.tc.model = alsoChange.setPumpModel;
             if (alsoChange.setPumpNumber) record.evidence.tc.cislo = alsoChange.setPumpNumber;
             if (alsoChange.resetBoxNumber) record.evidence.ir.cisloBox = '';
             if (alsoChange.resetRemoteAccess) record.evidence.vzdalenyPristup.chce = false;
             if (alsoChange.setFVEType) record.evidence.fve.typ = 'DG-450-B';
             if (alsoChange.setHP) record.evidence.ir.chceVyplnitK = ['heatPump'];
             if (irid! == newIRID) {
-                await db.updateIRRecord(record.evidence);
+                await db.updateIRRecord(record.evidence, record.isDraft);
                 alsoChange = alsoChangeDefault;
             } else {
                 await db.addIR(record);
                 alsoChange = alsoChangeDefault;
                 const newRecord = await db.getIR(newIRID);
-                if (!newRecord?.evidence) return change = 'fail';
+                if (!newRecord || newRecord.deleted || !newRecord.evidence) return change = 'fail';
                 await db.deleteIR(irid!, newIRID);
                 await goto(detailIrUrl(newIRID), { replaceState: true, invalidateAll: true });
             }

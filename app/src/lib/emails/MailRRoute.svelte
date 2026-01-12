@@ -35,8 +35,9 @@
         'IR RegulusHBOX K': 'CP-2972',
         'SOREL': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
         'other': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
+        'IR inTHERM': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
         'ctc': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
-    } as const)[e.ir.typ.first!];
+    } as const satisfies Record<IRTypes, string>)[e.ir.typ.first!];
 
     const irid = extractIRIDFromParts(e.ir.typ.first!, e.ir.cislo);
 </script>
