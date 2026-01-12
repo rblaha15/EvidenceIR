@@ -60,9 +60,9 @@ const getSnps = async <T>(reference: Query<T>) => {
     }
 };
 
-const shouldUpdateKeyChangeIR = async (newIR: Raw<FormIN>) => {
+const shouldUpdateKeyChangeIR = async (newIR: Raw<FormIN>, isDraft: boolean) => {
     const oldIR = await odm.get('IR', extractIRIDFromRawData(newIR)) as IR;
-    return irWholeName(newIR) != irWholeName(oldIR.evidence);
+    return irWholeName(newIR) != irWholeName(oldIR.evidence) || isDraft != oldIR.isDraft;
 };
 
 const addStampIR = (field: string, value: unknown) => ({
@@ -127,7 +127,7 @@ const baseDatabase: Database = {
         const irid = extractIRIDFromRawData(rawData);
         await updateDoc(irDoc(irid), {
             evidence: rawData, isDraft, changedAt: serverTimestamp() as Timestamp,
-            ...await shouldUpdateKeyChangeIR(rawData) ? { keysChangedAt: serverTimestamp() as Timestamp } : {},
+            ...await shouldUpdateKeyChangeIR(rawData, isDraft) ? { keysChangedAt: serverTimestamp() as Timestamp } : {},
         });
         await updateDoc(irDoc(irid), `isDraft`, isDraft);
         await odm.update('IR', irid, ir => ({ ...ir!, evidence: rawData, isDraft }));

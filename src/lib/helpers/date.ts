@@ -51,7 +51,7 @@ export function dateToISO(date: string) {
 }
 
 export function timeFromISO(timeISO: string) {
-    return timeISO.split('T').at(-1);
+    return timeISO.split('T').at(-1)!.split('.')[0];
 }
 
 export function datetimeFromISO(datetimeISO: string) {

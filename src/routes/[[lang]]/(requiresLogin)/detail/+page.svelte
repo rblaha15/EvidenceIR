@@ -7,6 +7,10 @@
     import DetailNSPs from './DetailNSPs.svelte';
     import Icon from '$lib/components/Icon.svelte';
     import { detailIrUrl } from '$lib/helpers/runes.svelte';
+    import { Timestamp } from 'firebase/firestore';
+    import { datetimeFromISO } from '$lib/helpers/date';
+    import { isUserAdmin } from '$lib/client/auth';
+    import { aA } from '$lib/helpers/stores';
 
     let { data }: PageProps = $props();
     const { irid, spids, ir, sps, languageCode: lang, translations: t } = $derived(data);
@@ -62,6 +66,10 @@
                 {td.deletedIR}
             {/if}
         </div>
+        {#if $isUserAdmin && $ir.deletedAt}
+            {@const date = new Timestamp($ir.deletedAt.seconds, $ir.deletedAt.nanoseconds).toDate()}
+            <span>Odstraněno: {datetimeFromISO(date.toISOString())} UTC{$aA}</span>
+        {/if}
     {/if}
     {#if spids && $sps.length && !isSPDeleted($sps[0])}
         <DetailNSPs {t} {lang} sps={$sps} />

@@ -51,7 +51,7 @@ export type IR = {
     isDraft: boolean;
     deleted: false;
     createdAt?: Timestamp;
-    changedAt: Timestamp;
+    changedAt?: Timestamp;
     keysChangedAt: Timestamp;
     evidence: Raw<FormIN>;
     uvedeniTC: Raw<FormUPT> | FakeUvedeni;
