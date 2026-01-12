@@ -2,14 +2,12 @@
     import type { Translations } from '$lib/translations';
     import { type IR } from '$lib/data';
     import { type IRID, supportsRemoteAccess } from '$lib/helpers/ir';
-    import { defaultDK, type FormPartDK, saveDK } from '$lib/forms/DK/formDK';
-    import Widget from '$lib/components/Widget.svelte';
-    import Icon from '$lib/components/Icon.svelte';
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { aA, aR } from '$lib/helpers/stores';
     import PDFLink from './PDFLink.svelte';
     import { iridUrl } from '$lib/helpers/runes.svelte';
     import { cascadePumps } from '$lib/forms/IN/infoIN';
+    import { hasRKTL, isRKTL } from '$lib/forms/RKT/infoRKT';
 
     const { t, ir, irid }: {
         t: Translations, ir: IR, irid: IRID,
@@ -45,19 +43,19 @@
     {/each}
     {#each cascadePumps(ir.evidence) as tc}
         <PDFLink
-            name={t.rkt.name(tc)} {t} link="RKT" data={ir} pump={tc.N} {irid}
+            name={t.rkt.name(tc)} {t} link={hasRKTL(ir.kontrolyTC[tc.N]) ? 'RKTL' : 'RKT'} data={ir} pump={tc.N} {irid}
             disabled={!ir.kontrolyTC[tc.N]?.keys()?.length} additionalButton={{
                 show: true,
                 href: iridUrl(`/RKT?pump=${tc.N}`),
                 text: t.rkt.fillOut(tc),
                 important: ir.yearlyHeatPumpCheckRecommendation?.state === 'sentRequest',
-            }} dropdownItems={$isUserAdmin ? ir.kontrolyTC[tc.N]?.keys().flatMap(y => [{
+            }} dropdownItems={$isUserAdmin ? ir.kontrolyTC[tc.N]?.entries().flatMap(([y, k]) => [{
                 text: `${t.rkt.year} ${y}`,
             }, {
                 color: 'warning',
                 icon: 'edit_document',
                 text: td.editCheck + $aA,
-                href: iridUrl(`/RKT?pump=${tc.N}&edit-year=${y}`),
+                href: iridUrl(`/${isRKTL(k) ? 'RKTL' : 'RKT'}?pump=${tc.N}&edit-year=${y}`),
             }]) : undefined}
         />
     {/each}

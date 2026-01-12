@@ -28,8 +28,19 @@
                    disabled={widget.lock(data)} checked={widget.value} onclick={onClick} />
         </button>
         <button onclick={onClick} tabindex="-1"
-                id="label-{uid}" class="input-group-text flex-grow-1"
-        >{labelAndStar(widget, data, t)}</button>
+                id="label-{uid}" class="input-group-text flex-grow-1 d-flex flex-column align-items-start"
+        >
+            {#if widget.label(t, data)}
+                <p class="m-0">{labelAndStar(widget, data, t)}</p>
+            {/if}
+            {#if widget.descriptionItems(t, data).length}
+                <ul class="m-0">
+                    {#each widget.descriptionItems(t, data) as item}
+                        <li>{item}</li>
+                    {/each}
+                </ul>
+            {/if}
+        </button>
     </div>
 
     {#if widget.showError(data)}

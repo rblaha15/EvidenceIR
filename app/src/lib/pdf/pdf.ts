@@ -2,7 +2,7 @@ import { get, type Translations } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
 import type { IR, Year } from '$lib/data';
 import type { PdfGenerationData } from '$lib/pdf/pdfGeneration';
-import RKT from '$lib/pdf/generators/pdfRKT';
+import RKT, { pdfRKTL as RKTL } from '$lib/pdf/generators/pdfRKT';
 import RKS from '$lib/pdf/generators/pdfRKS';
 import NN from '$lib/pdf/generators/pdfNN';
 import ZLT from '$lib/pdf/generators/pdfZLT';
@@ -19,11 +19,12 @@ import type { TC } from '$lib/forms/IN/defaultIN';
 import { type IRID, irName, type SPID } from '$lib/helpers/ir';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
-import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import type { LanguageCode } from '$lib/languageCodes';
 
 type AllPdf = {
+    /** Zastaralá roční kontrola TČ */
+    RKTL: 'IR'
     /** Roční kontrola TČ */
     RKT: 'IR'
     /** Roční kontrola SOL */
@@ -36,6 +37,8 @@ type AllPdf = {
     RR: 'IR'
     /** Návod SEIR  */
     NN: ''
+    /** Regulus Bonus Program  */
+    RBP: ''
     /** Návod na přístup do IR  */
     NNR: 'IR'
     /** Uživatelský průvodce pro RegulusBIO  */
@@ -63,10 +66,17 @@ type AllPdf = {
 }
 
 export const pdfInfo: PdfInfo = {
+    RKTL: {
+        type: 'IR',
+        pdfName: 'RKTL',
+        supportedLanguages: ['cs', 'de'],
+        title: t => t.rkt.title,
+        getPdfData: RKTL,
+    },
     RKT: {
         type: 'IR',
         pdfName: 'RKT',
-        supportedLanguages: ['cs', 'de'],
+        supportedLanguages: ['cs', /*TODO: 'de'*/],
         title: t => t.rkt.title,
         getPdfData: RKT,
     },
@@ -222,6 +232,7 @@ export type GeneratePdfOptions<P extends Pdf> = {
     args: PdfArgs<P>,
     lang: LanguageCode,
     data: DataOfPdf<P>,
+    fetch?: typeof window.fetch,
 } & PdfParameters<P>;
 
 export type GetPdfData<P extends Pdf> = (o: {
@@ -229,6 +240,7 @@ export type GetPdfData<P extends Pdf> = (o: {
     t: Translations,
     addDoc: <P extends Pdf>(o: GeneratePdfOptions<P>) => Promise<void>,
     lang: LanguageCode,
+    fetch?: typeof window.fetch,
 } & PdfParameters<P>) => Promise<PdfGenerationData>
 
 export type PdfArgs<P extends Pdf> = {
@@ -244,6 +256,10 @@ export type PdfArgs<P extends Pdf> = {
 };
 
 type PdfParams = {
+    RKTL: {
+        pump: TC,
+        lastYear?: Year,
+    },
     RKT: {
         pump: TC,
         lastYear?: Year,

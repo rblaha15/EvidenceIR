@@ -35,7 +35,7 @@
         'IR RegulusHBOX K': 'CP-2972',
         'SOREL': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
         'other': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
-        'IR inTHERM': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
+        'Thermona': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
         'ctc': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
     } as const satisfies Record<IRTypes, string>)[e.ir.typ.first!];
 

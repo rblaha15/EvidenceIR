@@ -1,15 +1,16 @@
-import type {
-    CheckboxWidget,
-    ChooserWidget,
-    CounterWidget,
-    DoubleChooserWidget,
-    InputWidget, InputWithSuggestionsWidget,
-    MultiCheckboxWidget,
-    RadioWidget,
-    ScannerWidget,
-    SearchWidget,
-    TextWidget,
-    TitleWidget,
+import {
+    ButtonWidget,
+    type CheckboxWidget,
+    type ChooserWidget,
+    type CounterWidget,
+    type DoubleChooserWidget,
+    type InputWidget, type InputWithSuggestionsWidget,
+    type MultiCheckboxWidget,
+    type RadioWidget,
+    type ScannerWidget,
+    type SearchWidget,
+    type TextWidget,
+    type TitleWidget,
 } from '$lib/forms/Widget.svelte.js';
 import type { Company } from '$lib/client/realtime';
 import type { Form } from '$lib/forms/Form';
@@ -37,12 +38,14 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
         prijmeni: InputWidget<D>;
         jmeno: InputWidget<D>;
         narozeni: InputWidget<D>;
-        company: SearchWidget<D, Company, true>;
+        searchText: InputWidget<D, true>;
+        searchButton: ButtonWidget<D>;
+        searchFailText: TextWidget<D>;
         or: TextWidget<D>;
+        ico: InputWidget<D>;
         nazev: InputWidget<D>;
         wrongFormat: TextWidget<D>;
         pobocka: InputWidget<D>;
-        ico: InputWidget<D>;
         kontaktniOsoba: InputWidget<D>;
         telefon: InputWidget<D>;
         email: InputWidget<D>;
@@ -53,7 +56,7 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
     uvedeni: CompanyWidgetGroup<D>;
 }
 
-export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL' | 'IR inTHERM';
+export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL' | 'Thermona';
 export type IRTypes = UntranslatableIRTypes | 'ctc' | 'other';
 type ControllersSOREL =
     | 'SRS1 T'

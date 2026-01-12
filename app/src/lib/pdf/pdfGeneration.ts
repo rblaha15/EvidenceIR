@@ -39,9 +39,8 @@ export type PdfGenerationData = {
 
 export const generatePdfUrl = async <P extends Pdf>(
     o: GeneratePdfOptions<P>,
-    fetch: typeof window.fetch = window.fetch,
 ) => {
-    const file = await generatePdfFile(o, fetch);
+    const file = await generatePdfFile(o);
 
     const url = await createFileUrl(file);
     return { url, fileName: file.name };
@@ -49,9 +48,8 @@ export const generatePdfUrl = async <P extends Pdf>(
 
 export const generatePdfFile = async <P extends Pdf>(
     o: GeneratePdfOptions<P>,
-    fetch: typeof window.fetch = window.fetch,
 ) => {
-    const pdfData = await generatePdf(o, fetch);
+    const pdfData = await generatePdf(o);
 
     return new File([pdfData.pdfBytes], pdfData.fileName, {
         type: 'application/pdf',
@@ -60,9 +58,8 @@ export const generatePdfFile = async <P extends Pdf>(
 
 export const generatePdf = async <P extends Pdf>(
     o: GeneratePdfOptions<P>,
-    fetch: typeof window.fetch = window.fetch,
 ) => {
-    const { args, lang, data } = o;
+    const { args, lang, data, fetch = window.fetch } = o;
 
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
     const t = getTranslations(formLanguage);
