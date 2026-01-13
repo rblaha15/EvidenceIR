@@ -86,22 +86,19 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
             regex: /^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?[0-9]{4}$/,
             autocomplete: `bday`, required: false, show: fo,
         }),
-        searchText: new InputWidget<D, true>({
-            label: t => t.in.searchCompany, required: false, show: po, showInXML: false, hideInRawData: true,
+        ico: new InputWidget({
+            label: t => t.in.crn, onError: t => t.wrong.crn,
+            regex: /^\d{8}(\d{2})?$/, required: po, show: po,
+            maskOptions: { mask: `00000000[00]` },
         }),
         searchButton: new ButtonWidget({
             text: t => t.in.searchInARES, color: 'secondary', icon: 'search', show: po, showInXML: false,
             onClick: (d: D) => {
                 d.koncovyUzivatel.searchFailText.show = () => false;
-                ares.search(d.koncovyUzivatel.searchText.value).then(ares => {
-                    const c = ares?.ekonomickeSubjekty?.[0]
-                    if (!c) d.koncovyUzivatel.searchFailText.show = po;
-                    d.koncovyUzivatel.nazev.setValue(d, c?.obchodniJmeno ?? '');
-                    d.koncovyUzivatel.ico.setValue(d, c?.ico ?? '');
-                    d.koncovyUzivatel.kontaktniOsoba.setValue(d, '');
-                    d.koncovyUzivatel.telefon.setValue(d, '');
-                    d.koncovyUzivatel.email.setValue(d, '');
-                    const s = c?.sidlo;
+                ares.getNameAndAddress(d.koncovyUzivatel.ico.value).then(ares => {
+                    if (!ares) d.koncovyUzivatel.searchFailText.show = po;
+                    d.koncovyUzivatel.nazev.setValue(d, ares?.obchodniJmeno ?? '');
+                    const s = ares?.sidlo;
                     d.bydliste.psc.setValue(d, s?.psc?.toString() ?? s?.pscTxt ?? '');
                     d.bydliste.obec.setValue(d, [s?.nazevObce, s?.nazevCastiObce].filterNotUndefined().join(' - '));
                     d.bydliste.ulice.setValue(d, [s?.nazevUlice, [s?.cisloDomovni, s?.cisloOrientacni?.let(o => o + (s?.cisloOrientacniPismeno ?? ''))].filterNotUndefined().join('/')].filterNotUndefined().join(' '));
@@ -109,12 +106,6 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
             },
         }),
         searchFailText: new TextWidget({ text: t => t.in.notFound, showInXML: false, show: false }),
-        or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: po }),
-        ico: new InputWidget({
-            label: t => t.in.crn, onError: t => t.wrong.crn,
-            regex: /^\d{8}(\d{2})?$/, required: po, show: po,
-            maskOptions: { mask: `00000000[00]` },
-        }),
         nazev: new InputWidget({ label: t => t.in.companyName, show: po, required: po }),
         wrongFormat: new TextWidget({
             text: t => t.wrong.company, showInXML: false,
