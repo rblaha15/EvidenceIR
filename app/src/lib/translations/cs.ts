@@ -749,7 +749,7 @@ export default {
             representative: 'Neznámý montážník',
         },
         searchCompany: 'Vyhledávání: název nebo IČO...',
-        searchInARES: 'Vyhledat v ARES MFČR',
+        searchInARES: 'Vyhledat informace v ARES MFČR',
         notFound: 'Bohužel, pro zadaný výraz nebyla nalezena žádná osoba.',
     },
     od: {

@@ -38,11 +38,9 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
         prijmeni: InputWidget<D>;
         jmeno: InputWidget<D>;
         narozeni: InputWidget<D>;
-        searchText: InputWidget<D, true>;
+        ico: InputWidget<D>;
         searchButton: ButtonWidget<D>;
         searchFailText: TextWidget<D>;
-        or: TextWidget<D>;
-        ico: InputWidget<D>;
         nazev: InputWidget<D>;
         wrongFormat: TextWidget<D>;
         pobocka: InputWidget<D>;
