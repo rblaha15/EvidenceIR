@@ -37,7 +37,7 @@ export const irName = (ir: Raw<FormIN>['ir']) =>
         ? ir.chceVyplnitK.includes('solarCollector') ? 'SOL'
             : ir.chceVyplnitK.includes('photovoltaicPowerPlant') ? 'FVE'
                 : 'Jiný'
-        : ir.typ.first == 'SOREL' || ir.typ.first == 'ctc' ? irType(ir.typ)
+        : ir.typ.first == 'SOREL' ? irType(ir.typ)
             : `${irType(ir.typ)} ${ir.cislo}`;
 
 export const irNumberFromIRID = (irid: IRID) =>

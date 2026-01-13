@@ -579,7 +579,7 @@ export default (): FormIN => ({
             label: t => t.in.whatToAddInfoTo,
             options: d => [
                 ...irOther(d) || doesNotSupportHeatPumps(d.ir.typ.value.first) ? [] : ['heatPump'] as const,
-                ...irCTC(d) ? [] : ['solarCollector'] as const,
+                ...['solarCollector'] as const,
                 ...['accumulation', 'waterStorage'] as const,
                 ...irCTC(d) || irOther(d) ? [] : ['ventilation'] as const,
                 ...irCTC(d) ? [] : ['photovoltaicPowerPlant'] as const,
