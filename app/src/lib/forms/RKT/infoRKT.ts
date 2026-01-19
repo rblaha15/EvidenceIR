@@ -93,8 +93,7 @@ const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: Yea
         saveAndSendAgain: edit && !regulus,
     })),
     title: (t, _, { pump }) => t.rkt.formTitle({ n: `${pump}` }),
-    createWidgetData: () => {
-    },
+    createWidgetData: e => e,
     onMount: async (d, k, m, ir, { pump, filledYears }) => {
         if (!k.info.datum.value)
             k.info.datum.setValue(d, dayISO());

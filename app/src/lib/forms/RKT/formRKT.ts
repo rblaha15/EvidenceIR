@@ -1,7 +1,8 @@
 import { CheckboxWidget, CounterWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
-import { type Form } from '$lib/forms/Form';
+import { type Form, type Raw } from '$lib/forms/Form';
+import type { FormIN } from '$lib/forms/IN/formIN';
 
-export type DataRKT = void
+export type DataRKT = Raw<FormIN>
 
 export interface FormRKT extends Form<DataRKT> {
     info: {
