@@ -1,6 +1,10 @@
 import { CheckboxWidget, CounterWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
 import type { DataRKT, FormRKT } from '$lib/forms/RKT/formRKT.js';
-import type { FormPlus } from '$lib/forms/Form';
+import type { FormPlus, Raw } from '$lib/forms/Form';
+import type { FormIN } from '$lib/forms/IN/formIN';
+
+const gtw = (d: Raw<FormIN>) => d.tc.typ == 'groundToWater'
+const atw = (d: Raw<FormIN>) => d.tc.typ == 'airToWater'
 
 export default (y: number, done: number[]): FormPlus<FormRKT> => ({
     info: {
@@ -13,13 +17,13 @@ export default (y: number, done: number[]): FormPlus<FormRKT> => ({
     },
     kontrolaTepelnehoCerpadla: {
         _nadpis: new TitleWidget({ text: t => t.rkt.kontrolaTepelnehoCerpadla, level: 2 }),
-        kontrolaVenkovniJednotky: new CheckboxWidget({ label: t => t.rkt.kontrolaVenkovniJednotky, required: false, descriptionItems: t => [t.rkt.kontrolaStavuVzduchovychCest, t.rkt.kontrolaOdtokuKondenzatu] }),
+        kontrolaVenkovniJednotky: new CheckboxWidget({ label: t => t.rkt.kontrolaVenkovniJednotky, required: false, descriptionItems: t => [t.rkt.kontrolaStavuVzduchovychCest, t.rkt.kontrolaOdtokuKondenzatu], show: atw }),
         kontrolaElektrickeCasti: new CheckboxWidget({ label: t => t.rkt.kontrolaElektrickeCasti, required: false, descriptionItems: t => [t.rkt.kontrolaDotazeniSpoju, t.rkt.optickaKontrolaDesky] }),
         kontrolaChladivoveCasti: new CheckboxWidget({ label: t => t.rkt.kontrolaChladivoveCasti, required: false, descriptionItems: t => [t.rkt.kontrolaChoduKompresoru, t.rkt.vizualniKontrolaChladivovehoOkruhu, t.rkt.kontrolaStavuPotrubi] }),
     },
     kontrolaPrimarnihoOkruhu: {
-        _nadpis: new TitleWidget({ text: t => t.rkt.kontrolaPrimarnihoOkruhu, level: 2 }),
-        kontrola: new CheckboxWidget({ label: '', required: false, descriptionItems: t => [t.rkt.kontrolaMrazuvzdornostiKapalinyPrimarnihoOkruhu, t.rkt.kontrolaTlakuMnozstviKapalinyPrimarnihoOkruhu] }),
+        _nadpis: new TitleWidget({ text: t => t.rkt.kontrolaPrimarnihoOkruhu, level: 2, show: gtw }),
+        kontrola: new CheckboxWidget({ label: '', required: false, descriptionItems: t => [t.rkt.kontrolaMrazuvzdornostiKapalinyPrimarnihoOkruhu, t.rkt.kontrolaTlakuMnozstviKapalinyPrimarnihoOkruhu], show: gtw }),
     },
     kontrolaRegulace: {
         _nadpis: new TitleWidget({ text: t => t.rkt.kontrolaRegulace, level: 2 }),
