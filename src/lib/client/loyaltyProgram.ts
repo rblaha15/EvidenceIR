@@ -58,19 +58,21 @@ export const grantPointsOnline = async <T extends LoyaltyPointTriggerType>(data:
         },
     })
 
-export type LoyaltyProgramPointsTransaction = {
+export type StandardLoyaltyProgramPointsTransaction = {
     addition: Points;
     type: LoyaltyPointRewardType;
     note?: string | undefined;
     irid?: IRID;
     timestamp: string;
-} | {
+};
+export type OtherLoyaltyProgramPointsTransaction = {
     addition: Points;
     type: 'other';
     note: string;
     irid?: undefined;
     timestamp: string;
 };
+export type LoyaltyProgramPointsTransaction = StandardLoyaltyProgramPointsTransaction | OtherLoyaltyProgramPointsTransaction;
 
 export type LoyaltyProgramUserData = {
     points: Points;
