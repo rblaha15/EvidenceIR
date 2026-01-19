@@ -14,6 +14,9 @@ export const heatPumps = {
         'EcoAir 107',
         'EcoAir 110',
         'EcoAir 111',
+        'EcoAir 115',
+        'EcoAir 120',
+        'EcoAir 125',
     ]],
     airToWaterRTC: [[
         'RTC',
