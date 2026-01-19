@@ -3,10 +3,10 @@ import type { IRID } from '$lib/helpers/ir';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 import { getIR, setCreatedIRBy } from '$lib/server/firestore';
 import {
-    loyaltyPointRewards,
+    loyaltyPointRewards, type LoyaltyPointRewardType,
     type LoyaltyPointTriggerType,
     type LoyaltyProgramPointsTransaction,
-    type LoyaltyProgramTrigger,
+    type LoyaltyProgramTrigger, type OtherLoyaltyProgramPointsTransaction, type Points, type StandardLoyaltyProgramPointsTransaction,
 } from '$lib/client/loyaltyProgram';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { nowISO } from '$lib/helpers/date';
@@ -28,17 +28,13 @@ export const processLoyaltyReward = async (
     if (isType(data, 'registration')) {
         const current = await getLoyaltyProgramData(user.uid);
         if (current.history.some(t => t.type == 'registration')) return;
-        await addPointsTransaction({
-            ...data, addition: loyaltyPointRewards.registration, timestamp,
-        }, user.uid);
+        await addPointsTransaction({ ...data, timestamp }, user.uid);
     } else if (isType(data, 'connectRegulusRoute')) {
         const creatingUser = await getOrSetCreatingUser(data.irid, user);
         if (creatingUser == 'unknown') return
         const current = await getLoyaltyProgramData(creatingUser);
         if (current.history.some(t => t.type == 'connectRegulusRoute' && t.irid == data.irid)) return;
-        await addPointsTransaction({
-            ...data, addition: loyaltyPointRewards.connectRegulusRoute, timestamp,
-        }, creatingUser);
+        await addPointsTransaction({ ...data, timestamp }, creatingUser);
     } else if (isType(data, 'disconnectRegulusRoute')) {
         const creatingUser = await getCreatingUserOrNull(data.irid);
         if (!creatingUser || creatingUser == 'unknown') return;
@@ -46,8 +42,7 @@ export const processLoyaltyReward = async (
         if (current.history.some(t => t.type == 'connectRegulusRoute' && t.irid == data.irid && t.addition < 0)) return;
         if (!current.history.some(t => t.type == 'connectRegulusRoute' && t.irid == data.irid)) return;
         await addPointsTransaction({
-            type: 'connectRegulusRoute', irid: data.irid, addition: -loyaltyPointRewards.connectRegulusRoute,
-            note: 'Odebrání RegulusRoute z instalace', timestamp,
+            type: 'connectRegulusRoute', irid: data.irid, multiplier: -1, note: 'Odebrání RegulusRoute z instalace', timestamp,
         }, creatingUser);
     } else if (isType(data, 'heatPumpCommission')) {
         const d = await getCompaniesCascadeGrantedAndCommission(data.irid);
@@ -59,31 +54,26 @@ export const processLoyaltyReward = async (
         if (assembly) {
             const current = await getLoyaltyProgramData(assembly);
             if (current.history.some(t => t.type == 'heatPumpAssembly' && t.irid == data.irid)) return;
-            await addPointsTransaction({
-                type: 'heatPumpAssembly', irid: data.irid, addition: loyaltyPointRewards.heatPumpAssembly, timestamp,
-            }, assembly);
+            await addPointsTransaction({ type: 'heatPumpAssembly', irid: data.irid, timestamp }, assembly);
             if (pumpCount > 1) await addPointsTransaction({
                 type: 'heatPumpInCascadeAssembly', irid: data.irid, timestamp, note: `Kaskáda ${pumpCount} TČ`,
-                addition: loyaltyPointRewards.heatPumpInCascadeAssembly * (pumpCount - 1),
+                multiplier: (pumpCount - 1),
             }, assembly);
         }
         if (commissioning) {
             const current = await getLoyaltyProgramData(commissioning);
             if (current.history.some(t => t.type == 'heatPumpCommission' && t.irid == data.irid)) return;
-            await addPointsTransaction({
-                type: 'heatPumpCommission', irid: data.irid, addition: loyaltyPointRewards.heatPumpCommission, timestamp,
-            }, commissioning);
+            await addPointsTransaction({ type: 'heatPumpCommission', irid: data.irid, timestamp }, commissioning);
             if (pumpCount > 1) await addPointsTransaction({
                 type: 'heatPumpInCascadeCommission', irid: data.irid, timestamp, note: `Kaskáda ${pumpCount} TČ`,
-                addition: loyaltyPointRewards.heatPumpInCascadeCommission * (pumpCount - 1),
+                multiplier: (pumpCount - 1),
             }, commissioning);
         }
     } else if (isType(data, 'heatPumpYearlyCheck')) {
         const ir = await getIR(data.irid);
         if (!ir?.kontrolyTC?.[data.pump]?.[data.year]) return
         await addPointsTransaction({
-            type: data.type, irid: data.irid, addition: loyaltyPointRewards.registration,
-            note: `TČ: ${data!.pump}, rok: ${data!.year}`, timestamp,
+            type: data.type, irid: data.irid, note: `TČ: ${data!.pump}, rok: ${data!.year}`, timestamp,
         }, user.uid);
     }
 };
@@ -115,12 +105,15 @@ const getOrSetCreatingUser = async (irid: IRID, user: DecodedIdToken) => {
 };
 
 const addPointsTransaction = async (
-    data: LoyaltyProgramPointsTransaction,
+    data: Omit<StandardLoyaltyProgramPointsTransaction, 'addition'> & { multiplier?: number; } | OtherLoyaltyProgramPointsTransaction,
     uid: string,
 ) => {
     const current = await getLoyaltyProgramData(uid);
+    const transaction: LoyaltyProgramPointsTransaction = data.type == 'other' ? data : {
+        ...data.omit('multiplier'), addition: loyaltyPointRewards[data.type] * (data.multiplier ?? 1),
+    };
     return await setLoyaltyProgramData(uid, {
-        points: current.points + data.addition,
-        history: [...current.history, data],
+        points: current.points + transaction.addition,
+        history: [...current.history, transaction],
     });
 };
