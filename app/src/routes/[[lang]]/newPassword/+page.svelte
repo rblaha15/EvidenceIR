@@ -11,6 +11,7 @@
 	import { goto } from '$app/navigation';
     import { logEvent } from 'firebase/analytics';
     import { analytics } from '../../../hooks.client';
+    import { grantPoints } from '$lib/client/loyaltyProgram';
 
 	const { data }: PageProps = $props();
 	const t = $derived(data.translations.auth);
@@ -66,6 +67,7 @@
 		await changePassword(oobCode!, password)
 			.then(async () => {
                 logEvent(analytics(), 'change_password', { mode: originalMode, email });
+                if (originalMode == 'register') await grantPoints({ type: 'registration' });
                 await goto(relUrl(`/login?email=${email}&done=${originalMode}&redirect=${redirect}`));
             })
 			.catch((e) => {
