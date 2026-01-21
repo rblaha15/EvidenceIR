@@ -48,7 +48,6 @@
 			redirect,
 			mode: 'register'
 		});
-        await grantPoints({ type: 'registration' });
         logEvent(analytics(), 'sign_up', { email });
 		await goto(link);
 	};
