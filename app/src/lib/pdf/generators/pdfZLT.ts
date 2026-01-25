@@ -1,8 +1,9 @@
 import ares from '$lib/helpers/ares';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
+import { dateFromISO } from '$lib/helpers/date';
 
-const pdfZLT: GetPdfData<'ZLT'> = async ({ data: { evidence: e }, t, pump }) => {
+const pdfZLT: GetPdfData<'ZLT'> = async ({ data: { evidence: e, uvedeniTC: u }, pump }) => {
     const uvedeni = await ares.getNameAndAddress(e.uvedeni.ico, fetch);
     const montazka = await ares.getNameAndAddress(e.montazka.ico, fetch);
     const { model, cislo } = cascadePumps(e)[pump - 1];
@@ -17,7 +18,7 @@ const pdfZLT: GetPdfData<'ZLT'> = async ({ data: { evidence: e }, t, pump }) => 
         Text9: montazka?.obchodniJmeno ?? null,
         Text11: e.uvedeni.zastupce,
         Text12: '',
-        Text13: '',
+        Text13: u.uvadeni.date ? dateFromISO(u.uvadeni.date) : '',
         Text14: null,
     };
 };
