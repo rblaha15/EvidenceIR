@@ -12,6 +12,7 @@
 	import { goto } from '$app/navigation';
     import { logEvent } from 'firebase/analytics';
     import { analytics } from '../../../hooks.client';
+    import { grantPoints } from '$lib/client/loyaltyProgram';
 
 	const { data }: PageProps = $props();
 	const t = $derived(data.translations.auth);
@@ -40,6 +41,7 @@
 		await logIn(email, password)
 			.then(async c => {
                 logEvent(analytics(), 'login', { email });
+                await grantPoints({ type: 'registration' });
                 await setName(
                     get(techniciansList).find(t => t.email == c.user.email)?.name
                     ?? get(usersList).find(t => t.email == c.user.email)?.responsiblePerson,
