@@ -67,11 +67,10 @@
 		await changePassword(oobCode!, password)
 			.then(async () => {
                 logEvent(analytics(), 'change_password', { mode: originalMode, email });
-                if (originalMode == 'register') await grantPoints({ type: 'registration' });
                 await goto(relUrl(`/login?email=${email}&done=${originalMode}&redirect=${redirect}`));
             })
 			.catch((e) => {
-				console.log(e.code);
+				console.log(e, e.code);
 				if (e.code == 'auth/network-request-failed') {
 					error = t.checkInternet;
 				} else if (e.code == 'auth/missing-password') {
