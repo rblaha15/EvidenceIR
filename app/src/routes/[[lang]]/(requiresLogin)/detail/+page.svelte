@@ -66,9 +66,18 @@
                 {td.deletedIR}
             {/if}
         </div>
-        {#if $isUserAdmin && $ir.deletedAt}
-            {@const date = new Timestamp($ir.deletedAt.seconds, $ir.deletedAt.nanoseconds).toDate()}
-            <span>Odstraněno: {datetimeFromISO(date.toISOString())} UTC{$aA}</span>
+        {#if $isUserAdmin}
+            <div class="d-flex flex-column align-items-end gap-1">
+                <a tabindex="0" class="btn btn-secondary" target="_blank"
+                   href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fir~2F{irid}">
+                    <Icon icon="cloud_circle" />
+                    {td.openInDatabase}{$aA}
+                </a>
+                {#if $ir.deletedAt && !('_seconds' in $ir.deletedAt)}
+                    {@const date = new Timestamp($ir.deletedAt.seconds, $ir.deletedAt.nanoseconds).toDate()}
+                    <span>Odstraněno: {datetimeFromISO(date.toISOString())} UTC{$aA}</span>
+                {/if}
+            </div>
         {/if}
     {/if}
     {#if spids && $sps.length && !isSPDeleted($sps[0])}

@@ -19,6 +19,7 @@ import type { FormRKS } from '$lib/forms/RKS/formRKS';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { type Database, databaseMethods, type ReadDatabase, type WriteDatabase } from '$lib/Database';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
+import type { User } from 'firebase/auth';
 
 export type Year = number;
 
@@ -78,19 +79,20 @@ export type IR = {
 
 export const createInstallation = (
     raw: Raw<FormIN>,
-    userEmail: string,
+    user: User,
     isDraft: boolean,
 ) => ({
     isDraft,
     evidence: raw,
     kontrolyTC: {},
-    users: [userEmail],
+    users: [user.email!, raw.uvedeni.email, raw.montazka.email].distinct(),
     installationProtocols: [],
     uvedeniTC: { uvadeni: { date: '' } },
     deleted: false,
     createdAt: serverTimestamp() as Timestamp,
     changedAt: serverTimestamp() as Timestamp,
     keysChangedAt: serverTimestamp() as Timestamp,
+    createdBy: { uid: user.uid, email: user.email! },
 } satisfies IR);
 
 export type RecommendationData = {

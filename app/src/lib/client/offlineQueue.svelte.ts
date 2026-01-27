@@ -100,8 +100,12 @@ export const processOfflineQueue = async () => {
             const { args, functionName } = dwo;
             console.log('Executing', functionName, 'with args', ...args, 'from the offline queue');
             const func = firestoreDatabase[functionName];
-            // @ts-expect-error TS doesn't know it's a tuple
-            await func(...args);
+            try {
+                // @ts-expect-error TS doesn't know it's a tuple
+                await func(...args);
+            } catch (e) {
+                console.error('Error executing', functionName, 'with args', ...args, 'from the offline queue:', e);
+            }
         }
     }
 

@@ -77,6 +77,7 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         nadpis: TitleWidget<FormIN>;
         typ: DoubleChooserWidget<FormIN, IRTypes, IRSubTypes>;
         cislo: InputWidget<FormIN>;
+        alreadyExists: TextWidget<FormIN>;
         cisloBox: InputWidget<FormIN>;
         boxType: TextWidget<FormIN>;
         chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `accumulation` | 'waterStorage' | `ventilation` | 'photovoltaicPowerPlant' | 'other'>;

@@ -70,6 +70,16 @@ const addStampIR = (field: string, value: unknown) => ({
     changedAt: serverTimestamp() as Timestamp,
 });
 
+const existsIR = async (irid: IRID) => {
+    try {
+        await getDoc(checkDoc(irid));
+        return true;
+    } catch (e) {
+        if ((e as Record<string, string>)?.code == 'permission-denied') return false;
+        else throw e;
+    }
+};
+
 const baseDatabase: Database = {
     getIR: irid => getSnp(irDoc(irid))
         .thenAlso(v => odm.putOrDelete('IR', irid, v)),
@@ -103,6 +113,7 @@ const baseDatabase: Database = {
     },
     addIR: async ir => {
         const irid = extractIRIDFromRawData(ir.evidence);
+        if (await existsIR(irid)) throw new Error(`IR ${irid} already exists`);
         await setDoc(irDoc(irid), ir);
         await odm.put('IR', irid, ir);
     },
@@ -114,15 +125,7 @@ const baseDatabase: Database = {
         await updateDoc(irDoc(irid), deleted);
         await odm.update('IR', irid, ir => ({ ...ir, ...deleted }));
     },
-    existsIR: async irid => {
-        try {
-            await getDoc(checkDoc(irid));
-            return true;
-        } catch (e) {
-            if ((e as Record<string, string>)?.code == 'permission-denied') return false;
-            else throw e;
-        }
-    },
+    existsIR,
     updateIRRecord: async (rawData, isDraft) => {
         const irid = extractIRIDFromRawData(rawData);
         await updateDoc(irDoc(irid), {

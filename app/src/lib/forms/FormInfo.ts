@@ -15,7 +15,7 @@ export type Effect<
     { [I in keyof S]: Readable<S[I]> }
 ]
 
-export type Result = { text: string, red: boolean, load: boolean };
+export type Result = { text: string, red: boolean, load: boolean, error?: string };
 export const buttonKeys = ['hideBack', 'hideSave', 'saveAndSend', 'saveAndSendAgain', 'send', 'saveAsDraft'] as const
 export type ButtonKey = typeof buttonKeys[number]
 

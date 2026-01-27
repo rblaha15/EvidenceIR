@@ -33,7 +33,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
     storeName: () => 'stored_data',
     defaultData: () => defaultIN(),
     saveData: async (raw, edit, data, editResult, t, send, draft) => {
-        const errors = [data.ir.cislo, data.ir.typ]
+        const errors = [data.ir.cislo, data.ir.typ] // Is here, because it's required even in the draft mode
             .filter(w => w.isError(data))
             .map(w => w.label(t, data));
         if (errors.length) {
@@ -41,8 +41,9 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
             data.ir.typ.displayErrorVeto = true;
             editResult({
                 red: true,
-                text: t.form.youHaveAMistake({ fields: errors.join(', ') }),
+                text: t.form.youHaveAMistake,
                 load: false,
+                error: errors.join('\n'),
             });
             return false
         }
@@ -59,7 +60,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
 
         const user = get(currentUser)!;
 
-        const newIr = createInstallation(raw, user.email!, draft);
+        const newIr = createInstallation(raw, user, draft);
         if (edit) await db.updateIRRecord(raw, draft);
         else await db.addIR(newIr);
 

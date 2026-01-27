@@ -17,9 +17,9 @@ import { type FormIN, type IRSubTypes, type IRTypes, unknownCompany, unknownCRN,
 import { accumulationTanks, type Company, solarCollectors, type Technician, techniciansList, waterTanks } from '$lib/client/realtime';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 import {
-    companyForms,
     doesNotHaveIRNumber,
     doesNotSupportHeatPumps,
+    extractIRIDFromParts,
     hasIndoorUnit,
     isBox,
     isCompanyFormInvalid,
@@ -37,6 +37,8 @@ import type { Translations } from '$lib/translations';
 import { derived } from 'svelte/store';
 import { assemblyCompanies, commissioningCompanies } from '$lib/helpers/companies';
 import type { FormPlus } from '$lib/forms/Form';
+import { detailIrUrl } from '$lib/helpers/runes.svelte';
+import db from '$lib/data';
 
 const jeFO = (d: UserForm<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserForm<never>) => jeFO(d);
@@ -125,7 +127,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
     },
     bydliste: {
-        _title: new TitleWidget({ text: (t, d) => jeFO(d) ? t.in.residence : t.in.headquarters, level: 4 }),
+        _title: new TitleWidget({ text: (t, d) => jeFO(d) ? t.in.residence : t.in.headquarters, level: 3, class: 'fs-4' }),
         ulice: new InputWidget({
             label: t => t.in.street,
             autocomplete: `section-user billing street-address`,
@@ -142,7 +144,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
     },
     mistoRealizace: {
-        _title: new TitleWidget({ text: t => t.in.realizationLocation, level: 4 }),
+        _title: new TitleWidget({ text: t => t.in.realizationLocation, level: 3, class: 'fs-4' }),
         _setAsResidence: new ButtonWidget<D>({
             text: (t, d) => jeFO(d) ? t.in.copyResidence : t.in.copyHeadquarters,
             color: 'secondary', onClick: d => {
@@ -171,7 +173,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
     },
     montazka: {
         _titleCompanies: new TitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
-        _title: new TitleWidget({ text: t => t.in.assemblyCompany, level: 4 }),
+        _title: new TitleWidget({ text: t => t.in.assemblyCompany, level: 3, class: 'fs-4' }),
         company: new SearchWidget<D, Company, true>({
             items: t => derived(assemblyCompanies, c => [unknownCompany(t), ...c]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
@@ -232,7 +234,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
     },
     uvedeni: {
-        _title: new TitleWidget({ text: t => t.in.commissioning, level: 4 }),
+        _title: new TitleWidget({ text: t => t.in.commissioning, level: 3, class: 'fs-4' }),
         _setAsAssembly: new ButtonWidget<D>({
             text: t => t.in.copyAssemblyCompany, color: 'secondary',
             onClick: d => {
@@ -407,9 +409,10 @@ const heatPump = <const I extends TC>(i: I) => ({
     [K in `cislo${I}`]: ScannerWidget<FormIN>;
 });
 
-interface FormGroupIR<D extends { ir: FormGroupIR<D> }> {
+export interface FormGroupIR<D extends { ir: FormGroupIR<D> }> {
     typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>,
     cislo: InputWidget<D>,
+    alreadyExists: TextWidget<D>,
 }
 
 export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
@@ -481,12 +484,14 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
             if (v.first == 'other') {
                 setFVEType?.(d);
             }
+            if (d.ir.typ.value.first) db.existsIR(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value))
+                .then(e => d.ir.alreadyExists.show = () => e)
         },
         labels: t => t.in.ir,
     }),
     cislo: new InputWidget({
         label: t => t.in.serialNumber,
-        onError: t => t.wrong.number,
+        onError: (t, d) => d.ir.alreadyExists.show(d) ? t.in.irExists : t.wrong.number,
         regex: d => doesNotHaveIRNumber(d.ir.typ.value)
             ? /[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9]{2}:[0-9]{2}/
             : isCTC(d.ir.typ.value.first)
@@ -524,14 +529,21 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
             if (ecoHeat(d)) {
                 setPumpNumber?.(d, v);
             }
+            if (d.ir.typ.value.first) db.existsIR(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value))
+                .then(e => d.ir.alreadyExists.show = () => e)
         }, show: d => !doesNotHaveIRNumber(d.ir.typ.value),
+    }),
+    alreadyExists: new TextWidget({
+        text: (t, d) => !d.ir.typ.value.first ? '' : t.in.irExistsHtml({
+            link: detailIrUrl(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value)),
+        }), show: false, showInXML: false,
     }),
 });
 
 export default (): FormIN => ({
     ir: {
         nadpisSystem: new TitleWidget({ text: t => t.in.system, level: 2 }),
-        nadpis: new TitleWidget({ text: t => t.in.controller, level: 4 }),
+        nadpis: new TitleWidget({ text: t => t.in.controller, level: 3, class: 'fs-4' }),
         ...irTypeAndNumber<FormIN>({
             setPumpType: (d, t) => d.tc.typ.setValue(d, t),
             setPumpModel: (d, m) => d.tc.model.setValue(d, m),
@@ -615,7 +627,7 @@ export default (): FormIN => ({
     tc: {
         nadpis: new TitleWidget({
             text: (t, d) => d.tc.pocet.value > 1 ? t.in.heatPumps : t.in.device.heatPump,
-            show: tc, level: 4,
+            show: tc, level: 3, class: 'fs-4',
         }),
         poznamka: new TextWidget({
             text: t => t.in.pleaseFillInIrType, showInXML: false,
@@ -657,7 +669,7 @@ export default (): FormIN => ({
     },
     sol: {
         title: new TitleWidget({
-            text: t => t.in.device.solarCollector, show: sol, level: 4,
+            text: t => t.in.device.solarCollector, show: sol, level: 3, class: 'fs-4',
         }),
         typ: new InputWithSuggestionsWidget({
             label: t => t.in.solarCollectorType, required: sol, show: sol, suggestions: solarCollectors,
@@ -668,7 +680,7 @@ export default (): FormIN => ({
     },
     tanks: {
         title: new TitleWidget({
-            text: t => t.tc.tanks, level: 4, show: d => aku(d) || zas(d),
+            text: t => t.tc.tanks, level: 3, class: 'fs-4', show: d => aku(d) || zas(d),
         }),
         accumulation: new InputWithSuggestionsWidget({
             label: t => t.tc.typeOfAccumulationTank, show: aku, required: aku, suggestions: accumulationTanks,
@@ -682,7 +694,7 @@ export default (): FormIN => ({
         }),
     },
     rek: {
-        title: new TitleWidget({ text: t => t.in.device.ventilation, show: rek, level: 4 }),
+        title: new TitleWidget({ text: t => t.in.device.ventilation, show: rek, level: 3, class: 'fs-4' }),
         typ: new InputWidget({
             label: t => t.in.recoveryVentilationUnitType,
             required: rek, show: rek,
@@ -691,7 +703,7 @@ export default (): FormIN => ({
     fve: {
         title: new TitleWidget({
             text: t => t.in.photovoltaicSystem,
-            show: fve, level: 4,
+            show: fve, level: 3, class: 'fs-4',
         }),
         typ: new ChooserWidget({
             label: t => t.in.panelType, chosen: 'DG-450-B',
@@ -731,7 +743,7 @@ export default (): FormIN => ({
     jine: {
         title: new TitleWidget({
             text: t => t.in.device.other,
-            show: other, level: 4,
+            show: other, level: 3, class: 'fs-4',
         }),
         popis: new InputWidget({
             label: t => t.in.description, required: other, show: other,

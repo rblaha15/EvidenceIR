@@ -16,7 +16,7 @@
     import WidgetComponent from '$lib/components/Widget.svelte';
     import { storable } from '$lib/helpers/stores';
     import { dev } from '$app/environment';
-    import { type ButtonKey, buttonKeys, type IndependentFormInfo } from '$lib/forms/FormInfo';
+    import { type ButtonKey, buttonKeys, type IndependentFormInfo, type Result } from '$lib/forms/FormInfo';
     import { refreshTOC, runLoading } from '$lib/helpers/globals.js';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
     import { goto } from '$app/navigation';
@@ -76,7 +76,7 @@
         });
     });
 
-    let result = $state({
+    let result = $state<Result>({
         text: '',
         red: false,
         load: false,
@@ -104,8 +104,9 @@
                 }
                 result = {
                     red: true,
-                    text: t.form.youHaveAMistake({ fields: errors.join(', ') }),
+                    text: t.form.youHaveAMistake,
                     load: false,
+                    error: errors.join('\n'),
                 };
                 return;
             }
@@ -137,6 +138,7 @@
                 red: true,
                 text: t.form.somethingWentWrongContactUsHtml,
                 load: false,
+                error: `${e}`,
             };
         }
     };
@@ -189,7 +191,7 @@
             <WidgetComponent bind:widget={list[i]} {t} data={d} />
         {/if}
     {/each}
-    <div class="d-flex flex-column flex-sm-row align-items-start gap-3">
+    <div class="d-flex flex-column align-items-start gap-3">
         <div class="d-flex gap-3 flex-wrap">
             {#if mode !== 'view'}
                 {#if !result.load && !$buttonsStore.hideSave}
@@ -228,5 +230,13 @@
             {/if}
         </div>
         <p class:text-danger={result.red} class="my-auto">{@html result.text}</p>
+        {#if result.error}
+            <p class="alert alert-danger w-100">
+                {#each result.error.split('\n') as line, i}
+                    {#if i !== 0}<br />{/if}
+                    {line}
+                {/each}
+            </p>
+        {/if}
     </div>
 {/if}

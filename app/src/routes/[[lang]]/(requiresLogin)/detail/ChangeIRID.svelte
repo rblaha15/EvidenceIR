@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { DoubleChooserWidget, InputWidget } from '$lib/forms/Widget.svelte';
-    import type { IRSubTypes, IRTypes } from '$lib/forms/IN/formIN';
     import { type Translations } from '$lib/translations';
     import { untrack } from 'svelte';
     import { extractIRIDFromParts, type IRID } from '$lib/helpers/ir';
@@ -9,7 +7,7 @@
     import { detailIrUrl } from '$lib/helpers/runes.svelte';
     import Widget from '$lib/components/Widget.svelte';
     import Icon from '$lib/components/Icon.svelte';
-    import { irTypeAndNumber } from '$lib/forms/IN/defaultIN';
+    import { type FormGroupIR, irTypeAndNumber } from '$lib/forms/IN/defaultIN';
     import type { HeatPump } from '$lib/helpers/products';
 
     const { t, ir, irid }: {
@@ -19,7 +17,7 @@
 
     let change: 'no' | 'input' | 'sending' | 'fail' | 'unchanged' = $state('no');
 
-    type D = { ir: { typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>, cislo: InputWidget<D> } };
+    type D = { ir: FormGroupIR<D> };
 
     const alsoChangeDefault = {
         setPumpType: null as 'airToWater' | 'groundToWater' | null,

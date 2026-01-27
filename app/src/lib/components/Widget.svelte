@@ -55,7 +55,7 @@
     <Title {widget} {t} {data} />
 {:else if widget instanceof TextWidget && widget.show(data)}
     {#await widget.text(t, data) then text}
-        {#if text}<p class={[widget.class(data), 'm-0']}>{text}</p>{/if}
+        {#if text}<p class={[widget.class(data), 'm-0']}>{@html text}</p>{/if}
     {/await}
 {:else if widget instanceof InlinePdfPreviewWidget && widget.show(data)}
     <InlinePdfPreview {widget} {t} {data} />
