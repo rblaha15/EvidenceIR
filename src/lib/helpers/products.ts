@@ -10,6 +10,8 @@ export const heatPumps = {
         'EcoAir 410',
         'EcoAir 415',
         'EcoAir 420',
+        'EcoAir 510M',
+        'EcoAir 520M',
         'EcoAir 105',
         'EcoAir 107',
         'EcoAir 110',
