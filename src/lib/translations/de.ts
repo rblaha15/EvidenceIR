@@ -58,7 +58,8 @@ const de: PlainTranslations = {
         whatToAddInfoTo: `Wozu möchten Sie genauere Informationen hinzufügen?`,
         residence: `Wohnung`,
         name: `Vorname`,
-        irExistsHtml: t`Dieser Regler ist bereits registriert (<a href="${`link`}">Detail</a>)`,
+        irExistsHtml: t`<span class="text-danger">Dieser Regler ist bereits registriert (<a href="${`link`}">Detail</a>)</span>`,
+        irExists: `Dieser Regler ist bereits registriert`,
         editing: `Bearbeitung`,
         copyResidence: `Wohnsitz kopieren`,
         copyHeadquarters: `Hauptsitz kopieren`,
@@ -216,7 +217,7 @@ const de: PlainTranslations = {
     },
     form: {
         somethingWentWrongContactUsHtml: `Entschuldigung, etwas ist schiefgelaufen, bitte kontaktieren Sie uns unter <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Fehler beim Speichern eines Formulars" target="_blank">aplikace.regulus@gmail.com</a>`,
-        youHaveAMistake: t`Im Formular liegt ein Fehler vor. Bitte überprüfen Sie die eingegebenen Informationen. Falsche Felder: ${'fields'}`,
+        youHaveAMistake: `Im Formular liegt ein Fehler vor. Bitte überprüfen Sie die eingegebenen Informationen. Falsche Felder:`,
         saving: `Speichern...`,
         send: `E-Mails senden`,
         saveAndSend: `Speichern und E-Mails senden`,

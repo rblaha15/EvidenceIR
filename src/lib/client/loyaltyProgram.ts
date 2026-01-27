@@ -2,6 +2,7 @@ import type { IRID } from '$lib/helpers/ir';
 import { getToken } from '$lib/client/auth';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { getIsOnline } from '$lib/client/realtime';
+import { addLoyaltyProgramTriggerToOfflineQueue } from '$lib/client/offlineQueue.svelte';
 
 export type Points = number;
 
@@ -47,7 +48,7 @@ export type LoyaltyProgramTrigger<T extends LoyaltyPointTriggerType = LoyaltyPoi
 } & LoyaltyPointTriggerData[T];
 
 export const grantPoints = async <T extends LoyaltyPointTriggerType>(data: LoyaltyProgramTrigger<T>) =>
-    getIsOnline() ? grantPointsOnline(data) : null;
+    getIsOnline() ? grantPointsOnline(data) : addLoyaltyProgramTriggerToOfflineQueue(data);
 
 export const grantPointsOnline = async <T extends LoyaltyPointTriggerType>(data: LoyaltyProgramTrigger<T>) =>
     await fetch(`/api/update-data?type=loyaltyPoints&token=${await getToken()}`, {
