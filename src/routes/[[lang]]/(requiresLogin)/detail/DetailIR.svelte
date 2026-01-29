@@ -8,7 +8,7 @@
     import { goto } from '$app/navigation';
     import ChangeIRID from './ChangeIRID.svelte';
     import { aA, aR } from '$lib/helpers/stores';
-    import RKD from './RKD.svelte';
+    import DK from './DK.svelte';
     import Icon from '$lib/components/Icon.svelte';
     import { xmlIN } from '$lib/forms/IN/xmlIN';
     import { rawDataToData } from '$lib/forms/Form.js';
@@ -59,7 +59,8 @@
         <h4 class="m-0">{ir.isDraft ? td.draftManagement : td.recordManagement}</h4>
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#if !ir.isDraft}
-                <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.evidence.koncovyUzivatel).join(';')}`)}
+                <a class="btn btn-primary"
+                   href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.evidence.koncovyUzivatel).join(';')}`)}
                    tabindex="0">
                     <Icon icon="attach_email" />
                     {td.sendDocuments}
@@ -133,8 +134,10 @@
             </div>
         </div>
 
-        <RKD {ir} {irid} {t} type="TČ" />
-        <RKD {ir} {irid} {t} type="SOL" />
+        {#if !ir.isDraft}
+            <DK {ir} {irid} {t} type="TČ" />
+            <DK {ir} {irid} {t} type="SOL" />
+        {/if}
 
         {#if $isUserAdmin}
             <div class="d-flex flex-column gap-1 align-items-sm-start">

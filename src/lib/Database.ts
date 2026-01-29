@@ -13,6 +13,7 @@ import type { Readable } from 'svelte/store';
 import type { Deleted, IR, Year } from '$lib/data';
 import type { Timestamp } from 'firebase/firestore';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
+import type { FormUPT } from '$lib/forms/UPT/formUPT';
 
 /**
  * Supported actions:
@@ -23,12 +24,17 @@ import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
  */
 export interface ReadDatabase {
     getIR(irid: IRID): Promise<IR | Deleted<IRID> | undefined>;
+
     getChangedIRs(lastUpdatedAt: Timestamp | null): Promise<IR[]>;
+
     getDeletedIRs(lastUpdatedAt: Timestamp | null): Promise<Deleted<IRID>[]>;
+
     existsIR(irid: IRID): Promise<boolean>;
 
     getIndependentProtocol(spid: SPID): Promise<Raw<FormNSP> | Deleted<SPID> | undefined>;
+
     getChangedIndependentProtocols(lastUpdatedAt: Timestamp | null): Promise<Raw<FormNSP>[]>;
+
     getDeletedIndependentProtocols(lastUpdatedAt: Timestamp | null): Promise<Deleted<SPID>[]>;
 }
 
@@ -53,9 +59,13 @@ export interface WriteDatabase {
 
     updateServiceProtocol(irid: IRID, index: number, protocol: Raw<FormSP>): Promise<void>;
 
-    updateHeatPumpCommissioningProtocol(irid: IRID, protocol: IR['uvedeniTC']): Promise<void>;
+    updateHeatPumpCommissioningProtocol(irid: IRID, protocol: Raw<FormUPT>): Promise<void>;
+
+    updateHeatPumpCommissionDate(irid: IRID, date: string): Promise<void>;
 
     addSolarSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPS>): Promise<void>;
+
+    updateSolarSystemCommissionDate(irid: IRID, date: string): Promise<void>;
 
     addPhotovoltaicSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPF>): Promise<void>;
 
@@ -80,7 +90,8 @@ export interface Database extends ReadDatabase, WriteDatabase {
 export const databaseMethods = [
     'getIR', 'getChangedIRs', 'getDeletedIRs', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
     'addSolarSystemCheck', 'addServiceProtocol', 'updateServiceProtocol', 'updateHeatPumpCommissioningProtocol',
-    'addSolarSystemCommissioningProtocol', 'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers',
+    'updateHeatPumpCommissionDate', 'addSolarSystemCommissioningProtocol',
+    'updateSolarSystemCommissionDate', 'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers',
     'updateHeatPumpRecommendationsSettings', 'updateSolarSystemRecommendationsSettings', 'addIndependentServiceProtocol',
     'deleteIndependentProtocol', 'getIndependentProtocol', 'getChangedIndependentProtocols',
     'getDeletedIndependentProtocols', 'addFaceTable', 'updateIndependentServiceProtocol',

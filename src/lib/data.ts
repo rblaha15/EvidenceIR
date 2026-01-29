@@ -31,16 +31,6 @@ export type RecommendationSettings = {
     code?: string,
 };
 
-type FakeUvedeni = {
-    [K1 in keyof RawForm<FormUPT>]?: {
-        [K2 in keyof Omit<Raw<FormUPT[K1]>, 'date'>]?: undefined
-    }
-} & {
-    uvadeni: {
-        date: string
-    }
-};
-
 export type Deleted<ID extends IRID | SPID = IRID | SPID> = {
     deleted: true;
     deletedAt: Timestamp;
@@ -55,7 +45,7 @@ export type IR = {
     changedAt?: Timestamp;
     keysChangedAt: Timestamp;
     evidence: Raw<FormIN>;
-    uvedeniTC: Raw<FormUPT> | FakeUvedeni;
+    uvedeniTC?: Raw<FormUPT>;
     uvedeniSOL?: Raw<FormUPS>;
     uvedeniFVE?: Raw<FormUPF>;
     kontrolyTC: {
@@ -75,6 +65,8 @@ export type IR = {
     loyaltyProgram?: {
         grantedCommission?: boolean;
     };
+    heatPumpCommissionDate?: string;
+    solarSystemCommissionDate?: string;
 };
 
 export const createInstallation = (
@@ -87,7 +79,6 @@ export const createInstallation = (
     kontrolyTC: {},
     users: [user.email!, raw.uvedeni.email, raw.montazka.email].distinct(),
     installationProtocols: [],
-    uvedeniTC: { uvadeni: { date: '' } },
     deleted: false,
     createdAt: serverTimestamp() as Timestamp,
     changedAt: serverTimestamp() as Timestamp,
