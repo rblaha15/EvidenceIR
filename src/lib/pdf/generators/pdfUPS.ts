@@ -4,7 +4,7 @@ import { endUserName } from '$lib/helpers/ir';
 import { get } from '$lib/translations';
 import ares from '$lib/helpers/ares';
 
-const pdfUPS: GetPdfData<'UPS'> = async ({ data: { evidence: e, uvedeniSOL }, t }) => {
+const pdfUPS: GetPdfData<'UPS'> = async ({ data: { evidence: e, uvedeniSOL, solarSystemCommissionDate: d }, t }) => {
     const u = uvedeniSOL!;
     const tu = t.sol
 
@@ -18,7 +18,7 @@ const pdfUPS: GetPdfData<'UPS'> = async ({ data: { evidence: e, uvedeniSOL }, t 
 /*    uvadecOsoba */ Text7: e.uvedeni.zastupce,
 /*      uvadecTel */ Text8: e.uvedeni.telefon,
 /*    uvadecEmail */ Text9: e.uvedeni.email,
-/*          datum */ Text10: dateFromISO(u.uvadeni.date),
+/*          datum */ Text10: dateFromISO(d!),
 /*                */ Text11: e.sol.typ,
 /*                */ Text12: e.sol.pocet,
 /*                */ Text13: u.sol.orientace,

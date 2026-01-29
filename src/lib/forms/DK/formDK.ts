@@ -1,4 +1,4 @@
-import { CheckboxWidget, RadioWidget, TextWidget, TitleWidget, Widget } from '$lib/forms/Widget.svelte';
+import { CheckboxWidget, InputWidget, RadioWidget, TextWidget, TitleWidget, Widget } from '$lib/forms/Widget.svelte';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import ares, { regulusCRN } from '$lib/helpers/ares';
@@ -18,6 +18,7 @@ export type DataDK<D extends DataDK<D>> = {
 
 export interface FormPartDK<D extends DataDK<D>> extends Record<string, Widget<D, any, true>> {
     title: TitleWidget<D>,
+    commissionDate: InputWidget<D, true>,
     enabled: CheckboxWidget<D, true>,
     executingCompany: RadioWidget<D, 'assembly' | 'commissioning' | 'regulus', true>,
     chosenCompany: TextWidget<D>,
@@ -25,11 +26,13 @@ export interface FormPartDK<D extends DataDK<D>> extends Record<string, Widget<D
 
 export const defaultDK = <D extends DataDK<D>>(
     type: 'TČ' | 'SOL',
+    hideDate?: boolean,
 ): FormPartDK<D> => ({
     title: new TitleWidget({ text: t => t.dk.title, level: 2, showInXML: false }),
     enabled: new CheckboxWidget({
         label: t => t.dk.userWantsTo(type), hideInRawData: true, showInXML: false, required: false,
     }),
+    commissionDate: new InputWidget({ label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true, show: !hideDate }),
     executingCompany: new RadioWidget({
         options: d => d.evidence.uvedeni.ico == `${regulusCRN}` ? ['assembly', 'regulus']
             : d.evidence.montazka.ico == `${regulusCRN}` ? ['regulus', 'commissioning']
@@ -50,14 +53,31 @@ export const defaultDK = <D extends DataDK<D>>(
     })
 })
 
+export const initDK = <D extends DataDK<D>>(
+    data: D,
+    mode: 'create' | 'edit' | 'view',
+    ir: IR,
+    type: 'TČ' | 'SOL',
+) => {
+    const date = type == 'TČ' ? ir.heatPumpCommissionDate : ir.solarSystemCommissionDate;
+    data.dk.commissionDate.setValue(data, date || '');
+    if (date) data.dk.commissionDate.lock = () => true;
+    if (mode != 'create') (data.dk as Record<string, Widget>).getValues().forEach(e => {
+        e.show = () => false;
+    });
+}
+
 export const saveDK = async <D extends DataDK<D>>(ir: IR, form: FormPartDK<D>, type: 'TČ' | 'SOL') => {
     const enabled = form.enabled.value;
     const companyType = form.executingCompany.value;
     const irid = extractIRIDFromRawData(ir.evidence);
-    if (type == 'TČ')
+    if (type == 'TČ') {
+        if (!ir.heatPumpCommissionDate) await db.updateHeatPumpCommissionDate(irid, form.commissionDate.value);
         await db.updateHeatPumpRecommendationsSettings(irid, enabled, form.executingCompany.value);
-    else
+    } else {
+        if (!ir.solarSystemCommissionDate) await db.updateSolarSystemCommissionDate(irid, form.commissionDate.value);
         await db.updateSolarSystemRecommendationsSettings(irid, enabled, form.executingCompany.value);
+    }
     const settings = type == 'TČ' ? ir.yearlyHeatPumpCheckRecommendation : ir.yearlySolarSystemCheckRecommendation;
     if (enabled == Boolean(settings) || companyType == settings?.executingCompany) return true;
 

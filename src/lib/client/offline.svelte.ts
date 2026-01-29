@@ -149,9 +149,19 @@ export const offlineDatabase: Database = {
         ir.uvedeniTC = protocol;
         return ir;
     }),
+    updateHeatPumpCommissionDate: async (irid, date) => odm.update('IR', irid, ir => {
+        if (ir.deleted) return ir;
+        ir.heatPumpCommissionDate = date;
+        return ir;
+    }),
     addSolarSystemCommissioningProtocol: async (irid, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.uvedeniSOL = protocol;
+        return ir;
+    }),
+    updateSolarSystemCommissionDate: async (irid, date) => odm.update('IR', irid, ir => {
+        if (ir.deleted) return ir;
+        ir.solarSystemCommissionDate = date;
         return ir;
     }),
     addPhotovoltaicSystemCommissioningProtocol: async (irid, protocol) => odm.update('IR', irid, ir => {
