@@ -45,8 +45,8 @@ const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: Yea
             const defaultYear = filledYears.length
                 ? (Math.max(...filledYears) + 1) as Year
                 : 1;
-            if (!ir.uvedeniTC.uvadeni.date) return { other: { defaultYear, filledYears, pump, hasLegacy } };
-            const commission = new Date(ir.uvedeniTC.uvadeni.date);
+            if (!ir.heatPumpCommissionDate) return { other: { defaultYear, filledYears, pump, hasLegacy } };
+            const commission = new Date(ir.heatPumpCommissionDate);
             const today = new Date(new Date().toISOString().split('T')[0]);
 
             const anniversaryThisYear =
@@ -105,7 +105,7 @@ const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: Yea
             if (lastYear && !isRKTL(lastYear))
                 k.kontrolaOtopneSoustavy.kontrolaPojistovacichVentiluPoznamka.setValue(d, lastYear.kontrolaOtopneSoustavy.kontrolaPojistovacichVentiluPoznamka || '');
         }
-        if (ir.uvedeniTC.os) {
+        if (ir.uvedeniTC) {
             k.kontrolaTlakuExpanznichNadob.expanzniNadobaOtopneSoustavyPriUPT.setValue(d, ir.uvedeniTC.os.tlakEnOs || '');
             k.kontrolaTlakuExpanznichNadob.expanzniNadobaPitneVodyPriUPT.setValue(d, ir.uvedeniTC.os.tlakEnTv || '');
             k.kontrolaOtopneSoustavy.kontrolaTlakuVOtopneSoustavePriUPT.setValue(d, ir.uvedeniTC.os.tlakOs || '');

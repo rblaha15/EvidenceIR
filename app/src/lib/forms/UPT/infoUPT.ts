@@ -9,10 +9,11 @@ import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { DataUPT, FormUPT } from '$lib/forms/UPT/formUPT';
-import { saveDK } from '$lib/forms/DK/formDK';
+import { initDK, saveDK } from '$lib/forms/DK/formDK';
 import type { Widget } from '$lib/forms/Widget.svelte';
 import type { Raw } from '$lib/forms/Form';
 import { grantPoints } from '$lib/client/loyaltyProgram';
+import { dayISO, today } from '$lib/helpers/date';
 
 const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
     type: 'IR',
@@ -23,6 +24,7 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
     }),
     saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
         await db.updateHeatPumpCommissioningProtocol(irid, raw);
+        await db.updateHeatPumpCommissionDate(irid, f.uvadeni.date.value);
         if (!edit) await saveDK(ir, f.checkRecommendations, 'TČ');
 
         await grantPoints({ type: 'heatPumpCommission', irid });
@@ -59,11 +61,8 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
     getViewData: (ir, url) =>
         url.searchParams.has('view') ? { raw: ir.uvedeniTC as Raw<FormUPT> } : undefined,
     onMount: async (data, form, mode, ir) => {
-        if (mode == 'create')
-            form.uvadeni.date.setValue(data, ir.uvedeniTC?.uvadeni?.date || new Date().toISOString().split('T')[0]);
-        else (form.checkRecommendations as Record<string, Widget>).getValues().forEach(e => {
-            e.show = () => false;
-        });
+        form.uvadeni.date.setValue(data, ir.heatPumpCommissionDate || dayISO());
+        initDK(data, mode, ir, 'TČ');
     },
 };
 

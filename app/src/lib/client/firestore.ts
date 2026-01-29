@@ -65,7 +65,7 @@ const shouldUpdateKeyChangeIR = async (newIR: Raw<FormIN>, isDraft: boolean) => 
     return irWholeName(newIR) != irWholeName(oldIR.evidence) || isDraft != oldIR.isDraft;
 };
 
-const addStampIR = (field: string, value: unknown) => ({
+const addStampIR = (field: keyof IR | string, value: unknown) => ({
     [field]: value,
     changedAt: serverTimestamp() as Timestamp,
 });
@@ -175,9 +175,17 @@ const baseDatabase: Database = {
         await updateDoc(irDoc(irid), addStampIR(`uvedeniTC`, protocol));
         await odm.update('IR', irid, ir => ({ ...ir!, uvedeniTC: protocol }));
     },
+    updateHeatPumpCommissionDate: async (irid, date) => {
+        await updateDoc(irDoc(irid), addStampIR(`heatPumpCommissionDate`, date));
+        await odm.update('IR', irid, ir => ({ ...ir!, heatPumpCommissionDate: date }));
+    },
     addSolarSystemCommissioningProtocol: async (irid, protocol) => {
         await updateDoc(irDoc(irid), addStampIR(`uvedeniSOL`, protocol));
         await odm.update('IR', irid, ir => ({ ...ir!, uvedeniSOL: protocol }));
+    },
+    updateSolarSystemCommissionDate: async (irid, date) => {
+        await updateDoc(irDoc(irid), addStampIR(`solarSystemCommissionDate`, date));
+        await odm.update('IR', irid, ir => ({ ...ir!, solarSystemCommissionDate: date }));
     },
     addPhotovoltaicSystemCommissioningProtocol: async (irid, protocol) => {
         await updateDoc(irDoc(irid), addStampIR(`uvedeniFVE`, protocol));

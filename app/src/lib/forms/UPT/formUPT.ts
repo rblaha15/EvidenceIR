@@ -55,7 +55,7 @@ export interface FormUPT extends Form<DataUPT> {
         vlastnik: CheckboxWidget<DataUPT>,
         typZaruky: ChooserWidget<DataUPT, `no` | `yes`>,
         zaruka: CheckboxWidget<DataUPT>,
-        date: InputWidget<DataUPT>,
+        date: InputWidget<DataUPT, true>,
         note: InputWidget<DataUPT>,
     },
     checkRecommendations: FormPartDK<DataUPT>,

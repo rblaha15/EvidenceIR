@@ -11,6 +11,7 @@ import type { DataUPS, FormUPS } from '$lib/forms/UPS/formUPS';
 import defaultUPS from './defaultUPS';
 import { saveDK } from '$lib/forms/DK/formDK';
 import type { Widget } from '$lib/forms/Widget.svelte';
+import { dayISO } from '$lib/helpers/date';
 
 const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
     type: 'IR',
@@ -21,7 +22,8 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
     }),
     saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
         await db.addSolarSystemCommissioningProtocol(irid, raw);
-        if (!edit) await saveDK(ir, f.checkRecommendations, 'SOL')
+        await db.updateSolarSystemCommissionDate(irid, f.uvadeni.date.value);
+        if (!edit) await saveDK(ir, f.checkRecommendations, 'SOL');
         if (await checkRegulusOrAdmin()) return;
 
         const user = get(currentUser)!;
@@ -53,12 +55,12 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
         url.searchParams.has('edit') ? { raw: ir.uvedeniSOL } : undefined,
     getViewData: (ir, url) =>
         url.searchParams.has('view') ? { raw: ir.uvedeniSOL } : undefined,
-    onMount: async (_, data, mode) => {
-        if (mode != 'create') {
-            (data.checkRecommendations as Record<string, Widget>).getValues().forEach(e => {
+    onMount: async (data, form, mode, ir) => {
+        form.uvadeni.date.setValue(data, ir.solarSystemCommissionDate || dayISO());
+        if (mode != 'create') (form.checkRecommendations as Record<string, Widget>).getValues()
+            .forEach(e => {
                 e.show = () => false;
-            })
-        }
+            });
     },
 });
 

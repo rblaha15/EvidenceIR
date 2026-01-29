@@ -52,12 +52,12 @@ export const GET: RequestHandler = async ({ request, fetch }) => {
 
         if (ir.yearlyHeatPumpCheckRecommendation) {
             const settings = ir.yearlyHeatPumpCheckRecommendation;
-            const commission = new Date(ir.uvedeniTC!.uvadeni.date);
+            const commission = new Date(ir.heatPumpCommissionDate!);
             await processRecommendations({ today, commission, ir, irid, settings, type: 'TČ', fetch, appUrl });
         }
         if (ir.yearlySolarSystemCheckRecommendation) {
             const settings = ir.yearlySolarSystemCheckRecommendation;
-            const commission = new Date(ir.uvedeniSOL!.uvadeni.date);
+            const commission = new Date(ir.solarSystemCommissionDate!);
             await processRecommendations({ today, commission, ir, irid, settings, type: 'SOL', fetch, appUrl });
         }
     }

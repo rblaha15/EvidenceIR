@@ -192,7 +192,9 @@ export default {
                 updateServiceProtocol: t`Upraven servisní protokol ${'sp'} u IR ${'ir'}`,
                 addFaceTable: t`Nastaveny volitelné vstupy a výstupy IR ${'ir'}`,
                 updateHeatPumpCommissioningProtocol: t`Vytvořen protokol o uvedení TČ do provozu u IR ${'ir'}`,
+                updateHeatPumpCommissionDate: t`Změněn datum uvedení TČ do provozu u IR ${'ir'}`,
                 addSolarSystemCommissioningProtocol: t`Vytvořen protokol o uvedení SOL do provozu u IR ${'ir'}`,
+                updateSolarSystemCommissionDate: t`Změněn datum uvedení SOL do provozu u IR ${'ir'}`,
                 addPhotovoltaicSystemCommissioningProtocol: t`Vytvořen protokol o uvedení FVE do provozu u IR ${'ir'}`,
                 updateIRUsers: t`Změněn seznam uživatelů s přístupem k ${'ir'}`,
                 updateHeatPumpRecommendationsSettings: t`Upraveno nastavení připomínání ročních kontrol TČ u ${'ir'}`,
@@ -493,6 +495,7 @@ export default {
     },
     dk: {
         settingsTitle: (type: 'TČ' | 'SOL') => `Nastavení RK ${type}`,
+        commissionedAt: (type: 'TČ' | 'SOL') => `${type} uvedeno do provozu`,
         title: `Upozorňování na roční kontroly`,
         userWantsTo: (type: 'TČ' | 'SOL') =>
             `Koncový zákazník chce být upozorňován přes email na blížící se čas objednání roční kontroly ${type}`,
