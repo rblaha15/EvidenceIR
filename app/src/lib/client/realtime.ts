@@ -196,6 +196,7 @@ const pointsStores: Record<string, Readable<LoyaltyProgramUserData | null>> = {}
 export const getLoyaltyProgramDataStore = async () => {
     const user = getFromStore(currentUser);
     if (!user) return readable(null);
+    if (!getIsOnline()) return readable(null);
     if (await checkRegulusOrAdmin()) return readable(null);
     const uid = user.uid;
     if (!uid) return readable(null);
