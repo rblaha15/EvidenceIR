@@ -3,13 +3,13 @@ import { isWriteFunction, type WriteFunction } from '$lib/data';
 import { derived, writable } from 'svelte/store';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { irName, irNumberFromIRID, irWholeName, spName, spWholeName } from '$lib/helpers/ir';
-import { isOnline } from './realtime';
 import type { Translations } from '$lib/translations';
 import type { Template, TemplateArgs } from '$lib/helpers/templates';
 import { browser } from '$app/environment';
 import { openDB } from 'idb';
 import type { Database } from '$lib/Database';
 import { grantPointsOnline, type LoyaltyProgramTrigger } from '$lib/client/loyaltyProgram';
+import { isOnline } from '$lib/client/realtimeOnline';
 
 type DoWhenOnlineDatabase<F extends keyof Database = keyof Database> = {
     type: 'database'

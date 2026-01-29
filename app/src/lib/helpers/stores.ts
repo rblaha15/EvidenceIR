@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { derived, get, type Readable, writable, type Writable } from 'svelte/store';
-import { currentUser, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
+import { currentUser, isUserAdmin } from '$lib/client/auth';
 
 export function storable<T>(key: string): Writable<T | undefined>;
 export function storable<T>(key: string, defaultValue: T): Writable<T>;

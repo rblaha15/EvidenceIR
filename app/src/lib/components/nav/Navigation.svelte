@@ -1,6 +1,5 @@
 <script lang="ts">
     import { currentUser } from '$lib/client/auth';
-    import { isOnline } from '$lib/client/realtime';
     import type { Translations } from '$lib/translations';
     import BaseNav from './BaseNav.svelte';
     import UserDropdown from '$lib/components/nav/UserDropdown.svelte';
@@ -13,6 +12,7 @@
     import { hideNav } from '$lib/helpers/globals';
     import Icon from '$lib/components/Icon.svelte';
     import { relUrl } from '$lib/helpers/runes.svelte';
+    import { isOnline } from '$lib/client/realtimeOnline';
 
     const { t }: { t: Translations } = $props();
     const tn = $derived(t.nav);

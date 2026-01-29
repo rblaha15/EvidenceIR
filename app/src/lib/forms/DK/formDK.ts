@@ -60,7 +60,13 @@ export const initDK = <D extends DataDK<D>>(
     type: 'TČ' | 'SOL',
 ) => {
     const date = type == 'TČ' ? ir.heatPumpCommissionDate : ir.solarSystemCommissionDate;
+    const settings = type == 'TČ' ? ir.yearlyHeatPumpCheckRecommendation : ir.yearlySolarSystemCheckRecommendation;
+    console.log(settings);
     data.dk.commissionDate.setValue(data, date || '');
+    if (settings) {
+        data.dk.enabled.setValue(data, true);
+        data.dk.executingCompany.setValue(data, settings.executingCompany);
+    }
     if (date) data.dk.commissionDate.lock = () => true;
     if (mode != 'create') (data.dk as Record<string, Widget>).getValues().forEach(e => {
         e.show = () => false;

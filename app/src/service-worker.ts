@@ -14,7 +14,6 @@ const ASSETS = [
 	...files,
 	...prerendered,
     ...[...languageCodes, ''].map(lang => `/${lang}`),
-	'https://pdf-lib.js.org/assets/ubuntu/Ubuntu-R.ttf',
 ];
 
 const sw = self as unknown as ServiceWorkerGlobalScope;

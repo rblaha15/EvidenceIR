@@ -1,4 +1,4 @@
-import { getIsOnline, startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
+import { startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
 import type { User } from 'firebase/auth';
 import { page } from '$app/state';
 import { spName } from '$lib/helpers/ir';
@@ -14,6 +14,7 @@ import defaultSP from '$lib/forms/SP/defaultSP';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
 import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
+import { getIsOnline } from '$lib/client/realtimeOnline';
 
 const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i: number }> = {
     type: 'IR',

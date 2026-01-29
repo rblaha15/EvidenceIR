@@ -1,5 +1,4 @@
 import {
-    getIsOnline,
     responsiblePerson,
     startAccumulationTanksListening,
     startSolarCollectorsListening,
@@ -27,6 +26,7 @@ import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import MailXML from '$lib/emails/MailXML.svelte';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
 import { grantPoints } from '$lib/client/loyaltyProgram';
+import { getIsOnline } from '$lib/client/realtimeOnline';
 
 const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string | null]], never, { draft: boolean }> = {
     type: '',

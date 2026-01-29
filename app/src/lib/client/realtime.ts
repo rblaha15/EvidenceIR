@@ -1,10 +1,11 @@
-import { derived, get as getFromStore, readable, type Readable, readonly, writable } from 'svelte/store';
+import { derived, get as getFromStore, readable, type Readable, writable } from 'svelte/store';
 import { checkRegulusOrAdmin, currentUser } from '$lib/client/auth';
 import type { User } from 'firebase/auth';
-import { onValue, type Query, ref } from 'firebase/database';
+import { type Query, ref } from 'firebase/database';
 import { storable } from '$lib/helpers/stores';
 import { realtime } from '../../hooks.client';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
+import { getIsOnline } from '$lib/client/realtimeOnline';
 
 type SelfObject<T extends PropertyKey> = { [key in T]: key };
 type CRN = string;
@@ -53,13 +54,7 @@ const dilyRef = ref(realtime, '/spareParts');
 const nadrzeRef = ref(realtime, '/accumulationTanks');
 const zasobnikyRef = ref(realtime, '/waterTanks');
 const kolektoryRef = ref(realtime, '/solarCollectors');
-const connectedRef = ref(realtime, '.info/connected');
 const loyaltyProgramRef = ref(realtime, '/loyaltyProgram');
-
-const _isOnline = writable(false);
-export const isOnline = readonly(_isOnline);
-export const getIsOnline = () => getFromStore(isOnline);
-onValue(connectedRef, (sn) => _isOnline.set(sn.val() === true));
 
 const getWithCache = async <T>(query: Query) => {
     const { get } = await import('firebase/database');

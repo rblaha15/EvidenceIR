@@ -6,7 +6,6 @@ import { type Readable } from 'svelte/store';
 import type { FormUPS } from '$lib/forms/UPS/formUPS';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
 import type { IRID, SPID } from '$lib/helpers/ir';
-import { getIsOnline, isOnline } from '$lib/client/realtime';
 import { offlineDatabase } from '$lib/client/offline.svelte.js';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
 import { addToOfflineQueue } from '$lib/client/offlineQueue.svelte';
@@ -20,6 +19,7 @@ import { firestoreDatabase } from '$lib/client/firestore';
 import { type Database, databaseMethods, type ReadDatabase, type WriteDatabase } from '$lib/Database';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
 import type { User } from 'firebase/auth';
+import { getIsOnline, isOnline } from '$lib/client/realtimeOnline';
 
 export type Year = number;
 

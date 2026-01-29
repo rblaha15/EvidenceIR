@@ -9,6 +9,7 @@ import {
 } from 'firebase/auth';
 import { derived, readonly, writable } from 'svelte/store';
 import { auth } from '../../hooks.client';
+import { getIsOnline } from '$lib/client/realtimeOnline';
 
 const _currentUser = writable(null as User | null);
 onAuthStateChanged(auth, (usr) => _currentUser.set(usr));
@@ -27,7 +28,7 @@ export const getToken = async () => {
 }
 
 const _checkAdmin = async (user: User) =>
-    !!(await user.getIdTokenResult()).claims.admin;
+    /*getIsOnline() ? */!!(await user.getIdTokenResult()).claims.admin/* : false*/;
 
 export const checkAdmin = async () => {
     await auth.authStateReady()

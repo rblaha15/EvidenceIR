@@ -148,5 +148,5 @@ export default (): FormUPT => ({
         date: new InputWidget({ label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true }),
         note: new InputWidget({ label: t => t.in.note, required: false }),
     },
-    checkRecommendations: defaultDK('TČ'),
+    checkRecommendations: defaultDK('TČ', true),
 });
