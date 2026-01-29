@@ -52,8 +52,7 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
         if (edit) await db.updateServiceProtocol(irid, i, raw);
         else await db.addServiceProtocol(irid, raw);
 
-        if (!ir.uvedeniTC.uvadeni.date) await db.updateHeatPumpCommissioningProtocol
-        (irid, { uvadeni: { date: raw.system.datumUvedeni } });
+        if (!ir.heatPumpCommissionDate) await db.updateHeatPumpCommissionDate(irid, raw.system.datumUvedeni);
 
         if (edit && !send) return true;
 
@@ -88,8 +87,8 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
         await startSparePartsListening();
         if (!p.zasah.datum.value) // Also in NSP
             p.zasah.datum.setValue(d, nowISO());
-        if (!p.system.datumUvedeni.value && ir.uvedeniTC.uvadeni.date) {
-            p.system.datumUvedeni.setValue(d, ir.uvedeniTC.uvadeni.date);
+        if (!p.system.datumUvedeni.value && ir.heatPumpCommissionDate) {
+            p.system.datumUvedeni.setValue(d, ir.heatPumpCommissionDate);
         }
     },
     storeEffects: [

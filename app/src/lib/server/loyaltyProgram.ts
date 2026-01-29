@@ -83,12 +83,12 @@ const getCompanyUser = async (email: string) =>
 
 const getCompaniesCascadeGrantedAndCommission = async (irid: IRID) => {
     const ir = await getIR(irid);
-    return ir && ir.uvedeniTC.os ? {
+    return ir && ir.heatPumpCommissionDate && ir.uvedeniTC ? {
         assembly: await getCompanyUser(ir.evidence.montazka.email),
         commissioning: await getCompanyUser(ir.evidence.uvedeni.email),
         pumpCount: cascadePumps(ir.evidence).length,
         granted: ir.loyaltyProgram?.grantedCommission ?? false,
-        commissionDate: new Date(ir.uvedeniTC.uvadeni.date),
+        commissionDate: new Date(ir.heatPumpCommissionDate),
     } : null;
 };
 

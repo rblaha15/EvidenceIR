@@ -267,7 +267,9 @@ const en: PlainTranslations = {
                 updateServiceProtocol: t`Edited the ${'sp'} service protocol at the ${'ir'} controller`,
                 addFaceTable: t`Set the optional inputs and outputs at the ${'ir'} controller`,
                 updateHeatPumpCommissioningProtocol: t`Created a heat pump commissioning protocol at the ${'ir'} controller`,
+                updateHeatPumpCommissionDate: t`Updated the heat pump commission date at the ${'ir'} controller`,
                 addSolarSystemCommissioningProtocol: t`Created a solar system commissioning protocol at the ${'ir'} controller`,
+                updateSolarSystemCommissionDate: t`Updated the solar system commission date at the ${'ir'} controller`,
                 addPhotovoltaicSystemCommissioningProtocol: t`Created a photovoltaic system commissioning protocol at the ${'ir'} controller`,
                 updateIRUsers: t`Updated the list of users with access to the ${'ir'} controller`,
                 updateHeatPumpRecommendationsSettings: t`Updated the yearly heat pump check recommendation settings at the ${'ir'} controller`,
@@ -557,6 +559,7 @@ const en: PlainTranslations = {
     },
     dk: {
         settingsTitle: type => `RK Settings ${type}`,
+        commissionedAt: (type: 'TČ' | 'SOL') => `${type == 'TČ' ? 'heat pump' : 'solar system'} commission date`,
         title: `Notifying of yearly checks`,
         userWantsTo: type =>
             `The end user wants to be notifies over email of the approaching time to order an yearly ${type == 'TČ' ? 'heat pump' : 'solar system'} check`,

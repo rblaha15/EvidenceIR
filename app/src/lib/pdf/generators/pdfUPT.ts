@@ -8,7 +8,7 @@ import type { Raw } from '$lib/forms/Form';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
 
 const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc, lang }) => {
-    const { evidence: e, uvedeniTC } = data
+    const { evidence: e, uvedeniTC, heatPumpCommissionDate: d } = data
     const u = uvedeniTC as Raw<FormUPT>;
     const tu = t.tc
     const pumps = cascadePumps(e);
@@ -34,7 +34,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc, lang }) => {
         Text7: e.uvedeni.zastupce,
         Text8: e.uvedeni.telefon,
         Text9: e.uvedeni.email,
-        Text10: dateFromISO(u.uvadeni.date ?? dayISO()),
+        Text10: dateFromISO(d || dayISO()),
         Text11: isCascade ? tu.cascadeSee : e.tc.model!,
         Text12: isCascade ? '—' : e.tc.cislo,
         Text13: e.ir.typ.first!.includes('BOX') ? typBOX(e.ir.cisloBox) ?? e.ir.typ.first!.slice(10) + ' ' + e.ir.typ.second! : '—',

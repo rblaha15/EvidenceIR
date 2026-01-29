@@ -43,7 +43,7 @@ export interface FormUPS extends Form<DataUPS> {
         podminky: CheckboxWidget<DataUPS>,
         regulator: CheckboxWidget<DataUPS>,
         vlastnik: CheckboxWidget<DataUPS>,
-        date: InputWidget<DataUPS>,
+        date: InputWidget<DataUPS, true>,
     },
     checkRecommendations: FormPartDK<DataUPS>,
 }

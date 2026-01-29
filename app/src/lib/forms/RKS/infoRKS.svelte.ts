@@ -33,7 +33,7 @@ const infoRKS: FormInfo<DataRKS, FormRKS, [], 'RKS', { defaultYear: Year, filled
                 ? (Math.max(...filledYears) + 1) as Year
                 : 1;
             if (!ir.uvedeniSOL) return { other: { defaultYear, filledYears } };
-            const commission = new Date(ir.uvedeniSOL.uvadeni.date);
+            const commission = new Date(ir.solarSystemCommissionDate);
             const today = new Date(new Date().toISOString().split('T')[0]);
 
             const anniversaryThisYear =
