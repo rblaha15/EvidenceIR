@@ -1,8 +1,8 @@
 import type { IRID } from '$lib/helpers/ir';
 import { getToken } from '$lib/client/auth';
 import type { TC } from '$lib/forms/IN/defaultIN';
-import { getIsOnline } from '$lib/client/realtime';
 import { addLoyaltyProgramTriggerToOfflineQueue } from '$lib/client/offlineQueue.svelte';
+import { getIsOnline } from '$lib/client/realtimeOnline';
 
 export type Points = number;
 

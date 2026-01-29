@@ -151,7 +151,7 @@ export const generatePdf = async <P extends Pdf>(
         console.log(`${type}: ${name}`);
     });*/
 
-    const url = 'https://pdf-lib.js.org/assets/ubuntu/Ubuntu-R.ttf';
+    const url = '/Ubuntu-Regular.ttf';
     const fontBytes = await fetch(url).then((res) => res.arrayBuffer());
 
     pdfDoc.registerFontkit(fontkit);

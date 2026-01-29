@@ -35,7 +35,7 @@ export default (): FormUPS => ({
         vymenik: new InputWidget({ label: t => t.sol.exchangerType, required: false }),
         solRegulator: new InputWidget({ label: t => t.sol.solarControllerType }),
         cerpadloaSkupina: new InputWidget({ label: t => t.sol.pumpGroupType }),
-        expanznkaSolarni: newYesNoWidget({ label: t => t.sol.expansionTankSolar, required: true }),
+        expanznkaSolarni: newYesNoWidget({ label: t => t.sol.expansionTankSolar, required: false }),
         objem: new InputWidget({ label: t => t.sol.volume, required: d => d.uvedeni.sol.expanznkaSolarni.value }),
         tlakEnSol: new InputWidget({ label: t => t.sol.pressureOfSolarExpansionTank, suffix: t => t.units.bar }),
         tlakKapaliny: new InputWidget({ label: t => t.sol.pressureOfSolarSystemLiquid, suffix: t => t.units.bar }),
@@ -65,5 +65,5 @@ export default (): FormUPS => ({
         vlastnik: new CheckboxWidget({ label: t => t.sol.ownerInformed }),
         date: new InputWidget({ label: t => t.sol.dateOfCommission, type: 'date', hideInRawData: true }),
     },
-    checkRecommendations: defaultDK('SOL'),
+    checkRecommendations: defaultDK('SOL', true),
 });

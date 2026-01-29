@@ -4,9 +4,9 @@ import { type Component, mount } from 'svelte';
 import { dev } from '$app/environment';
 import { get } from 'svelte/store';
 import type { User } from 'firebase/auth';
-import { getIsOnline } from '$lib/client/realtime';
 import { addEmailToOfflineQueue } from '$lib/client/offlineQueue.svelte';
 import { upload } from "@vercel/blob/client";
+import { getIsOnline } from '$lib/client/realtimeOnline';
 
 export type Address = {
     name: string;

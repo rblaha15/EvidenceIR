@@ -9,7 +9,7 @@ import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { DataUPS, FormUPS } from '$lib/forms/UPS/formUPS';
 import defaultUPS from './defaultUPS';
-import { saveDK } from '$lib/forms/DK/formDK';
+import { initDK, saveDK } from '$lib/forms/DK/formDK';
 import type { Widget } from '$lib/forms/Widget.svelte';
 import { dayISO } from '$lib/helpers/date';
 
@@ -57,10 +57,7 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
         url.searchParams.has('view') ? { raw: ir.uvedeniSOL } : undefined,
     onMount: async (data, form, mode, ir) => {
         form.uvadeni.date.setValue(data, ir.solarSystemCommissionDate || dayISO());
-        if (mode != 'create') (form.checkRecommendations as Record<string, Widget>).getValues()
-            .forEach(e => {
-                e.show = () => false;
-            });
+        initDK(data, mode, ir, 'SOL')
     },
 });
 
