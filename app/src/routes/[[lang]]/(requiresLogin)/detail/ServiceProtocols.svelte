@@ -45,7 +45,7 @@
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         {#each ir.installationProtocols as p, i}
             {#snippet duplicateButton()}
-                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#duplicateModal">
+                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#duplicateModal-{i}">
                     <Icon icon="file_copy" />
                     {td.duplicate}
                 </button>
@@ -66,11 +66,11 @@
                 }]}
             />
 
-            <div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">
+            <div class="modal fade" id="duplicateModal-{i}" tabindex="-1" aria-labelledby="duplicateModalLabel-{i}" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="duplicateModalLabel">{td.duplicate}</h1>
+                            <h1 class="modal-title fs-5" id="duplicateModalLabel-{i}">{td.duplicate}</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
