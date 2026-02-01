@@ -57,7 +57,7 @@ export const getDataAsStore = (id: {
                 data => {
                     if (data.some(p => p == 'loading')) return 'loading';
                     return data.map(p => p == 'loading' ? undefined : p).filterNotUndefined()
-                        .toSorted((a, b) => (isSPDeleted(a) ? 1 : 0) - (isSPDeleted(b) ? 1 : 0));
+                        .sort((a, b) => (isSPDeleted(a) ? 1 : 0) - (isSPDeleted(b) ? 1 : 0));
                 },
             );
             return { ...base, sps };

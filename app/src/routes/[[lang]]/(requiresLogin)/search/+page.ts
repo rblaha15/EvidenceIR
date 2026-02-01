@@ -87,8 +87,8 @@ export const load: PageLoad = async ({ parent }) => {
             [installations, protocols],
             ([$installations, $protocols]) =>
                 [...$installations ?? [], ...$protocols ?? []]
-                    .toSorted((a, b) => a.label.localeCompare(b.label))
-                    .toSorted((a, b) => (b.draft ? 1 : 0) - (a.draft ? 1 : 0)),
+                    .sort((a, b) => a.label.localeCompare(b.label))
+                    .sort((a, b) => (b.draft ? 1 : 0) - (a.draft ? 1 : 0)),
         ),
     };
 };

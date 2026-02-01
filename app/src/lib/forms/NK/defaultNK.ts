@@ -382,7 +382,7 @@ export default (): FormPlus<FormNK> => ({
                 if (me) d.other.representative.setValue(d, me);
                 return withKO
                     .filter(p => p.email.endsWith('cz'))
-                    .toSorted((a, b) => a.responsiblePerson!.split(' ').at(-1)!
+                    .sort((a, b) => a.responsiblePerson!.split(' ').at(-1)!
                         .localeCompare(b.responsiblePerson!.split(' ').at(-1)!));
             }),
         }),
