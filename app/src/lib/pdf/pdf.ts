@@ -76,7 +76,7 @@ export const pdfInfo: PdfInfo = {
     RKT: {
         type: 'IR',
         pdfName: 'RKT',
-        supportedLanguages: ['cs', /*TODO: 'de'*/],
+        supportedLanguages: ['cs', 'de'],
         title: t => t.rkt.title,
         getPdfData: RKT,
     },

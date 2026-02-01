@@ -43,7 +43,7 @@ export const pdfRKTL: GetPdfData<'RKTL'> = async ({ data, t, pump, lastYear, add
         args: (nextStartYear > maxLegacyYear ? pdfInfo.RKT : pdfInfo.RKTL) as PdfArgs<'RKTL' | 'RKT'>,
         data, lang, pump, lastYear: nextStartYear - 1 as Year,
     });
-    else await addDoc({
+    else if (lang == 'cs') await addDoc({
         lang: 'cs',
         args: pdfInfo.RS,
         data: {},
@@ -148,7 +148,7 @@ const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang
     if (yearsLeft.length) await addDoc({
         data, lang, args: pdfInfo.RKT, pump, lastYear: nextStartYear - 1 as Year,
     });
-    else await addDoc({
+    else if (lang == 'cs') await addDoc({
         lang: 'cs',
         args: pdfInfo.RS,
         data: {},

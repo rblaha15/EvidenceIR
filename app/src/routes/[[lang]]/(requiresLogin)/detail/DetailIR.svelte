@@ -18,6 +18,7 @@
     import { createFileUrl, downloadFile } from '$lib/helpers/files';
     import { datetimeFromISO } from '$lib/helpers/date';
     import { Timestamp } from 'firebase/firestore';
+    import PDFLink from './PDFLink.svelte';
 
     const { t, ir, lang, irid }: {
         t: Translations, ir: IR, lang: LanguageCode, irid: IRID,
@@ -39,13 +40,13 @@
     };
 </script>
 
-<div class="d-flex flex-wrap gap-5 justify-content-between">
+<div class="d-flex flex-wrap gap-4 justify-content-between">
     {#if !ir.isDraft}
         <div class="d-flex flex-column gap-5">
             <div class="d-flex flex-column gap-3">
                 <h4 class="m-0">{td.documents}</h4>
                 <div class="d-flex flex-column gap-1">
-                    <DocumentsIR {ir} {t} {irid} />
+                    <DocumentsIR {ir} {t} {lang} {irid} />
                 </div>
             </div>
             {#if $isUserRegulusOrAdmin}
