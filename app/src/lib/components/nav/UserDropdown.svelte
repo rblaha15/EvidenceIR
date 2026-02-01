@@ -1,7 +1,7 @@
 <script lang="ts">
     import authentication from '$lib/client/authentication.js';
     import { page } from '$app/state';
-    import { currentUser, isUserAdmin, isUserRegulusOrAdmin, logOut } from '$lib/client/auth.js';
+    import { currentUser, isUserAdmin, isUserAnyRegulusOrAdmin, logOut } from '$lib/client/auth.js';
     import { getLoyaltyProgramDataStore, responsiblePerson } from '$lib/client/realtime';
     import type { Translations } from '$lib/translations';
     import { goto } from '$app/navigation';
@@ -60,7 +60,7 @@
                 </span>
             {/if}
         </div>
-        {#if !$isUserRegulusOrAdmin && $store}
+        {#if !$isUserAnyRegulusOrAdmin && $store}
             <hr class="my-3" />
             <div class="d-flex flex-column gap-1 px-3 align-items-start">
                 <h6 class="m-0">{ta.loyaltyProgram}</h6>
