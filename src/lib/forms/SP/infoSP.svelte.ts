@@ -63,7 +63,7 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
                 ? `Upravený servisní protokol: ${name}`
                 : `Nový servisní protokol: ${name}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, url: page.url.origin + detailIrUrl(irid), discountReason: raw.fakturace.discountReason },
+            props: { name: raw.zasah.clovek, url: page.url.origin + detailIrUrl(irid), discountReason: raw.fakturace.discountReason, e: ir.evidence },
         });
 
         if (response!.ok) return true;

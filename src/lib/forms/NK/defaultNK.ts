@@ -185,7 +185,9 @@ export default (): FormPlus<FormNK> => ({
             label: t => t.nk.system.heatPumpModel,
             show: hp,
             options: d => [`iDoNotKnow`, ...d.system.hPType.value == 'airToWater'
-                ? [...heatPumps.airToWaterRTC.flat(), ...heatPumps.airToWaterCTC.flat()] : heatPumps.groundToWaterCTC.flat()],
+                ? [...heatPumps.airToWaterRTC[0], ...heatPumps.airToWaterCTC[0]] : heatPumps.groundToWaterCTC[0]],
+            otherOptions: d => d.system.hPType.value == 'airToWater'
+                ? [...heatPumps.airToWaterRTC[1], ...heatPumps.airToWaterCTC[1], ...heatPumps.multiEnergyCTC[0], ...heatPumps.multiEnergyCTC[1]] : heatPumps.groundToWaterCTC[1],
             chosen: `iDoNotKnow`,
             labels: t => t.nk.system,
         }),

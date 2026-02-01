@@ -38,7 +38,7 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
                 ? `Změněno uvedení TČ do provozu k ${irName(ir.evidence.ir)}`
                 : `Vyplněno nové uvedení TČ do provozu k ${irName(ir.evidence.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid) },
+            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.evidence },
         });
 
         if (response!.ok) return;

@@ -32,7 +32,7 @@ const infoRKS: FormInfo<DataRKS, FormRKS, [], 'RKS', { defaultYear: Year, filled
             const defaultYear = filledYears.length
                 ? (Math.max(...filledYears) + 1) as Year
                 : 1;
-            if (!ir.uvedeniSOL) return { other: { defaultYear, filledYears } };
+            if (!ir.solarSystemCommissionDate) return { other: { defaultYear, filledYears } };
             const commission = new Date(ir.solarSystemCommissionDate);
             const today = new Date(new Date().toISOString().split('T')[0]);
 
@@ -60,7 +60,7 @@ const infoRKS: FormInfo<DataRKS, FormRKS, [], 'RKS', { defaultYear: Year, filled
                 ? `Vyplněna nová roční kontrola SOL k ${irName(ir.evidence.ir)}`
                 : `Upravena roční kontrola SOL k ${irName(ir.evidence.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid) },
+            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.evidence },
         });
 
         if (response!.ok) return;

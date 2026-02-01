@@ -896,6 +896,7 @@ export default {
             airToWater: 'vzduch/voda',
             groundToWater: 'země/voda',
             iDoNotKnow: 'Nevím',
+            prototype: 'Prototyp',
             heatPumpType: `Typ tepelného čerpadla`,
             heatPumpModel: `Model tepelného čerpadla`,
         },

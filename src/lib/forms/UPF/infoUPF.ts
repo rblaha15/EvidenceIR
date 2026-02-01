@@ -26,7 +26,7 @@ const infoUPF: FormInfo<FormUPF, FormUPF, [], 'UPF'> = ({
             ...defaultAddresses(),
             subject: `Vyplněno nové uvedení FVE do provozu k ${irName(ir.evidence.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid) },
+            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.evidence },
         });
 
         if (response!.ok) return;
