@@ -77,7 +77,7 @@ export const createInstallation = (
     isDraft,
     evidence: raw,
     kontrolyTC: {},
-    users: [user.email!, raw.uvedeni.email, raw.montazka.email].distinct(),
+    users: [user.email!, raw.uvedeni.email, raw.montazka.email].distinct().filter(Boolean),
     installationProtocols: [],
     deleted: false,
     createdAt: serverTimestamp() as Timestamp,
