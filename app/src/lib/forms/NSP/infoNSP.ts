@@ -31,7 +31,7 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
             ...defaultAddresses(),
             subject: `Nový servisní protokol: ${spName(raw.zasah)}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, url: page.url.origin + detailSpUrl([extractSPIDFromRawData(raw.zasah)]), discountReason: raw.fakturace.discountReason },
+            props: { name: raw.zasah.clovek, url: page.url.origin + detailSpUrl([extractSPIDFromRawData(raw.zasah)]), discountReason: raw.fakturace.discountReason, e: raw },
         });
 
         if (response!.ok) return true;
