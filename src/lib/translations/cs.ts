@@ -587,6 +587,7 @@ export default {
         vycisteniFiltruInstalaceTepelnehoCerpadla: 'Vyčištění filtrů instalace tepelného čerpadla',
         kontrolaPojistovacichVentilu: 'Kontrola pojišťovacích ventilů',
         kontrolaPojistovacichVentiluPoznamka: 'Kontrolované PV: na aku nádrži, na přívodu zásobníku, na držáku EN, na pojistné skupině rozdělovače, v tepelném čerpadle, …\nNekontrolované PV: v plynovém/elektro kotli, na přívodu zásobníku – nepřístupný/není dodávkou Regulus',
+        poznamkyKPojistovacimVentilum: 'Poznámky k pojišťovacím ventilům',
         kontrolaTlakuVOtopneSoustave: 'Kontrola tlaku v otopné soustavě',
         tlakPriUvadeniDoProvozu: 'Tlak při uvádění do provozu',
         tlakPriKontrole: 'Tlak při kontrole',

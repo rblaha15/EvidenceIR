@@ -8,25 +8,26 @@
     import { iridUrl } from '$lib/helpers/runes.svelte';
     import { cascadePumps } from '$lib/forms/IN/infoIN';
     import { hasRKTL, isRKTL } from '$lib/forms/RKT/infoRKT';
+    import type { LanguageCode } from '$lib/languageCodes';
 
-    const { t, ir, irid }: {
-        t: Translations, ir: IR, irid: IRID,
+    const { t, ir, irid, lang }: {
+        t: Translations, ir: IR, irid: IRID, lang: LanguageCode
     } = $props();
     const td = $derived(t.detail);
 </script>
 
 {#if ir.evidence.vzdalenyPristup.chce}
-    <PDFLink name={t.rr.name} {t} link="RR" data={ir} {irid} />
+    <PDFLink name={t.rr.name} {t} {lang} link="RR" data={ir} {irid} />
 {/if}
 {#if supportsRemoteAccess(ir.evidence.ir.typ.first)}
-    <PDFLink name={t.nnr.title} {t} link="NNR" data={ir} {irid} />
+    <PDFLink name={t.nnr.title} {t} {lang} link="NNR" data={ir} {irid} />
 {/if}
 {#if ir.evidence.ir.typ.second === 'TRS6 K'}
-    <PDFLink name={t.nnt.title} {t} link="NNT" data={ir} />
+    <PDFLink name={t.nnt.title} {t} {lang} link="NNT" data={ir} />
 {/if}
 {#if ir.evidence.ir.chceVyplnitK.includes('heatPump') && ir.evidence.tc.model !== 'airTHERM 10'}
     <PDFLink
-        disabled={!ir.uvedeniTC?.uvadeni?.typZaruky} name={t.tc.name} {t} link="UPT"
+        disabled={!ir.uvedeniTC?.uvadeni?.typZaruky} name={t.tc.name} {t} {lang} link="UPT"
         data={ir} {irid} additionalButton={{
             href: iridUrl('/UPT'),
             text: t.tc.commission,
@@ -39,11 +40,11 @@
         }] : undefined}
     />
     {#each cascadePumps(ir.evidence) as tc}
-        <PDFLink name={t.zlt.name(tc)} {t} link="ZLT" data={ir} pump={tc.N} {irid} />
+        <PDFLink name={t.zlt.name(tc)} {t} {lang} link="ZLT" data={ir} pump={tc.N} {irid} />
     {/each}
     {#each cascadePumps(ir.evidence) as tc}
         <PDFLink
-            name={t.rkt.name(tc)} {t} link={hasRKTL(ir.kontrolyTC[tc.N]) ? 'RKTL' : 'RKT'} data={ir} pump={tc.N} {irid}
+            name={t.rkt.name(tc)} {t} {lang} link={hasRKTL(ir.kontrolyTC[tc.N]) ? 'RKTL' : 'RKT'} data={ir} pump={tc.N} {irid}
             disabled={!ir.kontrolyTC[tc.N]?.keys()?.length} additionalButton={{
                 show: true,
                 href: iridUrl(`/RKT?pump=${tc.N}`),
@@ -62,7 +63,7 @@
 {/if}
 {#if ir.evidence.ir.chceVyplnitK.includes('solarCollector')}
     <PDFLink
-        disabled={!ir.uvedeniSOL} name={t.sol.name} {t}
+        disabled={!ir.uvedeniSOL} name={t.sol.name} {t} {lang}
         link="UPS" data={ir} {irid} additionalButton={{
             href: iridUrl('/UPS'),
             text: t.sol.commission,
@@ -74,9 +75,9 @@
             href: iridUrl(`/UPS?edit`),
         }] : undefined}
     />
-    <PDFLink name={t.zls.name} {t} link="ZLS" data={ir} {irid} />
+    <PDFLink name={t.zls.name} {t} {lang} link="ZLS" data={ir} {irid} />
     <PDFLink
-        name={t.rks.name} {t} link="RKS" data={ir} {irid}
+        name={t.rks.name} {t} {lang} link="RKS" data={ir} {irid}
         disabled={!ir.kontrolySOL?.keys()?.length} additionalButton={{
             show: true,
             href: iridUrl(`/RKS`),
@@ -95,7 +96,7 @@
 {#if ir.evidence.ir.chceVyplnitK.includes('photovoltaicPowerPlant')}
     <PDFLink
         disabled={!ir.uvedeniFVE}
-        name={t.fve.name} {t} link="UPF" data={ir} {irid} additionalButton={{
+        name={t.fve.name} {t} {lang} link="UPF" data={ir} {irid} additionalButton={{
             href: iridUrl('/UPF'),
             text: t.fve.commission,
             important: true,
@@ -104,7 +105,7 @@
 {/if}
 {#if ir.evidence.ir.typ.first === 'IR 14'}
     <PDFLink
-        name={t.ft.title} {t} link="FT" data={ir} {irid}
+        name={t.ft.title} {t} {lang} link="FT" data={ir} {irid}
         disabled={!ir.faceTable} additionalButton={{
             href: iridUrl('/FT'),
             text: t.ft.setUp,

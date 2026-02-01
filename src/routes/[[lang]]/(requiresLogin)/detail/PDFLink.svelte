@@ -6,11 +6,13 @@
     import type { Color } from '$lib/forms/Widget.svelte';
     import Icon from '$lib/components/Icon.svelte';
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
+    import type { LanguageCode } from '$lib/languageCodes';
 
     type Props<P extends Pdf> = OpenPdfOptions<P> & {
         data: DataOfPdf<P>;
         name?: string;
         t: Translations;
+        lang: LanguageCode;
         disabled?: boolean;
         additionalButton?: {
             important?: boolean,
@@ -36,6 +38,7 @@
     const {
         name,
         t,
+        lang,
         disabled,
         dropdownItems,
         additionalButton,
@@ -49,7 +52,7 @@
     } as unknown as OpenPdfOptions<P>);
 </script>
 
-<div class="d-flex flex-row align-items-center column-gap-3 row-gap-1 flex-wrap">
+<div class={["d-flex column-gap-3 row-gap-1", lang === 'de' ? 'flex-column align-items-start' : 'flex-wrap align-items-center']}>
     {#if !disabled}
         <div class="d-flex flex-row gap-3 flex-shrink-0">
             <a

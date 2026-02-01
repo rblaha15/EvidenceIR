@@ -12,7 +12,7 @@
     import Icon from '$lib/components/Icon.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
 
-    const { t, sp }: {
+    const { t, lang, sp }: {
         t: Translations, sp: Raw<FormNSP>, lang: LanguageCode,
     } = $props();
     const td = $derived(t.detail);
@@ -30,7 +30,7 @@
 {/snippet}
 
 <PDFLink
-    data={sp} link="NSP" name={spName(sp.zasah)} {spid} {t} dropdownItems={[{
+    data={sp} link="NSP" name={spName(sp.zasah)} {spid} {t} {lang} dropdownItems={[{
         color: 'primary',
         icon: 'preview',
         text: td.viewFilledData,

@@ -51,7 +51,7 @@
                 </button>
             {/snippet}
             <PDFLink
-                name={spName(p.zasah)} data={ir} {t} link="SP" index={i} {irid} dropdownItems={[{
+                name={spName(p.zasah)} data={ir} {t} {lang} link="SP" index={i} {irid} dropdownItems={[{
                     color: 'primary',
                     icon: 'preview',
                     text: td.viewFilledData,
