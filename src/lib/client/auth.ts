@@ -43,6 +43,14 @@ export const checkRegulusOrAdmin = async () => {
     return await checkAuth() && (_checkRegulus(auth.currentUser!) || await _checkAdmin(auth.currentUser!))
 }
 
+const _checkSlovakRegulus = (user: User) =>
+    user.email?.endsWith('@regulus.sk');
+
+export const checkAnyRegulusOrAdmin = async () => {
+    await auth.authStateReady()
+    return await checkAuth() && (_checkSlovakRegulus(auth.currentUser!) || _checkRegulus(auth.currentUser!) || await _checkAdmin(auth.currentUser!))
+}
+
 export const isUserAdmin = derived(
     currentUser,
     (user, set) => {
@@ -55,6 +63,14 @@ export const isUserRegulusOrAdmin = derived(
     currentUser,
     (user, set) => {
         (async () => set(user != null ? (_checkRegulus(user) || await checkAdmin()) : false))();
+    },
+    false
+);
+
+export const isUserAnyRegulusOrAdmin = derived(
+    currentUser,
+    (user, set) => {
+        (async () => set(user != null ? (_checkSlovakRegulus(user) || _checkRegulus(user) || await checkAdmin()) : false))();
     },
     false
 );

@@ -1,5 +1,5 @@
 import { derived, get as getFromStore, readable, type Readable, writable } from 'svelte/store';
-import { checkRegulusOrAdmin, currentUser } from '$lib/client/auth';
+import { checkAnyRegulusOrAdmin, checkRegulusOrAdmin, currentUser } from '$lib/client/auth';
 import type { User } from 'firebase/auth';
 import { type Query, ref } from 'firebase/database';
 import { storable } from '$lib/helpers/stores';
@@ -197,7 +197,7 @@ export const getLoyaltyProgramDataStore = async () => {
     const user = getFromStore(currentUser);
     if (!user) return readable(null);
     if (!getIsOnline()) return readable(null);
-    if (await checkRegulusOrAdmin()) return readable(null);
+    if (await checkAnyRegulusOrAdmin()) return readable(null);
     const uid = user.uid;
     if (!uid) return readable(null);
     if (!pointsStores[uid]) {

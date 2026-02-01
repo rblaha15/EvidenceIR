@@ -3,14 +3,16 @@ import type { IRID } from '$lib/helpers/ir';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 import { getIR, setCreatedIRBy } from '$lib/server/firestore';
 import {
-    loyaltyPointRewards, type LoyaltyPointRewardType,
+    loyaltyPointRewards,
     type LoyaltyPointTriggerType,
     type LoyaltyProgramPointsTransaction,
-    type LoyaltyProgramTrigger, type OtherLoyaltyProgramPointsTransaction, type Points, type StandardLoyaltyProgramPointsTransaction,
+    type LoyaltyProgramTrigger,
+    type OtherLoyaltyProgramPointsTransaction,
+    type StandardLoyaltyProgramPointsTransaction,
 } from '$lib/client/loyaltyProgram';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { nowISO } from '$lib/helpers/date';
-import { checkRegulusOrAdmin } from '$lib/server/auth';
+import { checkAnyRegulusOrAdmin } from '$lib/server/auth';
 
 
 const isType = <T extends LoyaltyPointTriggerType>(
@@ -23,7 +25,7 @@ export const processLoyaltyReward = async (
     data: LoyaltyProgramTrigger,
     user: DecodedIdToken,
 ) => {
-    if (checkRegulusOrAdmin(user)) return
+    if (checkAnyRegulusOrAdmin(user)) return;
     const timestamp = nowISO(true);
     if (isType(data, 'registration')) {
         const current = await getLoyaltyProgramData(user.uid);
@@ -31,7 +33,7 @@ export const processLoyaltyReward = async (
         await addPointsTransaction({ ...data, timestamp }, user.uid);
     } else if (isType(data, 'connectRegulusRoute')) {
         const creatingUser = await getOrSetCreatingUser(data.irid, user);
-        if (creatingUser == 'unknown') return
+        if (creatingUser == 'unknown') return;
         const current = await getLoyaltyProgramData(creatingUser);
         if (current.history.some(t => t.type == 'connectRegulusRoute' && t.irid == data.irid)) return;
         await addPointsTransaction({ ...data, timestamp }, creatingUser);
@@ -50,7 +52,7 @@ export const processLoyaltyReward = async (
         const { assembly, commissioning, pumpCount, granted, commissionDate } = d;
         if (granted) return;
         const now = new Date();
-        if (commissionDate.valueOf() + days(180) < now.valueOf()) return
+        if (commissionDate.valueOf() + days(180) < now.valueOf()) return;
         if (assembly) {
             const current = await getLoyaltyProgramData(assembly);
             if (current.history.some(t => t.type == 'heatPumpAssembly' && t.irid == data.irid)) return;
@@ -71,7 +73,7 @@ export const processLoyaltyReward = async (
         }
     } else if (isType(data, 'heatPumpYearlyCheck')) {
         const ir = await getIR(data.irid);
-        if (!ir?.kontrolyTC?.[data.pump]?.[data.year]) return
+        if (!ir?.kontrolyTC?.[data.pump]?.[data.year]) return;
         await addPointsTransaction({
             type: data.type, irid: data.irid, note: `TČ: ${data!.pump}, rok: ${data!.year}`, timestamp,
         }, user.uid);

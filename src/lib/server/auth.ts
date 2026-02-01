@@ -19,7 +19,9 @@ export const checkToken = (token: string | undefined | null) =>
 
 export const checkAdmin = (token: DecodedIdToken) => token.admin;
 export const checkRegulus = (token: DecodedIdToken) => token.email!.endsWith('@regulus.cz');
+export const checkSlovakRegulus = (token: DecodedIdToken) => token.email!.endsWith('@regulus.sk');
 export const checkRegulusOrAdmin = (token: DecodedIdToken) => checkAdmin(token) || checkRegulus(token);
+export const checkAnyRegulusOrAdmin = (token: DecodedIdToken) => checkAdmin(token) || checkRegulus(token) || checkSlovakRegulus(token);
 
 export const getUsersByEmail = (emails: string[]) => promiseBy100(emails.map(email => ({ email })), ids => auth.getUsers(ids));
 export const getUserByEmail = (email: string) => auth.getUserByEmail(email);
