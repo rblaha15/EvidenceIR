@@ -100,7 +100,7 @@
                 </div>
                 <div class="offcanvas-body">
                     <BaseNav {t} />
-                    {#if page.route.id?.includes('[form]')}
+                    {#if page.route.id?.includes('[form=form]')}
                         <hr />
                         {#key page.url.pathname + page.url.search}
                             <div class="d-md-none toc">

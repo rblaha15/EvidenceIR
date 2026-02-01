@@ -30,7 +30,7 @@ export const load: PageLoad = async ({ params, url }) => {
 
 
     const { raw: viewData, other: viewOther } = await independentForm.getViewData?.(url) ?? {};
-    const { raw: editData, other: editOther } = await independentForm.getEditData?.(url, viewOther) ?? {};
+    const { raw: editData, other: editOther } = await independentForm.getEditData?.(url, viewOther as Record<never, unknown>) ?? {};
     const other = { ...viewOther, ...editOther };
 
     return {
