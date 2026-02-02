@@ -3,32 +3,31 @@
 /// <reference lib="esnext" />
 /// <reference lib="webworker" />
 
-import { build, files, version, prerendered } from '$service-worker';
-import languageCodes from '$lib/languageCodes';
+import { build, files, version, prerendered, base } from '$service-worker';
 
 // Create a unique cache name for this deployment
 const CACHE = `cache-${version}`;
 
 const ASSETS = [
+	base,
 	...build,
 	...files,
 	...prerendered,
-    ...[...languageCodes, ''].map(lang => `/${lang}`),
 ];
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
-sw.addEventListener('install', (event) => {
+sw.addEventListener('install', ev => {
 	// Create a new cache and add all value to it
 	async function addFilesToCache() {
 		const cache = await caches.open(CACHE);
 		await cache.addAll(ASSETS);
 	}
 
-	event.waitUntil(addFilesToCache());
+	ev.waitUntil(addFilesToCache());
 });
 
-sw.addEventListener('activate', (event) => {
+sw.addEventListener('activate', ev => {
 	// Remove previous cached data from disk
 	async function deleteOldCaches() {
 		for (const key of await caches.keys()) {
@@ -36,30 +35,30 @@ sw.addEventListener('activate', (event) => {
 		}
 	}
 
-	event.waitUntil(deleteOldCaches());
+	ev.waitUntil(deleteOldCaches());
 });
 
-sw.addEventListener('fetch', (event) => {
+sw.addEventListener('fetch', ev => {
 	// ignore POST requests etc
-	if (event.request.method !== 'GET') return;
+	if (ev.request.method !== 'GET') return;
 
 	async function respond() {
-		const url = new URL(event.request.url);
+		// const url = new URL(ev.request.url);
 		const cache = await caches.open(CACHE);
 
 		// `build`/`value` can always be served from the cache
-		if (files.includes(url.pathname) || build.includes(url.pathname)) {
-			const response = await cache.match(url.pathname);
-
-			if (response) {
-				return response;
-			}
-		}
+		// if (files.includes(url.pathname) || build.includes(url.pathname)) {
+		// 	const response = await cache.match(url.pathname);
+        //
+		// 	if (response) {
+		// 		return response;
+		// 	}
+		// }
 
 		// for everything else, try the network first, but
 		// fall back to the cache if we're offline
 		try {
-			const response = await fetch(event.request);
+			const response = await fetch(ev.request);
 
 			// if we're offline, fetch can return a value that is not a Response
 			// instead of throwing - and we can't pass this non-Response to respondWith
@@ -68,12 +67,12 @@ sw.addEventListener('fetch', (event) => {
 			}
 
 			if (response.status === 200) {
-				await cache.put(event.request, response.clone());
+				await cache.put(ev.request, response.clone());
 			}
 
 			return response;
 		} catch (err) {
-			const response = await cache.match(event.request);
+			const response = await cache.match(ev.request);
 
 			if (response) {
 				return response;
@@ -85,5 +84,5 @@ sw.addEventListener('fetch', (event) => {
 		}
 	}
 
-	event.respondWith(respond());
+	ev.respondWith(respond());
 });
