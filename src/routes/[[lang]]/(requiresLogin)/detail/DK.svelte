@@ -46,64 +46,67 @@
     };
 </script>
 
-<div class="d-flex flex-column gap-1 align-items-sm-start">
-    <button class="btn btn-info d-block" data-bs-target="#recommendations{type}Modal" data-bs-toggle="modal" onclick={() => {
+{#if ir.evidence.ir.chceVyplnitK.includes(type === 'TČ' ? 'heatPump' : 'solarCollector')}
+    <div class="d-flex flex-column gap-1 align-items-sm-start">
+        <button class="btn btn-info d-block" data-bs-target="#recommendations{type}Modal" data-bs-toggle="modal" onclick={() => {
         loading = false;
         error = false;
         f.executingCompany.displayErrorVeto = false;
         f.commissionDate.displayErrorVeto = false;
         initDK(data, 'create', ir, type);
     }}>
-        <Icon icon="alarm" />
-        {tr.settingsTitle(type)}
-    </button>
-    {#if $isUserAdmin && settings?.code}
-        <a tabindex="0" class="btn btn-secondary" target="_blank"
-           href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Frk~2F{settings?.code}">
-            <Icon icon="cloud_circle" />
-            {t.detail.openInDatabase}{$aA}
-        </a>
-    {/if}
-    {#if commissionDate}
-        <span>{tr.commissionedAt(type)}: {dateFromISO(commissionDate)}</span>
-    {/if}
-</div>
+            <Icon icon="alarm" />
+            {tr.settingsTitle(type)}
+        </button>
+        {#if $isUserAdmin && settings?.code}
+            <a tabindex="0" class="btn btn-secondary" target="_blank"
+               href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Frk~2F{settings?.code}">
+                <Icon icon="cloud_circle" />
+                {t.detail.openInDatabase}{$aA}
+            </a>
+        {/if}
+        {#if commissionDate}
+            <span>{tr.commissionedAt(type)}: {dateFromISO(commissionDate)}</span>
+        {/if}
+    </div>
 
-<div aria-hidden="true" aria-labelledby="recommendations{type}ModalLabel" class="modal fade" id="recommendations{type}Modal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="recommendations{type}ModalLabel">
-                    <Icon icon="alarm" />
-                    {tr.settingsTitle(type)}
-                </h1>
-                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
-            </div>
-            <div class="modal-body d-flex flex-column gap-3">
-                <Widget bind:widget={f.commissionDate} {data} {t} />
-                <Widget bind:widget={f.enabled} {data} {t} />
-                <Widget bind:widget={f.executingCompany} {data} {t} />
-                <Widget bind:widget={f.chosenCompany} {data} {t} />
-            </div>
-            <div class="modal-footer">
-                {#if error}
-                    <div class="text-danger">{@html t.form.somethingWentWrongContactUsHtml}</div>
-                {/if}
-                <div class="d-flex gap-1 align-items-center">
-                    {#if loading}
-                        <div class="spinner-border text-danger"></div>
+    <div aria-hidden="true" aria-labelledby="recommendations{type}ModalLabel" class="modal fade" id="recommendations{type}Modal"
+         tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="recommendations{type}ModalLabel">
+                        <Icon icon="alarm" />
+                        {tr.settingsTitle(type)}
+                    </h1>
+                    <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+                </div>
+                <div class="modal-body d-flex flex-column gap-3">
+                    <Widget bind:widget={f.commissionDate} {data} {t} />
+                    <Widget bind:widget={f.enabled} {data} {t} />
+                    <Widget bind:widget={f.executingCompany} {data} {t} />
+                    <Widget bind:widget={f.chosenCompany} {data} {t} />
+                </div>
+                <div class="modal-footer">
+                    {#if error}
+                        <div class="text-danger">{@html t.form.somethingWentWrongContactUsHtml}</div>
                     {/if}
-                    <button class="btn btn-warning" disabled={loading} onclick={save}>
-                        {#if f.enabled.value !== Boolean(settings) && !f.executingCompany.isError(data)}
-                            <Icon icon="send" />
+                    <div class="d-flex gap-1 align-items-center">
+                        {#if loading}
+                            <div class="spinner-border text-danger"></div>
                         {/if}
-                        {tr.save}
-                    </button>
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">
-                        {tr.cancel}
-                    </button>
+                        <button class="btn btn-warning" disabled={loading} onclick={save}>
+                            {#if f.enabled.value !== Boolean(settings) && !f.executingCompany.isError(data)}
+                                <Icon icon="send" />
+                            {/if}
+                            {tr.save}
+                        </button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">
+                            {tr.cancel}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+{/if}
