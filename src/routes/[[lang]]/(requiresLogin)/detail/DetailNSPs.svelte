@@ -7,7 +7,7 @@
     import { type Translations } from '$lib/translations';
     import { defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
     import { dataToRawData, type Raw } from '$lib/forms/Form';
-    import { type IRID, isSPDeleted, type SPID } from '$lib/helpers/ir';
+    import { endUserEmails, type IRID, isSPDeleted, type SPID } from '$lib/helpers/ir';
     import { InputWidget } from '$lib/forms/Widget.svelte';
     import defaultSP from '$lib/forms/SP/defaultSP';
     import type { FormSP } from '$lib/forms/SP/formSP.svelte';
@@ -19,10 +19,9 @@
     import type { FormIN } from '$lib/forms/IN/formIN';
     import defaultIN from '$lib/forms/IN/defaultIN';
     import type { LanguageCode } from '$lib/languageCodes';
-    import { endUserEmails } from '$lib/helpers/ir.ts';
 
     const { t, sps, lang }: {
-        t: Translations, sps: [Raw<FormNSP>, ...(Raw<FormNSP> | Deleted<SPID>)[]], lang: LanguageCode,
+        t: Translations, sps: (Raw<FormNSP> | Deleted<SPID>)[], lang: LanguageCode,
     } = $props();
     const td = $derived(t.detail);
 
@@ -40,17 +39,19 @@
     };
 
     const createCopy = () => {
+        const sp = sps[0] as Raw<FormNSP>;
         const newSP = {
             ...dataToRawData(defaultNSP()),
-            ...sps[0].omit(...protocolGroups),
-            ...sps[0].pick('system'),
+            ...sp.omit(...protocolGroups),
+            ...sp.pick('system'),
         };
         storable<typeof sps[0]>(NSP.storeName({})).set(newSP);
     };
     const createCopyIN = () => {
+        const sp = sps[0] as Raw<FormNSP>;
         const newIN = {
             ...dataToRawData(defaultIN()),
-            ...sps[0].omit(...protocolGroups),
+            ...sp.omit(...protocolGroups),
         };
         storable<Raw<FormIN>>(IN.storeName({ draft: false })).set(newIN);
     };
@@ -72,30 +73,33 @@
         </div>
     </div>
 
-    <div class="d-flex flex-column gap-3 align-items-sm-start">
-        <a class="btn btn-primary" href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].koncovyUzivatel).join(';')}`)} tabindex="0">
-            <Icon icon="attach_email" />
-            {td.sendDocuments}
-        </a>
-
-        <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>
-            <Icon icon="file_copy" />
-            {td.copyNSP}
-        </a>
-
-        {#if $isUserAdmin}
-            <a class="btn btn-warning" href={relUrl('/IN')} onclick={createCopyIN}>
-                <Icon icon="add_home_work" />
-                {td.copyNSPtoInstallation}{$aA}
+    {#if !isSPDeleted(sps[0])}
+        <div class="d-flex flex-column gap-3 align-items-sm-start">
+            <a class="btn btn-primary"
+               href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].koncovyUzivatel).join(';')}`)} tabindex="0">
+                <Icon icon="attach_email" />
+                {td.sendDocuments}
             </a>
 
-            <div class="d-flex flex-column gap-1 align-items-sm-start">
-                <Widget widget={newIRID} {t} data={{}} />
-                <button class="btn btn-danger d-block" onclick={transfer}>
-                    <Icon icon="drive_file_move" />
-                    {td.transferProtocols}{$aA}
-                </button>
-            </div>
-        {/if}
-    </div>
+            <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>
+                <Icon icon="file_copy" />
+                {td.copyNSP}
+            </a>
+
+            {#if $isUserAdmin}
+                <a class="btn btn-warning" href={relUrl('/IN')} onclick={createCopyIN}>
+                    <Icon icon="add_home_work" />
+                    {td.copyNSPtoInstallation}{$aA}
+                </a>
+
+                <div class="d-flex flex-column gap-1 align-items-sm-start">
+                    <Widget widget={newIRID} {t} data={{}} />
+                    <button class="btn btn-danger d-block" onclick={transfer}>
+                        <Icon icon="drive_file_move" />
+                        {td.transferProtocols}{$aA}
+                    </button>
+                </div>
+            {/if}
+        </div>
+    {/if}
 </div>

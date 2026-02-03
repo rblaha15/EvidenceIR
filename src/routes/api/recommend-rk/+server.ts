@@ -46,6 +46,7 @@ export const GET: RequestHandler = async ({ request, fetch }) => {
     const irs = await getIRs();
 
     for (const ir of irs) {
+        if (ir.deleted) continue
         const irid = extractIRIDFromRawData(ir.evidence);
         const today = new Date(new Date().toISOString().split('T')[0]);
         // const today = new Date(Date.UTC(2025, 10, 6));

@@ -9,6 +9,9 @@
     import Icon from '$lib/components/Icon.svelte';
     import { type FormGroupIR, irTypeAndNumber } from '$lib/forms/IN/defaultIN';
     import type { HeatPump } from '$lib/helpers/products';
+    import { serverTimestamp, Timestamp } from 'firebase/firestore';
+    import { get } from 'svelte/store';
+    import { currentUser } from '$lib/client/auth';
 
     const { t, ir, irid }: {
         t: Translations, ir: IR, irid: IRID,
@@ -73,6 +76,12 @@
                 await db.updateIRRecord(record.evidence, record.isDraft);
                 alsoChange = alsoChangeDefault;
             } else {
+                const user = get(currentUser)!;
+                record.deleted = false;
+                record.createdAt = serverTimestamp() as Timestamp;
+                record.changedAt = serverTimestamp() as Timestamp;
+                record.keysChangedAt = serverTimestamp() as Timestamp;
+                record.createdBy = { uid: user.uid, email: user.email! };
                 await db.addIR(record);
                 alsoChange = alsoChangeDefault;
                 const newRecord = await db.getIR(newIRID);
