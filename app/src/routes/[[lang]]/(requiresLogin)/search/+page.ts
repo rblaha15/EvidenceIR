@@ -9,7 +9,7 @@ import {
     type SPID,
     spName,
 } from '$lib/helpers/ir';
-import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
+import { checkAdmin, checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { browser } from '$app/environment';
 import { derived, readable } from 'svelte/store';
 import { error } from '@sveltejs/kit';
@@ -18,6 +18,9 @@ import { getTranslations } from '$lib/translations';
 import { waitUntil } from '$lib/helpers/stores';
 import { getAllIndependentProtocols, getAllIRs } from '$lib/client/incrementalUpdates';
 import { langEntryGenerator } from '$lib/helpers/paths';
+import type { IR } from '$lib/data';
+import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import type { Raw } from '$lib/forms/Form';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
@@ -30,6 +33,7 @@ export type Installation_PublicServiceProtocol = {
     name: string,
     sps: string[],
     draft: boolean,
+    deleted: boolean,
 } | {
     t: 'SP',
     id: SPID[],
@@ -37,6 +41,7 @@ export type Installation_PublicServiceProtocol = {
     name: string,
     sps: [],
     draft: boolean,
+    deleted: boolean,
 }
 
 export const load: PageLoad = async ({ parent }) => {
@@ -49,7 +54,8 @@ export const load: PageLoad = async ({ parent }) => {
     const installations = derived(
         await getAllIRs(),
         $irs => $irs == 'loading' ? null : $irs
-            .filter(ir => !ir.deleted)
+            .filter(ir => checkAdmin() || !ir.deleted)
+            .map(ir => ir as IR)
             .map(ir => ({
                 t: 'IR',
                 id: extractIRIDFromRawData(ir.evidence),
@@ -57,6 +63,7 @@ export const load: PageLoad = async ({ parent }) => {
                 label: irLabel(ir.evidence),
                 sps: ir.installationProtocols.map(p => spName(p.zasah)),
                 draft: ir.isDraft,
+                deleted: ir.deleted,
             } satisfies Installation_PublicServiceProtocol))
             .filter(i => i.id),
     );
@@ -67,7 +74,8 @@ export const load: PageLoad = async ({ parent }) => {
         : derived(
             await getAllIndependentProtocols(),
             $sps => $sps == 'loading' ? null : Object.entries($sps
-                .mapNotUndefined(sp => isSPDeleted(sp) ? undefined : sp)
+                .mapNotUndefined(sp => !checkAdmin() && isSPDeleted(sp) ? undefined : sp)
+                .map(sp => sp as Raw<FormNSP>)
                 .groupBy(sp => irLabel(sp)))
                 .map(([label, sps]) => ({
                     t: 'SP',
@@ -76,6 +84,7 @@ export const load: PageLoad = async ({ parent }) => {
                     label: label,
                     sps: [],
                     draft: false,
+                    deleted: sps.every(isSPDeleted),
                 } satisfies Installation_PublicServiceProtocol)),
         );
 
@@ -88,7 +97,9 @@ export const load: PageLoad = async ({ parent }) => {
             ([$installations, $protocols]) =>
                 [...$installations ?? [], ...$protocols ?? []]
                     .sort((a, b) => a.label.localeCompare(b.label))
-                    .sort((a, b) => (b.draft ? 1 : 0) - (a.draft ? 1 : 0)),
+                    .sort((a, b) =>
+                        (b.deleted ? -1 : b.draft ? 1 : 0) - (a.deleted ? -1 : a.draft ? 1 : 0)
+                    ),
         ),
     };
 };

@@ -6,11 +6,10 @@
     import DetailIR from './DetailIR.svelte';
     import DetailNSPs from './DetailNSPs.svelte';
     import Icon from '$lib/components/Icon.svelte';
-    import { detailIrUrl } from '$lib/helpers/runes.svelte';
-    import { Timestamp } from 'firebase/firestore';
-    import { datetimeFromISO } from '$lib/helpers/date';
+    import { detailIrUrl, relUrl } from '$lib/helpers/runes.svelte';
     import { isUserAdmin } from '$lib/client/auth';
     import { aA } from '$lib/helpers/stores';
+    import Dates from './Dates.svelte';
 
     let { data }: PageProps = $props();
     const { irid, spids, ir, sps, languageCode: lang, translations: t } = $derived(data);
@@ -35,6 +34,9 @@
         </h3>
     {:else}
         <h3 class="m-0">
+            {#if $ir && $ir.deleted || $sps.length && isSPDeleted($sps[0])}
+                <Icon icon="delete" class="text-danger" />
+            {/if}
             {#if irid}
                 {irNumberFromIRID(irid)}
             {:else if spids.length === 1}
@@ -68,19 +70,24 @@
         </div>
         {#if $isUserAdmin}
             <div class="d-flex flex-column align-items-end gap-1">
+                <a class="btn btn-secondary" href={relUrl(`/IN?view-irid=${irid}`)}
+                   tabindex="0">
+                    <Icon icon="preview" />
+                    {td.viewFilledData}{$aA}
+                </a>
                 <a tabindex="0" class="btn btn-secondary" target="_blank"
                    href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fir~2F{irid}">
                     <Icon icon="cloud_circle" />
                     {td.openInDatabase}{$aA}
                 </a>
-                {#if $ir.deletedAt && !('_seconds' in $ir.deletedAt)}
-                    {@const date = new Timestamp($ir.deletedAt.seconds, $ir.deletedAt.nanoseconds).toDate()}
-                    <span>Odstraněno: {datetimeFromISO(date.toISOString())} UTC{$aA}</span>
-                {/if}
             </div>
         {/if}
+
+        <div class="d-flex flex-column align-items-end">
+            <Dates ir={$ir} />
+        </div>
     {/if}
-    {#if spids && $sps.length && !isSPDeleted($sps[0])}
+    {#if spids && $sps.length}
         <DetailNSPs {t} {lang} sps={$sps} />
     {/if}
     {#if irid && $ir && !$ir.deleted}

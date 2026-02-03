@@ -7,7 +7,7 @@ import {
 } from '$lib/client/realtime';
 import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
-import db, { createInstallation } from '$lib/data';
+import db, { createInstallation, type IR } from '$lib/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
@@ -137,7 +137,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         if (!irid) return { other: { draft: false } };
 
         const ir = await db.getIR(irid);
-        return !ir || ir.deleted ? { other: { draft: false } } : { raw: ir.evidence, other: { draft: ir.isDraft } };
+        return !ir ? { other: { draft: false } } : { raw: (ir as IR).evidence, other: { draft: (ir as IR).isDraft } };
     },
     onMount: async (_, data, mode) => {
         await startTechniciansListening();

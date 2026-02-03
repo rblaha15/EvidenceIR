@@ -1,20 +1,20 @@
-import type { IR, RecommendationData, RecommendationState } from '$lib/data';
+import type { Deleted, IR, RecommendationData, RecommendationState } from '$lib/data';
 import { app } from '$lib/server/firebase';
 import { getFirestore, QueryDocumentSnapshot, type WithFieldValue } from 'firebase-admin/firestore';
-import type { IRID } from '$lib/helpers/ir';
+import type { IRID, SPID } from '$lib/helpers/ir';
 import type { DataNSP } from '$lib/forms/NSP/formNSP';
 import type { Raw } from '$lib/forms/Form';
 
 const firestore = app ? getFirestore(app) : getFirestore();
 
-const irCollection = firestore.collection('ir').withConverter<IR>({
+const irCollection = firestore.collection('ir').withConverter<IR | Deleted<IRID>>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR | Deleted<IRID>,
 });
 
-const spCollection = firestore.collection('sp').withConverter<Raw<DataNSP>>({
+const spCollection = firestore.collection('sp').withConverter<Raw<DataNSP> | Deleted<SPID>>({
     toFirestore: (modelObject: WithFieldValue<Raw<DataNSP>>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<DataNSP>,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<DataNSP> | Deleted<SPID>,
 });
 
 const rkCollection = firestore.collection('rk').withConverter<RecommendationData>({

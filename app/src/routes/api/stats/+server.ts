@@ -4,6 +4,9 @@ import { getAllIRs, getAllSPs } from '$lib/server/firestore';
 import { checkAdmin, checkToken, getUsersByID } from '$lib/server/auth';
 import { getAllLoyaltyProgramData } from '$lib/server/realtime';
 import { dev } from '$app/environment';
+import type { IR } from '$lib/data';
+import { isSPDeleted } from '$lib/helpers/ir';
+import type { FormNSP } from '$lib/forms/NSP/formNSP';
 
 export const GET: RequestHandler = async ({ url }) => {
     const t = url.searchParams.get('token');
@@ -16,8 +19,8 @@ export const GET: RequestHandler = async ({ url }) => {
         const from = new Date(url.searchParams.get('from') ?? error(400));
         const to = new Date(url.searchParams.get('to') ?? error(400));
 
-        const irs = await getAllIRs();
-        const nsps = await getAllSPs();
+        const irs = (await getAllIRs()).filter((ir): ir is IR => !ir.deleted);
+        const nsps = (await getAllSPs()).filter((sp): sp is Raw<FormNSP> => !isSPDeleted(sp));
 
         const allProtocols = [...irs.flatMap(ir => ir.installationProtocols), ...nsps];
 
