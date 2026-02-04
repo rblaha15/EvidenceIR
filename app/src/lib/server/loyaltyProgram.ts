@@ -1,7 +1,7 @@
 import { getLoyaltyProgramData, people, setLoyaltyProgramData } from '$lib/server/realtime';
 import type { IRID } from '$lib/helpers/ir';
 import type { DecodedIdToken } from 'firebase-admin/auth';
-import { getIR, setCreatedIRBy } from '$lib/server/firestore';
+import { getIR, setCreatedIRBy, setGrantedCommission } from '$lib/server/firestore';
 import {
     loyaltyPointRewards,
     type LoyaltyPointTriggerType,
@@ -71,6 +71,7 @@ export const processLoyaltyReward = async (
                 multiplier: (pumpCount - 1),
             }, commissioning);
         }
+        await setGrantedCommission(data.irid)
     } else if (isType(data, 'heatPumpYearlyCheck')) {
         const ir = await getIR(data.irid);
         if (!ir?.kontrolyTC?.[data.pump]?.[data.year]) return;
