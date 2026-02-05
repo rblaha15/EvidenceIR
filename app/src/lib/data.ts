@@ -1,90 +1,152 @@
-import type { Raw, RawForm } from '$lib/forms/Form';
+import type { Raw } from '$lib/forms/Form';
 import type { FormIN } from '$lib/forms/IN/formIN';
-import type { FormRKT } from '$lib/forms/RKT/formRKT.js';
+import type { FormRKT } from '$lib/forms/RKT/formRKT';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
-import { type Readable } from 'svelte/store';
 import type { FormUPS } from '$lib/forms/UPS/formUPS';
-import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
-import type { IRID, SPID } from '$lib/helpers/ir';
-import { offlineDatabase } from '$lib/client/offline.svelte.js';
+import type { FormSP } from '$lib/forms/SP/formSP.svelte';
+import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
-import { addToOfflineQueue } from '$lib/client/offlineQueue.svelte';
 import type { TC } from '$lib/forms/IN/defaultIN';
-import { flatDerived } from '$lib/helpers/stores';
 import type { FormFT } from '$lib/forms/FT/formFT';
 import { serverTimestamp, Timestamp } from 'firebase/firestore';
 import '$lib/extensions';
 import type { FormRKS } from '$lib/forms/RKS/formRKS';
-import { firestoreDatabase } from '$lib/client/firestore';
-import { type Database, databaseMethods, type ReadDatabase, type WriteDatabase } from '$lib/Database';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
 import type { User } from 'firebase/auth';
-import { getIsOnline, isOnline } from '$lib/client/realtimeOnline';
+import type { FormNSP } from '$lib/forms/NSP/formNSP';
 
 export type Year = number;
 
 export type RecommendationState = 'waiting' | 'sentRecommendation' | 'sentRequest';
-
 export type RecommendationSettings = {
     executingCompany: 'assembly' | 'commissioning' | 'regulus',
     state: RecommendationState,
     code?: string,
 };
 
-export type Deleted<ID extends IRID | SPID = IRID | SPID> = {
+export type IR = ExistingIR | DeletedIR;
+
+export interface DeletedIR extends BaseIR {
     deleted: true;
-    deletedAt: Timestamp;
-    id: ID;
-    movedTo?: ID;
+    meta: BaseIR['meta'] & {
+        deletedAt: Timestamp;
+        movedTo?: IRID;
+    };
 }
 
-export type IR = {
-    isDraft: boolean;
+export interface ExistingIR extends BaseIR {
     deleted: false;
-    createdAt?: Timestamp;
-    changedAt?: Timestamp;
-    keysChangedAt: Timestamp;
-    evidence: Raw<FormIN>;
-    uvedeniTC?: Raw<FormUPT>;
-    uvedeniSOL?: Raw<FormUPS>;
-    uvedeniFVE?: Raw<FormUPF>;
-    kontrolyTC: {
-        [P in TC]?: Record<Year, Raw<FormRKT | FormRKTL>>;
-    };
-    kontrolySOL?: Record<Year, Raw<FormRKS>>;
-    users: string[];
-    installationProtocols: Raw<FormSP>[];
-    faceTable?: Raw<FormFT>;
-    yearlyHeatPumpCheckRecommendation?: RecommendationSettings;
-    yearlySolarSystemCheckRecommendation?: RecommendationSettings;
-    createdBy?: {
-        uid: string;
-        email: string;
-        isFake?: boolean;
-    };
-    loyaltyProgram?: {
-        grantedCommission?: boolean;
-    };
-    heatPumpCommissionDate?: string;
-    solarSystemCommissionDate?: string;
-};
+}
 
-export const createInstallation = (
+interface BaseIR {
+    isDraft: boolean;
+    meta: {
+        id: IRID;
+        keysChangedAt: Timestamp;
+        changedAt?: Timestamp;
+        createdAt?: Timestamp;
+        createdBy?: {
+            uid: string;
+            email: string;
+            isFake?: boolean;
+        };
+        usersWithAccess: string[];
+        loyaltyProgram?: {
+            grantedCommission?: boolean;
+        };
+    };
+    IN: Raw<FormIN>;
+    UP: {
+        TC?: Raw<FormUPT>;
+        SOL?: Raw<FormUPS>;
+        FVE?: Raw<FormUPF>;
+        dateTC?: string;
+        dateSOL?: string;
+    };
+    RK: {
+        TC: { [_ in TC]?: { [_ in Year]?: Raw<FormRKT | FormRKTL> }; };
+        SOL?: Record<Year, Raw<FormRKS>>;
+        DK: {
+            TC?: RecommendationSettings;
+            SOL?: RecommendationSettings;
+        };
+    };
+    SPs: Raw<FormSP>[];
+    FT?: Raw<FormFT>;
+}
+
+export type NSP = ExistingNSP | DeletedNSP;
+
+export interface DeletedNSP extends BaseNSP {
+    deleted: true;
+    meta: BaseNSP['meta'] & {
+        deletedAt: Timestamp;
+    };
+}
+
+export interface ExistingNSP extends BaseNSP {
+    deleted: false;
+}
+
+interface BaseNSP {
+    meta: {
+        id: SPID;
+        changedAt?: Timestamp;
+        createdAt: Timestamp;
+        createdBy?: {
+            uid: string;
+            email: string;
+        };
+    };
+    NSP: Raw<FormNSP>;
+}
+
+export const newIR = (
     raw: Raw<FormIN>,
     user: User,
     isDraft: boolean,
-) => ({
+): ExistingIR => ({
     isDraft,
-    evidence: raw,
-    kontrolyTC: {},
-    users: [user.email!, raw.uvedeni.email, raw.montazka.email].distinct().filter(Boolean),
-    installationProtocols: [],
     deleted: false,
-    createdAt: serverTimestamp() as Timestamp,
-    changedAt: serverTimestamp() as Timestamp,
-    keysChangedAt: serverTimestamp() as Timestamp,
-    createdBy: { uid: user.uid, email: user.email! },
-} satisfies IR);
+    meta: {
+        id: extractIRIDFromRawData(raw),
+        keysChangedAt: serverTimestamp() as Timestamp,
+        changedAt: serverTimestamp() as Timestamp,
+        createdAt: serverTimestamp() as Timestamp,
+        createdBy: {
+            uid: user.uid,
+            email: user.email!,
+        },
+        usersWithAccess: [user.email!, raw.uvedeni.email, raw.montazka.email].distinct().filter(Boolean),
+        loyaltyProgram: {
+            grantedCommission: false,
+        },
+    },
+    IN: raw,
+    UP: {},
+    RK: {
+        TC: {},
+        DK: {},
+    },
+    SPs: [],
+});
+
+export const newNSP = (
+    raw: Raw<FormNSP>,
+    user: User,
+): ExistingNSP => ({
+    deleted: false,
+    meta: {
+        id: extractSPIDFromRawData(raw.zasah),
+        changedAt: serverTimestamp() as Timestamp,
+        createdAt: serverTimestamp() as Timestamp,
+        createdBy: {
+            uid: user.uid,
+            email: user.email!,
+        },
+    },
+    NSP: raw,
+});
 
 export type RecommendationData = {
     irid: IRID;
@@ -95,47 +157,26 @@ export type RecommendationData = {
     type: 'TČ' | 'SOL',
 };
 
-type GetAsStoreFunctionReturnType = ReturnType<Database[GetAsStoreFunction]> extends Readable<infer T> ? Readable<T> : never;
-const mergedStore = (name: GetAsStoreFunction, args: Parameters<Database[GetAsStoreFunction]>): GetAsStoreFunctionReturnType => flatDerived(
-    isOnline,
-    $isOnline => {
-        const db = $isOnline ? firestoreDatabase : offlineDatabase;
-        // @ts-expect-error TS doesn't know it's a tuple
-        return db[name](...args) as GetAsStoreFunctionReturnType;
+export const deletedIR = (
+    ir: IR,
+    movedTo?: IRID,
+): DeletedIR => ({
+    ...ir,
+    deleted: true,
+    meta: {
+        ...ir.meta,
+        deletedAt: serverTimestamp() as Timestamp,
+        ...movedTo ? { movedTo } : {},
     },
-    (_, $isOnline) => {
-        // console.log('Got value from the', name, 'store from the', $isOnline ? 'online' : 'offline', 'database')
+});
+
+export const deletedNSP = (
+    nsp: NSP,
+): DeletedNSP => ({
+    ...nsp,
+    deleted: true,
+    meta: {
+        ...nsp.meta,
+        deletedAt: serverTimestamp() as Timestamp,
     },
-);
-
-const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>): ReturnType<Database[F]> => {
-    // console.log('Executing', name, 'with args', ...args);
-
-    if (isGetAsStoreFunction(name)) {
-        return mergedStore(name, args as Parameters<Database[GetAsStoreFunction]>) as ReturnType<Database[F]>;
-    } else {
-        const db = getIsOnline() ? firestoreDatabase : offlineDatabase;
-        if (!getIsOnline()) addToOfflineQueue(name, args);
-
-        // @ts-expect-error TS doesn't know it's a tuple
-        return db[name](...args);
-    }
-};
-
-export type WriteFunction = keyof WriteDatabase;
-export const isWriteFunction = (name: keyof Database): name is WriteFunction =>
-    ['add', 'update', 'delete'].some(prefix => name.startsWith(prefix));
-
-export type GetAsStoreFunction = {
-    [F in keyof ReadDatabase]: F extends `get${string}AsStore` ? F : never;
-}[keyof ReadDatabase];
-export const isGetAsStoreFunction = (name: keyof Database): name is GetAsStoreFunction =>
-    name.endsWith('AsStore');
-
-const db: Database = databaseMethods.associateWith(name =>
-    (...args: Parameters<Database[typeof name]>) => decide(name, args),
-) as {
-    [F in typeof databaseMethods[number]]: Database[F];
-};
-
-export default db;
+});

@@ -2,7 +2,6 @@ import { startSparePartsListening, startTechniciansListening, type Technician, t
 import type { User } from 'firebase/auth';
 import { page } from '$app/state';
 import { spName } from '$lib/helpers/ir';
-import db from '$lib/data';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
@@ -15,6 +14,7 @@ import type { FormInfo } from '$lib/forms/FormInfo';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
 import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
 import { getIsOnline } from '$lib/client/realtimeOnline';
+import db from '$lib/Database';
 
 const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i: number }> = {
     type: 'IR',
@@ -28,16 +28,16 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
         const editIndex = url.searchParams.get('edit') as string | null;
         if (editIndex) {
             const i = Number(editIndex);
-            return { raw: ir.installationProtocols[i], other: { i } };
+            return { raw: ir.SPs[i], other: { i } };
         }
     },
     getViewData: (ir, url) => {
         const viewIndex = url.searchParams.get('view') as string | null;
         if (viewIndex) {
             const i = Number(viewIndex);
-            return { raw: ir.installationProtocols[i], other: { i } };
+            return { raw: ir.SPs[i], other: { i } };
         } else {
-            return { other: { i: ir.installationProtocols.length } };
+            return { other: { i: ir.SPs.length } };
         }
     },
     saveData: async (irid, raw, edit, _, editResult, t, send, __, { i }) => {
@@ -45,7 +45,7 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
         const ir = (await db.getIR(irid))!;
         if (ir.deleted) return false
 
-        if (!edit && getIsOnline() && ir.installationProtocols.some(p => spName(p.zasah) == name)) {
+        if (!edit && getIsOnline() && ir.SPs.some(p => spName(p.zasah) == name)) {
             editResult({ text: 'SP již existuje.', red: true, load: false });
             return false;
         }
@@ -53,7 +53,7 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
         if (edit) await db.updateServiceProtocol(irid, i, raw);
         else await db.addServiceProtocol(irid, raw);
 
-        if (!ir.heatPumpCommissionDate) await db.updateHeatPumpCommissionDate(irid, raw.system.datumUvedeni);
+        if (!ir.UP.dateTC) await db.updateHeatPumpCommissionDate(irid, raw.system.datumUvedeni);
 
         if (edit && !send) return true;
 
@@ -63,7 +63,7 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
                 ? `Upravený servisní protokol: ${name}`
                 : `Nový servisní protokol: ${name}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, url: page.url.origin + detailIrUrl(irid), discountReason: raw.fakturace.discountReason, e: ir.evidence },
+            props: { name: raw.zasah.clovek, url: page.url.origin + detailIrUrl(irid), discountReason: raw.fakturace.discountReason, e: ir.IN },
         });
 
         if (response!.ok) return true;
@@ -88,9 +88,8 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
         await startSparePartsListening();
         if (!p.zasah.datum.value) // Also in NSP
             p.zasah.datum.setValue(d, nowISO());
-        if (!p.system.datumUvedeni.value && ir.heatPumpCommissionDate) {
-            p.system.datumUvedeni.setValue(d, ir.heatPumpCommissionDate);
-        }
+        if (!p.system.datumUvedeni.value && ir.UP.dateTC)
+            p.system.datumUvedeni.setValue(d, ir.UP.dateTC);
     },
     storeEffects: [
         [(d, p, [$techniciansList, $currentUser], edit) => { // Also in NSP

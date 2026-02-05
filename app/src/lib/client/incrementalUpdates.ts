@@ -1,5 +1,5 @@
 import { storable } from '$lib/helpers/stores';
-import { extractIRID, extractSPID, type IRID, type SPID } from '$lib/helpers/ir';
+import { type IRID, type SPID } from '$lib/helpers/ir';
 import { get, writable } from 'svelte/store';
 import {
     clearLocalDatabase,
@@ -9,14 +9,12 @@ import {
 } from '$lib/client/offline.svelte';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { Timestamp } from 'firebase/firestore';
-import type { Raw } from '$lib/forms/Form';
-import type { FormNSP } from '$lib/forms/NSP/formNSP';
-import type { Deleted, IR } from '$lib/data';
+import type { IR, NSP } from '$lib/data';
 import { isOnline } from '$lib/client/realtimeOnline';
 
 type Millis = number;
 export const getAllIRs = async () => {
-    const store = writable<(IR | Deleted<IRID>)[] | 'loading'>('loading');
+    const store = writable<IR[] | 'loading'>('loading');
     const lastUpdatedChangedAtIR = storable<Millis>('lastUpdatedChangedAtIR', 500);
     const lastUpdatedDeletedAtIR = storable<Millis>('lastUpdatedDeletedAtIR', 500);
     const lastUpdatedChangedAtMillis = get(lastUpdatedChangedAtIR);
@@ -28,14 +26,14 @@ export const getAllIRs = async () => {
     store.set(currentOffline);
     firestoreDatabase.getChangedIRs(lastUpdatedChangedAt).then(changes => {
         firestoreDatabase.getDeletedIRs(lastUpdatedDeletedAt).then(deletes => {
-            const newList = [...currentOffline, ...changes, ...deletes].distinctBy(extractIRID);
+            const newList = [...currentOffline, ...changes, ...deletes].distinctBy(ir => ir.meta.id);
             store.set(newList);
-            odm.setAll('IR', newList.associateBy(extractIRID));
+            odm.setAll('IR', newList.associateBy(ir => ir.meta.id));
             if (changes.length) lastUpdatedChangedAtIR.set(
-                changes.map(ir => ir.keysChangedAt).maxOf(t => t.toMillis()),
+                changes.map(ir => ir.meta.keysChangedAt).maxOf(t => t.toMillis()),
             );
             if (deletes.length) lastUpdatedDeletedAtIR.set(
-                deletes.map(ir => ir.deletedAt).maxOf(t => t.toMillis()),
+                deletes.map(ir => ir.meta.deletedAt).maxOf(t => t.toMillis()),
             );
         });
     });
@@ -43,7 +41,7 @@ export const getAllIRs = async () => {
 };
 
 export const getAllIndependentProtocols = async () => {
-    const store = writable<(Raw<FormNSP> | Deleted<SPID>)[] | 'loading'>('loading');
+    const store = writable<NSP[] | 'loading'>('loading');
     const lastUpdatedChangedAtSP = storable<Millis>('lastUpdatedChangedAtSP', 500);
     const lastUpdatedDeletedAtSP = storable<Millis>('lastUpdatedDeletedAtSP', 500);
     const lastUpdatedChangedAtMillis = get(lastUpdatedChangedAtSP);
@@ -55,15 +53,14 @@ export const getAllIndependentProtocols = async () => {
     store.set(currentOffline);
     firestoreDatabase.getChangedIndependentProtocols(lastUpdatedChangedAt).then(changes => {
         firestoreDatabase.getDeletedIndependentProtocols(lastUpdatedDeletedAt).then(deletes => {
-            const newList = [...currentOffline, ...changes, ...deletes].distinctBy(extractSPID);
+            const newList = [...currentOffline, ...changes, ...deletes].distinctBy(nsp => nsp.meta.id);
             store.set(newList);
-            odm.setAll('SP', newList.associateBy(extractSPID));
-            odm.setAll('SP', newList.associateBy(extractSPID));
+            odm.setAll('SP', newList.associateBy(nsp => nsp.meta.id));
             if (changes.length) lastUpdatedChangedAtSP.set(
-                changes.map(ir => ir.zasah.createdAt).maxOf(t => t.toMillis()),
+                changes.map(ir => ir.meta.createdAt).maxOf(t => t.toMillis()),
             );
             if (deletes.length) lastUpdatedDeletedAtSP.set(
-                deletes.map(ir => ir.deletedAt).maxOf(t => t.toMillis()),
+                deletes.map(ir => ir.meta.deletedAt).maxOf(t => t.toMillis()),
             );
         });
     });
@@ -72,7 +69,7 @@ export const getAllIndependentProtocols = async () => {
 
 
 export const getStoreIR = (irid: IRID) => {
-    const store = writable<IR | Deleted<IRID> | undefined | 'loading'>('loading');
+    const store = writable<IR | undefined | 'loading'>('loading');
     getOfflineStoreIR(irid).subscribe(store.set);
     isOnline.subscribe($isOnline => {
         if ($isOnline) firestoreDatabase.getIR(irid).then(store.set);
@@ -82,7 +79,7 @@ export const getStoreIR = (irid: IRID) => {
 
 
 export const getStoreIndependentProtocol = (spid: SPID) => {
-    const store = writable<Raw<FormNSP> | Deleted<SPID> | undefined | 'loading'>('loading');
+    const store = writable<NSP | undefined | 'loading'>('loading');
     getOfflineStoreIndependentProtocol(spid).subscribe(store.set);
     isOnline.subscribe($isOnline => {
         if ($isOnline)

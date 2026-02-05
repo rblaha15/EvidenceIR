@@ -38,7 +38,7 @@ import { derived } from 'svelte/store';
 import { assemblyCompanies, commissioningCompanies } from '$lib/helpers/companies';
 import type { FormPlus } from '$lib/forms/Form';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
-import db from '$lib/data';
+import db from '$lib/Database';
 
 const jeFO = (d: UserForm<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserForm<never>) => jeFO(d);

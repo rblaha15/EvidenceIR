@@ -7,7 +7,6 @@ import {
 } from '$lib/client/realtime';
 import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
-import db, { createInstallation, type IR } from '$lib/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
@@ -27,10 +26,12 @@ import MailXML from '$lib/emails/MailXML.svelte';
 import { dataToRawData, type Raw } from '$lib/forms/Form';
 import { grantPoints } from '$lib/client/loyaltyProgram';
 import { getIsOnline } from '$lib/client/realtimeOnline';
+import db from '$lib/Database';
+import { newIR } from '$lib/data';
 
 const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string | null]], never, { draft: boolean }> = {
     type: '',
-    storeName: () => 'stored_data',
+    storeName: () => 'storedIN',
     defaultData: () => defaultIN(),
     saveData: async (raw, edit, data, editResult, t, send, draft) => {
         const errors = [data.ir.cislo, data.ir.typ] // Is here, because it's required even in the draft mode
@@ -60,8 +61,8 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
 
         const user = get(currentUser)!;
 
-        const newIr = createInstallation(raw, user, draft);
-        if (edit) await db.updateIRRecord(raw, draft);
+        const newIr = newIR(raw, user, draft);
+        if (edit) await db.updateIRRecord(irid, raw, draft);
         else await db.addIR(newIr);
 
         if (!draft) await grantPoints({ type: raw.vzdalenyPristup.chce ? 'connectRegulusRoute' : 'disconnectRegulusRoute', irid });
@@ -130,14 +131,14 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         if (!irid) return { other: { draft: false } };
 
         const ir = await db.getIR(irid);
-        return !ir || ir.deleted ? { other: { draft: false } } : { raw: ir.evidence, other: { draft: ir.isDraft } };
+        return !ir || ir.deleted ? { other: { draft: false } } : { raw: ir.IN, other: { draft: ir.isDraft } };
     },
     getViewData: async url => {
         const irid = url.searchParams.get('view-irid') as IRID | null;
         if (!irid) return { other: { draft: false } };
 
         const ir = await db.getIR(irid);
-        return !ir ? { other: { draft: false } } : { raw: (ir as IR).evidence, other: { draft: (ir as IR).isDraft } };
+        return !ir ? { other: { draft: false } } : { raw: ir.IN, other: { draft: ir.isDraft } };
     },
     onMount: async (_, data, mode) => {
         await startTechniciansListening();

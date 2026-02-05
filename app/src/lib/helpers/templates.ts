@@ -1,5 +1,4 @@
 import isString from 'lodash.isstring';
-import cs from '$lib/translations/cs';
 
 export type STemplate<T extends (number | string)[]> = [strings: readonly string[], keys: T]
 

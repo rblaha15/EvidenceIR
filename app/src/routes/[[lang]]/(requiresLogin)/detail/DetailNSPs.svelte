@@ -2,26 +2,27 @@
     import { detailIrUrl, detailSpUrl, relUrl } from '$lib/helpers/runes.svelte';
     import { isUserAdmin } from '$lib/client/auth';
     import Widget from '$lib/components/Widget.svelte';
-    import db, { type Deleted } from '$lib/data';
     import { goto } from '$app/navigation';
     import { type Translations } from '$lib/translations';
-    import { defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
+    import { defaultNSP } from '$lib/forms/NSP/formNSP';
     import { dataToRawData, type Raw } from '$lib/forms/Form';
-    import { endUserEmails, type IRID, isSPDeleted, type SPID } from '$lib/helpers/ir';
+    import { endUserEmails, type IRID } from '$lib/helpers/ir';
     import { InputWidget } from '$lib/forms/Widget.svelte';
     import defaultSP from '$lib/forms/SP/defaultSP';
     import type { FormSP } from '$lib/forms/SP/formSP.svelte';
     import DetailNSP from './DetailNSP.svelte';
     import { aA, storable } from '$lib/helpers/stores';
-    import NSP from '$lib/forms/NSP/infoNSP';
+    import infoNSP from '$lib/forms/NSP/infoNSP';
     import IN from '$lib/forms/IN/infoIN';
     import Icon from '$lib/components/Icon.svelte';
     import type { FormIN } from '$lib/forms/IN/formIN';
     import defaultIN from '$lib/forms/IN/defaultIN';
     import type { LanguageCode } from '$lib/languageCodes';
+    import type { ExistingNSP, NSP } from '$lib/data';
+    import db from '$lib/Database';
 
     const { t, sps, lang }: {
-        t: Translations, sps: (Raw<FormNSP> | Deleted<SPID>)[], lang: LanguageCode,
+        t: Translations, sps: NSP[], lang: LanguageCode,
     } = $props();
     const td = $derived(t.detail);
 
@@ -32,26 +33,26 @@
     });
     const transfer = async () => {
         await sps
-            .map(sp => isSPDeleted(sp) ? undefined : sp).filterNotUndefined()
-            .map(sp => db.addServiceProtocol(newIRID.value as IRID, sp.pick(...protocolGroups) as Raw<FormSP>))
+            .map(sp => sp.deleted ? undefined : sp).filterNotUndefined()
+            .map(sp => db.addServiceProtocol(newIRID.value as IRID, sp.NSP.pick(...protocolGroups) as Raw<FormSP>))
             .awaitAll();
         await goto(detailIrUrl(newIRID.value as IRID), { replaceState: true });
     };
 
     const createCopy = () => {
-        const sp = sps[0] as Raw<FormNSP>;
+        const sp = sps[0] as ExistingNSP;
         const newSP = {
             ...dataToRawData(defaultNSP()),
-            ...sp.omit(...protocolGroups),
-            ...sp.pick('system'),
+            ...sp.NSP.omit(...protocolGroups),
+            ...sp.NSP.pick('system'),
         };
-        storable<typeof sps[0]>(NSP.storeName({})).set(newSP);
+        storable<typeof sps[0]['NSP']>(infoNSP.storeName({})).set(newSP);
     };
     const createCopyIN = () => {
-        const sp = sps[0] as Raw<FormNSP>;
+        const sp = sps[0] as ExistingNSP;
         const newIN = {
             ...dataToRawData(defaultIN()),
-            ...sp.omit(...protocolGroups),
+            ...sp.NSP.omit(...protocolGroups),
         };
         storable<Raw<FormIN>>(IN.storeName({ draft: false })).set(newIN);
     };
@@ -61,11 +62,11 @@
     <div class="d-flex flex-column gap-3">
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#each sps as sp}
-                {#if !isSPDeleted(sp)}
+                {#if !sp.deleted}
                     <DetailNSP {sp} {lang} {t} />
                 {:else}
                     <div class="d-flex gap-3 align-items-center flex-wrap">
-                        <span>{sp.id.replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}</span>
+                        <span>{sp.meta.id.replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}</span>
                         <span>{td.deletedNSP}</span>
                     </div>
                 {/if}
@@ -73,10 +74,10 @@
         </div>
     </div>
 
-    {#if !isSPDeleted(sps[0])}
+    {#if !sps[0].deleted}
         <div class="d-flex flex-column gap-3 align-items-sm-start">
             <a class="btn btn-primary"
-               href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].koncovyUzivatel).join(';')}`)} tabindex="0">
+               href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].NSP.koncovyUzivatel).join(';')}`)} tabindex="0">
                 <Icon icon="attach_email" />
                 {td.sendDocuments}
             </a>

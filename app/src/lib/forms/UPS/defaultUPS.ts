@@ -7,7 +7,6 @@ import {
     SwitchWidget,
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
-import { dayISO } from '$lib/helpers/date';
 import { type FormUPS, type HeatTransferFluidType } from '$lib/forms/UPS/formUPS';
 import { defaultDK } from '$lib/forms/DK/formDK';
 

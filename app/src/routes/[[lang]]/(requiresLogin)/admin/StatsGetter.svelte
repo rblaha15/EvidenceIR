@@ -4,9 +4,9 @@
     import { getTranslations } from '$lib/translations';
     import { getToken } from '$lib/client/auth';
     import { dateFromISO, dayISO } from '$lib/helpers/date';
-    import { adminDescriptions, type LoyaltyPointRewardType, type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
+    import { adminDescriptions, type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
     import { detailIrUrl } from '$lib/helpers/runes.svelte';
-    import { datetimeFromISO } from '$lib/helpers/date.ts';
+    import { datetimeFromISO } from '$lib/helpers/date';
 
     let from = $state(new InputWidget({
         type: 'date', label: 'Od (včetně)', text: dayISO(),

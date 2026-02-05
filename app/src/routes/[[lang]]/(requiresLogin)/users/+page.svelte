@@ -5,8 +5,8 @@
     import { SearchWidget } from '$lib/forms/Widget.svelte.js';
         import Search from '$lib/components/widgets/Search.svelte';
     import { usersList } from '$lib/client/realtime';
-    import db from '$lib/data';
     import { derived } from 'svelte/store';
+    import db from '$lib/Database';
 
     const { data }: PageProps = $props();
 
@@ -24,7 +24,7 @@
 </script>
 
 {#if $ir && irid}
-    <h3 class="m-0">{irWholeName($ir.evidence)}</h3>
+    <h3 class="m-0">{irWholeName($ir.IN)}</h3>
 
     <div class="d-flex align-items-center gap-3">
         <Search bind:widget={w} data={undefined} {t} class="flex-grow-1" />
@@ -33,19 +33,19 @@
             type="submit"
             onclick={() => {
                 if (!w.value) return;
-				db.updateIRUsers(irid, [...new Set([...$ir.users, w.value])]);
+				db.updateIRUsers(irid, [...new Set([...$ir.meta.usersWithAccess, w.value])]);
 				w.setValue(undefined, null);
 			}}
         >{t.users.addUser}</button>
     </div>
     <div class="list-group list-group-flush">
-        {#each $ir.users as user}
+        {#each $ir.meta.usersWithAccess as user}
             <div class="list-group-item d-flex align-items-center gap-3">
                 {user}
                 <button
                     class="btn text-danger"
                     onclick={() => {
-						db.updateIRUsers(irid, $ir.users.toSpliced($ir.users.indexOf(user), 1));
+						db.updateIRUsers(irid, $ir.meta.usersWithAccess.toSpliced($ir.meta.usersWithAccess.indexOf(user), 1));
 					}}
                     aria-label={t.users.remove}
                 >

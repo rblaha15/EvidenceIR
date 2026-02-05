@@ -26,9 +26,9 @@ const calculateCompressorRuntime = ({ runtimeHoursPerYear, startupCountPerYear }
 };
 
 export const pdfRKTL: GetPdfData<'RKTL'> = async ({ data, t, pump, lastYear, addDoc, lang, fetch = window.fetch }) => {
-    const { kontrolyTC, evidence: e, uvedeniTC: u } = data;
+    const { RK: { TC: RK }, IN, UP: { TC: UP } } = data;
     const tk = t.rkt;
-    const originalChecks = kontrolyTC[pump]!;
+    const originalChecks = RK[pump]!;
     const originalLegacyChecks = originalChecks.filterValues((_, k) => isRKTL(k));
     const maxYear = Math.max(...originalChecks.keys().map(Number));
     const maxLegacyYear = Math.max(...originalLegacyChecks.keys().map(Number));
@@ -50,17 +50,17 @@ export const pdfRKTL: GetPdfData<'RKTL'> = async ({ data, t, pump, lastYear, add
         fetch,
     });
 
-    const montazka = await ares.getName(e.montazka.ico);
-    const pumpInfo = cascadePumps(e)[pump - 1];
+    const montazka = await ares.getName(IN.montazka.ico);
+    const pumpInfo = cascadePumps(IN)[pump - 1];
     const start = {
         Text1:
-            `${t.in.endCustomer}: ${endUserName(e.koncovyUzivatel)} – ${e.koncovyUzivatel.telefon} – ${e.koncovyUzivatel.email}\n` +
-            `${t.in.realizationLocation}: ${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}\n` +
-            `${t.in.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}\n` +
+            `${t.in.endCustomer}: ${endUserName(IN.koncovyUzivatel)} – ${IN.koncovyUzivatel.telefon} – ${IN.koncovyUzivatel.email}\n` +
+            `${t.in.realizationLocation}: ${IN.mistoRealizace.ulice}, ${IN.mistoRealizace.psc} ${IN.mistoRealizace.obec}\n` +
+            `${t.in.assemblyCompany}: ${IN.montazka.ico} ${montazka ? `(${montazka})` : ''}\n` +
             tk.pumpDetails(pumpInfo),
-        Text36: u?.os?.tlakEnOs ?? null,
-        Text37: u?.os?.tlakOs ?? null,
-        Text38: u?.os?.tlakEnTv ?? null,
+        Text36: UP?.os?.tlakEnOs ?? null,
+        Text37: UP?.os?.tlakOs ?? null,
+        Text38: UP?.os?.tlakEnTv ?? null,
         Text141: checks
             .mapValues((_, k) => k?.poznamky?.poznamka)
             .filterValues((_, p) => Boolean(p))
@@ -109,7 +109,7 @@ export const pdfRKTL: GetPdfData<'RKTL'> = async ({ data, t, pump, lastYear, add
     };
 };
 
-const compressorRuntimeArguments = (allChecks: Record<Year, Raw<FormRKT | FormRKTL>>) => {
+const compressorRuntimeArguments = (allChecks: { [_ in Year]?: Raw<FormRKT | FormRKTL> }) => {
     const argsHP = {
         runtimeHoursPerYear: allChecks.mapTo((_, k) => !k ? 0 : isRKTL(k)
             ? k.kontrolniUkonyRegulace.stavPocitadlaCelkovychProvoznichHodinKompresoru.toNumber() || 0
@@ -134,9 +134,9 @@ const compressorRuntimeArguments = (allChecks: Record<Year, Raw<FormRKT | FormRK
 };
 
 const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang }) => {
-    const { kontrolyTC, evidence: e, uvedeniTC: u } = data;
+    const { RK: { TC: RK }, IN: e, UP: { TC: UP } } = data;
     const tk = t.rkt;
-    const originalChecks = kontrolyTC[pump]!;
+    const originalChecks = RK[pump]!;
     const maxYear = Math.max(...originalChecks.keys().map(Number));
     const allYears = range(1, maxYear + 1) as Year[];
     const allChecks = allYears.associateWith(y => originalChecks[y]);
@@ -163,9 +163,9 @@ const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang
                 `${t.in.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}\n` +
                 tk.pumpDetails(pumpInfo), type: 'text',
         },
-        _tlak1: { value: u?.os?.tlakOs ?? null, type: 'text' },
-        _tlak2: { value: u?.os?.tlakEnOs ?? null, type: 'text' },
-        _tlak3: { value: u?.os?.tlakEnTv ?? null, type: 'text' },
+        _tlak1: { value: UP?.os?.tlakOs ?? null, type: 'text' },
+        _tlak2: { value: UP?.os?.tlakEnOs ?? null, type: 'text' },
+        _tlak3: { value: UP?.os?.tlakEnTv ?? null, type: 'text' },
         _poznamky: {
             value: [
                 checks

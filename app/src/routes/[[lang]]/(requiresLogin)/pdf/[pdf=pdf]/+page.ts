@@ -6,10 +6,7 @@ import { setTitle } from '$lib/helpers/globals';
 import { type Pdf, type PdfArgs, pdfInfo, type PdfParameters } from '$lib/pdf/pdf';
 import { generatePdfUrl } from '$lib/pdf/pdfGeneration';
 import { isLanguageCode } from '$lib/languages';
-import { isSPDeleted } from '$lib/helpers/ir';
-import type { IR } from '$lib/data';
-import type { FormNSP } from '$lib/forms/NSP/formNSP';
-import type { Raw } from '$lib/forms/Form';
+import type { IR, NSP } from '$lib/data';
 import { extractIDs, langAndPdfEntryGenerator } from '$lib/helpers/paths';
 import { getData } from '$lib/helpers/getData';
 
@@ -36,7 +33,7 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
 
     const data = await getData(id);
 
-    if (pdf.type == 'IR' && (!data.ir || data.ir.deleted) || pdf.type == 'SP' && (data.sps.length != 1 || isSPDeleted(data.sps[0])))
+    if (pdf.type == 'IR' && (!data.ir || data.ir.deleted) || pdf.type == 'SP' && (data.sps.length != 1 || data.sps[0].deleted))
         error(500, { message: 'Data not loaded' });
 
     const parameters = [...url.searchParams.entries()].toRecord().mapValues((_, v) => Number(v));
@@ -52,7 +49,7 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
         ...(parameters as unknown as PdfParameters<Pdf>),
         args: pdf,
         lang: language,
-        data: pdf.type == 'IR' ? data.ir! as IR : data.sps[0]! as Raw<FormNSP>,
+        data: pdf.type == 'IR' ? data.ir! as IR : data.sps[0]! as NSP,
         fetch,
     });
 

@@ -18,21 +18,20 @@ import type { Raw } from '$lib/forms/Form';
 import { get } from 'svelte/store';
 import { checkRegulusOrAdmin, currentUser } from './auth';
 import { analytics, firestore } from '../../hooks.client';
-import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, irWholeName, type SPID } from '$lib/helpers/ir';
-import { type Deleted, type IR } from '$lib/data';
-import { offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
+import { type IRID, irWholeName, type SPID } from '$lib/helpers/ir';
+import { offlineDatabase, offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
 import { deleteField, Query } from '@firebase/firestore';
-import type { FormNSP } from '$lib/forms/NSP/formNSP';
-import { type Database, databaseMethods } from '$lib/Database';
+import type { Database, ReadDatabase, WriteDatabase } from '$lib/Database';
 import type { FormIN } from '$lib/forms/IN/formIN';
+import { deletedIR, type DeletedIR, deletedNSP, type DeletedNSP, type ExistingIR, type ExistingNSP, type IR, type NSP } from '$lib/data';
 
-const irCollection = collection(firestore, 'ir').withConverter<IR | Deleted<IRID>>({
-    toFirestore: (modelObject: WithFieldValue<IR | Deleted<IRID>>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR | Deleted<IRID>,
+const irCollection = collection(firestore, 'ir').withConverter<IR>({
+    toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR,
 });
-const spCollection = collection(firestore, 'sp').withConverter<Raw<FormNSP> & { deleted: false } | Deleted<SPID>>({
-    toFirestore: (modelObject: WithFieldValue<Raw<FormNSP> & { deleted: false } | Deleted<SPID>>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<FormNSP> & { deleted: false } | Deleted<SPID>,
+const spCollection = collection(firestore, 'sp').withConverter<NSP>({
+    toFirestore: (modelObject: WithFieldValue<NSP>) => modelObject,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as NSP,
 });
 
 const checkCollection = collection(firestore, 'check');
@@ -60,9 +59,9 @@ const getSnps = async <T>(reference: Query<T>) => {
     }
 };
 
-const shouldUpdateKeyChangeIR = async (newIR: Raw<FormIN>, isDraft: boolean) => {
-    const oldIR = await odm.get('IR', extractIRIDFromRawData(newIR)) as IR;
-    return irWholeName(newIR) != irWholeName(oldIR.evidence) || isDraft != oldIR.isDraft;
+const shouldUpdateKeyChangeIR = async (irid: IRID, newIN: Raw<FormIN>, isDraft: boolean) => {
+    const oldIR = await odm.get('IR', irid) as ExistingIR;
+    return irWholeName(newIN) != irWholeName(oldIR.IN) || isDraft != oldIR.isDraft;
 };
 
 const addStampIR = (field: keyof IR | string, value: unknown) => ({
@@ -70,17 +69,7 @@ const addStampIR = (field: keyof IR | string, value: unknown) => ({
     changedAt: serverTimestamp() as Timestamp,
 });
 
-const existsIR = async (irid: IRID) => {
-    try {
-        await getDoc(checkDoc(irid));
-        return true;
-    } catch (e) {
-        if ((e as Record<string, string>)?.code == 'permission-denied') return false;
-        else throw e;
-    }
-};
-
-const baseDatabase: Database = {
+const readDatabase: ReadDatabase = {
     getIR: irid => getSnp(irDoc(irid))
         .thenAlso(v => odm.putOrDelete('IR', irid, v)),
     getChangedIRs: async lastUpdatedAt => {
@@ -88,179 +77,154 @@ const baseDatabase: Database = {
         const q = await checkRegulusOrAdmin() ? query(
             irCollection,
             where('deleted', '!=', true),
-            where('keysChangedAt', '>', lastUpdatedAt),
+            where('meta.keysChangedAt', '>', lastUpdatedAt),
         ) : query(
             irCollection,
-            where('users', 'array-contains', user?.email ?? ''),
+            where('meta.usersWithAccess', 'array-contains', user?.email ?? ''),
             where('deleted', '!=', true),
-            where('keysChangedAt', '>', lastUpdatedAt),
+            where('meta.keysChangedAt', '>', lastUpdatedAt),
         );
-        return await getSnps(q) as IR[];
+        return await getSnps(q) as ExistingIR[];
     },
     getDeletedIRs: async lastUpdatedAt => {
         const user = get(currentUser);
         const q = await checkRegulusOrAdmin() ? query(
             irCollection,
             where('deleted', '==', true),
-            where('deletedAt', '>', lastUpdatedAt),
+            where('meta.deletedAt', '>', lastUpdatedAt),
         ) : query(
             irCollection,
-            where('users', 'array-contains', user?.email ?? ''),
+            where('meta.usersWithAccess', 'array-contains', user?.email ?? ''),
             where('deleted', '==', true),
-            where('deletedAt', '>', lastUpdatedAt),
+            where('meta.deletedAt', '>', lastUpdatedAt),
         );
-        return await getSnps(q) as Deleted<IRID>[];
+        return await getSnps(q) as DeletedIR[];
     },
-    addIR: async ir => {
-        const irid = extractIRIDFromRawData(ir.evidence);
-        if (await existsIR(irid)) throw new Error(`IR ${irid} already exists`);
-        await setDoc(irDoc(irid), ir);
-        await odm.put('IR', irid, ir);
+    existsIR: async irid => {
+        try {
+            await getDoc(checkDoc(irid));
+            return true;
+        } catch (e) {
+            if ((e as Record<string, string>)?.code == 'permission-denied') return false;
+            else throw e;
+        }
     },
-    deleteIR: async (irid, movedTo) => {
-        const deleted: Deleted<IRID> = {
-            deleted: true, deletedAt: serverTimestamp() as Timestamp, id: irid,
-            ...movedTo ? { movedTo } : {},
-        };
-        await updateDoc(irDoc(irid), deleted);
-        await odm.update('IR', irid, ir => ({ ...ir, ...deleted }));
-    },
-    existsIR,
-    updateIRRecord: async (rawData, isDraft) => {
-        const irid = extractIRIDFromRawData(rawData);
-        await updateDoc(irDoc(irid), {
-            evidence: rawData, isDraft, changedAt: serverTimestamp() as Timestamp,
-            ...await shouldUpdateKeyChangeIR(rawData, isDraft) ? { keysChangedAt: serverTimestamp() as Timestamp } : {},
-        });
-        await updateDoc(irDoc(irid), `isDraft`, isDraft);
-        await odm.update('IR', irid, ir => ({ ...ir!, evidence: rawData, isDraft }));
-    },
-    addHeatPumpCheck: async (irid, pump, year, check) => {
-        await updateDoc(irDoc(irid), addStampIR(`kontrolyTC.${pump}.${year}`, check));
-        await odm.update('IR', irid, ir => {
-            if (ir.deleted) return ir;
-            ir!.kontrolyTC[pump] = ir!.kontrolyTC[pump] ?? {};
-            ir!.kontrolyTC[pump][year] = check;
-            return ir!;
-        });
-    },
-    addSolarSystemCheck: async (irid, year, check) => {
-        await updateDoc(irDoc(irid), addStampIR(`kontrolySOL.${year}`, check));
-        await odm.update('IR', irid, ir => {
-            if (ir.deleted) return ir;
-            ir!.kontrolySOL = ir!.kontrolySOL ?? {};
-            ir!.kontrolySOL[year] = check;
-            return ir!;
-        });
-    },
-    addServiceProtocol: async (irid, protocol) => {
-        const ir = await getSnp(irDoc(irid));
-        if (!ir || ir.deleted) return;
-        ir!.installationProtocols.push(protocol);
-        await updateDoc(irDoc(irid), {
-            installationProtocols: ir!.installationProtocols,
-            changedAt: serverTimestamp() as Timestamp,
-            keysChangedAt: serverTimestamp() as Timestamp,
-        });
-        await odm.put('IR', irid, ir!);
-    },
-    updateServiceProtocol: async (irid, index, protocol) => {
-        const ir = await getSnp(irDoc(irid));
-        if (!ir || ir.deleted) return;
-        ir!.installationProtocols[index] = protocol;
-        await updateDoc(irDoc(irid), addStampIR(`installationProtocols`, ir!.installationProtocols));
-        await odm.put('IR', irid, ir!);
-    },
-    updateHeatPumpCommissioningProtocol: async (irid, protocol) => {
-        await updateDoc(irDoc(irid), addStampIR(`uvedeniTC`, protocol));
-        await odm.update('IR', irid, ir => ({ ...ir!, uvedeniTC: protocol }));
-    },
-    updateHeatPumpCommissionDate: async (irid, date) => {
-        await updateDoc(irDoc(irid), addStampIR(`heatPumpCommissionDate`, date));
-        await odm.update('IR', irid, ir => ({ ...ir!, heatPumpCommissionDate: date }));
-    },
-    addSolarSystemCommissioningProtocol: async (irid, protocol) => {
-        await updateDoc(irDoc(irid), addStampIR(`uvedeniSOL`, protocol));
-        await odm.update('IR', irid, ir => ({ ...ir!, uvedeniSOL: protocol }));
-    },
-    updateSolarSystemCommissionDate: async (irid, date) => {
-        await updateDoc(irDoc(irid), addStampIR(`solarSystemCommissionDate`, date));
-        await odm.update('IR', irid, ir => ({ ...ir!, solarSystemCommissionDate: date }));
-    },
-    addPhotovoltaicSystemCommissioningProtocol: async (irid, protocol) => {
-        await updateDoc(irDoc(irid), addStampIR(`uvedeniFVE`, protocol));
-        await odm.update('IR', irid, ir => ({ ...ir!, uvedeniFVE: protocol }));
-    },
-    addFaceTable: async (irid, faceTable) => {
-        await updateDoc(irDoc(irid), addStampIR(`faceTable`, faceTable));
-        await odm.update('IR', irid, ir => ({ ...ir!, faceTable: faceTable }));
-    },
-    updateIRUsers: async (irid, users) => {
-        await updateDoc(irDoc(irid), addStampIR(`users`, users));
-        await odm.update('IR', irid, ir => ({ ...ir!, users: users }));
-    },
-    updateHeatPumpRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => {
-        const ir = await getSnp(irDoc(irid));
-        if (!ir || ir.deleted) return;
-        ir!.yearlyHeatPumpCheckRecommendation = enabled ? {
-            state: 'waiting',
-            ...ir!.yearlyHeatPumpCheckRecommendation ?? {},
-            executingCompany: executingCompany!,
-        } : undefined;
-        await updateDoc(irDoc(irid), addStampIR(`yearlyHeatPumpCheckRecommendation`, ir!.yearlyHeatPumpCheckRecommendation ?? deleteField()));
-        await odm.put('IR', irid, ir!);
-    },
-    updateSolarSystemRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => {
-        const ir = await getSnp(irDoc(irid));
-        if (!ir || ir.deleted) return;
-        ir!.yearlySolarSystemCheckRecommendation = enabled ? {
-            state: 'waiting',
-            ...ir!.yearlySolarSystemCheckRecommendation ?? {},
-            executingCompany: executingCompany!,
-        } : undefined;
-        await updateDoc(irDoc(irid), addStampIR(`yearlySolarSystemCheckRecommendation`, ir!.yearlySolarSystemCheckRecommendation ?? deleteField()));
-        await odm.put('IR', irid, ir!);
-    },
-    addIndependentServiceProtocol: async protocol => {
-        const spid = extractSPIDFromRawData(protocol.zasah);
-        await setDoc(spDoc(spid), {
-            ...protocol,
-            zasah: { ...protocol.zasah, createdAt: serverTimestamp() as Timestamp, changedAt: serverTimestamp() as Timestamp },
-            deleted: false,
-        });
-        await odm.put('SP', spid, protocol);
-    },
-    updateIndependentServiceProtocol: async protocol => {
-        const spid = extractSPIDFromRawData(protocol.zasah);
-        await updateDoc(spDoc(spid), { ...protocol, 'zasah.changedAt': serverTimestamp() as Timestamp, deleted: false });
-        await odm.put('SP', spid, protocol);
-    },
-    deleteIndependentProtocol: async spid => {
-        const deleted: Deleted<SPID> = { deleted: true, deletedAt: serverTimestamp() as Timestamp, id: spid };
-        await updateDoc(spDoc(spid), deleted);
-        await odm.update('SP', spid, sp => ({ ...sp, ...deleted }));
-    },
+
     getIndependentProtocol: spid => getSnp(spDoc(spid))
         .thenAlso(v => odm.putOrDelete('SP', spid, v)),
     getChangedIndependentProtocols: async lastUpdatedAt => await getSnps(query(
         spCollection,
         where('deleted', '!=', true),
-        where('zasah.createdAt', '>', lastUpdatedAt),
-    )) as Raw<FormNSP>[],
+        where('meta.createdAt', '>', lastUpdatedAt),
+    )) as ExistingNSP[],
     getDeletedIndependentProtocols: async lastUpdatedAt => await getSnps(query(
         spCollection,
         where('deleted', '==', true),
-        where('deletedAt', '>', lastUpdatedAt),
-    )) as Deleted<SPID>[],
+        where('meta.deletedAt', '>', lastUpdatedAt),
+    )) as DeletedNSP[],
 };
 
-export const firestoreDatabase: Database = databaseMethods.associateWith(name =>
+const writeDatabase: WriteDatabase = {
+    addIR: async ir => {
+        if (await readDatabase.existsIR(ir.meta.id)) throw new Error(`IR ${ir.meta.id} already exists`);
+        await setDoc(irDoc(ir.meta.id), ir);
+    },
+    deleteIR: async (irid, movedTo) => {
+        const ir = await readDatabase.getIR(irid);
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        await setDoc(irDoc(irid), deletedIR(ir, movedTo));
+    },
+    updateIRRecord: async (irid, rawData, isDraft) => await updateDoc(irDoc(irid), {
+        IN: rawData, isDraft, meta: {
+            changedAt: serverTimestamp() as Timestamp,
+            ...await shouldUpdateKeyChangeIR(irid, rawData, isDraft)
+                ? { keysChangedAt: serverTimestamp() as Timestamp } : {},
+        },
+    }),
+    addHeatPumpCheck: (irid, pump, year, check) =>
+        updateDoc(irDoc(irid), addStampIR(`RK.TC.${pump}.${year}`, check)),
+    addSolarSystemCheck: (irid, year, check) =>
+        updateDoc(irDoc(irid), addStampIR(`RK.SOL.${year}`, check)),
+    addServiceProtocol: async (irid, protocol) => {
+        const ir = await readDatabase.getIR(irid);
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
+        await updateDoc(irDoc(irid), {
+            SPs: [...ir.SPs, protocol],
+            meta: {
+                changedAt: serverTimestamp() as Timestamp,
+                keysChangedAt: serverTimestamp() as Timestamp,
+            },
+        });
+    },
+    updateServiceProtocol: (irid, index, protocol) =>
+        updateDoc(irDoc(irid), addStampIR(`SPs.${index}`, protocol)),
+    updateHeatPumpCommissioningProtocol: (irid, protocol) =>
+        updateDoc(irDoc(irid), addStampIR(`UP.TC`, protocol)),
+    updateHeatPumpCommissionDate: (irid, date) =>
+        updateDoc(irDoc(irid), addStampIR(`UP.dateTC`, date)),
+    addSolarSystemCommissioningProtocol: (irid, protocol) =>
+        updateDoc(irDoc(irid), addStampIR(`UP.SOL`, protocol)),
+    updateSolarSystemCommissionDate: (irid, date) =>
+        updateDoc(irDoc(irid), addStampIR(`UP.dateSOL`, date)),
+    addPhotovoltaicSystemCommissioningProtocol: (irid, protocol) =>
+        updateDoc(irDoc(irid), addStampIR(`UP.FVE`, protocol)),
+    addFaceTable: (irid, faceTable) =>
+        updateDoc(irDoc(irid), addStampIR(`FT`, faceTable)),
+    updateIRUsers: (irid, users) =>
+        updateDoc(irDoc(irid), addStampIR(`meta.usersWithAccess`, users)),
+    updateHeatPumpRecommendationsSettings: async (irid, enabled, executingCompany) => {
+        const ir = await getSnp(irDoc(irid));
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
+        const dk = enabled ? {
+            state: 'waiting',
+            ...ir.RK.DK.TC ?? {},
+            executingCompany: executingCompany!,
+        } : deleteField();
+        await updateDoc(irDoc(irid), addStampIR(`RK.DK.TC`, dk));
+    },
+    updateSolarSystemRecommendationsSettings: async (irid, enabled, executingCompany) => {
+        const ir = await getSnp(irDoc(irid));
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
+        const dk = enabled ? {
+            state: 'waiting',
+            ...ir.RK.DK.SOL ?? {},
+            executingCompany: executingCompany!,
+        } : deleteField();
+        await updateDoc(irDoc(irid), addStampIR(`RK.DK.SOL`, dk));
+    },
+    addIndependentServiceProtocol: async (nsp) => {
+        if (await readDatabase.getIndependentProtocol(nsp.meta.id)) throw new Error(`NSP ${nsp.meta.id} already exists`);
+        await setDoc(spDoc(nsp.meta.id), nsp);
+    },
+    updateIndependentServiceProtocol: (spid, protocol) => updateDoc(spDoc(spid), {
+        ...protocol, 'meta.changedAt': serverTimestamp() as Timestamp, deleted: false,
+    }),
+    deleteIndependentProtocol: async spid => {
+        const nsp = await readDatabase.getIndependentProtocol(spid);
+        if (!nsp) throw new Error(`NSP ${spid} doesn't exists`);
+        await setDoc(spDoc(spid), deletedNSP(nsp));
+    },
+};
+
+export const firestoreDatabase: Database = [...readDatabase.keys(), ...writeDatabase.keys()].associateWith(name =>
     (...args: Parameters<Database[typeof name]>) => {
         logEvent(analytics(), 'fetch_database', { name, args });
-        const func = baseDatabase[name];
-        // @ts-expect-error TS doesn't know it's a tuple
-        return func(...args);
+        if (name in readDatabase) {
+            const func = readDatabase[name as keyof ReadDatabase];
+            // @ts-expect-error TS doesn't know it's a tuple
+            return func(...args);
+        } else {
+            const func = writeDatabase[name as keyof WriteDatabase];
+            // @ts-expect-error TS doesn't know it's a tuple
+            func(...args).then(result => {
+                const func = offlineDatabase[name];
+                // @ts-expect-error TS doesn't know it's a tuple
+                func(...args);
+                return result;
+            });
+        }
     },
-) as {
-    [F in typeof databaseMethods[number]]: Database[F];
-};
+) as Database;

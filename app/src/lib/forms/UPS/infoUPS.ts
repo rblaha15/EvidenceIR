@@ -1,5 +1,4 @@
 import type { FormInfo } from '$lib/forms/FormInfo';
-import db from '$lib/data';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -10,8 +9,8 @@ import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { DataUPS, FormUPS } from '$lib/forms/UPS/formUPS';
 import defaultUPS from './defaultUPS';
 import { initDK, saveDK } from '$lib/forms/DK/formDK';
-import type { Widget } from '$lib/forms/Widget.svelte';
 import { dayISO } from '$lib/helpers/date';
+import db from '$lib/Database';
 
 const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
     type: 'IR',
@@ -30,10 +29,10 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit
-                ? `Změněno uvedení SOL do provozu k ${irName(ir.evidence.ir)}`
-                : `Vyplněno nové uvedení SOL do provozu k ${irName(ir.evidence.ir)}`,
+                ? `Změněno uvedení SOL do provozu k ${irName(ir.IN.ir)}`
+                : `Vyplněno nové uvedení SOL do provozu k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.evidence },
+            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.IN },
         });
 
         if (response!.ok) return;
@@ -52,11 +51,11 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations }),
     title: t => t.sol.title,
     getEditData: (ir, url) =>
-        url.searchParams.has('edit') ? { raw: ir.uvedeniSOL } : undefined,
+        url.searchParams.has('edit') ? { raw: ir.UP.SOL } : undefined,
     getViewData: (ir, url) =>
-        url.searchParams.has('view') ? { raw: ir.uvedeniSOL } : undefined,
+        url.searchParams.has('view') ? { raw: ir.UP.SOL } : undefined,
     onMount: async (data, form, mode, ir) => {
-        form.uvadeni.date.setValue(data, ir.solarSystemCommissionDate || dayISO());
+        form.uvadeni.date.setValue(data, ir.UP.dateSOL || dayISO());
         initDK(data, mode, ir, 'SOL')
     },
 });

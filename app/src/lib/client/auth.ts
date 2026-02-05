@@ -9,7 +9,6 @@ import {
 } from 'firebase/auth';
 import { derived, readonly, writable } from 'svelte/store';
 import { auth } from '../../hooks.client';
-import { getIsOnline } from '$lib/client/realtimeOnline';
 
 const _currentUser = writable(null as User | null);
 onAuthStateChanged(auth, (usr) => _currentUser.set(usr));

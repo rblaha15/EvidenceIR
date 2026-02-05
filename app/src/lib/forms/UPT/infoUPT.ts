@@ -1,6 +1,5 @@
 import type { FormInfo } from '$lib/forms/FormInfo';
 import defaultUPT from '$lib/forms/UPT/defaultUPT';
-import db from '$lib/data';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -10,10 +9,10 @@ import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { DataUPT, FormUPT } from '$lib/forms/UPT/formUPT';
 import { initDK, saveDK } from '$lib/forms/DK/formDK';
-import type { Widget } from '$lib/forms/Widget.svelte';
 import type { Raw } from '$lib/forms/Form';
 import { grantPoints } from '$lib/client/loyaltyProgram';
-import { dayISO, today } from '$lib/helpers/date';
+import { dayISO } from '$lib/helpers/date';
+import db from '$lib/Database';
 
 const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
     type: 'IR',
@@ -35,10 +34,10 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit
-                ? `Změněno uvedení TČ do provozu k ${irName(ir.evidence.ir)}`
-                : `Vyplněno nové uvedení TČ do provozu k ${irName(ir.evidence.ir)}`,
+                ? `Změněno uvedení TČ do provozu k ${irName(ir.IN.ir)}`
+                : `Vyplněno nové uvedení TČ do provozu k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.evidence },
+            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.IN },
         });
 
         if (response!.ok) return;
@@ -57,11 +56,11 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
     createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations }),
     title: t => t.tc.title,
     getEditData: (ir, url) =>
-        url.searchParams.has('edit') ? { raw: ir.uvedeniTC as Raw<FormUPT> } : undefined,
+        url.searchParams.has('edit') ? { raw: ir.UP.TC as Raw<FormUPT> } : undefined,
     getViewData: (ir, url) =>
-        url.searchParams.has('view') ? { raw: ir.uvedeniTC as Raw<FormUPT> } : undefined,
+        url.searchParams.has('view') ? { raw: ir.UP.TC as Raw<FormUPT> } : undefined,
     onMount: async (data, form, mode, ir) => {
-        form.uvadeni.date.setValue(data, ir.heatPumpCommissionDate || dayISO());
+        form.uvadeni.date.setValue(data, ir.UP.dateTC || dayISO());
         initDK(data, mode, ir, 'TČ');
     },
 };

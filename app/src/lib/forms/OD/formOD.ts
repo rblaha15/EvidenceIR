@@ -1,4 +1,4 @@
-import { FileWidget, InputWidget, PhotoSelectorWidget, TextWidget } from '../Widget.svelte.js';
+import { FileWidget, InputWidget, PhotoSelectorWidget } from '../Widget.svelte.js';
 import type { Form } from '$lib/forms/Form';
 
 export interface FormOD extends Form<FormOD> {

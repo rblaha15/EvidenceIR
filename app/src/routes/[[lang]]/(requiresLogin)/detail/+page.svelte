@@ -2,7 +2,7 @@
     import type { PageProps } from './$types';
     import { page } from '$app/state';
     import { setTitle } from '$lib/helpers/globals.js';
-    import { irLabel, irNumberFromIRID, irWholeName, isSPDeleted } from '$lib/helpers/ir';
+    import { irLabel, irNumberFromIRID, irWholeName } from '$lib/helpers/ir';
     import DetailIR from './DetailIR.svelte';
     import DetailNSPs from './DetailNSPs.svelte';
     import Icon from '$lib/components/Icon.svelte';
@@ -26,15 +26,15 @@
             {#if $ir.isDraft}
                 <Icon icon="design_services" class="text-warning" />
             {/if}
-            {irWholeName($ir.evidence)}
+            {irWholeName($ir.IN)}
         </h3>
-    {:else if $sps.length && !isSPDeleted($sps[0])}
+    {:else if $sps.length && !$sps[0].deleted}
         <h3 class="m-0">
-            {irLabel($sps[0])}
+            {irLabel($sps[0].NSP)}
         </h3>
     {:else}
         <h3 class="m-0">
-            {#if $ir && $ir.deleted || $sps.length && isSPDeleted($sps[0])}
+            {#if $ir && $ir.deleted || $sps.length && $sps[0].deleted}
                 <Icon icon="delete" class="text-danger" />
             {/if}
             {#if irid}
@@ -62,8 +62,8 @@
     {#if $ir && $ir.deleted}
         <div>{td.sorrySomethingWentWrong}</div>
         <div>
-            {#if $ir.movedTo}
-                {@html td.movedIRHtml({ link: detailIrUrl($ir.movedTo) })}
+            {#if $ir.meta.movedTo}
+                {@html td.movedIRHtml({ link: detailIrUrl($ir.meta.movedTo) })}
             {:else}
                 {td.deletedIR}
             {/if}
@@ -84,7 +84,7 @@
         {/if}
 
         <div class="d-flex flex-column align-items-end">
-            <Dates ir={$ir} />
+            <Dates data={$ir} />
         </div>
     {/if}
     {#if spids && $sps.length}

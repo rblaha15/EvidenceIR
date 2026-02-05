@@ -1,20 +1,18 @@
-import type { Deleted, IR, RecommendationData, RecommendationState } from '$lib/data';
+import type { IR, NSP, RecommendationData, RecommendationState } from '$lib/data';
 import { app } from '$lib/server/firebase';
 import { getFirestore, QueryDocumentSnapshot, type WithFieldValue } from 'firebase-admin/firestore';
-import type { IRID, SPID } from '$lib/helpers/ir';
-import type { DataNSP } from '$lib/forms/NSP/formNSP';
-import type { Raw } from '$lib/forms/Form';
+import type { IRID } from '$lib/helpers/ir';
 
 const firestore = app ? getFirestore(app) : getFirestore();
 
-const irCollection = firestore.collection('ir').withConverter<IR | Deleted<IRID>>({
+const irCollection = firestore.collection('ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR | Deleted<IRID>,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR,
 });
 
-const spCollection = firestore.collection('sp').withConverter<Raw<DataNSP> | Deleted<SPID>>({
-    toFirestore: (modelObject: WithFieldValue<Raw<DataNSP>>) => modelObject,
-    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as Raw<DataNSP> | Deleted<SPID>,
+const spCollection = firestore.collection('sp').withConverter<NSP>({
+    toFirestore: (modelObject: WithFieldValue<NSP>) => modelObject,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as NSP,
 });
 
 const rkCollection = firestore.collection('rk').withConverter<RecommendationData>({
@@ -53,7 +51,7 @@ export const getAllSPs = () => spCollection.get().then(
 );
 
 export const getIR = (irid: IRID) => irCollection.doc(irid).get().then(s => s.data());
-export const setCreatedIRBy = (irid: IRID, createdBy: IR['createdBy']) =>
+export const setCreatedIRBy = (irid: IRID, createdBy: IR['meta']['createdBy']) =>
     irCollection.doc(irid).update('createdBy', createdBy);
 export const setGrantedCommission = (irid: IRID) =>
     irCollection.doc(irid).update('loyaltyProgram.grantedCommission', true);

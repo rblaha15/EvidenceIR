@@ -1,9 +1,9 @@
 import { FileWidget, InputWidget, PhotoSelectorWidget, TextWidget } from '$lib/forms/Widget.svelte';
 import type { FormOD } from './formOD';
-import { cervenka, receiver } from '$lib/client/email';
+import { cervenka } from '$lib/client/email';
 import { currentUser } from '$lib/client/auth';
 import { get } from 'svelte/store';
-import type { FormGroupPlus, FormPlus } from '$lib/forms/Form';
+import type { FormPlus } from '$lib/forms/Form';
 import { emailRegExp, multiple, separatorsRegExp } from '$lib/forms/IN/defaultIN';
 
 const joinWithLastAnd = (l: string[], and: string) =>
