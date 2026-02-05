@@ -1,10 +1,10 @@
-import type { FormIN, IRSubTypes, IRTypes, UserForm } from '$lib/forms/IN/formIN';
+import type { FormIN, IRTypes, UserForm } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
 
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
-import type { Deleted, IR } from '$lib/data';
 import { separatorsRegExp } from '$lib/forms/IN/defaultIN';
+import type { IR } from '$lib/data';
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno
@@ -201,12 +201,6 @@ export const extractSPIDFromRawData = (zasah: Raw<GenericFormSP<never>['zasah']>
     const technik = zasah.inicialy.trim();
     return `${technik}-${datum}-${hodina}-${minuta}`;
 };
-export const extractIRID = (ir: IR | Deleted<IRID>): IRID =>
-    ir.deleted ? ir.id : extractIRIDFromRawData(ir.evidence);
-export const isSPDeleted = (sp: Raw<FormNSP> | Deleted<SPID>): sp is Deleted<SPID> =>
-    'deleted' in sp && Boolean(sp.deleted);
-export const extractSPID = (sp: Raw<FormNSP> | Deleted<SPID>): SPID =>
-    isSPDeleted(sp) ? sp.id as SPID : extractSPIDFromRawData(sp.zasah);
 
 export const supportsOnlyCTC = (t: IRTypes | null) => t == 'IR 10' || t == 'IR 12' || t == 'IR 30' || t == 'ctc';
 export const supportsMACAddresses = (t: IRTypes | null) => t == 'IR 10' || t == 'IR 12' || t == 'IR 30';
@@ -214,7 +208,7 @@ export const isMACAddressTypeIR12 = (t: IRTypes | null) => t == 'IR 12' || t == 
 export const isMACAddressTypeIR10 = (t: IRTypes | null) => t == 'IR 10';
 export const isCTC = (t: IRTypes | null) => t == 'ctc';
 export const doesNotSupportHeatPumps = (t: IRTypes | null) => t == 'other';
-export const doesNotHaveIRNumber = (t: IR['evidence']['ir']['typ']) => t.first == 'other' || t.first == 'SOREL' || (t.first == 'ctc' && t.second == 'EcoLogic EXT');
+export const doesNotHaveIRNumber = (t: IR['IN']['ir']['typ']) => t.first == 'other' || t.first == 'SOREL' || (t.first == 'ctc' && t.second == 'EcoLogic EXT');
 export const supportsRemoteAccess = (t: IRTypes | null) => t != 'other' && t != 'SOREL' && t != 'ctc' && t != 'Thermona';
 export const isBox = (t: IRTypes | null) => t == 'IR RegulusBOX' || t == 'IR RegulusHBOX' || t == 'IR RegulusHBOX K';
 export const hasIndoorUnit = (t: IRTypes | null) => isBox(t) || t == 'Thermona';

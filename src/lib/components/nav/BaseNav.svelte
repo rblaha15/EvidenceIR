@@ -4,9 +4,7 @@
     import { detailIrUrl, detailSpUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { getForm } from '$lib/forms/forms';
     import type { IRID, SPID } from '$lib/helpers/ir';
-    import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
-    import { invalidateAll } from '$app/navigation';
-    import { aA, aR } from '$lib/helpers/stores';
+    import { isUserRegulusOrAdmin } from '$lib/client/auth';
     import Icon from '$lib/components/Icon.svelte';
 
     const { t }: { t: Translations } = $props();

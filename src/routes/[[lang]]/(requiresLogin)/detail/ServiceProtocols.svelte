@@ -1,6 +1,5 @@
 <script lang="ts">
     import { type IRID, spName } from '$lib/helpers/ir';
-    import db, { type IR } from '$lib/data';
     import type { Translations } from '$lib/translations';
     import { iridUrl } from '$lib/helpers/runes.svelte';
     import PDFLink from './PDFLink.svelte';
@@ -10,17 +9,19 @@
     import { aR } from '$lib/helpers/stores';
     import Icon from '$lib/components/Icon.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
+    import type { ExistingIR } from '$lib/data';
+    import db from '$lib/Database';
 
     const {
         irid, ir, lang, t,
     }: {
-        irid: IRID, ir: IR, lang: LanguageCode, t: Translations,
+        irid: IRID, ir: ExistingIR, lang: LanguageCode, t: Translations,
     } = $props();
     const td = $derived(t.detail);
 
     const copySP = (i: number) => async () => {
         const ja = $techniciansList.find(t => $currentUser?.email == t.email);
-        const p = ir.installationProtocols[i];
+        const p = ir.SPs[i];
         await db.addServiceProtocol(irid!, {
             ...p,
             fakturace: {
@@ -29,6 +30,7 @@
                 jak: null,
                 invoiceParts: [],
                 discount: '',
+                discountReason: '',
             },
             zasah: {
                 ...p.zasah,
@@ -41,9 +43,9 @@
 </script>
 
 <h4 class="m-0">{td.serviceProtocols}{$aR}</h4>
-{#if ir.installationProtocols.length}
+{#if ir.SPs.length}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
-        {#each ir.installationProtocols as p, i}
+        {#each ir.SPs as p, i}
             {#snippet duplicateButton()}
                 <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#duplicateModal-{i}">
                     <Icon icon="file_copy" />
@@ -90,6 +92,6 @@
 <div class="d-flex align-items-center gap-3 flex-wrap flex-sm-nowrap">
     <a class="btn btn-primary" href={iridUrl('/SP')} tabindex="0">
         <Icon icon="add" />
-        {ir.installationProtocols.length ? td.fillInAnotherProtocol : td.fillInProtocol}
+        {ir.SPs.length ? td.fillInAnotherProtocol : td.fillInProtocol}
     </a>
 </div>

@@ -1,10 +1,10 @@
 import type { OpenPdfOptions, Pdf } from '$lib/pdf/pdf';
 import type { Form } from '$lib/forms/Form';
 import type { IRID } from '$lib/helpers/ir';
-import db from '$lib/data';
 import { detailIrUrl } from '$lib/helpers/runes.svelte.js';
 import type { FormInfo, IndependentFormInfo } from '$lib/forms/FormInfo';
 import { error } from '@sveltejs/kit';
+import db from '$lib/Database';
 
 export const removeDependency = async <
     D,
@@ -39,7 +39,7 @@ export const removeDependency = async <
         openPdf: openPdf ? async (_raw, other) => ({
             ...openPdf(other), irid,
         } as OpenPdfOptions<P>) : undefined,
-        createWidgetData: (data, other) => createWidgetData(ir.evidence, data, ir, other),
+        createWidgetData: (data, other) => createWidgetData(ir.IN, data, ir, other),
         onMount: (d, f, m, o) => onMount?.(d, f, m, ir, o),
     };
 };

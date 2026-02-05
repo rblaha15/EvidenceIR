@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Translations } from '$lib/translations';
-    import { type IR } from '$lib/data';
+    import { type ExistingIR } from '$lib/data';
     import { type IRID, supportsRemoteAccess } from '$lib/helpers/ir';
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { aA, aR } from '$lib/helpers/stores';
@@ -11,23 +11,23 @@
     import type { LanguageCode } from '$lib/languageCodes';
 
     const { t, ir, irid, lang }: {
-        t: Translations, ir: IR, irid: IRID, lang: LanguageCode
+        t: Translations, ir: ExistingIR, irid: IRID, lang: LanguageCode
     } = $props();
     const td = $derived(t.detail);
 </script>
 
-{#if ir.evidence.vzdalenyPristup.chce}
+{#if ir.IN.vzdalenyPristup.chce}
     <PDFLink name={t.rr.name} {t} {lang} link="RR" data={ir} {irid} />
 {/if}
-{#if supportsRemoteAccess(ir.evidence.ir.typ.first)}
+{#if supportsRemoteAccess(ir.IN.ir.typ.first)}
     <PDFLink name={t.nnr.title} {t} {lang} link="NNR" data={ir} {irid} />
 {/if}
-{#if ir.evidence.ir.typ.second === 'TRS6 K'}
+{#if ir.IN.ir.typ.second === 'TRS6 K'}
     <PDFLink name={t.nnt.title} {t} {lang} link="NNT" data={ir} />
 {/if}
-{#if ir.evidence.ir.chceVyplnitK.includes('heatPump') && ir.evidence.tc.model !== 'airTHERM 10'}
+{#if ir.IN.ir.chceVyplnitK.includes('heatPump') && ir.IN.tc.model !== 'airTHERM 10'}
     <PDFLink
-        disabled={!ir.uvedeniTC?.uvadeni?.typZaruky} name={t.tc.name} {t} {lang} link="UPT"
+        disabled={!ir.UP.TC?.uvadeni?.typZaruky} name={t.tc.name} {t} {lang} link="UPT"
         data={ir} {irid} additionalButton={{
             href: iridUrl('/UPT'),
             text: t.tc.commission,
@@ -39,18 +39,18 @@
             href: iridUrl(`/UPT/?edit`),
         }] : undefined}
     />
-    {#each cascadePumps(ir.evidence) as tc}
+    {#each cascadePumps(ir.IN) as tc}
         <PDFLink name={t.zlt.name(tc)} {t} {lang} link="ZLT" data={ir} pump={tc.N} {irid} />
     {/each}
-    {#each cascadePumps(ir.evidence) as tc}
+    {#each cascadePumps(ir.IN) as tc}
         <PDFLink
-            name={t.rkt.name(tc)} {t} {lang} link={hasRKTL(ir.kontrolyTC[tc.N]) ? 'RKTL' : 'RKT'} data={ir} pump={tc.N} {irid}
-            disabled={!ir.kontrolyTC[tc.N]?.keys()?.length} additionalButton={{
+            name={t.rkt.name(tc)} {t} {lang} link={hasRKTL(ir.RK.TC[tc.N]) ? 'RKTL' : 'RKT'} data={ir} pump={tc.N} {irid}
+            disabled={!ir.RK.TC[tc.N]?.keys()?.length} additionalButton={{
                 show: true,
                 href: iridUrl(`/RKT?pump=${tc.N}`),
                 text: t.rkt.fillOut(tc),
-                important: ir.yearlyHeatPumpCheckRecommendation?.state === 'sentRequest',
-            }} dropdownItems={$isUserAdmin ? ir.kontrolyTC[tc.N]?.entries().flatMap(([y, k]) => [{
+                important: ir.RK.DK.TC?.state === 'sentRequest',
+            }} dropdownItems={$isUserAdmin ? ir.RK.TC[tc.N]?.entries().flatMap(([y, k]) => [{
                 text: `${t.rkt.year} ${y}`,
             }, {
                 color: 'warning',
@@ -61,9 +61,9 @@
         />
     {/each}
 {/if}
-{#if ir.evidence.ir.chceVyplnitK.includes('solarCollector')}
+{#if ir.IN.ir.chceVyplnitK.includes('solarCollector')}
     <PDFLink
-        disabled={!ir.uvedeniSOL} name={t.sol.name} {t} {lang}
+        disabled={!ir.UP.SOL} name={t.sol.name} {t} {lang}
         link="UPS" data={ir} {irid} additionalButton={{
             href: iridUrl('/UPS'),
             text: t.sol.commission,
@@ -78,12 +78,12 @@
     <PDFLink name={t.zls.name} {t} {lang} link="ZLS" data={ir} {irid} />
     <PDFLink
         name={t.rks.name} {t} {lang} link="RKS" data={ir} {irid}
-        disabled={!ir.kontrolySOL?.keys()?.length} additionalButton={{
+        disabled={!ir.RK.SOL?.keys()?.length} additionalButton={{
             show: true,
             href: iridUrl(`/RKS`),
             text: t.rks.fillOut,
-            important: ir.yearlySolarSystemCheckRecommendation?.state === 'sentRequest',
-        }} dropdownItems={$isUserAdmin ? ir.kontrolySOL?.keys().flatMap(y => [{
+            important: ir.RK.DK.SOL?.state === 'sentRequest',
+        }} dropdownItems={$isUserAdmin ? ir.RK.SOL?.keys().flatMap(y => [{
             text: `${t.rks.year} ${y}`,
         }, {
             color: 'warning',
@@ -93,9 +93,9 @@
         }]) : undefined}
     />
 {/if}
-{#if ir.evidence.ir.chceVyplnitK.includes('photovoltaicPowerPlant')}
+{#if ir.IN.ir.chceVyplnitK.includes('photovoltaicPowerPlant')}
     <PDFLink
-        disabled={!ir.uvedeniFVE}
+        disabled={!ir.UP.FVE}
         name={t.fve.name} {t} {lang} link="UPF" data={ir} {irid} additionalButton={{
             href: iridUrl('/UPF'),
             text: t.fve.commission,
@@ -103,10 +103,10 @@
         }}
     />
 {/if}
-{#if ir.evidence.ir.typ.first === 'IR 14'}
+{#if ir.IN.ir.typ.first === 'IR 14'}
     <PDFLink
         name={t.ft.title} {t} {lang} link="FT" data={ir} {irid}
-        disabled={!ir.faceTable} additionalButton={{
+        disabled={!ir.FT} additionalButton={{
             href: iridUrl('/FT'),
             text: t.ft.setUp,
         }}

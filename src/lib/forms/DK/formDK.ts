@@ -2,14 +2,15 @@ import { CheckboxWidget, InputWidget, RadioWidget, TextWidget, TitleWidget, Widg
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import ares, { regulusCRN } from '$lib/helpers/ares';
-import { extractIRIDFromRawData, irName, irWholeName } from '$lib/helpers/ir';
-import db, { type IR } from '$lib/data';
+import { irName, irWholeName } from '$lib/helpers/ir';
+import { type IR } from '$lib/data';
 import { cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
 import MailDK from '$lib/emails/MailDK.svelte';
+import db from '$lib/Database';
 
 export type DataDK<D extends DataDK<D>> = {
     evidence: Raw<FormIN>,
@@ -59,8 +60,8 @@ export const initDK = <D extends DataDK<D>>(
     ir: IR,
     type: 'TČ' | 'SOL',
 ) => {
-    const date = type == 'TČ' ? ir.heatPumpCommissionDate : ir.solarSystemCommissionDate;
-    const settings = type == 'TČ' ? ir.yearlyHeatPumpCheckRecommendation : ir.yearlySolarSystemCheckRecommendation;
+    const date = type == 'TČ' ? ir.UP.dateTC : ir.UP.dateSOL;
+    const settings = type == 'TČ' ? ir.RK.DK.TC : ir.RK.DK.SOL;
     console.log(settings);
     data.dk.commissionDate.setValue(data, date || '');
     if (settings) {
@@ -76,32 +77,31 @@ export const initDK = <D extends DataDK<D>>(
 export const saveDK = async <D extends DataDK<D>>(ir: IR, form: FormPartDK<D>, type: 'TČ' | 'SOL') => {
     const enabled = form.enabled.value;
     const companyType = form.executingCompany.value;
-    const irid = extractIRIDFromRawData(ir.evidence);
     if (type == 'TČ') {
-        if (!ir.heatPumpCommissionDate) await db.updateHeatPumpCommissionDate(irid, form.commissionDate.value);
-        await db.updateHeatPumpRecommendationsSettings(irid, enabled, form.executingCompany.value);
+        if (!ir.UP.dateTC) await db.updateHeatPumpCommissionDate(ir.meta.id, form.commissionDate.value);
+        await db.updateHeatPumpRecommendationsSettings(ir.meta.id, enabled, form.executingCompany.value);
     } else {
-        if (!ir.solarSystemCommissionDate) await db.updateSolarSystemCommissionDate(irid, form.commissionDate.value);
-        await db.updateSolarSystemRecommendationsSettings(irid, enabled, form.executingCompany.value);
+        if (!ir.UP.dateSOL) await db.updateSolarSystemCommissionDate(ir.meta.id, form.commissionDate.value);
+        await db.updateSolarSystemRecommendationsSettings(ir.meta.id, enabled, form.executingCompany.value);
     }
-    const settings = type == 'TČ' ? ir.yearlyHeatPumpCheckRecommendation : ir.yearlySolarSystemCheckRecommendation;
+    const settings = type == 'TČ' ? ir.RK.DK.TC : ir.RK.DK.SOL;
     if (enabled == Boolean(settings) || companyType == settings?.executingCompany) return true;
 
     const getCompany = async () => {
-        const crn = companyType == 'assembly' ? ir.evidence.montazka.ico : ir.evidence.uvedeni.ico;
+        const crn = companyType == 'assembly' ? ir.IN.montazka.ico : ir.IN.uvedeni.ico;
         const a = await ares.getName(crn, fetch);
         return a ? `${a} (${crn})` : crn;
     };
     const company = companyType ? companyType == 'regulus' ? 'Firma Regulus' : await getCompany() : null;
-    const name = irWholeName(ir.evidence);
+    const name = irWholeName(ir.IN);
     const user = get(currentUser)!;
     const response = await sendEmail({
         ...defaultAddresses(cervenka),
         subject: enabled
-            ? `Zapnuto upozorňování na RK ${type} u ${irName(ir.evidence.ir)}`
-            : `Zrušeno upozorňování na RK ${type} u ${irName(ir.evidence.ir)}`,
+            ? `Zapnuto upozorňování na RK ${type} u ${irName(ir.IN.ir)}`
+            : `Zrušeno upozorňování na RK ${type} u ${irName(ir.IN.ir)}`,
         component: MailDK,
-        props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), company, irWholeName: name },
+        props: { name: user.email!, url: page.url.origin + detailIrUrl(ir.meta.id), company, irWholeName: name },
     });
     console.log(response);
 

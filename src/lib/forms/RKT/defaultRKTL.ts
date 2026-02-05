@@ -1,12 +1,11 @@
 import { CheckboxWidget, CounterWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte';
-import type { DataRKT, FormRKT } from '$lib/forms/RKT/formRKT.js';
-import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
+import type { DataRKTL, FormRKTL } from '$lib/forms/RKT/formRKTL';
 
 export default (y: number, done: number[]): FormRKTL => ({
     info: {
         osoba: new InputWidget({ label: t => t.rkt.performingPerson }),
         datum: new InputWidget({ label: t => t.rkt.checkDate, type: 'date' }),
-        year: new CounterWidget<DataRKT, true>({
+        year: new CounterWidget<DataRKTL, true>({
             label: t => t.rkt.checkYear, min: 1, chosen: y, max: Number.POSITIVE_INFINITY, hideInRawData: true,
             validate: v => !done.includes(v), onError: t => t.rkt.yearAlreadyFilled,
         })

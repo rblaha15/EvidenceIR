@@ -11,7 +11,6 @@ import {
 import { type SparePart } from '$lib/client/realtime';
 import { type Form, type Raw } from '$lib/forms/Form';
 import type { IR } from '$lib/data';
-import type { Timestamp } from 'firebase/firestore';
 
 export type SparePartWidgetGroup<D> = {
     dil: SearchWidget<D, SparePart, true>,
@@ -47,8 +46,6 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
         zaruka: RadioWidget<D, `warrantyCommon` | `warrantyExtended`>,
     }
     zasah: {
-        createdAt: HiddenValueWidget<D, Timestamp>,
-        changedAt: HiddenValueWidget<D, Timestamp>,
         datum: InputWidget<D>,
         clovek: InputWidget<D>,
         inicialy: InputWidget<D>,

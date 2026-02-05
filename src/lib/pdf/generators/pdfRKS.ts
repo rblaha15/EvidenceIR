@@ -8,9 +8,9 @@ import type { Year } from '$lib/data';
 import { range } from '$lib/extensions';
 
 const pdfRKS: GetPdfData<'RKS'> = async ({ data, t, lastYear, addDoc, lang }) => {
-    const { kontrolySOL, evidence: e, uvedeniSOL: u } = data;
+    const { RK: { SOL: originalChecks }, IN, UP: { SOL: UP } } = data;
     const tk = t.rks;
-    const originalChecks = kontrolySOL!
+    if (!originalChecks) throw new Error('RK SOL not filled');
     const maxYear = Math.max(...originalChecks.keys().map(Number));
     const allYears = range(1, maxYear + 1) as Year[];
     const startYear = lastYear ? lastYear + 1 : allYears.find(y => originalChecks[y])!;
@@ -22,16 +22,16 @@ const pdfRKS: GetPdfData<'RKS'> = async ({ data, t, lastYear, addDoc, lang }) =>
         data, lang, args: pdfInfo.RKS, lastYear: nextStartYear - 1 as Year,
     });
 
-    const montazka = await ares.getName(e.montazka.ico);
+    const montazka = await ares.getName(IN.montazka.ico);
     const start = {
         Text1:
-            `${t.in.endCustomer}: ${endUserName(e.koncovyUzivatel)} – ${e.koncovyUzivatel.telefon} – ${e.koncovyUzivatel.email}\n` +
-            `${t.in.realizationLocation}: ${e.mistoRealizace.ulice}, ${e.mistoRealizace.psc} ${e.mistoRealizace.obec}\n` +
-            `${t.in.assemblyCompany}: ${e.montazka.ico} ${montazka ? `(${montazka})` : ''}\n` +
-            tk.systemDetails({ type: e.sol.typ, count: e.sol.pocet }),
-        Text30: u?.sol.tlakKapaliny ? u.sol.tlakKapaliny + ' ' + t.units.bar : null,
-        Text31: u?.sol.tlakEnSol ? u.sol.tlakEnSol + ' ' + t.units.bar : null,
-        Text32: u?.sol.tlakEnTv ? u.sol.tlakEnTv + ' ' + t.units.bar : null,
+            `${t.in.endCustomer}: ${endUserName(IN.koncovyUzivatel)} – ${IN.koncovyUzivatel.telefon} – ${IN.koncovyUzivatel.email}\n` +
+            `${t.in.realizationLocation}: ${IN.mistoRealizace.ulice}, ${IN.mistoRealizace.psc} ${IN.mistoRealizace.obec}\n` +
+            `${t.in.assemblyCompany}: ${IN.montazka.ico} ${montazka ? `(${montazka})` : ''}\n` +
+            tk.systemDetails({ type: IN.sol.typ, count: IN.sol.pocet }),
+        Text30: UP?.sol.tlakKapaliny ? UP.sol.tlakKapaliny + ' ' + t.units.bar : null,
+        Text31: UP?.sol.tlakEnSol ? UP.sol.tlakEnSol + ' ' + t.units.bar : null,
+        Text32: UP?.sol.tlakEnTv ? UP.sol.tlakEnTv + ' ' + t.units.bar : null,
         Text141: checks
             .mapValues((_, k) => k?.poznamky?.poznamka)
             .filterValues((_, p) => Boolean(p))

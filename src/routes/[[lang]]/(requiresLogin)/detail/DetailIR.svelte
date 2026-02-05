@@ -3,7 +3,6 @@
     import { endUserEmails, type IRID } from '$lib/helpers/ir';
     import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { getTranslations, type Translations } from '$lib/translations';
-    import db, { type IR } from '$lib/data';
     import ServiceProtocols from './ServiceProtocols.svelte';
     import { goto } from '$app/navigation';
     import ChangeIRID from './ChangeIRID.svelte';
@@ -16,13 +15,12 @@
     import type { LanguageCode } from '$lib/languageCodes';
     import DocumentsIR from './DocumentsIR.svelte';
     import { createFileUrl, downloadFile } from '$lib/helpers/files';
-    import { datetimeFromISO } from '$lib/helpers/date';
-    import { Timestamp } from 'firebase/firestore';
-    import PDFLink from './PDFLink.svelte';
     import Dates from './Dates.svelte';
+    import type { ExistingIR } from '$lib/data';
+    import db from '$lib/Database';
 
     const { t, ir, lang, irid }: {
-        t: Translations, ir: IR, lang: LanguageCode, irid: IRID,
+        t: Translations, ir: ExistingIR, lang: LanguageCode, irid: IRID,
     } = $props();
     const td = $derived(t.detail);
 
@@ -32,7 +30,7 @@
     };
 
     const download = async () => {
-        const xml = xmlIN(rawDataToData(defaultIN(), ir.evidence), getTranslations('cs'));
+        const xml = xmlIN(rawDataToData(defaultIN(), ir.IN), getTranslations('cs'));
         const blob = new Blob([xml], {
             type: 'application/xml',
         });
@@ -62,7 +60,7 @@
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#if !ir.isDraft}
                 <a class="btn btn-primary"
-                   href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.evidence.koncovyUzivatel).join(';')}`)}
+                   href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.IN.koncovyUzivatel).join(';')}`)}
                    tabindex="0">
                     <Icon icon="attach_email" />
                     {td.sendDocuments}
@@ -141,6 +139,6 @@
             <DK {ir} {irid} {t} type="SOL" />
         {/if}
 
-        <Dates {ir} />
+        <Dates data={ir} />
     </div>
 </div>

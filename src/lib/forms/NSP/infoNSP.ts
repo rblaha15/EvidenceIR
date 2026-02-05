@@ -11,19 +11,25 @@ import { nowISO } from '$lib/helpers/date';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { extractSPIDFromRawData, isSPDeleted, type SPID, spName } from '$lib/helpers/ir';
-import db from '$lib/data';
+import { extractSPIDFromRawData, type SPID, spName } from '$lib/helpers/ir';
 import { type DataNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
+import db from '$lib/Database';
+import { newNSP } from '$lib/data';
+import { get } from 'svelte/store';
 
 const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null]], 'NSP'> = {
     type: '',
     storeName: () => 'stored_new_SP',
     defaultData: defaultNSP,
     saveData: async (raw, edit, _, editResult, t, send) => {
-        if (edit) await db.updateIndependentServiceProtocol(raw);
-        else await db.addIndependentServiceProtocol(raw);
+        const spid = extractSPIDFromRawData(raw.zasah);
+
+        const user = get(currentUser)!;
+
+        if (edit) await db.updateIndependentServiceProtocol(spid, raw);
+        else await db.addIndependentServiceProtocol(newNSP(raw, user));
 
         if (edit && !send) return true;
 
@@ -31,7 +37,7 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
             ...defaultAddresses(),
             subject: `Nový servisní protokol: ${spName(raw.zasah)}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, url: page.url.origin + detailSpUrl([extractSPIDFromRawData(raw.zasah)]), discountReason: raw.fakturace.discountReason, e: raw },
+            props: { name: raw.zasah.clovek, url: page.url.origin + detailSpUrl([spid]), discountReason: raw.fakturace.discountReason, e: raw },
         });
 
         if (response!.ok) return true;
@@ -64,14 +70,14 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         if (!spid) return undefined;
 
         const sp = await db.getIndependentProtocol(spid);
-        return !sp || isSPDeleted(sp) ? undefined : { raw: sp };
+        return !sp || sp.deleted ? undefined : { raw: sp.NSP };
     },
     getViewData: async url => {
         const spid = url.searchParams.get('view-spid') as SPID | null;
         if (!spid) return undefined;
 
         const sp = await db.getIndependentProtocol(spid);
-        return !sp || isSPDeleted(sp) ? undefined : { raw: sp };
+        return !sp ? undefined : { raw: sp.NSP };
     },
     storeEffects: [
         [(_, f, [$techniciansList, $currentUser], edit) => { // From SP

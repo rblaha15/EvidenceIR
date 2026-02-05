@@ -1,6 +1,6 @@
 import { get, type Translations } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
-import type { IR, Year } from '$lib/data';
+import type { ExistingIR, ExistingNSP, Year } from '$lib/data';
 import type { PdfGenerationData } from '$lib/pdf/pdfGeneration';
 import RKT, { pdfRKTL as RKTL } from '$lib/pdf/generators/pdfRKT';
 import RKS from '$lib/pdf/generators/pdfRKS';
@@ -13,12 +13,8 @@ import UPS from '$lib/pdf/generators/pdfUPS';
 import SP, { pdfCP as CP, pdfNSP as NSP, pdfPS as PS } from '$lib/pdf/generators/pdfSP';
 import UPF from '$lib/pdf/generators/pdfUPF';
 import FT from '$lib/pdf/generators/pdfFT';
-import type { Raw } from '$lib/forms/Form';
-import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { TC } from '$lib/forms/IN/defaultIN';
-import { type IRID, irName, type SPID } from '$lib/helpers/ir';
-import type { FormIN } from '$lib/forms/IN/formIN';
-import type { FormSP } from '$lib/forms/SP/formSP.svelte';
+import { extractSPIDFromRawData, type IRID, irName, type SPID } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import type { LanguageCode } from '$lib/languageCodes';
 
@@ -220,7 +216,7 @@ export type Pdf<T extends 'IR' | 'SP' | '' = 'IR' | 'SP' | ''> = {
 }[keyof AllPdf];
 
 type TypeOfPdf<P extends Pdf> = AllPdf[P];
-export type DataOfPdf<P extends Pdf> = { IR: IR, SP: Raw<FormNSP>, '': Record<never, never> }[TypeOfPdf<P>];
+export type DataOfPdf<P extends Pdf> = { IR: ExistingIR, SP: ExistingNSP, '': Record<never, never> }[TypeOfPdf<P>];
 export type PdfID<P extends Pdf> = { IR: { irid: IRID; spid?: undefined }, SP: { spid: SPID; irid?: undefined }, '': { spid?: undefined; irid?: undefined } }[TypeOfPdf<P>];
 
 export type OpenPdfOptions<P extends Pdf> = {
@@ -280,24 +276,32 @@ type PdfParams = {
 export type PdfParameters<P extends Pdf> = P extends keyof PdfParams ? PdfParams[P] : {};
 
 export const generalizeServiceProtocol = (
-    e: Raw<FormIN>, p: Raw<FormSP>, t: Translations,
+    meta: ExistingIR['meta'], IN: ExistingIR['IN'], SP: ExistingIR['SPs'][number], t: Translations,
 ) => ({
-    ...e,
-    ...p,
-    system: {
-        ...p.system,
-        popis:
-            irName(e.ir) +
-            (e.ir.cisloBox ? `; BOX: ${e.ir.cisloBox}` : '') +
-            (e.tanks?.accumulation || e.tanks?.water ? '\n' : '') +
-            (e.tanks?.accumulation ? `Nádrž: ${e.tanks.accumulation}` : '') +
-            (e.tanks?.accumulation && e.tanks?.water ? '; ' : '') +
-            (e.tanks?.water ? `Zásobník: ${e.tanks.water}` : '') +
-            (e.ir.chceVyplnitK.includes('solarCollector') ? `\nSOL: ${e.sol.typ} – ${e.sol.pocet}x` : '') +
-            (e.rek?.typ ? `\nREK: ${e.rek.typ}` : '') +
-            (e.fve?.pocet ? `\nFVE: ${get(t.in.fve, e.fve.typ)} – ${e.fve.pocet}x` : '') +
-            (e.fve?.akumulaceDoBaterii ? `; baterie: ${e.fve.typBaterii} – ${e.fve.kapacitaBaterii} kWh` : '') +
-            (e.jine?.popis ? `\nJiné zařízení: ${e.jine.popis}` : '') +
-            (e.tc.model ? '\n' + cascadePumps(e).map(t.sp.pumpDetails).join('; ') : ''),
+    deleted: false,
+    meta: {
+        ...meta,
+        id: extractSPIDFromRawData(SP.zasah),
+        createdAt: meta.createdAt || meta.keysChangedAt,
     },
-}) satisfies Raw<FormNSP>;
+    NSP: {
+        ...IN,
+        ...SP,
+        system: {
+            ...SP.system,
+            popis:
+                irName(IN.ir) +
+                (IN.cisloBox ? `; BOX: ${IN.cisloBox}` : '') +
+                (IN.tanks?.accumulation || IN.tanks?.water ? '\n' : '') +
+                (IN.tanks?.accumulation ? `Nádrž: ${IN.tanks.accumulation}` : '') +
+                (IN.tanks?.accumulation && IN.tanks?.water ? '; ' : '') +
+                (IN.tanks?.water ? `Zásobník: ${IN.tanks.water}` : '') +
+                (IN.ir.chceVyplnitK.includes('solarCollector') ? `\nSOL: ${IN.sol.typ} – ${IN.sol.pocet}x` : '') +
+                (IN.rek?.typ ? `\nREK: ${IN.rek.typ}` : '') +
+                (IN.fve?.pocet ? `\nFVE: ${get(t.in.fve, IN.fve.typ)} – ${IN.fve.pocet}x` : '') +
+                (IN.fve?.akumulaceDoBaterii ? `; baterie: ${IN.fve.typBaterii} – ${IN.fve.kapacitaBaterii} kWh` : '') +
+                (IN.jine?.popis ? `\nJiné zařízení: ${IN.jine.popis}` : '') +
+                (IN.tc.model ? '\n' + cascadePumps(IN).map(t.sp.pumpDetails).join('; ') : ''),
+        },
+    }
+}) satisfies ExistingNSP;

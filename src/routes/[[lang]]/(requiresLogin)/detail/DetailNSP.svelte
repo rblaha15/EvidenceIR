@@ -2,21 +2,20 @@
     import { relUrl, spidUrl } from '$lib/helpers/runes.svelte';
     import PDFLink from './PDFLink.svelte';
     import { isUserAdmin } from '$lib/client/auth';
-    import db from '$lib/data';
     import { goto } from '$app/navigation';
     import { type Translations } from '$lib/translations';
-    import { type FormNSP } from '$lib/forms/NSP/formNSP';
-    import type { Raw } from '$lib/forms/Form';
     import { extractSPIDFromRawData, spName } from '$lib/helpers/ir';
     import { aA } from '$lib/helpers/stores';
     import Icon from '$lib/components/Icon.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
+    import type { ExistingNSP } from '$lib/data';
+    import db from '$lib/Database';
 
     const { t, lang, sp }: {
-        t: Translations, sp: Raw<FormNSP>, lang: LanguageCode,
+        t: Translations, sp: ExistingNSP, lang: LanguageCode,
     } = $props();
     const td = $derived(t.detail);
-    const spid = $derived(extractSPIDFromRawData(sp.zasah));
+    const spid = $derived(extractSPIDFromRawData(sp.NSP.zasah));
 </script>
 
 {#snippet deleteButton()}
@@ -30,7 +29,7 @@
 {/snippet}
 
 <PDFLink
-    data={sp} link="NSP" name={spName(sp.zasah)} {spid} {t} {lang} dropdownItems={[{
+    data={sp} link="NSP" name={spName(sp.NSP.zasah)} {spid} {t} {lang} dropdownItems={[{
         color: 'primary',
         icon: 'preview',
         text: td.viewFilledData,

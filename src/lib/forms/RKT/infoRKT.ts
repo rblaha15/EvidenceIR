@@ -1,5 +1,5 @@
 import { page } from '$app/state';
-import db, { type Year } from '$lib/data';
+import { type Year } from '$lib/data';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -15,10 +15,11 @@ import { error } from '@sveltejs/kit';
 import { grantPoints } from '$lib/client/loyaltyProgram';
 import type { Raw } from '$lib/forms/Form';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
+import db from '$lib/Database';
 
-export const isRKTL = (raw: Raw<FormRKT | FormRKTL>): raw is Raw<FormRKTL> => !('funkcniTest' in raw)
+export const isRKTL = (raw: Raw<FormRKT | FormRKTL> | undefined): raw is Raw<FormRKTL> => !!raw && !('funkcniTest' in raw)
 
-export const hasRKTL = (data: Record<Year, Raw<FormRKT | FormRKTL>> | undefined) =>
+export const hasRKTL = (data: { [_ in Year]?: Raw<FormRKT | FormRKTL> } | undefined) =>
     Boolean(data && data.getValues().some(isRKTL))
 
 const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: Year, filledYears: Year[], pump: TC, hasLegacy: boolean }> = {
@@ -31,22 +32,22 @@ const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: Yea
     }),
     getEditData: (ir, url, { pump }) => {
         const edit = (url.searchParams.get('edit-year')?.toNumber()) as Year | undefined;
-        if (edit) return { raw: ir.kontrolyTC[pump]![edit] as Raw<FormRKT>, other: { defaultYear: edit } };
+        if (edit) return { raw: ir.RK.TC[pump]![edit] as Raw<FormRKT>, other: { defaultYear: edit } };
     },
     getViewData: (ir, url) => {
         const pump = (url.searchParams.get('pump')?.toNumber() || error(400, 'Argument pump not valid or missing')) as TC;
-        const checks = ir.kontrolyTC[pump] ?? {};
+        const checks = ir.RK.TC[pump] ?? {};
         const filledYears = checks.keys().map(y => Number(y) as Year);
         const hasLegacy = hasRKTL(checks);
 
         const view = (url.searchParams.get('view-year')?.toNumber()) as Year | undefined;
-        if (view) return { raw: ir.kontrolyTC[pump]![view] as Raw<FormRKT>, other: { defaultYear: view, filledYears, pump, hasLegacy } };
+        if (view) return { raw: ir.RK.TC[pump]![view] as Raw<FormRKT>, other: { defaultYear: view, filledYears, pump, hasLegacy } };
         else {
             const defaultYear = filledYears.length
                 ? (Math.max(...filledYears) + 1) as Year
                 : 1;
-            if (!ir.heatPumpCommissionDate) return { other: { defaultYear, filledYears, pump, hasLegacy } };
-            const commission = new Date(ir.heatPumpCommissionDate);
+            if (!ir.UP.dateTC) return { other: { defaultYear, filledYears, pump, hasLegacy } };
+            const commission = new Date(ir.UP.dateTC);
             const today = new Date(new Date().toISOString().split('T')[0]);
 
             const anniversaryThisYear =
@@ -73,10 +74,10 @@ const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: Yea
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit
-                ? `Vyplněna nová roční kontrola TČ${pump} k ${irName(ir.evidence.ir)}`
-                : `Upravena roční kontrola TČ${pump} k ${irName(ir.evidence.ir)}`,
+                ? `Vyplněna nová roční kontrola TČ${pump} k ${irName(ir.IN.ir)}`
+                : `Upravena roční kontrola TČ${pump} k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.evidence },
+            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.IN },
         });
 
         if (response!.ok) return;
@@ -101,14 +102,14 @@ const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: Yea
             k.info.year.lock = () => true;
             k.info.year.validate = () => true;
         } else {
-            const lastYear = ir.kontrolyTC?.[pump]?.[Math.max(...filledYears)];
+            const lastYear = ir.RK.TC?.[pump]?.[Math.max(...filledYears)];
             if (lastYear && !isRKTL(lastYear))
                 k.kontrolaOtopneSoustavy.kontrolaPojistovacichVentiluPoznamka.setValue(d, lastYear.kontrolaOtopneSoustavy.kontrolaPojistovacichVentiluPoznamka || '');
         }
-        if (ir.uvedeniTC) {
-            k.kontrolaTlakuExpanznichNadob.expanzniNadobaOtopneSoustavyPriUPT.setValue(d, ir.uvedeniTC.os.tlakEnOs || '');
-            k.kontrolaTlakuExpanznichNadob.expanzniNadobaPitneVodyPriUPT.setValue(d, ir.uvedeniTC.os.tlakEnTv || '');
-            k.kontrolaOtopneSoustavy.kontrolaTlakuVOtopneSoustavePriUPT.setValue(d, ir.uvedeniTC.os.tlakOs || '');
+        if (ir.UP.TC) {
+            k.kontrolaTlakuExpanznichNadob.expanzniNadobaOtopneSoustavyPriUPT.setValue(d, ir.UP.TC.os.tlakEnOs || '');
+            k.kontrolaTlakuExpanznichNadob.expanzniNadobaPitneVodyPriUPT.setValue(d, ir.UP.TC.os.tlakEnTv || '');
+            k.kontrolaOtopneSoustavy.kontrolaTlakuVOtopneSoustavePriUPT.setValue(d, ir.UP.TC.os.tlakOs || '');
         }
     },
 };

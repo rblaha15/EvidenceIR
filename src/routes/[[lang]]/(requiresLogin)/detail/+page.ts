@@ -6,9 +6,7 @@ import { startTechniciansListening } from '$lib/client/realtime';
 import { derived, type Readable, readable } from 'svelte/store';
 import { waitUntil } from '$lib/helpers/stores';
 import type { IRID, SPID } from '$lib/helpers/ir';
-import type { Deleted, IR } from '$lib/data';
-import type { Raw } from '$lib/forms/Form';
-import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import type { IR, NSP } from '$lib/data';
 import { extractIDs, langEntryGenerator } from '$lib/helpers/paths';
 import { getDataAsStore } from '$lib/helpers/getData';
 
@@ -33,7 +31,7 @@ export const load: PageLoad = async ({ url }) => {
         ir: derived(data.ir, (i, set) => { if (i != 'loading') set(i) }),
     } satisfies {
         irid: IRID | null, spids: SPID[],
-        ir: Readable<IR | Deleted<IRID> | undefined>, sps: Readable<(Raw<FormNSP> | Deleted<SPID>)[]>,
+        ir: Readable<IR | undefined>, sps: Readable<NSP[]>,
     };
 };
 

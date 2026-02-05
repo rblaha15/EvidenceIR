@@ -84,9 +84,10 @@ export const calculateProtocolPrice = <D extends GenericFormSP<D>>(p: Raw<D>, pu
     return { spareParts, ip, priceTransportation, priceWork, operationsWithCascades, discount, priceOther, sum, tax, sumWithTax, isFree };
 };
 
-export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount }) => {
+export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) => {
+    const { NSP } = data;
     const ts = t.sp;
-    const assemblyCompany = await ares.getNameAndAddress(p.montazka.ico, fetch);
+    const assemblyCompany = await ares.getNameAndAddress(NSP.montazka.ico, fetch);
     const {
         spareParts,
         ip,
@@ -99,61 +100,61 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
         tax,
         sumWithTax,
         isFree,
-    } = calculateProtocolPrice(p, pumpCount);
+    } = calculateProtocolPrice(NSP, pumpCount);
     let response: Response;
     try {
-        response = await fetch(`/signatures/${p.zasah.inicialy}.jpg`);
+        response = await fetch(`/signatures/${NSP.zasah.inicialy}.jpg`);
     } catch (_: unknown) {
         response = new Response(null, { status: 400 });
     }
     const signature = response.ok && !response.redirected ? await response.arrayBuffer() : null;
 
-    const system = p.system.popis;
-    const zavada = p.zasah.nahlasenaZavada;
-    const zasah = p.zasah.popis;
+    const system = NSP.system.popis;
+    const zavada = NSP.zasah.nahlasenaZavada;
+    const zasah = NSP.zasah.popis;
     if (multilineTooLong(system) || inlineTooLong(zavada) || multilineTooLong(zasah))
-        await addDoc({ args: pdfInfo.PS, data: p, lang: 'cs' });
+        await addDoc({ args: pdfInfo.PS, data, lang: 'cs' });
 
-    if (tax == 1.12) await addDoc({ args: pdfInfo.CP, data: p, lang: 'cs' });
+    if (tax == 1.12) await addDoc({ args: pdfInfo.CP, data, lang: 'cs' });
 
-    const isUnknown = p.montazka.ico == unknownCRN;
-    const fo = p.ukony.typPrace ? fieldsOperations.slice(1) : fieldsOperations;
+    const isUnknown = NSP.montazka.ico == unknownCRN;
+    const fo = NSP.ukony.typPrace ? fieldsOperations.slice(1) : fieldsOperations;
     return {
-        fileNameSuffix: spName(p.zasah).replaceAll(/\/:/g, '_'),
-        Text1: spName(p.zasah),
-        Text29: p.koncovyUzivatel.typ == 'company' ? `${t.in.companyName}:` : `Jméno a příjmení:`,
-        Text2: endUserName(p.koncovyUzivatel),
-        Text30: p.koncovyUzivatel.typ == 'company' ? t.in.crn : t.in.birthday,
-        Text3: p.koncovyUzivatel.typ == 'company'
-            ? p.koncovyUzivatel.ico : p.koncovyUzivatel.narozeni.length == 0 ? null : p.koncovyUzivatel.narozeni,
-        Text4: `${p.bydliste.ulice}, ${p.bydliste.psc} ${p.bydliste.obec}`,
-        Text5: p.koncovyUzivatel.telefon,
-        Text6: p.koncovyUzivatel.email,
+        fileNameSuffix: spName(NSP.zasah).replaceAll(/\/:/g, '_'),
+        Text1: spName(NSP.zasah),
+        Text29: NSP.koncovyUzivatel.typ == 'company' ? `${t.in.companyName}:` : `Jméno a příjmení:`,
+        Text2: endUserName(NSP.koncovyUzivatel),
+        Text30: NSP.koncovyUzivatel.typ == 'company' ? t.in.crn : t.in.birthday,
+        Text3: NSP.koncovyUzivatel.typ == 'company'
+            ? NSP.koncovyUzivatel.ico : NSP.koncovyUzivatel.narozeni.length == 0 ? null : NSP.koncovyUzivatel.narozeni,
+        Text4: `${NSP.bydliste.ulice}, ${NSP.bydliste.psc} ${NSP.bydliste.obec}`,
+        Text5: NSP.koncovyUzivatel.telefon,
+        Text6: NSP.koncovyUzivatel.email,
         Text7: assemblyCompany?.obchodniJmeno ?? null,
-        Text8: isUnknown ? null : p.montazka.ico,
-        Text9: isUnknown ? null : p.montazka.zastupce,
+        Text8: isUnknown ? null : NSP.montazka.ico,
+        Text9: isUnknown ? null : NSP.montazka.zastupce,
         Text10: isUnknown ? null : assemblyCompany?.sidlo.textovaAdresa ?? null,
-        Text11: isUnknown ? null : p.montazka.telefon,
-        Text12: isUnknown ? null : p.montazka.email,
-        Text13: p.koncovyUzivatel.pobocka
-            ? `${p.koncovyUzivatel.pobocka}, ${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`
-            : `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
+        Text11: isUnknown ? null : NSP.montazka.telefon,
+        Text12: isUnknown ? null : NSP.montazka.email,
+        Text13: NSP.koncovyUzivatel.pobocka
+            ? `${NSP.koncovyUzivatel.pobocka}, ${NSP.mistoRealizace.ulice}, ${NSP.mistoRealizace.psc} ${NSP.mistoRealizace.obec}`
+            : `${NSP.mistoRealizace.ulice}, ${NSP.mistoRealizace.psc} ${NSP.mistoRealizace.obec}`,
         Text14: multilineTooLong(system) ? ts.seeSecondPage : system,
-        Text15: '     ' + dateFromISO(p.zasah.datum),
-        Text16: p.system.datumUvedeni ? dateFromISO(p.system.datumUvedeni) : null,
-        Text17: p.zasah.clovek,
-        'Zaškrtávací pole28': p.system.zaruka == `warrantyCommon`,
-        'Zaškrtávací pole29': p.system.zaruka == `warrantyExtended`,
+        Text15: '     ' + dateFromISO(NSP.zasah.datum),
+        Text16: NSP.system.datumUvedeni ? dateFromISO(NSP.system.datumUvedeni) : null,
+        Text17: NSP.zasah.clovek,
+        'Zaškrtávací pole28': NSP.system.zaruka == `warrantyCommon`,
+        'Zaškrtávací pole29': NSP.system.zaruka == `warrantyExtended`,
         Text19: inlineTooLong(zavada) ? ts.seeSecondPage : zavada,
         Text20: multilineTooLong(zasah) ? ts.seeSecondPage : zasah,
-        Text21: p.ukony.doprava.toNumber().roundTo(2).toLocaleString('cs') + ' km',
+        Text21: NSP.ukony.doprava.toNumber().roundTo(2).toLocaleString('cs') + ' km',
         Text22: ip.transportation ? prices.transportation.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč',
-        'Kombinované pole32': get(ts, p.ukony.typPrace) || ts.intervention,
-        Text25: p.ukony.typPrace ? codes[p.ukony.typPrace].toString().let(k => k == '0' ? '' : k) : '',
-        Text23: p.ukony.typPrace ? p.ukony.doba.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
-        Text87: p.zasah.interventionDuration
-            ? p.zasah.interventionDuration.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
-        Text24: p.ukony.typPrace ? ip.work ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč' : '',
+        'Kombinované pole32': get(ts, NSP.ukony.typPrace) || ts.intervention,
+        Text25: NSP.ukony.typPrace ? codes[NSP.ukony.typPrace].toString().let(k => k == '0' ? '' : k) : '',
+        Text23: NSP.ukony.typPrace ? NSP.ukony.doba.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
+        Text87: NSP.zasah.interventionDuration
+            ? NSP.zasah.interventionDuration.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
+        Text24: NSP.ukony.typPrace ? ip.work ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč' : '',
         ...fo.map(p => [p.type, ' '] as const).toRecord(),
         ...operationsWithCascades.map(([type, count], i) => [
             [fo[i].type, get(ts, type)],
@@ -178,45 +179,45 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data: p, t, addDoc, pumpCount 
         Text34: sum.roundTo(2).toLocaleString('cs') + ' Kč',
         Text18: (tax * 100 - 100).toFixed(0) + ' %',
         Text35: sumWithTax.roundTo(2).toLocaleString('cs') + ' Kč',
-        Text39: isFree ? 'Zdarma' : get(ts, p.fakturace.hotove),
-        Text41: p.fakturace.hotove != 'no' || isFree ? ''
-            : p.fakturace.komu.chosen == 'otherCompany' ? detectCRN(p.fakturace.komu.text)
-                : p.fakturace.komu.chosen == 'commissioningCompany' ? (await ares.getName(p.uvedeni.ico) || p.uvedeni.ico)
-                    : get(ts, p.fakturace.komu.chosen),
-        Text42: p.fakturace.hotove == 'no' && !isFree ? get(ts, p.fakturace.jak) : '',
+        Text39: isFree ? 'Zdarma' : get(ts, NSP.fakturace.hotove),
+        Text41: NSP.fakturace.hotove != 'no' || isFree ? ''
+            : NSP.fakturace.komu.chosen == 'otherCompany' ? detectCRN(NSP.fakturace.komu.text)
+                : NSP.fakturace.komu.chosen == 'commissioningCompany' ? (await ares.getName(NSP.uvedeni.ico) || NSP.uvedeni.ico)
+                    : get(ts, NSP.fakturace.komu.chosen),
+        Text42: NSP.fakturace.hotove == 'no' && !isFree ? get(ts, NSP.fakturace.jak) : '',
         Text43: {
-            assemblyCompany: p.montazka.zastupce,
-            commissioningCompany: p.uvedeni.zastupce,
+            assemblyCompany: NSP.montazka.zastupce,
+            commissioningCompany: NSP.uvedeni.zastupce,
             investor: {
-                individual: endUserName(p.koncovyUzivatel),
-                company: p.koncovyUzivatel.kontaktniOsoba,
-            }[p.koncovyUzivatel.typ!],
-            otherCompany: detectCRN(p.fakturace.komu.text),
-        }[p.fakturace.komu.chosen ?? 'investor'],
+                individual: endUserName(NSP.koncovyUzivatel),
+                company: NSP.koncovyUzivatel.kontaktniOsoba,
+            }[NSP.koncovyUzivatel.typ!],
+            otherCompany: detectCRN(NSP.fakturace.komu.text),
+        }[NSP.fakturace.komu.chosen ?? 'investor'],
         images: signature ? [{ x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 }] : [],
     } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };
 
 const detectCRN = (text: string) => /^[0-9]{8}$/.test(text) ? `IČO: ${text}` : text
 
-export const pdfSP: GetPdfData<'SP'> = async ({ data: { evidence: e, installationProtocols }, t, addDoc, index, lang }) =>
+export const pdfSP: GetPdfData<'SP'> = async ({ data, t, addDoc, index, lang }) =>
     pdfNSP({
-        data: generalizeServiceProtocol(e, installationProtocols[index], t), t, addDoc, lang,
-        pumpCount: cascadePumps(e).length,
+        data: generalizeServiceProtocol(data.meta, data.IN, data.SPs[index], t), t, addDoc, lang,
+        pumpCount: cascadePumps(data.IN).length,
     });
 export default pdfSP;
 
-export const pdfCP: GetPdfData<'CP'> = async ({ data: p }) => ({
-    Text1: endUserName2(p.koncovyUzivatel),
-    Text2: `${p.mistoRealizace.ulice}, ${p.mistoRealizace.psc} ${p.mistoRealizace.obec}`,
-    Text3: dateFromISO(p.zasah.datum),
+export const pdfCP: GetPdfData<'CP'> = async ({ data: { NSP } }) => ({
+    Text1: endUserName2(NSP.koncovyUzivatel),
+    Text2: `${NSP.mistoRealizace.ulice}, ${NSP.mistoRealizace.psc} ${NSP.mistoRealizace.obec}`,
+    Text3: dateFromISO(NSP.zasah.datum),
 });
 
-export const pdfPS: GetPdfData<'PS'> = async ({ data: p, t }) => {
+export const pdfPS: GetPdfData<'PS'> = async ({ data: { NSP }, t }) => {
     const ts = t.sp;
-    const system = p.system.popis;
-    const zavada = p.zasah.nahlasenaZavada;
-    const zasah = p.zasah.popis;
+    const system = NSP.system.popis;
+    const zavada = NSP.zasah.nahlasenaZavada;
+    const zasah = NSP.zasah.popis;
     return {
         Text1: [
             multilineTooLong(system) ? `${ts.systemDescription}:\n${system}` : '',

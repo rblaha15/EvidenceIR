@@ -1,16 +1,15 @@
-import { type IRID, isSPDeleted, type SPID } from '$lib/helpers/ir';
+import { type IRID, type SPID } from '$lib/helpers/ir';
 import { derived, readable, type Readable } from 'svelte/store';
-import db, { type Deleted, type IR } from '$lib/data';
-import type { Raw } from '$lib/forms/Form';
-import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { getStoreIndependentProtocol, getStoreIR } from '$lib/client/incrementalUpdates';
+import type { IR, NSP } from '$lib/data';
+import db from '$lib/Database';
 
 export const getData = async (id: {
     irid: IRID | null;
     spids: SPID[];
 }): Promise<{
     irid: IRID | null, spids: SPID[],
-    ir: IR | Deleted<IRID> | undefined, sps: (Raw<FormNSP> | Deleted<SPID>)[],
+    ir: IR | undefined, sps: NSP[],
     success: boolean,
 }> => {
     const base = { ...id, ir: undefined, sps: [], success: false };
@@ -24,8 +23,8 @@ export const getData = async (id: {
         } else if (id.spids) {
             const data = await id.spids.map(db.getIndependentProtocol).awaitAll();
             const defined = data.filterNotUndefined();
-            const anyNotDeleted = defined.some(p => !isSPDeleted(p));
-            const sps = anyNotDeleted ? defined.filter(p => !isSPDeleted(p)) : defined;
+            const anyNotDeleted = defined.some(p => !p.deleted);
+            const sps = anyNotDeleted ? defined.filter(p => !p.deleted) : defined;
             return { ...base, sps, success: true };
         }
     } catch (e) {
@@ -41,7 +40,7 @@ export const getDataAsStore = (id: {
     spids: SPID[]
 }): {
     irid: IRID | null, spids: SPID[],
-    ir: Readable<IR | Deleted<IRID> | undefined | 'loading'>, sps: Readable<(Raw<FormNSP> | Deleted<SPID>)[] | 'loading'>,
+    ir: Readable<IR | undefined | 'loading'>, sps: Readable<NSP[] | 'loading'>,
 } => {
     const base = { ...id, ir: readable(undefined), sps: readable([]) };
 
@@ -57,7 +56,7 @@ export const getDataAsStore = (id: {
                 data => {
                     if (data.some(p => p == 'loading')) return 'loading';
                     return data.map(p => p == 'loading' ? undefined : p).filterNotUndefined()
-                        .sort((a, b) => (isSPDeleted(a) ? 1 : 0) - (isSPDeleted(b) ? 1 : 0));
+                        .sort((a, b) => (a.deleted ? 1 : 0) - (b.deleted ? 1 : 0));
                 },
             );
             return { ...base, sps };

@@ -1,41 +1,39 @@
-import type { Deleted, IR } from '$lib/data';
 import { derived, get, writable } from 'svelte/store';
 import { type DBSchema as DBS, type IDBPDatabase, openDB } from 'idb';
-import { extractIRID, extractIRIDFromRawData, extractSPID, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
-import type { Raw } from '$lib/forms/Form';
+import { type IRID, type SPID } from '$lib/helpers/ir';
 import { currentUser } from '$lib/client/auth';
-import type { FormNSP } from '$lib/forms/NSP/formNSP';
-import type { Database } from '$lib/Database';
-import { serverTimestamp, type Timestamp, updateDoc } from 'firebase/firestore';
+import type { Database, ReadDatabase, WriteDatabase } from '$lib/Database';
+import { serverTimestamp, type Timestamp } from 'firebase/firestore';
+import { deletedIR, type DeletedNSP, type IR, type NSP } from '$lib/data';
 
 interface DBSchema extends DBS {
     IR: {
         key: IRID;
-        value: IR | Deleted<IRID>;
+        value: IR;
     };
     SP: {
         key: SPID;
-        value: Raw<FormNSP> | Deleted<SPID>;
+        value: NSP;
     };
 }
 
 type Data<T extends 'IR' | 'SP'> = DBSchema[T]['value']
 type ID<T extends 'IR' | 'SP'> = DBSchema[T]['key']
 
-const storedIR = writable<Record<IRID, IR | Deleted<IRID>>>({}, (set) => {
+const storedIR = writable<Record<IRID, IR>>({}, (set) => {
     (async () => {
-        set((await odm.getAll('IR')).associateBy(extractIRID));
+        set((await odm.getAll('IR')).associateBy(ir => ir.meta.id));
     })();
 });
-const storedSP = writable<Record<SPID, Raw<FormNSP> | Deleted<SPID>>>({}, (set) => {
+const storedSP = writable<Record<SPID, NSP>>({}, (set) => {
     (async () => {
-        set((await odm.getAll('SP')).associateBy(extractSPID));
+        set((await odm.getAll('SP')).associateBy(nsp => nsp.meta.id));
     })();
 });
 
 let dbMap: Record<string, IDBPDatabase<DBSchema>> = {};
 
-const newDb = (uid: string) => openDB<DBSchema>(`offlineData_${uid}`, 1, {
+const newDb = (uid: string) => openDB<DBSchema>(`offlineData2_${uid}`, 1, {
     upgrade: db => {
         if (!db.objectStoreNames.contains('IR'))
             db.createObjectStore('IR');
@@ -50,8 +48,8 @@ const db = async () => {
 };
 
 const mIR = (i: IR) => i;
-const mSP = (s: Raw<FormNSP>) => s;
-const m = <T extends 'IR' | 'SP'>(type: T) => (v: Data<T>) => (type === 'IR' ? mIR(v as IR) : mSP(v as Raw<FormNSP>)) as Data<T>;
+const mSP = (s: NSP) => s;
+const m = <T extends 'IR' | 'SP'>(type: T) => (v: Data<T>) => (type === 'IR' ? mIR(v as IR) : mSP(v as NSP)) as Data<T>;
 
 export const clearLocalDatabase = async () => {
     storedIR.set({})
@@ -108,104 +106,121 @@ export const offlineDatabaseManager = {
         value ? odm.put(type, id, value) : odm.delete(type, id),
 };
 
-export const offlineDatabase: Database = {
+const readDatabase: ReadDatabase = {
     getIR: irid => odm.get('IR', irid),
     getChangedIRs: async () => [],
     getDeletedIRs: async () => [],
-    addIR: ir => odm.put('IR', extractIRIDFromRawData(ir.evidence), ir),
-    deleteIR: async (irid, movedTo) => {
-        const deleted: Deleted<IRID> = { deleted: true, deletedAt: serverTimestamp() as Timestamp, id: irid, movedTo };
-        await odm.update('IR', irid, ir => ({ ...ir, ...deleted }));
-    },
-    existsIR: async irid => !!(await odm.get('IR', irid))?.let(ir => !ir.deleted),
-    updateIRRecord: (rawData, isDraft) => {
-        const irid = extractIRIDFromRawData(rawData);
-        return odm.update('IR', irid, ir => ({ ...ir, evidence: rawData, isDraft }));
-    },
+    existsIR: async irid => Boolean(await odm.get('IR', irid)),
+
+    getIndependentProtocol: spid => odm.get('SP', spid),
+    getChangedIndependentProtocols: async () => [],
+    getDeletedIndependentProtocols: async () => [],
+};
+
+const writeDatabase: WriteDatabase = {
+    addIR: ir => odm.put('IR', ir.meta.id, ir),
+    deleteIR: (irid, movedTo) => odm.update('IR', irid, ir => deletedIR(ir, movedTo)),
+    updateIRRecord: (irid, rawData, isDraft) => odm.update('IR', irid, ir => {
+        if (ir.deleted) return ir;
+        ir.IN = rawData;
+        ir.isDraft = isDraft;
+        return ir;
+    }),
     addHeatPumpCheck: (irid, pump, year, check) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.kontrolyTC[pump] = ir.kontrolyTC[pump] ?? {};
-        ir.kontrolyTC[pump][year] = check;
+        ir.RK.TC[pump] = ir.RK.TC[pump] ?? {};
+        ir.RK.TC[pump][year] = check;
         return ir;
     }),
     addSolarSystemCheck: (irid, year, check) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.kontrolySOL = ir.kontrolySOL ?? {};
-        ir.kontrolySOL[year] = check;
+        ir.RK.SOL = ir.RK.SOL ?? {};
+        ir.RK.SOL[year] = check;
         return ir;
     }),
     addServiceProtocol: (irid, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.installationProtocols.push(protocol);
+        ir.SPs.push(protocol);
         return ir;
     }),
     updateServiceProtocol: async (irid, index, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.installationProtocols[index] = protocol;
+        ir.SPs[index] = protocol;
         return ir;
     }),
     updateHeatPumpCommissioningProtocol: async (irid, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.uvedeniTC = protocol;
+        ir.UP.TC = protocol;
         return ir;
     }),
     updateHeatPumpCommissionDate: async (irid, date) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.heatPumpCommissionDate = date;
+        ir.UP.dateTC = date;
         return ir;
     }),
     addSolarSystemCommissioningProtocol: async (irid, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.uvedeniSOL = protocol;
+        ir.UP.SOL = protocol;
         return ir;
     }),
     updateSolarSystemCommissionDate: async (irid, date) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.solarSystemCommissionDate = date;
+        ir.UP.dateTC = date;
         return ir;
     }),
     addPhotovoltaicSystemCommissioningProtocol: async (irid, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.uvedeniFVE = protocol;
+        ir.UP.FVE = protocol;
         return ir;
     }),
     addFaceTable: async (irid, faceTable) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.faceTable = faceTable;
+        ir.FT = faceTable;
         return ir;
     }),
     updateIRUsers: async (irid, users) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.users = users;
+        ir.meta.usersWithAccess = users;
         return ir;
     }),
-    updateHeatPumpRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => odm.update('IR', irid, ir => {
+    updateHeatPumpRecommendationsSettings: async (irid, enabled, executingCompany) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.yearlyHeatPumpCheckRecommendation = enabled ? {
+        ir.RK.DK.TC = enabled ? {
             state: 'waiting',
-            ...ir.yearlyHeatPumpCheckRecommendation ?? {},
+            ...ir.RK.DK.TC ?? {},
             executingCompany: executingCompany!,
         } : undefined;
         return ir;
     }),
-    updateSolarSystemRecommendationsSettings: async (irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null) => odm.update('IR', irid, ir => {
+    updateSolarSystemRecommendationsSettings: async (irid, enabled, executingCompany) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.yearlySolarSystemCheckRecommendation = enabled ? {
+        ir.RK.DK.SOL = enabled ? {
             state: 'waiting',
-            ...ir.yearlySolarSystemCheckRecommendation ?? {},
+            ...ir.RK.DK.SOL ?? {},
             executingCompany: executingCompany!,
         } : undefined;
         return ir;
     }),
-    addIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),
-    updateIndependentServiceProtocol: protocol => odm.put('SP', extractSPIDFromRawData(protocol.zasah), protocol),
-    deleteIndependentProtocol: async spid => {
-        const deleted: Deleted<SPID> = { deleted: true, deletedAt: serverTimestamp() as Timestamp, id: spid };
-        await odm.update('SP', spid, sp => ({ ...sp, ...deleted }));
-    },
-    getIndependentProtocol: spid => odm.get('SP', spid),
-    getChangedIndependentProtocols: async () => [],
-    getDeletedIndependentProtocols: async () => [],
+
+    addIndependentServiceProtocol: nsp => odm.put('SP', nsp.meta.id, nsp),
+    updateIndependentServiceProtocol: (spid, rawData) => odm.update('SP', spid, nsp => {
+        if (nsp.deleted) return nsp;
+        nsp.NSP = rawData;
+        return nsp;
+    }),
+    deleteIndependentProtocol: async spid => await odm.update('SP', spid, sp => ({
+        ...sp,
+        deleted: true,
+        meta: {
+            ...sp.meta,
+            deletedAt: serverTimestamp() as Timestamp,
+        },
+    } satisfies DeletedNSP)),
+};
+
+export const offlineDatabase: Database = {
+    ...readDatabase,
+    ...writeDatabase,
 };
 
 export const getOfflineStoreIR = (irid: IRID) =>

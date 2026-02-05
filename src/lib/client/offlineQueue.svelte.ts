@@ -1,5 +1,4 @@
 import { type EmailOptions, sendEmailAndUploadAttachments } from '$lib/client/email';
-import { isWriteFunction, type WriteFunction } from '$lib/data';
 import { derived, writable } from 'svelte/store';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { irName, irNumberFromIRID, irWholeName, spName, spWholeName } from '$lib/helpers/ir';
@@ -7,7 +6,7 @@ import type { Translations } from '$lib/translations';
 import type { Template, TemplateArgs } from '$lib/helpers/templates';
 import { browser } from '$app/environment';
 import { openDB } from 'idb';
-import type { Database } from '$lib/Database';
+import { type Database, isWriteFunction, type WriteFunction } from '$lib/Database';
 import { grantPointsOnline, type LoyaltyProgramTrigger } from '$lib/client/loyaltyProgram';
 import { isOnline } from '$lib/client/realtimeOnline';
 
@@ -126,9 +125,9 @@ const importantItemsInOfflineQueue = derived(stored, q =>
 const functions: {
     [F in WriteFunction]: (...args: Parameters<Database[F]>) => Parameters<Translations['nav']['offlineQueue']['f'][F]>[0]
 } = {
-    addIR: ir => ({ ir: irWholeName(ir.evidence) }),
+    addIR: ir => ({ ir: irWholeName(ir.IN) }),
     deleteIR: irid => ({ ir: irNumberFromIRID(irid) }),
-    updateIRRecord: e => ({ ir: irName(e.ir) }),
+    updateIRRecord: (_, e) => ({ ir: irName(e.ir) }),
     addHeatPumpCheck: (irid, pump, year) => ({ ir: irNumberFromIRID(irid), pump: `${pump}`, year: `${year}` }),
     addSolarSystemCheck: (irid, year) => ({ ir: irNumberFromIRID(irid), year: `${year}` }),
     addServiceProtocol: (irid, p) => ({ ir: irNumberFromIRID(irid), sp: spName(p.zasah) }),
@@ -142,8 +141,8 @@ const functions: {
     updateIRUsers: irid => ({ ir: irNumberFromIRID(irid) }),
     updateHeatPumpRecommendationsSettings: irid => ({ ir: irNumberFromIRID(irid) }),
     updateSolarSystemRecommendationsSettings: irid => ({ ir: irNumberFromIRID(irid) }),
-    addIndependentServiceProtocol: p => ({ sp: spWholeName(p) }),
-    updateIndependentServiceProtocol: p => ({ sp: spWholeName(p) }),
+    addIndependentServiceProtocol: p => ({ sp: spWholeName(p.NSP) }),
+    updateIndependentServiceProtocol: (_, p) => ({ sp: spWholeName(p) }),
     deleteIndependentProtocol: spid => ({ spid }),
 };
 

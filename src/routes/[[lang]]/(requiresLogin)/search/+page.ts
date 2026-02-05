@@ -5,7 +5,6 @@ import {
     type IRID,
     irLabel,
     irName,
-    isSPDeleted,
     type SPID,
     spName,
 } from '$lib/helpers/ir';
@@ -18,7 +17,7 @@ import { getTranslations } from '$lib/translations';
 import { waitUntil } from '$lib/helpers/stores';
 import { getAllIndependentProtocols, getAllIRs } from '$lib/client/incrementalUpdates';
 import { langEntryGenerator } from '$lib/helpers/paths';
-import type { IR } from '$lib/data';
+import type { ExistingNSP, IR, NSP } from '$lib/data';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { Raw } from '$lib/forms/Form';
 
@@ -55,13 +54,12 @@ export const load: PageLoad = async ({ parent }) => {
         await getAllIRs(),
         $irs => $irs == 'loading' ? null : $irs
             .filter(ir => checkAdmin() || !ir.deleted)
-            .map(ir => ir as IR)
             .map(ir => ({
                 t: 'IR',
-                id: extractIRIDFromRawData(ir.evidence),
-                name: irName(ir.evidence.ir),
-                label: irLabel(ir.evidence),
-                sps: ir.installationProtocols.map(p => spName(p.zasah)),
+                id: ir.meta.id,
+                name: irName(ir.IN.ir),
+                label: irLabel(ir.IN),
+                sps: ir.SPs.map(p => spName(p.zasah)),
                 draft: ir.isDraft,
                 deleted: ir.deleted,
             } satisfies Installation_PublicServiceProtocol))
@@ -74,17 +72,16 @@ export const load: PageLoad = async ({ parent }) => {
         : derived(
             await getAllIndependentProtocols(),
             $sps => $sps == 'loading' ? null : Object.entries($sps
-                .mapNotUndefined(sp => !checkAdmin() && isSPDeleted(sp) ? undefined : sp)
-                .map(sp => sp as Raw<FormNSP>)
-                .groupBy(sp => irLabel(sp)))
+                .mapNotUndefined(sp => !checkAdmin() && sp.deleted ? undefined : sp)
+                .groupBy(sp => irLabel(sp.NSP)))
                 .map(([label, sps]) => ({
                     t: 'SP',
-                    id: sps.map(sp => extractSPIDFromRawData(sp.zasah)),
-                    name: sps.length == 1 ? spName(sps[0].zasah) : ts.nProtocols(sps.length, sps.map(sp => sp.zasah.inicialy.trim()).distinct().join(', ')),
+                    id: sps.map(sp => sp.meta.id),
+                    name: sps.length == 1 ? spName(sps[0].NSP.zasah) : ts.nProtocols(sps.length, sps.map(sp => sp.NSP.zasah.inicialy.trim()).distinct().join(', ')),
                     label: label,
                     sps: [],
                     draft: false,
-                    deleted: sps.every(isSPDeleted),
+                    deleted: sps.every(sp => sp.deleted),
                 } satisfies Installation_PublicServiceProtocol)),
         );
 

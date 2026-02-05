@@ -4,6 +4,8 @@ import { dataToRawData, type Form, type FormPlus } from '$lib/forms/Form';
 import { InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte';
 import { userData } from '$lib/forms/IN/defaultIN';
 import { multilineTooLong, defaultGenericSP } from '$lib/forms/SP/defaultSP';
+import { newNSP } from '$lib/data';
+import type { User } from 'firebase/auth';
 
 export type DataNSP = FormNSP
 
@@ -15,7 +17,7 @@ export interface FormNSP extends GenericFormSP<DataNSP>, UserForm<DataNSP>, Form
 
 export const defaultNSP = (): FormPlus<FormNSP> => {
     const { system, ...otherSP } = defaultGenericSP<FormNSP>((_, d) => ({
-        data: dataToRawData(d),
+        data: newNSP(dataToRawData(d), { email: '', uid: '' } as User),
         form: d,
         pumpCount: 1,
     }), () => 1, 3, true);

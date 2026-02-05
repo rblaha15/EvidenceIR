@@ -8,30 +8,30 @@ import ares from '$lib/helpers/ares';
 const representative = (c: Raw<FormIN>['montazka' | 'uvedeni']) =>
     `${c.zastupce} – ${c.email}; ${c.telefon ?? ''}`;
 
-const pdfRR: GetPdfData<'RR'> = async ({ data: { evidence: e }, t }) => ({
-    Text1: e.montazka.ico,
-    Text2: (await ares.getName(e.montazka.ico, fetch)) ?? null,
-    Text3: representative(e.montazka),
-    Text4: e.uvedeni.ico,
-    Text5: (await ares.getName(e.uvedeni.ico, fetch)) ?? null,
-    Text6: representative(e.uvedeni),
-    Text7: endUserName(e.koncovyUzivatel),
-    Text8: e.koncovyUzivatel.typ == 'company'
-        ? e.koncovyUzivatel.ico : e.koncovyUzivatel.narozeni.length == 0 ? null : e.koncovyUzivatel.narozeni,
-    Text9: `${e.bydliste.ulice}, ${e.bydliste.psc} ${e.bydliste.obec}`,
-    Text10: e.mistoRealizace.ulice,
-    Text11: `${e.mistoRealizace.psc} ${e.mistoRealizace.obec}`,
-    Text12: e.koncovyUzivatel.email,
-    Text13: e.koncovyUzivatel.telefon,
-    Text14: irType(e.ir.typ),
-    Text15: isMacAddress(e.ir.cislo) ? e.ir.cislo.slice(0, 6)
-        : e.ir.cislo.split(' ')[0],
-    Text16: isMacAddress(e.ir.cislo) ? e.ir.cislo.slice(6)
-        : e.ir.cislo.split(' ')[1],
-    Text17: e.ir.cisloBox,
-    Text18: cascadePumps(e)
+const pdfRR: GetPdfData<'RR'> = async ({ data: { IN }, t }) => ({
+    Text1: IN.montazka.ico,
+    Text2: (await ares.getName(IN.montazka.ico, fetch)) ?? null,
+    Text3: representative(IN.montazka),
+    Text4: IN.uvedeni.ico,
+    Text5: (await ares.getName(IN.uvedeni.ico, fetch)) ?? null,
+    Text6: representative(IN.uvedeni),
+    Text7: endUserName(IN.koncovyUzivatel),
+    Text8: IN.koncovyUzivatel.typ == 'company'
+        ? IN.koncovyUzivatel.ico : IN.koncovyUzivatel.narozeni.length == 0 ? null : IN.koncovyUzivatel.narozeni,
+    Text9: `${IN.bydliste.ulice}, ${IN.bydliste.psc} ${IN.bydliste.obec}`,
+    Text10: IN.mistoRealizace.ulice,
+    Text11: `${IN.mistoRealizace.psc} ${IN.mistoRealizace.obec}`,
+    Text12: IN.koncovyUzivatel.email,
+    Text13: IN.koncovyUzivatel.telefon,
+    Text14: irType(IN.ir.typ),
+    Text15: isMacAddress(IN.ir.cislo) ? IN.ir.cislo.slice(0, 6)
+        : IN.ir.cislo.split(' ')[0],
+    Text16: isMacAddress(IN.ir.cislo) ? IN.ir.cislo.slice(6)
+        : IN.ir.cislo.split(' ')[1],
+    Text17: IN.ir.cisloBox,
+    Text18: cascadePumps(IN)
         .map(tc => `${tc.cislo} (${tc.model})`)
         .join(', '),
-    Text22: e.vzdalenyPristup.plati == 'endCustomer' ? t.rr.agreeWIthRRPrice : '',
+    Text22: IN.vzdalenyPristup.plati == 'endCustomer' ? t.rr.agreeWIthRRPrice : '',
 });
 export default pdfRR;

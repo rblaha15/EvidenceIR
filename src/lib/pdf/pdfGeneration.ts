@@ -4,7 +4,7 @@ import { getTranslations } from '$lib/translations';
 import { type GeneratePdfOptions, type Pdf } from '$lib/pdf/pdf';
 import { irLabel, spName } from '$lib/helpers/ir';
 import type { Raw } from '$lib/forms/Form';
-import { type IR } from '../data';
+import { type IR, type NSP } from '../data';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { createFileUrl } from '$lib/helpers/files';
 
@@ -172,9 +172,9 @@ export const generatePdf = async <P extends Pdf>(
     const pdfBytes = await pdfDoc.save(args.saveOptions);
 
     const surname = args.type == '' ? ''
-        : irLabel(args.type == 'IR' ? (data as IR).evidence : data as Raw<FormNSP>).split(' ')[0];
+        : irLabel(args.type == 'IR' ? (data as IR).IN : (data as NSP).NSP).split(' ')[0];
     const suffix = formData?.fileNameSuffix ?? (args.type == '' ? ''
-        : args.type == 'IR' ? (data as IR).evidence.ir.cislo : spName((data as Raw<FormNSP>).zasah));
+        : args.type == 'IR' ? (data as IR).IN.ir.cislo : spName((data as NSP).NSP.zasah));
     const fileName = args.type == '' ? `${args.pdfName}.pdf` : `${args.pdfName}_${surname} ${suffix}.pdf`;
 
     return { fileName, pdfBytes };

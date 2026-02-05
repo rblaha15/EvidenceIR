@@ -2,7 +2,7 @@
     import { type Translations } from '$lib/translations';
     import { untrack } from 'svelte';
     import { extractIRIDFromParts, type IRID } from '$lib/helpers/ir';
-    import db, { type IR } from '$lib/data';
+    import { type IR } from '$lib/data';
     import { goto } from '$app/navigation';
     import { detailIrUrl } from '$lib/helpers/runes.svelte';
     import Widget from '$lib/components/Widget.svelte';
@@ -12,6 +12,7 @@
     import { serverTimestamp, Timestamp } from 'firebase/firestore';
     import { get } from 'svelte/store';
     import { currentUser } from '$lib/client/auth';
+    import db from '$lib/Database';
 
     const { t, ir, irid }: {
         t: Translations, ir: IR, irid: IRID,
@@ -48,8 +49,8 @@
     $effect(() => {
         if (!ir) return;
         untrack(() => {
-            part.typ.setValue(d, ir.evidence.ir.typ);
-            part.cislo.setValue(d, ir.evidence.ir.cislo);
+            part.typ.setValue(d, ir.IN.ir.typ);
+            part.cislo.setValue(d, ir.IN.ir.cislo);
         });
     });
 
@@ -63,29 +64,29 @@
             const newIRID = extractIRIDFromParts(newType.first!, newNumber);
             change = 'sending';
             const record = await db.getIR(irid!) as IR;
-            record.evidence.ir.cislo = newNumber;
-            record.evidence.ir.typ = newType;
-            if (alsoChange.setPumpType) record.evidence.tc.typ = alsoChange.setPumpType;
-            if (alsoChange.setPumpModel) record.evidence.tc.model = alsoChange.setPumpModel;
-            if (alsoChange.setPumpNumber) record.evidence.tc.cislo = alsoChange.setPumpNumber;
-            if (alsoChange.resetBoxNumber) record.evidence.ir.cisloBox = '';
-            if (alsoChange.resetRemoteAccess) record.evidence.vzdalenyPristup.chce = false;
-            if (alsoChange.setFVEType) record.evidence.fve.typ = 'DG-450-B';
-            if (alsoChange.setHP) record.evidence.ir.chceVyplnitK = ['heatPump'];
+            record.IN.ir.cislo = newNumber;
+            record.IN.ir.typ = newType;
+            if (alsoChange.setPumpType) record.IN.tc.typ = alsoChange.setPumpType;
+            if (alsoChange.setPumpModel) record.IN.tc.model = alsoChange.setPumpModel;
+            if (alsoChange.setPumpNumber) record.IN.tc.cislo = alsoChange.setPumpNumber;
+            if (alsoChange.resetBoxNumber) record.IN.ir.cisloBox = '';
+            if (alsoChange.resetRemoteAccess) record.IN.vzdalenyPristup.chce = false;
+            if (alsoChange.setFVEType) record.IN.fve.typ = 'DG-450-B';
+            if (alsoChange.setHP) record.IN.ir.chceVyplnitK = ['heatPump'];
             if (irid! == newIRID) {
-                await db.updateIRRecord(record.evidence, record.isDraft);
+                await db.updateIRRecord(irid!, record.IN, record.isDraft);
                 alsoChange = alsoChangeDefault;
             } else {
                 const user = get(currentUser)!;
                 record.deleted = false;
-                record.createdAt = serverTimestamp() as Timestamp;
-                record.changedAt = serverTimestamp() as Timestamp;
-                record.keysChangedAt = serverTimestamp() as Timestamp;
-                record.createdBy = { uid: user.uid, email: user.email! };
+                record.meta.createdAt = serverTimestamp() as Timestamp;
+                record.meta.changedAt = serverTimestamp() as Timestamp;
+                record.meta.keysChangedAt = serverTimestamp() as Timestamp;
+                record.meta.createdBy = { uid: user.uid, email: user.email! };
                 await db.addIR(record);
                 alsoChange = alsoChangeDefault;
                 const newRecord = await db.getIR(newIRID);
-                if (!newRecord || newRecord.deleted || !newRecord.evidence) return change = 'fail';
+                if (!newRecord || newRecord.deleted || !newRecord.IN) return change = 'fail';
                 await db.deleteIR(irid!, newIRID);
                 await goto(detailIrUrl(newIRID), { replaceState: true, invalidateAll: true });
             }

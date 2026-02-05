@@ -14,15 +14,15 @@
     } = $props();
     const tr = $derived(t.dk);
 
-    type D = { dk: FormPartDK<D>, evidence: IR['evidence'] }
+    type D = { dk: FormPartDK<D>, evidence: IR['IN'] }
 
     let loading = $state(false);
     let error = $state(false);
 
     const f = $state<FormPartDK<D>>(defaultDK<D>(type));
-    const data = $derived({ dk: f, evidence: ir.evidence });
-    const settings = $derived(type == 'TČ' ? ir.yearlyHeatPumpCheckRecommendation : ir.yearlySolarSystemCheckRecommendation);
-    const commissionDate = $derived(type == 'TČ' ? ir.heatPumpCommissionDate : ir.solarSystemCommissionDate);
+    const data = $derived({ dk: f, evidence: ir.IN });
+    const settings = $derived(type == 'TČ' ? ir.RK.DK.TC : ir.RK.DK.SOL);
+    const commissionDate = $derived(type == 'TČ' ? ir.UP.dateTC : ir.UP.dateSOL);
 
     $effect(() => {
         f.enabled.setValue(data, Boolean(settings));
@@ -46,7 +46,7 @@
     };
 </script>
 
-{#if ir.evidence.ir.chceVyplnitK.includes(type === 'TČ' ? 'heatPump' : 'solarCollector')}
+{#if ir.IN.ir.chceVyplnitK.includes(type === 'TČ' ? 'heatPump' : 'solarCollector')}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         <button class="btn btn-info d-block" data-bs-target="#recommendations{type}Modal" data-bs-toggle="modal" onclick={() => {
         loading = false;

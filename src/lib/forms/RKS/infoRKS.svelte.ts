@@ -1,5 +1,5 @@
 import { page } from '$app/state';
-import db, { type Year } from '$lib/data';
+import { type Year } from '$lib/data';
 import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -10,6 +10,7 @@ import { dayISO } from '$lib/helpers/date';
 import defaultRKS from '$lib/forms/RKS/defaultRKS';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import type { DataRKS, FormRKS } from '$lib/forms/RKS/formRKS';
+import db from '$lib/Database';
 
 const infoRKS: FormInfo<DataRKS, FormRKS, [], 'RKS', { defaultYear: Year, filledYears: Year[] }> = {
     type: 'IR',
@@ -20,20 +21,20 @@ const infoRKS: FormInfo<DataRKS, FormRKS, [], 'RKS', { defaultYear: Year, filled
     }),
     getEditData: (ir, url) => {
         const edit = (url.searchParams.get('edit-year')?.toNumber()) as Year | undefined;
-        if (edit) return { raw: ir.kontrolySOL![edit], other: { defaultYear: edit } };
+        if (edit) return { raw: ir.RK.SOL![edit], other: { defaultYear: edit } };
     },
     getViewData: (ir, url) => {
-        const checks = ir.kontrolySOL ?? {};
+        const checks = ir.RK.SOL ?? {};
         const filledYears = checks.keys().map(y => Number(y) as Year);
 
         const view = (url.searchParams.get('view-year')?.toNumber()) as Year | undefined;
-        if (view) return { raw: ir.kontrolySOL![view], other: { defaultYear: view, filledYears } };
+        if (view) return { raw: ir.RK.SOL![view], other: { defaultYear: view, filledYears } };
         else {
             const defaultYear = filledYears.length
                 ? (Math.max(...filledYears) + 1) as Year
                 : 1;
-            if (!ir.solarSystemCommissionDate) return { other: { defaultYear, filledYears } };
-            const commission = new Date(ir.solarSystemCommissionDate);
+            if (!ir.UP.dateSOL) return { other: { defaultYear, filledYears } };
+            const commission = new Date(ir.UP.dateSOL);
             const today = new Date(new Date().toISOString().split('T')[0]);
 
             const anniversaryThisYear =
@@ -57,10 +58,10 @@ const infoRKS: FormInfo<DataRKS, FormRKS, [], 'RKS', { defaultYear: Year, filled
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit
-                ? `Vyplněna nová roční kontrola SOL k ${irName(ir.evidence.ir)}`
-                : `Upravena roční kontrola SOL k ${irName(ir.evidence.ir)}`,
+                ? `Vyplněna nová roční kontrola SOL k ${irName(ir.IN.ir)}`
+                : `Upravena roční kontrola SOL k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.evidence },
+            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.IN },
         });
 
         if (response!.ok) return;

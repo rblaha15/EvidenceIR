@@ -47,18 +47,18 @@ export const GET: RequestHandler = async ({ request, fetch }) => {
 
     for (const ir of irs) {
         if (ir.deleted) continue
-        const irid = extractIRIDFromRawData(ir.evidence);
+        const irid = extractIRIDFromRawData(ir.IN);
         const today = new Date(new Date().toISOString().split('T')[0]);
         // const today = new Date(Date.UTC(2025, 10, 6));
 
-        if (ir.yearlyHeatPumpCheckRecommendation) {
-            const settings = ir.yearlyHeatPumpCheckRecommendation;
-            const commission = new Date(ir.heatPumpCommissionDate!);
+        if (ir.RK.DK.TC) {
+            const settings = ir.RK.DK.TC;
+            const commission = new Date(ir.UP.dateTC!);
             await processRecommendations({ today, commission, ir, irid, settings, type: 'TČ', fetch, appUrl });
         }
-        if (ir.yearlySolarSystemCheckRecommendation) {
-            const settings = ir.yearlySolarSystemCheckRecommendation;
-            const commission = new Date(ir.solarSystemCommissionDate!);
+        if (ir.RK.DK.SOL) {
+            const settings = ir.RK.DK.SOL;
+            const commission = new Date(ir.UP.dateSOL!);
             await processRecommendations({ today, commission, ir, irid, settings, type: 'SOL', fetch, appUrl });
         }
     }
@@ -80,8 +80,8 @@ const processRecommendations = async ({ today, commission, ir, irid, settings, t
         today < anniversaryThisYear ? anniversaryThisYear : anniversaryNextYear;
     const yearOfNextCheck = nextAnniversary.getFullYear() - commission.getFullYear();
     const filledYears = type == 'TČ'
-        ? ir.kontrolyTC.getValues().flatMap(tc => tc?.keys()).filterNotUndefined()
-        : ir.kontrolySOL?.keys() ?? [];
+        ? ir.RK.TC.getValues().flatMap(tc => tc?.keys()).filterNotUndefined()
+        : ir.RK.SOL?.keys() ?? [];
     const lastFilledCheck = Math.max(...filledYears.map(Number))
         .let(max => max == -Infinity ? 0 : max);
 
@@ -129,16 +129,16 @@ const sendRecommendation = async ({ ir, irid, settings, type, fetch, appUrl }: S
     }
 
     const getCompany = async () => {
-        const crn = companyType == 'assembly' ? ir.evidence.montazka.ico : ir.evidence.uvedeni.ico;
+        const crn = companyType == 'assembly' ? ir.IN.montazka.ico : ir.IN.uvedeni.ico;
         const a = await ares.getName(crn, fetch);
         return a ? `${a} (${crn})` : crn;
     };
-    const user = endUserName(ir.evidence.koncovyUzivatel);
+    const user = endUserName(ir.IN.koncovyUzivatel);
     const data = {
         irid, user, type,
-        location: `${ir.evidence.mistoRealizace.ulice}, ${ir.evidence.mistoRealizace.psc} ${ir.evidence.mistoRealizace.obec}`,
+        location: `${ir.IN.mistoRealizace.ulice}, ${ir.IN.mistoRealizace.psc} ${ir.IN.mistoRealizace.obec}`,
         company: await getCompany(),
-        companyEmail: companyType == 'assembly' ? ir.evidence.montazka.email : ir.evidence.uvedeni.email,
+        companyEmail: companyType == 'assembly' ? ir.IN.montazka.email : ir.IN.uvedeni.email,
     };
     await createRK(code, data);
     const link = `${appUrl}/request?code=${code}`;
@@ -149,7 +149,7 @@ const sendRecommendation = async ({ ir, irid, settings, type, fetch, appUrl }: S
     });
     await sendEmail({
         from: SENDER(),
-        to: dev ? 'radek.blaha.15@gmail.com' : endUserEmails(ir.evidence.koncovyUzivatel).map(address => ({ name: user, address  })),
+        to: dev ? 'radek.blaha.15@gmail.com' : endUserEmails(ir.IN.koncovyUzivatel).map(address => ({ name: user, address  })),
         replyTo: { name: 'David Červenka', address: 'david.cervenka@regulus.cz' },
         subject: `Upozornění na roční kontrolu ${data.type === 'TČ' ? 'tepelného čerpadla' : 'solárního systému'} Regulus`,
         html, text: htmlToText(html),
@@ -165,11 +165,11 @@ const ignoreThisYear = async ({ irid, settings, type }: SystemArgs) => {
 
 const sendReminder = async ({ appUrl, irid, ir }: SystemArgs & AppArgs) => {
     const link = appUrl + detailIrUrl(irid, '?');
-    const html = reminderEmail(endUserName(ir.evidence.koncovyUzivatel), link);
+    const html = reminderEmail(endUserName(ir.IN.koncovyUzivatel), link);
     await sendEmail({
         from: SENDER(),
         to: dev ? 'radek.blaha.15@gmail.com' : cervenka,
-        subject: `Neproběhla zažádaná roční kontrola TČ u ${irName(ir.evidence.ir)}`,
+        subject: `Neproběhla zažádaná roční kontrola TČ u ${irName(ir.IN.ir)}`,
         html, text: htmlToText(html),
     });
 };

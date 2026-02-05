@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { endUserName, irName, irWholeName, spWholeName } from '$lib/helpers/ir';
+    import { endUserName, irWholeName, spWholeName } from '$lib/helpers/ir';
     import type { Raw } from '$lib/forms/Form';
     import type { FormIN } from '$lib/forms/IN/formIN';
     import type { FormNSP } from '$lib/forms/NSP/formNSP';
@@ -12,9 +12,9 @@
     <p>Důvod slevy: {discountReason}</p>
 {/if}
 
-{#if 'ir' in e}
+{#if !('zasah' in e)}
     <p>IR: {irWholeName(e)}</p>
-{:else}
+{:else if !('ir' in e)}
     <p>SP: {spWholeName(e)}</p>
 {/if}
 <p>Uživatel: {endUserName(e.koncovyUzivatel)}</p>

@@ -1,12 +1,11 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-        import { SearchWidget } from '$lib/forms/Widget.svelte.js';
+    import { SearchWidget } from '$lib/forms/Widget.svelte.js';
     import Search from '$lib/components/widgets/Search.svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { detailIrUrl, detailSpUrl } from '$lib/helpers/runes.svelte';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
     import type { PageProps } from './$types';
-    import type { Installation_PublicServiceProtocol } from './+page';
 
     const { data }: PageProps = $props()
 
