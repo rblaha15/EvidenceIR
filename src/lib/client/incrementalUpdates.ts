@@ -15,8 +15,8 @@ import { isOnline } from '$lib/client/realtimeOnline';
 type Millis = number;
 export const getAllIRs = async () => {
     const store = writable<IR[] | 'loading'>('loading');
-    const lastUpdatedChangedAtIR = storable<Millis>('lastUpdatedChangedAtIR', 500);
-    const lastUpdatedDeletedAtIR = storable<Millis>('lastUpdatedDeletedAtIR', 500);
+    const lastUpdatedChangedAtIR = storable<Millis>('lastUpdatedChangedAtIR2', 500);
+    const lastUpdatedDeletedAtIR = storable<Millis>('lastUpdatedDeletedAtIR2', 500);
     const lastUpdatedChangedAtMillis = get(lastUpdatedChangedAtIR);
     const lastUpdatedDeletedAtMillis = get(lastUpdatedDeletedAtIR);
     const lastUpdatedChangedAt = lastUpdatedChangedAtMillis ? Timestamp.fromMillis(lastUpdatedChangedAtMillis) : null;
@@ -42,8 +42,8 @@ export const getAllIRs = async () => {
 
 export const getAllIndependentProtocols = async () => {
     const store = writable<NSP[] | 'loading'>('loading');
-    const lastUpdatedChangedAtSP = storable<Millis>('lastUpdatedChangedAtSP', 500);
-    const lastUpdatedDeletedAtSP = storable<Millis>('lastUpdatedDeletedAtSP', 500);
+    const lastUpdatedChangedAtSP = storable<Millis>('lastUpdatedChangedAtSP2', 500);
+    const lastUpdatedDeletedAtSP = storable<Millis>('lastUpdatedDeletedAtSP2', 500);
     const lastUpdatedChangedAtMillis = get(lastUpdatedChangedAtSP);
     const lastUpdatedDeletedAtMillis = get(lastUpdatedDeletedAtSP);
     const lastUpdatedChangedAt = lastUpdatedChangedAtMillis ? Timestamp.fromMillis(lastUpdatedChangedAtMillis) : null;
