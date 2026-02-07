@@ -2,11 +2,9 @@
     import { InputWidget } from '$lib/forms/Widget.svelte';
     import Widget from '$lib/components/Widget.svelte';
     import { getTranslations } from '$lib/translations';
-    import { getToken } from '$lib/client/auth';
     import { dateFromISO, dayISO } from '$lib/helpers/date';
-    import { adminDescriptions, type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
-    import { detailIrUrl } from '$lib/helpers/runes.svelte';
-    import { datetimeFromISO } from '$lib/helpers/date';
+    import type { ExistingIR, ExistingNSP } from '$lib/data';
+    import { adminDatabase } from '$lib/client/firestore';
 
     let from = $state(new InputWidget({
         type: 'date', label: 'Od (včetně)', text: dayISO(),
@@ -17,22 +15,45 @@
 
     const cs = getTranslations('cs');
 
+    let status = $state('none' as 'none' | 'mistake' | 'loading' | 'fail' | 'success');
     let results = $state<Record<string, number>>({});
     let currentRange = $state<[string, string]>(['', '']);
 
-    let resultsLP = $state<Record<string, LoyaltyProgramUserData>>({});
-
     const search = async () => {
-        const token = await getToken();
-        const response = await fetch(`/api/stats?from=${from.value}&to=${to.value}&token=${token}&type=protocols`);
-        results = await response.json();
-        currentRange = [dateFromISO(from.value), dateFromISO(to.value)];
-    };
+        from.displayErrorVeto = true;
+        to.displayErrorVeto = true;
+        if (from.showError({}) || to.showError({})) return status = 'mistake';
+        status = 'loading';
+        try {
+            const fromD = new Date(from.value);
+            const toD = new Date(to.value);
 
-    const searchLP = async () => {
-        const token = await getToken();
-        const response = await fetch(`/api/stats?token=${token}&type=loyalty`);
-        resultsLP = await response.json();
+            const irs = (await adminDatabase.getAllIRs()).filter((ir): ir is ExistingIR => !ir.deleted);
+            const nsps = (await adminDatabase.getAllNSPs()).filter((sp): sp is ExistingNSP => !sp.deleted);
+
+            const allProtocols = [...irs.flatMap(ir => ir.SPs), ...nsps.map(sp => sp.NSP)];
+
+            const namesAndDates = allProtocols.map(p => ({
+                name: p.zasah.clovek.trim(),
+                initials: p.zasah.inicialy.trim(),
+                date: new Date(p.zasah.datum),
+            }));
+
+            const filtered = namesAndDates.filter(p =>
+                fromD <= p.date && p.date < toD,
+            );
+
+            status = 'success';
+            results = filtered.groupBy(p => `${p.name} (${p.initials})`)
+                .mapValues((_, ps) => ps.length)
+                .entries()
+                .toSorted(([_, a], [__, b]) => b - a)
+                .toRecord();
+            currentRange = [dateFromISO(from.value), dateFromISO(to.value)];
+        } catch (e) {
+            console.error(e);
+            status = 'fail';
+        }
     };
 </script>
 
@@ -49,6 +70,16 @@
     Vyhledat
 </button>
 
+{#if status === 'loading'}
+    <div class="spinner-border text-danger"></div>
+{:else if status === 'fail'}
+    <p class="m-0 text-danger">Něco se nepovedlo</p>
+{:else if status === 'mistake'}
+    <p class="m-0 text-danger">Špatně zadaná data!</p>
+{:else if status === 'success'}
+    <p class="m-0 text-success">Úspěšně nalezeno!</p>
+{/if}
+
 {#if currentRange[0]}
     <p class="m-0">Počty vytvořených protokolů od {currentRange[0]} do {currentRange[1]}:</p>
 
@@ -61,25 +92,4 @@
             <li>{technician}: {count}</li>
         {/each}
     </ul>
-{/if}
-
-<h2>Statistiky a historie věrnostních bodů uživatelů</h2>
-
-<button class="btn btn-primary" onclick={searchLP}>
-    Vyhledat
-</button>
-
-{#if resultsLP.entries().length}
-    {#each resultsLP.entries() as [email, data]}
-        <details>
-            <summary><a href="#users-{email}">{email}</a>: {data.points.toLocaleString('cs')}</summary>
-            {#each data.history as entry}
-                {#if entry.type === 'other'}
-                    <p class="m-0">{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note}</p>
-                {:else}
-                    <p class="m-0">{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {adminDescriptions[entry.type]} {#if entry.irid}u <a href="{detailIrUrl(entry.irid)}">{entry.irid}</a>{/if} {#if entry.note}({entry.note}){/if}</p>
-                {/if}
-            {/each}
-        </details>
-    {/each}
 {/if}

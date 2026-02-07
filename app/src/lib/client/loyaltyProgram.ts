@@ -70,7 +70,7 @@ export type OtherLoyaltyProgramPointsTransaction = {
     addition: Points;
     type: 'other';
     note: string;
-    irid?: undefined;
+    irid?: IRID;
     timestamp: string;
 };
 export type LoyaltyProgramPointsTransaction = StandardLoyaltyProgramPointsTransaction | OtherLoyaltyProgramPointsTransaction;

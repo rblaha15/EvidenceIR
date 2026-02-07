@@ -107,7 +107,7 @@ const getOrSetCreatingUser = async (irid: IRID, user: DecodedIdToken) => {
     return user.uid;
 };
 
-const addPointsTransaction = async (
+export const addPointsTransaction = async (
     data: Omit<StandardLoyaltyProgramPointsTransaction, 'addition'> & { multiplier?: number; } | OtherLoyaltyProgramPointsTransaction,
     uid: string,
 ) => {

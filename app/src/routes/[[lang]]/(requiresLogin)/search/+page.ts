@@ -51,7 +51,7 @@ export const load: PageLoad = async ({ parent }) => {
     const ts = getTranslations(data.languageCode).search;
 
     const installations = derived(
-        await getAllIRs(),
+        getAllIRs(),
         $irs => $irs == 'loading' ? null : $irs
             .filter(ir => checkAdmin() || !ir.deleted)
             .map(ir => ({
@@ -70,7 +70,7 @@ export const load: PageLoad = async ({ parent }) => {
     const protocols = !await checkRegulusOrAdmin()
         ? readable([])
         : derived(
-            await getAllIndependentProtocols(),
+            getAllIndependentProtocols(),
             $sps => $sps == 'loading' ? null : Object.entries($sps
                 .mapNotUndefined(sp => !checkAdmin() && sp.deleted ? undefined : sp)
                 .groupBy(sp => irLabel(sp.NSP)))

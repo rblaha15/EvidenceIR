@@ -20,6 +20,7 @@
     import { goto } from '$app/navigation';
     import StatsGetter from './StatsGetter.svelte';
     import BackupDownloader from './BackupDownloader.svelte';
+    import LoyaltyProgramManager from './LoyaltyProgramManager.svelte';
 
     interface BaseTabDefinition {
         title: string,
@@ -240,6 +241,13 @@
             },
             longerTitle: 'Statistiky vytvořených servisních protokolů',
         },
+        loyaltyProgram: {
+            title: 'Věrnostní program',
+            contentType: 'custom',
+            contentOptions: {
+                component: LoyaltyProgramManager,
+            },
+        },
         backup: {
             title: 'Záloha',
             contentType: 'custom',
@@ -293,7 +301,7 @@
             tabindex="0"
         >
             <div class="d-flex flex-column gap-3">
-                <h2 class="m-0">{t.longerTitle}</h2>
+                <h2 class="m-0">{t.longerTitle || t.title}</h2>
                 {#if t.contentType === 'table'}
                     <AdminTable options={t.tableOptions} id={tab} />
                 {:else if t.contentType === 'custom'}

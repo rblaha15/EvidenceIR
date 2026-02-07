@@ -16,7 +16,7 @@ import {
 import { logEvent } from 'firebase/analytics';
 import type { Raw } from '$lib/forms/Form';
 import { get } from 'svelte/store';
-import { checkRegulusOrAdmin, currentUser } from './auth';
+import { checkAdmin, checkRegulusOrAdmin, currentUser } from './auth';
 import { analytics, firestore } from '../../hooks.client';
 import { type IRID, irWholeName, type SPID } from '$lib/helpers/ir';
 import { offlineDatabase, offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
@@ -225,3 +225,14 @@ export const firestoreDatabase: Database = [...readDatabase.keys(), ...writeData
         }
     },
 ) as Database;
+
+export const adminDatabase = {
+    getAllIRs: async () => {
+        if (!await checkAdmin()) throw new Error('Unauthorized');
+        return await getSnps(irCollection);
+    },
+    getAllNSPs: async () => {
+        if (!await checkAdmin()) throw new Error('Unauthorized');
+        return await getSnps(spCollection);
+    },
+}
