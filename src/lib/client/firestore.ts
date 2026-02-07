@@ -66,7 +66,7 @@ const shouldUpdateKeyChangeIR = async (irid: IRID, newIN: Raw<FormIN>, isDraft: 
 
 const addStampIR = (field: keyof IR | string, value: unknown) => ({
     [field]: value,
-    changedAt: serverTimestamp() as Timestamp,
+    'meta.changedAt': serverTimestamp() as Timestamp,
 });
 
 const readDatabase: ReadDatabase = {
@@ -135,11 +135,10 @@ const writeDatabase: WriteDatabase = {
         await setDoc(irDoc(irid), deletedIR(ir, movedTo));
     },
     updateIRRecord: async (irid, rawData, isDraft) => await updateDoc(irDoc(irid), {
-        IN: rawData, isDraft, meta: {
-            changedAt: serverTimestamp() as Timestamp,
-            ...await shouldUpdateKeyChangeIR(irid, rawData, isDraft)
-                ? { keysChangedAt: serverTimestamp() as Timestamp } : {},
-        },
+        IN: rawData, isDraft,
+        'meta.changedAt': serverTimestamp() as Timestamp,
+        ...await shouldUpdateKeyChangeIR(irid, rawData, isDraft)
+            ? { 'meta.keysChangedAt': serverTimestamp() as Timestamp } : {},
     }),
     addHeatPumpCheck: (irid, pump, year, check) =>
         updateDoc(irDoc(irid), addStampIR(`RK.TC.${pump}.${year}`, check)),
@@ -151,10 +150,8 @@ const writeDatabase: WriteDatabase = {
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
         await updateDoc(irDoc(irid), {
             SPs: [...ir.SPs, protocol],
-            meta: {
-                changedAt: serverTimestamp() as Timestamp,
-                keysChangedAt: serverTimestamp() as Timestamp,
-            },
+            'meta.changedAt': serverTimestamp() as Timestamp,
+            'meta.keysChangedAt': serverTimestamp() as Timestamp,
         });
     },
     updateServiceProtocol: (irid, index, protocol) =>
