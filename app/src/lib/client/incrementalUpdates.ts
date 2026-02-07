@@ -12,11 +12,13 @@ import { Timestamp } from 'firebase/firestore';
 import type { IR, NSP } from '$lib/data';
 import { isOnline } from '$lib/client/realtimeOnline';
 
+const v = 4
+
 type Millis = number;
 export const getAllIRs = async () => {
     const store = writable<IR[] | 'loading'>('loading');
-    const lastUpdatedChangedAtIR = storable<Millis>('lastUpdatedChangedAtIR2', 500);
-    const lastUpdatedDeletedAtIR = storable<Millis>('lastUpdatedDeletedAtIR2', 500);
+    const lastUpdatedChangedAtIR = storable<Millis>(`lastUpdatedChangedAtIR${v}`, 500);
+    const lastUpdatedDeletedAtIR = storable<Millis>(`lastUpdatedDeletedAtIR${v}`, 500);
     const lastUpdatedChangedAtMillis = get(lastUpdatedChangedAtIR);
     const lastUpdatedDeletedAtMillis = get(lastUpdatedDeletedAtIR);
     const lastUpdatedChangedAt = lastUpdatedChangedAtMillis ? Timestamp.fromMillis(lastUpdatedChangedAtMillis) : null;
@@ -28,13 +30,14 @@ export const getAllIRs = async () => {
         firestoreDatabase.getDeletedIRs(lastUpdatedDeletedAt).then(deletes => {
             const newList = [...currentOffline, ...changes, ...deletes].distinctBy(ir => ir.meta.id);
             store.set(newList);
-            odm.setAll('IR', newList.associateBy(ir => ir.meta.id));
-            if (changes.length) lastUpdatedChangedAtIR.set(
-                changes.map(ir => ir.meta.keysChangedAt).maxOf(t => t.toMillis()),
-            );
-            if (deletes.length) lastUpdatedDeletedAtIR.set(
-                deletes.map(ir => ir.meta.deletedAt).maxOf(t => t.toMillis()),
-            );
+            odm.setAll('IR', newList.associateBy(ir => ir.meta.id)).then(() => {
+                if (changes.length) lastUpdatedChangedAtIR.set(
+                    changes.map(ir => ir.meta.keysChangedAt).maxOf(t => t.toMillis()),
+                );
+                if (deletes.length) lastUpdatedDeletedAtIR.set(
+                    deletes.map(ir => ir.meta.deletedAt).maxOf(t => t.toMillis()),
+                );
+            });
         });
     });
     return store;
@@ -42,8 +45,8 @@ export const getAllIRs = async () => {
 
 export const getAllIndependentProtocols = async () => {
     const store = writable<NSP[] | 'loading'>('loading');
-    const lastUpdatedChangedAtSP = storable<Millis>('lastUpdatedChangedAtSP2', 500);
-    const lastUpdatedDeletedAtSP = storable<Millis>('lastUpdatedDeletedAtSP2', 500);
+    const lastUpdatedChangedAtSP = storable<Millis>(`lastUpdatedChangedAtSP${v}`, 500);
+    const lastUpdatedDeletedAtSP = storable<Millis>(`lastUpdatedDeletedAtSP${v}`, 500);
     const lastUpdatedChangedAtMillis = get(lastUpdatedChangedAtSP);
     const lastUpdatedDeletedAtMillis = get(lastUpdatedDeletedAtSP);
     const lastUpdatedChangedAt = lastUpdatedChangedAtMillis ? Timestamp.fromMillis(lastUpdatedChangedAtMillis) : null;
@@ -55,13 +58,14 @@ export const getAllIndependentProtocols = async () => {
         firestoreDatabase.getDeletedIndependentProtocols(lastUpdatedDeletedAt).then(deletes => {
             const newList = [...currentOffline, ...changes, ...deletes].distinctBy(nsp => nsp.meta.id);
             store.set(newList);
-            odm.setAll('SP', newList.associateBy(nsp => nsp.meta.id));
-            if (changes.length) lastUpdatedChangedAtSP.set(
-                changes.map(ir => ir.meta.createdAt).maxOf(t => t.toMillis()),
-            );
-            if (deletes.length) lastUpdatedDeletedAtSP.set(
-                deletes.map(ir => ir.meta.deletedAt).maxOf(t => t.toMillis()),
-            );
+            odm.setAll('SP', newList.associateBy(nsp => nsp.meta.id)).then(() => {
+                if (changes.length) lastUpdatedChangedAtSP.set(
+                    changes.map(ir => ir.meta.createdAt).maxOf(t => t.toMillis()),
+                );
+                if (deletes.length) lastUpdatedDeletedAtSP.set(
+                    deletes.map(ir => ir.meta.deletedAt).maxOf(t => t.toMillis()),
+                );
+            });
         });
     });
     return store;
