@@ -13,27 +13,27 @@
 
 {#if $isUserAdmin && data}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
-        {#if 'createdBy' in data && data.meta.createdBy && !('IN' in data && data.meta.createdBy.isFake)}
+        {#if 'createdBy' in data.meta && data.meta.createdBy && !('IN' in data && data.meta.createdBy.isFake)}
             <span>
                 <Icon icon="add" />
                 Vytvořil: {data.meta.createdBy.email}{$aA}
             </span>
         {/if}
-        {#if 'createdAt' in data && data.meta.createdAt && !('_seconds' in data.meta.createdAt)}
+        {#if 'createdAt' in data.meta && data.meta.createdAt && !('_seconds' in data.meta.createdAt)}
             {@const date = new Timestamp(data.meta.createdAt.seconds, data.meta.createdAt.nanoseconds).toDate()}
             <span>
                 <Icon icon="add" />
                 Vytvořeno: {datetimeFromISO(date.toISOString())} UTC{$aA}
             </span>
         {/if}
-        {#if 'changedAt' in data && data.meta.changedAt && !('_seconds' in data.meta.changedAt)}
+        {#if 'changedAt' in data.meta && data.meta.changedAt && !('_seconds' in data.meta.changedAt)}
             {@const date = new Timestamp(data.meta.changedAt.seconds, data.meta.changedAt.nanoseconds).toDate()}
             <span>
                 <Icon icon="edit" />
                 Změněno: {datetimeFromISO(date.toISOString())} UTC{$aA}
             </span>
         {/if}
-        {#if data.deleted && 'deletedAt' in data && data.meta.deletedAt && !('_seconds' in data.meta.deletedAt)}
+        {#if data.deleted && 'deletedAt' in data.meta && data.meta.deletedAt && !('_seconds' in data.meta.deletedAt)}
             {@const date = new Timestamp(data.meta.deletedAt.seconds, data.meta.deletedAt.nanoseconds).toDate()}
             <span>
                 <Icon icon="delete" />
