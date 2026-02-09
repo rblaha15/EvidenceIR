@@ -12,7 +12,7 @@ import { Timestamp } from 'firebase/firestore';
 import type { IR, NSP } from '$lib/data';
 import { isOnline } from '$lib/client/realtimeOnline';
 
-const v = 4
+const v = 5
 
 type Millis = number;
 export const getAllIRs = () => {
