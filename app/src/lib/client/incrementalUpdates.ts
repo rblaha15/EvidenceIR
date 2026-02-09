@@ -24,7 +24,7 @@ export const getAllIRs = () => {
         const lastUpdatedDeletedAtMillis = get(lastUpdatedDeletedAtIR);
         const lastUpdatedChangedAt = lastUpdatedChangedAtMillis ? Timestamp.fromMillis(lastUpdatedChangedAtMillis) : null;
         const lastUpdatedDeletedAt = lastUpdatedDeletedAtMillis ? Timestamp.fromMillis(lastUpdatedDeletedAtMillis) : null;
-        if (lastUpdatedDeletedAtMillis == 500) await clearLocalDatabase(); // Clean up old data when changing the store
+        if (lastUpdatedDeletedAtMillis == 500 && lastUpdatedChangedAtMillis == 500) await clearLocalDatabase(); // Clean up old data when changing the store
         const currentOffline = await odm.getAll('IR');
         store.set(currentOffline);
         const changes = await firestoreDatabase.getChangedIRs(lastUpdatedChangedAt)
@@ -52,7 +52,7 @@ export const getAllIndependentProtocols = () => {
         const lastUpdatedDeletedAtMillis = get(lastUpdatedDeletedAtSP);
         const lastUpdatedChangedAt = lastUpdatedChangedAtMillis ? Timestamp.fromMillis(lastUpdatedChangedAtMillis) : null;
         const lastUpdatedDeletedAt = lastUpdatedDeletedAtMillis ? Timestamp.fromMillis(lastUpdatedDeletedAtMillis) : null;
-        if (lastUpdatedDeletedAtMillis == 500) await clearLocalDatabase();
+        if (lastUpdatedDeletedAtMillis == 500 && lastUpdatedChangedAtMillis == 500) await clearLocalDatabase();
         const currentOffline = await odm.getAll('SP');
         store.set(currentOffline);
         const changes = await firestoreDatabase.getChangedIndependentProtocols(lastUpdatedChangedAt)
