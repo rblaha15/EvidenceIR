@@ -158,8 +158,19 @@ const writeDatabase: WriteDatabase = {
             },
         });
     },
-    updateServiceProtocol: (irid, index, protocol) =>
-        updateDoc(irDoc(irid), addStampIR(`SPs.${index}`, protocol)),
+    updateServiceProtocol: async (irid, index, protocol) => {
+        const ir = await readDatabase.getIR(irid);
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
+        await updateDoc(irDoc(irid), {
+            ...ir,
+            SPs: ir.SPs.with(index, protocol),
+            meta: {
+                ...ir.meta,
+                changedAt: serverTimestamp() as Timestamp,
+            },
+        });
+    },
     updateHeatPumpCommissioningProtocol: (irid, protocol) =>
         updateDoc(irDoc(irid), addStampIR(`UP.TC`, protocol)),
     updateHeatPumpCommissionDate: (irid, date) =>
