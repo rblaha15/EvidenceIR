@@ -110,14 +110,14 @@ const readDatabase: ReadDatabase = {
         }
     },
 
-    getIndependentProtocol: spid => getSnp(spDoc(spid))
-        .thenAlso(v => odm.putOrDelete('SP', spid, v)),
-    getChangedIndependentProtocols: async lastUpdatedAt => await getSnps(query(
+    getNSP: spid => getSnp(spDoc(spid))
+        .thenAlso(v => odm.putOrDelete('NSP', spid, v)),
+    getChangedNSPs: async lastUpdatedAt => await getSnps(query(
         spCollection,
         where('deleted', '!=', true),
         where('meta.createdAt', '>', lastUpdatedAt),
     )) as ExistingNSP[],
-    getDeletedIndependentProtocols: async lastUpdatedAt => await getSnps(query(
+    getDeletedNSPs: async lastUpdatedAt => await getSnps(query(
         spCollection,
         where('deleted', '==', true),
         where('meta.deletedAt', '>', lastUpdatedAt),
@@ -149,9 +149,13 @@ const writeDatabase: WriteDatabase = {
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
         await updateDoc(irDoc(irid), {
+            ...ir,
             SPs: [...ir.SPs, protocol],
-            'meta.changedAt': serverTimestamp() as Timestamp,
-            'meta.keysChangedAt': serverTimestamp() as Timestamp,
+            meta: {
+                ...ir.meta,
+                changedAt: serverTimestamp() as Timestamp,
+                keysChangedAt: serverTimestamp() as Timestamp,
+            },
         });
     },
     updateServiceProtocol: (irid, index, protocol) =>
@@ -193,14 +197,14 @@ const writeDatabase: WriteDatabase = {
         await updateDoc(irDoc(irid), addStampIR(`RK.DK.SOL`, dk));
     },
     addIndependentServiceProtocol: async (nsp) => {
-        if (await readDatabase.getIndependentProtocol(nsp.meta.id)) throw new Error(`NSP ${nsp.meta.id} already exists`);
+        if (await readDatabase.getNSP(nsp.meta.id)) throw new Error(`NSP ${nsp.meta.id} already exists`);
         await setDoc(spDoc(nsp.meta.id), nsp);
     },
     updateIndependentServiceProtocol: (spid, protocol) => updateDoc(spDoc(spid), {
         ...protocol, 'meta.changedAt': serverTimestamp() as Timestamp, deleted: false,
     }),
     deleteIndependentProtocol: async spid => {
-        const nsp = await readDatabase.getIndependentProtocol(spid);
+        const nsp = await readDatabase.getNSP(spid);
         if (!nsp) throw new Error(`NSP ${spid} doesn't exists`);
         await setDoc(spDoc(spid), deletedNSP(nsp));
     },

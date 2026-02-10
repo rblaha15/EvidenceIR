@@ -101,6 +101,24 @@ interface BaseNSP {
     NSP: Raw<FormNSP>;
 }
 
+export type DataType = 'IR' | 'NSP';
+export type Data<T extends DataType> = {
+    IR: IR,
+    NSP: NSP,
+}[T]
+export type ExistingData<T extends DataType> = {
+    IR: ExistingIR,
+    NSP: ExistingNSP,
+}[T]
+export type DeletedData<T extends DataType> = {
+    IR: DeletedIR,
+    NSP: DeletedNSP,
+}[T]
+export type ID<T extends DataType> = {
+    IR: IRID,
+    NSP: SPID,
+}[T]
+
 export const newIR = (
     raw: Raw<FormIN>,
     user: User,

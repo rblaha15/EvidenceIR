@@ -4,21 +4,19 @@ import { type IRID, type SPID } from '$lib/helpers/ir';
 import { currentUser } from '$lib/client/auth';
 import type { Database, ReadDatabase, WriteDatabase } from '$lib/Database';
 import { serverTimestamp, type Timestamp } from 'firebase/firestore';
-import { deletedIR, type DeletedNSP, type IR, type NSP } from '$lib/data';
+import { type Data, type DataType, deletedIR, type DeletedNSP, type ID, type IR, type NSP } from '$lib/data';
 
-interface DBSchema extends DBS {
+type DBSchema = {
     IR: {
         key: IRID;
         value: IR;
     };
-    SP: {
+    NSP: {
         key: SPID;
         value: NSP;
     };
 }
 
-type Data<T extends 'IR' | 'SP'> = DBSchema[T]['value']
-type ID<T extends 'IR' | 'SP'> = DBSchema[T]['key']
 
 const storedIR = writable<Record<IRID, IR>>({}, (set) => {
     (async () => {
@@ -27,18 +25,18 @@ const storedIR = writable<Record<IRID, IR>>({}, (set) => {
 });
 const storedSP = writable<Record<SPID, NSP>>({}, (set) => {
     (async () => {
-        set((await odm.getAll('SP')).associateBy(nsp => nsp.meta.id));
+        set((await odm.getAll('NSP')).associateBy(nsp => nsp.meta.id));
     })();
 });
 
 let dbMap: Record<string, IDBPDatabase<DBSchema>> = {};
 
-const newDb = (uid: string) => openDB<DBSchema>(`offlineData2_${uid}`, 1, {
+const newDb = (uid: string) => openDB<DBSchema>(`offlineData2_${uid}`, 2, {
     upgrade: db => {
         if (!db.objectStoreNames.contains('IR'))
             db.createObjectStore('IR');
-        if (!db.objectStoreNames.contains('SP'))
-            db.createObjectStore('SP');
+        if (!db.objectStoreNames.contains('NSP'))
+            db.createObjectStore('NSP');
     },
 });
 
@@ -47,34 +45,30 @@ const db = async () => {
     return dbMap[uid] || (dbMap[uid] = await newDb(uid));
 };
 
-const mIR = (i: IR) => i;
-const mSP = (s: NSP) => s;
-const m = <T extends 'IR' | 'SP'>(type: T) => (v: Data<T>) => (type === 'IR' ? mIR(v as IR) : mSP(v as NSP)) as Data<T>;
-
 export const clearLocalDatabase = async () => {
     storedIR.set({})
     storedSP.set({})
     await (await db()).clear('IR');
-    await (await db()).clear('SP');
+    await (await db()).clear('NSP');
 };
 
 const odm = {
-    put: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>, value: Data<T>) => {
+    put: async <T extends DataType>(type: T, id: ID<T>, value: Data<T>) => {
         const _db2 = await db();
         await _db2.put(type, $state.snapshot(value) as Data<T>, id);
         if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: value }));
-        if (type === 'SP') storedSP.update(sp => ({ ...sp, [id]: value }));
+        if (type === 'NSP') storedSP.update(sp => ({ ...sp, [id]: value }));
     },
-    delete: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>) => {
+    delete: async <T extends DataType>(type: T, id: ID<T>) => {
         await (await db()).delete(type, id);
         if (type === 'IR') storedIR.update(ir => ir.omit(id as ID<'IR'>));
-        if (type === 'SP') storedSP.update(sp => sp.omit(id as ID<'SP'>));
+        if (type === 'NSP') storedSP.update(sp => sp.omit(id as ID<'NSP'>));
     },
-    get: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>) =>
-        (await (await db()).get(type, id))?.let(m(type)),
-    getAll: async <T extends 'IR' | 'SP'>(type: T) =>
-        (await (await db()).getAll(type)).map(m(type)),
-    setAll: async <T extends 'IR' | 'SP'>(type: T, values: { [id in ID<T>]: Data<T> }) => {
+    get: async <T extends DataType>(type: T, id: ID<T>) =>
+        await (await db()).get(type, id) as Data<T>,
+    getAll: async <T extends DataType>(type: T) =>
+        await (await db()).getAll(type) as Data<T>[],
+    setAll: async <T extends DataType>(type: T, values: { [id in ID<T>]: Data<T> }) => {
         await (await db()).transaction(type, 'readwrite').let(async tx => {
             tx.objectStore(type).clear();
             await values.mapTo((id, value) =>
@@ -83,26 +77,26 @@ const odm = {
             await tx.done;
         });
         if (type === 'IR') storedIR.set(values);
-        if (type === 'SP') storedSP.set(values);
+        if (type === 'NSP') storedSP.set(values);
     },
-    update: async <T extends 'IR' | 'SP'>(type: T, id: ID<T>, update: (value: (Data<T>)) => Data<T>) => {
+    update: async <T extends DataType>(type: T, id: ID<T>, update: (value: (Data<T>)) => Data<T>) => {
         const tx = (await db()).transaction(type, 'readwrite');
         const store = tx.objectStore(type);
-        const current = (await store.get(id))?.let(m(type)) as Data<T>;
-        const updated = update(current);
+        const current = await store.get(id);
+        const updated = update(current! as Data<T>);
         // const uw = unwrap(store);
         // const rq = uw.put($state.snapshot(updated), id);
         // await wrap(rq);
         await store.put($state.snapshot(updated) as Data<T>, id);
         await tx.done;
         if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: updated }));
-        if (type === 'SP') storedSP.update(sp => ({ ...sp, [id]: updated }));
+        if (type === 'NSP') storedSP.update(sp => ({ ...sp, [id]: updated }));
     },
 };
 
 export const offlineDatabaseManager = {
     ...odm,
-    putOrDelete: <T extends 'IR' | 'SP'>(type: T, id: ID<T>, value: Data<T> | undefined) =>
+    putOrDelete: <T extends DataType>(type: T, id: ID<T>, value: Data<T> | undefined) =>
         value ? odm.put(type, id, value) : odm.delete(type, id),
 };
 
@@ -112,9 +106,9 @@ const readDatabase: ReadDatabase = {
     getDeletedIRs: async () => [],
     existsIR: async irid => Boolean(await odm.get('IR', irid)),
 
-    getIndependentProtocol: spid => odm.get('SP', spid),
-    getChangedIndependentProtocols: async () => [],
-    getDeletedIndependentProtocols: async () => [],
+    getNSP: spid => odm.get('NSP', spid),
+    getChangedNSPs: async () => [],
+    getDeletedNSPs: async () => [],
 };
 
 const writeDatabase: WriteDatabase = {
@@ -202,13 +196,13 @@ const writeDatabase: WriteDatabase = {
         return ir;
     }),
 
-    addIndependentServiceProtocol: nsp => odm.put('SP', nsp.meta.id, nsp),
-    updateIndependentServiceProtocol: (spid, rawData) => odm.update('SP', spid, nsp => {
+    addIndependentServiceProtocol: nsp => odm.put('NSP', nsp.meta.id, nsp),
+    updateIndependentServiceProtocol: (spid, rawData) => odm.update('NSP', spid, nsp => {
         if (nsp.deleted) return nsp;
         nsp.NSP = rawData;
         return nsp;
     }),
-    deleteIndependentProtocol: async spid => await odm.update('SP', spid, sp => ({
+    deleteIndependentProtocol: async spid => await odm.update('NSP', spid, sp => ({
         ...sp,
         deleted: true,
         meta: {

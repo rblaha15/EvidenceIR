@@ -31,7 +31,7 @@
     }));
     let installation = $state(new SearchWidget<unknown, IR>({
         label: 'Související instalace (pokud je)', required: false,
-        items: derived(getAllIRs(), irs => irs == 'loading' ? [] : irs), getSearchItem: i => ({
+        items: derived(getAllIRs(), irs => irs.data), getSearchItem: i => ({
             pieces: [
                 {
                     text: irName(i.IN.ir), width: .4,

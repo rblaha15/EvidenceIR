@@ -1,6 +1,6 @@
 import { type IRID, type SPID } from '$lib/helpers/ir';
 import { derived, readable, type Readable } from 'svelte/store';
-import { getStoreIndependentProtocol, getStoreIR } from '$lib/client/incrementalUpdates';
+import { getStoreNSP, getStoreIR } from '$lib/client/incrementalUpdates';
 import type { IR, NSP } from '$lib/data';
 import db from '$lib/Database';
 
@@ -21,7 +21,7 @@ export const getData = async (id: {
             if (!ir) return { ...base };
             return { ...base, ir, success: true };
         } else if (id.spids) {
-            const data = await id.spids.map(db.getIndependentProtocol).awaitAll();
+            const data = await id.spids.map(db.getNSP).awaitAll();
             const defined = data.filterNotUndefined();
             const anyNotDeleted = defined.some(p => !p.deleted);
             const sps = anyNotDeleted ? defined.filter(p => !p.deleted) : defined;
@@ -52,7 +52,7 @@ export const getDataAsStore = (id: {
             return { ...base, ir };
         } else if (id.spids) {
             const sps = derived(
-                id.spids.map(getStoreIndependentProtocol),
+                id.spids.map(getStoreNSP),
                 data => {
                     if (data.some(p => p == 'loading')) return 'loading';
                     return data.map(p => p == 'loading' ? undefined : p).filterNotUndefined()
