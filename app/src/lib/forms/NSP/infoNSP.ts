@@ -69,14 +69,14 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         const spid = url.searchParams.get('edit-spid') as SPID | null;
         if (!spid) return undefined;
 
-        const sp = await db.getIndependentProtocol(spid);
+        const sp = await db.getNSP(spid);
         return !sp || sp.deleted ? undefined : { raw: sp.NSP };
     },
     getViewData: async url => {
         const spid = url.searchParams.get('view-spid') as SPID | null;
         if (!spid) return undefined;
 
-        const sp = await db.getIndependentProtocol(spid);
+        const sp = await db.getNSP(spid);
         return !sp ? undefined : { raw: sp.NSP };
     },
     storeEffects: [

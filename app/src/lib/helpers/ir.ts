@@ -195,9 +195,9 @@ export const extractIRIDFromParts = (fullIRType: IRTypes, irNumber: string): IRI
 export const extractIRIDFromRawData = (evidence: Raw<FormIN>): IRID =>
     extractIRIDFromParts(evidence.ir.typ.first!, evidence.ir.cislo);
 export const extractSPIDFromRawData = (zasah: Raw<GenericFormSP<never>['zasah']>): SPID => {
-    const datum = zasah.datum.split('T')[0];
-    const hodina = zasah.datum.split('T')[1].split(':')[0];
-    const minuta = zasah.datum.split('T')[1].split(':')[1];
+    const datum = zasah.datum.split('T')[0] || '';
+    const hodina = zasah.datum.split('T')[1]?.split(':')?.[0] || '';
+    const minuta = zasah.datum.split('T')[1]?.split(':')?.[1] || '';
     const technik = zasah.inicialy.trim();
     return `${technik}-${datum}-${hodina}-${minuta}`;
 };

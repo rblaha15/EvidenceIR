@@ -36,11 +36,11 @@ export interface ReadDatabase {
 
     existsIR(irid: IRID): Promise<boolean>;
 
-    getIndependentProtocol(spid: SPID): Promise<NSP | undefined>;
+    getNSP(spid: SPID): Promise<NSP | undefined>;
 
-    getChangedIndependentProtocols(lastUpdatedAt: Timestamp | null): Promise<ExistingNSP[]>;
+    getChangedNSPs(lastUpdatedAt: Timestamp | null): Promise<ExistingNSP[]>;
 
-    getDeletedIndependentProtocols(lastUpdatedAt: Timestamp | null): Promise<DeletedNSP[]>;
+    getDeletedNSPs(lastUpdatedAt: Timestamp | null): Promise<DeletedNSP[]>;
 }
 
 /**
@@ -98,8 +98,8 @@ const databaseMethods = [
     'updateHeatPumpCommissionDate', 'addSolarSystemCommissioningProtocol',
     'updateSolarSystemCommissionDate', 'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers',
     'updateHeatPumpRecommendationsSettings', 'updateSolarSystemRecommendationsSettings', 'addIndependentServiceProtocol',
-    'deleteIndependentProtocol', 'getIndependentProtocol', 'getChangedIndependentProtocols',
-    'getDeletedIndependentProtocols', 'addFaceTable', 'updateIndependentServiceProtocol',
+    'deleteIndependentProtocol', 'getNSP', 'getChangedNSPs',
+    'getDeletedNSPs', 'addFaceTable', 'updateIndependentServiceProtocol',
 ] as const satisfies (keyof Database)[];
 
 
