@@ -23,7 +23,16 @@ import { offlineDatabase, offlineDatabaseManager as odm } from '$lib/client/offl
 import { deleteField, Query } from '@firebase/firestore';
 import type { Database, ReadDatabase, WriteDatabase } from '$lib/Database';
 import type { FormIN } from '$lib/forms/IN/formIN';
-import { deletedIR, type DeletedIR, deletedNSP, type DeletedNSP, type ExistingIR, type ExistingNSP, type IR, type NSP } from '$lib/data';
+import {
+    deletedIR,
+    type DeletedIR,
+    deletedNSP,
+    type DeletedNSP,
+    type ExistingIR,
+    type ExistingNSP,
+    type IR,
+    type NSP,
+} from '$lib/data';
 
 const irCollection = collection(firestore, 'ir').withConverter<IR>({
     toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
@@ -185,6 +194,8 @@ const writeDatabase: WriteDatabase = {
         updateDoc(irDoc(irid), addStampIR(`FT`, faceTable)),
     updateIRUsers: (irid, users) =>
         updateDoc(irDoc(irid), addStampIR(`meta.usersWithAccess`, users)),
+    markRefsiteConfirmed: irid =>
+        updateDoc(irDoc(irid), addStampIR(`meta.flags.confirmedRefsite`, true)),
     updateHeatPumpRecommendationsSettings: async (irid, enabled, executingCompany) => {
         const ir = await getSnp(irDoc(irid));
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
@@ -250,4 +261,4 @@ export const adminDatabase = {
         if (!await checkAdmin()) throw new Error('Unauthorized');
         return await getSnps(spCollection);
     },
-}
+};

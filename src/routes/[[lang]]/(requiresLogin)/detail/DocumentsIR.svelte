@@ -1,19 +1,36 @@
 <script lang="ts">
     import type { Translations } from '$lib/translations';
     import { type ExistingIR } from '$lib/data';
-    import { type IRID, supportsRemoteAccess } from '$lib/helpers/ir';
-    import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { type IRID, irName, supportsRemoteAccess } from '$lib/helpers/ir';
+    import { currentUser, isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { aA, aR } from '$lib/helpers/stores';
     import PDFLink from './PDFLink.svelte';
-    import { iridUrl } from '$lib/helpers/runes.svelte';
+    import { detailIrUrl, iridUrl } from '$lib/helpers/runes.svelte';
     import { cascadePumps } from '$lib/forms/IN/infoIN';
     import { hasRKTL, isRKTL } from '$lib/forms/RKT/infoRKT';
     import type { LanguageCode } from '$lib/languageCodes';
+    import { blahova, defaultAddresses, sendEmail } from '$lib/client/email';
+    import MailProtocol from '$lib/emails/MailProtocol.svelte';
+    import { page } from '$app/state';
+    import type { TC } from '$lib/forms/IN/defaultIN';
+    import { goto } from '$app/navigation';
+    import db from '$lib/Database';
 
     const { t, ir, irid, lang }: {
         t: Translations, ir: ExistingIR, irid: IRID, lang: LanguageCode
     } = $props();
     const td = $derived(t.detail);
+
+    const confirmRefsite = (tc: TC, send: boolean = false) => async () => {
+        const response = send ? await sendEmail({
+            ...defaultAddresses(blahova),
+            subject: `Vytvořit refsite u ${irName(ir.IN.ir)}`,
+            component: MailProtocol,
+            props: { name: $currentUser!.displayName || $currentUser!.email!, url: page.url.origin + detailIrUrl(irid), e: ir.IN },
+        }) : undefined;
+        if (response?.ok) await db.markRefsiteConfirmed(irid);
+        await goto(iridUrl(`/RKT?pump=${tc}`));
+    };
 </script>
 
 {#if ir.IN.vzdalenyPristup.chce}
@@ -47,7 +64,9 @@
             name={t.rkt.name(tc)} {t} {lang} link={hasRKTL(ir.RK.TC[tc.N]) ? 'RKTL' : 'RKT'} data={ir} pump={tc.N} {irid}
             disabled={!ir.RK.TC[tc.N]?.keys()?.length} additionalButton={{
                 show: true,
-                href: iridUrl(`/RKT?pump=${tc.N}`),
+                ...ir.meta.flags.confirmedRefsite
+                    ? { href: iridUrl(`/RKT?pump=${tc.N}`) }
+                    : { dialogID: `refsiteModal-${tc.N}` },
                 text: t.rkt.fillOut(tc),
                 important: ir.RK.DK.TC?.state === 'sentRequest',
             }} dropdownItems={$isUserAdmin ? ir.RK.TC[tc.N]?.entries().flatMap(([y, k]) => [{
@@ -59,6 +78,23 @@
                 href: iridUrl(`/${isRKTL(k) ? 'RKTL' : 'RKT'}?pump=${tc.N}&edit-year=${y}`),
             }]) : undefined}
         />
+        <div class="modal fade" id="refsiteModal-{tc.N}" tabindex="-1" aria-labelledby="refsiteModalLabel-{tc.N}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="refsiteModalLabel-{tc.N}">Reference na Refsite</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Je zákazník ochoten vyplnit referenci na portálu <a href="https://refsite.info">refsite.info</a>? Žádost odešleme e-mailem.
+                    </div>
+                    <div class="modal-footer">
+                        <a class="btn btn-secondary" href={iridUrl(`/RKT?pump=${tc.N}`)} data-bs-dismiss="modal" onclick={confirmRefsite(tc.N)}>{td.no}</a>
+                        <a class="btn btn-primary" href={iridUrl(`/RKT?pump=${tc.N}`)} data-bs-dismiss="modal" onclick={confirmRefsite(tc.N, true)}>{td.yes}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     {/each}
 {/if}
 {#if ir.IN.ir.chceVyplnitK.includes('solarCollector')}

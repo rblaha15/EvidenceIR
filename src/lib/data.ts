@@ -51,8 +51,9 @@ interface BaseIR {
             isFake?: boolean;
         };
         usersWithAccess: string[];
-        loyaltyProgram?: {
+        flags: {
             grantedCommission?: boolean;
+            confirmedRefsite?: boolean;
         };
     };
     IN: Raw<FormIN>;
@@ -136,8 +137,9 @@ export const newIR = (
             email: user.email!,
         },
         usersWithAccess: [user.email!, raw.uvedeni.email, raw.montazka.email].distinct().filter(Boolean),
-        loyaltyProgram: {
+        flags: {
             grantedCommission: false,
+            confirmedRefsite: false,
         },
     },
     IN: raw,

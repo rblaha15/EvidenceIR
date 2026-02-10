@@ -14,7 +14,7 @@ import { getTranslations } from '$lib/translations';
 import ares from '$lib/helpers/ares';
 import { generatePdf } from '$lib/pdf/pdfGeneration';
 import { pdfInfo } from '$lib/pdf/pdf';
-import { cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
+import { blahova, cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
 import { xmlIN } from '$lib/forms/IN/xmlIN';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
 import { page } from '$app/state';
@@ -106,7 +106,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         });
 
         const response3 = await sendEmail({
-            ...defaultAddresses('blahova@regulus.cz', true),
+            ...defaultAddresses(blahova, true),
             subject: edited
                 ? `Úprava evidence regulátoru ${irName(raw.ir)}`
                 : `Nově zaevidovaný regulátor ${irName(raw.ir)}`,
