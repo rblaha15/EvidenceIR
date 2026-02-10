@@ -177,6 +177,11 @@ const writeDatabase: WriteDatabase = {
         ir.meta.usersWithAccess = users;
         return ir;
     }),
+    markRefsiteConfirmed: async irid => odm.update('IR', irid, ir => {
+        if (ir.deleted) return ir;
+        ir.meta.flags.confirmedRefsite = true;
+        return ir;
+    }),
     updateHeatPumpRecommendationsSettings: async (irid, enabled, executingCompany) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.RK.DK.TC = enabled ? {

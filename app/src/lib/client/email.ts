@@ -109,7 +109,11 @@ export const sendEmailAndUploadAttachments = async (options: EmailOptions) => {
 };
 
 export const receiver = 'seir@regulus.cz' as const satisfies AddressLike;
-export const cervenka = ['david.cervenka@regulus.cz', 'jakub.cervenka@regulus.cz'] as const satisfies AddressLike;
+export const cervenka = [
+    { name: 'David Červenka', address: 'david.cervenka@regulus.cz' },
+    { name: 'Jakub Červenka', address: 'jakub.cervenka@regulus.cz' },
+] as const satisfies AddressLike;
+export const blahova = { name: 'Andrea Bláhová', address: 'blahova@regulus.cz' } as const satisfies AddressLike;
 
 export const SENDER = (name?: string): Address => ({
     name: name ? name + ' (Regulus SEIR)' : 'Regulus SEIR',
@@ -126,7 +130,7 @@ export const defaultAddresses = (recipient: AddressLike = receiver, sendCopy: bo
     return ({
         from: SENDER(name),
         replyTo: user,
-        to: dev ? 'radek.blaha.15@gmail.com' : recipient,
-        cc: dev || !sendCopy ? undefined : user,
+        to: !dev ? recipient : user,
+        cc: !dev && sendCopy ? user : undefined,
     });
 };

@@ -203,6 +203,7 @@ export default {
                 updateSolarSystemCommissionDate: t`Změněn datum uvedení SOL do provozu u IR ${'ir'}`,
                 addPhotovoltaicSystemCommissioningProtocol: t`Vytvořen protokol o uvedení FVE do provozu u IR ${'ir'}`,
                 updateIRUsers: t`Změněn seznam uživatelů s přístupem k ${'ir'}`,
+                markRefsiteConfirmed: t`Označení zájmu o Refsite u ${'ir'}`,
                 updateHeatPumpRecommendationsSettings: t`Upraveno nastavení připomínání ročních kontrol TČ u ${'ir'}`,
                 updateSolarSystemRecommendationsSettings: t`Upraveno nastavení připomínání ročních kontrol SOL u ${'ir'}`,
                 addIndependentServiceProtocol: t`Vytvořen nezávislý servisní protokol ${'sp'}`,

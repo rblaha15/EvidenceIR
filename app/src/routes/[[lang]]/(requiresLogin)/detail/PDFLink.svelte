@@ -16,10 +16,13 @@
         disabled?: boolean;
         additionalButton?: {
             important?: boolean,
-            href: string,
             text: string,
             show?: boolean,
-        },
+        } & ({
+            href: string, dialogID?: undefined,
+        } | {
+            dialogID: string, href?: undefined,
+        }),
         dropdownItems?: ({
             hide?: boolean,
             text: string,
@@ -97,11 +100,19 @@
     {#if additionalButton}
         <div class="flex-shrink-0">
             {#if additionalButton.show ?? disabled}
-                <a
-                    tabindex="0"
-                    class={['btn d-block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary' ]}
-                    href={additionalButton.href}
-                >{additionalButton.text}</a>
+                {#if additionalButton.dialogID}
+                    <button
+                        data-bs-toggle="modal"
+                        data-bs-target="#{additionalButton.dialogID}"
+                        class={['btn d-block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary' ]}
+                    >{additionalButton.text}</button>
+                {:else}
+                    <a
+                        tabindex="0"
+                        class={['btn d-block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary' ]}
+                        href={additionalButton.href}
+                    >{additionalButton.text}</a>
+                {/if}
             {/if}
         </div>
     {/if}

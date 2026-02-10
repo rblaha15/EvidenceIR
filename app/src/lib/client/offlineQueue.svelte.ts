@@ -139,6 +139,7 @@ const functions: {
     updateSolarSystemCommissionDate: irid => ({ ir: irNumberFromIRID(irid) }),
     addPhotovoltaicSystemCommissioningProtocol: irid => ({ ir: irNumberFromIRID(irid) }),
     updateIRUsers: irid => ({ ir: irNumberFromIRID(irid) }),
+    markRefsiteConfirmed: irid => ({ ir: irNumberFromIRID(irid) }),
     updateHeatPumpRecommendationsSettings: irid => ({ ir: irNumberFromIRID(irid) }),
     updateSolarSystemRecommendationsSettings: irid => ({ ir: irNumberFromIRID(irid) }),
     addIndependentServiceProtocol: p => ({ sp: spWholeName(p.NSP) }),

@@ -78,6 +78,8 @@ export interface WriteDatabase {
 
     updateIRUsers(irid: IRID, users: string[]): Promise<void>;
 
+    markRefsiteConfirmed(irid: IRID): Promise<void>;
+
     updateHeatPumpRecommendationsSettings(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
 
     updateSolarSystemRecommendationsSettings(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
@@ -96,7 +98,7 @@ const databaseMethods = [
     'getIR', 'getChangedIRs', 'getDeletedIRs', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
     'addSolarSystemCheck', 'addServiceProtocol', 'updateServiceProtocol', 'updateHeatPumpCommissioningProtocol',
     'updateHeatPumpCommissionDate', 'addSolarSystemCommissioningProtocol',
-    'updateSolarSystemCommissionDate', 'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers',
+    'updateSolarSystemCommissionDate', 'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'markRefsiteConfirmed',
     'updateHeatPumpRecommendationsSettings', 'updateSolarSystemRecommendationsSettings', 'addIndependentServiceProtocol',
     'deleteIndependentProtocol', 'getNSP', 'getChangedNSPs',
     'getDeletedNSPs', 'addFaceTable', 'updateIndependentServiceProtocol',
