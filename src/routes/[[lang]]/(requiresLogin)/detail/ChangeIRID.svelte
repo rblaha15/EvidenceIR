@@ -80,6 +80,7 @@
             } else {
                 const user = get(currentUser)!;
                 record.deleted = false;
+                record.meta.id = newIRID;
                 record.meta.createdAt = serverTimestamp() as Timestamp;
                 record.meta.changedAt = serverTimestamp() as Timestamp;
                 record.meta.keysChangedAt = serverTimestamp() as Timestamp;

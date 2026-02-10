@@ -428,6 +428,12 @@ const de: PlainTranslations = {
         titleControllersAndProtocols: 'Suche nach Installationen und unabhängigen Serviceprotokollen',
         search: `Suchen`,
         nProtocols: (n, p) => `${n} Protokolle (${p})`,
+        cancel: 'Abbrechen',
+        clear: 'Löschen',
+        searchProblemsAdvice: 'Falls Ihre Installationen nicht wie erwartet geladen werden, können Sie versuchen, den Suchcache zu leeren und alles neu zu laden.',
+        searchProblemsTitle: 'Probleme mit der Suche',
+        searchProblems: 'Probleme mit der Suche?',
+        downloadingChanges: 'Änderungen werden heruntergeladen…',
     },
     sol: {
         ...en.sol,

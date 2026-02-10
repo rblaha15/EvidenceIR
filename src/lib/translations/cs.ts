@@ -70,6 +70,12 @@ export default {
         titleControllersAndProtocols: 'Vyhledávání instalací a nezávislých servisních protokolů',
         search: `Vyhledat`,
         nProtocols: (n: number, p: string) => n < 5 ? `${n} protokoly (${p})` : `${n} protokolů (${p})`,
+        cancel: 'Zrušit',
+        clear: 'Vymazat',
+        searchProblemsAdvice: 'Pokud se Vám nenačítají všechny instalace, co by měly, můžete zkusit vymazat cache vyhledávání a načíst vše odznovu.',
+        searchProblemsTitle: 'Problémy s vyhledáváním',
+        searchProblems: 'Problémy s vyhledáváním?',
+        downloadingChanges: 'Stahování změn…',
     },
     auth: {
         rewards: 'Odměny za věrnostní body',
