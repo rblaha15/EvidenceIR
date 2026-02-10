@@ -20,6 +20,7 @@
     const td = $derived(t.detail);
 
     let change: 'no' | 'input' | 'sending' | 'fail' | 'unchanged' = $state('no');
+    let error = $state<string>();
 
     type D = { ir: FormGroupIR<D> };
 
@@ -94,6 +95,7 @@
         } catch (e) {
             console.log(e);
             change = 'fail';
+            error = `${e}`;
         }
     };
 </script>
@@ -119,4 +121,12 @@
     </div>
 {:else if change === 'fail'}
     <p class="text-danger">{td.changeWentWrong}</p>
+    {#if error}
+        <p class="alert alert-danger w-100">
+            {#each error.split('\n') as line, i}
+                {#if i !== 0}<br />{/if}
+                {line}
+            {/each}
+        </p>
+    {/if}
 {/if}
