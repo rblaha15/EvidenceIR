@@ -8,6 +8,12 @@ const en: PlainTranslations = {
         titleControllersAndProtocols: 'Search installations and independent service protocols',
         search: `Search`,
         nProtocols: (n, p) => `${n} protocols (${p})`,
+        cancel: 'Cancel',
+        clear: 'Clear',
+        searchProblemsAdvice: 'If you are not seeing every installation, that you should be, you can try clearing the search cache and loading the page again.',
+        searchProblemsTitle: 'Problems with the search',
+        searchProblems: 'Problems with the search?',
+        downloadingChanges: 'Downloading changes…',
     },
     auth: {
         rewards: 'Loyalty points rewards',

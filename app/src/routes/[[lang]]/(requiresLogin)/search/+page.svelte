@@ -13,6 +13,7 @@
     const { data }: PageProps = $props()
 
     const t = $derived(data.translations);
+    const ts = $derived(t.search);
 
     const statusStore = $derived(data.data ? derived(data.data, data => data.status) : readable('loaded'));
     const itemsStore = $derived(data.data ? derived(data.data, data => data.items) : readable([]));
@@ -55,12 +56,12 @@
     <div class="d-flex me-auto align-items-center gap-3">
         {#if $statusStore === 'loadingOnline' && $isOnline}
             <div class="spinner-border text-danger"></div>
-            <span>Stahování změn…</span>
+            <span>{ts.downloadingChanges}</span>
         {/if}
     </div>
     <div class="ms-auto">
         <button class="btn btn-link" data-bs-toggle="modal" data-bs-target="#problemsModal">
-            Problémy s vyhledáváním?
+            {ts.searchProblems}
         </button>
     </div>
 </div>
@@ -75,15 +76,15 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="problemsModalLabel">Problémy s vyhledáváním</h1>
+                <h1 class="modal-title fs-5" id="problemsModalLabel">{ts.searchProblemsTitle}</h1>
                 <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
             </div>
             <div class="modal-body">
-                Pokud se Vám nenačítají všechny instalace, co by měly, můžete zkusit vymazat cache vyhledávání a načíst vše odznovu.
+                {ts.searchProblemsAdvice}
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" data-bs-dismiss="modal" type="button">Zrušit</button>
-                <button class="btn btn-warning" data-bs-dismiss="modal" onclick={clear} type="button">Vymazat</button>
+                <button class="btn btn-primary" data-bs-dismiss="modal" type="button">{ts.cancel}</button>
+                <button class="btn btn-warning" data-bs-dismiss="modal" onclick={clear} type="button">{ts.clear}</button>
             </div>
         </div>
     </div>
