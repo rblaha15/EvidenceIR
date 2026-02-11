@@ -9,6 +9,8 @@
     import { isOnline } from '$lib/client/realtimeOnline';
     import { resetStores } from '$lib/client/incrementalUpdates';
     import { derived, readable } from 'svelte/store';
+    import { analytics } from '../../../../hooks.client';
+    import { logEvent } from 'firebase/analytics';
 
     const { data }: PageProps = $props()
 
@@ -47,6 +49,7 @@
     $effect(() => setTitle($isUserRegulusOrAdmin ? t.search.titleControllersAndProtocols : t.search.titleControllers))
 
     const clear = () => {
+        logEvent(analytics(), 'clearSearchCaches');
         resetStores();
         location.reload();
     }
