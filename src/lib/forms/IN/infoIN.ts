@@ -62,7 +62,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         const user = get(currentUser)!;
 
         const newIr = newIR(raw, user, draft);
-        if (edit) await db.updateIRRecord(irid, raw, draft);
+        if (edit) await db.updateIN(irid, raw, draft);
         else await db.addIR(newIr);
 
         if (!draft) await grantPoints({ type: raw.vzdalenyPristup.chce ? 'connectRegulusRoute' : 'disconnectRegulusRoute', irid });

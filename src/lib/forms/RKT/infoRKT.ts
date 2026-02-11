@@ -64,7 +64,7 @@ const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: Yea
     },
     saveData: async (irid, raw, edit, form, editResult, t, _, ir, { pump }) => {
         const year = form.info.year.value as Year;
-        await db.addHeatPumpCheck(irid, pump, year, raw);
+        await db.addRKT(irid, pump, year, raw);
 
         await grantPoints({ type: 'heatPumpYearlyCheck', irid, pump, year });
 

@@ -20,7 +20,7 @@
 
 {#snippet deleteButton()}
     <button class="btn btn-danger" onclick={() => {
-        db.deleteIndependentProtocol(spid);
+        db.deleteNSP(spid);
         goto(spidUrl(`/detail?deleted`), { replaceState: true });
     }}>
         <Icon icon="delete_forever" />

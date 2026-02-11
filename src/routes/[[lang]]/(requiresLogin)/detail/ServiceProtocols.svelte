@@ -19,10 +19,14 @@
     } = $props();
     const td = $derived(t.detail);
 
+    const deleteSP = (i: number) => async () => {
+        await db.deleteSP(irid, i);
+    };
+
     const copySP = (i: number) => async () => {
         const ja = $techniciansList.find(t => $currentUser?.email == t.email);
         const p = ir.SPs[i];
-        await db.addServiceProtocol(irid!, {
+        await db.addSP(irid!, {
             ...p,
             fakturace: {
                 hotove: 'doNotInvoice',
@@ -46,8 +50,14 @@
 {#if ir.SPs.length}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
         {#each ir.SPs as p, i}
+            {#snippet deleteButton()}
+                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#deleteProtocolModal-{i}">
+                    <Icon icon="delete_forever" />
+                    {td.delete}
+                </button>
+            {/snippet}
             {#snippet duplicateButton()}
-                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#duplicateModal-{i}">
+                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#duplicateModal-{i}">
                     <Icon icon="file_copy" />
                     {td.duplicate}
                 </button>
@@ -63,6 +73,8 @@
                     icon: 'edit_document',
                     text: td.editProtocol,
                     href: iridUrl(`/SP/?edit=${i}`),
+                }, {
+                    item: deleteButton,
                 }, {
                     item: duplicateButton,
                 }]}
@@ -81,6 +93,27 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{td.no}</button>
                             <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick={copySP(i)}>{td.yes}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="deleteProtocolModal-{i}" tabindex="-1" aria-labelledby="deleteProtocolModal-{i}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="deleteProtocolModal-{i}">
+                                <Icon icon="delete_forever" />
+                                {td.delete} {spName(p.zasah)}
+                            </h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            {td.deleteSP}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">{td.no}</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick={deleteSP(i)}>{td.yes}</button>
                         </div>
                     </div>
                 </div>

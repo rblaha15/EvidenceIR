@@ -50,10 +50,10 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
             return false;
         }
 
-        if (edit) await db.updateServiceProtocol(irid, i, raw);
-        else await db.addServiceProtocol(irid, raw);
+        if (edit) await db.updateSP(irid, i, raw);
+        else await db.addSP(irid, raw);
 
-        if (!ir.UP.dateTC) await db.updateHeatPumpCommissionDate(irid, raw.system.datumUvedeni);
+        if (!ir.UP.dateTC) await db.updateDateUPT(irid, raw.system.datumUvedeni);
 
         if (edit && !send) return true;
 

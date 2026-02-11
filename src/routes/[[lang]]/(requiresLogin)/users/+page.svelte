@@ -33,7 +33,7 @@
             type="submit"
             onclick={() => {
                 if (!w.value) return;
-				db.updateIRUsers(irid, [...new Set([...$ir.meta.usersWithAccess, w.value])]);
+				db.updateUsersWithAccessToIR(irid, [...new Set([...$ir.meta.usersWithAccess, w.value])]);
 				w.setValue(undefined, null);
 			}}
         >{t.users.addUser}</button>
@@ -45,7 +45,7 @@
                 <button
                     class="btn text-danger"
                     onclick={() => {
-						db.updateIRUsers(irid, $ir.meta.usersWithAccess.toSpliced($ir.meta.usersWithAccess.indexOf(user), 1));
+						db.updateUsersWithAccessToIR(irid, $ir.meta.usersWithAccess.toSpliced($ir.meta.usersWithAccess.indexOf(user), 1));
 					}}
                     aria-label={t.users.remove}
                 >

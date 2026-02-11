@@ -93,7 +93,6 @@
                     {td.usersWithAccess}{$aR}
                 </a>
             {/if}
-            <ChangeIRID {ir} {irid} {t} />
             {#if !ir.isDraft}
                 <a class="btn btn-warning" href={relUrl(`/IN?edit-irid=${irid}`)}
                    tabindex="0">
@@ -101,7 +100,8 @@
                     {td.editInstallationData}
                 </a>
             {/if}
-            <button class="btn btn-danger d-block"
+            <ChangeIRID {ir} {irid} {t} />
+            <button class="btn btn-secondary d-block"
                     data-bs-target="#deleteModal" data-bs-toggle="modal">
                 <Icon icon="delete_forever" />
                 {td.deleteThisRecord}
@@ -118,11 +118,13 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="deleteModalLabel">{td.delete}</h1>
+                            <h1 class="modal-title fs-5" id="deleteModalLabel">
+                                <Icon icon="delete_forever" />
+                                {td.delete}
+                            </h1>
                             <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
                         </div>
                         <div class="modal-body">
-                            <Icon icon="delete_forever" />
                             {td.confirmDeletion}
                         </div>
                         <div class="modal-footer">

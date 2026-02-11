@@ -50,7 +50,7 @@ const infoRKS: FormInfo<DataRKS, FormRKS, [], 'RKS', { defaultYear: Year, filled
         }
     },
     saveData: async (irid, raw, edit, form, editResult, t, _, ir) => {
-        await db.addSolarSystemCheck(irid, form.info.year.value as Year, raw);
+        await db.addRKS(irid, form.info.year.value as Year, raw);
 
         if (await checkRegulusOrAdmin()) return;
 

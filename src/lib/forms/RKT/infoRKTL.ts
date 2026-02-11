@@ -29,7 +29,7 @@ const infoRKT: FormInfo<DataRKTL, FormRKTL, [], 'RKTL', { defaultYear: Year, fil
     },
     saveData: async (irid, raw, _1, form, _2, _3, _4, _5, { pump }) => {
         const year = form.info.year.value as Year;
-        await db.addHeatPumpCheck(irid, pump, year, raw);
+        await db.addRKT(irid, pump, year, raw);
     },
     title: (t, _, { pump }) => t.rkt.formTitle({ n: `${pump}` }),
     createWidgetData: () => {

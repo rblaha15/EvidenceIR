@@ -78,11 +78,11 @@ export const saveDK = async <D extends DataDK<D>>(ir: IR, form: FormPartDK<D>, t
     const enabled = form.enabled.value;
     const companyType = form.executingCompany.value;
     if (type == 'TČ') {
-        if (!ir.UP.dateTC) await db.updateHeatPumpCommissionDate(ir.meta.id, form.commissionDate.value);
-        await db.updateHeatPumpRecommendationsSettings(ir.meta.id, enabled, form.executingCompany.value);
+        if (!ir.UP.dateTC) await db.updateDateUPT(ir.meta.id, form.commissionDate.value);
+        await db.updateDKT(ir.meta.id, enabled, form.executingCompany.value);
     } else {
-        if (!ir.UP.dateSOL) await db.updateSolarSystemCommissionDate(ir.meta.id, form.commissionDate.value);
-        await db.updateSolarSystemRecommendationsSettings(ir.meta.id, enabled, form.executingCompany.value);
+        if (!ir.UP.dateSOL) await db.updateDateUPS(ir.meta.id, form.commissionDate.value);
+        await db.updateDKS(ir.meta.id, enabled, form.executingCompany.value);
     }
     const settings = type == 'TČ' ? ir.RK.DK.TC : ir.RK.DK.SOL;
     if (enabled == Boolean(settings) || companyType == settings?.executingCompany) return true;

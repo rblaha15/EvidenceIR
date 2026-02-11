@@ -114,65 +114,70 @@ const readDatabase: ReadDatabase = {
 const writeDatabase: WriteDatabase = {
     addIR: ir => odm.put('IR', ir.meta.id, ir),
     deleteIR: (irid, movedTo) => odm.update('IR', irid, ir => deletedIR(ir, movedTo)),
-    updateIRRecord: (irid, rawData, isDraft) => odm.update('IR', irid, ir => {
+    updateIN: (irid, rawData, isDraft) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.IN = rawData;
         ir.isDraft = isDraft;
         return ir;
     }),
-    addHeatPumpCheck: (irid, pump, year, check) => odm.update('IR', irid, ir => {
+    addRKT: (irid, pump, year, check) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.RK.TC[pump] = ir.RK.TC[pump] ?? {};
         ir.RK.TC[pump][year] = check;
         return ir;
     }),
-    addSolarSystemCheck: (irid, year, check) => odm.update('IR', irid, ir => {
+    addRKS: (irid, year, check) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.RK.SOL = ir.RK.SOL ?? {};
         ir.RK.SOL[year] = check;
         return ir;
     }),
-    addServiceProtocol: (irid, protocol) => odm.update('IR', irid, ir => {
+    addSP: (irid, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.SPs.push(protocol);
         return ir;
     }),
-    updateServiceProtocol: async (irid, index, protocol) => odm.update('IR', irid, ir => {
+    updateSP: async (irid, index, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.SPs[index] = protocol;
         return ir;
     }),
-    updateHeatPumpCommissioningProtocol: async (irid, protocol) => odm.update('IR', irid, ir => {
+    deleteSP: async (irid, index) => odm.update('IR', irid, ir => {
+        if (ir.deleted) return ir;
+        ir.SPs.splice(index, 1);
+        return ir;
+    }),
+    updateUPT: async (irid, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.UP.TC = protocol;
         return ir;
     }),
-    updateHeatPumpCommissionDate: async (irid, date) => odm.update('IR', irid, ir => {
+    updateDateUPT: async (irid, date) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.UP.dateTC = date;
         return ir;
     }),
-    addSolarSystemCommissioningProtocol: async (irid, protocol) => odm.update('IR', irid, ir => {
+    addUPS: async (irid, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.UP.SOL = protocol;
         return ir;
     }),
-    updateSolarSystemCommissionDate: async (irid, date) => odm.update('IR', irid, ir => {
+    updateDateUPS: async (irid, date) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.UP.dateTC = date;
         return ir;
     }),
-    addPhotovoltaicSystemCommissioningProtocol: async (irid, protocol) => odm.update('IR', irid, ir => {
+    addUPF: async (irid, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.UP.FVE = protocol;
         return ir;
     }),
-    addFaceTable: async (irid, faceTable) => odm.update('IR', irid, ir => {
+    addFT: async (irid, faceTable) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.FT = faceTable;
         return ir;
     }),
-    updateIRUsers: async (irid, users) => odm.update('IR', irid, ir => {
+    updateUsersWithAccessToIR: async (irid, users) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.meta.usersWithAccess = users;
         return ir;
@@ -182,7 +187,7 @@ const writeDatabase: WriteDatabase = {
         ir.meta.flags.confirmedRefsite = true;
         return ir;
     }),
-    updateHeatPumpRecommendationsSettings: async (irid, enabled, executingCompany) => odm.update('IR', irid, ir => {
+    updateDKT: async (irid, enabled, executingCompany) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.RK.DK.TC = enabled ? {
             state: 'waiting',
@@ -191,7 +196,7 @@ const writeDatabase: WriteDatabase = {
         } : undefined;
         return ir;
     }),
-    updateSolarSystemRecommendationsSettings: async (irid, enabled, executingCompany) => odm.update('IR', irid, ir => {
+    updateDKS: async (irid, enabled, executingCompany) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.RK.DK.SOL = enabled ? {
             state: 'waiting',
@@ -201,13 +206,13 @@ const writeDatabase: WriteDatabase = {
         return ir;
     }),
 
-    addIndependentServiceProtocol: nsp => odm.put('NSP', nsp.meta.id, nsp),
-    updateIndependentServiceProtocol: (spid, rawData) => odm.update('NSP', spid, nsp => {
+    addNSP: nsp => odm.put('NSP', nsp.meta.id, nsp),
+    updateNSP: (spid, rawData) => odm.update('NSP', spid, nsp => {
         if (nsp.deleted) return nsp;
         nsp.NSP = rawData;
         return nsp;
     }),
-    deleteIndependentProtocol: async spid => await odm.update('NSP', spid, sp => ({
+    deleteNSP: async spid => await odm.update('NSP', spid, sp => ({
         ...sp,
         deleted: true,
         meta: {

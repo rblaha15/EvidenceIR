@@ -143,17 +143,17 @@ const writeDatabase: WriteDatabase = {
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         await setDoc(irDoc(irid), deletedIR(ir, movedTo));
     },
-    updateIRRecord: async (irid, rawData, isDraft) => await updateDoc(irDoc(irid), {
+    updateIN: async (irid, rawData, isDraft) => await updateDoc(irDoc(irid), {
         IN: rawData, isDraft,
         'meta.changedAt': serverTimestamp() as Timestamp,
         ...await shouldUpdateKeyChangeIR(irid, rawData, isDraft)
             ? { 'meta.keysChangedAt': serverTimestamp() as Timestamp } : {},
     }),
-    addHeatPumpCheck: (irid, pump, year, check) =>
+    addRKT: (irid, pump, year, check) =>
         updateDoc(irDoc(irid), addStampIR(`RK.TC.${pump}.${year}`, check)),
-    addSolarSystemCheck: (irid, year, check) =>
+    addRKS: (irid, year, check) =>
         updateDoc(irDoc(irid), addStampIR(`RK.SOL.${year}`, check)),
-    addServiceProtocol: async (irid, protocol) => {
+    addSP: async (irid, protocol) => {
         const ir = await readDatabase.getIR(irid);
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
@@ -167,7 +167,7 @@ const writeDatabase: WriteDatabase = {
             },
         });
     },
-    updateServiceProtocol: async (irid, index, protocol) => {
+    updateSP: async (irid, index, protocol) => {
         const ir = await readDatabase.getIR(irid);
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
@@ -180,23 +180,37 @@ const writeDatabase: WriteDatabase = {
             },
         });
     },
-    updateHeatPumpCommissioningProtocol: (irid, protocol) =>
+    deleteSP: async (irid, index) => {
+        const ir = await readDatabase.getIR(irid);
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
+        await updateDoc(irDoc(irid), {
+            ...ir,
+            SPs: ir.SPs.toSpliced(index, 1),
+            meta: {
+                ...ir.meta,
+                changedAt: serverTimestamp() as Timestamp,
+                keysChangedAt: serverTimestamp() as Timestamp,
+            },
+        });
+    },
+    updateUPT: (irid, protocol) =>
         updateDoc(irDoc(irid), addStampIR(`UP.TC`, protocol)),
-    updateHeatPumpCommissionDate: (irid, date) =>
+    updateDateUPT: (irid, date) =>
         updateDoc(irDoc(irid), addStampIR(`UP.dateTC`, date)),
-    addSolarSystemCommissioningProtocol: (irid, protocol) =>
+    addUPS: (irid, protocol) =>
         updateDoc(irDoc(irid), addStampIR(`UP.SOL`, protocol)),
-    updateSolarSystemCommissionDate: (irid, date) =>
+    updateDateUPS: (irid, date) =>
         updateDoc(irDoc(irid), addStampIR(`UP.dateSOL`, date)),
-    addPhotovoltaicSystemCommissioningProtocol: (irid, protocol) =>
+    addUPF: (irid, protocol) =>
         updateDoc(irDoc(irid), addStampIR(`UP.FVE`, protocol)),
-    addFaceTable: (irid, faceTable) =>
+    addFT: (irid, faceTable) =>
         updateDoc(irDoc(irid), addStampIR(`FT`, faceTable)),
-    updateIRUsers: (irid, users) =>
+    updateUsersWithAccessToIR: (irid, users) =>
         updateDoc(irDoc(irid), addStampIR(`meta.usersWithAccess`, users)),
     markRefsiteConfirmed: irid =>
         updateDoc(irDoc(irid), addStampIR(`meta.flags.confirmedRefsite`, true)),
-    updateHeatPumpRecommendationsSettings: async (irid, enabled, executingCompany) => {
+    updateDKT: async (irid, enabled, executingCompany) => {
         const ir = await getSnp(irDoc(irid));
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
@@ -207,7 +221,7 @@ const writeDatabase: WriteDatabase = {
         } : deleteField();
         await updateDoc(irDoc(irid), addStampIR(`RK.DK.TC`, dk));
     },
-    updateSolarSystemRecommendationsSettings: async (irid, enabled, executingCompany) => {
+    updateDKS: async (irid, enabled, executingCompany) => {
         const ir = await getSnp(irDoc(irid));
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
@@ -218,14 +232,14 @@ const writeDatabase: WriteDatabase = {
         } : deleteField();
         await updateDoc(irDoc(irid), addStampIR(`RK.DK.SOL`, dk));
     },
-    addIndependentServiceProtocol: async (nsp) => {
+    addNSP: async (nsp) => {
         if (await readDatabase.getNSP(nsp.meta.id)) throw new Error(`NSP ${nsp.meta.id} already exists`);
         await setDoc(spDoc(nsp.meta.id), nsp);
     },
-    updateIndependentServiceProtocol: (spid, protocol) => updateDoc(spDoc(spid), {
+    updateNSP: (spid, protocol) => updateDoc(spDoc(spid), {
         ...protocol, 'meta.changedAt': serverTimestamp() as Timestamp, deleted: false,
     }),
-    deleteIndependentProtocol: async spid => {
+    deleteNSP: async spid => {
         const nsp = await readDatabase.getNSP(spid);
         if (!nsp) throw new Error(`NSP ${spid} doesn't exists`);
         await setDoc(spDoc(spid), deletedNSP(nsp));

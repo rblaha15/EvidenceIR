@@ -14,7 +14,7 @@ const infoFT: FormInfo<DataFT, FormFT, [], 'FT'> = {
         link: 'FT',
     }),
     saveData: async (irid, raw) => {
-        await db.addFaceTable(irid, raw);
+        await db.addFT(irid, raw);
     },
     pdfImport: {
         onImport: () => {},

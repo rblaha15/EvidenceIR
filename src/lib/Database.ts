@@ -54,54 +54,53 @@ export interface WriteDatabase {
 
     deleteIR(irid: IRID, movedTo?: IRID): Promise<void>;
 
-    updateIRRecord(irid: IRID, rawData: Raw<FormIN>, isDraft: boolean): Promise<void>;
+    updateIN(irid: IRID, rawData: Raw<FormIN>, isDraft: boolean): Promise<void>;
 
-    addHeatPumpCheck(irid: IRID, pump: TC, year: Year, check: Raw<FormRKT | FormRKTL>): Promise<void>;
+    addRKT(irid: IRID, pump: TC, year: Year, check: Raw<FormRKT | FormRKTL>): Promise<void>;
 
-    addSolarSystemCheck(irid: IRID, year: Year, check: Raw<FormRKS>): Promise<void>;
+    addRKS(irid: IRID, year: Year, check: Raw<FormRKS>): Promise<void>;
 
-    addServiceProtocol(irid: IRID, protocol: Raw<FormSP>): Promise<void>;
+    addSP(irid: IRID, protocol: Raw<FormSP>): Promise<void>;
 
-    updateServiceProtocol(irid: IRID, index: number, protocol: Raw<FormSP>): Promise<void>;
+    updateSP(irid: IRID, index: number, protocol: Raw<FormSP>): Promise<void>;
 
-    updateHeatPumpCommissioningProtocol(irid: IRID, protocol: Raw<FormUPT>): Promise<void>;
+    deleteSP(irid: IRID, index: number): Promise<void>;
 
-    updateHeatPumpCommissionDate(irid: IRID, date: string): Promise<void>;
+    updateUPT(irid: IRID, protocol: Raw<FormUPT>): Promise<void>;
 
-    addSolarSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPS>): Promise<void>;
+    updateDateUPT(irid: IRID, date: string): Promise<void>;
 
-    updateSolarSystemCommissionDate(irid: IRID, date: string): Promise<void>;
+    addUPS(irid: IRID, protocol: Raw<FormUPS>): Promise<void>;
 
-    addPhotovoltaicSystemCommissioningProtocol(irid: IRID, protocol: Raw<FormUPF>): Promise<void>;
+    updateDateUPS(irid: IRID, date: string): Promise<void>;
 
-    addFaceTable(irid: IRID, faceTable: Raw<FormFT>): Promise<void>;
+    addUPF(irid: IRID, protocol: Raw<FormUPF>): Promise<void>;
 
-    updateIRUsers(irid: IRID, users: string[]): Promise<void>;
+    addFT(irid: IRID, faceTable: Raw<FormFT>): Promise<void>;
+
+    updateUsersWithAccessToIR(irid: IRID, users: string[]): Promise<void>;
 
     markRefsiteConfirmed(irid: IRID): Promise<void>;
 
-    updateHeatPumpRecommendationsSettings(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
+    updateDKT(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
 
-    updateSolarSystemRecommendationsSettings(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
+    updateDKS(irid: IRID, enabled: boolean, executingCompany: 'assembly' | 'commissioning' | 'regulus' | null): Promise<void>;
 
-    addIndependentServiceProtocol(protocol: NSP): Promise<void>;
+    addNSP(protocol: NSP): Promise<void>;
 
-    updateIndependentServiceProtocol(spid: SPID, protocol: Raw<FormNSP>): Promise<void>;
+    updateNSP(spid: SPID, protocol: Raw<FormNSP>): Promise<void>;
 
-    deleteIndependentProtocol(spid: SPID): Promise<void>;
+    deleteNSP(spid: SPID): Promise<void>;
 }
 
 export interface Database extends ReadDatabase, WriteDatabase {
 }
 
 const databaseMethods = [
-    'getIR', 'getChangedIRs', 'getDeletedIRs', 'addIR', 'deleteIR', 'existsIR', 'updateIRRecord', 'addHeatPumpCheck',
-    'addSolarSystemCheck', 'addServiceProtocol', 'updateServiceProtocol', 'updateHeatPumpCommissioningProtocol',
-    'updateHeatPumpCommissionDate', 'addSolarSystemCommissioningProtocol',
-    'updateSolarSystemCommissionDate', 'addPhotovoltaicSystemCommissioningProtocol', 'updateIRUsers', 'markRefsiteConfirmed',
-    'updateHeatPumpRecommendationsSettings', 'updateSolarSystemRecommendationsSettings', 'addIndependentServiceProtocol',
-    'deleteIndependentProtocol', 'getNSP', 'getChangedNSPs',
-    'getDeletedNSPs', 'addFaceTable', 'updateIndependentServiceProtocol',
+    'getIR', 'getChangedIRs', 'getDeletedIRs', 'addIR', 'deleteIR', 'existsIR', 'updateIN',
+    'addRKT', 'addRKS', 'updateUPT', 'updateDateUPT', 'addUPS', 'updateDateUPS', 'addUPF',
+    'addSP', 'updateSP', 'deleteSP', 'updateUsersWithAccessToIR', 'markRefsiteConfirmed', 'updateDKT', 'updateDKS', 'addFT',
+    'addNSP', 'deleteNSP', 'getNSP', 'getChangedNSPs', 'getDeletedNSPs', 'updateNSP',
 ] as const satisfies (keyof Database)[];
 
 
