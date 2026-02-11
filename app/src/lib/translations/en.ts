@@ -278,6 +278,7 @@ const en: PlainTranslations = {
                 updateSolarSystemCommissionDate: t`Updated the solar system commission date at the ${'ir'} controller`,
                 addPhotovoltaicSystemCommissioningProtocol: t`Created a photovoltaic system commissioning protocol at the ${'ir'} controller`,
                 updateIRUsers: t`Updated the list of users with access to the ${'ir'} controller`,
+                markRefsiteConfirmed: t`Marked the interest in Refsite at the ${'ir'} controller`,
                 updateHeatPumpRecommendationsSettings: t`Updated the yearly heat pump check recommendation settings at the ${'ir'} controller`,
                 updateSolarSystemRecommendationsSettings: t`Updated the yearly solar system check recommendation settings at the ${'ir'} controller`,
                 addIndependentServiceProtocol: t`Created a new independent service protocol ${'sp'}`,
@@ -328,6 +329,8 @@ const en: PlainTranslations = {
         fillInAnotherProtocol: `Fill in another protocol`,
         confirm: `Confirm`,
         saving: `Saving`,
+        refsiteTitle: 'Reference at Refsite',
+        refsiteHtml: 'Is the customer willing to fill out a reference at the <a href="https://refsite.info">refsite.info</a> portal? We will send the request via e-mail.',
     },
     users: {
         title: 'Users with access to this record',

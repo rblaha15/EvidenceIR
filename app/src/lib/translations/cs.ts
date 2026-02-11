@@ -352,6 +352,8 @@ export default {
         confirm: `Potvrdit`,
         saving: `Ukládání`,
         changeWentWrong: `Něco ne nepovedlo. Obnovte stránku a zkuste to znovu.`,
+        refsiteTitle: 'Reference na Refsite',
+        refsiteHtml: 'Je zákazník ochoten vyplnit referenci na portálu <a href="https://refsite.info">refsite.info</a>? Žádost odešleme e-mailem.',
     },
     ft: {
         title: 'Volitelné vstupy a výstupy regulátoru',

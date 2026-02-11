@@ -82,11 +82,11 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="refsiteModalLabel-{tc.N}">Reference na Refsite</h1>
+                        <h1 class="modal-title fs-5" id="refsiteModalLabel-{tc.N}">{td.refsiteTitle}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        Je zákazník ochoten vyplnit referenci na portálu <a href="https://refsite.info">refsite.info</a>? Žádost odešleme e-mailem.
+                        {@html td.refsiteHtml}
                     </div>
                     <div class="modal-footer">
                         <a class="btn btn-secondary" href={iridUrl(`/RKT?pump=${tc.N}`)} data-bs-dismiss="modal" onclick={confirmRefsite(tc.N)}>{td.no}</a>

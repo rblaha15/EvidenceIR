@@ -214,6 +214,8 @@ const de: PlainTranslations = {
         confirm: `Bestätigen`,
         saving: `Speichern`,
         changeWentWrong: `Etwas ist schiefgelaufen. Seite aktualisieren und erneut versuchen.`,
+        refsiteTitle: 'Referenz im Refsite',
+        refsiteHtml: 'Ist der Kunde bereit, eine Referenz im <a href="https://refsite.info">refsite.info</a> Portal auszufüllen? Wir senden die Anfrage per E-Mail ab.',
     },
     form: {
         somethingWentWrongContactUsHtml: `Entschuldigung, etwas ist schiefgelaufen, bitte kontaktieren Sie uns unter <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Fehler beim Speichern eines Formulars" target="_blank">aplikace.regulus@gmail.com</a>`,
