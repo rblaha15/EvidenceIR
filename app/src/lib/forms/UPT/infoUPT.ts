@@ -22,8 +22,8 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
         link: 'UPT',
     }),
     saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
-        await db.updateHeatPumpCommissioningProtocol(irid, raw);
-        await db.updateHeatPumpCommissionDate(irid, f.uvadeni.date.value);
+        await db.updateUPT(irid, raw);
+        await db.updateDateUPT(irid, f.uvadeni.date.value);
         if (!edit) await saveDK(ir, f.checkRecommendations, 'TČ');
 
         await grantPoints({ type: 'heatPumpCommission', irid });

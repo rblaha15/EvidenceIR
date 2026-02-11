@@ -20,8 +20,8 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
         link: 'UPS',
     }),
     saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
-        await db.addSolarSystemCommissioningProtocol(irid, raw);
-        await db.updateSolarSystemCommissionDate(irid, f.uvadeni.date.value);
+        await db.addUPS(irid, raw);
+        await db.updateDateUPS(irid, f.uvadeni.date.value);
         if (!edit) await saveDK(ir, f.checkRecommendations, 'SOL');
         if (await checkRegulusOrAdmin()) return;
 

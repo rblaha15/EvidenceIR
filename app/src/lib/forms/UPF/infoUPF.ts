@@ -18,7 +18,7 @@ const infoUPF: FormInfo<FormUPF, FormUPF, [], 'UPF'> = ({
         link: 'UPF',
     }),
     saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
-        await db.addPhotovoltaicSystemCommissioningProtocol(irid, raw);
+        await db.addUPF(irid, raw);
         if (await checkRegulusOrAdmin()) return;
 
         const user = get(currentUser)!;

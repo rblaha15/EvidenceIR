@@ -75,7 +75,7 @@
             if (alsoChange.setFVEType) record.IN.fve.typ = 'DG-450-B';
             if (alsoChange.setHP) record.IN.ir.chceVyplnitK = ['heatPump'];
             if (irid! == newIRID) {
-                await db.updateIRRecord(irid!, record.IN, record.isDraft);
+                await db.updateIN(irid!, record.IN, record.isDraft);
                 alsoChange = alsoChangeDefault;
             } else {
                 const user = get(currentUser)!;
@@ -102,7 +102,7 @@
 </script>
 
 {#if change === 'no'}
-    <button class="btn btn-warning d-block" onclick={() => (change = 'input')}>
+    <button class="btn btn-secondary d-block" onclick={() => (change = 'input')}>
         <Icon icon="drive_file_rename_outline" />
         {td.changeController}
     </button>

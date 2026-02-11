@@ -28,8 +28,8 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
 
         const user = get(currentUser)!;
 
-        if (edit) await db.updateIndependentServiceProtocol(spid, raw);
-        else await db.addIndependentServiceProtocol(newNSP(raw, user));
+        if (edit) await db.updateNSP(spid, raw);
+        else await db.addNSP(newNSP(raw, user));
 
         if (edit && !send) return true;
 
