@@ -64,7 +64,7 @@
             name={t.rkt.name(tc)} {t} {lang} link={hasRKTL(ir.RK.TC[tc.N]) ? 'RKTL' : 'RKT'} data={ir} pump={tc.N} {irid}
             disabled={!ir.RK.TC[tc.N]?.keys()?.length} additionalButton={{
                 show: true,
-                ...ir.meta.flags.confirmedRefsite
+                ...ir.meta.flags?.confirmedRefsite
                     ? { href: iridUrl(`/RKT?pump=${tc.N}`) }
                     : { dialogID: `refsiteModal-${tc.N}` },
                 text: t.rkt.fillOut(tc),
