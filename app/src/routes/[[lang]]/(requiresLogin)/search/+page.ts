@@ -43,7 +43,7 @@ export const load: PageLoad = async ({ parent }) => {
 
     const irs = derived(getAllIRs(), $irs => ({
         status: $irs.status, data: $irs.data
-            .filter(ir => checkAdmin() || !ir.deleted)
+            .filter(ir => Array.isArray(it.SPs) && (checkAdmin() || !ir.deleted))
             .map(ir => ({
                 t: 'IR',
                 id: ir.meta.id,
