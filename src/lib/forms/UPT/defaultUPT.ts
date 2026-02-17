@@ -145,7 +145,12 @@ export default (): FormUPT => ({
             required: false, label: t => t.tc.isInstallationInWarrantyConditions,
             show: d => d.uvedeni.uvadeni.typZaruky.value == 'yes',
         }),
-        date: new InputWidget({ label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true }),
+        date: new InputWidget({
+            label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true,
+            onValueSet: (d, date) => {
+                d.dk.commissionDate.setValue(d, date);
+            },
+        }),
         note: new InputWidget({ label: t => t.in.note, required: false }),
     },
     checkRecommendations: defaultDK('TČ', true),
