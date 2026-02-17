@@ -62,7 +62,12 @@ export default (): FormUPS => ({
         podminky: new CheckboxWidget({ label: t => t.sol.conditionsMet }),
         regulator: new CheckboxWidget({ label: t => t.sol.solarControllerSet }),
         vlastnik: new CheckboxWidget({ label: t => t.sol.ownerInformed }),
-        date: new InputWidget({ label: t => t.sol.dateOfCommission, type: 'date', hideInRawData: true }),
+        date: new InputWidget({
+            label: t => t.sol.dateOfCommission, type: 'date', hideInRawData: true,
+            onValueSet: (d, date) => {
+                d.dk.commissionDate.setValue(d, date);
+            },
+        }),
     },
     checkRecommendations: defaultDK('SOL', true),
 });
