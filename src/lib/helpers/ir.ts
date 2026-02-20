@@ -87,7 +87,7 @@ export const irType = (type: Raw<FormIN>['ir']['typ']) => ({
 } as const)[type.first!];
 
 export const companyForms = [
-    's.r.o.', 'spol. s r.o.', 'a.s.', 'k.s.', 'v.o.s.', 'z.s.', 'z.ú.', 's.o.', 's.p.', 'n.p.'
+    's.r.o.', 'spol. s r.o.', 'a.s.', 'k.s.', 'v.o.s.', 'z.s.', 'z.ú.', 's.o.', 's.p.', 'n.p.', 'p.o.'
 ];
 const removeCompanyForm = (name: string) => companyForms.reduce((name, typ) => name.replace(typ, '').trimEnd().replace(/,$/, ''), name);
 
