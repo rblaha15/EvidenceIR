@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { detailIrUrl, detailSpUrl, relUrl } from '$lib/helpers/runes.svelte';
+    import { detailIrUrl, detailSpUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { isUserAdmin } from '$lib/client/auth';
     import Widget from '$lib/components/Widget.svelte';
     import { goto } from '$app/navigation';
@@ -7,9 +7,9 @@
     import { defaultNSP } from '$lib/forms/NSP/formNSP';
     import { dataToRawData, type Raw } from '$lib/forms/Form';
     import { endUserEmails, type IRID } from '$lib/helpers/ir';
-    import { InputWidget } from '$lib/forms/Widget.svelte';
+    import { InputWidget } from '$lib/forms/Widget.svelte.js';
     import defaultSP from '$lib/forms/SP/defaultSP';
-    import type { FormSP } from '$lib/forms/SP/formSP.svelte';
+    import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
     import DetailNSP from './DetailNSP.svelte';
     import { aA, storable } from '$lib/helpers/stores';
     import infoNSP from '$lib/forms/NSP/infoNSP';

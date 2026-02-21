@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { relUrl, spidUrl } from '$lib/helpers/runes.svelte';
-    import PDFLink from './PDFLink.svelte';
+    import { relUrl, spidUrl } from '$lib/helpers/runes.svelte.js';
+    import PDFLink from '$lib/features/detail/components/documentsIR/PDFLink.svelte';
     import { isUserAdmin } from '$lib/client/auth';
     import { goto } from '$app/navigation';
     import { type Translations } from '$lib/translations';

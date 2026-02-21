@@ -69,3 +69,6 @@ export const waitUntil = <T>(store: Readable<T>, predicate: (value: T) => boolea
 
 export const aA = derived(isUserAdmin, a => a ? ' (A)' : '')
 export const aR = derived(isUserAdmin, a => a ? ' (R)' : '')
+
+export const iaA = ' (A)'
+export const iaR = (a: boolean) => a ? ' (R)' : ''

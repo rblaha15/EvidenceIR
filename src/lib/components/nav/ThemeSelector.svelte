@@ -2,6 +2,7 @@
     import { storableState } from '$lib/helpers/runes.svelte.js';
     import type { Translations } from '$lib/translations';
     import Icon from '$lib/components/Icon.svelte';
+    import Button from '$lib/components/Button.svelte';
 
     const { t }: { t: Translations } = $props();
 
@@ -30,13 +31,8 @@
 </script>
 
 <div class="dropdown">
-    <button
-        aria-label="Toggle theme"
-        class="btn dropdown-toggle d-flex align-items-center"
-        data-bs-toggle="dropdown"
-    >
-        <Icon icon={selectedIcon} />
-    </button>
+    <Button label="Toggle theme" icon={selectedIcon}
+            class="dropdown-toggle d-flex align-items-center" toggleDropdown />
     <ul class="dropdown-menu">
         {#each themeSettings.zip(icons) as [theme, icon]}
             <li>

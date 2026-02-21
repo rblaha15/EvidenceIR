@@ -1,28 +1,24 @@
 <script lang="ts">
     import type { Translations } from '$lib/translations';
     import { type IR } from '$lib/data';
-    import type { IRID } from '$lib/helpers/ir';
     import { defaultDK, type FormPartDK, initDK, saveDK } from '$lib/forms/DK/formDK';
     import Widget from '$lib/components/Widget.svelte';
     import Icon from '$lib/components/Icon.svelte';
-    import { isUserAdmin } from '$lib/client/auth';
-    import { aA } from '$lib/helpers/stores';
-    import { dateFromISO } from '$lib/helpers/date';
+    import { onMount } from 'svelte';
+    import { type DataChangeDK, getDKInfo } from '$lib/features/detail/domain/detailIR/DK';
+    import Button from '$lib/components/Button.svelte';
 
     const { t, ir, type }: {
-        t: Translations, ir: IR, irid: IRID, type: 'TČ' | 'SOL'
+        t: Translations, ir: IR, type: 'TČ' | 'SOL'
     } = $props();
     const tr = $derived(t.dk);
-
-    type D = { dk: FormPartDK<D>, evidence: IR['IN'] }
 
     let loading = $state(false);
     let error = $state(false);
 
-    const f = $state<FormPartDK<D>>(defaultDK<D>(type));
+    const f = $state<FormPartDK<DataChangeDK>>(defaultDK<DataChangeDK>(type));
     const data = $derived({ dk: f, evidence: ir.IN });
-    const settings = $derived(type == 'TČ' ? ir.RK.DK.TC : ir.RK.DK.SOL);
-    const commissionDate = $derived(type == 'TČ' ? ir.UP.dateTC : ir.UP.dateSOL);
+    const { settings, show } = $derived(getDKInfo(type, ir));
 
     $effect(() => {
         f.enabled.setValue(data, Boolean(settings));
@@ -44,34 +40,25 @@
             loading = false;
         }
     };
-</script>
 
-{#if ir.IN.ir.chceVyplnitK.includes(type === 'TČ' ? 'heatPump' : 'solarCollector')}
-    <div class="d-flex flex-column gap-1 align-items-sm-start">
-        <button class="btn btn-info d-block" data-bs-target="#recommendations{type}Modal" data-bs-toggle="modal" onclick={() => {
+    const init = () => {
         loading = false;
         error = false;
         f.executingCompany.displayErrorVeto = false;
         f.commissionDate.displayErrorVeto = false;
         initDK(data, 'create', ir, type);
-    }}>
-            <Icon icon="alarm" />
-            {tr.settingsTitle(type)}
-        </button>
-        {#if $isUserAdmin && settings?.code}
-            <a tabindex="0" class="btn btn-secondary" target="_blank"
-               href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Frk~2F{settings?.code}">
-                <Icon icon="cloud_circle" />
-                {t.detail.openInDatabase}{$aA}
-            </a>
-        {/if}
-        {#if commissionDate}
-            <span>{tr.commissionedAt(type)}: {dateFromISO(commissionDate)}</span>
-        {/if}
-    </div>
+    }
 
+    let modal = $state() as HTMLDivElement;
+
+    onMount(() => {
+        modal.addEventListener('shown.bs.modal', init);
+    });
+</script>
+
+{#if show}
     <div aria-hidden="true" aria-labelledby="recommendations{type}ModalLabel" class="modal fade" id="recommendations{type}Modal"
-         tabindex="-1">
+         tabindex="-1" bind:this={modal}>
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -101,9 +88,7 @@
                             {/if}
                             {tr.save}
                         </button>
-                        <button class="btn btn-secondary" data-bs-dismiss="modal">
-                            {tr.cancel}
-                        </button>
+                        <Button color="secondary" text={tr.cancel} dismissModal />
                     </div>
                 </div>
             </div>

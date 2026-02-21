@@ -1,9 +1,9 @@
 <script generics="D" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { type Files, labelAndStar, type PhotoSelectorWidget } from '$lib/forms/Widget.svelte.js';
+    import { labelAndStar, type PhotoSelectorWidget } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
-    import { getFile, addFile, removeFile } from '$lib/components/widgets/File.svelte';
-    import Icon from '$lib/components/Icon.svelte';
+    import { addFile, getFile, removeFile } from '$lib/components/widgets/File.svelte';
+    import Button from '$lib/components/Button.svelte';
 
     interface Props {
         t: Translations;
@@ -23,7 +23,7 @@
         const selectedFiles = e.currentTarget.files;
         if (selectedFiles) {
             const photos = await [...selectedFiles].map(file =>
-                addFile(file).then(uuid => ({ fileName: file.name, uuid }))
+                addFile(file).then(uuid => ({ fileName: file.name, uuid })),
             ).awaitAll();
 
             widget.mutateValue(data, v => [...v, ...photos].slice(0, max));
@@ -42,20 +42,10 @@
     <div class="d-flex gap-3 flex-column align-items-start">
         {#if widget.value.length === 0 || (multiple && widget.value.length < max)}
             <div class="d-flex gap-3">
-                <button
-                    type="button"
-                    class="btn btn-outline-primary"
-                    onclick={() => inputSelect?.click()}
-                >
-                    {multiple ? t.widget.selectPhotos : t.widget.selectPhoto}
-                </button>
-                <button
-                    type="button"
-                    class="btn btn-outline-primary"
-                    onclick={() => inputCapture?.click()}
-                >
-                    {t.widget.capturePhoto}
-                </button>
+                <Button text={multiple ? t.widget.selectPhotos : t.widget.selectPhoto}
+                        color="primary" outline onclick={() => inputSelect?.click()} />
+                <Button text={t.widget.capturePhoto}
+                        color="primary" outline onclick={() => inputCapture?.click()} />
             </div>
         {/if}
 
@@ -69,10 +59,8 @@
                         {/await}
                         <div class="d-flex flex-column gap-3 text-center">
                             <span style="word-break: break-all">{fileName}</span>
-                            <button class="btn text-danger" onclick={remove(uuid)}>
-                                <Icon icon="delete" />
-                                {t.widget.remove_Photo}
-                            </button>
+                            <Button text={t.widget.remove_Photo} icon="delete" color="danger"
+                                    onclick={remove(uuid)} />
                         </div>
                     </li>
                 {/each}

@@ -13,6 +13,7 @@
     import Icon from '$lib/components/Icon.svelte';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { isOnline } from '$lib/client/realtimeOnline';
+    import Button from '$lib/components/Button.svelte';
 
     const { t }: { t: Translations } = $props();
     const tn = $derived(t.nav);
@@ -21,22 +22,18 @@
 </script>
 
 {#snippet help()}
-    <a href={relUrl('/help')} class="btn btn-link nav-link ms-3" tabindex="0" aria-label={t.nn.title}>
-        <Icon icon="help" class="fs-2" />
-    </a>
+    <Button icon="help" iconClass="fs-2" label={t.nn.title}
+            link class="nav-link ms-3" href={relUrl('/help')} />
 {/snippet}
 {#snippet settings()}
-    <button aria-label="Settings" class="btn btn-link nav-link ms-3" data-bs-target="#settings" data-bs-toggle="modal">
-        <Icon icon="settings" class="fs-2" />
-    </button>
+    <Button icon="settings" iconClass="fs-2" label="Settings"
+            link class="nav-link ms-3" modalID="settings" />
 {/snippet}
 {#snippet queue()}
     {#if $readableQueue.length}
         <div class="ms-3">
-            <button aria-label="Offline queue" class="btn btn-link nav-link text-warning-emphasis" data-bs-target="#queue"
-                    data-bs-toggle="modal">
-                <Icon icon="sync_problem" class="fs-2" />
-            </button>
+            <Button icon="sync_problem" iconClass="fs-2" label="Offline queue"
+                    link class="nav-link text-warning-emphasis" modalID="queue" />
         </div>
     {/if}
 {/snippet}
@@ -65,15 +62,8 @@
 <nav class="navbar navbar-expand-md gray flex-wrap">
     <div class="container-fluid">
         {#if isLoggedIn && !$hideNav}
-            <button
-                class="d-md-none me-2 btn nav-link btn-link"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#NOC"
-                aria-controls="NOC"
-                aria-label="Menu"
-            >
-                <Icon icon="menu" class="fs-1" />
-            </button>
+            <Button label="Menu" icon="menu" iconClass="fs-1" link
+                    class="d-md-none me-2 nav-link" offcanvasID="NOC" />
         {/if}
         {@render header()}
         {#if !$isOnline && !$hideNav}

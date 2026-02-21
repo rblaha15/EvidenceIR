@@ -24,6 +24,7 @@
     import { TitleWidget } from '$lib/forms/Widget.svelte';
     import Icon from '$lib/components/Icon.svelte';
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
+    import Button from '$lib/components/Button.svelte';
 
     const { t, formInfo, editData, viewData, other }: {
         t: Translations,
@@ -195,37 +196,31 @@
         <div class="d-flex gap-3 flex-wrap">
             {#if mode !== 'view'}
                 {#if !result.load && !$buttonsStore.hideSave}
-                    <button onclick={save(false, false)} class="mb-auto btn btn-success">
-                        <Icon icon="save" /> {t.form.save}
-                    </button>
+                    <Button text={t.form.save} icon="save" color="success"
+                            class="mb-auto" onclick={save(false, false)} />
                 {/if}
                 {#if !result.load && $buttonsStore.saveAndSendAgain}
-                    <button onclick={save(true, false)} class="mb-auto btn btn-success text-nowrap">
-                        <Icon icon="save" /> <Icon icon="send" /> {t.form.saveAndSendAgain}
-                    </button>
+                    <Button text={t.form.saveAndSendAgain} icons={["save", "send"]} color="success"
+                            class="mb-auto" onclick={save(true, false)} />
                 {/if}
                 {#if !result.load && $buttonsStore.saveAndSend}
-                    <button onclick={save(true, false)} class="mb-auto btn btn-success text-nowrap">
-                        <Icon icon="save" /> <Icon icon="send" /> {t.form.saveAndSend}
-                    </button>
+                    <Button text={t.form.saveAndSend} icons={["save", "send"]} color="success"
+                            class="mb-auto" onclick={save(true, false)} />
                 {/if}
                 {#if !result.load && $buttonsStore.send}
-                    <button onclick={save(true, false)} class="mb-auto btn btn-success text-nowrap">
-                        <Icon icon="send" /> {t.form.send}
-                    </button>
+                    <Button text={t.form.send} icon="send" color="success"
+                            class="mb-auto" onclick={save(true, false)} />
                 {/if}
                 {#if !result.load && $buttonsStore.saveAsDraft}
-                    <button onclick={save(false, true)} class="mb-auto btn btn-secondary text-nowrap">
-                        <Icon icon="design_services" /> {t.form.saveAsDraft}
-                    </button>
+                    <Button text={t.form.saveAsDraft} icon="design_services" color="secondary"
+                            class="mb-auto" onclick={save(false, true)} />
                 {/if}
                 {#if result.load}
-                    <div class="spinner-border text-danger"></div>
+                    <div class="spinner-border text-danger" aria-label="loading"></div>
                 {/if}
                 {#if !result.load && !$buttonsStore.hideBack}
-                    <button type="button" class="mb-auto btn btn-secondary" onclick={() => history.back()}>
-                        {t.form.back}
-                    </button>
+                    <Button text={t.form.back} color="secondary"
+                            class="mb-auto" onclick={() => history.back()} />
                 {/if}
             {/if}
         </div>
