@@ -2,6 +2,7 @@
     import type { Translations } from '$lib/translations';
     import { readableQueue } from '$lib/client/offlineQueue.svelte';
     import Icon from '$lib/components/Icon.svelte';
+    import Button from '$lib/components/Button.svelte';
 
     const { t }: { t: Translations } = $props();
     const tq = $derived(t.nav.offlineQueue)
@@ -12,11 +13,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="queueLabel">{tq.title}</h4>
-                <button
-                    aria-label={tq.close}
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                ></button>
+                <Button label={tq.close} class="btn-close" dismissModal />
             </div>
 
             <div class="modal-body d-flex flex-column gap-3">

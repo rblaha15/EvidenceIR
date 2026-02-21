@@ -1,8 +1,8 @@
 <script lang="ts">
     import { type IRID, spName } from '$lib/helpers/ir';
     import type { Translations } from '$lib/translations';
-    import { iridUrl } from '$lib/helpers/runes.svelte';
-    import PDFLink from './PDFLink.svelte';
+    import { iridUrl } from '$lib/helpers/runes.svelte.js';
+    import PDFLink from '$lib/features/detail/components/documentsIR/PDFLink.svelte';
     import { techniciansList } from '$lib/client/realtime';
     import { currentUser } from '$lib/client/auth';
     import { invalidateAll } from '$app/navigation';
@@ -11,6 +11,7 @@
     import type { LanguageCode } from '$lib/languageCodes';
     import type { ExistingIR } from '$lib/data';
     import db from '$lib/Database';
+    import { copySP, deleteSP } from '$lib/features/detail/actions/detailIR/sp';
 
     const {
         irid, ir, lang, t,
@@ -18,32 +19,6 @@
         irid: IRID, ir: ExistingIR, lang: LanguageCode, t: Translations,
     } = $props();
     const td = $derived(t.detail);
-
-    const deleteSP = (i: number) => async () => {
-        await db.deleteSP(irid, i);
-    };
-
-    const copySP = (i: number) => async () => {
-        const ja = $techniciansList.find(t => $currentUser?.email == t.email);
-        const p = ir.SPs[i];
-        await db.addSP(irid!, {
-            ...p,
-            fakturace: {
-                hotove: 'doNotInvoice',
-                komu: { chosen: null, text: '' },
-                jak: null,
-                invoiceParts: [],
-                discount: '',
-                discountReason: '',
-            },
-            zasah: {
-                ...p.zasah,
-                clovek: ja?.name ?? p.zasah.clovek,
-                inicialy: ja?.initials ?? p.zasah.inicialy,
-            },
-        });
-        await invalidateAll();
-    };
 </script>
 
 <h4 class="m-0">{td.serviceProtocols}{$aR}</h4>
@@ -92,7 +67,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{td.no}</button>
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick={copySP(i)}>{td.yes}</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick={copySP(i, ir)}>{td.yes}</button>
                         </div>
                     </div>
                 </div>
@@ -113,7 +88,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-bs-dismiss="modal">{td.no}</button>
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick={deleteSP(i)}>{td.yes}</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick={deleteSP(i, irid)}>{td.yes}</button>
                         </div>
                     </div>
                 </div>

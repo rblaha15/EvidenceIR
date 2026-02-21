@@ -62,7 +62,6 @@ export const initDK = <D extends DataDK<D>>(
 ) => {
     const date = type == 'TČ' ? ir.UP.dateTC : ir.UP.dateSOL;
     const settings = type == 'TČ' ? ir.RK.DK.TC : ir.RK.DK.SOL;
-    console.log(settings);
     data.dk.commissionDate.setValue(data, date || '');
     if (settings) {
         data.dk.enabled.setValue(data, true);

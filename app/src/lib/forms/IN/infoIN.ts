@@ -186,6 +186,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
 };
 export default infoIN;
 
+export type PumpInfo = ReturnType<typeof cascadePumps>[number]
 export const cascadePumps = (e: Raw<FormIN>) =>
     TCNumbers
         .map(n => ({

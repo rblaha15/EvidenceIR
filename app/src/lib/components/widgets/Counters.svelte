@@ -2,6 +2,7 @@
     import type { Translations } from '$lib/translations';
     import { CountersWidget } from '$lib/forms/Widget.svelte.js';
     import Icon from '$lib/components/Icon.svelte';
+    import Button from '$lib/components/Button.svelte';
 
     interface Props {
         t: Translations;
@@ -20,21 +21,13 @@
     <div>{widget.label(t, data)}</div>
     <div class="input-group input-group-grid" style="--grid-cols: 4">
         {#each widget.value.entries() as [option, value]}
-            <button
-                class="btn btn-outline-primary first" onclick={() =>
-                    widget.mutateValue(data, v => ({ ...v, [option]: v[option] - 1 }))
-                } disabled={value === 0} style="--bs-btn-padding-x: var(--bs-btn-padding-y)"
-            >
-                <Icon icon="remove" />
-            </button>
+            <Button label="subtract" color="primary" outline square icon="remove" onclick={
+                () => widget.mutateValue(data, v => ({ ...v, [option]: v[option] - 1 }))
+            } disabled={value === 0} class="first" />
             <span class="input-group-text input-group-input">{value}</span>
-            <button
-                class="btn btn-outline-primary" onclick={
-                    () => widget.mutateValue(data, v => ({ ...v, [option]: v[option] + 1 }))
-                } disabled={sum === widget.max(data)} style="--bs-btn-padding-x: var(--bs-btn-padding-y)"
-            >
-                <Icon icon="add" />
-            </button>
+            <Button label="add" color="primary" outline square icon="add" onclick={
+                () => widget.mutateValue(data, v => ({ ...v, [option]: v[option] + 1 }))
+            } disabled={sum === widget.max(data)} />
             <div class="input-group-text last" id="label-{uid}">{widget.get(t, option)}</div>
         {/each}
     </div>

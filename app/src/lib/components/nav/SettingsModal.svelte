@@ -1,6 +1,7 @@
 <script lang="ts">
     import Settings from '$lib/components/nav/Settings.svelte';
     import type { Translations } from '$lib/translations';
+    import Button from '$lib/components/Button.svelte';
 
     const { t }: { t: Translations } = $props();
     const ts = $derived(t.nav.settings);
@@ -11,11 +12,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="settingsLabel">{ts.title}</h4>
-                <button
-                    aria-label={ts.close}
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                ></button>
+                <Button label={ts.close} class="btn-close" dismissModal />
             </div>
 
             <div class="modal-body">
@@ -23,10 +20,7 @@
             </div>
 
             <div class="modal-footer">
-                <button
-                    class="btn btn-primary"
-                    data-bs-dismiss="modal"
-                >{ts.close}</button>
+                <Button text={ts.close} color="primary" dismissModal />
             </div>
         </div>
     </div>

@@ -4,6 +4,7 @@
     import { onMount } from 'svelte';
     import Input from '$lib/components/widgets/Input.svelte';
     import type { Translations } from '$lib/translations';
+    import Button from '$lib/components/Button.svelte';
 
     let cancelBtn = $state<HTMLButtonElement>();
 
@@ -53,16 +54,8 @@
     <div class="flex-grow-1"><Input bind:widget {data} {t} /></div>
     <div class="d-flex gap-1 align-items-sm-center flex-column flex-sm-row">
         <span class="text-center">{t.widget.or_Scan}</span>
-        <button
-            class="btn btn-secondary h-auto"
-            data-bs-target="#cam"
-            data-bs-toggle="modal"
-            onclick={onClick}
-            type="button"
-            disabled={widget.lock(data)}
-        >
-            {t.widget.scanBarcode}
-        </button>
+        <Button text={t.widget.scanBarcode} color="secondary" disabled={widget.lock(data)}
+                class="h-auto" modalID="cam" onclick={onClick} />
     </div>
 </div>
 <div class="modal" id="cam">
@@ -70,14 +63,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{t.widget.scanCode}:</h4>
-                <button
-                    aria-label={t.widget.cancel}
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    onclick={cancel}
-                    title={t.widget.cancel}
-                    type="button"
-                ></button>
+                <Button label={t.widget.cancel} class="btn-close" dismissModal onclick={cancel} />
             </div>
 
             <div class="modal-body d-flex justify-content-center">
@@ -85,13 +71,8 @@
             </div>
 
             <div class="modal-footer">
-                <button
-                    bind:this={cancelBtn}
-                    class="btn btn-danger"
-                    data-bs-dismiss="modal"
-                    onclick={cancel}
-                    type="button">{t.widget.cancel}</button
-                >
+                <Button text={t.widget.cancel} color="danger"
+                        dismissModal onclick={cancel} bind:element={cancelBtn} />
             </div>
         </div>
     </div>
