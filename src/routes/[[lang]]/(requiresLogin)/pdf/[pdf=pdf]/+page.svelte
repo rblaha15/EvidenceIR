@@ -6,7 +6,7 @@
     import PdfPreview from '$lib/components/pdf/PdfPreview.svelte';
     import Icon from '$lib/components/Icon.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
-    import { downloadFile } from '$lib/helpers/files';
+    import { downloadFile, printFile } from '$lib/helpers/files';
 
     const {
         data,
@@ -16,6 +16,7 @@
     const { title, supportedLanguages } = $derived(data.args!);
 
     const download = async () => downloadFile(data.url, data.fileName);
+    const print = async () => printFile(data.objectUrl);
 
     const createLink = (code: LanguageCode) => {
         const url = page.url;
@@ -27,6 +28,8 @@
 <h2 class="m-0">{title(data.translations)}</h2>
 <h4 class="m-0">{data.fileName}</h4>
 
+<p class="m-0 d-none print-warning fs-2 text-danger">{t.printWarning}</p>
+
 <PdfPreview args={data.fileLang} {t} url={data.url}>
     <div class="d-flex align-items-center"><span class="me-1">{t.fileLanguage}:</span>
         <LanguageSelector readonly={supportedLanguages.length < 2} onChange={code =>
@@ -37,4 +40,16 @@
         <Icon icon="file_download" />
         {t.downloadFile}
     </button>
+    <button class="btn btn-primary" onclick={print}>
+        <Icon icon="print" />
+        {t.printFile}
+    </button>
 </PdfPreview>
+
+<style>
+    @media print {
+        .print-warning {
+            display: block !important;
+        }
+    }
+</style>

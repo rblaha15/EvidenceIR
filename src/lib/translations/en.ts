@@ -361,11 +361,13 @@ const en: PlainTranslations = {
     pdf: {
         fileLanguage: `Document language`,
         downloadFile: `Download document`,
+        printFile: `Print document`,
         documentPreview: `Document preview`,
         page: (page, total) => `Page ${page}/${total}`,
         previewLoading: `Loading document preview…`,
         previewNotSuccessful: `Document preview couldn't be loaded.`,
         previewNotAvailable: t`The document preview cannot be shown now. Please fix all mistakes in the form. Invalid fields: ${'fields'}`,
+        printWarning: `If you want to print the document, use the "Print document" button below!`,
     },
     nk: cs.nk,
     fve: {

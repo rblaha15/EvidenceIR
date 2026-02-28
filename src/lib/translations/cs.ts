@@ -59,11 +59,13 @@ export default {
     pdf: {
         fileLanguage: `Jazyk dokumentu`,
         downloadFile: `Stáhnout dokument`,
+        printFile: `Vytisknout dokument`,
         documentPreview: `Náhled dokumentu`,
         page: (page: number, total: number) => `Strana ${page}/${total}`,
         previewLoading: `Načítání náhledu dokumentu…`,
         previewNotSuccessful: `Náhled dokumentu se nepodařilo zobrazit.`,
         previewNotAvailable: t`Náhled dokumentu nyní není možné zobrazit. Prosím, opravte všechny chyby ve formuláři. Chybná pole: ${'fields'}`,
+        printWarning: `Pokud chcete vytisknout samotný dokument, použijte tlačitko "Vytisknout dokument" níže!`,
     },
     search: {
         titleControllers: 'Vyhledávání instalací',

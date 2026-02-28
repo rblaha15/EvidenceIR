@@ -3,9 +3,7 @@ import fontkit from '@pdf-lib/fontkit';
 import { getTranslations } from '$lib/translations';
 import { type GeneratePdfOptions, type Pdf } from '$lib/pdf/pdf';
 import { irLabel, spName } from '$lib/helpers/ir';
-import type { Raw } from '$lib/forms/Form';
 import { type IR, type NSP } from '../data';
-import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { createFileUrl } from '$lib/helpers/files';
 
 type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Dropdown' | '_'
@@ -43,7 +41,8 @@ export const generatePdfUrl = async <P extends Pdf>(
     const file = await generatePdfFile(o);
 
     const url = await createFileUrl(file);
-    return { url, fileName: file.name };
+    const objectUrl = URL.createObjectURL(file);
+    return { url, objectUrl, fileName: file.name };
 };
 
 export const generatePdfFile = async <P extends Pdf>(
