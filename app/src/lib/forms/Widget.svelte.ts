@@ -1,7 +1,7 @@
 import type { Translations } from '../translations';
 import type { ClassValue, FullAutoFill, HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 import type { Untranslatable } from '$lib/translations/untranslatables';
-import type { Readable } from 'svelte/store';
+import { readable, type Readable } from 'svelte/store';
 import type { DataOfPdf, Pdf as PdfType, PdfParameters } from '$lib/pdf/pdf';
 import type { Form } from '$lib/forms/Form';
 
@@ -158,13 +158,18 @@ type SearchArgs<D, T> = {
     getSearchItem: (item: T, t: Translations) => SearchItem;
     getXmlEntry?: () => string;
     inline?: GetBOrVal<D>;
-    items: GetTROrVal<D, T[]>;
     type?: GetOrVal<D, HTMLInputTypeAttribute>;
     enterkeyhint?: GetOrVal<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode?: GetOrVal<D, HTMLInputAttributes['inputmode']>;
     autocapitalize?: GetOrVal<D, HTMLInputAttributes['autocapitalize']>;
     chosen?: null | T;
-};
+} & ({
+    items: GetTROrVal<D, T[]>;
+    search?: undefined;
+} | {
+    items?: undefined;
+    search: (search: string) => Promise<T[] | null>,
+});
 type CounterArgs<D> = { chosen: number; min: GetOrVal<D, number>; max: GetOrVal<D, number>; validate?: (v: number, d: D) => boolean; };
 type CountersArgs<D, I extends K> = { counts: Rec<I>; max: GetOrVal<D, number>; };
 type CheckArgs = { checked?: boolean; };
@@ -222,6 +227,7 @@ type Search<D, T> = Widget<D, T | null> & {
     getXmlEntry: () => string;
     inline: GetB<D>;
     items: GetTR<D, T[]>;
+    search?: (search: string) => Promise<T[] | null>;
     type: Get<D, HTMLInputTypeAttribute>;
     enterkeyhint: Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode: Get<D, HTMLInputAttributes['inputmode']>;
@@ -329,7 +335,8 @@ const initDoubleLock = function <D, U>(widget: DoubleLock<D, U>, args: DoubleLoc
 };
 const initSearch = function <D, T>(widget: Search<D, T>, args: SearchArgs<D, T>) {
     widget._value = args.chosen ?? null;
-    widget.items = toGetT(args.items);
+    widget.items = toGetT(args.items ?? readable([]));
+    widget.search = args.search;
     widget.getSearchItem = args.getSearchItem;
     widget.getXmlEntry = args.getXmlEntry ?? (() => JSON.stringify(widget.value));
     widget.type = toGetA(args.type ?? 'search');
@@ -531,6 +538,7 @@ export class SearchWidget<D, T, H extends boolean = false> extends Widget<D, T |
     getSearchItem = $state() as (item: T, t: Translations) => SearchItem;
     getXmlEntry = $state() as () => string;
     items = $state() as GetTR<D, T[]>;
+    search = $state() as undefined | ((search: string) => Promise<T[] | null>);
     type = $state() as Get<D, HTMLInputTypeAttribute>;
     enterkeyhint = $state() as Get<D, HTMLInputAttributes['enterkeyhint']>;
     inputmode = $state() as Get<D, HTMLInputAttributes['inputmode']>;
