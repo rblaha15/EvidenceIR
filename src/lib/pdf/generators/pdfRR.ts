@@ -4,6 +4,7 @@ import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import ares from '$lib/helpers/ares';
+import { today } from '$lib/helpers/date';
 
 const representative = (c: Raw<FormIN>['montazka' | 'uvedeni']) =>
     `${c.zastupce} – ${c.email}; ${c.telefon ?? ''}`;
@@ -32,6 +33,7 @@ const pdfRR: GetPdfData<'RR'> = async ({ data: { IN }, t }) => ({
     Text18: cascadePumps(IN)
         .map(tc => `${tc.cislo} (${tc.model})`)
         .join(', '),
+    Text20: today(),
     Text22: IN.vzdalenyPristup.plati == 'endCustomer' ? t.rr.agreeWIthRRPrice : '',
 });
 export default pdfRR;
