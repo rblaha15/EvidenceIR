@@ -4,6 +4,7 @@
     import { browser } from '$app/environment';
     import type { ClassValue } from 'svelte/elements';
     import Icon from '$lib/components/Icon.svelte';
+    import { derived, writable } from 'svelte/store';
 
     export const textToFilter = (s: string) => s
         .normalize('NFD')
@@ -23,17 +24,27 @@
 
     let { t, widget = $bindable(), data, class: klass = '' }: Props = $props();
 
-    let search = $state('');
+    let search = writable('');
 
     $effect(() => {
-        search = widget.value ? widget.getSearchItem(widget.value, t).pieces[0].text : '';
+        $search = widget.value ? widget.getSearchItem(widget.value, t).pieces[0].text : '';
     });
 
-    const all = $derived(widget.items(t, data));
-    let filtered = $derived.by(() => {
-        $all;
-        search;
-        return $all?.filter((item) =>
+    const original = widget.items(t, data);
+    const found = writable(null as T[] | null);
+    $effect(() => {
+        let aborted = false;
+        const promise = widget.search?.($search);
+        promise?.then(items => {
+            if (!aborted) found.set(items);
+        });
+        return () => {
+            aborted = true;
+        };
+    });
+    const filtered = widget.search
+        ? found
+        : derived([original, search], ([original, search]) => original?.filter((item) =>
             wordsToFilter(search).every(
                 filter => widget.getSearchItem(item, t).let(i => [
                     ...i.pieces.map(p => p.text),
@@ -43,8 +54,8 @@
                     (filter.startsWith('!') ? textToFilter(piece).startsWith(filter.slice(1)) : textToFilter(piece).includes(filter)),
                 ),
             ),
-        ) ?? [];
-    });
+        ) ?? []);
+
     let hidden = $state(true);
     let hideRequest = $state(false);
     const hide = () => {
@@ -74,12 +85,12 @@
             <input
                 autofocus={widget.inline(data)}
                 class="form-control border ps-3 bi"
-                class:border-bottom-0={!hidden || widget.value}
-                class:rb-0={!hidden}
-                oninput={e => search = e.currentTarget.value}
+                class:border-bottom-0={(!hidden && $filtered != null) || widget.value}
+                class:rb-0={(!hidden && $filtered != null)}
+                oninput={e => $search = e.currentTarget.value}
                 placeholder=" "
                 type={widget.type(data)}
-                value={hidden ? widget.value ? ' ' : '' : search}
+                value={hidden ? widget.value ? ' ' : '' : $search}
             />
             <label for="">
                 <Icon icon="search" />
@@ -92,7 +103,7 @@
 
         {#if !hidden}
             <div class="list-group z-3 w-100 overflow-y-auto shadow-lg mb-2" class:options={!widget.inline(data)}>
-                {#each filtered as item, i}
+                {#each $filtered as item, i}
                     {@const searchItem = widget.getSearchItem(item, t)}
                     <a
                         tabindex="0"
@@ -117,7 +128,9 @@
                         {/each}
                     </a>
                 {:else}
-                    <p class="rt-0 list-group-item-action list-group-item mb-0 disabled">Nenalezeno</p>
+                    {#if $filtered != null}
+                        <p class="rt-0 list-group-item-action list-group-item mb-0 disabled">Nenalezeno</p>
+                    {/if}
                 {/each}
             </div>
         {/if}
