@@ -39,6 +39,7 @@ import { assemblyCompanies, commissioningCompanies } from '$lib/helpers/companie
 import type { FormPlus } from '$lib/forms/Form';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import db from '$lib/Database';
+import ruian, { type Address } from '$lib/helpers/ruian';
 
 const jeFO = (d: UserForm<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserForm<never>) => jeFO(d);
@@ -128,6 +129,15 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
     },
     bydliste: {
         _title: new TitleWidget({ text: (t, d) => jeFO(d) ? t.in.residence : t.in.headquarters, level: 3, class: 'fs-4' }),
+        search: new SearchWidget({
+            label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
+                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }]
+            }), search: ruian.suggest, onValueSet: (d, a) => {
+                d.bydliste.ulice.setValue(d, a?.house ?? '');
+                d.bydliste.psc.setValue(d, a?.postalCode ?? '');
+                d.bydliste.obec.setValue(d, a?.city ?? '');
+            }, required: false,
+        }),
         ulice: new InputWidget({
             label: t => t.in.street,
             autocomplete: `section-user billing street-address`,
@@ -148,10 +158,20 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         _setAsResidence: new ButtonWidget<D>({
             text: (t, d) => jeFO(d) ? t.in.copyResidence : t.in.copyHeadquarters,
             color: 'secondary', onClick: d => {
+                d.mistoRealizace.search.setValue(d, d.bydliste.search.value);
                 d.mistoRealizace.obec.setValue(d, d.bydliste.obec.value);
                 d.mistoRealizace.psc.setValue(d, d.bydliste.psc.value);
                 d.mistoRealizace.ulice.setValue(d, d.bydliste.ulice.value);
             },
+        }),
+        search: new SearchWidget({
+            label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
+                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }]
+            }), search: ruian.suggest, onValueSet: (d, a) => {
+                d.mistoRealizace.ulice.setValue(d, a?.house ?? '');
+                d.mistoRealizace.psc.setValue(d, a?.postalCode ?? '');
+                d.mistoRealizace.obec.setValue(d, a?.city ?? '');
+            }, required: false,
         }),
         ulice: new InputWidget({
             label: t => t.in.street, required: false, showInXML: true,

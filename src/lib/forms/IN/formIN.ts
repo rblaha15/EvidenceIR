@@ -16,6 +16,7 @@ import type { Company } from '$lib/client/realtime';
 import type { Form } from '$lib/forms/Form';
 import type { HeatPump } from '$lib/helpers/products';
 import { getTranslations, type Translations } from '$lib/translations';
+import type { Address } from '$lib/helpers/ruian';
 
 type CompanyWidgetGroup<D> = {
     company: SearchWidget<D, Company, true>;
@@ -26,6 +27,7 @@ type CompanyWidgetGroup<D> = {
     telefon: InputWidget<D>;
 }
 type AddressWidgetGroup<D> = {
+    search: SearchWidget<D, Address, true>;
     obec: InputWidget<D>;
     ulice: InputWidget<D>;
     psc: InputWidget<D>;

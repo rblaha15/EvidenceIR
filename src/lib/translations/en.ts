@@ -136,6 +136,7 @@ const en: PlainTranslations = {
         phone: 'Phone number',
         email: 'Email',
         realizationLocation: 'Realization location',
+        searchAddress: `Search for an address (Czechia only)`,
         town: 'Municipality',
         street: 'Street name and/or building number',
         crn: 'Company registration number',
