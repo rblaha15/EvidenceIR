@@ -283,11 +283,13 @@ const de: PlainTranslations = {
     pdf: {
         fileLanguage: `Dokumentsprache`,
         downloadFile: `Dokument herunterladen`,
+        printFile: `Dokument drucken`,
         documentPreview: `Dokumentvorschau`,
         page: (page, total) => `Seite ${page}/${total}`,
         previewLoading: `Dokumentvorschau wird geladen…`,
         previewNotSuccessful: `Dokumentvorschau konnte nicht angezeigt werden.`,
         previewNotAvailable: t`Die Dokumentvorschau kann derzeit nicht angezeigt werden. Bitte korrigieren Sie alle Fehler im Formular. Ungültige Felder: ${'fields'}`,
+        printWarning: `Wenn Sie das Dokument ausdrucken möchten, verwenden Sie die Schaltfläche „Dokument drucken“ unten!`,
     },
     countsGenitive: {
         first: `ersten`,

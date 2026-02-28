@@ -19,6 +19,17 @@ export const downloadFile = (url: string, fileName: string) =>
         a.href = url;
     }).click();
 
+export const printFile = (objectUrl: string) =>
+    document.createElement('iframe').also(iframe => {
+        iframe.src = objectUrl;
+        iframe.style.display = 'none';
+        iframe.onload = () => {
+            iframe.contentWindow!.focus();
+            iframe.contentWindow!.print();
+        };
+        document.body.appendChild(iframe);
+    })
+
 export const generatePdfPreviewUrl = <P extends Pdf>(o: OpenPdfOptions<P>) => {
     const { link, irid, spid, lang, ...parameters } = o;
 

@@ -16,7 +16,7 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
     const pdfName = params.pdf as Pdf;
     if (!(pdfName in pdfInfo)) error(404);
 
-    if (!browser) return { url: '', fileName: '', irid: '', spids: [], fileLang: '', args: null };
+    if (!browser) return { url: '', fileName: '', irid: '', spids: [], fileLang: '', args: null, objectUrl: '' };
 
     if (!await checkAuth()) error(401);
 
