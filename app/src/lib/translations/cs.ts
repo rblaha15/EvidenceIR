@@ -746,6 +746,7 @@ export default {
         remoteAccess: {
             title: `Vzdálený přístup`,
             doYouWantRemoteAccess: `Založit vzdálený přístup k regulátoru`,
+            warrantyWarning: `Pozor! Nevyplnili jste informace o tepelném čerpadle, takže zákazník nebude mít nárok na prodlouženou záruku kompresoru.`,
             whoHasAccess: `Kdo k němu bude mít přístup?`,
             whoWillBeInvoiced: `Komu bude vzdálený přístup fakturován? (jednorázová cena 1000 Kč včetně DPH)`,
             responsiblePerson: `Obchodní zástupce Regulus`,
