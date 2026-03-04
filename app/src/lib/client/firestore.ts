@@ -237,7 +237,7 @@ const writeDatabase: WriteDatabase = {
         await setDoc(spDoc(nsp.meta.id), nsp);
     },
     updateNSP: (spid, protocol) => updateDoc(spDoc(spid), {
-        ...protocol, 'meta.changedAt': serverTimestamp() as Timestamp, deleted: false,
+        NSP: protocol, 'meta.changedAt': serverTimestamp() as Timestamp, deleted: false,
     }),
     deleteNSP: async spid => {
         const nsp = await readDatabase.getNSP(spid);
