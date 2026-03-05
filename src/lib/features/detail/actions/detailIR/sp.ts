@@ -11,6 +11,7 @@ import type { ExistingIR } from '$lib/data';
 import { techniciansList } from '$lib/client/realtime';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
+import { ensureSP } from '$lib/forms/SP/infoSP.svelte';
 
 export const deleteSP = (i: number, irid: IRID) => async () => {
     await db.deleteSP(irid, i);
@@ -18,7 +19,7 @@ export const deleteSP = (i: number, irid: IRID) => async () => {
 
 export const copySP = (i: number, ir: ExistingIR) => async () => {
     const ja = get(techniciansList).find(t => get(currentUser)?.email == t.email);
-    const p = ir.SPs[i];
+    const p = ensureSP(ir.SPs[i]);
     await db.addSP(ir.meta.id!, {
         ...p,
         fakturace: {

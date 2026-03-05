@@ -10,7 +10,8 @@ import { inlineTooLong, invoiceableParts, multilineTooLong } from '$lib/forms/SP
 import ares from '$lib/helpers/ares';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import type { Raw } from '$lib/forms/Form';
-import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte';
+import type { FormSP, GenericFormSP } from '$lib/forms/SP/formSP.svelte';
+import { ensureSP } from '$lib/forms/SP/infoSP.svelte';
 
 const prices = {
     transportation: 12 / 1.21,
@@ -202,7 +203,7 @@ const detectCRN = (text: string) => /^[0-9]{8}$/.test(text) ? `IČO: ${text}` : 
 
 export const pdfSP: GetPdfData<'SP'> = async ({ data, t, addDoc, index, lang }) =>
     pdfNSP({
-        data: generalizeServiceProtocol(data.meta, data.IN, data.SPs[index], t), t, addDoc, lang,
+        data: generalizeServiceProtocol(data.meta, data.IN, ensureSP(data.SPs[index]), t), t, addDoc, lang,
         pumpCount: cascadePumps(data.IN).length,
     });
 export default pdfSP;

@@ -19,6 +19,7 @@ import { flatDerived } from '$lib/helpers/stores';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { offlineDatabase } from '$lib/client/offline.svelte';
 import { addToOfflineQueue } from '$lib/client/offlineQueue.svelte';
+import type { FormSZ } from '$lib/forms/SP/formSZ';
 
 /**
  * Supported actions:
@@ -60,9 +61,9 @@ export interface WriteDatabase {
 
     addRKS(irid: IRID, year: Year, check: Raw<FormRKS>): Promise<void>;
 
-    addSP(irid: IRID, protocol: Raw<FormSP>): Promise<void>;
+    addSP(irid: IRID, protocol: Raw<FormSP | FormSZ>): Promise<void>;
 
-    updateSP(irid: IRID, index: number, protocol: Raw<FormSP>): Promise<void>;
+    updateSP(irid: IRID, index: number, protocol: Raw<FormSP | FormSZ>): Promise<void>;
 
     deleteSP(irid: IRID, index: number): Promise<void>;
 
