@@ -23,6 +23,7 @@ import { generalizeServiceProtocol } from '$lib/pdf/pdf';
 import { dataToRawData, type FormGroupPlus, type FormPlus } from '$lib/forms/Form';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { calculateProtocolPrice } from '$lib/pdf/generators/pdfSP';
+import { defaultGenericSZ } from './defaultSZ';
 
 const multilineLineLength = 670;
 const multilineMaxLength = multilineLineLength * 4;
@@ -122,12 +123,12 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     },
     zasah: {
         _title: new TitleWidget({ text: t => t.sp.intervention, level: titleLevel }),
-        datum: new InputWidget({ label: t => t.sp.interventionDate, type: 'datetime-local' }),
-        clovek: new InputWidget({ label: t => t.sp.technicianName, show: false }),
+        datum: defaultGenericSZ<D>().zasah.datum,
+        clovek: defaultGenericSZ<D>().zasah.clovek,
         inicialy: new InputWidget({ label: t => t.sp.technicianInitials, show: false, showInXML: false }),
         nahlasenaZavada: new InputWidget({ label: t => t.sp.reportedFault, required: false }),
         _overflowFault: new TextWidget({ text: (t, d) => inlineTooLong(d.zasah.nahlasenaZavada.value) ? t.sp.textTooLong : '' }),
-        popis: new InputWidget({ label: t => t.sp.interventionDescription, required: false, textArea: true }),
+        popis: defaultGenericSZ<D>().zasah.popis,
         _overflowIntervention: new TextWidget({ text: (t, d) => multilineTooLong(d.zasah.popis.value) ? t.sp.textTooLong : '' }),
         interventionDuration: new InputWidget({
             label: t => t.sp.interventionTime,

@@ -3,7 +3,6 @@ import { template as t } from '$lib/helpers/templates';
 import en from './en';
 
 const de: PlainTranslations = {
-    ...en,
     fve: {
         ...en.fve,
         name: `PV-Installationsprotokoll`,
@@ -14,6 +13,7 @@ const de: PlainTranslations = {
         ...en.units,
         MWhPerYear: 'MWh/Jahr',
     },
+    sz: en.sz,
     sp: en.sp,
     in: {
         remoteAccess: {
@@ -200,6 +200,7 @@ const de: PlainTranslations = {
         newIRIDLabel: `IRID (von URL)`,
         copyNSP: `Installationsinformationen in ein neues Protokoll kopieren`,
         copyNSPtoInstallation: `Installationsinformationen in ein neues Registrierung kopieren`,
+        deleteSP: `Sind Sie sicher, dass Sie das Dienstprotokoll löschen möchten? Dieser Vorgang ist unwiderruflich!`,
         copySP: `Möchten Sie eine Kopie erstellen, um Serviceeingriffe mehreren Personen zu melden?`,
         transferProtocols: `Protokolle in Installation konvertieren (werden nicht gelöscht)`,
         deleteProtocol: `Protokoll löschen`,
@@ -207,9 +208,13 @@ const de: PlainTranslations = {
         yes: `Ja`,
         no: `Nein`,
         editProtocol: `Protokoll bearbeiten`,
+        editIntervention: `Eingriff bearbeiten`,
         serviceProtocols: `Serviceeingriffsprotokolle`,
+        serviceInterventions: `Eingriffsprotokolle`,
         fillInProtocol: `Protokoll ausfüllen`,
+        fillInIntervention: `Eingriff ausfüllen`,
         fillInAnotherProtocol: `Weiteres Protokoll ausfüllen`,
+        fillInAnotherIntervention: `Weiteres Eingriff ausfüllen`,
         changeController: `Controller-Seriennummer ändern`,
         confirm: `Bestätigen`,
         saving: `Speichern`,
@@ -448,6 +453,8 @@ const de: PlainTranslations = {
         passwordRegulusRoute: `Regulusroute1`,
         passwordController: `uzivatel`,
     },
+    nn: en.nn,
+    nnt: en.nnt,
     od: {
         title: 'Unterschriebene Dokumente senden',
         signedPdfDocuments: 'PDF-Dateien mit unterschriebenen Dokumenten',

@@ -3,7 +3,6 @@ import type { FormIN } from '$lib/forms/IN/formIN';
 import type { FormRKT } from '$lib/forms/RKT/formRKT';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import type { FormUPS } from '$lib/forms/UPS/formUPS';
-import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
 import type { TC } from '$lib/forms/IN/defaultIN';
@@ -14,6 +13,8 @@ import type { FormRKS } from '$lib/forms/RKS/formRKS';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
 import type { User } from 'firebase/auth';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import type { FormSP } from '$lib/forms/SP/formSP.svelte';
+import type { FormSZ } from '$lib/forms/SP/formSZ';
 
 export type Year = number;
 
@@ -72,7 +73,7 @@ interface BaseIR {
             SOL?: RecommendationSettings;
         };
     };
-    SPs: Raw<FormSP>[];
+    SPs: Raw<FormSP | FormSZ>[];
     FT?: Raw<FormFT>;
 }
 

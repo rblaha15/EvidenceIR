@@ -9,6 +9,7 @@ import { getTranslations } from '$lib/translations';
 import { waitUntil } from '$lib/helpers/stores';
 import { getAllIRs, getAllNSPs, type Results } from '$lib/client/incrementalUpdates';
 import { langEntryGenerator } from '$lib/helpers/paths';
+import { isSP } from '$lib/forms/SP/infoSP.svelte';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
@@ -49,7 +50,7 @@ export const load: PageLoad = async ({ parent }) => {
                 id: ir.meta.id,
                 name: irName(ir.IN.ir),
                 label: irLabel(ir.IN),
-                sps: ir.SPs.map(p => spName(p.zasah)),
+                sps: ir.SPs.filter(isSP).map(p => spName(p.zasah)),
                 draft: ir.isDraft,
                 deleted: ir.deleted,
             } satisfies IR_NSP))
