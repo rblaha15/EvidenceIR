@@ -15,6 +15,7 @@
     const t = $derived(data.translations.pdf);
     const { title, supportedLanguages } = $derived(data.args!);
 
+    const phone = $derived(/Android|iPhone|iPad/i.test(navigator.userAgent));
     const download = async () => downloadFile(data.url, data.fileName);
     const print = async () => printFile(data.objectUrl);
 
@@ -40,10 +41,12 @@
         <Icon icon="file_download" />
         {t.downloadFile}
     </button>
-    <button class="btn btn-primary" onclick={print}>
-        <Icon icon="print" />
-        {t.printFile}
-    </button>
+    {#if !phone}
+        <button class="btn btn-primary" onclick={print}>
+            <Icon icon="print" />
+            {t.printFile}
+        </button>
+    {/if}
 </PdfPreview>
 
 <style>
