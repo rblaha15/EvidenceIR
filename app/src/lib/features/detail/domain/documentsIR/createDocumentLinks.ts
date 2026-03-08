@@ -216,7 +216,7 @@ export const createDocumentLinks = (
     });
 
     if (rules.showFT(ir)) add({
-        link: 'FT', disabled: rules.disableFT(ir), name: t.fve.name,
+        link: 'FT', disabled: rules.disableFT(ir), name: t.ft.title,
         additionalButton: getButtonFT(t),
     });
 
