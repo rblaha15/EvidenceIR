@@ -560,7 +560,7 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
     }),
 });
 
-export default (): FormIN => ({
+export default (): FormPlus<FormIN> => ({
     ir: {
         nadpisSystem: new TitleWidget({ text: t => t.in.system, level: 2 }),
         nadpis: new TitleWidget({ text: t => t.in.controller, level: 3, class: 'fs-4' }),
@@ -780,6 +780,10 @@ export default (): FormIN => ({
                     d.vzdalenyPristup.plati.setValue(d, null);
                 }
             },
+        }),
+        _pumpNotSelected: new TextWidget({
+            text: t => t.in.remoteAccess.warrantyWarning,
+            show: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value && !tc(d), class: 'text-warning',
         }),
         pristupMa: new MultiCheckboxWidget({
             label: t => t.in.remoteAccess.whoHasAccess,

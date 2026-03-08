@@ -89,6 +89,9 @@
 <p><b>Telefon:</b> {e.uvedeni.telefon}</p>
 
 <h2>Poznámka</h2>
+{#if !e.ir.chceVyplnitK.includes('heatPump')}
+    <p>Součástí instalace není tepelné čerpadlo, netřeba řešit prodlouženou záruku.</p>
+{/if}
 <p>{e.ostatni.poznamka}</p>
 
 <p>Odkaz na podrobnosti evidence: <a href={origin + detailIrUrl(irid)}>{origin + detailIrUrl(irid)}</a></p>

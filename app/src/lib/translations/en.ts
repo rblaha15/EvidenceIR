@@ -186,6 +186,7 @@ const en: PlainTranslations = {
         remoteAccess: {
             title: 'Remote Access',
             doYouWantRemoteAccess: 'Create a remote access to the controller',
+            warrantyWarning: 'Attention! You have not filled in any information about the heat pump, so the customer will not be entitled to an extended compressor warranty.',
             whoHasAccess: 'Who is going to have access to it?',
             whoWillBeInvoiced: 'Who will be invoiced for the remote access (one-time price 1000 CZK incl. VAT)',
             responsiblePerson: `Responsible person`,
