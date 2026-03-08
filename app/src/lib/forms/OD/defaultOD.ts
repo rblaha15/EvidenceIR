@@ -13,7 +13,7 @@ export default (): FormPlus<FormOD> => ({
     all: {
         _info: new TextWidget({
             text: (t, d) =>
-                t.od.info1(cervenka) +
+                t.od.info1(cervenka.map(e => e.address) as [string, string]) +
                 joinWithLastAnd([
                     d.all.userEmail.value ? t.od.info2A({
                         customer: joinWithLastAnd(d.all.userEmail.value.split(separatorsRegExp).map(t => t.trim()), t.od.and)
