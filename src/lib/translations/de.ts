@@ -20,6 +20,7 @@ const de: PlainTranslations = {
             title: `Fernzugriff`,
             doNotInvoice: `Nicht in Rechnung stellen`,
             whoWillBeInvoiced: `Wem wird der Fernzugriff in Rechnung gestellt? (einmaliger Preis 50 € inkl. MwSt.)`,
+            warrantyWarning: `Achtung! Da Sie die Angaben zur Wärmepumpe nicht ausgefüllt haben, besteht für den Kunden kein Anspruch auf eine erweiterte Kompressorgarantie.`,
             whoHasAccess: `Wer wird Zugriff darauf haben?`,
             doYouWantRemoteAccess: `Fernzugriff auf den Regler einrichten?`,
             commissioningCompany: `Inbetriebnahme-Firma`,
