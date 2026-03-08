@@ -47,6 +47,7 @@ const de: PlainTranslations = {
         serialNumber: `Seriennummer des Reglers`,
         controller: `Regler`,
         controllerType: `Reglertyp`,
+        searchAddress: `Adresse suchen (nur in Tschechien)`,
         street: `Straße und/oder Haus Nummer`,
         birthday: `Geburtsdatum`,
         surname: `Nachname`,

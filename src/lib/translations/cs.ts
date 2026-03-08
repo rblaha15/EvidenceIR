@@ -711,6 +711,7 @@ export default {
         email: `Email`,
         residence: `Bydliště`,
         headquarters: `Sídlo`,
+        searchAddress: `Vyhledat adresu`,
         street: `Číslo popisné nebo ulice a číslo orientační`,
         town: `Obec`,
         zip: `Poštovní směrovací číslo`,
