@@ -15,6 +15,11 @@ import { dataToRawData, type Raw } from '$lib/forms/Form';
 import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
 import { getIsOnline } from '$lib/client/realtimeOnline';
 import db from '$lib/Database';
+import { error } from '@sveltejs/kit';
+import type { FormSZ } from '$lib/forms/SP/formSZ';
+
+export const isSP = (raw: Raw<FormSP | FormSZ> | undefined): raw is Raw<FormSP> => !!raw && ('ukony' in raw)
+export const ensureSP = (raw: Raw<FormSP | FormSZ> | undefined) => isSP(raw) ? raw : error(400, { message: 'Provided data is not a protocol' });
 
 const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i: number }> = {
     type: 'IR',
@@ -28,14 +33,16 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
         const editIndex = url.searchParams.get('edit') as string | null;
         if (editIndex) {
             const i = Number(editIndex);
-            return { raw: ir.SPs[i], other: { i } };
+            const sp = ir.SPs[i];
+            return { raw: ensureSP(sp), other: { i } };
         }
     },
     getViewData: (ir, url) => {
         const viewIndex = url.searchParams.get('view') as string | null;
         if (viewIndex) {
             const i = Number(viewIndex);
-            return { raw: ir.SPs[i], other: { i } };
+            const sp = ir.SPs[i];
+            return { raw: ensureSP(sp), other: { i } };
         } else {
             return { other: { i: ir.SPs.length } };
         }
@@ -45,7 +52,7 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
         const ir = (await db.getIR(irid))!;
         if (ir.deleted) return false
 
-        if (!edit && getIsOnline() && ir.SPs.some(p => spName(p.zasah) == name)) {
+        if (!edit && getIsOnline() && ir.SPs.some(p => isSP(p) && spName(p.zasah) == name)) {
             editResult({ text: 'SP již existuje.', red: true, load: false });
             return false;
         }
@@ -86,7 +93,7 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
     onMount: async (d, p, _, ir) => {
         await startTechniciansListening();
         await startSparePartsListening();
-        if (!p.zasah.datum.value) // Also in NSP
+        if (!p.zasah.datum.value) // Also in SZ, NSP
             p.zasah.datum.setValue(d, nowISO());
         if (!p.system.datumUvedeni.value && ir.UP.dateTC)
             p.system.datumUvedeni.setValue(d, ir.UP.dateTC);

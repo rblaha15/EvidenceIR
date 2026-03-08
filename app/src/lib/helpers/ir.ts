@@ -1,10 +1,11 @@
 import type { FormIN, IRTypes, UserForm } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
-
+import type { GenericFormSZ } from '$lib/forms/SP/formSZ';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { separatorsRegExp } from '$lib/forms/IN/defaultIN';
 import type { IR } from '$lib/data';
+import { datetimeFromISO, timeFromISO } from '$lib/helpers/date';
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno
@@ -52,10 +53,18 @@ export const irNumberFromIRID = (irid: IRID) =>
  */
 export const spName = (zasah: Raw<GenericFormSP<never>>['zasah']) => {
     const datum = zasah.datum.split('T')[0].replaceAll('-', '/');
-    const hodina = zasah.datum.split('T')[1].split(':')[0];
-    const minuta = zasah.datum.split('T')[1].split(':')[1];
+    const cas = timeFromISO(zasah.datum);
     const technik = zasah.inicialy;
-    return `${technik} ${datum}-${hodina}:${minuta}`;
+    return `${technik} ${datum}-${cas}`;
+};
+
+/**
+ * Roman Bláha 31. 12. 2024 23:59
+ */
+export const szName = (zasah: Raw<GenericFormSZ<never>>['zasah']) => {
+    const datum = datetimeFromISO(zasah.datum);
+    const technik = zasah.clovek;
+    return `${technik} ${datum}`;
 };
 
 /**
