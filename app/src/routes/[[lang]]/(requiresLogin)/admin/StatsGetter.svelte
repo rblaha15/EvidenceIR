@@ -31,7 +31,7 @@
 
             const irs = (await adminDatabase.getAllIRs()).filter((ir): ir is ExistingIR => !ir.deleted);
             const nsps = (await adminDatabase.getAllNSPs()).filter((sp): sp is ExistingNSP => !sp.deleted);
-
+4
             const allProtocols = [...irs.flatMap(ir => ir.SPs), ...nsps.map(sp => sp.NSP)].filter(isSP);
 
             const namesAndDates = allProtocols.map(p => ({
