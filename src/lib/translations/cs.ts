@@ -183,13 +183,14 @@ export default {
             close: `Zavřít`,
             didYouFindMistakesInTranslationsHtml: `Našli jste nějaké chyby v překladech? Napište nám to prosím na <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Chyba v překladech" target="_blank">aplikace.regulus@gmail.com</a>.`,
         },
-        offlineQueue: {
-            title: `Fronta neodeslaných změn a emailů`,
+        history: {
+            title: `Historie změn a emailů`,
             close: `Zavřít`,
             description: `Jste offline a provedli jste několik změn v datech aplikace. Tyto upravené informace můžete standartně zobrazit a upravovat v aplikaci, ale NEODEŠLOU se na server, dokud aplikaci nezapnete S PŘIPOJENÍM K INTERNETU!`,
-            changes: `Provedené, neodeslané změny:`,
+            incompletedChanges: `Provedené, neodeslané změny:`,
+            changes: `Provedené změny:`,
             unsentEmail: t`Neodeslaný email: ${'subject'}`,
-            unverifiedLoyaltyPoints: t`Nepřipočtené věrnostní body`,
+            sentEmail: t`Odeslaný email: ${'subject'}`,
             f: {
                 addIR: t`Zaevidován nový regulátor (${'ir'})`,
                 deleteIR: t`Odstraněna evidence IR ${'ir'}`,

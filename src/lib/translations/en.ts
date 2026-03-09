@@ -258,13 +258,14 @@ const en: PlainTranslations = {
         independentServiceProtocol: `Independent service protocol`,
         search: `Search`,
         back: 'Back',
-        offlineQueue: {
-            title: `Queue of unsent changes and emails`,
+        history: {
+            title: `History of changes and emails`,
             close: `Close`,
             description: `You are offline and have performed several changes in the app data. You can view and edit all of the edited information in the app as usual, but they will NOT be sent to the serer until you open the app WITH AN INTERNET CONNECTION!`,
-            changes: `Performed, unsent changes:`,
+            incompletedChanges: `Performed, unsent changes:`,
+            changes: `Performed changes:`,
+            sentEmail: t`Sent email: ${'subject'}`,
             unsentEmail: t`Unsent email: ${'subject'}`,
-            unverifiedLoyaltyPoints: t`Unassigned loyalty points`,
             f: {
                 addIR: t`Registered a new controller (${'ir'})`,
                 deleteIR: t`Removed the record of the ${'ir'} controller`,
