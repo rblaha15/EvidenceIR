@@ -10,7 +10,7 @@
     import { setUserPreferredDocumentLanguage } from '$lib/languages.js';
     import { hideNav } from '$lib/helpers/globals';
     import { clearLocalDatabase } from '$lib/client/offline.svelte';
-    import { clearOfflineQueue } from '$lib/client/offlineQueue.svelte';
+    import { clearHistory } from '$lib/client/history.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
 
     const { t }: { t: Translations } = $props();
@@ -20,7 +20,7 @@
         localStorage.clear();
         await removeAllFiles();
         await clearLocalDatabase();
-        await clearOfflineQueue();
+        await clearHistory();
         await (await caches.keys()).map(name => caches.delete(name)).awaitAll();
         location.reload();
     };

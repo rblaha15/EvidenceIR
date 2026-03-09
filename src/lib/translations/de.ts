@@ -277,14 +277,15 @@ const de: PlainTranslations = {
             close: `Schließen`,
             didYouFindMistakesInTranslationsHtml: `Haben Sie Übersetzungsfehler gefunden? Schreiben Sie uns bitte an <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Übersetzungsfehler" target="_blank">aplikace.regulus@gmail.com</a>.`,
         },
-        offlineQueue: {
-            title: `Warteschlange nicht gesendeter Änderungen und E-Mails`,
+        history: {
+            title: `Änderungs- und E-Mail-Verlauf`,
             close: `Schließen`,
             description: `Sie sind offline und haben mehrere Änderungen an den Anwendungsdaten vorgenommen. Sie können diese geänderten Informationen standardmäßig in der Anwendung anzeigen und bearbeiten. Sie werden jedoch erst an den Server gesendet, wenn Sie die Anwendung MIT EINER INTERNETVERBINDUNG starten!`,
-            changes: `Vorgenommene Änderungen, nicht gesendet:`,
+            incompletedChanges: `Vorgenommene Änderungen, nicht gesendet:`,
+            changes: `Vorgenommene Änderungen:`,
             unsentEmail: t`Nicht gesendete E-Mail: ${'subject'}`,
-            unverifiedLoyaltyPoints: t`Nicht zugewiesene Treuepunkte`,
-            f: en.nav.offlineQueue.f,
+            sentEmail: t`Gesendete E-Mail: ${'subject'}`,
+            f: en.nav.history.f,
         },
     },
     pdf: {
