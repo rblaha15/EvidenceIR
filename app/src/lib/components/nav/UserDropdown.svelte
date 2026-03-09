@@ -29,7 +29,7 @@
         await goto(link, { replaceState: true });
     };
 
-    let store = $state(readable<LoyaltyProgramUserData | null>(null));
+    let store = $state(readable<LoyaltyProgramUserData | number>(6));
     onMount(async () => {
         store = await getLoyaltyProgramDataStore();
     });
@@ -60,7 +60,7 @@
                 </span>
             {/if}
         </div>
-        {#if !$isUserAnyRegulusOrAdmin && $store}
+        {#if !$isUserAnyRegulusOrAdmin && typeof $store !== 'number'}
             <hr class="my-3" />
             <div class="d-flex flex-column gap-1 px-3 align-items-start">
                 <h6 class="m-0">{ta.loyaltyProgram}</h6>
@@ -70,6 +70,9 @@
                     {ta.rewards}
                 </a>
             </div>
+        {:else}
+            <hr class="my-3" />
+            <span class="px-3">Error kód: {$isUserAnyRegulusOrAdmin ? 0 : $store}</span>
         {/if}
         <hr class="my-3" />
         <div class="d-flex flex-column gap-1 px-3 align-items-start">

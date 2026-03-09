@@ -191,17 +191,17 @@ export const startSolarCollectorsListening = async () => {
     });
 };
 
-const pointsStores: Record<string, Readable<LoyaltyProgramUserData | null>> = {};
+const pointsStores: Record<string, Readable<LoyaltyProgramUserData | number>> = {};
 
 export const getLoyaltyProgramDataStore = async () => {
     const user = getFromStore(currentUser);
-    if (!user) return readable(null);
-    if (!getIsOnline()) return readable(null);
-    if (await checkAnyRegulusOrAdmin()) return readable(null);
+    if (!user) return readable(1);
+    if (!getIsOnline()) return readable(2);
+    if (await checkAnyRegulusOrAdmin()) return readable(3);
     const uid = user.uid;
-    if (!uid) return readable(null);
+    if (!uid) return readable(4);
     if (!pointsStores[uid]) {
-        const store = writable<LoyaltyProgramUserData | null>(null);
+        const store = writable<LoyaltyProgramUserData | number>(5);
         const { onValue, child } = await import('firebase/database');
         onValue(
             child(loyaltyProgramRef, uid),
