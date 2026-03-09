@@ -4,9 +4,9 @@ import { type Component, mount } from 'svelte';
 import { dev } from '$app/environment';
 import { get } from 'svelte/store';
 import type { User } from 'firebase/auth';
-import { addEmailToOfflineQueue } from '$lib/client/offlineQueue.svelte';
 import { upload } from "@vercel/blob/client";
 import { getIsOnline } from '$lib/client/realtimeOnline';
+import { addEmailToHistory } from '$lib/client/history.svelte';
 
 export type Address = {
     name: string;
@@ -54,7 +54,7 @@ export const sendEmail = async <Props extends Record<string, unknown>>(options: 
         props: options.props,
     });
     const newOptions: HtmlEmailOptions = {
-        ...options,
+        ...options.omit('component', 'props'),
         html: div.innerHTML,
     };
     return await sendHtmlEmail(newOptions);
@@ -67,12 +67,11 @@ export const sendHtmlEmail = async (options: HtmlEmailOptions) => {
         text: options.text ?? htmlToText(options.html ?? ''),
     }
 
-    if (!getIsOnline()) {
-        addEmailToOfflineQueue(newOptions);
-        return new Response('OK', {
-            status: 200,
-        });
-    }
+    const isOnline = getIsOnline();
+    addEmailToHistory(newOptions, isOnline);
+    if (!isOnline) return new Response('OK', {
+        status: 200,
+    });
 
     return await sendEmailAndUploadAttachments(newOptions);
 };

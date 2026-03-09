@@ -4,8 +4,8 @@
     import BaseNav from './BaseNav.svelte';
     import UserDropdown from '$lib/components/nav/UserDropdown.svelte';
     import LoggedOutButtons from '$lib/components/nav/LoggedOutButtons.svelte';
-    import { readableQueue } from '$lib/client/offlineQueue.svelte';
-    import QueueModal from '$lib/components/nav/QueueModal.svelte';
+    import { readableHistory } from '$lib/client/history.svelte';
+    import HistoryModal from '$lib/components/nav/HistoryModal.svelte';
     import SettingsModal from '$lib/components/nav/SettingsModal.svelte';
     import { page } from '$app/state';
     import TableOfContents from '$lib/components/TableOfContents.svelte';
@@ -29,16 +29,21 @@
     <Button icon="settings" iconClass="fs-2" label="Settings"
             link class="nav-link ms-3" modalID="settings" />
 {/snippet}
-{#snippet queue()}
-    {#if $readableQueue.length}
+{#snippet history()}
+    {#if $readableHistory.incompleted.length}
         <div class="ms-3">
-            <Button icon="sync_problem" iconClass="fs-2" label="Offline queue"
-                    link class="nav-link text-warning-emphasis" modalID="queue" />
+            <Button icon="sync_problem" iconClass="fs-2" label="History"
+                    link class="nav-link text-warning-emphasis" modalID="history" />
+        </div>
+    {:else if $readableHistory.completed.length}
+        <div class="ms-3">
+            <Button icon="history" iconClass="fs-2" label="History"
+                    link class="nav-link" modalID="history" />
         </div>
     {/if}
 {/snippet}
 {#snippet buttons()}
-    {@render queue()}
+    {@render history()}
     {@render help()}
     {@render settings()}
     <UserDropdown {t} />
@@ -112,7 +117,7 @@
     </div>
 </nav>
 
-<QueueModal {t} />
+<HistoryModal {t} />
 <SettingsModal {t} />
 
 <style global>
