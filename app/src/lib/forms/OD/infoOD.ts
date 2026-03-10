@@ -21,6 +21,7 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
                 : `Dobrý den,\nv příloze naleznete podepsané dokumenty ze servisního zásahu.\nS pozdravem,\n${name}`,
         );
         f.all.userEmail.setValue(d, page.url.searchParams.get('user') ?? '');
+        f.all.assemblyEmail.setValue(d, page.url.searchParams.get('assembly') ?? '');
     },
     saveData: async (raw, _1, _2, editResult, t) => {
         const user = userAddress(get(currentUser)!);
@@ -32,6 +33,7 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
             cc: dev ? undefined : [
                 user,
                 ...(raw.all.userEmail ? raw.all.userEmail.split(separatorsRegExp).map(t => t.trim()) : []),
+                ...(raw.all.assemblyEmail ? raw.all.assemblyEmail.split(separatorsRegExp).map(t => t.trim()) : []),
                 ...(raw.all.otherCopies ? raw.all.otherCopies.split(separatorsRegExp).map(t => t.trim()) : []),
             ],
             subject: `Podepsané dokumenty`,
