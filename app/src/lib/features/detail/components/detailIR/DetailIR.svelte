@@ -31,11 +31,9 @@
                     <DocumentsIR {ir} {t} {lang} {irid} />
                 </div>
             </div>
-            {#if $isUserRegulusOrAdmin}
-                <div class="d-flex flex-column gap-3">
-                    <ServiceProtocols {ir} {t} {lang} {irid} />
-                </div>
-            {/if}
+            <div class="d-flex flex-column gap-3">
+                <ServiceProtocols {ir} {t} {lang} {irid} />
+            </div>
         </div>
     {/if}
     <div class="d-flex flex-column gap-3">
