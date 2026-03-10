@@ -18,7 +18,8 @@ import { getIsOnline, isOnline } from '$lib/client/realtimeOnline';
 import { flatDerived } from '$lib/helpers/stores';
 import { firestoreDatabase } from '$lib/client/firestore';
 import { offlineDatabase } from '$lib/client/offline.svelte';
-import { addToOfflineQueue } from '$lib/client/offlineQueue.svelte';
+import { addToHistory } from '$lib/client/history.svelte';
+import type { FormSZ } from '$lib/forms/SP/formSZ';
 
 /**
  * Supported actions:
@@ -60,9 +61,9 @@ export interface WriteDatabase {
 
     addRKS(irid: IRID, year: Year, check: Raw<FormRKS>): Promise<void>;
 
-    addSP(irid: IRID, protocol: Raw<FormSP>): Promise<void>;
+    addSP(irid: IRID, protocol: Raw<FormSP | FormSZ>): Promise<void>;
 
-    updateSP(irid: IRID, index: number, protocol: Raw<FormSP>): Promise<void>;
+    updateSP(irid: IRID, index: number, protocol: Raw<FormSP | FormSZ>): Promise<void>;
 
     deleteSP(irid: IRID, index: number): Promise<void>;
 
@@ -123,8 +124,9 @@ const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>
     if (isGetAsStoreFunction(name)) {
         return mergedStore(name, args as Parameters<Database[GetAsStoreFunction]>) as ReturnType<Database[F]>;
     } else {
-        const db = getIsOnline() ? firestoreDatabase : offlineDatabase;
-        if (!getIsOnline()) addToOfflineQueue(name, args);
+        const isOnline = getIsOnline();
+        const db = isOnline ? firestoreDatabase : offlineDatabase;
+        addToHistory(name, args, isOnline);
 
         // @ts-expect-error TS doesn't know it's a tuple
         return db[name](...args);

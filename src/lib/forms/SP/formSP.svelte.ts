@@ -11,6 +11,7 @@ import {
 import { type SparePart } from '$lib/client/realtime';
 import { type Form, type Raw } from '$lib/forms/Form';
 import type { IR } from '$lib/data';
+import type { GenericFormSZ } from '$lib/forms/SP/formSZ';
 
 export type SparePartWidgetGroup<D> = {
     dil: SearchWidget<D, SparePart, true>,
@@ -40,19 +41,16 @@ export type Operation =
     | `installationApproval`
     | 'withoutCode';
 
-export interface GenericFormSP<D extends GenericFormSP<D>> extends Form<D> {
+export interface GenericFormSP<D extends GenericFormSP<D>> extends GenericFormSZ<D>, Form<D> {
     system: {
         datumUvedeni: InputWidget<D>;
         zaruka: RadioWidget<D, `warrantyCommon` | `warrantyExtended`>,
     }
     zasah: {
-        datum: InputWidget<D>,
-        clovek: InputWidget<D>,
         inicialy: InputWidget<D>,
         nahlasenaZavada: InputWidget<D>,
-        popis: InputWidget<D>,
         interventionDuration: InputWidget<D>,
-    },
+    } & GenericFormSZ<D>['zasah'],
     ukony: {
         ukony: MultiCheckboxWidget<D, Operation>,
         typPrace: RadioWidget<D, `assemblyWork` | `technicalAssistance` | `assemblyWork12`>,
