@@ -16,6 +16,8 @@ import { grantPoints } from '$lib/client/loyaltyProgram';
 import type { Raw } from '$lib/forms/Form';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
 import db from '$lib/Database';
+import { validate } from 'uuid';
+import type { Translations } from '$lib/translations';
 
 export const isRKTL = (raw: Raw<FormRKT | FormRKTL> | undefined): raw is Raw<FormRKTL> => !!raw && !('funkcniTest' in raw)
 
@@ -105,6 +107,34 @@ const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: Yea
             const lastYear = ir.RK.TC?.[pump]?.[Math.max(...filledYears)];
             if (lastYear && !isRKTL(lastYear))
                 k.kontrolaOtopneSoustavy.kontrolaPojistovacichVentiluPoznamka.setValue(d, lastYear.kontrolaOtopneSoustavy.kontrolaPojistovacichVentiluPoznamka || '');
+
+            const keys = [
+                'celkoveProvozniHodinyKompresoruMinule',
+                'provozniHodinyKompresoruDoTepleVodyMinule',
+                'celkovyPocetStartuKompresoruMinule',
+                'pocetStartuKompresoruDoTepleVodyMinule',
+                'celkoveProvozniHodinyDoplnkovehoZdrojeMinule',
+                'celkoveProvozniHodinyDoplnkovehoZdrojeTepleVodyMinule',
+            ] satisfies (keyof FormRKT['kontrolaRegulace'])[]
+            const values = lastYear ? !isRKTL(lastYear) ? [
+                lastYear.kontrolaRegulace.celkoveProvozniHodinyKompresoru,
+                lastYear.kontrolaRegulace.provozniHodinyKompresoruDoTepleVody,
+                lastYear.kontrolaRegulace.celkovyPocetStartuKompresoru,
+                lastYear.kontrolaRegulace.pocetStartuKompresoruDoTepleVody,
+                lastYear.kontrolaRegulace.celkoveProvozniHodinyDoplnkovehoZdroje,
+                lastYear.kontrolaRegulace.celkoveProvozniHodinyDoplnkovehoZdrojeTepleVody,
+            ] : [
+                lastYear.kontrolniUkonyRegulace.stavPocitadlaCelkovychProvoznichHodinKompresoru,
+                lastYear.kontrolniUkonyRegulace.stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace,
+                lastYear.kontrolniUkonyRegulace.stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace,
+                lastYear.kontrolniUkonyRegulace.stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace,
+                lastYear.kontrolniUkonyRegulace.stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje,
+                lastYear.kontrolniUkonyRegulace.stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv,
+            ] : undefined
+            if (values) keys.zip(values).map(([key, value]) => {
+                if (!value) return
+                k.kontrolaRegulace[key].text = (t: Translations) => t.rkt.valueFromLastCheck([value]);
+            })
         }
         if (ir.UP.TC) {
             k.kontrolaTlakuExpanznichNadob.expanzniNadobaOtopneSoustavyPriUPT.setValue(d, ir.UP.TC.os.tlakEnOs || '');

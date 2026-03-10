@@ -551,6 +551,7 @@ export default {
         performingPerson: `Provádějící osoba`,
         checkDate: `Datum kontroly`,
         note: `Poznámka`,
+        valueFromLastCheck: t`Hodnota z minulé kontroly: ${0}`,
         kontrolniElektroinstalace: 'Kontrolní elektroinstalace',
         kontrolniUkonyTepelnehoCerpadla: 'Kontrolní úkony tepelného čerpadla',
         kontrolniUkonyRegulace: 'Kontrolní úkony regulace',
