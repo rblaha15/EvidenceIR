@@ -576,6 +576,7 @@ const de: PlainTranslations = {
         name: t`Jährliche Überprüfung der Wärmepumpe ${'n'} (${'cislo'})`,
         fillOut: t`Jährliche Überprüfung der Wärmepumpe ${'n'} durchführen`,
         note: `Notiz`,
+        valueFromLastCheck: t`Wert aus der letzten Prüfung: ${0}`,
         pumpDetails: t`WP${'n'}: ${'model'} – ${'cislo'}`,
     },
     zls: {

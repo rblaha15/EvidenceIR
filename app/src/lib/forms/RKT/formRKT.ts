@@ -1,4 +1,4 @@
-import { CheckboxWidget, CounterWidget, InputWidget } from '$lib/forms/Widget.svelte.js';
+import { CheckboxWidget, CounterWidget, InputWidget, TextWidget } from '$lib/forms/Widget.svelte.js';
 import { type Form, type Raw } from '$lib/forms/Form';
 import type { FormIN } from '$lib/forms/IN/formIN';
 
@@ -21,11 +21,17 @@ export interface FormRKT extends Form<DataRKT> {
     kontrolaRegulace: {
         kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: CheckboxWidget<DataRKT>,
         celkoveProvozniHodinyKompresoru: InputWidget<DataRKT>,
+        celkoveProvozniHodinyKompresoruMinule: TextWidget<DataRKT>,
         provozniHodinyKompresoruDoTepleVody: InputWidget<DataRKT>,
+        provozniHodinyKompresoruDoTepleVodyMinule: TextWidget<DataRKT>,
         celkovyPocetStartuKompresoru: InputWidget<DataRKT>,
+        celkovyPocetStartuKompresoruMinule: TextWidget<DataRKT>,
         pocetStartuKompresoruDoTepleVody: InputWidget<DataRKT>,
+        pocetStartuKompresoruDoTepleVodyMinule: TextWidget<DataRKT>,
         celkoveProvozniHodinyDoplnkovehoZdroje: InputWidget<DataRKT>,
+        celkoveProvozniHodinyDoplnkovehoZdrojeMinule: TextWidget<DataRKT>,
         celkoveProvozniHodinyDoplnkovehoZdrojeTepleVody: InputWidget<DataRKT>,
+        celkoveProvozniHodinyDoplnkovehoZdrojeTepleVodyMinule: TextWidget<DataRKT>,
         prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: InputWidget<DataRKT>,
         prumernaDobaChoduKompresoruDoTepleVodyMinOdPosledniKontroly: InputWidget<DataRKT>,
     },
