@@ -7,6 +7,7 @@ export interface FormOD extends Form<FormOD> {
         photos: PhotoSelectorWidget<FormOD>,
         body: InputWidget<FormOD>,
         userEmail: InputWidget<FormOD>,
+        assemblyEmail: InputWidget<FormOD>,
         otherCopies: InputWidget<FormOD>,
     },
 }
