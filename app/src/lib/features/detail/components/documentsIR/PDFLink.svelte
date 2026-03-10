@@ -8,6 +8,7 @@
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { DocumentLinkDefinition } from '$lib/features/detail/domain/documentsIR/createDocumentLinks.js';
+    import SmallDropdown from '$lib/features/detail/components/documentsIR/SmallDropdown.svelte';
 
     type Props<P extends Pdf> = DocumentLinkDefinition<P> & PdfID<P> & {
         data: DataOfPdf<P>,
@@ -45,29 +46,7 @@
                 {#if name}<span>{name}</span>{/if}
             </a>
             {#if dropdownItems}
-                <button type="button" class="btn btn-outline-secondary" style="--bs-btn-padding-x: 0" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    <Icon icon="more_vert" />
-                    <span class="visually-hidden">Toggle dropdown with other options</span>
-                </button>
-                <div class="dropdown-menu">
-                    <div class="d-flex flex-column gap-1 px-3 py-2 align-items-start">
-                        {#each dropdownItems ?? [] as item}
-                            {#if !item.hide}
-                                {#if 'color' in item}
-                                    <a class="btn btn-{item.color}" href={item.href} tabindex="0">
-                                        <Icon icon={item.icon} />
-                                        {item.text}
-                                    </a>
-                                {:else if 'item' in item}
-                                    {@render item.item()}
-                                {:else}
-                                    <h6 class="m-0">{item.text}</h6>
-                                {/if}
-                            {/if}
-                        {/each}
-                    </div>
-                </div>
+                <SmallDropdown {dropdownItems} />
             {/if}
         </div>
     {:else if name}

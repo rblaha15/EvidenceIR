@@ -9,6 +9,20 @@ import { iaA, iaR } from '$lib/helpers/stores';
 import { cascadePumps, type PumpInfo } from '$lib/forms/IN/infoIN';
 import { isRKTL } from '$lib/forms/RKT/infoRKT';
 
+export type DropdownItems = ({
+    hide?: boolean,
+    text: string,
+} | {
+    color: Color,
+    icon: string,
+    hide?: boolean,
+    text: string,
+    href: string,
+} | {
+    hide?: boolean,
+    item: Snippet,
+})[];
+
 export type DocumentLinkDefinition<P extends Pdf> = PdfParameters<P> & {
     link: P,
     name?: string;
@@ -22,19 +36,7 @@ export type DocumentLinkDefinition<P extends Pdf> = PdfParameters<P> & {
     } | {
         dialogID: string, href?: undefined,
     }),
-    dropdownItems?: ({
-        hide?: boolean,
-        text: string,
-    } | {
-        color: Color,
-        icon: string,
-        hide?: boolean,
-        text: string,
-        href: string,
-    } | {
-        hide?: boolean,
-        item: Snippet,
-    })[]
+    dropdownItems?: DropdownItems
 }
 
 const getButtonUPT = (
@@ -214,7 +216,7 @@ export const createDocumentLinks = (
     });
 
     if (rules.showFT(ir)) add({
-        link: 'FT', disabled: rules.disableFT(ir), name: t.fve.name,
+        link: 'FT', disabled: rules.disableFT(ir), name: t.ft.title,
         additionalButton: getButtonFT(t),
     });
 

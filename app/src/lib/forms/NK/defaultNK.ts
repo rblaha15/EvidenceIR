@@ -5,7 +5,6 @@ import {
     CheckboxWithInputWidget,
     ChooserWidget,
     CountersWidget,
-    DoubleChooserWidget,
     InputWidget,
     InputWithChooserWidget,
     InputWithSuggestionsWidget,
@@ -25,6 +24,7 @@ import { currentUser } from '$lib/client/auth';
 import ares from '$lib/helpers/ares';
 import type { FormPlus } from '$lib/forms/Form';
 import languageCodes from '$lib/languageCodes';
+import ruian, { type Address } from '$lib/helpers/ruian';
 
 const fve = (d: FormNK) => d.contacts.demandSubject.value.includes(`fve`);
 const hp = (d: FormNK) => d.contacts.demandSubject.value.includes(`heatPump`);
@@ -39,6 +39,15 @@ export default (): FormPlus<FormNK> => ({
         }),
         surname: new InputWidget({ label: t => t.nk.contacts.surname, autocapitalize: 'words' }),
         name: new InputWidget({ label: t => t.nk.contacts.name, autocapitalize: 'words' }),
+        _search: new SearchWidget<FormNK, Address, true>({
+            label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
+                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }]
+            }), search: ruian.suggest, onValueSet: (d, a) => {
+                d.contacts.street.setValue(d, a?.house ?? '');
+                d.contacts.zip.setValue(d, a?.postalCode ?? '');
+                d.contacts.city.setValue(d, a?.city ?? '');
+            }, required: false,
+        }),
         street: new InputWidget({ required: false, label: t => t.nk.contacts.street, autocapitalize: 'sentences' }),
         city: new InputWidget({ required: false, label: t => t.nk.contacts.city, autocapitalize: 'words' }),
         zip: new InputWidget({

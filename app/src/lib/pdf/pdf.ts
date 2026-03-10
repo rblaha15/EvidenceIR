@@ -17,6 +17,9 @@ import type { TC } from '$lib/forms/IN/defaultIN';
 import { extractSPIDFromRawData, type IRID, irName, type SPID } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import type { LanguageCode } from '$lib/languageCodes';
+import type { Raw } from '$lib/forms/Form';
+import type { FormIN } from '$lib/forms/IN/formIN';
+import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 
 type AllPdf = {
     /** Zastaralá roční kontrola TČ */
@@ -276,7 +279,7 @@ type PdfParams = {
 export type PdfParameters<P extends Pdf> = P extends keyof PdfParams ? PdfParams[P] : {};
 
 export const generalizeServiceProtocol = (
-    meta: ExistingIR['meta'], IN: ExistingIR['IN'], SP: ExistingIR['SPs'][number], t: Translations,
+    meta: ExistingIR['meta'], IN: Raw<FormIN>, SP: Raw<FormSP>, t: Translations,
 ) => ({
     deleted: false,
     meta: {

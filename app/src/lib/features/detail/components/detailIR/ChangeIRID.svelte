@@ -27,17 +27,19 @@
     $effect(() => {
         if (!ir) return;
         untrack(() => {
-            part.typ.setValue(d, ir.IN.ir.typ);
-            part.cislo.setValue(d, ir.IN.ir.cislo);
+            if (part.typ.value !== ir.IN.ir.typ)
+                part.typ.setValue(d, ir.IN.ir.typ);
+            if (part.cislo.value !== ir.IN.ir.cislo)
+                part.cislo.setValue(d, ir.IN.ir.cislo);
         });
     });
 
     const action = $derived(
         changeController(part, d, alsoChange, (m, e) => {
             mode = m;
-            error = e
-        }, irid)
-    )
+            error = e;
+        }, irid),
+    );
 </script>
 
 {#if mode === 'hidden'}

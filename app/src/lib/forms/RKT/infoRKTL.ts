@@ -26,7 +26,7 @@ const infoRKT: FormInfo<DataRKTL, FormRKTL, [], 'RKTL', { defaultYear: Year, fil
 
         const view = (url.searchParams.get('view-year')?.toNumber()) as Year | undefined;
         if (view) return { raw: ir.RK.TC[pump]![view] as Raw<FormRKTL>, other: { defaultYear: view, filledYears, pump } };
-    return { other: { defaultYear: view, filledYears, pump } };
+        return { other: { defaultYear: -1, filledYears, pump } };
     },
     saveData: async (irid, raw, _1, form, _2, _3, _4, _5, { pump }) => {
         const year = form.info.year.value as Year;

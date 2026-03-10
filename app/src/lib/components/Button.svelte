@@ -55,7 +55,7 @@
     }: ButtonSettings = $props();
 
     const outline = $derived(settings.outline ? 'outline-' : '');
-    const color = $derived(settings.link ? ['btn', 'btn-link']
+    const color = $derived(settings.link ? ['btn', 'btn-link', 'link-offset-1']
         : settings.color ? ['btn', `btn-${outline}${settings.color}`] : '');
     const square = $derived({ square: settings.square });
     const klass = $derived([color, 'text-nowrap', square, settings.class]);
@@ -102,7 +102,10 @@
 
 <!--suppress CssUnusedSymbol -->
 <style>
-    button.square {
+    .square {
         --bs-btn-padding-x: var(--bs-btn-padding-y)
+    }
+    .btn-link {
+        --bs-btn-padding-x: 0;
     }
 </style>
