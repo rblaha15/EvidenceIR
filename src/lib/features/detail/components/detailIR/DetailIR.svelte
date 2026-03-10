@@ -41,7 +41,7 @@
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#if !ir.isDraft}
                 <Button color="primary" icon="attach_email" text={td.sendDocuments}
-                        href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.IN.koncovyUzivatel).join(';')}`)} />
+                        href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.IN.koncovyUzivatel).join(';')}&assembly=${ir.IN.montazka.email.trim()}`)} />
             {/if}
             {#if ir.isDraft}
                 <Button color="primary" icon="edit_document" text={td.editInstallationData}
