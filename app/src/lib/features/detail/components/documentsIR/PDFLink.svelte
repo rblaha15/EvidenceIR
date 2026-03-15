@@ -1,9 +1,7 @@
 <script generics="P extends Pdf" lang="ts">
     import type { Translations } from '$lib/translations';
     import { type DataOfPdf, type OpenPdfOptions, type Pdf, type PdfID } from '$lib/pdf/pdf';
-    import type { Snippet } from 'svelte';
     import { currentPreferredDocumentLanguage } from '$lib/languages';
-    import type { Color } from '$lib/forms/Widget.svelte.js';
     import Icon from '$lib/components/Icon.svelte';
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
     import type { LanguageCode } from '$lib/languageCodes';
@@ -38,7 +36,7 @@
         <div class="d-flex flex-row gap-3 flex-shrink-0">
             <a
                 href={generatePdfPreviewUrl(o).href}
-                class="link-offset-1 btn btn-link"
+                class="link-offset-1 btn btn-link text-nowrap"
                 tabindex="0"
                 style="--bs-btn-padding-x: 0rem"
             >
