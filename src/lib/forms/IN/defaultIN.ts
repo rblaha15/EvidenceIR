@@ -39,7 +39,7 @@ import { assemblyCompanies, commissioningCompanies } from '$lib/helpers/companie
 import type { FormPlus } from '$lib/forms/Form';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import db from '$lib/Database';
-import ruian, { type Address } from '$lib/helpers/ruian';
+import ruian from '$lib/helpers/ruian';
 
 const jeFO = (d: UserForm<never>) => d.koncovyUzivatel.typ.value == `individual`;
 const fo = (d: UserForm<never>) => jeFO(d);
@@ -136,7 +136,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
                 d.bydliste.ulice.setValue(d, a?.house ?? '');
                 d.bydliste.psc.setValue(d, a?.postalCode ?? '');
                 d.bydliste.obec.setValue(d, a?.city ?? '');
-            }, required: false,
+            }, required: false, showInXML: false,
         }),
         ulice: new InputWidget({
             label: t => t.in.street,
@@ -171,7 +171,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
                 d.mistoRealizace.ulice.setValue(d, a?.house ?? '');
                 d.mistoRealizace.psc.setValue(d, a?.postalCode ?? '');
                 d.mistoRealizace.obec.setValue(d, a?.city ?? '');
-            }, required: false,
+            }, required: false, showInXML: false,
         }),
         ulice: new InputWidget({
             label: t => t.in.street, required: false, showInXML: true,
