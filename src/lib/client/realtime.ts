@@ -1,11 +1,11 @@
 import { derived, get as getFromStore, readable, type Readable, writable } from 'svelte/store';
-import { checkAnyRegulusOrAdmin, checkRegulusOrAdmin, currentUser } from '$lib/client/auth';
+import { checkRegulusOrAdmin, currentUser } from '$lib/client/auth';
 import type { User } from 'firebase/auth';
 import { type Query, ref } from 'firebase/database';
-import { storable } from '$lib/helpers/stores';
+import { flattenStores, storable } from '$lib/helpers/stores';
 import { realtime } from '../../hooks.client';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
-import { getIsOnline } from '$lib/client/realtimeOnline';
+import { getIsOnline, isOnline } from '$lib/client/realtimeOnline';
 
 type SelfObject<T extends PropertyKey> = { [key in T]: key };
 type CRN = string;
@@ -191,25 +191,27 @@ export const startSolarCollectorsListening = async () => {
     });
 };
 
-const pointsStores: Record<string, Readable<LoyaltyProgramUserData | number>> = {};
+const pointsStores: Record<string, Readable<LoyaltyProgramUserData | null>> = {};
 
-export const getLoyaltyProgramDataStore = async () => {
-    const user = getFromStore(currentUser);
-    if (!user) return readable(1);
-    if (!getIsOnline()) return readable(2);
-    if (await checkAnyRegulusOrAdmin()) return readable(3);
-    const uid = user.uid;
-    if (!uid) return readable(4);
-    if (!pointsStores[uid]) {
-        const store = writable<LoyaltyProgramUserData | number>(5);
-        const { onValue, child } = await import('firebase/database');
-        onValue(
-            child(loyaltyProgramRef, uid),
-            data => {
-                store.set((data.val() as LoyaltyProgramUserData) || { points: 0, history: [] });
-            },
-        );
-        pointsStores[uid] = store;
-    }
-    return pointsStores[uid];
-};
+export const loyaltyProgramDataStore = flattenStores(derived<Readable<User | null>, Readable<LoyaltyProgramUserData | null>>(
+    currentUser, (user, set) => {
+        if (!user) return set(readable(null));
+        const uid = user.uid;
+        if (!uid) return set(readable(null));
+        return isOnline.subscribe(async online => {
+            if (!online) return set(readable(null));
+            if (!pointsStores[uid]) {
+                const store = writable<LoyaltyProgramUserData | null>(null);
+                const { onValue, child } = await import('firebase/database');
+                onValue(
+                    child(loyaltyProgramRef, uid),
+                    data => {
+                        store.set((data.val() as LoyaltyProgramUserData) || { points: 0, history: [] });
+                    },
+                );
+                pointsStores[uid] = store;
+            }
+            return set(pointsStores[uid]);
+        });
+    }, readable(null),
+));
