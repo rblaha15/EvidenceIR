@@ -4,10 +4,8 @@
     import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { type Translations } from '$lib/translations';
     import ServiceProtocols from './ServiceProtocols.svelte';
-    import ChangeIRID from './ChangeIRID.svelte';
-    import { aA, aR, iaA } from '$lib/helpers/stores';
+    import { aR, iaA } from '$lib/helpers/stores';
     import DK from './DK.svelte';
-    import Icon from '$lib/components/Icon.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
     import DocumentsIR from '$lib/features/detail/components/documentsIR/DocumentsIR.svelte';
     import Dates from '../Dates.svelte';
@@ -24,7 +22,7 @@
 
 <div class="d-flex flex-wrap flex-lg-nowrap gap-4 justify-content-between">
     {#if !ir.isDraft}
-        <div class="d-flex flex-column gap-5">
+        <div class="d-flex flex-column gap-5 flex-grow-1">
             <div class="d-flex flex-column gap-3">
                 <h4 class="m-0">{td.documents}</h4>
                 <div class="d-flex flex-column gap-1">
@@ -36,7 +34,7 @@
             </div>
         </div>
     {/if}
-    <div class="d-flex flex-column gap-3">
+    <div class="d-flex flex-column gap-3 flex-shrink-1 align-items-sm-start">
         <h4 class="m-0">{ir.isDraft ? td.draftManagement : td.recordManagement}</h4>
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#if !ir.isDraft}
@@ -64,7 +62,7 @@
                 <Button color="warning" icon="edit_document" text={td.editInstallationData}
                         href={relUrl(`/IN?edit-irid=${irid}`)} />
             {/if}
-            <ChangeIRID {ir} {irid} {t} />
+            <p class="m-0">{@html t.detail.changeControllerHtml}</p>
             <DeleteIR {irid} {td} />
 
             {#if $isUserRegulusOrAdmin && !ir.isDraft}
