@@ -2,7 +2,7 @@
     import authentication from '$lib/client/authentication.js';
     import { page } from '$app/state';
     import { currentUser, isUserAdmin, isUserAnyRegulusOrAdmin, logOut } from '$lib/client/auth.js';
-    import { getLoyaltyProgramDataStore, responsiblePerson } from '$lib/client/realtime';
+    import { loyaltyProgramDataStore, responsiblePerson } from '$lib/client/realtime';
     import type { Translations } from '$lib/translations';
     import { goto } from '$app/navigation';
     import { aA } from '$lib/helpers/stores';
@@ -10,9 +10,6 @@
     import Icon from '$lib/components/Icon.svelte';
     import { logEvent } from 'firebase/analytics';
     import { analytics } from '../../../hooks.client';
-    import { readable } from 'svelte/store';
-    import { type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
-    import { onMount } from 'svelte';
 
     const { t }: { t: Translations } = $props();
     const ta = $derived(t.auth);
@@ -28,11 +25,6 @@
         });
         await goto(link, { replaceState: true });
     };
-
-    let store = $state(readable<LoyaltyProgramUserData | number>(6));
-    onMount(async () => {
-        store = await getLoyaltyProgramDataStore();
-    });
 </script>
 
 <div class="dropdown ms-3">
@@ -60,19 +52,16 @@
                 </span>
             {/if}
         </div>
-        {#if !$isUserAnyRegulusOrAdmin && typeof $store !== 'number'}
+        {#if !$isUserAnyRegulusOrAdmin && $loyaltyProgramDataStore}
             <hr class="my-3" />
             <div class="d-flex flex-column gap-1 px-3 align-items-start">
                 <h6 class="m-0">{ta.loyaltyProgram}</h6>
-                <span>{ta.currentPointBalance}: {$store.points}</span>
+                <span>{ta.currentPointBalance}: {$loyaltyProgramDataStore.points}</span>
                 <a class="btn btn-secondary" href={relUrl('/rewards')}>
                     <Icon icon="loyalty" />
                     {ta.rewards}
                 </a>
             </div>
-        {:else}
-            <hr class="my-3" />
-            <span class="px-3">Error kód: {$isUserAnyRegulusOrAdmin ? 0 : $store}</span>
         {/if}
         <hr class="my-3" />
         <div class="d-flex flex-column gap-1 px-3 align-items-start">

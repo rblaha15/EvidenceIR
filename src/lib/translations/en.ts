@@ -293,8 +293,7 @@ const en: PlainTranslations = {
     },
     detail: {
         sorrySomethingWentWrong: 'Apologize, something went wrong.',
-        changeController: 'Change controller serial number',
-        changeWentWrong: 'Something went wrong. Refresh the page and try again.',
+        changeControllerHtml: 'Do you want change the controller serial number or type?<br />Now just click "Edit the installation data"',
         successfullyDeleted: `Record successfully deleted.`,
         documents: `Documents`,
         recordManagement: `Record management`,
@@ -336,8 +335,6 @@ const en: PlainTranslations = {
         fillInIntervention: `Fill in an intervention`,
         fillInAnotherProtocol: `Fill in another protocol`,
         fillInAnotherIntervention: `Fill in another intervention`,
-        confirm: `Confirm`,
-        saving: `Saving`,
         refsiteTitle: 'Reference at Refsite',
         refsiteHtml: 'Is the customer willing to fill out a reference at the <a href="https://refsite.info">refsite.info</a> portal? We will send the request via e-mail.',
     },
