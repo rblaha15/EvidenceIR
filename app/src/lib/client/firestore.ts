@@ -153,13 +153,13 @@ const writeDatabase: WriteDatabase = {
         updateDoc(irDoc(irid), addStampIR(`RK.TC.${pump}.${year}`, check)),
     addRKS: (irid, year, check) =>
         updateDoc(irDoc(irid), addStampIR(`RK.SOL.${year}`, check)),
-    addSP: async (irid, protocol) => {
+    addSPs: async (irid, ...protocols) => {
         const ir = await readDatabase.getIR(irid);
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
         await updateDoc(irDoc(irid), {
             ...ir,
-            SPs: [...ir.SPs, protocol],
+            SPs: [...ir.SPs, ...protocols].sort((a, b) => new Date(a.zasah.datum).valueOf() - new Date(b.zasah.datum).valueOf()),
             meta: {
                 ...ir.meta,
                 changedAt: serverTimestamp() as Timestamp,

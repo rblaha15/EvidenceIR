@@ -197,7 +197,7 @@ export default {
                 updateIN: t`Upravena data u IR ${'ir'}`,
                 addRKT: t`Vytvořena roční kontrola TČ ${'pump'} pro rok ${'year'} u IR ${'ir'}`,
                 addRKS: t`Vytvořena roční kontrola SOL pro rok ${'year'} u IR ${'ir'}`,
-                addSP: t`Vytvořen servisní protokol ${'sp'} u IR ${'ir'}`,
+                addSPs: t`Vytvořen servisní protokol ${'sp'} u IR ${'ir'}`,
                 updateSP: t`Upraven servisní protokol ${'sp'} u IR ${'ir'}`,
                 deleteSP: t`Odstraněn servisní protokol u IR ${'ir'}`,
                 addFT: t`Nastaveny volitelné vstupy a výstupy IR ${'ir'}`,

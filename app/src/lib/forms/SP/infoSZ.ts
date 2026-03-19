@@ -34,7 +34,7 @@ const infoSZ: FormInfo<DataSZ, FormSZ, [], never, { i: number }> = {
         if (ir.deleted) return false
 
         if (edit) await db.updateSP(irid, i, raw);
-        else await db.addSP(irid, raw);
+        else await db.addSPs(irid, raw);
     },
     createWidgetData: (_, p) => p,
     title: (t, mode) =>

@@ -147,7 +147,7 @@ const functions: {
     updateIN: (_, e) => ({ ir: irName(e.ir) }),
     addRKT: (irid, pump, year) => ({ ir: irNumberFromIRID(irid), pump: `${pump}`, year: `${year}` }),
     addRKS: (irid, year) => ({ ir: irNumberFromIRID(irid), year: `${year}` }),
-    addSP: (irid, p) => ({ ir: irNumberFromIRID(irid), sp: isSP(p) ? spName(p.zasah) : szName(p.zasah) }),
+    addSPs: (irid, p) => ({ ir: irNumberFromIRID(irid), sp: isSP(p) ? spName(p.zasah) : szName(p.zasah) }),
     updateSP: (irid, _, p) => ({ ir: irNumberFromIRID(irid), sp: isSP(p) ? spName(p.zasah) : szName(p.zasah) }),
     deleteSP: irid => ({ ir: irNumberFromIRID(irid) }),
     addFT: irid => ({ ir: irNumberFromIRID(irid) }),
