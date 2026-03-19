@@ -90,7 +90,7 @@ const getCompaniesCascadeGrantedAndCommission = async (irid: IRID) => {
         assembly: await getCompanyUser(ir.IN.montazka.email),
         commissioning: await getCompanyUser(ir.IN.uvedeni.email),
         pumpCount: cascadePumps(ir.IN).length,
-        granted: ir.meta.loyaltyProgram?.grantedCommission ?? false,
+        granted: ir.meta.flags?.grantedCommission ?? false,
         commissionDate: new Date(ir.UP.dateTC),
     } : null;
 };
