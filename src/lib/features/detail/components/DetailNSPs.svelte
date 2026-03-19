@@ -32,10 +32,12 @@
         label: t => t.detail.newIRIDLabel,
     });
     const transfer = async () => {
-        await sps
-            .map(sp => sp.deleted ? undefined : sp).filterNotUndefined()
-            .map(sp => db.addSP(newIRID.value as IRID, sp.NSP.pick(...protocolGroups) as Raw<FormSP>))
-            .awaitAll();
+        await db.addSPs(
+            newIRID.value as IRID,
+            ...sps
+                .map(sp => sp.deleted ? undefined : sp).filterNotUndefined()
+                .map(sp => sp.NSP.pick(...protocolGroups) as Raw<FormSP>),
+        );
         await goto(detailIrUrl(newIRID.value as IRID), { replaceState: true });
     };
 

@@ -132,9 +132,10 @@ const writeDatabase: WriteDatabase = {
         ir.RK.SOL[year] = check;
         return ir;
     }),
-    addSP: (irid, protocol) => odm.update('IR', irid, ir => {
+    addSPs: (irid, ...protocols) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.SPs.push(protocol);
+        ir.SPs.push(...protocols);
+        ir.SPs.sort((a, b) => new Date(a.zasah.datum).valueOf() - new Date(b.zasah.datum).valueOf());
         return ir;
     }),
     updateSP: async (irid, index, protocol) => odm.update('IR', irid, ir => {

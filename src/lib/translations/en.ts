@@ -272,7 +272,7 @@ const en: PlainTranslations = {
                 updateIN: t`Changed the information of the ${'ir'} controller`,
                 addRKS: t`Created a yearly solar system check for year ${'year'} at the ${'ir'} controller`,
                 addRKT: t`Created a yearly heat pump check for the ${'pump'} heat pump for year ${'year'} at the ${'ir'} controller`,
-                addSP: t`Created a service protocol ${'sp'} at the ${'ir'} controller`,
+                addSPs: t`Created a service protocol ${'sp'} at the ${'ir'} controller`,
                 updateSP: t`Edited the ${'sp'} service protocol at the ${'ir'} controller`,
                 deleteSP: t`Removed a service protocol at the ${'ir'} controller`,
                 addFT: t`Set the optional inputs and outputs at the ${'ir'} controller`,

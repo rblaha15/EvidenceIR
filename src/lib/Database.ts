@@ -61,7 +61,7 @@ export interface WriteDatabase {
 
     addRKS(irid: IRID, year: Year, check: Raw<FormRKS>): Promise<void>;
 
-    addSP(irid: IRID, protocol: Raw<FormSP | FormSZ>): Promise<void>;
+    addSPs(irid: IRID, ...protocols: Raw<FormSP | FormSZ>[]): Promise<void>;
 
     updateSP(irid: IRID, index: number, protocol: Raw<FormSP | FormSZ>): Promise<void>;
 
@@ -100,7 +100,7 @@ export interface Database extends ReadDatabase, WriteDatabase {
 const databaseMethods = [
     'getIR', 'getChangedIRs', 'getDeletedIRs', 'addIR', 'deleteIR', 'existsIR', 'updateIN',
     'addRKT', 'addRKS', 'updateUPT', 'updateDateUPT', 'addUPS', 'updateDateUPS', 'addUPF',
-    'addSP', 'updateSP', 'deleteSP', 'updateUsersWithAccessToIR', 'markRefsiteConfirmed', 'updateDKT', 'updateDKS', 'addFT',
+    'addSPs', 'updateSP', 'deleteSP', 'updateUsersWithAccessToIR', 'markRefsiteConfirmed', 'updateDKT', 'updateDKS', 'addFT',
     'addNSP', 'deleteNSP', 'getNSP', 'getChangedNSPs', 'getDeletedNSPs', 'updateNSP',
 ] as const satisfies (keyof Database)[];
 

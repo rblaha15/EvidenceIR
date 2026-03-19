@@ -58,7 +58,7 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
         }
 
         if (edit) await db.updateSP(irid, i, raw);
-        else await db.addSP(irid, raw);
+        else await db.addSPs(irid, raw);
 
         if (!ir.UP.dateTC) await db.updateDateUPT(irid, raw.system.datumUvedeni);
 

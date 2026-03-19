@@ -20,7 +20,7 @@ export const deleteSP = (i: number, irid: IRID) => async () => {
 export const copySP = (i: number, ir: ExistingIR) => async () => {
     const ja = get(techniciansList).find(t => get(currentUser)?.email == t.email);
     const p = ensureSP(ir.SPs[i]);
-    await db.addSP(ir.meta.id!, {
+    await db.addSPs(ir.meta.id!, {
         ...p,
         fakturace: {
             hotove: 'doNotInvoice',
