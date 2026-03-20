@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Translations } from '$lib/translations';
     import { type IR } from '$lib/data';
-    import { defaultDK, type FormPartDK, initDK, saveDK } from '$lib/forms/DK/formDK';
+    import { defaultDK, type FormPartDK, saveDK } from '$lib/forms/DK/formDK';
     import Widget from '$lib/components/Widget.svelte';
     import Icon from '$lib/components/Icon.svelte';
     import { onMount } from 'svelte';
@@ -16,9 +16,9 @@
     let loading = $state(false);
     let error = $state(false);
 
-    const f = $state<FormPartDK<DataChangeDK>>(defaultDK<DataChangeDK>(type));
-    const data = $derived({ dk: f, evidence: ir.IN });
-    const { settings, show } = $derived(getDKInfo(type, ir));
+    const { settings, show, commissionDate } = $derived(getDKInfo(type, ir));
+    const f = $derived<FormPartDK<DataChangeDK>>(defaultDK<DataChangeDK>(type, commissionDate, settings));
+    const data = $derived({ dk: f, evidence: ir.IN, mode: 'create' as const });
 
     $effect(() => {
         f.enabled.setValue(data, Boolean(settings));
@@ -46,7 +46,6 @@
         error = false;
         f.executingCompany.displayErrorVeto = false;
         f.commissionDate.displayErrorVeto = false;
-        initDK(data, 'create', ir, type);
     }
 
     let modal = $state() as HTMLDivElement;

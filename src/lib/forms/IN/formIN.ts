@@ -4,13 +4,15 @@ import {
     type ChooserWidget,
     type CounterWidget,
     type DoubleChooserWidget,
-    type InputWidget, type InputWithSuggestionsWidget,
+    HiddenValueWidget,
+    type InputWidget,
+    type InputWithSuggestionsWidget,
     type MultiCheckboxWidget,
     type RadioWidget,
     type ScannerWidget,
     type SearchWidget,
     type TextWidget,
-    type TitleWidget,
+    type TitleWidget, Widget,
 } from '$lib/forms/Widget.svelte.js';
 import type { Company } from '$lib/client/realtime';
 import type { Form } from '$lib/forms/Form';
@@ -42,6 +44,7 @@ export interface UserForm<D extends UserForm<D>> extends Form<D> {
         narozeni: InputWidget<D>;
         ico: InputWidget<D>;
         searchButton: ButtonWidget<D>;
+        searchFail: HiddenValueWidget<D, boolean, true>;
         searchFailText: TextWidget<D>;
         nazev: InputWidget<D>;
         wrongFormat: TextWidget<D>;
@@ -73,17 +76,22 @@ type ControllersSOREL =
 type ControllersCTC = 'EcoEl' | 'EcoZenith' | 'EcoHeat' | 'EcoLogic EXT';
 export type IRSubTypes = 'RTC' | 'CTC' | ControllersSOREL | ControllersCTC | 'inTHERM 10';
 
+export interface FormGroupIR<D extends { ir: FormGroupIR<D> }> extends Record<string, Widget<D>> {
+    regulus: HiddenValueWidget<D, boolean, true>;
+    typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>,
+    cislo: InputWidget<D>,
+    alreadyExists: HiddenValueWidget<D, boolean, true>,
+    alreadyExistsWarning: TextWidget<D>,
+}
+
 export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     ir: {
         nadpisSystem: TitleWidget<FormIN>;
         nadpis: TitleWidget<FormIN>;
-        typ: DoubleChooserWidget<FormIN, IRTypes, IRSubTypes>;
-        cislo: InputWidget<FormIN>;
-        alreadyExists: TextWidget<FormIN>;
         cisloBox: InputWidget<FormIN>;
         boxType: TextWidget<FormIN>;
         chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `accumulation` | 'waterStorage' | `ventilation` | 'photovoltaicPowerPlant' | 'other'>;
-    };
+    } & FormGroupIR<FormIN>;
     tc: {
         nadpis: TitleWidget<FormIN>;
         poznamka: TextWidget<FormIN>;
@@ -146,6 +154,7 @@ export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
         chce: CheckboxWidget<FormIN>;
         pristupMa: MultiCheckboxWidget<FormIN, 'endCustomer' | 'assemblyCompany' | 'commissioningCompany'>;
         plati: RadioWidget<FormIN, 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | 'laterAccordingToTheProtocol'>;
+        showResponsiblePerson: HiddenValueWidget<FormIN, boolean, true>;
         zodpovednaOsoba: InputWidget<FormIN>;
     };
     ostatni: {

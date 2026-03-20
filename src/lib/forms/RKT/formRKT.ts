@@ -2,7 +2,7 @@ import { CheckboxWidget, CounterWidget, InputWidget, TextWidget } from '$lib/for
 import { type Form, type Raw } from '$lib/forms/Form';
 import type { FormIN } from '$lib/forms/IN/formIN';
 
-export type DataRKT = Raw<FormIN>
+export type DataRKT = { IN: Raw<FormIN>, mode: 'create' | 'edit' | 'view' | 'loading' }
 
 export interface FormRKT extends Form<DataRKT> {
     info: {

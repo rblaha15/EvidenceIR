@@ -7,7 +7,6 @@ import {
 import type { User } from 'firebase/auth';
 import { currentUser } from '$lib/client/auth';
 import { detailSpUrl } from '$lib/helpers/runes.svelte.js';
-import { nowISO } from '$lib/helpers/date';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
@@ -53,17 +52,11 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         spid: extractSPIDFromRawData(raw.zasah),
         lang: 'cs',
     }),
-    createWidgetData: f => f,
+    createWidgetData: (f, _, mode) => ({ ...f, lockNameFields: mode == 'edit' }),
     title: (t, m) => m == 'edit' ? t.sp.editSP : t.sp.title,
-    onMount: async (d, f, mode) => {
+    onMount: async () => {
         await startTechniciansListening();
         await startSparePartsListening();
-
-        f.zasah.inicialy.lock = () => mode == 'edit';
-        f.zasah.datum.lock = () => mode == 'edit';
-
-        if (!f.zasah.datum.value) // Also in SP, SZ
-            f.zasah.datum.setValue(d, nowISO());
     },
     getEditData: async url => {
         const spid = url.searchParams.get('edit-spid') as SPID | null;
@@ -80,12 +73,11 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         return !sp ? undefined : { raw: sp.NSP };
     },
     storeEffects: [
-        [(_, f, [$techniciansList, $currentUser], edit) => { // From SP
+        [(d, f, [$techniciansList, $currentUser], edit) => { // From SP
             const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
-            if (!f.zasah.clovek.value) f.zasah.clovek.setValue(f, ja?.name ?? f.zasah.clovek.value);
-            f.zasah.clovek.show = () => f.zasah.clovek.value != ja?.name;
-            if (!f.zasah.inicialy.value) f.zasah.inicialy.setValue(f, ja?.initials ?? f.zasah.inicialy.value);
-            f.zasah.inicialy.show = () => f.zasah.inicialy.value != ja?.initials;
+            if (!f.zasah.clovek.value) f.zasah.clovek.setValue(d, ja?.name ?? f.zasah.clovek.value);
+            if (!f.zasah.inicialy.value) f.zasah.inicialy.setValue(d, ja?.initials ?? f.zasah.inicialy.value);
+            f.zasah.showNameFileds.setValue(d, f.zasah.clovek.value != ja?.name);
         }, [techniciansList, currentUser]],
     ],
     pdfImport: {

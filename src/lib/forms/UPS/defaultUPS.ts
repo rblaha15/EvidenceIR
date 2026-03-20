@@ -9,6 +9,8 @@ import {
 } from '$lib/forms/Widget.svelte';
 import { type FormUPS, type HeatTransferFluidType } from '$lib/forms/UPS/formUPS';
 import { defaultDK } from '$lib/forms/DK/formDK';
+import type { IR } from '$lib/data';
+import { dayISO } from '$lib/helpers/date';
 
 const newYesNoWidget = <D>(args: {
     label: GetTOrVal<D>,
@@ -24,7 +26,7 @@ const newYesNoWidget = <D>(args: {
     hasPositivity: true,
 });
 
-export default (): FormUPS => ({
+export default (ir: IR): FormUPS => ({
     sol: {
         nadpis: new TitleWidget({ text: t => t.sol.solarSystem, level: 2 }),
         orientace: new InputWidget({ label: t => t.sol.collectorFieldOrientation }),
@@ -64,10 +66,10 @@ export default (): FormUPS => ({
         vlastnik: new CheckboxWidget({ label: t => t.sol.ownerInformed }),
         date: new InputWidget({
             label: t => t.sol.dateOfCommission, type: 'date', hideInRawData: true,
-            onValueSet: (d, date) => {
+            text: ir.UP.dateSOL || dayISO(), onValueSet: (d, date) => {
                 d.dk.commissionDate.setValue(d, date);
             },
         }),
     },
-    checkRecommendations: defaultDK('SOL', true),
+    checkRecommendations: defaultDK('SOL', ir.UP.dateSOL, ir.RK.DK.SOL, true),
 });

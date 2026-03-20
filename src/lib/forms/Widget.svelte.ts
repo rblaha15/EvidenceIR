@@ -993,18 +993,18 @@ export class CheckboxWidget<D, H extends boolean = false> extends Widget<D, bool
     }
 }
 
-export class HiddenValueWidget<D, T> extends Widget<D, T, false> {
+export class HiddenValueWidget<D, T, H extends boolean = false> extends Widget<D, T, H> {
     label = () => '';
     onError = () => '';
     show = () => false;
     showTextValue = () => false;
     _value = $state() as T;
     onValueSet = () => {};
-    hideInRawData = false as const;
+    hideInRawData = $state() as H;
     isError = () => false;
-    constructor(value?: T) {
+    constructor(value: T, hideInRawData: H) {
         super();
-        if (value)
-            this._value = value;
+        this._value = value;
+        this.hideInRawData = hideInRawData;
     }
 }

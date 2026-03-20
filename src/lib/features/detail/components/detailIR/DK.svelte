@@ -2,15 +2,11 @@
     import type { Translations } from '$lib/translations';
     import { type IR } from '$lib/data';
     import type { IRID } from '$lib/helpers/ir';
-    import { defaultDK, type FormPartDK, initDK, saveDK } from '$lib/forms/DK/formDK';
-    import Widget from '$lib/components/Widget.svelte';
-    import Icon from '$lib/components/Icon.svelte';
     import { isUserAdmin } from '$lib/client/auth';
-    import { aA, iaA } from '$lib/helpers/stores';
+    import { iaA } from '$lib/helpers/stores';
     import { dateFromISO } from '$lib/helpers/date';
     import ModalDK from '$lib/features/detail/components/detailIR/ModalDK.svelte';
     import { getDKInfo } from '$lib/features/detail/domain/detailIR/DK';
-    import { downloadXML } from '$lib/features/detail/actions/detailIR/ir';
     import Button from '$lib/components/Button.svelte';
 
     const { t, ir, type }: {

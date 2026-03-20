@@ -4,6 +4,7 @@ import {
     ChooserWidget,
     CounterWidget,
     DoubleChooserWidget,
+    HiddenValueWidget,
     InputWidget,
     InputWithSuggestionsWidget,
     MultiCheckboxWidget,
@@ -13,7 +14,7 @@ import {
     TextWidget,
     TitleWidget,
 } from '../Widget.svelte.js';
-import { type FormIN, type IRSubTypes, type IRTypes, unknownCompany, unknownCRN, type UserForm } from './formIN';
+import { type FormGroupIR, type FormIN, unknownCompany, unknownCRN, type UserForm } from './formIN';
 import { accumulationTanks, type Company, solarCollectors, type Technician, techniciansList, waterTanks } from '$lib/client/realtime';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 import {
@@ -97,9 +98,9 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         searchButton: new ButtonWidget({
             text: t => t.in.searchInARES, color: 'secondary', icon: 'search', show: po, showInXML: false,
             onClick: (d: D) => {
-                d.koncovyUzivatel.searchFailText.show = () => false;
+                d.koncovyUzivatel.searchFail.setValue(d, false);
                 ares.getNameAndAddress(d.koncovyUzivatel.ico.value).then(ares => {
-                    if (!ares) d.koncovyUzivatel.searchFailText.show = po;
+                    if (!ares) d.koncovyUzivatel.searchFail.setValue(d, true);
                     d.koncovyUzivatel.nazev.setValue(d, ares?.obchodniJmeno ?? '');
                     const s = ares?.sidlo;
                     d.bydliste.psc.setValue(d, s?.psc?.toString() ?? s?.pscTxt ?? '');
@@ -108,7 +109,12 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
                 });
             },
         }),
-        searchFailText: new TextWidget({ text: t => t.in.notFound, showInXML: false, show: false }),
+        searchFail: new HiddenValueWidget(false, true),
+        searchFailText: new TextWidget({
+            text: t => t.in.notFound,
+            showInXML: false,
+            show: d => po(d) && d.koncovyUzivatel.searchFail.value,
+        }),
         nazev: new InputWidget({ label: t => t.in.companyName, show: po, required: po }),
         wrongFormat: new TextWidget({
             text: t => t.wrong.company, showInXML: false,
@@ -131,7 +137,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         _title: new TitleWidget({ text: (t, d) => jeFO(d) ? t.in.residence : t.in.headquarters, level: 3, class: 'fs-4' }),
         search: new SearchWidget({
             label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
-                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }]
+                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }],
             }), search: ruian.suggest, onValueSet: (d, a) => {
                 d.bydliste.ulice.setValue(d, a?.house ?? '');
                 d.bydliste.psc.setValue(d, a?.postalCode ?? '');
@@ -166,7 +172,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
         search: new SearchWidget({
             label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
-                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }]
+                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }],
             }), search: ruian.suggest, onValueSet: (d, a) => {
                 d.mistoRealizace.ulice.setValue(d, a?.house ?? '');
                 d.mistoRealizace.psc.setValue(d, a?.postalCode ?? '');
@@ -429,12 +435,6 @@ const heatPump = <const I extends TC>(i: I) => ({
     [K in `cislo${I}`]: ScannerWidget<FormIN>;
 });
 
-export interface FormGroupIR<D extends { ir: FormGroupIR<D> }> {
-    typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>,
-    cislo: InputWidget<D>,
-    alreadyExists: TextWidget<D>,
-}
-
 export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
     { setPumpType, setPumpModel, setPumpCount, setPumpNumber, resetRemoteAccess, resetBoxNumber, setFVEType, setHP }: {
         setPumpType?: (d: D, type: 'airToWater' | 'groundToWater') => void,
@@ -447,11 +447,14 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
         setHP?: (d: D) => void
     },
 ): FormGroupIR<D> => ({
+    regulus: new HiddenValueWidget(false, true),
     typ: new DoubleChooserWidget({
         label: t => t.in.controllerType,
         options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
-        otherOptions1: ['IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc', 'Thermona', 'other'],
-        options2: ({ ir: { typ: { value: { first: f } } } }) => (
+        otherOptions1: d => [
+            'IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc',
+            ...d.ir.regulus ? ['Thermona'] as const : [], 'other',
+        ] as const, options2: ({ ir: { typ: { value: { first: f } } } }) => (
             f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K', 'DeltaSol BS, ES', 'DeltaSol M, MX']
                 : f == 'ctc' ? ['EcoEl', 'EcoZenith', 'EcoHeat', 'EcoLogic EXT']
                     : f == 'Thermona' ? ['inTHERM 10']
@@ -505,13 +508,13 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
                 setFVEType?.(d);
             }
             if (d.ir.typ.value.first) db.existsIR(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value))
-                .then(e => d.ir.alreadyExists.show = () => e)
+                .then(e => d.ir.alreadyExists.setValue(d, e));
         },
         labels: t => t.in.ir,
     }),
     cislo: new InputWidget({
         label: t => t.in.serialNumber,
-        onError: (t, d) => d.ir.alreadyExists.show(d) ? t.in.irExists : t.wrong.number,
+        onError: (t, d) => d.ir.alreadyExists.value ? t.in.irExists : t.wrong.number,
         regex: d => doesNotHaveIRNumber(d.ir.typ.value)
             ? /[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9]{2}:[0-9]{2}/
             : isCTC(d.ir.typ.value.first)
@@ -550,13 +553,14 @@ export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
                 setPumpNumber?.(d, v);
             }
             if (d.ir.typ.value.first) db.existsIR(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value))
-                .then(e => d.ir.alreadyExists.show = () => e)
+                .then(e => d.ir.alreadyExists.setValue(d, e));
         }, show: d => !doesNotHaveIRNumber(d.ir.typ.value),
     }),
-    alreadyExists: new TextWidget({
+    alreadyExists: new HiddenValueWidget(false, true),
+    alreadyExistsWarning: new TextWidget({
         text: (t, d) => !d.ir.typ.value.first ? '' : t.in.irExistsHtml({
             link: detailIrUrl(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value)),
-        }), show: false, showInXML: false,
+        }), show: d => d.ir.alreadyExists.value, showInXML: false,
     }),
 });
 
@@ -651,7 +655,7 @@ export default (): FormPlus<FormIN> => ({
         }),
         poznamka: new TextWidget({
             text: t => t.in.pleaseFillInIrType, showInXML: false,
-            show: d => !subType(d) && tc(d),
+            show: d => !subType(d) && tc(d), class: 'text-warning',
         }),
         typ: new RadioWidget({
             label: (t, d) => d.tc.pocet.value > 1 ? t.in.heatPumpsType : t.in.heatPumpType,
@@ -794,15 +798,17 @@ export default (): FormPlus<FormIN> => ({
         }),
         plati: new RadioWidget({
             label: t => t.in.remoteAccess.whoWillBeInvoiced,
-            options: ['assemblyCompany', 'endCustomer'] as ReturnType<FormIN['vzdalenyPristup']['plati']['options']>,
+            options: d => !d.ir.regulus ? ['assemblyCompany', 'endCustomer']
+                : ['laterAccordingToTheProtocol', 'doNotInvoice', 'assemblyCompany', 'endCustomer'],
             show: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
             required: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
             labels: t => t.in.remoteAccess,
         }),
+        showResponsiblePerson: new HiddenValueWidget(true, true),
         zodpovednaOsoba: new InputWidget({
             label: t => t.in.remoteAccess.responsiblePerson,
             autocomplete: `section-resp billing name`,
-            show: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
+            show: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value && d.vzdalenyPristup.showResponsiblePerson.value,
             required: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
         }),
     },

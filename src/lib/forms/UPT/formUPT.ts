@@ -7,6 +7,7 @@ export type DataUPT = {
     uvedeni: FormUPT,
     evidence: Raw<FormIN>,
     dk: FormPartDK<DataUPT>,
+    mode: 'create' | 'edit' | 'view' | 'loading',
 }
 
 export interface FormUPT extends Form<DataUPT> {

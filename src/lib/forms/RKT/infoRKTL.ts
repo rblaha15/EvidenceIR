@@ -33,12 +33,7 @@ const infoRKT: FormInfo<DataRKTL, FormRKTL, [], 'RKTL', { defaultYear: Year, fil
         await db.addRKT(irid, pump, year, raw);
     },
     title: (t, _, { pump }) => t.rkt.formTitle({ n: `${pump}` }),
-    createWidgetData: () => {
-    },
-    onMount: async (_, k) => {
-        k.info.year.lock = () => true;
-        k.info.year.validate = () => true;
-    },
+    createWidgetData: (_1, _2, _3, _4, mode) => ({ mode }),
 };
 
 export default infoRKT;

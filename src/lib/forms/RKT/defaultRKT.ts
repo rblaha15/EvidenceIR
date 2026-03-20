@@ -1,18 +1,19 @@
 import { CheckboxWidget, CounterWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
 import type { DataRKT, FormRKT } from '$lib/forms/RKT/formRKT.js';
-import type { FormPlus, Raw } from '$lib/forms/Form';
-import type { FormIN } from '$lib/forms/IN/formIN';
+import type { FormPlus } from '$lib/forms/Form';
+import { dayISO } from '$lib/helpers/date';
 
-const gtw = (d: Raw<FormIN>) => d.tc.typ == 'groundToWater'
-const atw = (d: Raw<FormIN>) => d.tc.typ == 'airToWater'
+const gtw = (d: DataRKT) => d.IN.tc.typ == 'groundToWater'
+const atw = (d: DataRKT) => d.IN.tc.typ == 'airToWater'
 
 export default (y: number, done: number[]): FormPlus<FormRKT> => ({
     info: {
         osoba: new InputWidget({ label: t => t.rkt.performingPerson }),
-        datum: new InputWidget({ label: t => t.rkt.checkDate, type: 'date' }),
+        datum: new InputWidget({ label: t => t.rkt.checkDate, type: 'date', text: dayISO() }),
         year: new CounterWidget<DataRKT, true>({
             label: t => t.rkt.checkYear, min: 1, chosen: y, max: Number.POSITIVE_INFINITY, hideInRawData: true,
-            validate: v => !done.includes(v), onError: t => t.rkt.yearAlreadyFilled,
+            validate: (v, d) => d.mode != 'create' || !done.includes(v),
+            lock: d => d.mode != 'create', onError: t => t.rkt.yearAlreadyFilled,
         })
     },
     kontrolaTepelnehoCerpadla: {

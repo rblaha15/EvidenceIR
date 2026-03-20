@@ -28,6 +28,7 @@ export interface FormSP extends GenericFormSP<DataSP>, Form<DataSP> {
 export type DataSP = IR & FormSP & {
     raw: Raw<FormSP>
     form: FormSP
+    lockNameFields?: boolean
 }
 
 export type Operation =
@@ -47,6 +48,7 @@ export interface GenericFormSP<D extends GenericFormSP<D>> extends GenericFormSZ
         zaruka: RadioWidget<D, `warrantyCommon` | `warrantyExtended`>,
     }
     zasah: {
+        showNameFileds: HiddenValueWidget<D, boolean, true>,
         inicialy: InputWidget<D>,
         nahlasenaZavada: InputWidget<D>,
         interventionDuration: InputWidget<D>,

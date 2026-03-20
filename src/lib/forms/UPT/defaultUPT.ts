@@ -8,6 +8,8 @@ import {
 } from '$lib/forms/Widget.svelte';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import { defaultDK } from '$lib/forms/DK/formDK';
+import type { IR } from '$lib/data';
+import { dayISO } from '$lib/helpers/date';
 
 const newSuitsWidget = <D>(args: {
     label: GetTOrVal<D>,
@@ -23,7 +25,7 @@ const newSuitsWidget = <D>(args: {
     hasPositivity: true,
 });
 
-export default (): FormUPT => ({
+export default (ir: IR): FormUPT => ({
     tc: {
         nadpisSystem: new TitleWidget({ text: t => t.in.system, level: 2 }),
         nadpis: new TitleWidget({ text: t => t.in.device.heatPump, level: 3 }),
@@ -147,11 +149,11 @@ export default (): FormUPT => ({
         }),
         date: new InputWidget({
             label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true,
-            onValueSet: (d, date) => {
+            text: ir.UP.dateTC || dayISO(), onValueSet: (d, date) => {
                 d.dk.commissionDate.setValue(d, date);
             },
         }),
         note: new InputWidget({ label: t => t.in.note, required: false }),
     },
-    checkRecommendations: defaultDK('TČ', true),
+    checkRecommendations: defaultDK('TČ', ir.UP.dateTC, ir.RK.DK.TC, true),
 });

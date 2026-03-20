@@ -7,7 +7,8 @@ export default (y: number, done: number[]): FormRKTL => ({
         datum: new InputWidget({ label: t => t.rkt.checkDate, type: 'date' }),
         year: new CounterWidget<DataRKTL, true>({
             label: t => t.rkt.checkYear, min: 1, chosen: y, max: Number.POSITIVE_INFINITY, hideInRawData: true,
-            validate: v => !done.includes(v), onError: t => t.rkt.yearAlreadyFilled,
+            validate: (v, d) => d.mode != 'create' || !done.includes(v),
+            lock: d => d.mode != 'create', onError: t => t.rkt.yearAlreadyFilled,
         })
     },
     kontrolniUkonyTepelnehoCerpadla: {

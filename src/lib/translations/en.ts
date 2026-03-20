@@ -153,7 +153,7 @@ const en: PlainTranslations = {
         note: 'Note',
         searchCompanyInList: 'Search company in list',
         searchRepresentative: 'Search representative',
-        irExistsHtml: t`<span class="text-danger">This controller is already registered (<a href="${'link'}">detail</a>)</span>`,
+        irExistsHtml: t`<span class="text-danger">This controller is already registered (<a href="${'link'}" target="_blank">detail</a>)</span>`,
         irExists: `This controller is already registered`,
         editing: `Editing`,
         copyResidence: 'Copy the place of residence',

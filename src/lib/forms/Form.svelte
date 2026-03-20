@@ -22,7 +22,6 @@
     import { goto } from '$app/navigation';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { TitleWidget } from '$lib/forms/Widget.svelte';
-    import Icon from '$lib/components/Icon.svelte';
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
     import Button from '$lib/components/Button.svelte';
 
@@ -84,7 +83,7 @@
     });
 
     const list = $derived(f.getValues().flatMap(obj => obj.getValues()));
-    const d = $derived(createWidgetData(f, other)) as D;
+    const d = $derived(createWidgetData(f, other, mode)) as D;
 
     $effect(() => {
         list

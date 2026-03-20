@@ -31,7 +31,7 @@ export type IndependentFormInfo<
     defaultData: (other: O) => F;
     saveData: (raw: Raw<F>, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, draft: boolean, other: O, resetForm: () => void) => Promise<boolean | void>;
     storeData?: (data: F, other: O) => Raw<F>;
-    createWidgetData: (data: F, other: O) => keyof Form extends keyof D ? Omit<D, keyof Form> : D;
+    createWidgetData: (data: F, other: O, mode: 'create' | 'edit' | 'view' | 'loading') => keyof Form extends keyof D ? Omit<D, keyof Form> : D;
     title: (t: Translations, mode: 'create' | 'edit' | 'view', other: O) => string;
     subtitle?: ((t: Translations, edit: boolean) => string) | undefined;
     /**
@@ -64,9 +64,10 @@ export type FormInfo<
     O extends Record<string, unknown> = Record<never, unknown>,
 > = {
     type: 'IR';
+    defaultData: (other: O, ir: IR) => F;
     openPdf?: (other: O) => Omit<OpenPdfOptions<P>, 'irid'>;
     saveData: (irid: IRID, raw: Raw<F>, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, ir: IR, other: O) => Promise<boolean | void>;
-    createWidgetData: (evidence: Raw<FormIN>, data: F, ir: IR, other: O) => keyof Form extends keyof D ? Omit<D, keyof Form> : D;
+    createWidgetData: (evidence: Raw<FormIN>, data: F, ir: IR, other: O, mode: 'create' | 'edit' | 'view' | 'loading') => keyof Form extends keyof D ? Omit<D, keyof Form> : D;
     /**
      * Runs in +page.ts after getViewData
      */
@@ -79,5 +80,5 @@ export type FormInfo<
     buttons?: (edit: boolean, other: O) => MaybeReadable<{ [B in Exclude<ButtonKey, 'hideBack' | 'saveAsDraft'>]?: boolean; }>;
 } & Omit<
     IndependentFormInfo<D, F, S, P, O>,
-    'type' | 'saveData' | 'createWidgetData' | 'getEditData' | 'getViewData' | 'redirectLink' | 'openPdf' | 'onMount'
+    'type' | 'saveData' | 'createWidgetData' | 'getEditData' | 'getViewData' | 'redirectLink' | 'openPdf' | 'onMount' | 'defaultData'
 >

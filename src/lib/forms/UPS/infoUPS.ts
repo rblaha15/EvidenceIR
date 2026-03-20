@@ -8,14 +8,13 @@ import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { DataUPS, FormUPS } from '$lib/forms/UPS/formUPS';
 import defaultUPS from './defaultUPS';
-import { initDK, saveDK } from '$lib/forms/DK/formDK';
-import { dayISO } from '$lib/helpers/date';
+import { saveDK } from '$lib/forms/DK/formDK';
 import db from '$lib/Database';
 
 const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
     type: 'IR',
     storeName: () => 'stored_solar_collector_commission',
-    defaultData: defaultUPS,
+    defaultData: (_, ir) => defaultUPS(ir),
     openPdf: () => ({
         link: 'UPS',
     }),
@@ -48,16 +47,12 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
         saveAndSend: !edit && !regulus,
         saveAndSendAgain: edit && !regulus,
     })),
-    createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations }),
+    createWidgetData: (evidence, uvedeni, _, __, mode) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations, mode }),
     title: t => t.sol.title,
     getEditData: (ir, url) =>
         url.searchParams.has('edit') ? { raw: ir.UP.SOL } : undefined,
     getViewData: (ir, url) =>
         url.searchParams.has('view') ? { raw: ir.UP.SOL } : undefined,
-    onMount: async (data, form, mode, ir) => {
-        form.uvadeni.date.setValue(data, ir.UP.dateSOL || dayISO());
-        initDK(data, mode, ir, 'SOL')
-    },
 });
 
 export default infoUPS;

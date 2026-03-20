@@ -1,4 +1,3 @@
-import { nowISO } from '$lib/helpers/date';
 import { type DataSZ, type FormSZ } from '$lib/forms/SP/formSZ';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import db from '$lib/Database';
@@ -39,10 +38,6 @@ const infoSZ: FormInfo<DataSZ, FormSZ, [], never, { i: number }> = {
     createWidgetData: (_, p) => p,
     title: (t, mode) =>
         mode == 'edit' ? t.sz.editSZ : t.sz.title,
-    onMount: async (d, p) => {
-        if (!p.zasah.datum.value) // Also in SP, NSP
-            p.zasah.datum.setValue(d, nowISO());
-    },
 };
 
 export default infoSZ;

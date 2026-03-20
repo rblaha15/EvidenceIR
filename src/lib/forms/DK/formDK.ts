@@ -3,7 +3,7 @@ import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 import { irName, irWholeName } from '$lib/helpers/ir';
-import { type IR } from '$lib/data';
+import { type IR, type RecommendationSettings } from '$lib/data';
 import { cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
@@ -15,6 +15,7 @@ import db from '$lib/Database';
 export type DataDK<D extends DataDK<D>> = {
     evidence: Raw<FormIN>,
     dk: FormPartDK<D>,
+    mode: 'create' | 'edit' | 'view' | 'loading',
 }
 
 export interface FormPartDK<D extends DataDK<D>> extends Record<string, Widget<D, any, true>> {
@@ -25,15 +26,23 @@ export interface FormPartDK<D extends DataDK<D>> extends Record<string, Widget<D
     chosenCompany: TextWidget<D>,
 }
 
+const show = (d: DataDK<any>) => d.mode == 'create';
+
 export const defaultDK = <D extends DataDK<D>>(
     type: 'TČ' | 'SOL',
+    date: string | undefined,
+    settings: RecommendationSettings | undefined,
     hideDate?: boolean,
 ): FormPartDK<D> => ({
-    title: new TitleWidget({ text: t => t.dk.title, level: 2, showInXML: false }),
+    title: new TitleWidget({ text: t => t.dk.title, level: 2, showInXML: false, show }),
     enabled: new CheckboxWidget({
-        label: t => t.dk.userWantsTo(type), hideInRawData: true, showInXML: false, required: false,
+        label: t => t.dk.userWantsTo(type), hideInRawData: true, showInXML: false,
+        required: false, show, checked: !!settings,
     }),
-    commissionDate: new InputWidget({ label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true, show: !hideDate }),
+    commissionDate: new InputWidget({
+        label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true,
+        show: d => !hideDate && show(d), text: date || '', lock: !!date,
+    }),
     executingCompany: new RadioWidget({
         options: d => d.evidence.uvedeni.ico == `${regulusCRN}` ? ['assembly', 'regulus']
             : d.evidence.montazka.ico == `${regulusCRN}` ? ['regulus', 'commissioning']
@@ -42,36 +51,18 @@ export const defaultDK = <D extends DataDK<D>>(
             assembly: t.in.assemblyCompany,
             commissioning: t.in.commissioningCompany,
             regulus: t.dk.regulus,
-        }), show: d => d.dk.enabled.value, required: d => d.dk.enabled.value,
+        }), show: d => d.dk.enabled.value && show(d), required: d => d.dk.enabled.value,
+        chosen: settings?.executingCompany,
     }),
     chosenCompany: new TextWidget({
-        show: d => d.dk.enabled.value && (d.dk.executingCompany.value == 'assembly' || d.dk.executingCompany.value == 'commissioning'),
+        show: d => d.dk.enabled.value && (d.dk.executingCompany.value == 'assembly' || d.dk.executingCompany.value == 'commissioning') && show(d),
         showInXML: false, text: async (t, d) => {
             const crn = d.dk.executingCompany.value == 'assembly' ? d.evidence.montazka.ico : d.evidence.uvedeni.ico;
             const company = await ares.getName(crn);
             return company ? `${t.in.chosenCompany}: ${company}` : '';
         },
-    })
-})
-
-export const initDK = <D extends DataDK<D>>(
-    data: D,
-    mode: 'create' | 'edit' | 'view',
-    ir: IR,
-    type: 'TČ' | 'SOL',
-) => {
-    const date = type == 'TČ' ? ir.UP.dateTC : ir.UP.dateSOL;
-    const settings = type == 'TČ' ? ir.RK.DK.TC : ir.RK.DK.SOL;
-    data.dk.commissionDate.setValue(data, date || '');
-    if (settings) {
-        data.dk.enabled.setValue(data, true);
-        data.dk.executingCompany.setValue(data, settings.executingCompany);
-    }
-    if (date) data.dk.commissionDate.lock = () => true;
-    if (mode != 'create') (data.dk as Record<string, Widget>).getValues().forEach(e => {
-        e.show = () => false;
-    });
-}
+    }),
+});
 
 export const saveDK = async <D extends DataDK<D>>(ir: IR, form: FormPartDK<D>, type: 'TČ' | 'SOL') => {
     const enabled = form.enabled.value;
@@ -105,4 +96,4 @@ export const saveDK = async <D extends DataDK<D>>(ir: IR, form: FormPartDK<D>, t
     console.log(response);
 
     return response?.ok;
-}
+};

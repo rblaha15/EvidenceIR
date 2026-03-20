@@ -6,7 +6,6 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
-import { dayISO } from '$lib/helpers/date';
 import defaultRKS from '$lib/forms/RKS/defaultRKS';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import type { DataRKS, FormRKS } from '$lib/forms/RKS/formRKS';
@@ -78,16 +77,7 @@ const infoRKS: FormInfo<DataRKS, FormRKS, [], 'RKS', { defaultYear: Year, filled
         saveAndSendAgain: edit && !regulus,
     })),
     title: t => t.rks.formTitle,
-    createWidgetData: () => {
-    },
-    onMount: async (d, k, m) => {
-        if (!k.info.datum.value)
-            k.info.datum.setValue(d, dayISO());
-        if (m != 'create') {
-            k.info.year.lock = () => true;
-            k.info.year.validate = () => true;
-        }
-    },
+    createWidgetData: (_1, _2, _3, _4, mode) => ({ mode }),
 };
 
 export default infoRKS;
