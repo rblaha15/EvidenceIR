@@ -207,21 +207,16 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         data.tc.pocet.setValue(data, count == 0 ? 1 : count);
     },
     storeEffects: [
-        [(_, data, [$isUserRegulusOrAdmin]) => {
-            let array = defaultIN().ir.typ.otherOptions1(data);
-            data.ir.typ.otherOptions1 = () =>
-                !$isUserRegulusOrAdmin ? array.filter(o => o != 'Thermona') : array;
+        [(d, data, [$isUserRegulusOrAdmin]) => {
+            data.ir.regulus.setValue(d, $isUserRegulusOrAdmin)
         }, [isUserRegulusOrAdmin]],
         [(_, data, [$isUserRegulusOrAdmin]) => {
-            data.vzdalenyPristup.plati.options = () => $isUserRegulusOrAdmin
-                ? ['laterAccordingToTheProtocol', 'doNotInvoice', 'assemblyCompany', 'endCustomer']
-                : ['assemblyCompany', 'endCustomer'];
             if ($isUserRegulusOrAdmin && !data.vzdalenyPristup.plati.value)
                 data.vzdalenyPristup.plati.setValue(data, 'laterAccordingToTheProtocol');
         }, [isUserRegulusOrAdmin]],
         [(_, data, [$responsiblePerson]) => {
             if ($responsiblePerson != null) data.vzdalenyPristup.zodpovednaOsoba.setValue(data, $responsiblePerson);
-            if ($responsiblePerson != null) data.vzdalenyPristup.zodpovednaOsoba.show = () => false;
+            if ($responsiblePerson != null) data.vzdalenyPristup.showResponsiblePerson.setValue(data, false);
         }, [responsiblePerson]],
     ],
     excelImport: {

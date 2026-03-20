@@ -7,7 +7,9 @@ import { multilineTooLong, defaultGenericSP } from '$lib/forms/SP/defaultSP';
 import { newNSP } from '$lib/data';
 import type { User } from 'firebase/auth';
 
-export type DataNSP = FormNSP
+export type DataNSP = FormNSP & {
+    lockNameFields?: boolean
+}
 
 export interface FormNSP extends GenericFormSP<DataNSP>, UserForm<DataNSP>, Form<DataNSP> {
     system: {

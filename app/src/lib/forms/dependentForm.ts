@@ -15,6 +15,7 @@ export const removeDependency = async <
 >(formInfo: FormInfo<D, F, S, P, O>, irid: IRID): Promise<IndependentFormInfo<D, F, S, P, O>> => {
     const {
         storeName,
+        defaultData,
         openPdf,
         saveData,
         createWidgetData,
@@ -28,6 +29,7 @@ export const removeDependency = async <
     return {
         ...formInfo,
         type: '',
+        defaultData: (o) => defaultData(o, ir),
         storeName: (o) => `${storeName(o)}_${irid}`,
         getEditData: async (url, o) => getEditData?.(ir, url, o),
         getViewData: async url => getViewData?.(ir, url),
@@ -39,7 +41,7 @@ export const removeDependency = async <
         openPdf: openPdf ? async (_raw, other) => ({
             ...openPdf(other), irid,
         } as OpenPdfOptions<P>) : undefined,
-        createWidgetData: (data, other) => createWidgetData(ir.IN, data, ir, other),
+        createWidgetData: (data, other, mode) => createWidgetData(ir.IN, data, ir, other, mode),
         onMount: (d, f, m, o) => onMount?.(d, f, m, ir, o),
     };
 };

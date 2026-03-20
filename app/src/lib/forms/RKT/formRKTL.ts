@@ -1,7 +1,9 @@
 import { CheckboxWidget, CounterWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
 import { type Form } from '$lib/forms/Form';
 
-export type DataRKTL = void
+export type DataRKTL = {
+    mode: 'create' | 'edit' | 'view' | 'loading',
+}
 
 export interface FormRKTL extends Form<DataRKTL> {
     info: {

@@ -1,7 +1,7 @@
 import type { FormPartDK } from '$lib/forms/DK/formDK';
 import type { IR } from '$lib/data';
 
-export type DataChangeDK = { dk: FormPartDK<DataChangeDK>, evidence: IR['IN'] };
+export type DataChangeDK = { dk: FormPartDK<DataChangeDK>, evidence: IR['IN'], mode: 'create' };
 
 export const getDKInfo = (
     type: 'TČ' | 'SOL',

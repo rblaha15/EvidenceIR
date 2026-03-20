@@ -166,6 +166,7 @@ const functions: {
 };
 
 const readableFunction = <F extends WriteFunction>(t: Translations, entry: HistoryDatabase<F>) =>
+    !(entry.functionName in t.nav.history.f) || !(entry.functionName in functions) ? '???' :
     (t.nav.history.f[entry.functionName as F] as Template<(string | number)[]>)(functions[entry.functionName](...entry.args) as TemplateArgs<(string | number)[]>) as string;
 
 export type DisplayableHistoryEntry = {

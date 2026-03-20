@@ -6,7 +6,6 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
-import { dayISO } from '$lib/helpers/date';
 import { type DataRKT, type FormRKT } from '$lib/forms/RKT/formRKT.js';
 import defaultRKT from '$lib/forms/RKT/defaultRKT';
 import type { FormInfo } from '$lib/forms/FormInfo';
@@ -16,7 +15,6 @@ import { grantPoints } from '$lib/client/loyaltyProgram';
 import type { Raw } from '$lib/forms/Form';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
 import db from '$lib/Database';
-import { validate } from 'uuid';
 import type { Translations } from '$lib/translations';
 
 export const isRKTL = (raw: Raw<FormRKT | FormRKTL> | undefined): raw is Raw<FormRKTL> => !!raw && !('funkcniTest' in raw)
@@ -96,14 +94,9 @@ const infoRKT: FormInfo<DataRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: Yea
         saveAndSendAgain: edit && !regulus,
     })),
     title: (t, _, { pump }) => t.rkt.formTitle({ n: `${pump}` }),
-    createWidgetData: e => e,
+    createWidgetData: (IN, _1, _2, _3, mode) => ({ IN, mode }),
     onMount: async (d, k, m, ir, { pump, filledYears }) => {
-        if (!k.info.datum.value)
-            k.info.datum.setValue(d, dayISO());
-        if (m != 'create') {
-            k.info.year.lock = () => true;
-            k.info.year.validate = () => true;
-        } else {
+        if (m == 'create') {
             const lastYear = ir.RK.TC?.[pump]?.[Math.max(...filledYears)];
             if (lastYear && !isRKTL(lastYear))
                 k.kontrolaOtopneSoustavy.kontrolaPojistovacichVentiluPoznamka.setValue(d, lastYear.kontrolaOtopneSoustavy.kontrolaPojistovacichVentiluPoznamka || '');

@@ -8,16 +8,15 @@ import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import type { DataUPT, FormUPT } from '$lib/forms/UPT/formUPT';
-import { initDK, saveDK } from '$lib/forms/DK/formDK';
+import { saveDK } from '$lib/forms/DK/formDK';
 import type { Raw } from '$lib/forms/Form';
 import { grantPoints } from '$lib/client/loyaltyProgram';
-import { dayISO } from '$lib/helpers/date';
 import db from '$lib/Database';
 
 const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
     type: 'IR',
     storeName: () => 'stored_heat_pump_commission',
-    defaultData: defaultUPT,
+    defaultData: (_, ir) => defaultUPT(ir),
     openPdf: () => ({
         link: 'UPT',
     }),
@@ -53,16 +52,12 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
         saveAndSend: !edit && !regulus,
         saveAndSendAgain: edit && !regulus,
     })),
-    createWidgetData: (evidence, uvedeni) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations }),
+    createWidgetData: (evidence, uvedeni, _, __, mode) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations, mode }),
     title: t => t.tc.title,
     getEditData: (ir, url) =>
         url.searchParams.has('edit') ? { raw: ir.UP.TC as Raw<FormUPT> } : undefined,
     getViewData: (ir, url) =>
         url.searchParams.has('view') ? { raw: ir.UP.TC as Raw<FormUPT> } : undefined,
-    onMount: async (data, form, mode, ir) => {
-        form.uvadeni.date.setValue(data, ir.UP.dateTC || dayISO());
-        initDK(data, mode, ir, 'TČ');
-    },
 };
 
 export default infoUPT;

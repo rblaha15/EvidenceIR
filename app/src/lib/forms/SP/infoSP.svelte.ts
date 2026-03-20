@@ -5,7 +5,6 @@ import { spName } from '$lib/helpers/ir';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
-import { nowISO } from '$lib/helpers/date';
 import { currentUser } from '$lib/client/auth';
 import { cellsSP } from '$lib/forms/SP/cellsSP';
 import { type DataSP, type FormSP } from '$lib/forms/SP/formSP.svelte';
@@ -93,8 +92,6 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
     onMount: async (d, p, _, ir) => {
         await startTechniciansListening();
         await startSparePartsListening();
-        if (!p.zasah.datum.value) // Also in SZ, NSP
-            p.zasah.datum.setValue(d, nowISO());
         if (!p.system.datumUvedeni.value && ir.UP.dateTC)
             p.system.datumUvedeni.setValue(d, ir.UP.dateTC);
     },
@@ -102,16 +99,14 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
         [(d, p, [$techniciansList, $currentUser], edit) => { // Also in NSP
             const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
             if (!p.zasah.clovek.value) p.zasah.clovek.setValue(d, ja?.name ?? p.zasah.clovek.value);
-            p.zasah.clovek.show = () => p.zasah.clovek.value != ja?.name;
             if (!p.zasah.inicialy.value) p.zasah.inicialy.setValue(d, ja?.initials ?? p.zasah.inicialy.value);
-            p.zasah.inicialy.show = () => p.zasah.inicialy.value != ja?.initials;
+            p.zasah.showNameFileds.setValue(d, p.zasah.clovek.value != ja?.name);
         }, [techniciansList, currentUser]],
     ],
     excelImport: {
         sheet: 'Protokol',
-        onImport: (_, p) => {
-            p.zasah.clovek.show = () => true;
-            p.zasah.inicialy.show = () => true;
+        onImport: (d, p) => {
+            p.zasah.showNameFileds.setValue(d, true);
         },
         cells: cellsSP,
         sheetFilter: n => n.includes('Protokol'),

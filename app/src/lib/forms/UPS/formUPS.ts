@@ -7,6 +7,7 @@ export type DataUPS = {
     uvedeni: FormUPS,
     evidence: Raw<FormIN>,
     dk: FormPartDK<DataUPS>,
+    mode: 'create' | 'edit' | 'view' | 'loading',
 }
 
 export type HeatTransferFluidType = 'Solarten Super' | 'Solarten HT'

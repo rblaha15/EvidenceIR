@@ -707,7 +707,7 @@ export default {
         surname: `Příjmení (+ tituly za jménem)`,
         endCustomer: `Koncový zákazník`,
         realizationLocation: `Místo realizace`,
-        irExistsHtml: t`<span class="text-danger">Tento regulátor je již zaevidovaný (<a href="${'link'}">detail</a>)</span>`,
+        irExistsHtml: t`<span class="text-danger">Tento regulátor je již zaevidovaný (<a href="${'link'}" target="_blank">detail</a>)</span>`,
         irExists: `Tento regulátor je již zaevidovaný`,
         editing: `Editace`,
         title: `Registrace nové instalace`,

@@ -60,7 +60,7 @@ const de: PlainTranslations = {
         whatToAddInfoTo: `Wozu möchten Sie genauere Informationen hinzufügen?`,
         residence: `Wohnung`,
         name: `Vorname`,
-        irExistsHtml: t`<span class="text-danger">Dieser Regler ist bereits registriert (<a href="${`link`}">Detail</a>)</span>`,
+        irExistsHtml: t`<span class="text-danger">Dieser Regler ist bereits registriert (<a href="${`link`}" target="_blank">Detail</a>)</span>`,
         irExists: `Dieser Regler ist bereits registriert`,
         editing: `Bearbeitung`,
         copyResidence: `Wohnsitz kopieren`,
