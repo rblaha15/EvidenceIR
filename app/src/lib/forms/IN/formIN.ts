@@ -12,7 +12,7 @@ import {
     type ScannerWidget,
     type SearchWidget,
     type TextWidget,
-    type TitleWidget, Widget,
+    type TitleWidget,
 } from '$lib/forms/Widget.svelte.js';
 import type { Company } from '$lib/client/realtime';
 import type { Form } from '$lib/forms/Form';
@@ -76,22 +76,19 @@ type ControllersSOREL =
 type ControllersCTC = 'EcoEl' | 'EcoZenith' | 'EcoHeat' | 'EcoLogic EXT';
 export type IRSubTypes = 'RTC' | 'CTC' | ControllersSOREL | ControllersCTC | 'inTHERM 10';
 
-export interface FormGroupIR<D extends { ir: FormGroupIR<D> }> extends Record<string, Widget<D>> {
-    regulus: HiddenValueWidget<D, boolean, true>;
-    typ: DoubleChooserWidget<D, IRTypes, IRSubTypes>,
-    cislo: InputWidget<D>,
-    alreadyExists: HiddenValueWidget<D, boolean, true>,
-    alreadyExistsWarning: TextWidget<D>,
-}
-
 export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
     ir: {
         nadpisSystem: TitleWidget<FormIN>;
         nadpis: TitleWidget<FormIN>;
+        regulus: HiddenValueWidget<FormIN, boolean, true>;
+        typ: DoubleChooserWidget<FormIN, IRTypes, IRSubTypes>,
+        cislo: InputWidget<FormIN>,
+        alreadyExists: HiddenValueWidget<FormIN, boolean, true>,
+        alreadyExistsWarning: TextWidget<FormIN>,
         cisloBox: InputWidget<FormIN>;
         boxType: TextWidget<FormIN>;
         chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `accumulation` | 'waterStorage' | `ventilation` | 'photovoltaicPowerPlant' | 'other'>;
-    } & FormGroupIR<FormIN>;
+    };
     tc: {
         nadpis: TitleWidget<FormIN>;
         poznamka: TextWidget<FormIN>;
