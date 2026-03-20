@@ -14,7 +14,7 @@ import {
     TextWidget,
     TitleWidget,
 } from '../Widget.svelte.js';
-import { type FormGroupIR, type FormIN, unknownCompany, unknownCRN, type UserForm } from './formIN';
+import { type FormIN, unknownCompany, unknownCRN, type UserForm } from './formIN';
 import { accumulationTanks, type Company, solarCollectors, type Technician, techniciansList, waterTanks } from '$lib/client/realtime';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 import {
@@ -57,7 +57,7 @@ const other = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`other`);
 const ctc = (d: FormIN) => d.ir.typ.value.first == 'ctc' || d.ir.typ.value.second == 'CTC';
 const rtc = (d: FormIN) => d.ir.typ.value.second == 'RTC';
 const thermona = (d: FormIN) => d.ir.typ.value.first == 'Thermona';
-const ecoHeat = <D extends { ir: FormGroupIR<D>; }>(d: D) => d.ir.typ.value.second == 'EcoHeat';
+const ecoHeat = (d: FormIN) => d.ir.typ.value.second == 'EcoHeat';
 const subType = (d: FormIN) => d.ir.typ.value.second != null;
 
 const supportsRemoteAccessF = (f: FormIN) => supportsRemoteAccess(f.ir.typ.value.first);
@@ -435,148 +435,124 @@ const heatPump = <const I extends TC>(i: I) => ({
     [K in `cislo${I}`]: ScannerWidget<FormIN>;
 });
 
-export const irTypeAndNumber = <D extends { ir: FormGroupIR<D> }>(
-    { setPumpType, setPumpModel, setPumpCount, setPumpNumber, resetRemoteAccess, resetBoxNumber, setFVEType, setHP }: {
-        setPumpType?: (d: D, type: 'airToWater' | 'groundToWater') => void,
-        setPumpModel?: (d: D, model: HeatPump) => void,
-        setPumpCount?: (d: D, count: number) => void,
-        setPumpNumber?: (d: D, number: string) => void,
-        resetRemoteAccess?: (d: D) => void,
-        resetBoxNumber?: (d: D) => void,
-        setFVEType?: (d: D) => void
-        setHP?: (d: D) => void
-    },
-): FormGroupIR<D> => ({
-    regulus: new HiddenValueWidget(false, true),
-    typ: new DoubleChooserWidget({
-        label: t => t.in.controllerType,
-        options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
-        otherOptions1: d => [
-            'IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc',
-            ...d.ir.regulus ? ['Thermona'] as const : [], 'other',
-        ] as const, options2: ({ ir: { typ: { value: { first: f } } } }) => (
-            f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K', 'DeltaSol BS, ES', 'DeltaSol M, MX']
-                : f == 'ctc' ? ['EcoEl', 'EcoZenith', 'EcoHeat', 'EcoLogic EXT']
-                    : f == 'Thermona' ? ['inTHERM 10']
-                        : supportsOnlyCTC(f) ? ['CTC']
-                            : doesNotSupportHeatPumps(f) ? []
-                                : ['CTC', 'RTC']
-        ),
-        onValueSet: (d, v) => {
-            if (v.second == 'RTC') {
-                setPumpType?.(d, 'airToWater');
-            }
-            if (v.second == 'CTC') {
-                setPumpType?.(d, 'airToWater');
-            }
-            if (v.second == 'EcoHeat') {
-                setPumpType?.(d, 'groundToWater');
-                setPumpCount?.(d, 1);
-            }
-            if (doesNotHaveIRNumber(v)) {
-                if (!d.ir.cislo.lock(d))
-                    setTimeout(() => d.ir.cislo.setValue(d, `${dayISO()}T${time()}`));
-            }
-            if (!supportsRemoteAccess(v.first)) {
-                resetRemoteAccess?.(d);
-            }
-            if (hasIndoorUnit(v.first)) {
-                resetBoxNumber?.(d);
-            }
-            if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
-                d.ir.typ.setValue(d, { ...v, second: null });
-            }
-            if (v.first != 'ctc' && supportsOnlyCTC(v.first) && v.second != 'CTC') {
-                d.ir.typ.setValue(d, { ...v, second: 'CTC' });
-            }
-            if (v.first == 'Thermona' && v.second != 'inTHERM 10') {
-                d.ir.typ.setValue(d, { ...v, second: 'inTHERM 10' });
-            }
-            if (v.first == 'Thermona') {
-                setHP?.(d);
-                setPumpCount?.(d, 1);
-                setPumpType?.(d, 'airToWater');
-                setPumpModel?.(d, 'airTHERM 10');
-            }
-            if (doesNotSupportHeatPumps(v.first) && v.second) {
-                d.ir.typ.setValue(d, { ...v, second: null });
-            }
-            if (v.first == 'ctc') {
-                setHP?.(d);
-            }
-            if (v.first == 'other') {
-                setFVEType?.(d);
-            }
-            if (d.ir.typ.value.first) db.existsIR(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value))
-                .then(e => d.ir.alreadyExists.setValue(d, e));
-        },
-        labels: t => t.in.ir,
-    }),
-    cislo: new InputWidget({
-        label: t => t.in.serialNumber,
-        onError: (t, d) => d.ir.alreadyExists.value ? t.in.irExists : t.wrong.number,
-        regex: d => doesNotHaveIRNumber(d.ir.typ.value)
-            ? /[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9]{2}:[0-9]{2}/
-            : isCTC(d.ir.typ.value.first)
-                ? /[0-9]{4}-[0-9]{4}-[0-9]{4}/
-                : isMACAddressTypeIR12(d.ir.typ.value.first)
-                    ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
-                    : isMACAddressTypeIR10(d.ir.typ.value.first)
-                        ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
-                        : /[A-Z][1-9OND] [0-9]{4}/,
-        capitalize: true,
-        maskOptions: d => ({
-            mask: doesNotHaveIRNumber(d.ir.typ.value) ? `0000-00-00T00:00`
-                : isCTC(d.ir.typ.value.first) ? `0000-0000-0000`
-                    : !supportsMACAddresses(d.ir.typ.value.first) ? 'Z8 0000'
-                        : d.ir.cislo.value.length == 0 ? 'X'
-                            : d.ir.cislo.value[0] == '0'
-                                ? isMACAddressTypeIR10(d.ir.typ.value.first)
-                                    ? 'NN:NA:14:N6:FF:FF'
-                                    : 'NN:NA:14:N9:FF:FF'
-                                : 'Z8 0000',
-            definitions: {
-                X: /[0A-Za-z]/,
-                N: /0/,
-                A: /[Aa]/,
-                T: /[T ]/,
-                6: /6/,
-                9: /9/,
-                1: /1/,
-                4: /4/,
-                F: /[0-9A-Fa-f]/,
-                Z: /[A-Za-z]/,
-                8: /[1-9ONDond]/,
-            },
-        }), onValueSet: (d, v) => {
-            if (ecoHeat(d)) {
-                setPumpNumber?.(d, v);
-            }
-            if (d.ir.typ.value.first) db.existsIR(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value))
-                .then(e => d.ir.alreadyExists.setValue(d, e));
-        }, show: d => !doesNotHaveIRNumber(d.ir.typ.value),
-    }),
-    alreadyExists: new HiddenValueWidget(false, true),
-    alreadyExistsWarning: new TextWidget({
-        text: (t, d) => !d.ir.typ.value.first ? '' : t.in.irExistsHtml({
-            link: detailIrUrl(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value)),
-        }), show: d => d.ir.alreadyExists.value, showInXML: false,
-    }),
-});
-
 export default (): FormPlus<FormIN> => ({
     ir: {
         nadpisSystem: new TitleWidget({ text: t => t.in.system, level: 2 }),
         nadpis: new TitleWidget({ text: t => t.in.controller, level: 3, class: 'fs-4' }),
-        ...irTypeAndNumber<FormIN>({
-            setPumpType: (d, t) => d.tc.typ.setValue(d, t),
-            setPumpModel: (d, m) => d.tc.model.setValue(d, m),
-            setPumpNumber: (d, n) => d.tc.cislo.setValue(d, n),
-            setPumpCount: (d, c) => d.tc.pocet.setValue(d, c),
-            resetBoxNumber: d => d.ir.cisloBox.setValue(d, ''),
-            resetRemoteAccess: d => d.vzdalenyPristup.chce.setValue(d, false),
-            setFVEType: d => d.fve.typ.setValue(d, 'DG-450-B'),
-            setHP: d => d.ir.chceVyplnitK.setValue(d, ['heatPump']),
+        regulus: new HiddenValueWidget(false, true),
+        typ: new DoubleChooserWidget({
+            label: t => t.in.controllerType,
+            options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
+            otherOptions1: d => [
+                'IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc',
+                ...d.ir.regulus ? ['Thermona'] as const : [], 'other',
+            ] as const, options2: ({ ir: { typ: { value: { first: f } } } }) => (
+                f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K', 'DeltaSol BS, ES', 'DeltaSol M, MX']
+                    : f == 'ctc' ? ['EcoEl', 'EcoZenith', 'EcoHeat', 'EcoLogic EXT']
+                        : f == 'Thermona' ? ['inTHERM 10']
+                            : supportsOnlyCTC(f) ? ['CTC']
+                                : doesNotSupportHeatPumps(f) ? []
+                                    : ['CTC', 'RTC']
+            ),
+            onValueSet: (d, v) => {
+                if (v.second == 'RTC') {
+                    d.tc.typ.setValue(d, 'airToWater');
+                }
+                if (v.second == 'CTC') {
+                    d.tc.typ.setValue(d, 'airToWater');
+                }
+                if (v.second == 'EcoHeat') {
+                    d.tc.typ.setValue(d, 'groundToWater');
+                    d.tc.pocet.setValue(d, 1);
+                }
+                if (doesNotHaveIRNumber(v)) {
+                    if (!d.ir.cislo.lock(d))
+                        setTimeout(() => d.ir.cislo.setValue(d, `${dayISO()}T${time()}`));
+                }
+                if (!supportsRemoteAccess(v.first)) {
+                    (d => d.vzdalenyPristup.chce.setValue(d, false))?.(d);
+                }
+                if (hasIndoorUnit(v.first)) {
+                    (d => d.ir.cisloBox.setValue(d, ''))?.(d);
+                }
+                if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
+                    d.ir.typ.setValue(d, { ...v, second: null });
+                }
+                if (v.first != 'ctc' && supportsOnlyCTC(v.first) && v.second != 'CTC') {
+                    d.ir.typ.setValue(d, { ...v, second: 'CTC' });
+                }
+                if (v.first == 'Thermona' && v.second != 'inTHERM 10') {
+                    d.ir.typ.setValue(d, { ...v, second: 'inTHERM 10' });
+                }
+                if (v.first == 'Thermona') {
+                    (d => d.ir.chceVyplnitK.setValue(d, ['heatPump']))?.(d);
+                    d.tc.pocet.setValue(d, 1);
+                    d.tc.typ.setValue(d, 'airToWater');
+                    d.tc.model.setValue(d, 'airTHERM 10');
+                }
+                if (doesNotSupportHeatPumps(v.first) && v.second) {
+                    d.ir.typ.setValue(d, { ...v, second: null });
+                }
+                if (v.first == 'ctc') {
+                    (d => d.ir.chceVyplnitK.setValue(d, ['heatPump']))?.(d);
+                }
+                if (v.first == 'other') {
+                    (d => d.fve.typ.setValue(d, 'DG-450-B'))?.(d);
+                }
+                if (d.ir.typ.value.first) db.existsIR(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value))
+                    .then(e => d.ir.alreadyExists.setValue(d, e));
+            },
+            labels: t => t.in.ir,
+        }),
+        cislo: new InputWidget({
+            label: t => t.in.serialNumber,
+            onError: (t, d) => d.ir.alreadyExists.value ? t.in.irExists : t.wrong.number,
+            regex: d => doesNotHaveIRNumber(d.ir.typ.value)
+                ? /[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9]{2}:[0-9]{2}/
+                : isCTC(d.ir.typ.value.first)
+                    ? /[0-9]{4}-[0-9]{4}-[0-9]{4}/
+                    : isMACAddressTypeIR12(d.ir.typ.value.first)
+                        ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
+                        : isMACAddressTypeIR10(d.ir.typ.value.first)
+                            ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
+                            : /[A-Z][1-9OND] [0-9]{4}/,
+            capitalize: true,
+            maskOptions: d => ({
+                mask: doesNotHaveIRNumber(d.ir.typ.value) ? `0000-00-00T00:00`
+                    : isCTC(d.ir.typ.value.first) ? `0000-0000-0000`
+                        : !supportsMACAddresses(d.ir.typ.value.first) ? 'Z8 0000'
+                            : d.ir.cislo.value.length == 0 ? 'X'
+                                : d.ir.cislo.value[0] == '0'
+                                    ? isMACAddressTypeIR10(d.ir.typ.value.first)
+                                        ? 'NN:NA:14:N6:FF:FF'
+                                        : 'NN:NA:14:N9:FF:FF'
+                                    : 'Z8 0000',
+                definitions: {
+                    X: /[0A-Za-z]/,
+                    N: /0/,
+                    A: /[Aa]/,
+                    T: /[T ]/,
+                    6: /6/,
+                    9: /9/,
+                    1: /1/,
+                    4: /4/,
+                    F: /[0-9A-Fa-f]/,
+                    Z: /[A-Za-z]/,
+                    8: /[1-9ONDond]/,
+                },
+            }), onValueSet: (d, v) => {
+                if (ecoHeat(d)) {
+                    d.tc.cislo.setValue(d, v);
+                }
+                if (d.ir.typ.value.first) db.existsIR(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value))
+                    .then(e => d.ir.alreadyExists.setValue(d, e));
+            }, show: d => !doesNotHaveIRNumber(d.ir.typ.value),
+        }),
+        alreadyExists: new HiddenValueWidget(false, true),
+        alreadyExistsWarning: new TextWidget({
+            text: (t, d) => !d.ir.typ.value.first ? '' : t.in.irExistsHtml({
+                link: detailIrUrl(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value)),
+            }), show: d => d.ir.alreadyExists.value, showInXML: false,
         }),
         cisloBox: new InputWidget({
             label: t => t.in.serialNumberIndoor,
