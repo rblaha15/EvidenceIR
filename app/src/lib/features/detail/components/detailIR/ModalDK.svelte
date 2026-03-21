@@ -20,6 +20,7 @@
     const { settings, show, commissionDate } = $derived(getDKInfo(type, ir));
     const f = $derived<FormPartDK<ContextChangeDK>>(defaultDK<ContextChangeDK>(type, commissionDate, settings));
     let v = $derived(defaultFormGroupValues(f));
+    let showAllErrors = $state(false);
     const context = $derived({ DK: v, IN: ir.IN, mode: 'create' as const });
 
     $effect(() => {
@@ -28,8 +29,7 @@
     });
 
     const save = async () => {
-        f.executingCompany.displayErrorVeto = true;
-        f.commissionDate.displayErrorVeto = true;
+        showAllErrors = true;
         if (f.executingCompany.isError(context, v.executingCompany) || f.commissionDate.isError(context, v.commissionDate)) return;
         error = false;
         loading = true;
@@ -46,8 +46,7 @@
     const init = () => {
         loading = false;
         error = false;
-        f.executingCompany.displayErrorVeto = false;
-        f.commissionDate.displayErrorVeto = false;
+        showAllErrors = false;
     }
 
     let modal = $state() as HTMLDivElement;
@@ -70,10 +69,10 @@
                     <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
                 </div>
                 <div class="modal-body d-flex flex-column gap-3">
-                    <Widget bind:value={v.commissionDate} widget={f.commissionDate} {context} {t} />
-                    <Widget bind:value={v.enabled} widget={f.enabled} {context} {t} />
-                    <Widget bind:value={v.executingCompany} widget={f.executingCompany} {context} {t} />
-                    <Widget bind:value={v.chosenCompany} widget={f.chosenCompany} {context} {t} />
+                    <Widget bind:value={v.commissionDate} widget={f.commissionDate} {context} {t} {showAllErrors} />
+                    <Widget bind:value={v.enabled} widget={f.enabled} {context} {t} {showAllErrors} />
+                    <Widget bind:value={v.executingCompany} widget={f.executingCompany} {context} {t} {showAllErrors} />
+                    <Widget bind:value={v.chosenCompany} widget={f.chosenCompany} {context} {t} {showAllErrors} />
                 </div>
                 <div class="modal-footer">
                     {#if error}

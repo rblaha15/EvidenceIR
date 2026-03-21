@@ -9,9 +9,11 @@
         widget: CheckboxWithChooserWidget<C, I>;
         context: C;
         value: SeCh<I>;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     const onChange = (
         e: Event & {
@@ -21,6 +23,7 @@
         const newValue = { checked: true, chosen: e.currentTarget.value as I };
         value = newValue;
         widget.onValueSet(context, newValue);
+        showError = true;
     };
 
     let mounted = false;
@@ -33,6 +36,7 @@
         const newValue = { ...value, checked: !value.checked };
         value = newValue;
         widget.onValueSet(context, newValue);
+        showError = true;
     };
 
     const uid = $props.id();
@@ -60,7 +64,7 @@
         </label>
     </div>
 
-    {#if widget.showError(context, value)}
-        <p class="text-danger">{widget.onError(t, context)}</p>
+    {#if widget.isError(context, value) && showError}
+        <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>

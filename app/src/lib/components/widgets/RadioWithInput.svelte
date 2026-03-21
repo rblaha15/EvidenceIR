@@ -8,9 +8,11 @@
         widget: RadioWithInputWidget<C, I>;
         context: C;
         value: RaI<I>;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     const chosen = $derived({
         get value() {
@@ -20,6 +22,7 @@
             const newValue = { ...value, chosen };
             value = newValue;
             widget.onValueSet(context, newValue);
+            showError = true;
         },
     });
 
@@ -69,6 +72,7 @@
                                 value = newValue;
                                 widget.onValueSet(context, newValue);
                             }}
+                            onblur={() => showError = true}
                             disabled={widget.lock(context)}
                         />
                         <label for="">{widget.otherLabel(t, context)}</label>
@@ -78,7 +82,7 @@
         {/each}
     </div>
 
-    {#if widget.showError(context, value)}
+    {#if widget.isError(context, value) && showError}
         <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>

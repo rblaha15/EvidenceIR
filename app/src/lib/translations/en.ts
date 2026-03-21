@@ -348,7 +348,7 @@ const en: PlainTranslations = {
         requiredField: 'This field is required',
         notChosen: 'Not chosen',
         otherOptions: `Other options`,
-        scanBarcode: 'Scan barcode from the heat pump',
+        scanBarcode: 'Scan barcode from pump',
         scanCode: 'Scan barcode',
         yes: 'Yes',
         no: 'No',

@@ -8,11 +8,13 @@
         widget: InputWidget<C>;
         context: C;
         value: string;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 </script>
 
 <CoreInput
-    bind:value {widget} {context} setTextValue={text => text} {t} textValue={value}
+    bind:value {widget} {context} setTextValue={text => text} {t} textValue={value} bind:showError
 />

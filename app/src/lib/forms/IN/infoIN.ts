@@ -98,8 +98,6 @@ const checkForErrors = (c: ContextIN, t: Translations, editResult: (result: Resu
         .filter(([w, v]) => w.isError(c, v as never))
         .map(([w]) => w.label(t, c));
     if (errors.length) {
-        c.f.ir.cislo.displayErrorVeto = true;
-        c.f.ir.typ.displayErrorVeto = true;
         editResult({
             red: true,
             text: t.form.youHaveAMistake,

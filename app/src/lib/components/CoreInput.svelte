@@ -17,7 +17,6 @@
     type GenericInputWidget<C, U> = Widget<C, U> & BaseInput<C, U> & ({
         textArea?: undefined;
         autocomplete?: undefined;
-        updateMaskValue?: undefined;
         maskOptions?: undefined;
         capitalize?: undefined;
         placeholder?: undefined;
@@ -32,6 +31,7 @@
         value: U;
         textValue: string;
         setTextValue: (value: string) => U;
+        showError: boolean;
         leadingContent?: Snippet;
         coreContent?: Snippet<[Snippet]>;
         trailingContent?: Snippet;
@@ -42,7 +42,7 @@
     const defaultId = $props.id();
 
     let {
-        t, widget, value: widgetValue = $bindable(), context, textValue: value, setTextValue,
+        t, widget, value: widgetValue = $bindable(), context, textValue: value, setTextValue, showError = $bindable(),
         leadingContent, coreContent = defaultCore, trailingContent, uid = defaultId, labelClass,
     }: Props = $props();
 
@@ -109,7 +109,10 @@
             if (mask) mask.value = value;
         })
     });
-    const onClick = () => setValueAndUpdate('');
+    const onClick = () => {
+        setValueAndUpdate('');
+        showError = true;
+    };
 </script>
 
 {#snippet defaultCore(field: Snippet)}
@@ -130,6 +133,7 @@
             oninput={() => {
                 if (textarea) setValueAndUpdate(textarea.value);
             }}
+            onblur={() => showError = true}
             disabled={widget.lock(context)}
             style="height: 150px"
         ></textarea>
@@ -144,6 +148,7 @@
             placeholder={widget.placeholder?.(t, context) || labelAndStar(widget, context, t)}
             class="form-control"
             bind:this={input}
+            onblur={() => showError = true}
             disabled={widget.lock(context)}
         />
     {:else}
@@ -161,6 +166,7 @@
             oninput={() => {
                 if (input) setValueAndUpdate(input.value);
             }}
+            onblur={() => showError = true}
             disabled={widget.lock(context)}
         />
     {/if}
@@ -193,8 +199,8 @@
         {@render trailingContent?.()}
     </div>
 
-    {#if widget.showError(context, widgetValue)}
-        <span class="text-danger help-block">{widget.onError(t, context)}</span>
+    {#if widget.isError(context, widgetValue) && showError}
+        <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>
 

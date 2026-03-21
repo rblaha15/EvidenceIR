@@ -64,6 +64,7 @@
 
     const form: F = formDefinition(other);
     let values: Values<F> = $state(defaultValues(form));
+    let showAllErrors = $state(false);
     const list = $derived(widgetList<C, F>(form, values));
     const context = $derived(createContext({ form, other, values, mode })) as C;
 
@@ -114,9 +115,7 @@
                 .filter(({ widget, value }) => widget.isError(context, value) && widget.show(context))
                 .map(({ widget }) => widget.label(t, context));
             if (errors.length > 0 && !draft) {
-                for (const i in list) {
-                    list[i].widget.displayErrorVeto = true;
-                }
+                showAllErrors = true;
                 result = {
                     red: true,
                     text: t.form.youHaveAMistake,
@@ -170,17 +169,13 @@
 
     const onImportExcel = (newData: Raw<F>) => {
         values = rawDataToValues(form, newData);
-        for (const i in list) {
-            list[i].widget.displayErrorVeto = true;
-        }
+        showAllErrors = true;
         excelImport!.onImport(context, values, other);
     };
 
     const onImportPdf = (newData: Raw<F>) => {
         values = rawDataToValues(form, newData);
-        for (const i in list) {
-            list[i].widget.displayErrorVeto = true;
-        }
+        showAllErrors = true;
         pdfImport!.onImport(context, values, other);
     };
 
@@ -207,7 +202,7 @@
         {#if mode === 'view'}
             <ReadonlyWidget widget={item.widget} value={item.value} {t} {context} />
         {:else}
-            <WidgetComponent widget={item.widget} bind:value={item.value} {t} {context} />
+            <WidgetComponent widget={item.widget} bind:value={item.value} {t} {context} {showAllErrors} />
         {/if}
     {/each}
     <div class="d-flex flex-column align-items-start gap-3">

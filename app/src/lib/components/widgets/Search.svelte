@@ -20,10 +20,12 @@
         widget: SearchWidget<C, T>;
         context: C;
         value: T | null;
+        showAllErrors: boolean;
         class?: ClassValue;
     }
 
-    let { t, widget, value = $bindable(), context, class: klass = '' }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors, class: klass = '' }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     let search = writable('');
 
@@ -74,6 +76,7 @@
     const onClick = () => {
         value = null;
         widget.onValueSet(context, null);
+        showError = true;
         hideRequest = false;
         hidden = true;
     };
@@ -118,7 +121,8 @@
                             e.preventDefault();
                             value = item;
                             widget.onValueSet(context, item);
-                            hidden = true
+                            showError = true;
+                            hidden = true;
                         }}
                     >
                         {#each searchItem.pieces as piece}
@@ -157,8 +161,8 @@
         {/if}
     </div>
 
-    {#if widget.showError(context, value)}
-        <p class="text-danger">{widget.onError(t, context)}</p>
+    {#if widget.isError(context, value) && showError}
+        <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>
 

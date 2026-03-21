@@ -9,9 +9,11 @@
         widget: InputWithChooserWidget<C, I>;
         context: C;
         value: SeI<I>;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     const onChange: ChangeEventHandler<HTMLSelectElement> = e => {
         const newValue = { ...value, chosen: e.currentTarget.value as I };
@@ -34,7 +36,7 @@
 {/snippet}
 
 <CoreInput
-    bind:value {widget} {context} setTextValue={text => ({ ...value, text })} {t} textValue={value.text} labelClass="input-left"
+    bind:value {widget} {context} setTextValue={text => ({ ...value, text })} {t} textValue={value.text} bind:showError labelClass="input-left"
     {trailingContent}
 />
 

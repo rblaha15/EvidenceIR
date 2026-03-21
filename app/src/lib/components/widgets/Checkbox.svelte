@@ -8,9 +8,11 @@
         widget: CheckboxWidget<C>;
         context: C;
         value: boolean;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     const onClick: MouseEventHandler<HTMLInputElement | HTMLButtonElement> = e => {
         e.stopPropagation();
@@ -18,6 +20,7 @@
             const newValue = !value;
             value = newValue;
             widget.onValueSet(context, newValue);
+            showError = true;
         }
     };
 
@@ -48,7 +51,7 @@
         </button>
     </div>
 
-    {#if widget.showError(context, value)}
-        <p class="text-danger">{widget.onError(t, context)}</p>
+    {#if widget.isError(context, value) && showError}
+        <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>

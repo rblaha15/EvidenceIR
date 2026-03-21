@@ -56,6 +56,7 @@
     const results = storable<{ date: string, data: Record<string, LoyaltyProgramUserData> }>('loyalty_data');
     let status = $state('none' as 'none' | 'loading' | 'fail' | 'success');
     let statusA = $state('none' as 'none' | 'mistake' | 'loading' | 'fail' | 'success');
+    let showAllErrors = $state(false);
 
     const search = async () => {
         status = 'loading';
@@ -66,10 +67,8 @@
         $results = { date: new Date().toISOString(), data: await response.json() };
     };
     const add = async () => {
-        dateW.displayErrorVeto = true;
-        pointsW.displayErrorVeto = true;
-        userW.displayErrorVeto = true;
-        if (dateW.showError({}, date) || pointsW.showError({}, points) || userW.showError({}, user)) return statusA = 'mistake';
+        showAllErrors = true;
+        if (dateW.isError({}, date) || pointsW.isError({}, points) || userW.isError({}, user)) return statusA = 'mistake';
         statusA = 'loading';
         const token = await getToken();
         const response = await fetch(`/api/loyalty-program?token=${token}`, {
@@ -94,19 +93,19 @@
 
 <div class="d-flex flex-column gap-1">
     <div class="">
-        <Widget widget={userW} bind:value={user} context={{}} t={cs} />
+        <Widget widget={userW} bind:value={user} context={{}} t={cs} {showAllErrors} />
     </div>
     <div class="">
-        <Widget widget={pointsW} bind:value={points} context={{}} t={cs} />
+        <Widget widget={pointsW} bind:value={points} context={{}} t={cs} {showAllErrors} />
     </div>
     <div class="">
-        <Widget widget={noteW} bind:value={note} context={{}} t={cs} />
+        <Widget widget={noteW} bind:value={note} context={{}} t={cs} {showAllErrors} />
     </div>
     <div class="">
-        <Widget widget={dateW} bind:value={date} context={{}} t={cs} />
+        <Widget widget={dateW} bind:value={date} context={{}} t={cs} {showAllErrors} />
     </div>
     <div class="">
-        <Widget widget={installationW} bind:value={installation} context={{}} t={cs} />
+        <Widget widget={installationW} bind:value={installation} context={{}} t={cs} {showAllErrors} />
     </div>
 </div>
 

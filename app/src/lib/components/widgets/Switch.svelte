@@ -7,9 +7,11 @@
         widget: SwitchWidget<C>;
         context: C;
         value: boolean;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
     const checked = {
         get value() {
             return value;
@@ -17,6 +19,7 @@
         set value(checked) {
             value = checked;
             widget.onValueSet(context, checked);
+            showError = true;
         },
     };
 </script>
@@ -42,7 +45,7 @@
         {/each}
     </div>
 
-    {#if widget.showError(context, value)}
+    {#if widget.isError(context, value) && showError}
         <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>

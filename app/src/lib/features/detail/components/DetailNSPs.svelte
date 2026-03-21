@@ -30,7 +30,10 @@
 
     const widget = new InputWidget({ label: t => t.detail.newIRIDLabel });
     let newIRID = $state(widget.defaultValue);
+    let showAllErrors = $state(false);
     const transfer = async () => {
+        showAllErrors = true;
+        if (widget.isError({}, newIRID)) return;
         await db.addSPs(
             newIRID as IRID,
             ...sps
@@ -95,7 +98,7 @@
                 </a>
 
                 <div class="d-flex flex-column gap-1 align-items-sm-start">
-                    <Widget {widget} bind:value={newIRID} {t} context={{}} />
+                    <Widget {widget} bind:value={newIRID} {t} context={{}} {showAllErrors} />
                     <button class="btn btn-danger d-block" onclick={transfer}>
                         <Icon icon="drive_file_move" />
                         {td.transferProtocols}{$aA}

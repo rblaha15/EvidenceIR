@@ -170,7 +170,7 @@
                             </button>
                         {/if}
                     </div>
-                    <Widget context={undefined} bind:value {t} widget={sheetWidget} />
+                    <Widget context={undefined} bind:value {t} widget={sheetWidget} showAllErrors={false} />
                     {#if fileExcel && excelImport.isDangerous && value}
                         <p class="alert alert-danger">{tfi.warningDataLoss}</p>
                     {/if}

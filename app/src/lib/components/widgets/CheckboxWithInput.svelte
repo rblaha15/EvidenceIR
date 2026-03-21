@@ -9,14 +9,17 @@
         widget: CheckboxWithInputWidget<C>;
         context: C;
         value: ChI;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     const onClick = () => {
         const newValue = { ...value, checked: !value.checked };
         value = newValue;
         widget.onValueSet(context, newValue);
+        showError = true;
     };
 
     const uid = $props.id();
@@ -39,6 +42,6 @@
 {/snippet}
 
 <CoreInput
-    bind:value {widget} {context} setTextValue={text => ({ ...value, text })} {t} textValue={value.text} {uid}
+    bind:value {widget} {context} setTextValue={text => ({ ...value, text })} {t} textValue={value.text} {uid} bind:showError
     {leadingContent} {coreContent}
 />

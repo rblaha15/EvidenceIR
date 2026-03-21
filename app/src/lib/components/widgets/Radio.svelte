@@ -8,9 +8,11 @@
         widget: RadioWidget<C, I>;
         context: C;
         value: I | null;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     const chosen = {
         get value() {
@@ -19,13 +21,11 @@
         set value(chosen) {
             value = chosen;
             widget.onValueSet(context, chosen);
+            showError = true;
         },
     };
 
-    const onClick = (item: I | null) => () => {
-        value = item;
-        widget.onValueSet(context, item);
-    };
+    const onClick = (item: I | null) => () => chosen.value = item;
 
     const uid = $props.id();
 </script>
@@ -53,7 +53,7 @@
         {/each}
     </div>
 
-    {#if widget.showError(context, value)}
+    {#if widget.isError(context, value) && showError}
         <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>

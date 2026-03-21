@@ -8,20 +8,24 @@
         widget: CounterWidget<C>;
         context: C;
         value: number;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     const uid = $props.id();
     const inc = () => {
         const newValue = value + 1;
         value = newValue;
         widget.onValueSet(context, newValue);
+        showError = true;
     };
     const dec = () => {
         const newValue = value - 1;
         value = newValue;
         widget.onValueSet(context, newValue);
+        showError = true;
     };
 </script>
 
@@ -47,7 +51,7 @@
         {/if}
     </div>
 
-    {#if widget.showError(context, value)}
-        <span class="text-danger help-block">{widget.onError(t, context)}</span>
+    {#if widget.isError(context, value) && showError}
+        <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>
