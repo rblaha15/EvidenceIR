@@ -1,4 +1,4 @@
-import type { FormIN, IRTypes, UserForm } from '$lib/forms/IN/formIN';
+import type { FormIN, IRTypes, UserForm, UserFormContext } from '$lib/forms/IN/formIN';
 import type { Raw } from '$lib/forms/Form';
 import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
 import type { GenericFormSZ } from '$lib/forms/SP/formSZ';
@@ -114,7 +114,7 @@ const s = (s: string) => s ? `(${s}) ` : '';
 /**
  * Novák Jan - Brno
  */
-export const irLabel = <D extends UserForm<D>>(evidence: Raw<UserForm<D>>, includeEstablishment: boolean = true) => evidence.koncovyUzivatel.typ == `company`
+export const irLabel = <C extends UserFormContext<C>>(evidence: Raw<UserForm<C>>, includeEstablishment: boolean = true) => evidence.koncovyUzivatel.typ == `company`
     ? `${removeCompanyForm(evidence.koncovyUzivatel.nazev)} ${s(includeEstablishment ? evidence.koncovyUzivatel.pobocka : '')}- ${evidence.mistoRealizace.obec}`
     : `${evidence.koncovyUzivatel.prijmeni.split(',')[0]?.trim() || ''} ${evidence.koncovyUzivatel.jmeno.split('.').at(-1)?.trim() || ''} - ${evidence.mistoRealizace.obec}`;
 

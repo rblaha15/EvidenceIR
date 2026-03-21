@@ -20,10 +20,10 @@ import MailRRoute from '$lib/emails/MailRRoute.svelte';
 import { page } from '$app/state';
 import MailSDaty from '$lib/emails/MailSDaty.svelte';
 import { cellsIN } from '$lib/forms/IN/cellsIN';
-import { type FormIN } from '$lib/forms/IN/formIN';
+import { type ContextIN, type FormIN } from '$lib/forms/IN/formIN';
 import type { IndependentFormInfo, Result } from '$lib/forms/FormInfo';
 import MailXML from '$lib/emails/MailXML.svelte';
-import { dataToRawData, type Raw } from '$lib/forms/Form';
+import { type Raw, type Values } from '$lib/forms/Form';
 import { grantPoints } from '$lib/client/loyaltyProgram';
 import { getIsOnline } from '$lib/client/realtimeOnline';
 import db from '$lib/Database';
@@ -33,7 +33,7 @@ import { serverTimestamp, Timestamp } from 'firebase/firestore';
 
 const sendEmails = async (
     edit: boolean, send: boolean, draft: boolean,
-    raw: Raw<FormIN>, newIr: ExistingIR, data: FormIN, irid: IRID,
+    raw: Raw<FormIN>, newIr: ExistingIR, context: ContextIN, irid: IRID,
     user: User, editResult: (result: Result) => void, t: Translations,
 ) => {
     const doNotSend = (edit && !send) || draft;
@@ -66,7 +66,7 @@ const sendEmails = async (
             ? `Úprava evidence regulátoru ${irName(raw.ir)}`
             : `Založení evidence regulátoru ${irName(raw.ir)}`,
         attachments: [new File(
-            [xmlIN(data, cs)],
+            [xmlIN(context, cs)],
             `Evidence ${irid}.xml`,
             { type: 'application/xml' },
         )],
@@ -80,7 +80,7 @@ const sendEmails = async (
             ? `Úprava evidence regulátoru ${irName(raw.ir)}`
             : `Nově zaevidovaný regulátor ${irName(raw.ir)}`,
         component: MailSDaty,
-        props: { data, t: cs, user, origin: page.url.origin },
+        props: { context, t: cs, user, origin: page.url.origin },
     });
     console.log(response3);
 
@@ -93,13 +93,13 @@ const sendEmails = async (
     return true;
 };
 
-const checkForErrors = (data: FormIN, t: Translations, editResult: (result: Result) => void) => {
-    const errors = [data.ir.cislo, data.ir.typ] // Is here, because it's required even in the draft mode
-        .filter(w => w.isError(data))
-        .map(w => w.label(t, data));
+const checkForErrors = (c: ContextIN, t: Translations, editResult: (result: Result) => void) => {
+    const errors = ([[c.f.ir.cislo, c.v.ir.cislo], [c.f.ir.typ, c.v.ir.typ]] as const)
+        .filter(([w, v]) => w.isError(c, v as never))
+        .map(([w]) => w.label(t, c));
     if (errors.length) {
-        data.ir.cislo.displayErrorVeto = true;
-        data.ir.typ.displayErrorVeto = true;
+        c.f.ir.cislo.displayErrorVeto = true;
+        c.f.ir.typ.displayErrorVeto = true;
         editResult({
             red: true,
             text: t.form.youHaveAMistake,
@@ -137,16 +137,17 @@ const changeIRID = async (
     if (!draft) await grantPoints({ type: 'disconnectRegulusRoute', irid: oldIRID });
     return true;
 };
-const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string | null]], never, {
+const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [string | null]], never, {
     draft: boolean,
     editIR?: IR
 }> = {
     type: '',
     storeName: () => 'storedIN',
-    defaultData: () => defaultIN(),
-    saveData: async (raw, edit, data, editResult, t, send, draft, { editIR }) => {
+    form: () => defaultIN(),
+    saveData: async ({ raw, edit, context, editResult, t, send, draft, other: { editIR } }) => {
         console.log(editIR);
-        if (!checkForErrors(data, t, editResult)) return false;
+        // Need to check, because it's required even in the draft mode
+        if (!checkForErrors(context, t, editResult)) return false;
 
         const newIRID = extractIRIDFromRawData(raw);
         const oldIRID = editIR?.meta?.id ?? newIRID;
@@ -176,12 +177,12 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
 
         return await sendEmails(
             edit, send, draft,
-            raw, newIr, data, newIRID,
+            raw, newIr, context, newIRID,
             user, editResult, t,
         );
     },
     redirectLink: async raw => detailIrUrl(extractIRIDFromRawData(raw)),
-    createWidgetData: d => d,
+    createContext: ({ form: f, values: v }) => ({ f, v }),
     title: (t, mode) => mode == 'edit' ? t.in.editing : mode == 'view' ? t.detail.titleIR : t.in.title,
     getEditData: async url => {
         const irid = url.searchParams.get('edit-irid') as IRID | null;
@@ -197,26 +198,26 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
         const ir = await db.getIR(irid);
         return !ir ? { other: { draft: false } } : { raw: ir.IN, other: { draft: ir.isDraft } };
     },
-    onMount: async (_, data) => {
+    onMount: async ({ values }) => {
         await startTechniciansListening();
         await startSolarCollectorsListening();
         await startAccumulationTanksListening();
         await startWaterTanksListening();
 
-        const count = cascadePumps(dataToRawData(data)).length;
-        data.tc.pocet.setValue(data, count == 0 ? 1 : count);
+        const count = cascadePumps(values).length;
+        values.tc.pocet = count == 0 ? 1 : count;
     },
     storeEffects: [
-        [(d, data, [$isUserRegulusOrAdmin]) => {
-            data.ir.regulus.setValue(d, $isUserRegulusOrAdmin)
+        [([$isUserRegulusOrAdmin], { values }) => {
+            values.ir.regulus = $isUserRegulusOrAdmin
         }, [isUserRegulusOrAdmin]],
-        [(_, data, [$isUserRegulusOrAdmin]) => {
-            if ($isUserRegulusOrAdmin && !data.vzdalenyPristup.plati.value)
-                data.vzdalenyPristup.plati.setValue(data, 'laterAccordingToTheProtocol');
+        [([$isUserRegulusOrAdmin], { values }) => {
+            if ($isUserRegulusOrAdmin && !values.vzdalenyPristup.plati)
+                values.vzdalenyPristup.plati = 'laterAccordingToTheProtocol';
         }, [isUserRegulusOrAdmin]],
-        [(_, data, [$responsiblePerson]) => {
-            if ($responsiblePerson != null) data.vzdalenyPristup.zodpovednaOsoba.setValue(data, $responsiblePerson);
-            if ($responsiblePerson != null) data.vzdalenyPristup.showResponsiblePerson.setValue(data, false);
+        [([$responsiblePerson], { values }) => {
+            if ($responsiblePerson != null) values.vzdalenyPristup.zodpovednaOsoba = $responsiblePerson;
+            if ($responsiblePerson != null) values.vzdalenyPristup.showResponsiblePerson = false;
         }, [responsiblePerson]],
     ],
     excelImport: {
@@ -236,7 +237,7 @@ const infoIN: IndependentFormInfo<FormIN, FormIN, [[boolean], [boolean], [string
 export default infoIN;
 
 export type PumpInfo = ReturnType<typeof cascadePumps>[number]
-export const cascadePumps = (e: Raw<FormIN>) =>
+export const cascadePumps = (e: Raw<FormIN> | Values<FormIN>) =>
     TCNumbers
         .map(n => ({
             model: e.tc[`model${n}`],

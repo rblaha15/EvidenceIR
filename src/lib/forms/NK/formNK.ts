@@ -1,11 +1,10 @@
-import { type Form } from '$lib/forms/Form';
+import { type Form, type Values } from '$lib/forms/Form';
 import {
     CheckboxWidget,
     CheckboxWithChooserWidget,
     CheckboxWithInputWidget,
     ChooserWidget,
     CountersWidget,
-    DoubleChooserWidget,
     InputWidget,
     InputWithChooserWidget,
     InputWithSuggestionsWidget,
@@ -32,126 +31,131 @@ export type HoseLength = '300 mm' | '500 mm' | '700 mm' | '1000 mm';
 export type HeatingCableLength = '3,5 m' | '2,5 m' | '5 m';
 export type RoomUnitType = 'RC 25' | 'RDC' | 'RS 10' | 'RSW 30 - WiFi';
 
-export interface FormNK extends Form<FormNK> {
+export type ContextNK = {
+    f: FormNK;
+    v: Values<FormNK>;
+}
+
+export interface FormNK extends Form<ContextNK> {
     contacts: {
-        title: TitleWidget<FormNK>
-        demandOrigin: ChooserWidget<FormNK, keyof typeof origins>
-        demandSubject: MultiCheckboxWidget<FormNK, `heatPump` | `fve`>
-        surname: InputWidget<FormNK>
-        name: InputWidget<FormNK>
-        street: InputWidget<FormNK>
-        city: InputWidget<FormNK>
-        zip: InputWidget<FormNK>
-        phone: InputWidget<FormNK>
-        email: InputWidget<FormNK>
-        assemblyCompanySearch: SearchWidget<FormNK, Company, true>
-        assemblyCompanyCRN: InputWidget<FormNK>
-        note: InputWidget<FormNK>
+        title: TitleWidget<ContextNK>
+        demandOrigin: ChooserWidget<ContextNK, keyof typeof origins>
+        demandSubject: MultiCheckboxWidget<ContextNK, `heatPump` | `fve`>
+        surname: InputWidget<ContextNK>
+        name: InputWidget<ContextNK>
+        street: InputWidget<ContextNK>
+        city: InputWidget<ContextNK>
+        zip: InputWidget<ContextNK>
+        phone: InputWidget<ContextNK>
+        email: InputWidget<ContextNK>
+        assemblyCompanySearch: SearchWidget<ContextNK, Company, true>
+        assemblyCompanyCRN: InputWidget<ContextNK>
+        note: InputWidget<ContextNK>
     };
     photovoltaicPowerPlant: {
-        title: TitleWidget<FormNK>
-        titleCurrent: TitleWidget<FormNK>
-        currentHeating: InputWidget<FormNK>
-        currentHotWater: InputWidget<FormNK>
-        currentTanks: InputWidget<FormNK>
-        currentConsumption: InputWidget<FormNK>
-        breakerSize: InputWidget<FormNK>
-        tariff: InputWidget<FormNK>
-        breakerBoxLocation: InputWidget<FormNK>
-        titleRequirements: TitleWidget<FormNK>
-        requiredPower: InputWidget<FormNK>
-        locationBuildingType: InputWidget<FormNK>
-        info: TextWidget<FormNK>
-        lightningRod: CheckboxWidget<FormNK>
-        roofMaterial: InputWithSuggestionsWidget<FormNK>
-        tileType: InputWidget<FormNK>
-        roofAge: InputWidget<FormNK>
-        useOptimizers: CheckboxWidget<FormNK>
-        titleAreas: TextWidget<FormNK>
-        size1: InputWidget<FormNK>
-        orientation1: InputWidget<FormNK>
-        slope1: InputWidget<FormNK>
-        size2: InputWidget<FormNK>
-        orientation2: InputWidget<FormNK>
-        slope2: InputWidget<FormNK>
-        size3: InputWidget<FormNK>
-        orientation3: InputWidget<FormNK>
-        slope3: InputWidget<FormNK>
-        size4: InputWidget<FormNK>
-        orientation4: InputWidget<FormNK>
-        slope4: InputWidget<FormNK>
-        battery: CheckboxWithInputWidget<FormNK>
-        water: CheckboxWidget<FormNK>
-        network: CheckboxWithInputWidget<FormNK>
-        charging: CheckboxWidget<FormNK>
-        note: InputWidget<FormNK>
+        title: TitleWidget<ContextNK>
+        titleCurrent: TitleWidget<ContextNK>
+        currentHeating: InputWidget<ContextNK>
+        currentHotWater: InputWidget<ContextNK>
+        currentTanks: InputWidget<ContextNK>
+        currentConsumption: InputWidget<ContextNK>
+        breakerSize: InputWidget<ContextNK>
+        tariff: InputWidget<ContextNK>
+        breakerBoxLocation: InputWidget<ContextNK>
+        titleRequirements: TitleWidget<ContextNK>
+        requiredPower: InputWidget<ContextNK>
+        locationBuildingType: InputWidget<ContextNK>
+        info: TextWidget<ContextNK>
+        lightningRod: CheckboxWidget<ContextNK>
+        roofMaterial: InputWithSuggestionsWidget<ContextNK>
+        tileType: InputWidget<ContextNK>
+        roofAge: InputWidget<ContextNK>
+        useOptimizers: CheckboxWidget<ContextNK>
+        titleAreas: TextWidget<ContextNK>
+        size1: InputWidget<ContextNK>
+        orientation1: InputWidget<ContextNK>
+        slope1: InputWidget<ContextNK>
+        size2: InputWidget<ContextNK>
+        orientation2: InputWidget<ContextNK>
+        slope2: InputWidget<ContextNK>
+        size3: InputWidget<ContextNK>
+        orientation3: InputWidget<ContextNK>
+        slope3: InputWidget<ContextNK>
+        size4: InputWidget<ContextNK>
+        orientation4: InputWidget<ContextNK>
+        slope4: InputWidget<ContextNK>
+        battery: CheckboxWithInputWidget<ContextNK>
+        water: CheckboxWidget<ContextNK>
+        network: CheckboxWithInputWidget<ContextNK>
+        charging: CheckboxWidget<ContextNK>
+        note: InputWidget<ContextNK>
     };
     objectDetails: {
-        title: TitleWidget<FormNK>
-        heatLost: InputWidget<FormNK>
-        heatNeedsForHeating: InputWidget<FormNK>
-        heatNeedsForHotWater: InputWidget<FormNK>
-        heatedArea: InputWidget<FormNK>
-        heatedVolume: InputWidget<FormNK>
-        heatingCosts: InputWidget<FormNK>
-        fuelType: InputWidget<FormNK>
-        fuelConsumption: InputWithChooserWidget<FormNK, `q` | `m3` | `kWh`>
-        fuelType2: InputWidget<FormNK>
-        fuelConsumption2: InputWithChooserWidget<FormNK, `q` | `m3` | `kWh`>
-        note: InputWidget<FormNK>
+        title: TitleWidget<ContextNK>
+        heatLost: InputWidget<ContextNK>
+        heatNeedsForHeating: InputWidget<ContextNK>
+        heatNeedsForHotWater: InputWidget<ContextNK>
+        heatedArea: InputWidget<ContextNK>
+        heatedVolume: InputWidget<ContextNK>
+        heatingCosts: InputWidget<ContextNK>
+        fuelType: InputWidget<ContextNK>
+        fuelConsumption: InputWithChooserWidget<ContextNK, `q` | `m3` | `kWh`>
+        fuelType2: InputWidget<ContextNK>
+        fuelConsumption2: InputWithChooserWidget<ContextNK, `q` | `m3` | `kWh`>
+        note: InputWidget<ContextNK>
     };
     system: {
-        title: TitleWidget<FormNK>
-        hPType: RadioWidget<FormNK, `airToWater` | `groundToWater`>
-        hPModel: ChooserWidget<FormNK, `iDoNotKnow` | HeatPump>
-        indoorUnitType: ChooserWidget<FormNK, `indoorUnitNone` | IndoorUnit>
-        thermalStore: InputWithSuggestionsWidget<FormNK>
-        waterTank: InputWithSuggestionsWidget<FormNK>
-        heatingSystem: ChooserWidget<FormNK, `iDoNotKnow` | `heatingSystem1circuit` | `heatingSystem2circuits` | `heatingSystem3circuits` | `heatingSystemInvertor` | `heatingSystemOther`>
-        hotWaterCirculation: CheckboxWidget<FormNK>
-        wantsPool: CheckboxWidget<FormNK>
-        note: InputWidget<FormNK>
+        title: TitleWidget<ContextNK>
+        hPType: RadioWidget<ContextNK, `airToWater` | `groundToWater`>
+        hPModel: ChooserWidget<ContextNK, `iDoNotKnow` | HeatPump>
+        indoorUnitType: ChooserWidget<ContextNK, `indoorUnitNone` | IndoorUnit>
+        thermalStore: InputWithSuggestionsWidget<ContextNK>
+        waterTank: InputWithSuggestionsWidget<ContextNK>
+        heatingSystem: ChooserWidget<ContextNK, `iDoNotKnow` | `heatingSystem1circuit` | `heatingSystem2circuits` | `heatingSystem3circuits` | `heatingSystemInvertor` | `heatingSystemOther`>
+        hotWaterCirculation: CheckboxWidget<ContextNK>
+        wantsPool: CheckboxWidget<ContextNK>
+        note: InputWidget<ContextNK>
     };
     pool: {
-        title: TitleWidget<FormNK>
-        usagePeriod: RadioWidget<FormNK, `periodYearlong` | `periodSeasonal`>
-        placement: RadioWidget<FormNK, `locationOutdoor` | `locationIndoor`>
-        waterType: RadioWidget<FormNK, `freshType` | `saltType`>
-        shape: RadioWidget<FormNK, `shapeRectangle` | `shapeOval` | `shapeCircle`>
-        width: InputWidget<FormNK>
-        length: InputWidget<FormNK>
-        radius: InputWidget<FormNK>
-        depth: InputWidget<FormNK>
-        coverage: RadioWidget<FormNK, `coverageNone` | `coverageSolid` | `coveragePolycarbonate` | `coverageOther`>
-        desiredTemperature: InputWidget<FormNK>
-        note: InputWidget<FormNK>
+        title: TitleWidget<ContextNK>
+        usagePeriod: RadioWidget<ContextNK, `periodYearlong` | `periodSeasonal`>
+        placement: RadioWidget<ContextNK, `locationOutdoor` | `locationIndoor`>
+        waterType: RadioWidget<ContextNK, `freshType` | `saltType`>
+        shape: RadioWidget<ContextNK, `shapeRectangle` | `shapeOval` | `shapeCircle`>
+        width: InputWidget<ContextNK>
+        length: InputWidget<ContextNK>
+        radius: InputWidget<ContextNK>
+        depth: InputWidget<ContextNK>
+        coverage: RadioWidget<ContextNK, `coverageNone` | `coverageSolid` | `coveragePolycarbonate` | `coverageOther`>
+        desiredTemperature: InputWidget<ContextNK>
+        note: InputWidget<ContextNK>
     };
     additionalSources: {
-        title: TitleWidget<FormNK>
-        heatingTitle: TitleWidget<FormNK>
-        heatingHeatingElementInStore: CheckboxWithChooserWidget<FormNK, `existing` | `newNeuter`>
-        heatingElectricBoiler: CheckboxWithChooserWidget<FormNK, `existing` | `newMasculine`>
-        heatingGasBoiler: CheckboxWithChooserWidget<FormNK, `existing` | `newMasculine`>
-        heatingFireplace: CheckboxWithChooserWidget<FormNK, `existing` | `newMasculine`>
-        heatingOther: InputWidget<FormNK>
-        hotWaterTitle: TitleWidget<FormNK>
-        hotWaterHeatingElementInStore: CheckboxWithChooserWidget<FormNK, `toSocket` | `fromRegulation`>
-        hotWaterElectricBoiler: CheckboxWidget<FormNK>
-        hotWaterGasBoiler: CheckboxWidget<FormNK>
-        hotWaterFireplace: CheckboxWidget<FormNK>
-        hotWaterOther: InputWidget<FormNK>
-        note: InputWidget<FormNK>
+        title: TitleWidget<ContextNK>
+        heatingTitle: TitleWidget<ContextNK>
+        heatingHeatingElementInStore: CheckboxWithChooserWidget<ContextNK, `existing` | `newNeuter`>
+        heatingElectricBoiler: CheckboxWithChooserWidget<ContextNK, `existing` | `newMasculine`>
+        heatingGasBoiler: CheckboxWithChooserWidget<ContextNK, `existing` | `newMasculine`>
+        heatingFireplace: CheckboxWithChooserWidget<ContextNK, `existing` | `newMasculine`>
+        heatingOther: InputWidget<ContextNK>
+        hotWaterTitle: TitleWidget<ContextNK>
+        hotWaterHeatingElementInStore: CheckboxWithChooserWidget<ContextNK, `toSocket` | `fromRegulation`>
+        hotWaterElectricBoiler: CheckboxWidget<ContextNK>
+        hotWaterGasBoiler: CheckboxWidget<ContextNK>
+        hotWaterFireplace: CheckboxWidget<ContextNK>
+        hotWaterOther: InputWidget<ContextNK>
+        note: InputWidget<ContextNK>
     };
     accessories: {
-        title: TitleWidget<FormNK>
-        hose: CheckboxWithChooserWidget<FormNK, HoseLength>
-        heatingCable: CheckboxWithChooserWidget<FormNK, HeatingCableLength>
-        wallSupportBracket: CheckboxWithChooserWidget<FormNK, `onWall` | `onIsolatedWall`>
-        roomUnitsAndSensors: CountersWidget<FormNK, RoomUnitType>
-        note: InputWidget<FormNK>
+        title: TitleWidget<ContextNK>
+        hose: CheckboxWithChooserWidget<ContextNK, HoseLength>
+        heatingCable: CheckboxWithChooserWidget<ContextNK, HeatingCableLength>
+        wallSupportBracket: CheckboxWithChooserWidget<ContextNK, `onWall` | `onIsolatedWall`>
+        roomUnitsAndSensors: CountersWidget<ContextNK, RoomUnitType>
+        note: InputWidget<ContextNK>
     };
     other: {
-        representative: SearchWidget<FormNK, Person>
-        photos: PhotoSelectorWidget<FormNK>
+        representative: SearchWidget<ContextNK, Person>
+        photos: PhotoSelectorWidget<ContextNK>
     };
 }

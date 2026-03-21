@@ -7,17 +7,17 @@ import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
-import type { FormUPF } from '$lib/forms/UPF/formUPF';
+import type { ContextUPF, FormUPF } from '$lib/forms/UPF/formUPF';
 import db from '$lib/Database';
 
-const infoUPF: FormInfo<FormUPF, FormUPF, [], 'UPF'> = ({
+const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
     type: 'IR',
     storeName: () => 'stored_photovoltaic_power_plant_commission',
-    defaultData: defaultUPF,
+    form: defaultUPF,
     openPdf: () => ({
         link: 'UPF',
     }),
-    saveData: async (irid, raw, _1, _2, editResult, t, _3, ir) => {
+    saveData: async ({ irid, raw, editResult, t, ir }) => {
         await db.addUPF(irid, raw);
         if (await checkRegulusOrAdmin()) return;
 
@@ -42,7 +42,7 @@ const infoUPF: FormInfo<FormUPF, FormUPF, [], 'UPF'> = ({
         saveAndSend: !edit && !regulus,
         saveAndSendAgain: edit && !regulus,
     })),
-    createWidgetData: (_, u) => u,
+    createContext: ({ values: v, form: f }) => ({ v, f }),
     title: t => t.fve.title,
 });
 

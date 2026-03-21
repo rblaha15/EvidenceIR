@@ -1,4 +1,6 @@
-import type { FormIN } from '$lib/forms/IN/formIN';
+// noinspection SuspiciousTypeOfGuard
+
+import type { ContextIN } from '$lib/forms/IN/formIN';
 import {
     CheckboxWidget,
     ChooserWidget,
@@ -12,7 +14,7 @@ import {
     type Widget,
 } from '$lib/forms/Widget.svelte.js';
 import type { Translations } from '$lib/translations';
-import type { Form } from '$lib/forms/Form';
+import type { Form, WidgetValue } from '$lib/forms/Form';
 import { browser, dev, version } from '$app/environment';
 import { extractIRIDFromParts } from '$lib/helpers/ir';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
@@ -21,39 +23,41 @@ import { page } from '$app/state';
 const camelToSnakeCase = (str: string) =>
     str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
-const widgetToXML = (v: Widget<FormIN>, t: Translations) => {
-    if (v instanceof InputWidget)
-        return v.value;
-    if (v instanceof DoubleChooserWidget)
-        return `${v.get(t, v.value.first) ?? ''} ${v.get(t, v.value.second) ?? ''}`;
-    if (v instanceof ChooserWidget)
-        return v.get(t, v.value) ?? '';
-    if (v instanceof RadioWidget)
-        return v.get(t, v.value) ?? '';
-    if (v instanceof SwitchWidget)
-        return v.value ? v.options(t)[1] : v.options(t)[0];
-    if (v instanceof MultiCheckboxWidget)
-        return v.value.map(s => v.get(t, s)).join(', ');
-    if (v instanceof CheckboxWidget)
-        return v.value ? t.tc.yes : t.tc.no;
-    if (v instanceof CounterWidget)
-        return v.value.toLocaleString('cs');
-    if (v instanceof SearchWidget)
-        return v.getXmlEntry();
+const vw = <U>(_w: Widget<ContextIN, U>, _v: unknown): _v is U => true;
+
+const widgetToXML = (w: Widget<ContextIN>, v: WidgetValue<Widget<ContextIN>>, t: Translations) => {
+    if (w instanceof InputWidget && vw(w, v))
+        return v;
+    if (w instanceof DoubleChooserWidget && vw(w, v))
+        return `${w.get(t, v.first) ?? ''} ${w.get(t, v.second) ?? ''}`;
+    if (w instanceof ChooserWidget && vw(w, v))
+        return w.get(t, v) ?? '';
+    if (w instanceof RadioWidget && vw(w, v))
+        return w.get(t, v) ?? '';
+    if (w instanceof SwitchWidget && vw(w, v))
+        return v ? w.options(t)[1] : w.options(t)[0];
+    if (w instanceof MultiCheckboxWidget && vw(w, v))
+        return v.map(s => w.get(t, s)).join(', ');
+    if (w instanceof CheckboxWidget && vw(w, v))
+        return v ? t.tc.yes : t.tc.no;
+    if (w instanceof CounterWidget && vw(w, v))
+        return v.toLocaleString('cs');
+    if (w instanceof SearchWidget && vw(w, v))
+        return w.getXmlEntry();
     return '';
 };
 
-const innerXML = (data: FormIN, t: Translations) => (data as Form<FormIN>).mapTo((k1, section) =>
+const innerXML = (c: ContextIN, t: Translations) => (c.f as Form<ContextIN>).mapTo((k1, section) =>
     `    <${camelToSnakeCase(k1)}>
-${section.entries().filter(([, v]) =>
-        v.showTextValue(data) && v.value != undefined,
-    ).map(([k2, v]) =>
-        `        <${camelToSnakeCase(k2)}>${widgetToXML(v, t)}</${camelToSnakeCase(k2)}>`,
+${section.entries().filter(([k2, w]) =>
+        !k2.startsWith('_') && w.showTextValue(c) && c.v[k1][k2] != undefined,
+    ).map(([k2, w]) =>
+        `        <${camelToSnakeCase(k2)}>${widgetToXML(w, c.v[k1][k2], t)}</${camelToSnakeCase(k2)}>`,
     ).join('\n')}
     </${camelToSnakeCase(k1)}>`,
 ).join('\n');
 
-export const xmlIN = (data: FormIN, t: Translations) => `
+export const xmlIN = (c: ContextIN, t: Translations) => `
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="SEIR.xsl"?>
 
@@ -64,8 +68,8 @@ Verze aplikace: ${appVersion} (${version}) (${dev ? 'DEV' : browser ? 'BROWSER' 
 -->
 
 <evidence>
-${innerXML(data, t).let(xml => {
-    const irid = extractIRIDFromParts(data.ir.typ.value.first!, data.ir.cislo.value);
+${innerXML(c, t).let(xml => {
+    const irid = extractIRIDFromParts(c.v.ir.typ.first!, c.v.ir.cislo);
     const link = page.url.origin + detailIrUrl(irid, '?');
     const linkLine = `\n        <odkaz>${link}</odkaz>`;
     const lastNewLine = xml.lastIndexOf('\n')

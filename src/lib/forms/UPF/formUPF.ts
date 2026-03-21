@@ -6,39 +6,44 @@ import {
     TextWidget,
     TitleWidget,
 } from '../Widget.svelte.js';
-import type { Form } from '$lib/forms/Form';
+import type { Form, Values } from '$lib/forms/Form';
 
 export type PanelOrientations = 'Z' | 'JZ' | 'J' | 'JV' | 'V';
 
 export type PhotovoltaicFieldGroup = {
-    label: TextWidget<FormUPF>,
-    panelCount: InputWidget<FormUPF>,
-    orientation: ChooserWidget<FormUPF, PanelOrientations>,
-    slope: InputWidget<FormUPF>,
-    location: ChooserWidget<FormUPF, 'onFamilyHouse' | 'onOtherBuilding' | 'onLand'>,
+    label: TextWidget<ContextUPF>,
+    panelCount: InputWidget<ContextUPF>,
+    orientation: ChooserWidget<ContextUPF, PanelOrientations>,
+    slope: InputWidget<ContextUPF>,
+    location: ChooserWidget<ContextUPF, 'onFamilyHouse' | 'onOtherBuilding' | 'onLand'>,
 }
 
-export interface FormUPF extends Form<FormUPF> {
+export interface ContextUPF {
+    f: FormUPF,
+    v: Values<FormUPF>,
+}
+
+export interface FormUPF extends Form<ContextUPF> {
     fields: {
-        title: TitleWidget<FormUPF>,
-        count: CounterWidget<FormUPF>,
+        title: TitleWidget<ContextUPF>,
+        count: CounterWidget<ContextUPF>,
     },
     filed1: PhotovoltaicFieldGroup,
     filed2: PhotovoltaicFieldGroup,
     filed3: PhotovoltaicFieldGroup,
     filed4: PhotovoltaicFieldGroup,
     connection: {
-        title: TitleWidget<FormUPF>,
-        type: ChooserWidget<FormUPF, 'withNetworkSupplyPossibility' | 'withoutOverflows' | 'islandSystem'>,
-        reservedPower: InputWidget<FormUPF>,
-        mainBreakerSize: InputWidget<FormUPF>,
-        yearlyEnergyConsumption: InputWidget<FormUPF>,
-        accumulationToWater: CheckboxWidget<FormUPF>,
-        waterVolume: InputWidget<FormUPF>,
-        otherSmartControl: InputWidget<FormUPF>,
-        energySharing: CheckboxWidget<FormUPF>,
+        title: TitleWidget<ContextUPF>,
+        type: ChooserWidget<ContextUPF, 'withNetworkSupplyPossibility' | 'withoutOverflows' | 'islandSystem'>,
+        reservedPower: InputWidget<ContextUPF>,
+        mainBreakerSize: InputWidget<ContextUPF>,
+        yearlyEnergyConsumption: InputWidget<ContextUPF>,
+        accumulationToWater: CheckboxWidget<ContextUPF>,
+        waterVolume: InputWidget<ContextUPF>,
+        otherSmartControl: InputWidget<ContextUPF>,
+        energySharing: CheckboxWidget<ContextUPF>,
     },
     commissioning: {
-        date: InputWidget<FormUPF>,
+        date: InputWidget<ContextUPF>,
     },
 }

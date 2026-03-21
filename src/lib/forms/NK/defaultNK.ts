@@ -17,7 +17,7 @@ import {
 } from '$lib/forms/Widget.svelte';
 import { accumulationTanks, type Company, type Person, usersList, waterTanks } from '$lib/client/realtime';
 import { heatPumps, indoorUnits } from '$lib/helpers/products';
-import { type FormNK, origins } from './formNK';
+import { type ContextNK, type FormNK, origins } from './formNK';
 import { assemblyCompanies } from '$lib/helpers/companies';
 import { derived, readable } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
@@ -26,9 +26,9 @@ import type { FormPlus } from '$lib/forms/Form';
 import languageCodes from '$lib/languageCodes';
 import ruian, { type Address } from '$lib/helpers/ruian';
 
-const fve = (d: FormNK) => d.contacts.demandSubject.value.includes(`fve`);
-const hp = (d: FormNK) => d.contacts.demandSubject.value.includes(`heatPump`);
-const pool = (d: FormNK) => hp(d) && d.system.wantsPool.value;
+const fve = (c: ContextNK) => c.v.contacts.demandSubject.includes(`fve`);
+const hp = (c: ContextNK) => c.v.contacts.demandSubject.includes(`heatPump`);
+const pool = (c: ContextNK) => hp(c) && c.v.system.wantsPool;
 
 export default (): FormPlus<FormNK> => ({
     contacts: {
@@ -39,13 +39,13 @@ export default (): FormPlus<FormNK> => ({
         }),
         surname: new InputWidget({ label: t => t.nk.contacts.surname, autocapitalize: 'words' }),
         name: new InputWidget({ label: t => t.nk.contacts.name, autocapitalize: 'words' }),
-        _search: new SearchWidget<FormNK, Address, true>({
+        _search: new SearchWidget<ContextNK, Address, true>({
             label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
                 pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }]
-            }), search: ruian.suggest, onValueSet: (d, a) => {
-                d.contacts.street.setValue(d, a?.house ?? '');
-                d.contacts.zip.setValue(d, a?.postalCode ?? '');
-                d.contacts.city.setValue(d, a?.city ?? '');
+            }), search: ruian.suggest, onValueSet: (c, a) => {
+                c.v.contacts.street = a?.house ?? '';
+                c.v.contacts.zip = a?.postalCode ?? '';
+                c.v.contacts.city = a?.city ?? '';
             }, required: false,
         }),
         street: new InputWidget({ required: false, label: t => t.nk.contacts.street, autocapitalize: 'sentences' }),
@@ -56,24 +56,24 @@ export default (): FormPlus<FormNK> => ({
         }),
         phone: new InputWidget({ required: false, label: t => t.nk.contacts.phone, inputmode: 'tel' }),
         email: new InputWidget({ required: false, label: t => t.nk.contacts.email, type: 'email', inputmode: 'email' }),
-        assemblyCompanySearch: new SearchWidget<FormNK, Company, true>({
+        assemblyCompanySearch: new SearchWidget<ContextNK, Company, true>({
             label: t => t.nk.contacts.searchCompanyInList, items: assemblyCompanies, getSearchItem: i => ({
                 pieces: [
                     { text: i.crn, width: .2 },
                     { text: i.companyName, width: .8 },
                 ],
             }), showInXML: false, required: false, hideInRawData: true,
-            onValueSet: (d, company) => {
+            onValueSet: (c, company) => {
                 if (company) {
-                    d.contacts.assemblyCompanyCRN.setValue(d, company.crn);
-                    d.contacts.assemblyCompanySearch.setValue(d, null);
+                    c.v.contacts.assemblyCompanyCRN = company.crn;
+                    c.v.contacts.assemblyCompanySearch = null;
                 }
             },
         }),
         assemblyCompanyCRN: new InputWidget({ required: false, label: t => t.nk.contacts.crn, type: 'number', inputmode: 'numeric' }),
         _chosen: new TextWidget({
-            text: async (t, d) => {
-                const company = await ares.getName(d.contacts.assemblyCompanyCRN.value);
+            text: async (t, c) => {
+                const company = await ares.getName(c.v.contacts.assemblyCompanyCRN);
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
             }, showInXML: false,
         }),
@@ -101,9 +101,9 @@ export default (): FormPlus<FormNK> => ({
             ]), label: t => t.nk.fve.roofMaterial, required: false, show: fve,
         }),
         tileType: new InputWidget({
-            required: false, label: t => t.nk.fve.tileType, show: d => fve(d) && languageCodes.map(
+            required: false, label: t => t.nk.fve.tileType, show: c => fve(c) && languageCodes.map(
                 l => getTranslations(l).nk.fve.tile.toLowerCase(),
-            ).includes(d.photovoltaicPowerPlant.roofMaterial.value.toLowerCase()),
+            ).includes(c.v.photovoltaicPowerPlant.roofMaterial.toLowerCase()),
         }),
         roofAge: new InputWidget({ show: fve, required: false, label: t => t.nk.fve.roofAge }),
         useOptimizers: new CheckboxWidget({ show: fve, required: false, label: t => t.nk.fve.useOptimizers }),
@@ -122,12 +122,12 @@ export default (): FormPlus<FormNK> => ({
         slope4: new InputWidget({ show: fve, required: false, label: t => t.nk.fve.slope(4) }),
         battery: new CheckboxWithInputWidget({
             required: false,
-            label: (t, d) => d.photovoltaicPowerPlant.battery.value.checked ? t.nk.fve.batteryCapacity : t.nk.fve.battery,
+            label: (t, c) => c.v.photovoltaicPowerPlant.battery.checked ? t.nk.fve.batteryCapacity : t.nk.fve.battery,
             show: fve,
         }),
         water: new CheckboxWidget({ show: fve, required: false, label: t => t.nk.fve.water }),
         network: new CheckboxWithInputWidget({
-            label: (t, d) => d.photovoltaicPowerPlant.network.value.checked ? t.nk.fve.networkPower : t.nk.fve.network,
+            label: (t, c) => c.v.photovoltaicPowerPlant.network.checked ? t.nk.fve.networkPower : t.nk.fve.network,
             required: false,
             show: fve,
         }),
@@ -193,9 +193,9 @@ export default (): FormPlus<FormNK> => ({
             required: false,
             label: t => t.nk.system.heatPumpModel,
             show: hp,
-            options: d => [`iDoNotKnow`, ...d.system.hPType.value == 'airToWater'
+            options: c => [`iDoNotKnow`, ...c.v.system.hPType == 'airToWater'
                 ? [...heatPumps.airToWaterRTC[0], ...heatPumps.airToWaterCTC[0]] : heatPumps.groundToWaterCTC[0]],
-            otherOptions: d => d.system.hPType.value == 'airToWater'
+            otherOptions: c => c.v.system.hPType == 'airToWater'
                 ? [...heatPumps.airToWaterRTC[1], ...heatPumps.airToWaterCTC[1], ...heatPumps.multiEnergyCTC[0], ...heatPumps.multiEnergyCTC[1]] : heatPumps.groundToWaterCTC[1],
             chosen: `iDoNotKnow`,
             labels: t => t.nk.system,
@@ -260,15 +260,15 @@ export default (): FormPlus<FormNK> => ({
         }),
         length: new InputWidget({
             required: false, label: t => t.nk.pool.length, suffix: t => t.units.m, type: 'number', inputmode: 'decimal',
-            show: d => pool(d) && d.pool.shape.value != `shapeCircle`,
+            show: c => pool(c) && c.v.pool.shape != `shapeCircle`,
         }),
         width: new InputWidget({
             required: false, label: t => t.nk.pool.width, suffix: t => t.units.m, type: 'number', inputmode: 'decimal',
-            show: d => pool(d) && d.pool.shape.value != `shapeCircle`,
+            show: c => pool(c) && c.v.pool.shape != `shapeCircle`,
         }),
         radius: new InputWidget({
             required: false, label: t => t.nk.pool.radius, suffix: t => t.units.m, type: 'number', inputmode: 'decimal',
-            show: d => pool(d) && d.pool.shape.value == `shapeCircle`,
+            show: c => pool(c) && c.v.pool.shape == `shapeCircle`,
         }),
         depth: new InputWidget({
             show: pool,
@@ -372,25 +372,25 @@ export default (): FormPlus<FormNK> => ({
                 'RS 10': 0,
                 'RSW 30 - WiFi': 0,
             },
-            max: d => ({
+            max: c => ({
                 'heatingSystem1circuit': 1, 'heatingSystem2circuits': 2,
                 'heatingSystem3circuits': 3, 'heatingSystemInvertor': 1,
-            }[d.system.heatingSystem.value as string] ?? Number.POSITIVE_INFINITY),
+            }[c.v.system.heatingSystem as string] ?? Number.POSITIVE_INFINITY),
         }),
         note: new InputWidget({ required: false, label: t => t.nk.note }),
     },
     other: {
-        representative: new SearchWidget<FormNK, Person>({
+        representative: new SearchWidget<ContextNK, Person>({
             label: t => t.nk.representative, getSearchItem: t => ({
                 pieces: [
                     { text: t.responsiblePerson!, width: .4 },
                     { text: t.koNumber!, width: .1 },
                     { text: t.email, width: .5 },
                 ],
-            }), show: false, required: true, items: (_, d) => derived([usersList, currentUser], ([$users, $currentUser]) => {
+            }), show: false, required: true, items: (_, c) => derived([usersList, currentUser], ([$users, $currentUser]) => {
                 const withKO = $users.filter(p => p.koNumber && p.responsiblePerson);
                 const me = withKO.find(t => $currentUser?.email == t.email);
-                if (me) d.other.representative.setValue(d, me);
+                if (me) c.v.other.representative = me;
                 return withKO
                     .filter(p => p.email.endsWith('cz'))
                     .sort((a, b) => a.responsiblePerson!.split(' ').at(-1)!

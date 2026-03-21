@@ -1,35 +1,40 @@
-<script generics="D, I1 extends string, I2 extends string" lang="ts">
+<script generics="C, I1 extends string, I2 extends string" lang="ts">
     import { onMount, untrack } from 'svelte';
     import type { Action } from 'svelte/action';
     import type { Translations } from '$lib/translations';
-    import { type Arr, type DoubleChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
+    import { type Arr, type DoubleChooserWidget, labelAndStar, type Pair } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
 
     interface Props {
         t: Translations;
-        widget: DoubleChooserWidget<D, I1, I2>;
-        data: D;
+        widget: DoubleChooserWidget<C, I1, I2>;
+        context: C;
+        value: Pair<I1, I2>;
     }
 
-    let { t, widget = $bindable(), data }: Props = $props();
+    let { t, widget, value = $bindable(), context }: Props = $props();
 
     let other1 = $state([] as Arr<I1>);
     let options1 = $state([] as Arr<I1>);
     const onChange1: ChangeEventHandler<HTMLSelectElement> = e => {
         const target = e.currentTarget;
-        const value = target.value;
-        if (value === 'otherOptions') {
+        const option = target.value;
+        if (option === 'otherOptions') {
             e.preventDefault();
             options1 = [...options1, ...other1];
             other1 = [];
             setTimeout(() => target.showPicker())
-        } else widget.mutateValue(data, v => ({ ...v, first: value as I1 }));
+        } else {
+            const newValue = { ...value, first: option as I1 };
+            value = newValue;
+            widget.onValueSet(context, newValue)
+        }
     };
     $effect(() => {
-        options1 = widget.options1(data);
-        other1 = widget.otherOptions1(data);
+        options1 = widget.options1(context);
+        other1 = widget.otherOptions1(context);
         untrack(() => {
-            if (widget.value.first && other1.includes(widget.value.first)) {
+            if (value.first && other1.includes(value.first)) {
                 options1 = [...options1, ...other1];
                 other1 = [];
             }
@@ -40,19 +45,23 @@
     let options2 = $state([] as Arr<I2>);
     const onChange2: ChangeEventHandler<HTMLSelectElement> = e => {
         const target = e.currentTarget;
-        const value = target.value;
-        if (value === 'otherOptions') {
+        const option = target.value;
+        if (option === 'otherOptions') {
             e.preventDefault();
             options2 = [...options2, ...other2];
             other2 = [];
             setTimeout(() => target.showPicker())
-        } else widget.mutateValue(data, v => ({ ...v, second: value as I2 }));
+        } else {
+            const newValue = { ...value, second: option as I2 };
+            value = newValue;
+            widget.onValueSet(context, newValue)
+        }
     };
     $effect(() => {
-        options2 = widget.options2(data);
-        other2 = widget.otherOptions2(data);
+        options2 = widget.options2(context);
+        other2 = widget.otherOptions2(context);
         untrack(() => {
-            if (widget.value.second && other2.includes(widget.value.second)) {
+            if (value.second && other2.includes(value.second)) {
                 options2 = [...options2, ...other2];
                 other2 = [];
             }
@@ -79,18 +88,18 @@
 <div class="d-flex gap-1 flex-column">
     <div class="input-group">
         <label class="form-floating d-block left">
-            <select class="form-select" disabled={widget.lock1(data)}
-                    onchange={onChange1} value={widget.value.first ?? 'notChosen'}>
+            <select class="form-select" disabled={widget.lock1(context)}
+                    onchange={onChange1} value={value.first ?? 'notChosen'}>
                 {@render showGroups(other1, options1)}
             </select>
-            <label for="">{labelAndStar(widget, data, t)}</label>
+            <label for="">{labelAndStar(widget, context, t)}</label>
         </label>
-        {#if widget.value.first != null && widget.options2(data).length > 0}
+        {#if value.first != null && widget.options2(context).length > 0}
             <select
                 class="form-select right"
-                id={labelAndStar(widget, data, t)}
-                value={widget.value.second ?? 'notChosen'}
-                disabled={widget.options2(data).length < 2 || widget.lock2(data)}
+                id={labelAndStar(widget, context, t)}
+                value={value.second ?? 'notChosen'}
+                disabled={widget.options2(context).length < 2 || widget.lock2(context)}
                 onchange={onChange2}
                 use:Select
             >
@@ -98,8 +107,8 @@
             </select>
         {/if}
     </div>
-    {#if widget.showError(data)}
-        <p class="text-danger">{widget.onError(t, data)}</p>
+    {#if widget.showError(context, value)}
+        <p class="text-danger">{widget.onError(t, context)}</p>
     {/if}
 </div>
 

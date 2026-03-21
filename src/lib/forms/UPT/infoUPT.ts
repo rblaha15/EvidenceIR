@@ -7,23 +7,23 @@ import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
-import type { DataUPT, FormUPT } from '$lib/forms/UPT/formUPT';
+import type { ContextUPT, FormUPT } from '$lib/forms/UPT/formUPT';
 import { saveDK } from '$lib/forms/DK/formDK';
 import type { Raw } from '$lib/forms/Form';
 import { grantPoints } from '$lib/client/loyaltyProgram';
 import db from '$lib/Database';
 
-const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
+const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
     type: 'IR',
     storeName: () => 'stored_heat_pump_commission',
-    defaultData: (_, ir) => defaultUPT(ir),
+    form: (_, ir) => defaultUPT(ir),
     openPdf: () => ({
         link: 'UPT',
     }),
-    saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
+    saveData: async ({ irid, raw, edit, values, editResult, t, ir }) => {
         await db.updateUPT(irid, raw);
-        await db.updateDateUPT(irid, f.uvadeni.date.value);
-        if (!edit) await saveDK(ir, f.checkRecommendations, 'TČ');
+        await db.updateDateUPT(irid, values.uvadeni.date);
+        if (!edit) await saveDK(ir, values.checkRecommendations, 'TČ');
 
         await grantPoints({ type: 'heatPumpCommission', irid });
 
@@ -52,7 +52,7 @@ const infoUPT: FormInfo<DataUPT, FormUPT, [], 'UPT'> = {
         saveAndSend: !edit && !regulus,
         saveAndSendAgain: edit && !regulus,
     })),
-    createWidgetData: (evidence, uvedeni, _, __, mode) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations, mode }),
+    createContext: ({ IN, values: UP, mode }) => ({ UP, IN, DK: UP.checkRecommendations, mode }),
     title: t => t.tc.title,
     getEditData: (ir, url) =>
         url.searchParams.has('edit') ? { raw: ir.UP.TC as Raw<FormUPT> } : undefined,

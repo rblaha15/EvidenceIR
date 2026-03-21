@@ -1,39 +1,48 @@
-<script generics="D" lang="ts">
+<script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
     import { type SwitchWidget } from '$lib/forms/Widget.svelte.js';
 
     interface Props {
         t: Translations;
-        widget: SwitchWidget<D>;
-        data: D;
+        widget: SwitchWidget<C>;
+        context: C;
+        value: boolean;
     }
 
-    let { t, widget = $bindable(), data }: Props = $props();
-    const value = $derived(widget.bindableValue(data));
+    let { t, widget, value = $bindable(), context }: Props = $props();
+    const checked = {
+        get value() {
+            return value;
+        },
+        set value(checked) {
+            value = checked;
+            widget.onValueSet(context, checked);
+        },
+    };
 </script>
 
 <div class="d-flex gap-1 flex-column align-items-start">
     <div class="input-group d-flex flex-nowrap">
-        <span class="input-group-text">{widget.label(t, data)}</span>
+        <span class="input-group-text">{widget.label(t, context)}</span>
         {#each widget.options(t) as option, i}
             <input
                 type="radio"
                 class="btn-check"
-                bind:group={value.value}
+                bind:group={checked.value}
                 value={Boolean(i)}
-                id={widget.label(t, data) + Boolean(i)}
+                id={widget.label(t, context) + Boolean(i)}
                 autocomplete="off"
             />
             <label class={["btn text-nowrap",
-                widget.value !== Boolean(i) ? 'btn-outline-secondary'
-                    : !widget.hasPositivity(data) ? 'btn-secondary'
+                checked.value !== Boolean(i) ? 'btn-outline-secondary'
+                    : !widget.hasPositivity(context) ? 'btn-secondary'
                     : i === 1 ? 'btn-success' : 'btn-danger'
-            ]} for={widget.label(t, data) + Boolean(i)}
+            ]} for={widget.label(t, context) + Boolean(i)}
             >{option}</label>
         {/each}
     </div>
 
-    {#if widget.showError(data)}
-        <span class="text-danger">{widget.onError(t, data)}</span>
+    {#if widget.showError(context, value)}
+        <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>

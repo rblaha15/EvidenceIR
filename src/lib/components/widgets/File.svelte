@@ -25,7 +25,7 @@
         await (await db!).get('files', id);
 </script>
 
-<script generics="D" lang="ts">
+<script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
     import { labelAndStar, type FileWidget, type Files } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
@@ -33,16 +33,17 @@
 
     interface Props {
         t: Translations;
-        widget: FileWidget<D>;
-        data: D;
+        widget: FileWidget<C>;
+        context: C;
+        value: Files;
     }
 
-    let { t, widget = $bindable(), data }: Props = $props();
+    let { t, widget, value = $bindable(), context }: Props = $props();
 
     let inputSelect = $state<HTMLInputElement>();
-    const accept = $derived(widget.accept(data));
-    const multiple = $derived(widget.multiple(data));
-    const max = $derived(widget.max(data));
+    const accept = $derived(widget.accept(context));
+    const multiple = $derived(widget.multiple(context));
+    const max = $derived(widget.max(context));
 
     const onchange: ChangeEventHandler<HTMLInputElement> = async e => {
         const selectedFiles = e.currentTarget.files;
@@ -51,21 +52,25 @@
                 addFile(file).then(uuid => ({ fileName: file.name, uuid }))
             ).awaitAll();
 
-            widget.mutateValue(data, v => [...v, ...files].slice(0, max));
+            const newValue = [...value, ...files].slice(0, max)
+            value = newValue;
+            widget.onValueSet(context, newValue);
             if (e.currentTarget) e.currentTarget.value = '';
         }
     };
 
     const remove = (fileId: string) => async () => {
         await removeFile(fileId);
-        widget.mutateValue(data, v => v.toSpliced(v.findIndex(f => f.uuid === fileId), 1));
+        const newValue = value.toSpliced(value.findIndex(f => f.uuid === fileId), 1)
+        value = newValue;
+        widget.onValueSet(context, newValue);
     };
 </script>
 
 <div class="d-flex gap-1 flex-column">
-    <div>{labelAndStar(widget, data, t)}</div>
+    <div>{labelAndStar(widget, context, t)}</div>
     <div class="d-flex gap-3 flex-column align-items-start">
-        {#if widget.value.length === 0 || (multiple && widget.value.length < max)}
+        {#if value.length === 0 || (multiple && value.length < max)}
             <button
                 type="button"
                 class="btn btn-outline-primary"
@@ -75,9 +80,9 @@
             </button>
         {/if}
 
-        {#if widget.value.length}
+        {#if value.length}
             <ul class="list-group">
-                {#each widget.value as { fileName, uuid }}
+                {#each value as { fileName, uuid }}
                     <li class="d-flex w-100 align-items-center list-group-item gap-3">
                         <div class="flex-grow-1 flex-shrink-1" style="word-break: break-all">{fileName}</div>
                         <button class="btn text-danger" onclick={remove(uuid)}>
@@ -90,8 +95,8 @@
         {/if}
     </div>
 
-    {#if widget.showError(data)}
-        <p class="text-danger">{widget.onError(t, data)}</p>
+    {#if widget.showError(context, value)}
+        <p class="text-danger">{widget.onError(t, context)}</p>
     {/if}
 
     <input

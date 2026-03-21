@@ -1,16 +1,17 @@
-<script generics="D" lang="ts">
+<script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { CheckboxWithInputWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
+    import { CheckboxWithInputWidget, type ChI, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount } from 'svelte';
 
     interface Props {
         t: Translations;
-        widget: CheckboxWithInputWidget<D>;
-        data: D;
+        widget: CheckboxWithInputWidget<C>;
+        context: C;
+        value: ChI;
     }
 
-    let { t, widget = $bindable(), data }: Props = $props();
+    let { t, widget, value = $bindable(), context }: Props = $props();
 
     type MyOpts = {
         lazy: boolean;
@@ -22,14 +23,14 @@
         value?: string;
     };
 
-    const maybeCapitalized = (value: string, vec: CheckboxWithInputWidget<D>): string =>
-        vec.capitalize(data) ? value.toUpperCase() : value;
+    const maybeCapitalized = (value: string, vec: CheckboxWithInputWidget<C>): string =>
+        vec.capitalize(context) ? value.toUpperCase() : value;
 
     let input = $state<HTMLInputElement>();
     let textarea = $state<HTMLTextAreaElement>();
     let mask = $state<InputMask<MyOpts>>();
 
-    let opts = $derived(widget.maskOptions(data));
+    let opts = $derived(widget.maskOptions(context));
 
     let options = $derived(
         !opts
@@ -44,10 +45,12 @@
     onMount(() => {
         if (options != undefined && input != undefined) {
             mask = IMask(input, options);
-            mask.value = widget.value.text;
-            mask.on('accept', () => widget.mutateValue(data, v => (
-                { ...v, text: maybeCapitalized(mask!.value, widget) }
-            )));
+            mask.value = value.text;
+            mask.on('accept', () => {
+                const newValue = { ...value, text: maybeCapitalized(mask!.value, widget) };
+                value = newValue;
+                widget.onValueSet(context, newValue);
+            });
         }
     });
 
@@ -68,7 +71,9 @@
     };
 
     const onClick = () => {
-        widget.mutateValue(data, v => ({ ...v, checked: !v.checked }));
+        const newValue = { ...value, checked: !value.checked };
+        value = newValue;
+        widget.onValueSet(context, newValue);
     };
 
     const uid = $props.id();
@@ -77,67 +82,71 @@
 <div class="d-flex gap-1 flex-column">
     <div class="input-group">
         <button class="input-group-text input-group-input" onclick={onClick} aria-labelledby="label-{uid}" tabindex="-1">
-            <input class="form-check-input m-0" type="checkbox" role="button" disabled={widget.lock(data)} bind:checked={widget.value.checked} />
+            <input class="form-check-input m-0" type="checkbox" role="button" disabled={widget.lock(context)} checked={value.checked} onclick={onClick} />
         </button>
         <label class="form-floating d-block" id="label-{uid}">
-            {#if !widget.value.checked}
-                <input type="text" placeholder={labelAndStar(widget, data, t)} readonly
+            {#if !value.checked}
+                <input type="text" placeholder={labelAndStar(widget, context, t)} readonly
                        onclick={onClick} class="form-control shadow-none input-group-text"
-                       role="button" disabled={widget.lock(data)} tabindex="-1" />
-            {:else if widget.textArea(data)}
+                       role="button" disabled={widget.lock(context)} tabindex="-1" />
+            {:else if widget.textArea(context)}
             <textarea
-                autocomplete={widget.autocomplete(data)}
-                inputmode={widget.inputmode(data)}
-                enterkeyhint={widget.enterkeyhint(data)}
-                autocapitalize={widget.autocapitalize(data)}
-                placeholder={labelAndStar(widget, data, t)}
+                autocomplete={widget.autocomplete(context)}
+                inputmode={widget.inputmode(context)}
+                enterkeyhint={widget.enterkeyhint(context)}
+                autocapitalize={widget.autocapitalize(context)}
+                placeholder={labelAndStar(widget, context, t)}
                 class="form-control"
                 bind:this={textarea}
-                value={widget.value.text}
+                value={value.text}
                 oninput={() => {
-                    if (textarea) widget.mutateValue(data, v => (
-                        { ...v, text: maybeCapitalized(textarea?.value ?? v.text, widget) }
-                    ));
+                    if (textarea) {
+                        const newValue = { ...value, text: maybeCapitalized(textarea?.value ?? value.text, widget) }
+                        value = newValue;
+                        widget.onValueSet(context, newValue);
+                    }
 				}}
-                disabled={widget.lock(data)}
+                disabled={widget.lock(context)}
                 style="height: 100px"
             ></textarea>
             {:else if options !== undefined}
                 <input
-                    type={widget.type(data)}
-                    inputmode={widget.inputmode(data)}
-                    enterkeyhint={widget.enterkeyhint(data)}
-                    autocapitalize={widget.autocapitalize(data)}
-                    autocomplete={widget.autocomplete(data)}
-                    placeholder={labelAndStar(widget, data, t)}
+                    type={widget.type(context)}
+                    inputmode={widget.inputmode(context)}
+                    enterkeyhint={widget.enterkeyhint(context)}
+                    autocapitalize={widget.autocapitalize(context)}
+                    autocomplete={widget.autocomplete(context)}
+                    placeholder={labelAndStar(widget, context, t)}
                     class="form-control"
                     bind:this={input}
-                    disabled={widget.lock(data)}
+                    disabled={widget.lock(context)}
                 />
             {:else}
                 <input
-                    type={widget.type(data)}
-                    inputmode={widget.inputmode(data)}
-                    enterkeyhint={widget.enterkeyhint(data)}
-                    autocapitalize={widget.autocapitalize(data)}
-                    autocomplete={widget.autocomplete(data)}
-                    placeholder={labelAndStar(widget, data, t)}
+                    type={widget.type(context)}
+                    inputmode={widget.inputmode(context)}
+                    enterkeyhint={widget.enterkeyhint(context)}
+                    autocapitalize={widget.autocapitalize(context)}
+                    autocomplete={widget.autocomplete(context)}
+                    placeholder={labelAndStar(widget, context, t)}
                     class="form-control"
                     bind:this={input}
-                    value={widget.value.text}
+                    value={value.text}
                     oninput={() => {
-                        if (input) widget.mutateValue(data, v => (
-                            { ...v, text: maybeCapitalized(input?.value ?? v.text, widget) }
-                        ));
+                        if (input) {
+                            const newValue = { ...value, text: maybeCapitalized(input?.value ?? value.text, widget) }
+                            value = newValue;
+                            widget.onValueSet(context, newValue);
+                        }
 				    }}
-                    disabled={widget.lock(data)}
+                    disabled={widget.lock(context)}
                 />
             {/if}
-            <label for="">{labelAndStar(widget, data, t)}</label>
+            <label for="">{labelAndStar(widget, context, t)}</label>
         </label>
     </div>
 
-    {#if widget.showError(data)}
-        <span class="text-danger help-block">{widget.onError(t, data)}</span>
+    {#if widget.showError(context, value)}
+        <span class="text-danger help-block">{widget.onError(t, context)}</span>
     {/if}
 </div>

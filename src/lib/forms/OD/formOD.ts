@@ -1,13 +1,17 @@
 import { FileWidget, InputWidget, PhotoSelectorWidget } from '../Widget.svelte.js';
-import type { Form } from '$lib/forms/Form';
+import type { Form, Values } from '$lib/forms/Form';
 
-export interface FormOD extends Form<FormOD> {
+export interface ContextOD {
+    v: Values<FormOD>
+}
+
+export interface FormOD extends Form<ContextOD> {
     all: {
-        documents: FileWidget<FormOD>,
-        photos: PhotoSelectorWidget<FormOD>,
-        body: InputWidget<FormOD>,
-        userEmail: InputWidget<FormOD>,
-        assemblyEmail: InputWidget<FormOD>,
-        otherCopies: InputWidget<FormOD>,
+        documents: FileWidget<ContextOD>,
+        photos: PhotoSelectorWidget<ContextOD>,
+        body: InputWidget<ContextOD>,
+        userEmail: InputWidget<ContextOD>,
+        assemblyEmail: InputWidget<ContextOD>,
+        otherCopies: InputWidget<ContextOD>,
     },
 }

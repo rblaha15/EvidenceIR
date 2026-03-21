@@ -7,12 +7,14 @@
     import { adminDatabase } from '$lib/client/firestore';
     import { isSP } from '$lib/forms/SP/infoSP.svelte';
 
-    let from = $state(new InputWidget({
+    const fromW = new InputWidget({
         type: 'date', label: 'Od (včetně)', text: dayISO(),
-    }));
-    let to = $state(new InputWidget({
+    });
+    let from = $state(fromW.defaultValue);
+    const toW = new InputWidget({
         type: 'date', label: 'Do (vyjma)', text: dayISO(),
-    }));
+    });
+    let to = $state(toW.defaultValue);
 
     const cs = getTranslations('cs');
 
@@ -21,13 +23,13 @@
     let currentRange = $state<[string, string]>(['', '']);
 
     const search = async () => {
-        from.displayErrorVeto = true;
-        to.displayErrorVeto = true;
-        if (from.showError({}) || to.showError({})) return status = 'mistake';
+        fromW.displayErrorVeto = true;
+        toW.displayErrorVeto = true;
+        if (fromW.showError({}, from) || toW.showError({}, to)) return status = 'mistake';
         status = 'loading';
         try {
-            const fromD = new Date(from.value);
-            const toD = new Date(to.value);
+            const fromD = new Date(from);
+            const toD = new Date(to);
 
             const irs = (await adminDatabase.getAllIRs()).filter((ir): ir is ExistingIR => !ir.deleted);
             const nsps = (await adminDatabase.getAllNSPs()).filter((sp): sp is ExistingNSP => !sp.deleted);
@@ -50,7 +52,7 @@
                 .entries()
                 .toSorted(([_, a], [__, b]) => b - a)
                 .toRecord();
-            currentRange = [dateFromISO(from.value), dateFromISO(to.value)];
+            currentRange = [dateFromISO(from), dateFromISO(to)];
         } catch (e) {
             console.error(e);
             status = 'fail';
@@ -60,10 +62,10 @@
 
 <div class="d-flex gap-1">
     <div class="flex-grow-1">
-        <Widget bind:widget={from} data={undefined} t={cs} />
+        <Widget widget={fromW} bind:value={from} context={{}} t={cs} />
     </div>
     <div class="flex-grow-1">
-        <Widget bind:widget={to} data={undefined} t={cs} />
+        <Widget widget={toW} bind:value={to} context={{}} t={cs} />
     </div>
 </div>
 

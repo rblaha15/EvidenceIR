@@ -1,23 +1,24 @@
-<script generics="D" lang="ts">
+<script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { labelAndStar, type PhotoSelectorWidget } from '$lib/forms/Widget.svelte.js';
+    import { type Files, labelAndStar, type PhotoSelectorWidget } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { addFile, getFile, removeFile } from '$lib/components/widgets/File.svelte';
     import Button from '$lib/components/Button.svelte';
 
     interface Props {
         t: Translations;
-        widget: PhotoSelectorWidget<D>;
-        data: D;
+        widget: PhotoSelectorWidget<C>;
+        context: C;
+        value: Files;
     }
 
-    let { t, widget = $bindable(), data }: Props = $props();
+    let { t, widget, value = $bindable(), context }: Props = $props();
 
     let inputSelect = $state<HTMLInputElement>();
     let inputCapture = $state<HTMLInputElement>();
-    const accept = $derived(widget.accept(data));
-    const multiple = $derived(widget.multiple(data));
-    const max = $derived(widget.max(data));
+    const accept = $derived(widget.accept(context));
+    const multiple = $derived(widget.multiple(context));
+    const max = $derived(widget.max(context));
 
     const onchange: ChangeEventHandler<HTMLInputElement> = async e => {
         const selectedFiles = e.currentTarget.files;
@@ -26,21 +27,25 @@
                 addFile(file).then(uuid => ({ fileName: file.name, uuid })),
             ).awaitAll();
 
-            widget.mutateValue(data, v => [...v, ...photos].slice(0, max));
+            const newValue = [...value, ...photos].slice(0, max)
+            value = newValue;
+            widget.onValueSet(context, newValue);
             if (e.currentTarget) e.currentTarget.value = '';
         }
     };
 
     const remove = (photoId: string) => async () => {
         await removeFile(photoId);
-        widget.mutateValue(data, v => v.toSpliced(v.findIndex(f => f.uuid === photoId), 1));
+        const newValue = value.toSpliced(value.findIndex(f => f.uuid === photoId), 1)
+        value = newValue;
+        widget.onValueSet(context, newValue);
     };
 </script>
 
 <div class="d-flex gap-1 flex-column">
-    <div>{labelAndStar(widget, data, t)}</div>
+    <div>{labelAndStar(widget, context, t)}</div>
     <div class="d-flex gap-3 flex-column align-items-start">
-        {#if widget.value.length === 0 || (multiple && widget.value.length < max)}
+        {#if value.length === 0 || (multiple && value.length < max)}
             <div class="d-flex gap-3">
                 <Button text={multiple ? t.widget.selectPhotos : t.widget.selectPhoto}
                         color="primary" outline onclick={() => inputSelect?.click()} />
@@ -49,9 +54,9 @@
             </div>
         {/if}
 
-        {#if widget.value.length}
+        {#if value.length}
             <ul class="list-group">
-                {#each widget.value as { fileName, uuid }}
+                {#each value as { fileName, uuid }}
                     <li class="d-flex w-100 align-items-center list-group-item gap-3">
                         {#await getFile(uuid) then photo}
                             <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
@@ -68,8 +73,8 @@
         {/if}
     </div>
 
-    {#if widget.showError(data)}
-        <p class="text-danger">{widget.onError(t, data)}</p>
+    {#if widget.showError(context, value)}
+        <p class="text-danger">{widget.onError(t, context)}</p>
     {/if}
 
     <input

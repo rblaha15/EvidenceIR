@@ -1,15 +1,15 @@
 import { CheckboxWidget, CounterWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte';
-import type { DataRKS, FormRKS } from '$lib/forms/RKS/formRKS';
+import type { ContextRKS, FormRKS } from '$lib/forms/RKS/formRKS';
 import { dayISO } from '$lib/helpers/date';
 
 export default (y: number, done: number[]): FormRKS => ({
     info: {
         osoba: new InputWidget({ label: t => t.rks.performingPerson }),
         datum: new InputWidget({ label: t => t.rks.checkDate, type: 'date', text: dayISO() }),
-        year: new CounterWidget<DataRKS, true>({
+        year: new CounterWidget<ContextRKS, true>({
             label: t => t.rks.checkYear, min: 1, chosen: y, max: Number.POSITIVE_INFINITY, hideInRawData: true,
             validate: (v, d) => d.mode != 'create' || !done.includes(v),
-            lock: d => d.mode != 'create', onError: t => t.rks.yearAlreadyFilled,
+            lock: c => c.mode != 'create', onError: t => t.rks.yearAlreadyFilled,
         })
     },
     kontrolniUkonySolarnihoSystemu: {

@@ -6,22 +6,22 @@ import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
-import type { DataUPS, FormUPS } from '$lib/forms/UPS/formUPS';
+import type { ContextUPS, FormUPS } from '$lib/forms/UPS/formUPS';
 import defaultUPS from './defaultUPS';
 import { saveDK } from '$lib/forms/DK/formDK';
 import db from '$lib/Database';
 
-const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
+const infoUPS: FormInfo<ContextUPS, FormUPS, [], 'UPS'> = ({
     type: 'IR',
     storeName: () => 'stored_solar_collector_commission',
-    defaultData: (_, ir) => defaultUPS(ir),
+    form: (_, ir) => defaultUPS(ir),
     openPdf: () => ({
         link: 'UPS',
     }),
-    saveData: async (irid, raw, edit, f, editResult, t, _, ir) => {
+    saveData: async ({ irid, raw, edit, values, editResult, t, ir }) => {
         await db.addUPS(irid, raw);
-        await db.updateDateUPS(irid, f.uvadeni.date.value);
-        if (!edit) await saveDK(ir, f.checkRecommendations, 'SOL');
+        await db.updateDateUPS(irid, values.uvadeni.date);
+        if (!edit) await saveDK(ir, values.checkRecommendations, 'SOL');
         if (await checkRegulusOrAdmin()) return;
 
         const user = get(currentUser)!;
@@ -47,7 +47,7 @@ const infoUPS: FormInfo<DataUPS, FormUPS, [], 'UPS'> = ({
         saveAndSend: !edit && !regulus,
         saveAndSendAgain: edit && !regulus,
     })),
-    createWidgetData: (evidence, uvedeni, _, __, mode) => ({ uvedeni, evidence, dk: uvedeni.checkRecommendations, mode }),
+    createContext: ({ IN, values: UP, mode }) => ({ UP, IN, DK: UP.checkRecommendations, mode }),
     title: t => t.sol.title,
     getEditData: (ir, url) =>
         url.searchParams.has('edit') ? { raw: ir.UP.SOL } : undefined,

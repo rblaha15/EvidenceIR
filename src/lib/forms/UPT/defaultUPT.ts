@@ -31,14 +31,14 @@ export default (ir: IR): FormUPT => ({
         nadpis: new TitleWidget({ text: t => t.in.device.heatPump, level: 3 }),
         jisticTC: newSuitsWidget({ label: t => t.tc.characteristicsAndSizeOfHeatPumpBreaker }),
         jisticVJ: newSuitsWidget({
-            show: d => d.evidence.ir.typ.first!.includes('BOX'),
+            show: c => c.IN.ir.typ.first!.includes('BOX'),
             label: t => t.tc.characteristicsAndSizeOfIndoorUnitBreaker,
         }),
-        vzdalenostZdi: newSuitsWidget({ label: t => t.tc.distanceFromWall, show: d => d.evidence.tc.typ == `airToWater` }),
+        vzdalenostZdi: newSuitsWidget({ label: t => t.tc.distanceFromWall, show: c => c.IN.tc.typ == `airToWater` }),
         kondenzator: new CheckboxWidget({
             required: false,
             label: t => t.tc.isCompensatorInstalled,
-            show: d => d.evidence.tc.typ == `airToWater`,
+            show: c => c.IN.tc.typ == `airToWater`,
         }),
         filtr: new CheckboxWidget({ required: false, label: t => t.tc.isCirculationPumpFilterInstalled }),
     },
@@ -54,20 +54,20 @@ export default (ir: IR): FormUPT => ({
         }),
         popis: new InputWidget({
             label: t => t.tc.heatingSystemDescription,
-            show: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
-            required: d => d.uvedeni.os.tvori.value == 'otherHeatingSystem',
+            show: c => c.UP.os.tvori == 'otherHeatingSystem',
+            required: c => c.UP.os.tvori == 'otherHeatingSystem',
         }),
         dzTop: new CheckboxWidget({ required: false, label: t => t.tc.isAdditionalHeatingSourceConnected }),
         typDzTop: new InputWidget({
             label: t => t.tc.typeAndPowerOfAdditionalHeatingSource,
-            show: d => d.uvedeni.os.dzTop.value,
-            required: d => d.uvedeni.os.dzTop.value,
+            show: c => c.UP.os.dzTop,
+            required: c => c.UP.os.dzTop,
         }),
         tcTv: new CheckboxWidget({ required: false, label: t => t.tc.doesHeatPumpPrepareHotWater }),
         zTv: new InputWidget(
             {
-                label: (t, d) => d.uvedeni.os.tcTv.value ? t.tc.additionalHotWaterSource : t.tc.mainHotWaterSource,
-                required: d => !d.uvedeni.os.tcTv.value,
+                label: (t, c) => c.UP.os.tcTv ? t.tc.additionalHotWaterSource : t.tc.mainHotWaterSource,
+                required: c => !c.UP.os.tcTv,
             }),
         objemEnOs: newSuitsWidget({ label: t => t.tc.volumeOfExpansionTankOfHeatingSystem }),
         tlakEnOs: new InputWidget({ label: t => t.tc.pressureOfExpansionTankOfHeatingSystem }),
@@ -89,13 +89,13 @@ export default (ir: IR): FormUPT => ({
         zalZdroj: new CheckboxWidget({
             required: false,
             label: t => t.tc.isBackupPowerSourceInstalled,
-            show: d => d.evidence.tc.typ == `airToWater`,
+            show: c => c.IN.tc.typ == `airToWater`,
         }),
     },
     primar: {
         nadpis: new TitleWidget({
             text: t => t.tc.primaryCircuit,
-            show: d => d.evidence.tc.typ == 'groundToWater',
+            show: c => c.IN.tc.typ == 'groundToWater',
             level: 3,
         }),
         typ: new ChooserWidget({
@@ -105,34 +105,34 @@ export default (ir: IR): FormUPT => ({
                 `surfaceCollector`,
                 `otherCollector`,
             ], labels: t => t.tc,
-            show: d => d.evidence.tc.typ == 'groundToWater',
-            required: d => d.evidence.tc.typ == 'groundToWater',
+            show: c => c.IN.tc.typ == 'groundToWater',
+            required: c => c.IN.tc.typ == 'groundToWater',
         }),
         popis: new InputWidget({
-            label: (t, d) => ({
+            label: (t, c) => ({
                 groundBoreholes: t.tc.numberAndDepthOfBoreholes,
                 surfaceCollector: t.tc.numberAndLengthOfCircuits,
                 otherCollector: t.tc.collectorDescription,
-            })[d.uvedeni.primar.typ.value!],
-            show: d => d.evidence.tc.typ == 'groundToWater',
-            required: d => d.evidence.tc.typ == 'groundToWater' && d.uvedeni.primar.typ.value != null,
+            })[c.UP.primar.typ!],
+            show: c => c.IN.tc.typ == 'groundToWater',
+            required: c => c.IN.tc.typ == 'groundToWater' && c.UP.primar.typ != null,
         }),
         nemrz: new InputWidget({
             label: t => t.tc.typeOfAntifreezeMixture,
-            show: d => d.evidence.tc.typ == 'groundToWater',
-            required: d => d.evidence.tc.typ == 'groundToWater',
+            show: c => c.IN.tc.typ == 'groundToWater',
+            required: c => c.IN.tc.typ == 'groundToWater',
         }),
         nadoba: new ChooserWidget({
             label: t => t.tc.onPrimaryCircuitInstalled,
             options: [`expansionTankInstalled`, `bufferTankInstalled`],
-            show: d => d.evidence.tc.typ == 'groundToWater',
-            required: d => d.evidence.tc.typ == 'groundToWater',
+            show: c => c.IN.tc.typ == 'groundToWater',
+            required: c => c.IN.tc.typ == 'groundToWater',
             labels: t => t.tc,
         }),
         kontrola: new CheckboxWidget({
             required: false,
             label: t => t.tc.wasPrimaryCircuitTested,
-            show: d => d.evidence.tc.typ == 'groundToWater',
+            show: c => c.IN.tc.typ == 'groundToWater',
         }),
     },
     uvadeni: {
@@ -145,12 +145,12 @@ export default (ir: IR): FormUPT => ({
         }),
         zaruka: new CheckboxWidget({
             required: false, label: t => t.tc.isInstallationInWarrantyConditions,
-            show: d => d.uvedeni.uvadeni.typZaruky.value == 'yes',
+            show: c => c.UP.uvadeni.typZaruky == 'yes',
         }),
         date: new InputWidget({
             label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true,
-            text: ir.UP.dateTC || dayISO(), onValueSet: (d, date) => {
-                d.dk.commissionDate.setValue(d, date);
+            text: ir.UP.dateTC || dayISO(), onValueSet: (c, date) => {
+                c.DK.commissionDate = date;
             },
         }),
         note: new InputWidget({ label: t => t.in.note, required: false }),

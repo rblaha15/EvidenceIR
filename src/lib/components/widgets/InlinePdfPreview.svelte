@@ -1,20 +1,21 @@
-<script generics="D, P extends Pdf" lang="ts">
+<script generics="C, P extends Pdf" lang="ts">
     import type { Translations } from '$lib/translations';
     import { InlinePdfPreviewWidget } from '$lib/forms/Widget.svelte.js';
     import { type Pdf, pdfInfo, type PdfParameters } from '$lib/pdf/pdf';
     import PdfPreview from '$lib/components/pdf/PdfPreview.svelte';
     import { generatePdfUrl } from '$lib/pdf/pdfGeneration';
     import { currentPreferredDocumentLanguage } from '$lib/languages';
+    import { type Form, widgetList } from '$lib/forms/Form';
 
     interface Props<P extends Pdf> {
         t: Translations;
-        widget: InlinePdfPreviewWidget<D, P>;
-        data: D;
+        widget: InlinePdfPreviewWidget<C, P>;
+        context: C;
     }
 
-    const { t, widget, data: formData }: Props<P> = $props();
+    const { t, widget, context }: Props<P> = $props();
 
-    const { type, data, form, ...parameters } = $derived(widget.pdfData(t, formData));
+    const { type, data, values, form, ...parameters } = $derived(widget.pdfData(t, context));
 
     const args = $derived(pdfInfo[type]);
 
@@ -24,8 +25,11 @@
             : args.supportedLanguages[0],
     );
 
-    const list = $derived(form.getValues().flatMap(obj => obj.getValues()));
-    const errors = $derived(list.filter(w => w.isError(formData) && w.show(formData)).map(w => w.label(t, formData)));
+    const list = $derived(widgetList<C, Form<C>>(form, values));
+    const errors = $derived(list
+        .filter(({ widget, value }) => widget.isError(context, value) && widget.show(context))
+        .map(({ widget }) => widget.label(t, context)),
+    );
 
     const result = $derived(errors.length ? null : generatePdfUrl({
         ...(parameters as unknown as PdfParameters<P>),

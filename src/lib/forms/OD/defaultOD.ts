@@ -12,22 +12,22 @@ const joinWithLastAnd = (l: string[], and: string) =>
 export default (): FormPlus<FormOD> => ({
     all: {
         _info: new TextWidget({
-            text: (t, d) => [
+            text: (t, c) => [
                 t.od.info1(cervenka.map(e => e.address) as [string, string]),
                 joinWithLastAnd([
-                    d.all.userEmail.value ? t.od.info2A({
-                        customer: joinWithLastAnd(d.all.userEmail.value.split(separatorsRegExp).map(t => t.trim()), t.od.and)
+                    c.v.all.userEmail ? t.od.info2A({
+                        customer: joinWithLastAnd(c.v.all.userEmail.split(separatorsRegExp).map(t => t.trim()), t.od.and)
                     }) : '',
-                    d.all.userEmail.value ? t.od.info2B({
-                        assembly: joinWithLastAnd(d.all.assemblyEmail.value.split(separatorsRegExp).map(t => t.trim()), t.od.and)
+                    c.v.all.userEmail ? t.od.info2B({
+                        assembly: joinWithLastAnd(c.v.all.assemblyEmail.split(separatorsRegExp).map(t => t.trim()), t.od.and)
                     }) : '',
-                    !d.all.otherCopies.value ? '' : t.od.info2C({
-                        ccs: joinWithLastAnd(d.all.otherCopies.value.split(separatorsRegExp).map(t => t.trim()), t.od.and)
+                    !c.v.all.otherCopies ? '' : t.od.info2C({
+                        ccs: joinWithLastAnd(c.v.all.otherCopies.split(separatorsRegExp).map(t => t.trim()), t.od.and)
                     }),
                     t.od.info2D({ user: get(currentUser)!.email! }),
                 ].filter(Boolean), t.od.and),
                 t.od.info3,
-                d.all.userEmail.value ? t.od.info4 : '',
+                c.v.all.userEmail ? t.od.info4 : '',
             ].join(''),
         }),
         documents: new FileWidget({ label: t => t.od.signedPdfDocuments, multiple: true, max: 5, accept: 'application/pdf' }),

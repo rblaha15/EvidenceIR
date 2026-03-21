@@ -5,13 +5,13 @@ import type { User } from 'firebase/auth';
 import { browser, dev, version } from '$app/environment';
 import { type FormNK, origins } from './formNK';
 
-const fve = (d: Raw<FormNK>) => d.contacts.demandSubject.includes(`fve`);
-const hp = (d: Raw<FormNK>) => d.contacts.demandSubject.includes(`heatPump`);
-const pool = (d: Raw<FormNK>) => hp(d) && d.system.wantsPool;
+const fve = (c: Raw<FormNK>) => c.contacts.demandSubject.includes(`fve`);
+const hp = (c: Raw<FormNK>) => c.contacts.demandSubject.includes(`heatPump`);
+const pool = (c: Raw<FormNK>) => hp(c) && c.system.wantsPool;
 
 const seCh = <I extends string>(t: Translations, l: Record<string, string>, v: SeCh<I>) => v.checked ? get(l, v.chosen) : t.nk.no;
 
-export default (d: Raw<FormNK>, user: User, t: Translations) => `
+export default (c: Raw<FormNK>, user: User, t: Translations) => `
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="dotaznik_app.xsl"?>
 
@@ -44,9 +44,9 @@ Změny ve verzi 2.3 oproti verzi 2.2:
 
 <xml>
     <system>
-        <kod1>${origins[d.contacts.demandOrigin!]}</kod1>
-        <resi_tc>${hp(d) ? t.nk.yes : t.nk.no}</resi_tc>
-        <resi_fve>${fve(d) ? t.nk.yes : t.nk.no}</resi_fve>
+        <kod1>${origins[c.contacts.demandOrigin!]}</kod1>
+        <resi_tc>${hp(c) ? t.nk.yes : t.nk.no}</resi_tc>
+        <resi_fve>${fve(c) ? t.nk.yes : t.nk.no}</resi_fve>
         <resi_sol>${t.nk.no}</resi_sol>
         <resi_rek>${t.nk.no}</resi_rek>
         <resi_krb>${t.nk.no}</resi_krb>
@@ -54,121 +54,121 @@ Změny ve verzi 2.3 oproti verzi 2.2:
         <resi_jine>${t.nk.no}</resi_jine>
         <resi_jine_uvedte>${t.nk.no}</resi_jine_uvedte>
         <resi_doporuc>${t.nk.no}</resi_doporuc>
-        <cislo_ko>${d.other.representative?.koNumber ?? '?'}</cislo_ko>
+        <cislo_ko>${c.other.representative?.koNumber ?? '?'}</cislo_ko>
         <odesilatel>${user.email}</odesilatel>
     </system>
     <kontakt>
-        <jmeno>${d.contacts.name}</jmeno>
-        <prijmeni>${d.contacts.surname}</prijmeni>
-        <telefon>${d.contacts.phone}</telefon>
-        <email>${d.contacts.email}</email>
-        <ulice>${d.contacts.street}</ulice>
-        <psc>${d.contacts.zip}</psc>
-        <mesto>${d.contacts.city}</mesto>
-        <partner_ico>${d.contacts.assemblyCompanyCRN}</partner_ico>
-    </kontakt>${hp(d) ? `
+        <jmeno>${c.contacts.name}</jmeno>
+        <prijmeni>${c.contacts.surname}</prijmeni>
+        <telefon>${c.contacts.phone}</telefon>
+        <email>${c.contacts.email}</email>
+        <ulice>${c.contacts.street}</ulice>
+        <psc>${c.contacts.zip}</psc>
+        <mesto>${c.contacts.city}</mesto>
+        <partner_ico>${c.contacts.assemblyCompanyCRN}</partner_ico>
+    </kontakt>${hp(c) ? `
     <detailobjektu>
-        <os_popis>${get(t.nk.system, d.system.heatingSystem)}</os_popis>
-        <tepelna_ztrata>${d.objectDetails.heatLost}</tepelna_ztrata>
-        <rocni_spotreba_vytapeni>${d.objectDetails.heatNeedsForHeating}</rocni_spotreba_vytapeni>
-        <rocni_spotreba_tv>${d.objectDetails.heatNeedsForHotWater}</rocni_spotreba_tv>
-        <vytapena_plocha>${d.objectDetails.heatedArea}</vytapena_plocha>
-        <vytapeny_objem>${d.objectDetails.heatedVolume}</vytapeny_objem>
-        <spotreba_paliva_druh>${d.objectDetails.fuelType}</spotreba_paliva_druh>
-        <spotreba_paliva_mnozstvi>${d.objectDetails.fuelConsumption.text}</spotreba_paliva_mnozstvi>
-        <spotreba_paliva_jednotky>${get(t.units, d.objectDetails.fuelConsumption.chosen)}</spotreba_paliva_jednotky>
-        <spotreba_paliva_2_druh>${d.objectDetails.fuelType2}</spotreba_paliva_2_druh>
-        <spotreba_paliva_2_mnozstvi>${d.objectDetails.fuelConsumption2.text}</spotreba_paliva_2_mnozstvi>
-        <spotreba_paliva_2_jednotky>${get(t.units, d.objectDetails.fuelConsumption2.chosen)}</spotreba_paliva_2_jednotky>
-        <rocni_platba_vytapeni>${d.objectDetails.heatingCosts} ${t.nk.currency}</rocni_platba_vytapeni>
+        <os_popis>${get(t.nk.system, c.system.heatingSystem)}</os_popis>
+        <tepelna_ztrata>${c.objectDetails.heatLost}</tepelna_ztrata>
+        <rocni_spotreba_vytapeni>${c.objectDetails.heatNeedsForHeating}</rocni_spotreba_vytapeni>
+        <rocni_spotreba_tv>${c.objectDetails.heatNeedsForHotWater}</rocni_spotreba_tv>
+        <vytapena_plocha>${c.objectDetails.heatedArea}</vytapena_plocha>
+        <vytapeny_objem>${c.objectDetails.heatedVolume}</vytapeny_objem>
+        <spotreba_paliva_druh>${c.objectDetails.fuelType}</spotreba_paliva_druh>
+        <spotreba_paliva_mnozstvi>${c.objectDetails.fuelConsumption.text}</spotreba_paliva_mnozstvi>
+        <spotreba_paliva_jednotky>${get(t.units, c.objectDetails.fuelConsumption.chosen)}</spotreba_paliva_jednotky>
+        <spotreba_paliva_2_druh>${c.objectDetails.fuelType2}</spotreba_paliva_2_druh>
+        <spotreba_paliva_2_mnozstvi>${c.objectDetails.fuelConsumption2.text}</spotreba_paliva_2_mnozstvi>
+        <spotreba_paliva_2_jednotky>${get(t.units, c.objectDetails.fuelConsumption2.chosen)}</spotreba_paliva_2_jednotky>
+        <rocni_platba_vytapeni>${c.objectDetails.heatingCosts} ${t.nk.currency}</rocni_platba_vytapeni>
     </detailobjektu>
     <tc>
-        <typ>${get(t.nk.system, d.system.hPType)}</typ>
-        <model>${get(t.nk.system, d.system.hPModel)}</model>
-        <nadrz>${d.system.thermalStore}</nadrz>
-        <vnitrni_jednotka>${get(t.nk.system, d.system.indoorUnitType)}</vnitrni_jednotka>
+        <typ>${get(t.nk.system, c.system.hPType)}</typ>
+        <model>${get(t.nk.system, c.system.hPModel)}</model>
+        <nadrz>${c.system.thermalStore}</nadrz>
+        <vnitrni_jednotka>${get(t.nk.system, c.system.indoorUnitType)}</vnitrni_jednotka>
     </tc>
     <zdrojeTop>
-        <topne_teleso>${seCh(t, t.nk.additionalSources, d.additionalSources.heatingHeatingElementInStore)}</topne_teleso>
-        <elektrokotel>${seCh(t, t.nk.additionalSources, d.additionalSources.heatingElectricBoiler)}</elektrokotel>
-        <plyn_kotel>${seCh(t, t.nk.additionalSources, d.additionalSources.heatingGasBoiler)}</plyn_kotel>
-        <krb_KTP>${seCh(t, t.nk.additionalSources, d.additionalSources.heatingFireplace)}</krb_KTP>
-        <jiny_zdroj>${d.additionalSources.heatingOther}</jiny_zdroj>
+        <topne_teleso>${seCh(t, t.nk.additionalSources, c.additionalSources.heatingHeatingElementInStore)}</topne_teleso>
+        <elektrokotel>${seCh(t, t.nk.additionalSources, c.additionalSources.heatingElectricBoiler)}</elektrokotel>
+        <plyn_kotel>${seCh(t, t.nk.additionalSources, c.additionalSources.heatingGasBoiler)}</plyn_kotel>
+        <krb_KTP>${seCh(t, t.nk.additionalSources, c.additionalSources.heatingFireplace)}</krb_KTP>
+        <jiny_zdroj>${c.additionalSources.heatingOther}</jiny_zdroj>
     </zdrojeTop>
     <tv>
-        <zasobnik>${d.system.waterTank}</zasobnik>
-        <cirkulace>${d.system.hotWaterCirculation ? t.nk.yes : t.nk.no}</cirkulace>
+        <zasobnik>${c.system.waterTank}</zasobnik>
+        <cirkulace>${c.system.hotWaterCirculation ? t.nk.yes : t.nk.no}</cirkulace>
     </tv>
     <zdrojeTV>
-        <topne_teleso>${seCh(t, t.nk.additionalSources, d.additionalSources.hotWaterHeatingElementInStore)}</topne_teleso>
-        <elektrokotel>${d.additionalSources.hotWaterElectricBoiler ? t.nk.yes : t.nk.no}</elektrokotel>
-        <plyn_kotel>${d.additionalSources.hotWaterGasBoiler ? t.nk.yes : t.nk.no}</plyn_kotel>
-        <krb_KTP>${d.additionalSources.hotWaterFireplace ? t.nk.yes : t.nk.no}</krb_KTP>
-        <jiny_zdroj>${d.additionalSources.hotWaterOther}</jiny_zdroj>
+        <topne_teleso>${seCh(t, t.nk.additionalSources, c.additionalSources.hotWaterHeatingElementInStore)}</topne_teleso>
+        <elektrokotel>${c.additionalSources.hotWaterElectricBoiler ? t.nk.yes : t.nk.no}</elektrokotel>
+        <plyn_kotel>${c.additionalSources.hotWaterGasBoiler ? t.nk.yes : t.nk.no}</plyn_kotel>
+        <krb_KTP>${c.additionalSources.hotWaterFireplace ? t.nk.yes : t.nk.no}</krb_KTP>
+        <jiny_zdroj>${c.additionalSources.hotWaterOther}</jiny_zdroj>
     </zdrojeTV>
     <bazen>
-        <ohrev>${d.system.wantsPool ? t.nk.yes : t.nk.no}</ohrev>
-        <doba_vyuzivani>${pool(d) ? '' : get(t.nk.pool, d.pool.usagePeriod)}</doba_vyuzivani>
-        <umisteni>${pool(d) ? '' : get(t.nk.pool, d.pool.placement)}</umisteni>
-        <zakryti>${pool(d) ? '' : get(t.nk.pool, d.pool.coverage)}</zakryti>
-        <tvar>${pool(d) ? '' : get(t.nk.pool, d.pool.shape)}</tvar>
-        <sirka>${d.pool.width}</sirka>
-        <delka>${d.pool.length}</delka>
-        <hloubka>${d.pool.depth}</hloubka>
-        <prumer>${d.pool.radius}</prumer>
-        <teplota>${d.pool.desiredTemperature}</teplota>
-        <voda>${pool(d) ? '' : get(t.nk.pool, d.pool.waterType)}</voda>
+        <ohrev>${c.system.wantsPool ? t.nk.yes : t.nk.no}</ohrev>
+        <doba_vyuzivani>${pool(c) ? '' : get(t.nk.pool, c.pool.usagePeriod)}</doba_vyuzivani>
+        <umisteni>${pool(c) ? '' : get(t.nk.pool, c.pool.placement)}</umisteni>
+        <zakryti>${pool(c) ? '' : get(t.nk.pool, c.pool.coverage)}</zakryti>
+        <tvar>${pool(c) ? '' : get(t.nk.pool, c.pool.shape)}</tvar>
+        <sirka>${c.pool.width}</sirka>
+        <delka>${c.pool.length}</delka>
+        <hloubka>${c.pool.depth}</hloubka>
+        <prumer>${c.pool.radius}</prumer>
+        <teplota>${c.pool.desiredTemperature}</teplota>
+        <voda>${pool(c) ? '' : get(t.nk.pool, c.pool.waterType)}</voda>
     </bazen>
     <prislusenstvi>
-        <hadice>${seCh(t, t.nk.accessories, d.accessories.hose)}</hadice>
-        <topny_kabel>${seCh(t, t.nk.accessories, d.accessories.heatingCable)}</topny_kabel>
-        <drzak_na_tc>${seCh(t, t.nk.accessories, d.accessories.wallSupportBracket)}</drzak_na_tc>
-        <pokojova_cidla_a_jednotky>${d.accessories.roomUnitsAndSensors
+        <hadice>${seCh(t, t.nk.accessories, c.accessories.hose)}</hadice>
+        <topny_kabel>${seCh(t, t.nk.accessories, c.accessories.heatingCable)}</topny_kabel>
+        <drzak_na_tc>${seCh(t, t.nk.accessories, c.accessories.wallSupportBracket)}</drzak_na_tc>
+        <pokojova_cidla_a_jednotky>${c.accessories.roomUnitsAndSensors
     .filterValues((_, c) => c > 0)
     .mapTo((k, c) => `${c}x ${get(t.nk.accessories, k)}`)
     .join()}</pokojova_cidla_a_jednotky>
-    </prislusenstvi>` : ''}${fve(d) ? `
+    </prislusenstvi>` : ''}${fve(c) ? `
     <fve>
-        <stavajici_topeni>${d.photovoltaicPowerPlant.currentHeating}</stavajici_topeni>
-        <stavajici_tuv>${d.photovoltaicPowerPlant.currentHotWater}</stavajici_tuv>
-        <stavajici_zasobniky>${d.photovoltaicPowerPlant.currentTanks}</stavajici_zasobniky>
-        <stavajici_spotreba>${d.photovoltaicPowerPlant.currentConsumption}</stavajici_spotreba>
-        <jistic>${d.photovoltaicPowerPlant.breakerSize}</jistic>
-        <sazba>${d.photovoltaicPowerPlant.tariff}</sazba>
-        <umisteni_rozvadece>${d.photovoltaicPowerPlant.breakerBoxLocation}</umisteni_rozvadece>
-        <pozadovany_vykon>${d.photovoltaicPowerPlant.requiredPower}</pozadovany_vykon>
-        <typ_budovy_instalace>${d.photovoltaicPowerPlant.locationBuildingType}</typ_budovy_instalace>
-        <hromosvod>${d.photovoltaicPowerPlant.lightningRod ? t.nk.yes : t.nk.no}</hromosvod>
-        <material_krytiny>${d.photovoltaicPowerPlant.roofMaterial}</material_krytiny>
-        <typ_tasek>${d.photovoltaicPowerPlant.tileType}</typ_tasek>
-        <stari_krytiny>${d.photovoltaicPowerPlant.roofAge}</stari_krytiny>
-        <pouzit_optimizatory>${d.photovoltaicPowerPlant.useOptimizers ? t.nk.yes : t.nk.no}</pouzit_optimizatory>
-        <rozmer_1>${d.photovoltaicPowerPlant.size1}</rozmer_1>
-        <orientace_1>${d.photovoltaicPowerPlant.orientation1}</orientace_1>
-        <sklon_1>${d.photovoltaicPowerPlant.slope1}</sklon_1>
-        <rozmer_2>${d.photovoltaicPowerPlant.size2}</rozmer_2>
-        <orientace_2>${d.photovoltaicPowerPlant.orientation2}</orientace_2>
-        <sklon_2>${d.photovoltaicPowerPlant.slope2}</sklon_2>
-        <rozmer_3>${d.photovoltaicPowerPlant.size3}</rozmer_3>
-        <orientace_3>${d.photovoltaicPowerPlant.orientation3}</orientace_3>
-        <sklon_3>${d.photovoltaicPowerPlant.slope3}</sklon_3>
-        <rozmer_4>${d.photovoltaicPowerPlant.size4}</rozmer_4>
-        <orientace_4>${d.photovoltaicPowerPlant.orientation4}</orientace_4>
-        <sklon_4>${d.photovoltaicPowerPlant.slope4}</sklon_4>
-        <baterie>${d.photovoltaicPowerPlant.battery.checked ? t.nk.yes : t.nk.no}</baterie>
-        <baterie_kapacita>${d.photovoltaicPowerPlant.battery.text}</baterie_kapacita>
-        <voda>${d.photovoltaicPowerPlant.water ? t.nk.yes : t.nk.no}</voda>
-        <sit>${d.photovoltaicPowerPlant.network.checked ? t.nk.yes : t.nk.no}</sit>
-        <sit_vykon>${d.photovoltaicPowerPlant.network.text}</sit_vykon>
-        <dobijeni>${d.photovoltaicPowerPlant.charging ? t.nk.yes : t.nk.no}</dobijeni>
+        <stavajici_topeni>${c.photovoltaicPowerPlant.currentHeating}</stavajici_topeni>
+        <stavajici_tuv>${c.photovoltaicPowerPlant.currentHotWater}</stavajici_tuv>
+        <stavajici_zasobniky>${c.photovoltaicPowerPlant.currentTanks}</stavajici_zasobniky>
+        <stavajici_spotreba>${c.photovoltaicPowerPlant.currentConsumption}</stavajici_spotreba>
+        <jistic>${c.photovoltaicPowerPlant.breakerSize}</jistic>
+        <sazba>${c.photovoltaicPowerPlant.tariff}</sazba>
+        <umisteni_rozvadece>${c.photovoltaicPowerPlant.breakerBoxLocation}</umisteni_rozvadece>
+        <pozadovany_vykon>${c.photovoltaicPowerPlant.requiredPower}</pozadovany_vykon>
+        <typ_budovy_instalace>${c.photovoltaicPowerPlant.locationBuildingType}</typ_budovy_instalace>
+        <hromosvod>${c.photovoltaicPowerPlant.lightningRod ? t.nk.yes : t.nk.no}</hromosvod>
+        <material_krytiny>${c.photovoltaicPowerPlant.roofMaterial}</material_krytiny>
+        <typ_tasek>${c.photovoltaicPowerPlant.tileType}</typ_tasek>
+        <stari_krytiny>${c.photovoltaicPowerPlant.roofAge}</stari_krytiny>
+        <pouzit_optimizatory>${c.photovoltaicPowerPlant.useOptimizers ? t.nk.yes : t.nk.no}</pouzit_optimizatory>
+        <rozmer_1>${c.photovoltaicPowerPlant.size1}</rozmer_1>
+        <orientace_1>${c.photovoltaicPowerPlant.orientation1}</orientace_1>
+        <sklon_1>${c.photovoltaicPowerPlant.slope1}</sklon_1>
+        <rozmer_2>${c.photovoltaicPowerPlant.size2}</rozmer_2>
+        <orientace_2>${c.photovoltaicPowerPlant.orientation2}</orientace_2>
+        <sklon_2>${c.photovoltaicPowerPlant.slope2}</sklon_2>
+        <rozmer_3>${c.photovoltaicPowerPlant.size3}</rozmer_3>
+        <orientace_3>${c.photovoltaicPowerPlant.orientation3}</orientace_3>
+        <sklon_3>${c.photovoltaicPowerPlant.slope3}</sklon_3>
+        <rozmer_4>${c.photovoltaicPowerPlant.size4}</rozmer_4>
+        <orientace_4>${c.photovoltaicPowerPlant.orientation4}</orientace_4>
+        <sklon_4>${c.photovoltaicPowerPlant.slope4}</sklon_4>
+        <baterie>${c.photovoltaicPowerPlant.battery.checked ? t.nk.yes : t.nk.no}</baterie>
+        <baterie_kapacita>${c.photovoltaicPowerPlant.battery.text}</baterie_kapacita>
+        <voda>${c.photovoltaicPowerPlant.water ? t.nk.yes : t.nk.no}</voda>
+        <sit>${c.photovoltaicPowerPlant.network.checked ? t.nk.yes : t.nk.no}</sit>
+        <sit_vykon>${c.photovoltaicPowerPlant.network.text}</sit_vykon>
+        <dobijeni>${c.photovoltaicPowerPlant.charging ? t.nk.yes : t.nk.no}</dobijeni>
     </fve>` : ''}
     <poznamka>
-        <kontakty>${d.contacts.note}</kontakty>
-        <detail_objektu>${d.objectDetails.note}</detail_objektu>
-        <tv_tc_nadrz_a_os>${d.system.note}</tv_tc_nadrz_a_os>
-        <bazen>${d.pool.note}</bazen>
-        <doplnkove_zdroje>${d.additionalSources.note}</doplnkove_zdroje>
-        <prislusenstvi>${d.accessories.note}</prislusenstvi>
-        <fve>${d.photovoltaicPowerPlant.note}</fve>
+        <kontakty>${c.contacts.note}</kontakty>
+        <detail_objektu>${c.objectDetails.note}</detail_objektu>
+        <tv_tc_nadrz_a_os>${c.system.note}</tv_tc_nadrz_a_os>
+        <bazen>${c.pool.note}</bazen>
+        <doplnkove_zdroje>${c.additionalSources.note}</doplnkove_zdroje>
+        <prislusenstvi>${c.accessories.note}</prislusenstvi>
+        <fve>${c.photovoltaicPowerPlant.note}</fve>
     </poznamka>
 </xml>`.trimStart();

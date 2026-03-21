@@ -11,18 +11,18 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { extractSPIDFromRawData, type SPID, spName } from '$lib/helpers/ir';
-import { type DataNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
+import { type ContextNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
 import db from '$lib/Database';
 import { newNSP } from '$lib/data';
 import { get } from 'svelte/store';
 
-const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null]], 'NSP'> = {
+const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[], User | null]], 'NSP'> = {
     type: '',
     storeName: () => 'stored_new_SP',
-    defaultData: defaultNSP,
-    saveData: async (raw, edit, _, editResult, t, send) => {
+    form: defaultNSP,
+    saveData: async ({ raw, edit, editResult, t, send }) => {
         const spid = extractSPIDFromRawData(raw.zasah);
 
         const user = get(currentUser)!;
@@ -52,7 +52,7 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         spid: extractSPIDFromRawData(raw.zasah),
         lang: 'cs',
     }),
-    createWidgetData: (f, _, mode) => ({ ...f, lockNameFields: mode == 'edit' }),
+    createContext: ({ values: v, form: f, mode }) => ({ v, f, lockNameFields: mode == 'edit' }),
     title: (t, m) => m == 'edit' ? t.sp.editSP : t.sp.title,
     onMount: async () => {
         await startTechniciansListening();
@@ -73,11 +73,11 @@ const infoNSP: IndependentFormInfo<DataNSP, FormNSP, [[Technician[], User | null
         return !sp ? undefined : { raw: sp.NSP };
     },
     storeEffects: [
-        [(d, f, [$techniciansList, $currentUser], edit) => { // From SP
+        [([$techniciansList, $currentUser], { values, edit }) => { // From SP
             const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
-            if (!f.zasah.clovek.value) f.zasah.clovek.setValue(d, ja?.name ?? f.zasah.clovek.value);
-            if (!f.zasah.inicialy.value) f.zasah.inicialy.setValue(d, ja?.initials ?? f.zasah.inicialy.value);
-            f.zasah.showNameFileds.setValue(d, f.zasah.clovek.value != ja?.name);
+            if (!values.zasah.clovek) values.zasah.clovek = ja?.name ?? values.zasah.clovek;
+            if (!values.zasah.inicialy) values.zasah.inicialy = ja?.initials ?? values.zasah.inicialy;
+            values.zasah.showNameFileds = values.zasah.clovek != ja?.name;
         }, [techniciansList, currentUser]],
     ],
     pdfImport: {

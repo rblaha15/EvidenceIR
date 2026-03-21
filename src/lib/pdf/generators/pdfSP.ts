@@ -9,8 +9,8 @@ import { unknownCRN } from '$lib/forms/IN/formIN';
 import { inlineTooLong, invoiceableParts, multilineTooLong } from '$lib/forms/SP/defaultSP';
 import ares from '$lib/helpers/ares';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
-import type { Raw } from '$lib/forms/Form';
-import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte';
+import type { Raw, Values } from '$lib/forms/Form';
+import type { GenericContextSP, GenericFormSP } from '$lib/forms/SP/formSP.svelte';
 
 const prices = {
     transportation: 12 / 1.21,
@@ -56,7 +56,10 @@ const fieldsPartsStart = 44;
 export const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
     .associateWith((_, i) => fieldsPartsStart + i * 8);
 
-export const calculateProtocolPrice = <D extends GenericFormSP<D>>(p: Raw<D>, pumpCount: number | undefined) => {
+export const calculateProtocolPrice = <C extends GenericContextSP<C>>(
+    p: Raw<GenericFormSP<C>> | Values<GenericFormSP<C>>,
+    pumpCount: number | undefined,
+) => {
     const spareParts = [
         p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
         p.nahradniDil5, p.nahradniDil6, p.nahradniDil7, p.nahradniDil8,

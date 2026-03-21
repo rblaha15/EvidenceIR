@@ -37,7 +37,7 @@ export default (ir: IR): FormUPS => ({
         solRegulator: new InputWidget({ label: t => t.sol.solarControllerType }),
         cerpadloaSkupina: new InputWidget({ label: t => t.sol.pumpGroupType }),
         expanznkaSolarni: newYesNoWidget({ label: t => t.sol.expansionTankSolar, required: false }),
-        objem: new InputWidget({ label: t => t.sol.volume, required: d => d.uvedeni.sol.expanznkaSolarni.value }),
+        objem: new InputWidget({ label: t => t.sol.volume, required: c => c.UP.sol.expanznkaSolarni }),
         tlakEnSol: new InputWidget({ label: t => t.sol.pressureOfSolarExpansionTank, suffix: t => t.units.bar }),
         tlakKapaliny: new InputWidget({ label: t => t.sol.pressureOfSolarSystemLiquid, suffix: t => t.units.bar }),
         tlakEnTv: new InputWidget({ label: t => t.sol.pressureOfExpansionTankForWater, suffix: t => t.units.bar }),
@@ -66,8 +66,8 @@ export default (ir: IR): FormUPS => ({
         vlastnik: new CheckboxWidget({ label: t => t.sol.ownerInformed }),
         date: new InputWidget({
             label: t => t.sol.dateOfCommission, type: 'date', hideInRawData: true,
-            text: ir.UP.dateSOL || dayISO(), onValueSet: (d, date) => {
-                d.dk.commissionDate.setValue(d, date);
+            text: ir.UP.dateSOL || dayISO(), onValueSet: (c, date) => {
+                c.DK.commissionDate = date;
             },
         }),
     },

@@ -1,8 +1,8 @@
 import { CheckboxWidget, ChooserWidget, CounterWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte';
-import type { FormUPF, PhotovoltaicFieldGroup } from '$lib/forms/UPF/formUPF';
+import type { ContextUPF, FormUPF, PhotovoltaicFieldGroup } from '$lib/forms/UPF/formUPF';
 
 const photovoltaicField = (n: number): PhotovoltaicFieldGroup => {
-    const show = (d: FormUPF) => d.fields.count.value >= n;
+    const show = (c: ContextUPF) => c.v.fields.count >= n;
 
     return {
         label: new TextWidget({
@@ -57,8 +57,8 @@ export default (): FormUPF => ({
         }),
         waterVolume: new InputWidget({
             label: t => t.fve.waterVolume, type: 'number', suffix: t => t.units.l,
-            show: d => d.connection.accumulationToWater.value,
-            required: d => d.connection.accumulationToWater.value,
+            show: c => c.v.connection.accumulationToWater,
+            required: c => c.v.connection.accumulationToWater,
         }),
         otherSmartControl: new InputWidget({
             label: t => t.fve.otherSmartControl, required: false,

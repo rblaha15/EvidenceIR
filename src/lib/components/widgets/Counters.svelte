@@ -1,38 +1,46 @@
-<script generics="D, I extends string" lang="ts">
+<script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { CountersWidget } from '$lib/forms/Widget.svelte.js';
-    import Icon from '$lib/components/Icon.svelte';
+    import { CountersWidget, type Rec } from '$lib/forms/Widget.svelte.js';
     import Button from '$lib/components/Button.svelte';
 
     interface Props {
         t: Translations;
-        widget: CountersWidget<D, I>;
-        data: D;
+        widget: CountersWidget<C, I>;
+        context: C;
+        value: Rec<I>;
     }
 
-    let { t, widget = $bindable(), data }: Props = $props();
+    let { t, widget, value = $bindable(), context }: Props = $props();
 
-    const sum = $derived(widget.value.getValues().reduce((v, acc) => acc + v, 0));
+    const sum = $derived(value.getValues().reduce((v, acc) => acc + v, 0));
 
     const uid = $props.id();
+    const inc = (option: I) => () => {
+        const newValue = { ...value, [option]: value[option] + 1 };
+        value = newValue;
+        widget.onValueSet(context, newValue);
+    };
+    const dec = (option: I) => () => {
+        const newValue = { ...value, [option]: value[option] - 1 };
+        value = newValue;
+        widget.onValueSet(context, newValue);
+    };
 </script>
 
 <div class="d-flex gap-1 flex-column">
-    <div>{widget.label(t, data)}</div>
+    <div>{widget.label(t, context)}</div>
     <div class="input-group input-group-grid" style="--grid-cols: 4">
-        {#each widget.value.entries() as [option, value]}
-            <Button label="subtract" color="primary" outline square icon="remove" onclick={
-                () => widget.mutateValue(data, v => ({ ...v, [option]: v[option] - 1 }))
-            } disabled={value === 0} class="first" />
-            <span class="input-group-text input-group-input">{value}</span>
-            <Button label="add" color="primary" outline square icon="add" onclick={
-                () => widget.mutateValue(data, v => ({ ...v, [option]: v[option] + 1 }))
-            } disabled={sum === widget.max(data)} />
+        {#each value.entries() as [option, number]}
+            <Button label="subtract" color="primary" outline square icon="remove"
+                    onclick={dec(option)} disabled={number === 0} class="first" />
+            <span class="input-group-text input-group-input">{number}</span>
+            <Button label="add" color="primary" outline square icon="add"
+                    onclick={inc(option)} disabled={sum === widget.max(context)} />
             <div class="input-group-text last" id="label-{uid}">{widget.get(t, option)}</div>
         {/each}
     </div>
 
-    {#if widget.showError(data)}
-        <span class="text-danger help-block">{widget.onError(t, data)}</span>
+    {#if widget.showError(context, value)}
+        <span class="text-danger help-block">{widget.onError(t, context)}</span>
     {/if}
 </div>

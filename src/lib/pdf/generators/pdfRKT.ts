@@ -1,5 +1,5 @@
 import { endUserName } from '$lib/helpers/ir';
-import { dataToRawData, type Raw, rawDataToData } from '$lib/forms/Form';
+import { type Raw, rawDataToValues, valuesToRawData } from '$lib/forms/Form';
 import { type GetPdfData, type PdfArgs, pdfInfo } from '$lib/pdf/pdf';
 import defaultRKTL from '$lib/forms/RKT/defaultRKTL';
 import defaultRKT from '$lib/forms/RKT/defaultRKT';
@@ -74,7 +74,7 @@ export const pdfRKTL: GetPdfData<'RKTL'> = async ({ data, t, pump, lastYear, add
     const { argsHP, argsHW } = compressorRuntimeArguments(allChecks);
     const veci = checks.mapTo((rok, kontrola, i) => {
         if (!kontrola) return [];
-        const k = dataToRawData(rawDataToData(defaultRKTL(rok, []), kontrola)); // seřazení informací
+        const k = valuesToRawData(defaultRKTL(rok, []), rawDataToValues(defaultRKTL(rok, []), kontrola)); // seřazení informací
         k.kontrolniUkonyRegulace.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly = calculateCompressorRuntime(argsHP, rok).roundTo().toLocaleString('cs');
         k.kontrolniUkonyRegulace.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly = calculateCompressorRuntime(argsHW, rok).roundTo().toLocaleString('cs');
         const array = k.omit('info', 'poznamky').getValues().flatMap(obj => obj.getValues());
@@ -187,7 +187,7 @@ const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang
     const { argsHP, argsHW } = compressorRuntimeArguments(allChecks);
     const veci = checks.mapTo((rok, kontrola, i) => {
         if (!kontrola) return [];
-        const k = dataToRawData(rawDataToData(defaultRKT(rok, []), kontrola)); // seřazení informací
+        const k = valuesToRawData(defaultRKT(rok, []), rawDataToValues(defaultRKT(rok, []), kontrola)); // seřazení informací
         k.kontrolaRegulace.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly = calculateCompressorRuntime(argsHP, rok).roundTo().toLocaleString('cs');
         k.kontrolaRegulace.prumernaDobaChoduKompresoruDoTepleVodyMinOdPosledniKontroly = calculateCompressorRuntime(argsHW, rok).roundTo().toLocaleString('cs');
         const array = k.omit('info', 'poznamky').getValues().flatMap(obj => obj.omit('kontrolaPojistovacichVentiluPoznamka' as never).getValues());
