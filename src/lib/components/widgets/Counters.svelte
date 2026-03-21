@@ -8,9 +8,11 @@
         widget: CountersWidget<C, I>;
         context: C;
         value: Rec<I>;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     const sum = $derived(value.getValues().reduce((v, acc) => acc + v, 0));
 
@@ -19,11 +21,13 @@
         const newValue = { ...value, [option]: value[option] + 1 };
         value = newValue;
         widget.onValueSet(context, newValue);
+        showError = true;
     };
     const dec = (option: I) => () => {
         const newValue = { ...value, [option]: value[option] - 1 };
         value = newValue;
         widget.onValueSet(context, newValue);
+        showError = true;
     };
 </script>
 
@@ -40,7 +44,7 @@
         {/each}
     </div>
 
-    {#if widget.showError(context, value)}
-        <span class="text-danger help-block">{widget.onError(t, context)}</span>
+    {#if widget.isError(context, value) && showError}
+        <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>

@@ -7,9 +7,11 @@
         widget: MultiCheckboxWidget<C, I>;
         context: C;
         value: Arr<I>;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     const weights = $derived((i: I) => widget.weights(context, i));
     const count = $derived(value.sumBy(weights));
@@ -21,6 +23,7 @@
         set value(chosen) {
             value = chosen;
             widget.onValueSet(context, chosen);
+            showError = true;
         },
     };
 
@@ -50,7 +53,7 @@
         {/each}
     </div>
 
-    {#if widget.showError(context, value)}
+    {#if widget.isError(context, value) && showError}
         <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>

@@ -10,9 +10,11 @@
         widget: DoubleChooserWidget<C, I1, I2>;
         context: C;
         value: Pair<I1, I2>;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     let other1 = $state([] as Arr<I1>);
     let options1 = $state([] as Arr<I1>);
@@ -27,7 +29,8 @@
         } else {
             const newValue = { ...value, first: option as I1 };
             value = newValue;
-            widget.onValueSet(context, newValue)
+            widget.onValueSet(context, newValue);
+            showError = true;
         }
     };
     $effect(() => {
@@ -54,7 +57,8 @@
         } else {
             const newValue = { ...value, second: option as I2 };
             value = newValue;
-            widget.onValueSet(context, newValue)
+            widget.onValueSet(context, newValue);
+            showError = true;
         }
     };
     $effect(() => {
@@ -71,7 +75,10 @@
     let mounted = false;
     onMount(() => mounted = true);
     const Select: Action<HTMLSelectElement> = target => {
-        if (mounted && !target.disabled) target.showPicker();
+        if (mounted && !target.disabled) {
+            showError = false;
+            target.showPicker();
+        }
     };
 </script>
 
@@ -107,8 +114,8 @@
             </select>
         {/if}
     </div>
-    {#if widget.showError(context, value)}
-        <p class="text-danger">{widget.onError(t, context)}</p>
+    {#if widget.isError(context, value) && showError}
+        <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>
 

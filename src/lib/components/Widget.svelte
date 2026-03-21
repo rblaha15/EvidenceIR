@@ -46,9 +46,10 @@
         widget: Widget<C>;
         context: C;
         value: WidgetValue<Widget<C>>;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
 </script>
 
 {#if widget instanceof TitleWidget && widget.show(context)}
@@ -62,37 +63,37 @@
 {:else if widget instanceof ButtonWidget && widget.show(context)}
     <Button {widget} {t} {context} />
 {:else if widget instanceof ScannerWidget && widget.show(context)}
-    <Scanner {widget} {t} bind:value {context} />
+    <Scanner {widget} {t} bind:value {showAllErrors} {context} />
 {:else if widget instanceof InputWidget && widget.show(context)}
-    <Input {widget} {t} bind:value {context} />
+    <Input {widget} {t} bind:value {showAllErrors} {context} />
 {:else if widget instanceof DoubleChooserWidget && widget.show(context)}
-    <DoubleChooser {widget} {t} bind:value {context} />
+    <DoubleChooser {widget} {t} bind:value {showAllErrors} {context} />
 {:else if widget instanceof ChooserWidget && widget.show(context)}
-    <Chooser {widget} {t} bind:value {context} />
+    <Chooser {widget} {t} bind:value {showAllErrors} {context} />
 {:else if widget instanceof RadioWidget && widget.show(context)}
-    <Radio {widget} {t} bind:value {context} />
+    <Radio {widget} {t} bind:value {showAllErrors} {context} />
 {:else if widget instanceof RadioWithInputWidget && widget.show(context)}
-    <RadioWithInput {widget} {t} bind:value {context} />
+    <RadioWithInput {widget} {t} bind:value {showAllErrors} {context} />
 {:else if widget instanceof SwitchWidget && widget.show(context)}
-    <Switch {widget} {t} bind:value {context} />
+    <Switch {widget} {t} bind:value {showAllErrors} {context} />
 {:else if widget instanceof MultiCheckboxWidget && widget.show(context)}
-    <MultiCheckbox {t} {widget} bind:value {context} />
+    <MultiCheckbox {t} {widget} bind:value {context} {showAllErrors} />
 {:else if widget instanceof CheckboxWidget && widget.show(context)}
-    <Checkbox {t} {widget} bind:value {context} />
+    <Checkbox {t} {widget} bind:value {context} {showAllErrors} />
 {:else if widget instanceof CounterWidget && widget.show(context)}
-    <Counter {t} {widget} bind:value {context} />
+    <Counter {t} {widget} bind:value {context} {showAllErrors} />
 {:else if widget instanceof CheckboxWithChooserWidget && widget.show(context)}
-    <CheckboxWithChooser {t} {widget} bind:value {context} />
+    <CheckboxWithChooser {t} {widget} bind:value {context} {showAllErrors} />
 {:else if widget instanceof CountersWidget && widget.show(context)}
-    <Counters {t} {widget} bind:value {context} />
+    <Counters {t} {widget} bind:value {context} {showAllErrors} />
 {:else if widget instanceof InputWithChooserWidget && widget.show(context)}
-    <InputWithChooser {t} {widget} bind:value {context} />
+    <InputWithChooser {t} {widget} bind:value {context} {showAllErrors} />
 {:else if widget instanceof CheckboxWithInputWidget && widget.show(context)}
-    <CheckboxWithInput {t} {widget} bind:value {context} />
+    <CheckboxWithInput {t} {widget} bind:value {context} {showAllErrors} />
 {:else if widget instanceof SearchWidget && widget.show(context)}
-    <Search {t} {widget} bind:value {context} />
+    <Search {t} {widget} bind:value {context} {showAllErrors} />
 {:else if widget instanceof FileWidget && widget.show(context)}
-    <File {t} {widget} bind:value {context} />
+    <File {t} {widget} bind:value {context} {showAllErrors} />
 {:else if widget instanceof PhotoSelectorWidget && widget.show(context)}
-    <PhotoSelector {t} {widget} bind:value {context} />
+    <PhotoSelector {t} {widget} bind:value {context} {showAllErrors} />
 {/if}

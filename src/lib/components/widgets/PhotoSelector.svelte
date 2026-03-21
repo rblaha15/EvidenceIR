@@ -10,9 +10,11 @@
         widget: PhotoSelectorWidget<C>;
         context: C;
         value: Files;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     let inputSelect = $state<HTMLInputElement>();
     let inputCapture = $state<HTMLInputElement>();
@@ -32,6 +34,7 @@
             widget.onValueSet(context, newValue);
             if (e.currentTarget) e.currentTarget.value = '';
         }
+        showError = true;
     };
 
     const remove = (photoId: string) => async () => {
@@ -39,6 +42,7 @@
         const newValue = value.toSpliced(value.findIndex(f => f.uuid === photoId), 1)
         value = newValue;
         widget.onValueSet(context, newValue);
+        showError = true;
     };
 </script>
 
@@ -73,8 +77,8 @@
         {/if}
     </div>
 
-    {#if widget.showError(context, value)}
-        <p class="text-danger">{widget.onError(t, context)}</p>
+    {#if widget.isError(context, value) && showError}
+        <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 
     <input

@@ -54,7 +54,6 @@ export const labelAndStar = <C, U>(
 export abstract class Widget<C = never, U = any, H extends boolean = boolean> {
     abstract label: GetT<C>;
     abstract onError: GetT<C>;
-    displayErrorVeto = $state(false);
     abstract show: GetB<C>;
     abstract showTextValue: GetB<C>;
     abstract defaultValue: U;
@@ -64,7 +63,6 @@ export abstract class Widget<C = never, U = any, H extends boolean = boolean> {
     abstract hideInRawData: H;
 
     abstract isError: (context: C, value: U) => boolean;
-    showError: (context: C, value: U) => boolean = $state((c, v) => this.displayErrorVeto && this.isError(c, v));
 }
 
 type K = string;
@@ -220,7 +218,6 @@ export type BaseInput<C, U> = Widget<C, U> & {
 export type AdvancedInput<C, U> = Widget<C, U> & {
     textArea: GetB<C>;
     autocomplete: Get<C, FullAutoFill>;
-    updateMaskValue: (text: string) => void;
     maskOptions: Get<C, Opts>;
     capitalize: GetB<C>;
     placeholder: GetT<C>;
@@ -717,8 +714,6 @@ export class InputWidget<C, H extends boolean = false> extends Widget<C, string,
     suffix!: GetTU<C>;
     suggestions!: GetTAR<C>;
     autocomplete!: Get<C, FullAutoFill>;
-    updateMaskValue = $state(() => {
-    }) as (text: string) => void;
     maskOptions!: Get<C, Opts>;
     regex!: Get<C, RegExp>;
     capitalize!: GetB<C>;
@@ -812,8 +807,6 @@ export class InputWithChooserWidget<C, I extends K, H extends boolean = false> e
     inputmode!: Get<C, HTMLInputAttributes['inputmode']>;
     autocapitalize!: Get<C, HTMLInputAttributes['autocapitalize']>;
     autocomplete!: Get<C, FullAutoFill>;
-    updateMaskValue = $state(() => {
-    }) as (text: string) => void;
     maskOptions!: Get<C, Opts>;
     regex!: Get<C, RegExp>;
     capitalize!: GetB<C>;
@@ -855,8 +848,6 @@ export class CheckboxWithInputWidget<C, H extends boolean = false> extends Widge
     inputmode!: Get<C, HTMLInputAttributes['inputmode']>;
     autocapitalize!: Get<C, HTMLInputAttributes['autocapitalize']>;
     autocomplete!: Get<C, FullAutoFill>;
-    updateMaskValue = $state(() => {
-    }) as (text: string) => void;
     maskOptions!: Get<C, Opts>;
     regex!: Get<C, RegExp>;
     capitalize!: GetB<C>;

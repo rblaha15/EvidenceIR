@@ -2,9 +2,9 @@
     import { ScannerWidget } from '$lib/forms/Widget.svelte.js';
     import { Html5Qrcode } from 'html5-qrcode';
     import { onMount } from 'svelte';
-    import Input from '$lib/components/widgets/Input.svelte';
     import type { Translations } from '$lib/translations';
     import Button from '$lib/components/Button.svelte';
+    import CoreInput from '$lib/components/CoreInput.svelte';
 
     let cancelBtn = $state<HTMLButtonElement>();
 
@@ -15,13 +15,15 @@
     });
 
     interface Props {
-        context: C;
-        value: string;
         t: Translations;
         widget: ScannerWidget<C>;
+        context: C;
+        value: string;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     const onClick = async () => {
         if (widget.lock(context)) return;
@@ -34,7 +36,7 @@
                 decodedText => {
                     const scannedText = widget.processScannedText(decodedText, context);
                     value = scannedText;
-                    widget.onValueSet(context, scannedText)
+                    widget.onValueSet(context, scannedText);
                     cancelBtn?.click();
                 },
                 undefined,
@@ -50,20 +52,22 @@
     };
 </script>
 
-<div class={["d-flex flex-column flex-sm-row gap-1", widget.showError(context, value) ? 'align-items-sm-start' : 'align-items-sm-center']}>
-    <div class="flex-grow-1"><Input bind:value {widget} {context} {t} /></div>
-    <div class="d-flex gap-1 align-items-sm-center flex-column flex-sm-row">
-        <span class="text-center">{t.widget.or_Scan}</span>
-        <Button text={t.widget.scanBarcode} color="secondary" disabled={widget.lock(context)}
-                class="h-auto" modalID="cam" onclick={onClick} />
-    </div>
-</div>
+{#snippet trailingContent()}
+    <Button text={t.widget.scanBarcode} color="secondary" outline disabled={widget.lock(context)}
+            class="h-auto" modalID="cam" onclick={onClick} icon="barcode_reader" />
+{/snippet}
+
+<CoreInput
+    bind:showError bind:value {context} setTextValue={text => text} {t} textValue={value} {widget}
+    {trailingContent}
+/>
+
 <div class="modal" id="cam">
     <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{t.widget.scanCode}:</h4>
-                <Button label={t.widget.cancel} class="btn-close" dismissModal onclick={cancel} />
+                <Button class="btn-close" dismissModal label={t.widget.cancel} onclick={cancel} />
             </div>
 
             <div class="modal-body d-flex justify-content-center">
@@ -71,8 +75,8 @@
             </div>
 
             <div class="modal-footer">
-                <Button text={t.widget.cancel} color="danger"
-                        dismissModal onclick={cancel} bind:element={cancelBtn} />
+                <Button bind:element={cancelBtn} color="danger"
+                        dismissModal onclick={cancel} text={t.widget.cancel} />
             </div>
         </div>
     </div>

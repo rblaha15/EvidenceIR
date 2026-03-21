@@ -9,9 +9,11 @@
         widget: ChooserWidget<C, I>;
         context: C;
         value: I;
+        showAllErrors: boolean;
     }
 
-    let { t, widget, value = $bindable(), context }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
 
     let other = $state([] as Arr<I>);
     let options = $state([] as Arr<I>);
@@ -26,6 +28,7 @@
         } else {
             value = option as I;
             widget.onValueSet(context, option as I);
+            showError = true;
         }
     };
     $effect(() => {
@@ -69,7 +72,7 @@
         </label>
     {/if}
 
-    {#if widget.showError(context, value)}
+    {#if widget.isError(context, value) && showError}
         <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>

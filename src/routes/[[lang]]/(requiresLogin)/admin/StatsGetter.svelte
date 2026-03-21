@@ -19,13 +19,13 @@
     const cs = getTranslations('cs');
 
     let status = $state('none' as 'none' | 'mistake' | 'loading' | 'fail' | 'success');
+    let showAllErrors = $state(false);
     let results = $state<Record<string, number>>({});
     let currentRange = $state<[string, string]>(['', '']);
 
     const search = async () => {
-        fromW.displayErrorVeto = true;
-        toW.displayErrorVeto = true;
-        if (fromW.showError({}, from) || toW.showError({}, to)) return status = 'mistake';
+        showAllErrors = true;
+        if (fromW.isError({}, from) || toW.isError({}, to)) return status = 'mistake';
         status = 'loading';
         try {
             const fromD = new Date(from);
@@ -62,10 +62,10 @@
 
 <div class="d-flex gap-1">
     <div class="flex-grow-1">
-        <Widget widget={fromW} bind:value={from} context={{}} t={cs} />
+        <Widget widget={fromW} bind:value={from} context={{}} t={cs} {showAllErrors} />
     </div>
     <div class="flex-grow-1">
-        <Widget widget={toW} bind:value={to} context={{}} t={cs} />
+        <Widget widget={toW} bind:value={to} context={{}} t={cs} {showAllErrors} />
     </div>
 </div>
 
