@@ -12,7 +12,6 @@
         FileWidget, InlinePdfPreviewWidget,
         InputWidget,
         InputWithChooserWidget,
-        InputWithSuggestionsWidget,
         MultiCheckboxWidget,
         PhotoSelectorWidget,
         RadioWidget,
@@ -79,8 +78,6 @@
             {value}
         {:else if widget instanceof CheckboxWithChooserWidget && v(widget, value)}
             {value.checked ? widget.get(t, value.chosen) : t.widget.no}
-        {:else if widget instanceof InputWithSuggestionsWidget && v(widget, value)}
-            {value}
         {:else if widget instanceof CountersWidget && v(widget, value)}
             {value.mapTo((k, v) => `${widget.get(t, k)}: ${v}x`).join(', ')}
         {:else if widget instanceof InputWithChooserWidget && v(widget, value)}

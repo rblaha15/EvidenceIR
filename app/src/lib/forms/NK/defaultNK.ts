@@ -7,7 +7,6 @@ import {
     CountersWidget,
     InputWidget,
     InputWithChooserWidget,
-    InputWithSuggestionsWidget,
     MultiCheckboxWidget,
     PhotoSelectorWidget,
     RadioWidget,
@@ -94,7 +93,7 @@ export default (): FormPlus<FormNK> => ({
         locationBuildingType: new InputWidget({ show: fve, required: false, label: t => t.nk.fve.locationBuidingType }),
         info: new TextWidget({ show: fve, text: t => t.nk.fve.familyHouseEtc }),
         lightningRod: new CheckboxWidget({ show: fve, required: false, label: t => t.nk.fve.lightningRod }),
-        roofMaterial: new InputWithSuggestionsWidget({
+        roofMaterial: new InputWidget({
             suggestions: t => readable([
                 t.nk.fve.tile, t.nk.fve.metalSheetFolded, t.nk.fve.metalSheetTrapezoidal,
                 t.nk.fve.foil, t.nk.fve.asphaltShingle,
@@ -208,10 +207,10 @@ export default (): FormPlus<FormNK> => ({
             show: hp,
             labels: t => t.nk.system,
         }),
-        thermalStore: new InputWithSuggestionsWidget({
+        thermalStore: new InputWidget({
             label: t => t.tc.typeOfStorageTank, show: hp, required: false, suggestions: accumulationTanks,
         }),
-        waterTank: new InputWithSuggestionsWidget({
+        waterTank: new InputWidget({
             label: t => t.tc.typeOfStorageTank, show: hp, required: false, suggestions: waterTanks,
         }),
         heatingSystem: new ChooserWidget({

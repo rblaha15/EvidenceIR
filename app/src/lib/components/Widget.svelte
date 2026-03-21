@@ -13,7 +13,6 @@
         CheckboxWidget,
         ScannerWidget,
         CheckboxWithChooserWidget,
-        InputWithSuggestionsWidget,
         CountersWidget,
         InputWithChooserWidget,
         CheckboxWithInputWidget,
@@ -31,7 +30,6 @@
     import Search from '$lib/components/widgets/Search.svelte';
     import Scanner from '$lib/components/widgets/Scanner.svelte';
     import CheckboxWithChooser from '$lib/components/widgets/CheckboxWithChooser.svelte'
-    import InputWithSuggestions from '$lib/components/widgets/InputWithSuggestions.svelte'
     import Counters from '$lib/components/widgets/Counters.svelte'
     import InputWithChooser from '$lib/components/widgets/InputWithChooser.svelte'
     import CheckboxWithInput from '$lib/components/widgets/CheckboxWithInput.svelte'
@@ -85,8 +83,6 @@
     <Counter {t} {widget} bind:value {context} />
 {:else if widget instanceof CheckboxWithChooserWidget && widget.show(context)}
     <CheckboxWithChooser {t} {widget} bind:value {context} />
-{:else if widget instanceof InputWithSuggestionsWidget && widget.show(context)}
-    <InputWithSuggestions {t} {widget} bind:value {context} />
 {:else if widget instanceof CountersWidget && widget.show(context)}
     <Counters {t} {widget} bind:value {context} />
 {:else if widget instanceof InputWithChooserWidget && widget.show(context)}

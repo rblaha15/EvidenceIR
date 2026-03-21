@@ -6,7 +6,6 @@ import {
     type DoubleChooserWidget,
     HiddenValueWidget,
     type InputWidget,
-    type InputWithSuggestionsWidget,
     type MultiCheckboxWidget,
     type RadioWidget,
     type ScannerWidget,
@@ -124,13 +123,13 @@ export interface FormIN extends UserForm<ContextIN>, Form<ContextIN> {
     };
     sol: {
         title: TitleWidget<ContextIN>;
-        typ: InputWithSuggestionsWidget<ContextIN>;
+        typ: InputWidget<ContextIN>;
         pocet: InputWidget<ContextIN>;
     };
     tanks: {
         title: TitleWidget<ContextIN>;
-        accumulation: InputWithSuggestionsWidget<ContextIN>;
-        water: InputWithSuggestionsWidget<ContextIN>;
+        accumulation: InputWidget<ContextIN>;
+        water: InputWidget<ContextIN>;
         anode: RadioWidget<ContextIN, 'magnesium' | 'electronic' | 'none'>;
     };
     rek: {
