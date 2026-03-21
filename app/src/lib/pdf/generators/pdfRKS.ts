@@ -1,11 +1,11 @@
 import { endUserName } from '$lib/helpers/ir';
-import { dataToRawData, rawDataToData } from '$lib/forms/Form';
 import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import defaultRKS from '$lib/forms/RKS/defaultRKS';
 import ares from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import type { Year } from '$lib/data';
 import { range } from '$lib/extensions';
+import { rawDataToValues, valuesToRawData } from '$lib/forms/Form';
 
 const pdfRKS: GetPdfData<'RKS'> = async ({ data, t, lastYear, addDoc, lang }) => {
     const { RK: { SOL: originalChecks }, IN, UP: { SOL: UP } } = data;
@@ -43,7 +43,7 @@ const pdfRKS: GetPdfData<'RKS'> = async ({ data, t, lastYear, addDoc, lang }) =>
     };
     const veci = checks.mapTo((rok, kontrola, column) => {
         if (!kontrola) return [];
-        const k = dataToRawData(rawDataToData(defaultRKS(rok, []), kontrola)); // seřazení informací
+        const k = valuesToRawData(defaultRKS(rok, []), rawDataToValues(defaultRKS(rok, []), kontrola)); // seřazení informací
         const array = k.omit('info', 'poznamky').getValues().flatMap(obj => obj.getValues());
         const start = 2
 

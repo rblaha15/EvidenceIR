@@ -1,4 +1,4 @@
-<script generics="D, T" lang="ts">
+<script generics="C, T" lang="ts">
     import type { Translations } from '$lib/translations';
     import { labelAndStar, type SearchWidget } from '$lib/forms/Widget.svelte.js';
     import { browser } from '$app/environment';
@@ -17,20 +17,21 @@
 
     interface Props {
         t: Translations;
-        widget: SearchWidget<D, T>;
-        data: D;
+        widget: SearchWidget<C, T>;
+        context: C;
+        value: T | null;
         class?: ClassValue;
     }
 
-    let { t, widget = $bindable(), data, class: klass = '' }: Props = $props();
+    let { t, widget, value = $bindable(), context, class: klass = '' }: Props = $props();
 
     let search = writable('');
 
     $effect(() => {
-        $search = widget.value ? widget.getSearchItem(widget.value, t).pieces[0].text : '';
+        $search = value ? widget.getSearchItem(value, t).pieces[0].text : '';
     });
 
-    const original = widget.items(t, data);
+    const original = widget.items(t, context);
     const found = writable(null as T[] | null);
     $effect(() => {
         let aborted = false;
@@ -71,7 +72,8 @@
         hidden = false;
     };
     const onClick = () => {
-        widget.setValue(data, null);
+        value = null;
+        widget.onValueSet(context, null);
         hideRequest = false;
         hidden = true;
     };
@@ -83,26 +85,26 @@
     <div class="position-relative" onfocusin={show} onfocusout={hide}>
         <label class="form-floating d-block">
             <input
-                autofocus={widget.inline(data)}
+                autofocus={widget.inline(context)}
                 class="form-control border ps-3 bi"
-                class:border-bottom-0={(!hidden && $filtered != null) || widget.value}
+                class:border-bottom-0={(!hidden && $filtered != null) || value}
                 class:rb-0={(!hidden && $filtered != null)}
                 oninput={e => $search = e.currentTarget.value}
                 placeholder=" "
-                type={widget.type(data)}
-                value={hidden ? widget.value ? ' ' : '' : $search}
+                type={widget.type(context)}
+                value={hidden ? value ? ' ' : '' : $search}
             />
             <label for="">
                 <Icon icon="search" />
-                {labelAndStar(widget, data, t)}
+                {labelAndStar(widget, context, t)}
             </label>
-            <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" class:d-none={!widget.value} onclick={onClick}>
+            <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" class:d-none={!value} onclick={onClick}>
                 <Icon icon="clear" />
             </button>
         </label>
 
         {#if !hidden}
-            <div class="list-group z-3 w-100 overflow-y-auto shadow-lg mb-2" class:options={!widget.inline(data)}>
+            <div class="list-group z-3 w-100 overflow-y-auto shadow-lg mb-2" class:options={!widget.inline(context)}>
                 {#each $filtered as item, i}
                     {@const searchItem = widget.getSearchItem(item, t)}
                     <a
@@ -114,7 +116,8 @@
                         aria-disabled={searchItem.disabled}
                         onclick={(e) => {
                             e.preventDefault();
-                            widget.setValue(data, item);
+                            value = item;
+                            widget.onValueSet(context, item);
                             hidden = true
                         }}
                     >
@@ -135,9 +138,9 @@
             </div>
         {/if}
 
-        {#if widget.value && hidden}
-            {@const searchItem = widget.getSearchItem(widget.value, t)}
-            <div class="list-group w-100 z-2 selected" class:options={!widget.inline(data)}>
+        {#if value && hidden}
+            {@const searchItem = widget.getSearchItem(value, t)}
+            <div class="list-group w-100 z-2 selected" class:options={!widget.inline(context)}>
                 <div
                     class="list-group-item-action list-group-item d-flex flex-column flex-md-row align-items-md-center rt-0"
                 >
@@ -154,8 +157,8 @@
         {/if}
     </div>
 
-    {#if widget.showError(data)}
-        <p class="text-danger">{widget.onError(t, data)}</p>
+    {#if widget.showError(context, value)}
+        <p class="text-danger">{widget.onError(t, context)}</p>
     {/if}
 </div>
 

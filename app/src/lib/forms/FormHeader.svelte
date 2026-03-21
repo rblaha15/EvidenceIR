@@ -1,8 +1,9 @@
 <script generics="R extends Raw<Form>" lang="ts">
+    // noinspection ES6UnusedImports
+    import type { Form, Raw } from '$lib/forms/Form';
     import type { Writable } from 'svelte/store';
     import { type Translations } from '$lib/translations';
     import { endLoading, setTitle, startLoading } from '$lib/helpers/globals.js';
-    import type { Form, Raw } from '$lib/forms/Form';
     import { type ExcelImport, processExcel } from '$lib/forms/ExcelImport';
     import readXlsxFile, { readSheetNames } from 'read-excel-file';
     import { ChooserWidget, STAR } from '$lib/forms/Widget.svelte.js';
@@ -13,16 +14,16 @@
     import type { US } from '$lib/translations/untranslatables';
     import Icon from '$lib/components/Icon.svelte';
 
-    interface Props<R extends Raw<Form>> {
+    interface Props {
         title: string;
         hideResetButton?: boolean;
         showBackButton?: boolean;
         excelImport?: ExcelImport<R> & {
-            onImport: (data: R) => void;
+            onImport: (newData: R) => void;
             isDangerous: boolean;
         };
         pdfImport?: PdfImport<R> & {
-            onImport: (data: R) => void;
+            onImport: (newData: R) => void;
             isDangerous: boolean;
         };
         store: Writable<unknown | undefined>;
@@ -39,7 +40,7 @@
         showBackButton = false,
         t,
         readonly,
-    }: Props<R> = $props();
+    }: Props = $props();
     const tf = $derived(t.form)
     const tfi = $derived(tf.import)
 
@@ -53,6 +54,7 @@
     let sheetWidget = $state(new ChooserWidget({
         options: [] as US[], show: (d): boolean => sheetWidget.options(d).length > 1, label: t => t.form.import.workbookSheet,
     }));
+    let value = $state(null as US | null);
     let error = $state('');
 
     $effect(() => {
@@ -60,9 +62,9 @@
             const sheets = names.filter(excelImport?.sheetFilter ?? (n => n == (excelImport?.sheet ?? n))) as US[];
             sheetWidget.options = () => sheets;
             if (sheets.length == 1)
-                sheetWidget._value = sheets[0];
+                value = sheets[0];
         }); else {
-            sheetWidget._value = null;
+            value = null;
             sheetWidget.options = () => [];
         }
     });
@@ -70,7 +72,7 @@
     const confirmExcel = async () => {
         error = '';
         if (!excelImport || !fileExcel) return;
-        const rows = await readXlsxFile(fileExcel, { ...excelImport, sheet: sheetWidget.value! });
+        const rows = await readXlsxFile(fileExcel, { ...excelImport, sheet: value! });
         console.log(rows);
         try {
             excelImport.onImport(processExcel<R>(excelImport, rows));
@@ -168,8 +170,8 @@
                             </button>
                         {/if}
                     </div>
-                    <Widget data={undefined} {t} widget={sheetWidget} />
-                    {#if fileExcel && excelImport.isDangerous && sheetWidget.value}
+                    <Widget context={undefined} bind:value {t} widget={sheetWidget} />
+                    {#if fileExcel && excelImport.isDangerous && value}
                         <p class="alert alert-danger">{tfi.warningDataLoss}</p>
                     {/if}
                 {/if}
@@ -222,7 +224,7 @@
                     data-bs-dismiss="modal"
                     type="button">{tfi.cancel}</button
                 >
-                {#if excelImport && fileExcel && sheetWidget.value}
+                {#if excelImport && fileExcel && value}
                     <button
                         class="btn"
                         class:btn-danger={excelImport.isDangerous}

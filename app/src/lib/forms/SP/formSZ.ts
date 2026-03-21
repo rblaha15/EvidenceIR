@@ -1,17 +1,21 @@
 import type { InputWidget } from '$lib/forms/Widget.svelte';
-import { type Form } from '$lib/forms/Form';
+import { type Form, type Values } from '$lib/forms/Form';
 
-export interface FormSZ extends GenericFormSZ<DataSZ>, Form<DataSZ> {
+export interface ContextSZ extends GenericContextSZ<ContextSZ> {
 }
 
-export type DataSZ = FormSZ & {
-    lockNameFields?: boolean
+export interface FormSZ extends GenericFormSZ<ContextSZ>, Form<ContextSZ> {
 }
 
-export interface GenericFormSZ<D extends GenericFormSZ<D>> extends Form<D> {
+export interface GenericContextSZ<C extends GenericContextSZ<C>> {
+    v: Values<GenericFormSZ<C>>;
+    lockNameFields?: boolean;
+}
+
+export interface GenericFormSZ<C extends GenericContextSZ<C>> extends Form<C> {
     zasah: {
-        datum: InputWidget<D>,
-        clovek: InputWidget<D>,
-        popis: InputWidget<D>,
+        datum: InputWidget<C>,
+        clovek: InputWidget<C>,
+        popis: InputWidget<C>,
     },
 }

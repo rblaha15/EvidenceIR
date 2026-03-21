@@ -13,23 +13,27 @@
     import { getAllIRs } from '$lib/client/incrementalUpdates';
     import { storable } from '$lib/helpers/stores';
 
-    let user = $state(new SearchWidget<unknown, Person>({
+    const userW = new SearchWidget<unknown, Person>({
         label: 'Uživatel', items: usersList, getSearchItem: i => ({
             pieces: [
                 { text: i.email },
             ],
         }),
-    }));
-    let points = $state(new InputWidget({
+    });
+    let user = $state(userW.defaultValue);
+    const pointsW = new InputWidget({
         type: 'number', label: 'Počet bodů k přičtení (může být záporný)',
-    }));
-    let note = $state(new InputWidget({
+    });
+    let points = $state(pointsW.defaultValue);
+    const noteW = new InputWidget({
         label: 'Poznámka', required: false,
-    }));
-    let date = $state(new InputWidget({
+    });
+    let note = $state(noteW.defaultValue);
+    const dateW = new InputWidget({
         type: 'datetime-local', label: 'Datum a čas (UTC)', text: nowISO(true),
-    }));
-    let installation = $state(new SearchWidget<unknown, IR>({
+    });
+    let date = $state(dateW.defaultValue);
+    const installationW = new SearchWidget<unknown, IR>({
         label: 'Související instalace (pokud je)', required: false,
         items: derived(getAllIRs(), irs => irs.data), getSearchItem: i => ({
             pieces: [
@@ -44,7 +48,8 @@
                 i.meta.id,
             ],
         }),
-    }));
+    });
+    let installation = $state(installationW.defaultValue);
 
     const cs = getTranslations('cs');
 
@@ -61,22 +66,22 @@
         $results = { date: new Date().toISOString(), data: await response.json() };
     };
     const add = async () => {
-        date.displayErrorVeto = true;
-        points.displayErrorVeto = true;
-        user.displayErrorVeto = true;
-        if (date.showError({}) || points.showError({}) || user.showError({})) return statusA = 'mistake';
+        dateW.displayErrorVeto = true;
+        pointsW.displayErrorVeto = true;
+        userW.displayErrorVeto = true;
+        if (dateW.showError({}, date) || pointsW.showError({}, points) || userW.showError({}, user)) return statusA = 'mistake';
         statusA = 'loading';
         const token = await getToken();
         const response = await fetch(`/api/loyalty-program?token=${token}`, {
             method: 'POST',
             body: JSON.stringify({
-                userEmail: user.value!.email,
+                userEmail: user!.email,
                 transaction: {
-                    addition: points.value.toNumber(),
+                    addition: points.toNumber(),
                     type: 'other',
-                    note: note.value,
-                    irid: installation.value?.meta?.id,
-                    timestamp: date.value,
+                    note: note,
+                    irid: installation?.meta?.id,
+                    timestamp: date,
                 },
             })
         });
@@ -89,19 +94,19 @@
 
 <div class="d-flex flex-column gap-1">
     <div class="">
-        <Widget bind:widget={user} data={undefined} t={cs} />
+        <Widget widget={userW} bind:value={user} context={{}} t={cs} />
     </div>
     <div class="">
-        <Widget bind:widget={points} data={undefined} t={cs} />
+        <Widget widget={pointsW} bind:value={points} context={{}} t={cs} />
     </div>
     <div class="">
-        <Widget bind:widget={note} data={undefined} t={cs} />
+        <Widget widget={noteW} bind:value={note} context={{}} t={cs} />
     </div>
     <div class="">
-        <Widget bind:widget={date} data={undefined} t={cs} />
+        <Widget widget={dateW} bind:value={date} context={{}} t={cs} />
     </div>
     <div class="">
-        <Widget bind:widget={installation} data={undefined} t={cs} />
+        <Widget widget={installationW} bind:value={installation} context={{}} t={cs} />
     </div>
 </div>
 

@@ -2,15 +2,15 @@ import { type Year } from '$lib/data';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { error } from '@sveltejs/kit';
-import type { DataRKTL, FormRKTL } from '$lib/forms/RKT/formRKTL';
+import type { ContextRKTL, FormRKTL } from '$lib/forms/RKT/formRKTL';
 import defaultRKTL from '$lib/forms/RKT/defaultRKTL';
 import type { Raw } from '$lib/forms/Form';
 import db from '$lib/Database';
 
-const infoRKT: FormInfo<DataRKTL, FormRKTL, [], 'RKTL', { defaultYear: Year, filledYears: Year[], pump: TC }> = {
+const infoRKT: FormInfo<ContextRKTL, FormRKTL, [], 'RKTL', { defaultYear: Year, filledYears: Year[], pump: TC }> = {
     type: 'IR',
     storeName: ({ pump }) => `stored_check-${pump}`,
-    defaultData: ({ defaultYear, filledYears }) => defaultRKTL(defaultYear, filledYears),
+    form: ({ defaultYear, filledYears }) => defaultRKTL(defaultYear, filledYears),
     openPdf: ({ pump }) => ({
         link: 'RKTL',
         pump: pump,
@@ -28,12 +28,12 @@ const infoRKT: FormInfo<DataRKTL, FormRKTL, [], 'RKTL', { defaultYear: Year, fil
         if (view) return { raw: ir.RK.TC[pump]![view] as Raw<FormRKTL>, other: { defaultYear: view, filledYears, pump } };
         return { other: { defaultYear: -1, filledYears, pump } };
     },
-    saveData: async (irid, raw, _1, form, _2, _3, _4, _5, { pump }) => {
-        const year = form.info.year.value as Year;
+    saveData: async ({ irid, raw, values, other: { pump } }) => {
+        const year = values.info.year as Year;
         await db.addRKT(irid, pump, year, raw);
     },
     title: (t, _, { pump }) => t.rkt.formTitle({ n: `${pump}` }),
-    createWidgetData: (_1, _2, _3, _4, mode) => ({ mode }),
+    createContext: ({ mode }) => ({ mode }),
 };
 
 export default infoRKT;

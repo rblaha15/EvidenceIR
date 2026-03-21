@@ -9,26 +9,27 @@ import {
     type SearchWidget,
 } from '$lib/forms/Widget.svelte';
 import { type SparePart } from '$lib/client/realtime';
-import { type Form, type Raw } from '$lib/forms/Form';
+import { type Form, type Raw, type Values } from '$lib/forms/Form';
 import type { IR } from '$lib/data';
-import type { GenericFormSZ } from '$lib/forms/SP/formSZ';
+import type { GenericContextSZ, GenericFormSZ } from '$lib/forms/SP/formSZ';
 
-export type SparePartWidgetGroup<D> = {
-    dil: SearchWidget<D, SparePart, true>,
-    name: InputWidget<D>;
-    code: InputWidget<D>;
-    unitPrice: InputWidget<D>;
-    warehouse: InputWidget<D>,
-    mnozstvi: InputWidget<D>,
+export type SparePartWidgetGroup<C> = {
+    dil: SearchWidget<C, SparePart, true>,
+    name: InputWidget<C>;
+    code: InputWidget<C>;
+    unitPrice: InputWidget<C>;
+    warehouse: InputWidget<C>,
+    mnozstvi: InputWidget<C>,
 }
 
-export interface FormSP extends GenericFormSP<DataSP>, Form<DataSP> {
+export interface FormSP extends GenericFormSP<ContextSP>, Form<ContextSP> {
 }
 
-export type DataSP = IR & FormSP & {
+export interface ContextSP extends GenericContextSP<ContextSP> {
+    f: FormSP
+    v: Values<FormSP>
     raw: Raw<FormSP>
-    form: FormSP
-    lockNameFields?: boolean
+    ir: IR
 }
 
 export type Operation =
@@ -42,44 +43,49 @@ export type Operation =
     | `installationApproval`
     | 'withoutCode';
 
-export interface GenericFormSP<D extends GenericFormSP<D>> extends GenericFormSZ<D>, Form<D> {
+export interface GenericContextSP<C extends GenericContextSP<C>> extends GenericContextSZ<C> {
+    v: Values<GenericFormSP<C>>
+    f: GenericFormSP<C>
+}
+
+export interface GenericFormSP<C extends GenericContextSP<C>> extends GenericFormSZ<C>, Form<C> {
     system: {
-        datumUvedeni: InputWidget<D>;
-        zaruka: RadioWidget<D, `warrantyCommon` | `warrantyExtended`>,
+        datumUvedeni: InputWidget<C>;
+        zaruka: RadioWidget<C, `warrantyCommon` | `warrantyExtended`>,
     }
     zasah: {
-        showNameFileds: HiddenValueWidget<D, boolean, true>,
-        inicialy: InputWidget<D>,
-        nahlasenaZavada: InputWidget<D>,
-        interventionDuration: InputWidget<D>,
-    } & GenericFormSZ<D>['zasah'],
+        showNameFileds: HiddenValueWidget<C, boolean, true>,
+        inicialy: InputWidget<C>,
+        nahlasenaZavada: InputWidget<C>,
+        interventionDuration: InputWidget<C>,
+    } & GenericFormSZ<C>['zasah'],
     ukony: {
-        ukony: MultiCheckboxWidget<D, Operation>,
-        typPrace: RadioWidget<D, `assemblyWork` | `technicalAssistance` | `assemblyWork12`>,
-        doba: InputWidget<D>,
-        doprava: InputWidget<D>,
+        ukony: MultiCheckboxWidget<C, Operation>,
+        typPrace: RadioWidget<C, `assemblyWork` | `technicalAssistance` | `assemblyWork12`>,
+        doba: InputWidget<C>,
+        doprava: InputWidget<C>,
     },
     nahradniDily: {
-        pocet: CounterWidget<D>,
+        pocet: CounterWidget<C>,
     },
-    nahradniDil1: SparePartWidgetGroup<D>,
-    nahradniDil2: SparePartWidgetGroup<D>,
-    nahradniDil3: SparePartWidgetGroup<D>,
-    nahradniDil4: SparePartWidgetGroup<D>,
-    nahradniDil5: SparePartWidgetGroup<D>,
-    nahradniDil6: SparePartWidgetGroup<D>,
-    nahradniDil7: SparePartWidgetGroup<D>,
-    nahradniDil8: SparePartWidgetGroup<D>,
+    nahradniDil1: SparePartWidgetGroup<C>,
+    nahradniDil2: SparePartWidgetGroup<C>,
+    nahradniDil3: SparePartWidgetGroup<C>,
+    nahradniDil4: SparePartWidgetGroup<C>,
+    nahradniDil5: SparePartWidgetGroup<C>,
+    nahradniDil6: SparePartWidgetGroup<C>,
+    nahradniDil7: SparePartWidgetGroup<C>,
+    nahradniDil8: SparePartWidgetGroup<C>,
     fakturace: {
-        invoiceParts: MultiCheckboxWidget<D, 'work' | Operation | `transportation`>,
-        discount: InputWidget<D>,
-        discountReason: InputWidget<D>,
-        hotove: ChooserWidget<D, 'yes' | 'no' | 'doNotInvoice'>,
-        komu: RadioWithInputWidget<D, 'investor' | `assemblyCompany` | 'commissioningCompany' | 'otherCompany'>,
-        jak: RadioWidget<D, 'onPaper' | 'electronically'>,
+        invoiceParts: MultiCheckboxWidget<C, 'work' | Operation | `transportation`>,
+        discount: InputWidget<C>,
+        discountReason: InputWidget<C>,
+        hotove: ChooserWidget<C, 'yes' | 'no' | 'doNotInvoice'>,
+        komu: RadioWithInputWidget<C, 'investor' | `assemblyCompany` | 'commissioningCompany' | 'otherCompany'>,
+        jak: RadioWidget<C, 'onPaper' | 'electronically'>,
     },
     other: {
-        preview: InlinePdfPreviewWidget<D, 'NSP'>
+        preview: InlinePdfPreviewWidget<C, 'NSP'>
     },
 }
 

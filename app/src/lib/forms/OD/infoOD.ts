@@ -1,5 +1,5 @@
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
-import type { FormOD } from '$lib/forms/OD/formOD';
+import type { ContextOD, FormOD } from '$lib/forms/OD/formOD';
 import defaultOD from './defaultOD';
 import { page } from '$app/state';
 import { get } from 'svelte/store';
@@ -10,20 +10,18 @@ import { dev } from '$app/environment';
 import { initialRouteLoggedIn } from '$lib/helpers/globals';
 import { separatorsRegExp } from '$lib/forms/IN/defaultIN';
 
-const infoOD: IndependentFormInfo<FormOD, FormOD> = {
+const infoOD: IndependentFormInfo<ContextOD, FormOD> = {
     type: '',
     storeName: () => 'stored_documents_to_send',
-    defaultData: defaultOD,
-    onMount: async (d, f) => {
+    form: defaultOD,
+    onMount: async ({ values }) => {
         const name = userAddress(get(currentUser)!)?.name;
-        f.all.body.setValue(
-            d, !name ? `Dobrý den,\nv příloze naleznete podepsané dokumenty ze servisního zásahu.`
-                : `Dobrý den,\nv příloze naleznete podepsané dokumenty ze servisního zásahu.\nS pozdravem,\n${name}`,
-        );
-        f.all.userEmail.setValue(d, page.url.searchParams.get('user') ?? '');
-        f.all.assemblyEmail.setValue(d, page.url.searchParams.get('assembly') ?? '');
+        values.all.body = !name ? `Dobrý den,\nv příloze naleznete podepsané dokumenty ze servisního zásahu.`
+                : `Dobrý den,\nv příloze naleznete podepsané dokumenty ze servisního zásahu.\nS pozdravem,\n${name}`;
+        values.all.userEmail = page.url.searchParams.get('user') ?? '';
+        values.all.assemblyEmail = page.url.searchParams.get('assembly') ?? '';
     },
-    saveData: async (raw, _1, _2, editResult, t) => {
+    saveData: async ({ raw, editResult, t }) => {
         const user = userAddress(get(currentUser)!);
 
         const fileIds = [...raw.all.documents, ...raw.all.photos].map(photo => photo.uuid);
@@ -52,7 +50,7 @@ const infoOD: IndependentFormInfo<FormOD, FormOD> = {
             load: false,
         });
     },
-    createWidgetData: f => f,
+    createContext: ({ values: v }) => ({ v }),
     title: t => t.od.title,
     buttons: _ => ({
         hideSave: true,

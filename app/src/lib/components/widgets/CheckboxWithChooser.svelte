@@ -1,24 +1,27 @@
-<script generics="D, I extends string" lang="ts">
+<script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { CheckboxWithChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
+    import { CheckboxWithChooserWidget, labelAndStar, type SeCh } from '$lib/forms/Widget.svelte.js';
     import type { Action } from 'svelte/action';
     import { onMount } from 'svelte';
 
     interface Props {
         t: Translations;
-        widget: CheckboxWithChooserWidget<D, I>;
-        data: D;
+        widget: CheckboxWithChooserWidget<C, I>;
+        context: C;
+        value: SeCh<I>;
     }
 
-    let { t, widget = $bindable(), data }: Props = $props();
+    let { t, widget, value = $bindable(), context }: Props = $props();
 
     const onChange = (
         e: Event & {
             currentTarget: HTMLSelectElement;
         },
-    ) => widget.setValue(
-        data, { checked: true, chosen: e.currentTarget.value as I },
-    );
+    ) => {
+        const newValue = { checked: true, chosen: e.currentTarget.value as I };
+        value = newValue;
+        widget.onValueSet(context, newValue);
+    };
 
     let mounted = false;
     onMount(() => (mounted = true));
@@ -27,7 +30,9 @@
     };
 
     const onClick = () => {
-        widget.mutateValue(data, v => ({ ...v, checked: !v.checked }));
+        const newValue = { ...value, checked: !value.checked };
+        value = newValue;
+        widget.onValueSet(context, newValue);
     };
 
     const uid = $props.id();
@@ -36,26 +41,26 @@
 <div class="d-flex gap-1 flex-column">
     <div class="input-group">
         <button aria-labelledby="label-{uid}" class="input-group-text input-group-input" onclick={onClick} tabindex="-1">
-            <input bind:checked={widget.value.checked} class="form-check-input m-0" role="button" type="checkbox" />
+            <input bind:checked={value.checked} class="form-check-input m-0" role="button" type="checkbox" />
         </button>
         <label class="form-floating d-block" id="label-{uid}">
-            {#if widget.value.checked}
-                <select class="form-select" value={widget.value.chosen ?? 'notChosen'} onchange={onChange} use:Select>
+            {#if value.checked}
+                <select class="form-select" value={value.chosen ?? 'notChosen'} onchange={onChange} use:Select>
                     <option class="d-none" value='notChosen'>{t.widget.notChosen}</option>
-                    {#each widget.options(data) as moznost}
+                    {#each widget.options(context) as moznost}
                         <option value={moznost}>{widget.get(t, moznost)}</option>
                     {/each}
                 </select>
             {:else}
-                <input type="text" placeholder={labelAndStar(widget, data, t)} readonly onclick={onClick}
+                <input type="text" placeholder={labelAndStar(widget, context, t)} readonly onclick={onClick}
                        class="form-control shadow-none input-group-text" role="button"
                        tabindex="-1" />
             {/if}
-            <label for="">{labelAndStar(widget, data, t)}</label>
+            <label for="">{labelAndStar(widget, context, t)}</label>
         </label>
     </div>
 
-    {#if widget.showError(data)}
-        <p class="text-danger">{widget.onError(t, data)}</p>
+    {#if widget.showError(context, value)}
+        <p class="text-danger">{widget.onError(t, context)}</p>
     {/if}
 </div>

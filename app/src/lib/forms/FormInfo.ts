@@ -1,5 +1,5 @@
 import type { OpenPdfOptions, Pdf } from '$lib/pdf/pdf';
-import type { Form, Raw } from '$lib/forms/Form';
+import type { Form, Raw, Values } from '$lib/forms/Form';
 import type { Translations } from '$lib/translations';
 import type { ExcelImport } from '$lib/forms/ExcelImport';
 import type { Readable } from 'svelte/store';
@@ -9,30 +9,32 @@ import type { FormIN } from '$lib/forms/IN/formIN';
 import type { PdfImport } from '$lib/forms/PdfImport';
 
 export type Effect<
-    D, F extends Form<D>, S extends unknown[]
+    C, F extends Form<C>, S extends unknown[]
 > = [
-    (data: D, form: F, values: S, edit: boolean, t: Translations) => void,
+    (values: S, _: { context: C, values: Values<F>, edit: boolean, t: Translations }) => void,
     { [I in keyof S]: Readable<S[I]> }
 ]
 
 export type Result = { text: string, red: boolean, load: boolean, error?: string };
 export const buttonKeys = ['hideBack', 'hideSave', 'saveAndSend', 'saveAndSendAgain', 'send', 'saveAsDraft'] as const
 export type ButtonKey = typeof buttonKeys[number]
+export type Mode = 'create' | 'edit' | 'view';
+export type ModeL = Mode | 'loading';
 
 export type IndependentFormInfo<
-    D,
-    F extends Form<D>,
+    C,
+    F extends Form<C>,
     S extends unknown[][] = [],
     P extends Pdf = Pdf,
     O extends Record<string, unknown> = Record<never, unknown>,
 > = {
     type: '';
     storeName: (other: O) => string;
-    defaultData: (other: O) => F;
-    saveData: (raw: Raw<F>, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, draft: boolean, other: O, resetForm: () => void) => Promise<boolean | void>;
-    storeData?: (data: F, other: O) => Raw<F>;
-    createWidgetData: (data: F, other: O, mode: 'create' | 'edit' | 'view' | 'loading') => keyof Form extends keyof D ? Omit<D, keyof Form> : D;
-    title: (t: Translations, mode: 'create' | 'edit' | 'view', other: O) => string;
+    form: (other: O) => F;
+    saveData: (_: { raw: Raw<F>, edit: boolean, values: Values<F>, context: C, form: F, editResult(r: Result): void, t: Translations, send: boolean, draft: boolean, other: O, resetForm: () => void }) => Promise<boolean | void>;
+    storeData?: (form: F, values: Values<F>, other: O) => Raw<F>;
+    createContext: (_: { form: F, values: Values<F>, other: O, mode: ModeL }) => keyof Form extends keyof C ? Omit<C, keyof Form> : C;
+    title: (t: Translations, mode: Mode, other: O) => string;
     subtitle?: ((t: Translations, edit: boolean) => string) | undefined;
     /**
      * Runs in +page.ts after getViewData
@@ -42,13 +44,13 @@ export type IndependentFormInfo<
      * Runs in +page.ts before getEditData
      */
     getViewData?: ((url: URL) => Promise<{ raw?: Raw<F>, other?: O } | undefined>) | undefined;
-    onMount?: (data: D, form: F, mode: 'create' | 'edit' | 'view', other: O) => Promise<void> | undefined;
-    storeEffects?: { [I in keyof S]: Effect<D, F, S[I]> } | undefined;
+    onMount?: (_: { context: C, values: Values<F>, mode: Mode, other: O }) => Promise<void> | undefined;
+    storeEffects?: { [I in keyof S]: Effect<C, F, S[I]> } | undefined;
     excelImport?: Omit<ExcelImport<Raw<F>>, 'defaultData'> & {
-        onImport: (data: D, form: F, other: O) => void;
+        onImport: (context: C, values: Values<F>, other: O) => void;
     };
     pdfImport?: Omit<PdfImport<Raw<F>>, 'defaultData'> & {
-        onImport: (data: D, form: F, other: O) => void;
+        onImport: (context: C, values: Values<F>, other: O) => void;
     };
     buttons?: (edit: boolean, other: O) => MaybeReadable<{ [B in ButtonKey]?: boolean; }>;
     redirectLink?: (raw: Raw<F>, other: O) => Promise<string>;
@@ -57,17 +59,17 @@ export type IndependentFormInfo<
 }
 
 export type FormInfo<
-    D,
-    F extends Form<D>,
+    C,
+    F extends Form<C>,
     S extends unknown[][] = [],
     P extends Pdf<'IR'> = Pdf<'IR'>,
     O extends Record<string, unknown> = Record<never, unknown>,
 > = {
     type: 'IR';
-    defaultData: (other: O, ir: IR) => F;
+    form: (other: O, ir: IR) => F;
     openPdf?: (other: O) => Omit<OpenPdfOptions<P>, 'irid'>;
-    saveData: (irid: IRID, raw: Raw<F>, edit: boolean, form: F, editResult: (result: Result) => void, t: Translations, send: boolean, ir: IR, other: O) => Promise<boolean | void>;
-    createWidgetData: (evidence: Raw<FormIN>, data: F, ir: IR, other: O, mode: 'create' | 'edit' | 'view' | 'loading') => keyof Form extends keyof D ? Omit<D, keyof Form> : D;
+    saveData: (_: { irid: IRID, raw: Raw<F>, edit: boolean, values: Values<F>, context: C, form: F, editResult(r: Result): void, t: Translations, send: boolean, ir: IR, other: O }) => Promise<boolean | void>;
+    createContext: (_: { IN: Raw<FormIN>, form: F, values: Values<F>, ir: IR, other: O, mode: ModeL }) => keyof Form extends keyof C ? Omit<C, keyof Form> : C;
     /**
      * Runs in +page.ts after getViewData
      */
@@ -76,9 +78,9 @@ export type FormInfo<
      * Runs in +page.ts before getEditData
      */
     getViewData?: ((ir: IR, url: URL) => { raw?: Raw<F>, other?: O } | undefined) | undefined;
-    onMount?: (data: D, form: F, mode: 'create' | 'edit' | 'view', ir: IR, other: O) => Promise<void> | undefined;
+    onMount?: (_: { context: C, values: Values<F>, mode: Mode, ir: IR, other: O }) => Promise<void> | undefined;
     buttons?: (edit: boolean, other: O) => MaybeReadable<{ [B in Exclude<ButtonKey, 'hideBack' | 'saveAsDraft'>]?: boolean; }>;
 } & Omit<
-    IndependentFormInfo<D, F, S, P, O>,
-    'type' | 'saveData' | 'createWidgetData' | 'getEditData' | 'getViewData' | 'redirectLink' | 'openPdf' | 'onMount' | 'defaultData'
+    IndependentFormInfo<C, F, S, P, O>,
+    'type' | 'saveData' | 'createContext' | 'getEditData' | 'getViewData' | 'redirectLink' | 'openPdf' | 'onMount' | 'form'
 >

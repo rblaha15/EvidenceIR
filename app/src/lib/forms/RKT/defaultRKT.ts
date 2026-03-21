@@ -1,19 +1,19 @@
 import { CheckboxWidget, CounterWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
-import type { DataRKT, FormRKT } from '$lib/forms/RKT/formRKT.js';
+import type { ContextRKT, FormRKT } from '$lib/forms/RKT/formRKT.js';
 import type { FormPlus } from '$lib/forms/Form';
 import { dayISO } from '$lib/helpers/date';
 
-const gtw = (d: DataRKT) => d.IN.tc.typ == 'groundToWater'
-const atw = (d: DataRKT) => d.IN.tc.typ == 'airToWater'
+const gtw = (c: ContextRKT) => c.IN.tc.typ == 'groundToWater'
+const atw = (c: ContextRKT) => c.IN.tc.typ == 'airToWater'
 
 export default (y: number, done: number[]): FormPlus<FormRKT> => ({
     info: {
         osoba: new InputWidget({ label: t => t.rkt.performingPerson }),
         datum: new InputWidget({ label: t => t.rkt.checkDate, type: 'date', text: dayISO() }),
-        year: new CounterWidget<DataRKT, true>({
+        year: new CounterWidget<ContextRKT, true>({
             label: t => t.rkt.checkYear, min: 1, chosen: y, max: Number.POSITIVE_INFINITY, hideInRawData: true,
             validate: (v, d) => d.mode != 'create' || !done.includes(v),
-            lock: d => d.mode != 'create', onError: t => t.rkt.yearAlreadyFilled,
+            lock: c => c.mode != 'create', onError: t => t.rkt.yearAlreadyFilled,
         })
     },
     kontrolaTepelnehoCerpadla: {
@@ -30,17 +30,17 @@ export default (y: number, done: number[]): FormPlus<FormRKT> => ({
         _nadpis: new TitleWidget({ text: t => t.rkt.kontrolaRegulace, level: 2 }),
         kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: new CheckboxWidget({ label: t => t.rkt.kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin, required: false }),
         celkoveProvozniHodinyKompresoru: new InputWidget({ label: t => t.rkt.celkoveProvozniHodinyKompresoru, required: false, inputmode: 'numeric' }),
-        celkoveProvozniHodinyKompresoruMinule: new TextWidget({ text: '' }),
+        celkoveProvozniHodinyKompresoruMinule: new TextWidget({ text: (t, c) => c.dataFromLastYear?.celkoveProvozniHodinyKompresoru?.(t, c) || '' }),
         provozniHodinyKompresoruDoTepleVody: new InputWidget({ label: t => t.rkt.provozniHodinyKompresoruDoTepleVody, required: false, inputmode: 'numeric' }),
-        provozniHodinyKompresoruDoTepleVodyMinule: new TextWidget({ text: '' }),
+        provozniHodinyKompresoruDoTepleVodyMinule: new TextWidget({ text: (t, c) => c.dataFromLastYear?.provozniHodinyKompresoruDoTepleVody?.(t, c) || '' }),
         celkovyPocetStartuKompresoru: new InputWidget({ label: t => t.rkt.celkovyPocetStartuKompresoru, required: false, inputmode: 'numeric' }),
-        celkovyPocetStartuKompresoruMinule: new TextWidget({ text: '' }),
+        celkovyPocetStartuKompresoruMinule: new TextWidget({ text: (t, c) => c.dataFromLastYear?.celkovyPocetStartuKompresoru?.(t, c) || '' }),
         pocetStartuKompresoruDoTepleVody: new InputWidget({ label: t => t.rkt.pocetStartuKompresoruDoTepleVody, required: false, inputmode: 'numeric' }),
-        pocetStartuKompresoruDoTepleVodyMinule: new TextWidget({ text: '' }),
+        pocetStartuKompresoruDoTepleVodyMinule: new TextWidget({ text: (t, c) => c.dataFromLastYear?.pocetStartuKompresoruDoTepleVody?.(t, c) || '' }),
         celkoveProvozniHodinyDoplnkovehoZdroje: new InputWidget({ label: t => t.rkt.celkoveProvozniHodinyDoplnkovehoZdroje, required: false, inputmode: 'numeric' }),
-        celkoveProvozniHodinyDoplnkovehoZdrojeMinule: new TextWidget({ text: '' }),
+        celkoveProvozniHodinyDoplnkovehoZdrojeMinule: new TextWidget({ text: (t, c) => c.dataFromLastYear?.celkoveProvozniHodinyDoplnkovehoZdroje?.(t, c) || '' }),
         celkoveProvozniHodinyDoplnkovehoZdrojeTepleVody: new InputWidget({ label: t => t.rkt.celkoveProvozniHodinyDoplnkovehoZdrojeTepleVody, required: false, inputmode: 'numeric' }),
-        celkoveProvozniHodinyDoplnkovehoZdrojeTepleVodyMinule: new TextWidget({ text: '' }),
+        celkoveProvozniHodinyDoplnkovehoZdrojeTepleVodyMinule: new TextWidget({ text: (t, c) => c.dataFromLastYear?.celkoveProvozniHodinyDoplnkovehoZdrojeTepleVody?.(t, c) || '' }),
         prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: new InputWidget({ label: t => t.rkt.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly, required: false, inputmode: 'numeric', show: false, suffix: t => t.units.min }),
         prumernaDobaChoduKompresoruDoTepleVodyMinOdPosledniKontroly: new InputWidget({ label: t => t.rkt.prumernaDobaChoduKompresoruDoTepleVodyMinOdPosledniKontroly, required: false, inputmode: 'numeric', show: false, suffix: t => t.units.min }),
     },

@@ -5,7 +5,7 @@
     import { goto } from '$app/navigation';
     import { type Translations } from '$lib/translations';
     import { defaultNSP } from '$lib/forms/NSP/formNSP';
-    import { dataToRawData, type Raw } from '$lib/forms/Form';
+    import { type Raw, valuesToRawData, defaultValues } from '$lib/forms/Form';
     import { endUserEmails, type IRID } from '$lib/helpers/ir';
     import { InputWidget } from '$lib/forms/Widget.svelte.js';
     import defaultSP from '$lib/forms/SP/defaultSP';
@@ -28,23 +28,22 @@
 
     const protocolGroups: (keyof Raw<FormSP>)[] = defaultSP().keys();
 
-    const newIRID = new InputWidget({
-        label: t => t.detail.newIRIDLabel,
-    });
+    const widget = new InputWidget({ label: t => t.detail.newIRIDLabel });
+    let newIRID = $state(widget.defaultValue);
     const transfer = async () => {
         await db.addSPs(
-            newIRID.value as IRID,
+            newIRID as IRID,
             ...sps
                 .map(sp => sp.deleted ? undefined : sp).filterNotUndefined()
                 .map(sp => sp.NSP.pick(...protocolGroups) as Raw<FormSP>),
         );
-        await goto(detailIrUrl(newIRID.value as IRID), { replaceState: true });
+        await goto(detailIrUrl(newIRID as IRID), { replaceState: true });
     };
 
     const createCopy = () => {
         const sp = sps[0] as ExistingNSP;
         const newSP = {
-            ...dataToRawData(defaultNSP()),
+            ...valuesToRawData(defaultNSP(), defaultValues(defaultNSP())),
             ...sp.NSP.omit(...protocolGroups),
             ...sp.NSP.pick('system'),
         };
@@ -53,7 +52,7 @@
     const createCopyIN = () => {
         const sp = sps[0] as ExistingNSP;
         const newIN = {
-            ...dataToRawData(defaultIN()),
+                ...valuesToRawData(defaultIN(), defaultValues(defaultIN())),
             ...sp.NSP.omit(...protocolGroups),
         };
         storable<Raw<FormIN>>(IN.storeName({ draft: false })).set(newIN);
@@ -96,7 +95,7 @@
                 </a>
 
                 <div class="d-flex flex-column gap-1 align-items-sm-start">
-                    <Widget widget={newIRID} {t} data={{}} />
+                    <Widget {widget} bind:value={newIRID} {t} context={{}} />
                     <button class="btn btn-danger d-block" onclick={transfer}>
                         <Icon icon="drive_file_move" />
                         {td.transferProtocols}{$aA}

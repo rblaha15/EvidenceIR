@@ -1,4 +1,4 @@
-<script generics="D" lang="ts">
+<script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
     import { type InputWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import IMask, { InputMask } from 'imask';
@@ -7,11 +7,12 @@
 
     interface Props {
         t: Translations;
-        widget: InputWidget<D>;
-        data: D;
+        widget: InputWidget<C>;
+        context: C;
+        value: string;
     }
 
-    let { t, widget = $bindable(), data }: Props = $props();
+    let { t, widget, value = $bindable(), context }: Props = $props();
 
     type MyOpts = {
         lazy: boolean;
@@ -23,14 +24,14 @@
         value?: string;
     };
 
-    const maybeCapitalized = (value: string, vec: InputWidget<D>): string =>
-        vec.capitalize(data) ? value.toUpperCase() : value;
+    const maybeCapitalized = (value: string, vec: InputWidget<C>): string =>
+        vec.capitalize(context) ? value.toUpperCase() : value;
 
     let input = $state<HTMLInputElement>();
     let textarea = $state<HTMLTextAreaElement>();
     let mask = $state<InputMask<MyOpts>>();
 
-    let opts = $derived(widget.maskOptions(data));
+    let opts = $derived(widget.maskOptions(context));
 
     let options = $derived(
         !opts
@@ -45,8 +46,12 @@
     onMount(() => {
         if (options != undefined && input != undefined) {
             mask = IMask(input, options);
-            mask.value = widget.value;
-            mask.on('accept', () => widget.setValue(data, maybeCapitalized(mask!.value, widget)));
+            mask.value = value;
+            mask.on('accept', () => {
+                const newValue = maybeCapitalized(mask!.value, widget);
+                value = newValue;
+                widget.onValueSet(context, newValue);
+            });
         }
     });
 
@@ -66,73 +71,82 @@
         if (mask) mask.value = text;
     };
     const onClick = () => {
-        widget.setValue(data, '');
+        value = '';
+        widget.onValueSet(context, '');
     };
 </script>
 
 <div class="d-flex gap-1 flex-column">
     <div class="input-group">
-        <label class={["d-block w-100", {'form-floating': !widget.placeholder(t, data)}]}>
-            {#if widget.textArea(data)}
+        <label class={["d-block w-100", {'form-floating': !widget.placeholder(t, context)}]}>
+            {#if widget.textArea(context)}
             <textarea
-                autocomplete={widget.autocomplete(data)}
-                inputmode={widget.inputmode(data)}
-                enterkeyhint={widget.enterkeyhint(data)}
-                autocapitalize={widget.autocapitalize(data)}
-                placeholder={widget.placeholder(t, data) || labelAndStar(widget, data, t)}
+                autocomplete={widget.autocomplete(context)}
+                inputmode={widget.inputmode(context)}
+                enterkeyhint={widget.enterkeyhint(context)}
+                autocapitalize={widget.autocapitalize(context)}
+                placeholder={widget.placeholder(t, context) || labelAndStar(widget, context, t)}
                 class={['form-control', "lh-base"]}
                 bind:this={textarea}
-                value={widget.value}
+                {value}
                 oninput={() => {
-					if (textarea) widget.setValue(data, maybeCapitalized(textarea.value, widget));
+					if (textarea) {
+                        const newValue = maybeCapitalized(textarea.value, widget);
+                        value = newValue;
+                        widget.onValueSet(context, newValue);
+                    }
 				}}
-                disabled={widget.lock(data)}
+                disabled={widget.lock(context)}
                 style="height: 150px"
             ></textarea>
             {:else if options !== undefined}
                 <input
-                    type={widget.type(data)}
-                    inputmode={widget.inputmode(data)}
-                    enterkeyhint={widget.enterkeyhint(data)}
-                    autocapitalize={widget.autocapitalize(data)}
-                    autocomplete={widget.autocomplete(data)}
-                    placeholder={widget.placeholder(t, data) || labelAndStar(widget, data, t)}
+                    type={widget.type(context)}
+                    inputmode={widget.inputmode(context)}
+                    enterkeyhint={widget.enterkeyhint(context)}
+                    autocapitalize={widget.autocapitalize(context)}
+                    autocomplete={widget.autocomplete(context)}
+                    placeholder={widget.placeholder(t, context) || labelAndStar(widget, context, t)}
                     class="form-control"
                     bind:this={input}
-                    disabled={widget.lock(data)}
+                    disabled={widget.lock(context)}
                 />
             {:else}
                 <input
-                    type={widget.type(data)}
-                    inputmode={widget.inputmode(data)}
-                    enterkeyhint={widget.enterkeyhint(data)}
-                    autocapitalize={widget.autocapitalize(data)}
-                    autocomplete={widget.autocomplete(data)}
-                    placeholder={widget.placeholder(t, data) || labelAndStar(widget, data, t)}
+                    type={widget.type(context)}
+                    inputmode={widget.inputmode(context)}
+                    enterkeyhint={widget.enterkeyhint(context)}
+                    autocapitalize={widget.autocapitalize(context)}
+                    autocomplete={widget.autocomplete(context)}
+                    placeholder={widget.placeholder(t, context) || labelAndStar(widget, context, t)}
                     class="form-control"
                     bind:this={input}
-                    value={widget.value}
+                    value={value}
                     oninput={() => {
-					if (input) widget.setValue(data, maybeCapitalized(input.value, widget));
+					if (input) {
+                        const newValue = maybeCapitalized(input.value, widget)
+                        value = newValue;
+                        widget.onValueSet(context, newValue);
+                    }
 				}}
-                    disabled={widget.lock(data)}
+                    disabled={widget.lock(context)}
                 />
             {/if}
-            {#if widget.label(t, data)}
-                <label for="">{labelAndStar(widget, data, t)}</label>
+            {#if widget.label(t, context)}
+                <label for="">{labelAndStar(widget, context, t)}</label>
             {/if}
             <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1"
-                    class:d-none={!widget.value || widget.type(data) !== 'date' || widget.required(data)} onclick={onClick}>
+                    class:d-none={!value || widget.type(context) !== 'date' || widget.required(context)} onclick={onClick}>
                 <Icon icon="clear" />
             </button>
         </label>
-        {#if widget.suffix(t, data)}
-            <span class="input-group-text">{widget.suffix(t, data) ?? ''}</span>
+        {#if widget.suffix(t, context)}
+            <span class="input-group-text">{widget.suffix(t, context) ?? ''}</span>
         {/if}
     </div>
 
-    {#if widget.showError(data)}
-        <span class="text-danger help-block">{widget.onError(t, data)}</span>
+    {#if widget.showError(context, value)}
+        <span class="text-danger help-block">{widget.onError(t, context)}</span>
     {/if}
 </div>
 

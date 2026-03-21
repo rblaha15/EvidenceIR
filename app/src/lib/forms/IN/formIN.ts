@@ -15,48 +15,50 @@ import {
     type TitleWidget,
 } from '$lib/forms/Widget.svelte.js';
 import type { Company } from '$lib/client/realtime';
-import type { Form } from '$lib/forms/Form';
+import type { Form, Values } from '$lib/forms/Form';
 import type { HeatPump } from '$lib/helpers/products';
 import { getTranslations, type Translations } from '$lib/translations';
 import type { Address } from '$lib/helpers/ruian';
 
-type CompanyWidgetGroup<D> = {
-    company: SearchWidget<D, Company, true>;
-    ico: InputWidget<D>;
-    chosen: TextWidget<D>;
-    zastupce: InputWidget<D>;
-    email: InputWidget<D>;
-    telefon: InputWidget<D>;
+type CompanyWidgetGroup<C> = {
+    company: SearchWidget<C, Company, true>;
+    ico: InputWidget<C>;
+    chosen: TextWidget<C>;
+    zastupce: InputWidget<C>;
+    email: InputWidget<C>;
+    telefon: InputWidget<C>;
 }
-type AddressWidgetGroup<D> = {
-    search: SearchWidget<D, Address, true>;
-    obec: InputWidget<D>;
-    ulice: InputWidget<D>;
-    psc: InputWidget<D>;
+type AddressWidgetGroup<C> = {
+    search: SearchWidget<C, Address, true>;
+    obec: InputWidget<C>;
+    ulice: InputWidget<C>;
+    psc: InputWidget<C>;
 }
 
-export interface UserForm<D extends UserForm<D>> extends Form<D> {
+export type UserFormContext<C extends UserFormContext<C>> = { v: Values<UserForm<C>> };
+
+export interface UserForm<C extends UserFormContext<C>> extends Form<C> {
     koncovyUzivatel: {
-        nadpis: TitleWidget<D>;
-        typ: RadioWidget<D, `individual` | `company`>;
-        prijmeni: InputWidget<D>;
-        jmeno: InputWidget<D>;
-        narozeni: InputWidget<D>;
-        ico: InputWidget<D>;
-        searchButton: ButtonWidget<D>;
-        searchFail: HiddenValueWidget<D, boolean, true>;
-        searchFailText: TextWidget<D>;
-        nazev: InputWidget<D>;
-        wrongFormat: TextWidget<D>;
-        pobocka: InputWidget<D>;
-        kontaktniOsoba: InputWidget<D>;
-        telefon: InputWidget<D>;
-        email: InputWidget<D>;
+        nadpis: TitleWidget<C>;
+        typ: RadioWidget<C, `individual` | `company`>;
+        prijmeni: InputWidget<C>;
+        jmeno: InputWidget<C>;
+        narozeni: InputWidget<C>;
+        ico: InputWidget<C>;
+        searchButton: ButtonWidget<C>;
+        searchFail: HiddenValueWidget<C, boolean, true>;
+        searchFailText: TextWidget<C>;
+        nazev: InputWidget<C>;
+        wrongFormat: TextWidget<C>;
+        pobocka: InputWidget<C>;
+        kontaktniOsoba: InputWidget<C>;
+        telefon: InputWidget<C>;
+        email: InputWidget<C>;
     };
-    bydliste: AddressWidgetGroup<D>;
-    mistoRealizace: AddressWidgetGroup<D>;
-    montazka: CompanyWidgetGroup<D>;
-    uvedeni: CompanyWidgetGroup<D>;
+    bydliste: AddressWidgetGroup<C>;
+    mistoRealizace: AddressWidgetGroup<C>;
+    montazka: CompanyWidgetGroup<C>;
+    uvedeni: CompanyWidgetGroup<C>;
 }
 
 export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL' | 'Thermona';
@@ -76,86 +78,91 @@ type ControllersSOREL =
 type ControllersCTC = 'EcoEl' | 'EcoZenith' | 'EcoHeat' | 'EcoLogic EXT';
 export type IRSubTypes = 'RTC' | 'CTC' | ControllersSOREL | ControllersCTC | 'inTHERM 10';
 
-export interface FormIN extends UserForm<FormIN>, Form<FormIN> {
+export type ContextIN = {
+    v: Values<FormIN>
+    f: FormIN
+}
+
+export interface FormIN extends UserForm<ContextIN>, Form<ContextIN> {
     ir: {
-        nadpisSystem: TitleWidget<FormIN>;
-        nadpis: TitleWidget<FormIN>;
-        regulus: HiddenValueWidget<FormIN, boolean, true>;
-        typ: DoubleChooserWidget<FormIN, IRTypes, IRSubTypes>,
-        cislo: InputWidget<FormIN>,
-        alreadyExists: HiddenValueWidget<FormIN, boolean, true>,
-        alreadyExistsWarning: TextWidget<FormIN>,
-        cisloBox: InputWidget<FormIN>;
-        boxType: TextWidget<FormIN>;
-        chceVyplnitK: MultiCheckboxWidget<FormIN, `heatPump` | `solarCollector` | `accumulation` | 'waterStorage' | `ventilation` | 'photovoltaicPowerPlant' | 'other'>;
+        nadpisSystem: TitleWidget<ContextIN>;
+        nadpis: TitleWidget<ContextIN>;
+        regulus: HiddenValueWidget<ContextIN, boolean, true>;
+        typ: DoubleChooserWidget<ContextIN, IRTypes, IRSubTypes>,
+        cislo: InputWidget<ContextIN>,
+        alreadyExists: HiddenValueWidget<ContextIN, boolean, true>,
+        alreadyExistsWarning: TextWidget<ContextIN>,
+        cisloBox: InputWidget<ContextIN>;
+        boxType: TextWidget<ContextIN>;
+        chceVyplnitK: MultiCheckboxWidget<ContextIN, `heatPump` | `solarCollector` | `accumulation` | 'waterStorage' | `ventilation` | 'photovoltaicPowerPlant' | 'other'>;
     };
     tc: {
-        nadpis: TitleWidget<FormIN>;
-        poznamka: TextWidget<FormIN>;
-        typ: RadioWidget<FormIN, 'airToWater' | 'groundToWater'>;
-        pocet: CounterWidget<FormIN, true>;
-        model: ChooserWidget<FormIN, HeatPump>;
-        cislo: ScannerWidget<FormIN>;
-        model2: ChooserWidget<FormIN, HeatPump>;
-        cislo2: ScannerWidget<FormIN>;
-        model3: ChooserWidget<FormIN, HeatPump>;
-        cislo3: ScannerWidget<FormIN>;
-        model4: ChooserWidget<FormIN, HeatPump>;
-        cislo4: ScannerWidget<FormIN>;
-        model5: ChooserWidget<FormIN, HeatPump>;
-        cislo5: ScannerWidget<FormIN>;
-        model6: ChooserWidget<FormIN, HeatPump>;
-        cislo6: ScannerWidget<FormIN>;
-        model7: ChooserWidget<FormIN, HeatPump>;
-        cislo7: ScannerWidget<FormIN>;
-        model8: ChooserWidget<FormIN, HeatPump>;
-        cislo8: ScannerWidget<FormIN>;
-        model9: ChooserWidget<FormIN, HeatPump>;
-        cislo9: ScannerWidget<FormIN>;
-        model10: ChooserWidget<FormIN, HeatPump>;
-        cislo10: ScannerWidget<FormIN>;
+        nadpis: TitleWidget<ContextIN>;
+        poznamka: TextWidget<ContextIN>;
+        typ: RadioWidget<ContextIN, 'airToWater' | 'groundToWater'>;
+        pocet: CounterWidget<ContextIN, true>;
+        model: ChooserWidget<ContextIN, HeatPump>;
+        cislo: ScannerWidget<ContextIN>;
+        model2: ChooserWidget<ContextIN, HeatPump>;
+        cislo2: ScannerWidget<ContextIN>;
+        model3: ChooserWidget<ContextIN, HeatPump>;
+        cislo3: ScannerWidget<ContextIN>;
+        model4: ChooserWidget<ContextIN, HeatPump>;
+        cislo4: ScannerWidget<ContextIN>;
+        model5: ChooserWidget<ContextIN, HeatPump>;
+        cislo5: ScannerWidget<ContextIN>;
+        model6: ChooserWidget<ContextIN, HeatPump>;
+        cislo6: ScannerWidget<ContextIN>;
+        model7: ChooserWidget<ContextIN, HeatPump>;
+        cislo7: ScannerWidget<ContextIN>;
+        model8: ChooserWidget<ContextIN, HeatPump>;
+        cislo8: ScannerWidget<ContextIN>;
+        model9: ChooserWidget<ContextIN, HeatPump>;
+        cislo9: ScannerWidget<ContextIN>;
+        model10: ChooserWidget<ContextIN, HeatPump>;
+        cislo10: ScannerWidget<ContextIN>;
     };
     sol: {
-        title: TitleWidget<FormIN>;
-        typ: InputWithSuggestionsWidget<FormIN>;
-        pocet: InputWidget<FormIN>;
+        title: TitleWidget<ContextIN>;
+        typ: InputWithSuggestionsWidget<ContextIN>;
+        pocet: InputWidget<ContextIN>;
     };
     tanks: {
-        title: TitleWidget<FormIN>;
-        accumulation: InputWithSuggestionsWidget<FormIN>;
-        water: InputWithSuggestionsWidget<FormIN>;
-        anode: RadioWidget<FormIN, 'magnesium' | 'electronic' | 'none'>;
+        title: TitleWidget<ContextIN>;
+        accumulation: InputWithSuggestionsWidget<ContextIN>;
+        water: InputWithSuggestionsWidget<ContextIN>;
+        anode: RadioWidget<ContextIN, 'magnesium' | 'electronic' | 'none'>;
     };
     rek: {
-        title: TitleWidget<FormIN>;
-        typ: InputWidget<FormIN>;
+        title: TitleWidget<ContextIN>;
+        typ: InputWidget<ContextIN>;
     };
     fve: {
-        title: TitleWidget<FormIN>;
-        typ: ChooserWidget<FormIN, 'DG-450-B' | 'otherNotRegulusPanels'>;
-        pocet: InputWidget<FormIN>;
-        typStridace: InputWidget<FormIN>;
-        cisloStridace: InputWidget<FormIN>;
-        akumulaceDoBaterii: CheckboxWidget<FormIN>;
-        typBaterii: InputWidget<FormIN>;
-        kapacitaBaterii: InputWidget<FormIN>;
-        wallbox: CheckboxWidget<FormIN>;
-        spolupraceIR: CheckboxWidget<FormIN>,
+        title: TitleWidget<ContextIN>;
+        typ: ChooserWidget<ContextIN, 'DG-450-B' | 'otherNotRegulusPanels'>;
+        pocet: InputWidget<ContextIN>;
+        typStridace: InputWidget<ContextIN>;
+        cisloStridace: InputWidget<ContextIN>;
+        akumulaceDoBaterii: CheckboxWidget<ContextIN>;
+        typBaterii: InputWidget<ContextIN>;
+        kapacitaBaterii: InputWidget<ContextIN>;
+        wallbox: CheckboxWidget<ContextIN>;
+        spolupraceIR: CheckboxWidget<ContextIN>,
     };
     jine: {
-        title: TitleWidget<FormIN>;
-        popis: InputWidget<FormIN>;
+        title: TitleWidget<ContextIN>;
+        popis: InputWidget<ContextIN>;
     };
     vzdalenyPristup: {
-        nadpis: TitleWidget<FormIN>;
-        chce: CheckboxWidget<FormIN>;
-        pristupMa: MultiCheckboxWidget<FormIN, 'endCustomer' | 'assemblyCompany' | 'commissioningCompany'>;
-        plati: RadioWidget<FormIN, 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | 'laterAccordingToTheProtocol'>;
-        showResponsiblePerson: HiddenValueWidget<FormIN, boolean, true>;
-        zodpovednaOsoba: InputWidget<FormIN>;
+        nadpis: TitleWidget<ContextIN>;
+        chce: CheckboxWidget<ContextIN>;
+        pristupMa: MultiCheckboxWidget<ContextIN, 'endCustomer' | 'assemblyCompany' | 'commissioningCompany'>;
+        plati: RadioWidget<ContextIN, 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | 'laterAccordingToTheProtocol'>;
+        showResponsiblePerson: HiddenValueWidget<ContextIN, boolean, true>;
+        zodpovednaOsoba: InputWidget<ContextIN>;
     };
     ostatni: {
-        poznamka: InputWidget<FormIN>;
+        poznamka: InputWidget<ContextIN>;
     };
 }
 

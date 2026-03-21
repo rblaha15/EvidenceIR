@@ -1,49 +1,49 @@
 import { CheckboxWidget, CounterWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
 import { type Form } from '$lib/forms/Form';
 
-export type DataRKS = {
+export type ContextRKS = {
     mode: 'create' | 'edit' | 'view' | 'loading',
 }
 
-export interface FormRKS extends Form<DataRKS> {
+export interface FormRKS extends Form<ContextRKS> {
     info: {
-        osoba: InputWidget<DataRKS>,
-        datum: InputWidget<DataRKS>,
-        year: CounterWidget<DataRKS, true>,
+        osoba: InputWidget<ContextRKS>,
+        datum: InputWidget<ContextRKS>,
+        year: CounterWidget<ContextRKS, true>,
     },
     kontrolniUkonySolarnihoSystemu: {
-        nadpis: TitleWidget<DataRKS>,
-        kontrolaUpevneniKolektoru: CheckboxWidget<DataRKS>,
-        vizualniKontrolaTesnostiSystemu: CheckboxWidget<DataRKS>,
-        kontrolaStavuIzolacePotrubi: CheckboxWidget<DataRKS>,
-        kontrolaDorustaniOkolStromuZDuvoduMoznehoZastineni: CheckboxWidget<DataRKS>,
-        odvzdusneniSolarnihoSystemuKontrolaSeparatoru: CheckboxWidget<DataRKS>,
-        kontrolaSpravnehoPrutoku: CheckboxWidget<DataRKS>,
-        kontrolaMrazuvzdornostiKapalinyRefraktometrem: CheckboxWidget<DataRKS>,
-        kontrolaTlakuKapalinyVSolarnimSystemuPripadneDoplneni: CheckboxWidget<DataRKS>,
-        kontrolaTlakuVSolarniEnJehoPripadneDoplneni: CheckboxWidget<DataRKS>,
+        nadpis: TitleWidget<ContextRKS>,
+        kontrolaUpevneniKolektoru: CheckboxWidget<ContextRKS>,
+        vizualniKontrolaTesnostiSystemu: CheckboxWidget<ContextRKS>,
+        kontrolaStavuIzolacePotrubi: CheckboxWidget<ContextRKS>,
+        kontrolaDorustaniOkolStromuZDuvoduMoznehoZastineni: CheckboxWidget<ContextRKS>,
+        odvzdusneniSolarnihoSystemuKontrolaSeparatoru: CheckboxWidget<ContextRKS>,
+        kontrolaSpravnehoPrutoku: CheckboxWidget<ContextRKS>,
+        kontrolaMrazuvzdornostiKapalinyRefraktometrem: CheckboxWidget<ContextRKS>,
+        kontrolaTlakuKapalinyVSolarnimSystemuPripadneDoplneni: CheckboxWidget<ContextRKS>,
+        kontrolaTlakuVSolarniEnJehoPripadneDoplneni: CheckboxWidget<ContextRKS>,
     }
     kontrolaSolarniRegulace: {
-        nadpis: TitleWidget<DataRKS>,
-        kontrolaTeplotnichCidel: CheckboxWidget<DataRKS>,
-        kontrolaNastaveniParametruRegulatoru: CheckboxWidget<DataRKS>,
-        kontrolaChybovychHlaseniVRegulaciAJejichPricin: CheckboxWidget<DataRKS>,
-        preventProskoleniObsluhyZHlediskaUdrzbyANastaveniRegulace: CheckboxWidget<DataRKS>,
+        nadpis: TitleWidget<ContextRKS>,
+        kontrolaTeplotnichCidel: CheckboxWidget<ContextRKS>,
+        kontrolaNastaveniParametruRegulatoru: CheckboxWidget<ContextRKS>,
+        kontrolaChybovychHlaseniVRegulaciAJejichPricin: CheckboxWidget<ContextRKS>,
+        preventProskoleniObsluhyZHlediskaUdrzbyANastaveniRegulace: CheckboxWidget<ContextRKS>,
     }
     kontrolaElektroinstalce: {
-        nadpis: TitleWidget<DataRKS>,
-        kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace: CheckboxWidget<DataRKS>,
-        kontrolaDotazeniSvorkovychSpoju: CheckboxWidget<DataRKS>,
-        vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni: CheckboxWidget<DataRKS>,
-        kontrolaSepnutiDohrevuSepnutiStykacePripadneRele: CheckboxWidget<DataRKS>,
+        nadpis: TitleWidget<ContextRKS>,
+        kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace: CheckboxWidget<ContextRKS>,
+        kontrolaDotazeniSvorkovychSpoju: CheckboxWidget<ContextRKS>,
+        vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni: CheckboxWidget<ContextRKS>,
+        kontrolaSepnutiDohrevuSepnutiStykacePripadneRele: CheckboxWidget<ContextRKS>,
     }
     kontrolaZasobnikuTv: {
-        nadpis: TitleWidget<DataRKS>,
-        kontrolaMgAnodyVZasobnikuPripVymena: CheckboxWidget<DataRKS>,
-        kontrolaPojistovacihoVentilu: CheckboxWidget<DataRKS>,
-        pripadneProvedteKontroluTlakuVEnTepleVody: CheckboxWidget<DataRKS>,
+        nadpis: TitleWidget<ContextRKS>,
+        kontrolaMgAnodyVZasobnikuPripVymena: CheckboxWidget<ContextRKS>,
+        kontrolaPojistovacihoVentilu: CheckboxWidget<ContextRKS>,
+        pripadneProvedteKontroluTlakuVEnTepleVody: CheckboxWidget<ContextRKS>,
     }
     poznamky: {
-        poznamka: InputWidget<DataRKS>,
+        poznamka: InputWidget<ContextRKS>,
     },
 }

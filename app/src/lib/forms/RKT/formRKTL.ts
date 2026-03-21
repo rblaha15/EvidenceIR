@@ -1,66 +1,66 @@
 import { CheckboxWidget, CounterWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
 import { type Form } from '$lib/forms/Form';
 
-export type DataRKTL = {
+export type ContextRKTL = {
     mode: 'create' | 'edit' | 'view' | 'loading',
 }
 
-export interface FormRKTL extends Form<DataRKTL> {
+export interface FormRKTL extends Form<ContextRKTL> {
     info: {
-        osoba: InputWidget<DataRKTL>,
-        datum: InputWidget<DataRKTL>,
-        year: CounterWidget<DataRKTL, true>,
+        osoba: InputWidget<ContextRKTL>,
+        datum: InputWidget<ContextRKTL>,
+        year: CounterWidget<ContextRKTL, true>,
     },
     kontrolniUkonyTepelnehoCerpadla: {
-        nadpis: TitleWidget<DataRKTL>,
-        kontrolaChoduKompresoru: CheckboxWidget<DataRKTL>,
-        optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu: CheckboxWidget<DataRKTL>,
-        kontrolaOdvoduKondenzatu: CheckboxWidget<DataRKTL>,
-        kontrolaUchyceniVentilatoru: CheckboxWidget<DataRKTL>,
-        vycisteniVzduchovychCestJednotky: CheckboxWidget<DataRKTL>,
-        kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem: CheckboxWidget<DataRKTL>,
-        proveritZdaNicNebraniOptimalniCirkulaciVzduchu: CheckboxWidget<DataRKTL>,
-        kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu: CheckboxWidget<DataRKTL>,
-        kontrolaElektrickeCastiJednotkyTepelnehoCerpadla: CheckboxWidget<DataRKTL>,
+        nadpis: TitleWidget<ContextRKTL>,
+        kontrolaChoduKompresoru: CheckboxWidget<ContextRKTL>,
+        optickaKontrolaTesnostiTrubkovychSpojuJednotkyAChladivovehoOkruhu: CheckboxWidget<ContextRKTL>,
+        kontrolaOdvoduKondenzatu: CheckboxWidget<ContextRKTL>,
+        kontrolaUchyceniVentilatoru: CheckboxWidget<ContextRKTL>,
+        vycisteniVzduchovychCestJednotky: CheckboxWidget<ContextRKTL>,
+        kontrolaLamelVyparnikuPripadneOdstraneniNecistotVzduchem: CheckboxWidget<ContextRKTL>,
+        proveritZdaNicNebraniOptimalniCirkulaciVzduchu: CheckboxWidget<ContextRKTL>,
+        kontrolaTeplotnihoRozdiluTepelnehoCerpadlaDleNavodu: CheckboxWidget<ContextRKTL>,
+        kontrolaElektrickeCastiJednotkyTepelnehoCerpadla: CheckboxWidget<ContextRKTL>,
     },
     kontrolniUkonyRegulace: {
-        nadpis: TitleWidget<DataRKTL>,
-        kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: CheckboxWidget<DataRKTL>,
-        kontrolaNastaveniParametruRegulatoru: CheckboxWidget<DataRKTL>,
-        preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni: CheckboxWidget<DataRKTL>,
-        stavPocitadlaCelkovychProvoznichHodinKompresoru: InputWidget<DataRKTL>
-        stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace: InputWidget<DataRKTL>
-        stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace: InputWidget<DataRKTL>
-        stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace: InputWidget<DataRKTL>
-        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje: InputWidget<DataRKTL>
-        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv: InputWidget<DataRKTL>
-        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: InputWidget<DataRKTL>
-        prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly: InputWidget<DataRKTL>
+        nadpis: TitleWidget<ContextRKTL>,
+        kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: CheckboxWidget<ContextRKTL>,
+        kontrolaNastaveniParametruRegulatoru: CheckboxWidget<ContextRKTL>,
+        preventivniProskoleniObsluhyZHlediskaUzivatelskehoNastaveni: CheckboxWidget<ContextRKTL>,
+        stavPocitadlaCelkovychProvoznichHodinKompresoru: InputWidget<ContextRKTL>
+        stavPocitadlaProvoznichHodinDoTvUmoznujeLiToRegulace: InputWidget<ContextRKTL>
+        stavCelkovehoPoctuStartuTepCerpadlaUmoznujeLiToRegulace: InputWidget<ContextRKTL>
+        stavPoctuStartuTepelCerpadlaDoTvUmoznujeLiToRegulace: InputWidget<ContextRKTL>
+        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdroje: InputWidget<ContextRKTL>
+        stavPocitadlaCelkovychProvoznichHodinDoplnkovehoZdrojeTv: InputWidget<ContextRKTL>
+        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: InputWidget<ContextRKTL>
+        prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly: InputWidget<ContextRKTL>
     },
     kontrolniElektroinstalace: {
-        nadpis: TitleWidget<DataRKTL>,
-        kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace: CheckboxWidget<DataRKTL>,
-        kontrolaDotazeniSvorkovychSpoju: CheckboxWidget<DataRKTL>,
-        vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni: CheckboxWidget<DataRKTL>,
-        kontrolaSepnutiDohrevuSepnutiStykacePripadneRele: CheckboxWidget<DataRKTL>,
+        nadpis: TitleWidget<ContextRKTL>,
+        kontrolaFunkceVsechElektrickychSpotrebicuZapojenychDoRegulace: CheckboxWidget<ContextRKTL>,
+        kontrolaDotazeniSvorkovychSpoju: CheckboxWidget<ContextRKTL>,
+        vizualniKontrolaVsechPristupnychVodicuVInstalaciNataveniMechPoskozeni: CheckboxWidget<ContextRKTL>,
+        kontrolaSepnutiDohrevuSepnutiStykacePripadneRele: CheckboxWidget<ContextRKTL>,
     },
     kontrolniUkonyOtopneSoustavy: {
-        nadpis: TitleWidget<DataRKTL>,
-        kontrolaFunkceObehovychCerpadel: CheckboxWidget<DataRKTL>,
-        vycisteniFiltruObehovychCerpadel: CheckboxWidget<DataRKTL>,
-        odvzdusneniZdrojeTc: CheckboxWidget<DataRKTL>,
-        kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych: CheckboxWidget<DataRKTL>,
-        kontrolaTesnostiOtopneSoustavy: CheckboxWidget<DataRKTL>,
-        kontrolaTlakuVExpanzniNadobeOtopneSoustavy: CheckboxWidget<DataRKTL>,
-        pripadneProvedteKontroluTlakuVOtopneSoustave: CheckboxWidget<DataRKTL>,
+        nadpis: TitleWidget<ContextRKTL>,
+        kontrolaFunkceObehovychCerpadel: CheckboxWidget<ContextRKTL>,
+        vycisteniFiltruObehovychCerpadel: CheckboxWidget<ContextRKTL>,
+        odvzdusneniZdrojeTc: CheckboxWidget<ContextRKTL>,
+        kontrolaFunkceVsechMotorickychVentiluSmesovaciZonovych: CheckboxWidget<ContextRKTL>,
+        kontrolaTesnostiOtopneSoustavy: CheckboxWidget<ContextRKTL>,
+        kontrolaTlakuVExpanzniNadobeOtopneSoustavy: CheckboxWidget<ContextRKTL>,
+        pripadneProvedteKontroluTlakuVOtopneSoustave: CheckboxWidget<ContextRKTL>,
     },
     kontrolaZasobnikuTv: {
-        nadpis: TitleWidget<DataRKTL>,
-        kontrolaMgAnodyVZasobnikuPripVymena: CheckboxWidget<DataRKTL>,
-        kontrolaPojistovacihoVentilu: CheckboxWidget<DataRKTL>,
-        pripadneProvedteKontroluTlakuVEnTepleVody: CheckboxWidget<DataRKTL>,
+        nadpis: TitleWidget<ContextRKTL>,
+        kontrolaMgAnodyVZasobnikuPripVymena: CheckboxWidget<ContextRKTL>,
+        kontrolaPojistovacihoVentilu: CheckboxWidget<ContextRKTL>,
+        pripadneProvedteKontroluTlakuVEnTepleVody: CheckboxWidget<ContextRKTL>,
     },
     poznamky: {
-        poznamka: InputWidget<DataRKTL>,
+        poznamka: InputWidget<ContextRKTL>,
     },
 }

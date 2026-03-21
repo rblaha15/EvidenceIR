@@ -7,10 +7,10 @@ import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import { currentUser } from '$lib/client/auth';
 import { cellsSP } from '$lib/forms/SP/cellsSP';
-import { type DataSP, type FormSP } from '$lib/forms/SP/formSP.svelte';
+import { type ContextSP, type FormSP } from '$lib/forms/SP/formSP.svelte';
 import defaultSP from '$lib/forms/SP/defaultSP';
 import type { FormInfo } from '$lib/forms/FormInfo';
-import { dataToRawData, type Raw } from '$lib/forms/Form';
+import { type Raw, valuesToRawData } from '$lib/forms/Form';
 import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
 import { getIsOnline } from '$lib/client/realtimeOnline';
 import db from '$lib/Database';
@@ -20,10 +20,10 @@ import type { FormSZ } from '$lib/forms/SP/formSZ';
 export const isSP = (raw: Raw<FormSP | FormSZ> | undefined): raw is Raw<FormSP> => !!raw && ('ukony' in raw)
 export const ensureSP = (raw: Raw<FormSP | FormSZ> | undefined) => isSP(raw) ? raw : error(400, { message: 'Provided data is not a protocol' });
 
-const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i: number }> = {
+const infoSP: FormInfo<ContextSP, FormSP, [[Technician[], User | null]], 'SP', { i: number }> = {
     type: 'IR',
     storeName: () => 'stored_sp',
-    defaultData: () => defaultSP(),
+    form: () => defaultSP(),
     openPdf: ({ i }) => ({
         link: 'SP',
         index: i,
@@ -46,7 +46,7 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
             return { other: { i: ir.SPs.length } };
         }
     },
-    saveData: async (irid, raw, edit, _, editResult, t, send, __, { i }) => {
+    saveData: async ({ irid, raw, edit, editResult, t, send, other: { i } }) => {
         const name = spName(raw.zasah);
         const ir = (await db.getIR(irid))!;
         if (ir.deleted) return false
@@ -84,29 +84,27 @@ const infoSP: FormInfo<DataSP, FormSP, [[Technician[], User | null]], 'SP', { i:
         saveAndSendAgain: edit,
         saveAndSend: !edit,
     }),
-    createWidgetData: (_, p, ir) => ({
-        ...p, ...ir, raw: dataToRawData<FormSP, Raw<FormSP>>(p), form: p,
-    }),
+    createContext: ({ values: v, form: f, ir }) => ({ ir, f, v, raw: valuesToRawData(f, v) }),
     title: (t, mode) =>
         mode == 'edit' ? t.sp.editSP : t.sp.title,
-    onMount: async (d, p, _, ir) => {
+    onMount: async ({ values, ir }) => {
         await startTechniciansListening();
         await startSparePartsListening();
-        if (!p.system.datumUvedeni.value && ir.UP.dateTC)
-            p.system.datumUvedeni.setValue(d, ir.UP.dateTC);
+        if (!values.system.datumUvedeni && ir.UP.dateTC)
+            values.system.datumUvedeni = ir.UP.dateTC;
     },
     storeEffects: [
-        [(d, p, [$techniciansList, $currentUser], edit) => { // Also in NSP
+        [([$techniciansList, $currentUser], { values, edit }) => { // Also in NSP
             const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
-            if (!p.zasah.clovek.value) p.zasah.clovek.setValue(d, ja?.name ?? p.zasah.clovek.value);
-            if (!p.zasah.inicialy.value) p.zasah.inicialy.setValue(d, ja?.initials ?? p.zasah.inicialy.value);
-            p.zasah.showNameFileds.setValue(d, p.zasah.clovek.value != ja?.name);
+            if (!values.zasah.clovek) values.zasah.clovek = ja?.name ?? values.zasah.clovek;
+            if (!values.zasah.inicialy) values.zasah.inicialy = ja?.initials ?? values.zasah.inicialy;
+            values.zasah.showNameFileds = values.zasah.clovek != ja?.name;
         }, [techniciansList, currentUser]],
     ],
     excelImport: {
         sheet: 'Protokol',
         onImport: (d, p) => {
-            p.zasah.showNameFileds.setValue(d, true);
+            p.zasah.showNameFileds = true;
         },
         cells: cellsSP,
         sheetFilter: n => n.includes('Protokol'),

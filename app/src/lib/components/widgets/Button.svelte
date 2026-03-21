@@ -1,23 +1,23 @@
-<script generics="D" lang="ts">
+<script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
     import { ButtonWidget } from '$lib/forms/Widget.svelte.js';
     import Icon from '$lib/components/Icon.svelte';
 
     interface Props {
         t: Translations;
-        widget: ButtonWidget<D>;
-        data: D;
+        widget: ButtonWidget<C>;
+        context: C;
     }
 
-    const { t, widget, data }: Props = $props();
+    const { t, widget, context }: Props = $props();
 
-    const icon = $derived(widget.icon(data));
+    const icon = $derived(widget.icon(context));
 </script>
 
 <button
-    class="btn btn-{widget.color(data)} align-self-start"
-    onclick={() => widget.onClick(data)}
+    class="btn btn-{widget.color(context)} align-self-start"
+    onclick={() => widget.onClick(context)}
 >
     <Icon {icon} />
-    {widget.text(t, data)}
+    {widget.text(t, context)}
 </button>

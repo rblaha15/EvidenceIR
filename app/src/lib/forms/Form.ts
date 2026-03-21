@@ -1,18 +1,18 @@
 import { Widget } from '$lib/forms/Widget.svelte.js';
-import '$lib/extensions'
+import '$lib/extensions';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
-type HiddenFormGroup<D> = Record<`_${string}`, Widget<D, any, true>>;
-type HiddenForm<D> = Record<`_${string}`, HiddenFormGroup<D>>;
-export type FormGroupPlus<P extends Record<string, Widget>> = P extends Record<string, Widget<infer D>>
-    ? P & HiddenFormGroup<D> : never;
+type HiddenFormGroup<C> = Record<`_${string}`, Widget<C, any, true>>;
+type HiddenForm<C> = Record<`_${string}`, HiddenFormGroup<C>>;
+export type FormGroupPlus<P extends Record<string, Widget>> = P extends Record<string, Widget<infer C>>
+    ? P & HiddenFormGroup<C> : never;
 
-export type FormPlus<F extends Form> = F extends Form<infer D> ? {
+export type FormPlus<F extends Form> = F extends Form<infer C> ? {
     [K in keyof F]: FormGroupPlus<F[K]>;
-} & HiddenForm<D> : never;
+} & HiddenForm<C> : never;
 
-export type Form<D = never> = Record<string, Record<string, Widget<D>>>
+export type Form<C = never> = Record<string, Record<string, Widget<C>>>
 export type Raw<Q extends Form | Record<string, Widget> | Widget> =
     Q extends Form ? RawForm<Q>
         : Q extends Record<string, Widget> ? RawFormPart<Q>
@@ -36,34 +36,81 @@ export type RawWidget<W extends Widget> =
                 : T extends Record<string, unknown> ? Writeable<T> : T
         : never;
 
+export type Values<Q extends Form | Record<string, Widget> | Widget> =
+    Q extends Form ? FormValues<Q>
+        : Q extends Record<string, Widget> ? FormPartValues<Q>
+            : Q extends Widget ? WidgetValue<Q>
+                : never;
 
-export const dataToRawData = <F extends Form, R extends Raw<F> = Raw<F>>(data: F): R => {
-    return data.mapEntries((key, subData) => {
-        const rawSubData = subData.mapEntries((subKey, vec) => {
-            if (vec == undefined) return undefined;
-            if (vec.value == undefined) return undefined;
-            if (vec.hideInRawData) return undefined;
-            else return [subKey, vec.value] as [keyof R[keyof R], unknown];
+export type FormValues<F extends Form> = {
+    [K in keyof F]: FormPartValues<F[K]>
+};
+export type FormPartValues<P extends Record<string, Widget>> = {
+    [K in keyof P]: WidgetValue<P[K]>;
+};
+export type WidgetValue<W extends Widget> =
+    W extends Widget<never, infer T, infer H>
+        ? T extends readonly (infer RT)[] ? RT[]
+            : T extends Record<string, unknown> ? Writeable<T> : T
+        : never;
+
+export const defaultFormGroupValues = <G extends Record<string, Widget>, V extends FormPartValues<G> = FormPartValues<G>>(formGroup: G): V =>
+    formGroup.mapEntries((key, widget) => {
+        if (widget == undefined) return undefined;
+        return [key, widget.defaultValue] as [keyof V[keyof V], unknown];
+    }) as V;
+
+export const defaultValues = <F extends Form, V extends Values<F> = Values<F>>(form: F): V =>
+    form.mapEntries((groupKey, formGroup) => {
+        const formGroupValues = defaultFormGroupValues(formGroup);
+        return [groupKey, formGroupValues] as [keyof V, V[keyof V]];
+    }) as V;
+
+export const valuesToRawData = <F extends Form, V extends Values<F> = Values<F>, R extends Raw<F> = Raw<F>>(form: F, values: V): R =>
+    form.mapEntries((groupKey, formGroup) => {
+        const rawFormGroup = formGroup.mapEntries((key, widget) => {
+            if ((key as string).startsWith('_')) return undefined;
+            if (!widget) return undefined;
+            if (widget.hideInRawData) return undefined;
+            if (!(groupKey in values)) return undefined;
+            if (!(key in values[groupKey as keyof V])) return undefined;
+            const value = values[groupKey as keyof V][key as keyof V[keyof V]];
+            return [key, value] as [keyof R[keyof R], unknown];
         });
-        return [key, rawSubData] as [keyof R, R[keyof R]];
+        return [groupKey, rawFormGroup] as [keyof R, R[keyof R]];
     }) as R;
-};
 
-export const rawDataToData = <F extends Form>(toData: F, rawData: Raw<F>) => {
-    const d = toData;
-    (rawData as RawForm<F>).forEachEntry((key1, section) =>
-        section.forEachEntry((k, value) => {
-            const key2 = k as keyof F[keyof F];
-            if (!d[key1]) console.log(`${String(key1)} does not exist in target, skipping`);
-            else if (!d[key1][key2]) console.log(`${String(key1)}.${String(key2)} does not exist in target, skipping`);
-            else d[key1][key2]._value = value;
-        }),
-    );
-    return d;
-};
+export const rawDataToValues = <F extends Form, V extends Values<F> = Values<F>, R extends Raw<F> = Raw<F>>(form: F, rawData: R): V =>
+    form.mapEntries((groupKey, formGroup) => {
+        const rawFormGroup = formGroup.mapEntries((key, widget) => {
+            if (!widget) return undefined;
+            const value = rawData?.[groupKey as keyof R]?.[key as keyof R[keyof R]] ?? widget.defaultValue;
+            return [key, value] as [keyof V[keyof V], unknown];
+        });
+        return [groupKey, rawFormGroup] as [keyof V, V[keyof V]];
+    }) as V;
 
-export const compareRawData = <F extends Form>(currentData: Raw<F>, defaultData: Raw<F>) =>
-    defaultData.entries().every(([k1, section]) =>
-        !currentData[k1] || section.entries().every(([k2, value]) =>
-            !currentData[k1][k2] || currentData[k1][k2] == value,
+export const compareValues = <F extends Form>(currentValues: Values<F>, defaultValues: Values<F>) =>
+    defaultValues.entries().every(([k1, section]) =>
+        !currentValues[k1] || section.entries().every(([k2, value]) =>
+            !currentValues[k1][k2] || currentValues[k1][k2] == value,
         ));
+
+export type WidgetWithValue<C = never, U = any, H extends boolean = boolean> = {
+    widget: Widget<C, U, H>;
+    get value(): U;
+    set value(newValue: U);
+}
+
+export const widgetList = <C, F extends Form<C>, V extends Values<F> = Values<F>>(form: F, values: V) =>
+    form.mapTo((groupKey, formGroup) =>
+        formGroup.mapTo((key, widget) => ({
+            widget,
+            get value() {
+                return values[groupKey as keyof V][key as keyof V[keyof V]];
+            },
+            set value(newValue) {
+                values[groupKey as keyof V][key as keyof V[keyof V]] = newValue;
+            },
+        }) as WidgetWithValue<C>),
+    ).flat();

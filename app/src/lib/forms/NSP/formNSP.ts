@@ -1,26 +1,28 @@
 import type { UserForm } from '$lib/forms/IN/formIN';
-import { type GenericFormSP } from '$lib/forms/SP/formSP.svelte';
-import { dataToRawData, type Form, type FormPlus } from '$lib/forms/Form';
+import { type GenericContextSP, type GenericFormSP } from '$lib/forms/SP/formSP.svelte';
+import { type Form, type FormPlus, type Values, valuesToRawData } from '$lib/forms/Form';
 import { InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte';
 import { userData } from '$lib/forms/IN/defaultIN';
 import { multilineTooLong, defaultGenericSP } from '$lib/forms/SP/defaultSP';
 import { newNSP } from '$lib/data';
 import type { User } from 'firebase/auth';
 
-export type DataNSP = FormNSP & {
-    lockNameFields?: boolean
+export interface ContextNSP extends GenericContextSP<ContextNSP> {
+    v: Values<FormNSP>
+    f: FormNSP
 }
 
-export interface FormNSP extends GenericFormSP<DataNSP>, UserForm<DataNSP>, Form<DataNSP> {
+export interface FormNSP extends GenericFormSP<ContextNSP>, UserForm<ContextNSP>, Form<ContextNSP> {
     system: {
-        popis: InputWidget<DataNSP>;
-    } & GenericFormSP<DataNSP>['system'];
+        popis: InputWidget<ContextNSP>;
+    } & GenericFormSP<ContextNSP>['system'];
 }
 
 export const defaultNSP = (): FormPlus<FormNSP> => {
-    const { system, ...otherSP } = defaultGenericSP<FormNSP>((_, d) => ({
-        data: newNSP(dataToRawData(d), { email: '', uid: '' } as User),
-        form: d,
+    const { system, ...otherSP } = defaultGenericSP<ContextNSP>((_, c) => ({
+        data: newNSP(valuesToRawData(c.f, c.v), { email: '', uid: '' } as User),
+        form: c.f,
+        values: c.v,
         pumpCount: 1,
     }), () => 1, 3, true);
 
@@ -28,7 +30,7 @@ export const defaultNSP = (): FormPlus<FormNSP> => {
         system: {
             _title: new TitleWidget({ text: t => t.in.system, level: 2 }),
             popis: new InputWidget({ label: t => t.sp.systemDescription, textArea: true, required: true }),
-            _overflowSystem: new TextWidget({ text: (t, d) => multilineTooLong(d.system.popis.value) ? t.sp.textTooLong : '' }),
+            _overflowSystem: new TextWidget({ text: (t, c) => multilineTooLong(c.v.system.popis) ? t.sp.textTooLong : '' }),
             ...system,
         },
         ...userData(),

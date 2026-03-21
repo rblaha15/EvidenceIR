@@ -14,7 +14,7 @@ import {
     TextWidget,
     TitleWidget,
 } from '../Widget.svelte.js';
-import { type FormIN, unknownCompany, unknownCRN, type UserForm } from './formIN';
+import { type ContextIN, type FormIN, unknownCompany, unknownCRN, type UserForm, type UserFormContext } from './formIN';
 import { accumulationTanks, type Company, solarCollectors, type Technician, techniciansList, waterTanks } from '$lib/client/realtime';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 import {
@@ -42,36 +42,36 @@ import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import db from '$lib/Database';
 import ruian from '$lib/helpers/ruian';
 
-const jeFO = (d: UserForm<never>) => d.koncovyUzivatel.typ.value == `individual`;
-const fo = (d: UserForm<never>) => jeFO(d);
-const po = (d: UserForm<never>) => !jeFO(d);
+const jeFO = (c: UserFormContext<never>) => c.v.koncovyUzivatel.typ == `individual`;
+const fo = (c: UserFormContext<never>) => jeFO(c);
+const po = (c: UserFormContext<never>) => !jeFO(c);
 
-const tc = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`heatPump`);
-const sol = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`solarCollector`);
-const aku = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`accumulation`);
-const zas = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`waterStorage`);
-const rek = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`ventilation`);
-const fve = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`photovoltaicPowerPlant`);
-const other = (d: FormIN) => d.ir.chceVyplnitK.value.includes(`other`);
+const tc = (c: ContextIN) => c.v.ir.chceVyplnitK.includes(`heatPump`);
+const sol = (c: ContextIN) => c.v.ir.chceVyplnitK.includes(`solarCollector`);
+const aku = (c: ContextIN) => c.v.ir.chceVyplnitK.includes(`accumulation`);
+const zas = (c: ContextIN) => c.v.ir.chceVyplnitK.includes(`waterStorage`);
+const rek = (c: ContextIN) => c.v.ir.chceVyplnitK.includes(`ventilation`);
+const fve = (c: ContextIN) => c.v.ir.chceVyplnitK.includes(`photovoltaicPowerPlant`);
+const other = (c: ContextIN) => c.v.ir.chceVyplnitK.includes(`other`);
 
-const ctc = (d: FormIN) => d.ir.typ.value.first == 'ctc' || d.ir.typ.value.second == 'CTC';
-const rtc = (d: FormIN) => d.ir.typ.value.second == 'RTC';
-const thermona = (d: FormIN) => d.ir.typ.value.first == 'Thermona';
-const ecoHeat = (d: FormIN) => d.ir.typ.value.second == 'EcoHeat';
-const subType = (d: FormIN) => d.ir.typ.value.second != null;
+const ctc = (c: ContextIN) => c.v.ir.typ.first == 'ctc' || c.v.ir.typ.second == 'CTC';
+const rtc = (c: ContextIN) => c.v.ir.typ.second == 'RTC';
+const thermona = (c: ContextIN) => c.v.ir.typ.first == 'Thermona';
+const ecoHeat = (c: ContextIN) => c.v.ir.typ.second == 'EcoHeat';
+const subType = (c: ContextIN) => c.v.ir.typ.second != null;
 
-const supportsRemoteAccessF = (f: FormIN) => supportsRemoteAccess(f.ir.typ.value.first);
-const irOther = (d: FormIN) => d.ir.typ.value.first == 'other';
-const irCTC = (d: FormIN) => d.ir.typ.value.first == 'ctc';
-const fveReg = (d: FormIN) => fve(d) && d.fve.typ.value == 'DG-450-B';
-const akuDuo = (d: FormIN) => aku(d) && d.tanks.accumulation.value.toUpperCase().startsWith('DUO');
+const supportsRemoteAccessC = (c: ContextIN) => supportsRemoteAccess(c.v.ir.typ.first);
+const irOther = (c: ContextIN) => c.v.ir.typ.first == 'other';
+const irCTC = (c: ContextIN) => c.v.ir.typ.first == 'ctc';
+const fveReg = (c: ContextIN) => fve(c) && c.v.fve.typ == 'DG-450-B';
+const akuDuo = (c: ContextIN) => aku(c) && c.v.tanks.accumulation.toUpperCase().startsWith('DUO');
 
 export const separatorsRegExp = /[ ,;\/]/;
 export const phoneRegExp = /(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}/;
 export const emailRegExp = /[\w.-]+@([\w-]+\.)+[\w-]{2,4}/;
 export const multiple = (r: RegExp) => new RegExp(`${r.source}(?: ?${separatorsRegExp.source} ?${r.source})*`);
 
-export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
+export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> => ({
     koncovyUzivatel: {
         nadpis: new TitleWidget({ text: t => t.in.endUser, level: 2 }),
         typ: new RadioWidget({
@@ -97,15 +97,15 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
         searchButton: new ButtonWidget({
             text: t => t.in.searchInARES, color: 'secondary', icon: 'search', show: po, showInXML: false,
-            onClick: (d: D) => {
-                d.koncovyUzivatel.searchFail.setValue(d, false);
-                ares.getNameAndAddress(d.koncovyUzivatel.ico.value).then(ares => {
-                    if (!ares) d.koncovyUzivatel.searchFail.setValue(d, true);
-                    d.koncovyUzivatel.nazev.setValue(d, ares?.obchodniJmeno ?? '');
+            onClick: (c: C) => {
+                c.v.koncovyUzivatel.searchFail = false;
+                ares.getNameAndAddress(c.v.koncovyUzivatel.ico).then(ares => {
+                    if (!ares) c.v.koncovyUzivatel.searchFail = true;
+                    c.v.koncovyUzivatel.nazev = ares?.obchodniJmeno ?? '';
                     const s = ares?.sidlo;
-                    d.bydliste.psc.setValue(d, s?.psc?.toString() ?? s?.pscTxt ?? '');
-                    d.bydliste.obec.setValue(d, [s?.nazevObce, s?.nazevCastiObce].filterNotUndefined().join(' - '));
-                    d.bydliste.ulice.setValue(d, [s?.nazevUlice, [s?.cisloDomovni, s?.cisloOrientacni?.let(o => o + (s?.cisloOrientacniPismeno ?? ''))].filterNotUndefined().join('/')].filterNotUndefined().join(' '));
+                    c.v.bydliste.psc = s?.psc?.toString() ?? s?.pscTxt ?? '';
+                    c.v.bydliste.obec = [s?.nazevObce, s?.nazevCastiObce].filterNotUndefined().join(' - ');
+                    c.v.bydliste.ulice = [s?.nazevUlice, [s?.cisloDomovni, s?.cisloOrientacni?.let(o => o + (s?.cisloOrientacniPismeno ?? ''))].filterNotUndefined().join('/')].filterNotUndefined().join(' ');
                 });
             },
         }),
@@ -113,12 +113,12 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         searchFailText: new TextWidget({
             text: t => t.in.notFound,
             showInXML: false,
-            show: d => po(d) && d.koncovyUzivatel.searchFail.value,
+            show: c => po(c) && c.v.koncovyUzivatel.searchFail,
         }),
         nazev: new InputWidget({ label: t => t.in.companyName, show: po, required: po }),
         wrongFormat: new TextWidget({
             text: t => t.wrong.company, showInXML: false,
-            show: d => !jeFO(d) && isCompanyFormInvalid(d.koncovyUzivatel.nazev.value),
+            show: c => !jeFO(c) && isCompanyFormInvalid(c.v.koncovyUzivatel.nazev),
         }),
         pobocka: new InputWidget({ label: t => t.in.establishment, required: false, show: po }),
         kontaktniOsoba: new InputWidget({ label: t => t.in.contactPerson, required: false, show: po }),
@@ -134,14 +134,14 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
         }),
     },
     bydliste: {
-        _title: new TitleWidget({ text: (t, d) => jeFO(d) ? t.in.residence : t.in.headquarters, level: 3, class: 'fs-4' }),
+        _title: new TitleWidget({ text: (t, c) => jeFO(c) ? t.in.residence : t.in.headquarters, level: 3, class: 'fs-4' }),
         search: new SearchWidget({
             label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
                 pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }],
-            }), search: ruian.suggest, onValueSet: (d, a) => {
-                d.bydliste.ulice.setValue(d, a?.house ?? '');
-                d.bydliste.psc.setValue(d, a?.postalCode ?? '');
-                d.bydliste.obec.setValue(d, a?.city ?? '');
+            }), search: ruian.suggest, onValueSet: (c, a) => {
+                c.v.bydliste.ulice = a?.house ?? '';
+                c.v.bydliste.psc = a?.postalCode ?? '';
+                c.v.bydliste.obec = a?.city ?? '';
             }, required: false, showInXML: false,
         }),
         ulice: new InputWidget({
@@ -161,22 +161,22 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
     },
     mistoRealizace: {
         _title: new TitleWidget({ text: t => t.in.realizationLocation, level: 3, class: 'fs-4' }),
-        _setAsResidence: new ButtonWidget<D>({
-            text: (t, d) => jeFO(d) ? t.in.copyResidence : t.in.copyHeadquarters,
-            color: 'secondary', onClick: d => {
-                d.mistoRealizace.search.setValue(d, d.bydliste.search.value);
-                d.mistoRealizace.obec.setValue(d, d.bydliste.obec.value);
-                d.mistoRealizace.psc.setValue(d, d.bydliste.psc.value);
-                d.mistoRealizace.ulice.setValue(d, d.bydliste.ulice.value);
+        _setAsResidence: new ButtonWidget<C>({
+            text: (t, c) => jeFO(c) ? t.in.copyResidence : t.in.copyHeadquarters,
+            color: 'secondary', onClick: c => {
+                c.v.mistoRealizace.search = c.v.bydliste.search;
+                c.v.mistoRealizace.obec = c.v.bydliste.obec;
+                c.v.mistoRealizace.psc = c.v.bydliste.psc;
+                c.v.mistoRealizace.ulice = c.v.bydliste.ulice;
             },
         }),
         search: new SearchWidget({
             label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
                 pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }],
-            }), search: ruian.suggest, onValueSet: (d, a) => {
-                d.mistoRealizace.ulice.setValue(d, a?.house ?? '');
-                d.mistoRealizace.psc.setValue(d, a?.postalCode ?? '');
-                d.mistoRealizace.obec.setValue(d, a?.city ?? '');
+            }), search: ruian.suggest, onValueSet: (c, a) => {
+                c.v.mistoRealizace.ulice = a?.house ?? '';
+                c.v.mistoRealizace.psc = a?.postalCode ?? '';
+                c.v.mistoRealizace.obec = a?.city ?? '';
             }, required: false, showInXML: false,
         }),
         ulice: new InputWidget({
@@ -200,7 +200,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
     montazka: {
         _titleCompanies: new TitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
         _title: new TitleWidget({ text: t => t.in.assemblyCompany, level: 3, class: 'fs-4' }),
-        company: new SearchWidget<D, Company, true>({
+        company: new SearchWidget<C, Company, true>({
             items: t => derived(assemblyCompanies, c => [unknownCompany(t), ...c]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
                 pieces: i.crn == unknownCRN ? [
@@ -212,14 +212,14 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
                     i.representative || '',
                 ],
             }), showInXML: false, required: false, hideInRawData: true,
-            onValueSet: (d, company) => {
-                d.montazka.ico.setValue(d, company?.crn ?? '');
-                d.montazka.email.setValue(d, company?.email ?? '');
-                d.montazka.telefon.setValue(d, company?.phone ?? '');
-                d.montazka.zastupce.setValue(d, company?.representative ?? '');
+            onValueSet: (c, company) => {
+                c.v.montazka.ico = company?.crn ?? '';
+                c.v.montazka.email = company?.email ?? '';
+                c.v.montazka.telefon = company?.phone ?? '';
+                c.v.montazka.zastupce = company?.representative ?? '';
             },
         }),
-        _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN }),
+        _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: c => c.v.montazka.company?.crn != unknownCRN }),
         ico: new InputWidget({
             label: t => t.in.crnToARES,
             onError: t => t.wrong.crn,
@@ -228,25 +228,25 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
                 mask: `00000000[00]`,
             },
             required: false, showInXML: true,
-            show: d => d.montazka.company.value?.crn != unknownCRN,
+            show: c => c.v.montazka.company?.crn != unknownCRN,
         }),
         chosen: new TextWidget({
-            text: async (t, d) => {
-                const company = await ares.getName(d.montazka.ico.value);
+            text: async (t, c) => {
+                const company = await ares.getName(c.v.montazka.ico);
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
-            }, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN,
+            }, showInXML: false, show: c => c.v.montazka.company?.crn != unknownCRN,
         }),
         zastupce: new InputWidget({
             label: t => t.in.representativeName, showInXML: true,
             autocomplete: `section-assemblyRepr billing name`,
-            show: d => d.montazka.company.value?.crn != unknownCRN,
+            show: c => c.v.montazka.company?.crn != unknownCRN,
         }),
         email: new InputWidget({
             label: t => t.in.email,
             onError: t => t.wrong.email,
             regex: emailRegExp,
             autocomplete: `section-assembly billing work email`,
-            show: d => d.montazka.company.value?.crn != unknownCRN,
+            show: c => c.v.montazka.company?.crn != unknownCRN,
             required: false, showInXML: true,
         }),
         telefon: new InputWidget({
@@ -255,23 +255,23 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
             regex: phoneRegExp,
             type: 'tel',
             autocomplete: `section-assembly billing work tel`,
-            show: d => d.montazka.company.value?.crn != unknownCRN,
+            show: c => c.v.montazka.company?.crn != unknownCRN,
             required: false, showInXML: true,
         }),
     },
     uvedeni: {
         _title: new TitleWidget({ text: t => t.in.commissioning, level: 3, class: 'fs-4' }),
-        _setAsAssembly: new ButtonWidget<D>({
+        _setAsAssembly: new ButtonWidget<C>({
             text: t => t.in.copyAssemblyCompany, color: 'secondary',
-            onClick: d => {
-                d.uvedeni.company.setValue(d, d.montazka.company.value);
-                d.uvedeni.ico.setValue(d, d.montazka.ico.value);
-                d.uvedeni.zastupce.setValue(d, d.montazka.zastupce.value);
-                d.uvedeni.email.setValue(d, d.montazka.email.value);
-                d.uvedeni.telefon.setValue(d, d.montazka.telefon.value);
+            onClick: c => {
+                c.v.uvedeni.company = c.v.montazka.company;
+                c.v.uvedeni.ico = c.v.montazka.ico;
+                c.v.uvedeni.zastupce = c.v.montazka.zastupce;
+                c.v.uvedeni.email = c.v.montazka.email;
+                c.v.uvedeni.telefon = c.v.montazka.telefon;
             },
         }),
-        company: new SearchWidget<D, Company, true>({
+        company: new SearchWidget<C, Company, true>({
             items: t => derived(commissioningCompanies, c => [unknownCompany(t), ...c]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
                 pieces: i.crn == unknownCRN ? [
@@ -283,14 +283,14 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
                     i.representative || '',
                 ],
             }), showInXML: false, required: false, hideInRawData: true,
-            onValueSet: (d, company) => {
-                d.uvedeni.ico.setValue(d, company?.crn ?? '');
-                d.uvedeni.email.setValue(d, company?.email ?? '');
-                d.uvedeni.telefon.setValue(d, company?.phone ?? '');
-                d.uvedeni.zastupce.setValue(d, company?.representative ?? '');
+            onValueSet: (c, company) => {
+                c.v.uvedeni.ico = company?.crn ?? '';
+                c.v.uvedeni.email = company?.email ?? '';
+                c.v.uvedeni.telefon = company?.phone ?? '';
+                c.v.uvedeni.zastupce = company?.representative ?? '';
             },
         }),
-        _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: d => d.montazka.company.value?.crn != unknownCRN }),
+        _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: c => c.v.montazka.company?.crn != unknownCRN }),
         ico: new InputWidget({
             label: t => t.in.crnToARES,
             onError: t => t.wrong.crn,
@@ -298,16 +298,16 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
             maskOptions: {
                 mask: `00000000[00]`,
             }, showInXML: true,
-            show: d => d.uvedeni.company.value?.crn != unknownCRN,
+            show: c => c.v.uvedeni.company?.crn != unknownCRN,
         }),
         chosen: new TextWidget({
-            text: async (t, d) => {
-                if (d.uvedeni.ico.value == unknownCRN) return '';
-                const company = await ares.getName(d.uvedeni.ico.value);
+            text: async (t, c) => {
+                if (c.v.uvedeni.ico == unknownCRN) return '';
+                const company = await ares.getName(c.v.uvedeni.ico);
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
             }, showInXML: false,
         }),
-        _regulus: new SearchWidget<D, Technician, true>({
+        _regulus: new SearchWidget<C, Technician, true>({
             items: derived(techniciansList, $technicians =>
                 $technicians.filter(t => t.email.endsWith('cz')),
             ),
@@ -317,12 +317,12 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
                     { text: i.email },
                     { text: i.phone },
                 ],
-            }), show: d => d.uvedeni.ico.value == regulusCRN.toString(), required: false,
-            hideInRawData: true, onValueSet: (d, technician) => {
+            }), show: c => c.v.uvedeni.ico == regulusCRN.toString(), required: false,
+            hideInRawData: true, onValueSet: (c, technician) => {
                 if (technician) {
-                    d.uvedeni.email.setValue(d, technician.email ?? '');
-                    d.uvedeni.telefon.setValue(d, technician.phone ?? '');
-                    d.uvedeni.zastupce.setValue(d, technician.name ?? '');
+                    c.v.uvedeni.email = technician.email ?? '';
+                    c.v.uvedeni.telefon = technician.phone ?? '';
+                    c.v.uvedeni.zastupce = technician.name ?? '';
                 }
             },
         }),
@@ -330,14 +330,14 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
             label: t => t.in.representativeName,
             autocomplete: `section-commissioningRepr billing name`,
             showInXML: true,
-            show: d => d.uvedeni.company.value?.crn != unknownCRN,
+            show: c => c.v.uvedeni.company?.crn != unknownCRN,
         }),
         email: new InputWidget({
             label: t => t.in.email,
             onError: t => t.wrong.email,
             regex: emailRegExp,
             showInXML: true,
-            show: d => d.uvedeni.company.value?.crn != unknownCRN,
+            show: c => c.v.uvedeni.company?.crn != unknownCRN,
             required: false,
             autocomplete: `section-commissioning billing work email`,
         }),
@@ -347,7 +347,7 @@ export const userData = <D extends UserForm<D>>(): FormPlus<UserForm<D>> => ({
             regex: phoneRegExp,
             type: 'tel',
             showInXML: true,
-            show: d => d.uvedeni.company.value?.crn != unknownCRN,
+            show: c => c.v.uvedeni.company?.crn != unknownCRN,
             required: false,
             autocomplete: `section-assembly billing work tel`,
         }),
@@ -363,53 +363,54 @@ export const ordinal = (tg: Translations['countsGenitive'], i: TC) =>
     ['', tg.first, tg.second, tg.third, tg.fourth, tg.fifth, tg.sixth, tg.seventh, tg.eighth, tg.ninth, tg.tenth][i];
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
 
-const model = <I>(d: FormIN, i: I) => {
-    return d.tc[`model${i == 1 ? '' : i as B}`];
-};
+const modelWidget = <I>(c: ContextIN, i: I) => c.f.tc[`model${i == 1 ? '' : i as B}`];
+const model = <I>(c: ContextIN, i: I) => c.v.tc[`model${i == 1 ? '' : i as B}`];
+const setModel = <I>(c: ContextIN, i: I, v: null | HeatPump) => c.v.tc[`model${i == 1 ? '' : i as B}`] = v;
+
 const heatPump = <const I extends TC>(i: I) => ({
-    [`model${i == 1 ? '' : i as B}`]: new ChooserWidget<FormIN, HeatPump>({
-        label: (t, d) => cap(t.in.heatPumpModel([d.tc.pocet.value == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
-        options: d =>
-            thermona(d) ? ['airTHERM 10']
-                : rtc(d) ? heatPumps.airToWaterRTC[0]
-                    : ecoHeat(d) ? heatPumps.multiEnergyCTC[0]
-                        : d.tc.typ.value == 'airToWater'
+    [`model${i == 1 ? '' : i as B}`]: new ChooserWidget<ContextIN, HeatPump>({
+        label: (t, c) => cap(t.in.heatPumpModel([c.v.tc.pocet == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
+        options: c =>
+            thermona(c) ? ['airTHERM 10']
+                : rtc(c) ? heatPumps.airToWaterRTC[0]
+                    : ecoHeat(c) ? heatPumps.multiEnergyCTC[0]
+                        : c.v.tc.typ == 'airToWater'
                             ? heatPumps.airToWaterCTC[0]
                             : heatPumps.groundToWaterCTC[0],
-        otherOptions: d =>
-            thermona(d) ? []
-                : rtc(d) ? heatPumps.airToWaterRTC[1]
-                    : ecoHeat(d) ? heatPumps.multiEnergyCTC[1]
-                        : d.tc.typ.value == 'airToWater'
+        otherOptions: c =>
+            thermona(c) ? []
+                : rtc(c) ? heatPumps.airToWaterRTC[1]
+                    : ecoHeat(c) ? heatPumps.multiEnergyCTC[1]
+                        : c.v.tc.typ == 'airToWater'
                             ? heatPumps.airToWaterCTC[1]
                             : heatPumps.groundToWaterCTC[1],
-        required: d => tc(d) && i <= d.tc.pocet.value,
-        show: d =>
-            subType(d) &&
-            (rtc(d) || d.tc.typ.value != null) &&
-            tc(d) &&
-            i <= d.tc.pocet.value,
-        onValueSet: (d, v) => {
-            if (v != null && ![...model(d, i).options(d), ...model(d, i).otherOptions(d)].includes(v)) {
-                model(d, i).setValue(d, null);
+        required: c => tc(c) && i <= c.v.tc.pocet,
+        show: c =>
+            subType(c) &&
+            (rtc(c) || c.v.tc.typ != null) &&
+            tc(c) &&
+            i <= c.v.tc.pocet,
+        onValueSet: (c, v) => {
+            if (v != null && ![...modelWidget(c, i).options(c), ...modelWidget(c, i).otherOptions(c)].includes(v)) {
+                setModel(c, i, null);
             }
         }, lock: thermona,
         labels: t => ({ prototype: t.tc.prototype }),
     }),
-    [`cislo${i == 1 ? '' : i as B}`]: new ScannerWidget<FormIN>({
-        label: (t, d) => cap(t.in.heatPumpManufactureNumber([d.tc.pocet.value == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
+    [`cislo${i == 1 ? '' : i as B}`]: new ScannerWidget<ContextIN>({
+        label: (t, c) => cap(t.in.heatPumpManufactureNumber([c.v.tc.pocet == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
         onError: t => t.wrong.number,
-        regex: d => model(d, i).value == 'prototype' ? /.*/ : ctc(d)
+        regex: c => model(c, i) == 'prototype' ? /.*/ : ctc(c)
             ? /^\d{4}-\d{4}-\d{4}$/
-            : model(d, i).value == 'airTHERM 10'
+            : model(c, i) == 'airTHERM 10'
                 ? /^\d{9}T$/
                 : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
         capitalize: true,
-        required: d => tc(d) && i <= d.tc.pocet.value && model(d, i).value != 'prototype',
-        maskOptions: d => model(d, i).value == 'prototype' ? undefined : ({
-            mask: ctc(d)
+        required: c => tc(c) && i <= c.v.tc.pocet && model(c, i) != 'prototype',
+        maskOptions: c => model(c, i) == 'prototype' ? undefined : ({
+            mask: ctc(c)
                 ? `0000-0000-0000`
-                : model(d, i).value == 'airTHERM 10'
+                : model(c, i) == 'airTHERM 10'
                     ? `000000000T`
                     : `AA0000-AA-0000`,
             definitions: {
@@ -417,22 +418,22 @@ const heatPump = <const I extends TC>(i: I) => ({
                 T: /T/,
             },
         }), lock: ecoHeat,
-        show: d =>
-            subType(d) &&
-            (rtc(d) || d.tc.typ.value != null) &&
-            tc(d) &&
-            i <= d.tc.pocet.value,
-        processScannedText: (t, d) =>
-            model(d, i).value == 'prototype' ? t.replaceAll(/[^0-9A-Z]/g, '')
+        show: c =>
+            subType(c) &&
+            (rtc(c) || c.v.tc.typ != null) &&
+            tc(c) &&
+            i <= c.v.tc.pocet,
+        processScannedText: (t, c) =>
+            model(c, i) == 'prototype' ? t.replaceAll(/[^0-9A-Z]/g, '')
                 : t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
     }),
 }) as I extends 1 ? {
-    model: ChooserWidget<FormIN, HeatPump>;
-    cislo: ScannerWidget<FormIN>;
+    model: ChooserWidget<ContextIN, HeatPump>;
+    cislo: ScannerWidget<ContextIN>;
 } : ({
-    [K in `model${I}`]: ChooserWidget<FormIN, HeatPump>;
+    [K in `model${I}`]: ChooserWidget<ContextIN, HeatPump>;
 } & {
-    [K in `cislo${I}`]: ScannerWidget<FormIN>;
+    [K in `cislo${I}`]: ScannerWidget<ContextIN>;
 });
 
 export default (): FormPlus<FormIN> => ({
@@ -443,10 +444,10 @@ export default (): FormPlus<FormIN> => ({
         typ: new DoubleChooserWidget({
             label: t => t.in.controllerType,
             options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
-            otherOptions1: d => [
+            otherOptions1: c => [
                 'IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc',
-                ...d.ir.regulus ? ['Thermona'] as const : [], 'other',
-            ] as const, options2: ({ ir: { typ: { value: { first: f } } } }) => (
+                ...c.v.ir.regulus ? ['Thermona'] as const : [], 'other',
+            ] as const, options2: ({ v: { ir: { typ: { first: f } } } }) => (
                 f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K', 'DeltaSol BS, ES', 'DeltaSol M, MX']
                     : f == 'ctc' ? ['EcoEl', 'EcoZenith', 'EcoHeat', 'EcoLogic EXT']
                         : f == 'Thermona' ? ['inTHERM 10']
@@ -454,76 +455,78 @@ export default (): FormPlus<FormIN> => ({
                                 : doesNotSupportHeatPumps(f) ? []
                                     : ['CTC', 'RTC']
             ),
-            onValueSet: (d, v) => {
+            onValueSet: (c, v) => {
                 if (v.second == 'RTC') {
-                    d.tc.typ.setValue(d, 'airToWater');
+                    c.v.tc.typ = 'airToWater';
                 }
                 if (v.second == 'CTC') {
-                    d.tc.typ.setValue(d, 'airToWater');
+                    c.v.tc.typ = 'airToWater';
                 }
                 if (v.second == 'EcoHeat') {
-                    d.tc.typ.setValue(d, 'groundToWater');
-                    d.tc.pocet.setValue(d, 1);
+                    c.v.tc.typ = 'groundToWater';
+                    c.v.tc.pocet = 1;
                 }
                 if (doesNotHaveIRNumber(v)) {
-                    if (!d.ir.cislo.lock(d))
-                        setTimeout(() => d.ir.cislo.setValue(d, `${dayISO()}T${time()}`));
+                    if (!c.f.ir.cislo.lock(c))
+                        setTimeout(() => c.v.ir.cislo = `${dayISO()}T${time()}`);
                 }
                 if (!supportsRemoteAccess(v.first)) {
-                    (d => d.vzdalenyPristup.chce.setValue(d, false))?.(d);
+                    c.v.vzdalenyPristup.chce = false;
+                    c.f.vzdalenyPristup.chce.onValueSet(c, false);
                 }
                 if (hasIndoorUnit(v.first)) {
-                    (d => d.ir.cisloBox.setValue(d, ''))?.(d);
+                    c.v.ir.cisloBox = '';
                 }
-                if (v.second && !d.ir.typ.options2(d).includes(v.second)) {
-                    d.ir.typ.setValue(d, { ...v, second: null });
+                if (v.second && !c.f.ir.typ.options2(c).includes(v.second)) {
+                    c.v.ir.typ = { ...v, second: null };
                 }
                 if (v.first != 'ctc' && supportsOnlyCTC(v.first) && v.second != 'CTC') {
-                    d.ir.typ.setValue(d, { ...v, second: 'CTC' });
+                    c.v.ir.typ = { ...v, second: 'CTC' };
                 }
                 if (v.first == 'Thermona' && v.second != 'inTHERM 10') {
-                    d.ir.typ.setValue(d, { ...v, second: 'inTHERM 10' });
+                    c.v.ir.typ = { ...v, second: 'inTHERM 10' };
                 }
                 if (v.first == 'Thermona') {
-                    (d => d.ir.chceVyplnitK.setValue(d, ['heatPump']))?.(d);
-                    d.tc.pocet.setValue(d, 1);
-                    d.tc.typ.setValue(d, 'airToWater');
-                    d.tc.model.setValue(d, 'airTHERM 10');
+                    c.v.ir.chceVyplnitK = ['heatPump'];
+                    c.f.ir.chceVyplnitK.onValueSet(c, c.v.ir.chceVyplnitK);
+                    c.v.tc.typ = 'airToWater';
+                    c.v.tc.model = 'airTHERM 10';
                 }
                 if (doesNotSupportHeatPumps(v.first) && v.second) {
-                    d.ir.typ.setValue(d, { ...v, second: null });
+                    c.v.ir.typ = { ...v, second: null };
                 }
                 if (v.first == 'ctc') {
-                    (d => d.ir.chceVyplnitK.setValue(d, ['heatPump']))?.(d);
+                    c.v.ir.chceVyplnitK = ['heatPump'];
+                    c.f.ir.chceVyplnitK.onValueSet(c, c.v.ir.chceVyplnitK);
                 }
                 if (v.first == 'other') {
-                    (d => d.fve.typ.setValue(d, 'DG-450-B'))?.(d);
+                    c.v.fve.typ = 'DG-450-B';
                 }
-                if (d.ir.typ.value.first) db.existsIR(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value))
-                    .then(e => d.ir.alreadyExists.setValue(d, e));
+                if (c.v.ir.typ.first) db.existsIR(extractIRIDFromParts(c.v.ir.typ.first, c.v.ir.cislo))
+                    .then(e => c.v.ir.alreadyExists = e);
             },
             labels: t => t.in.ir,
         }),
         cislo: new InputWidget({
             label: t => t.in.serialNumber,
-            onError: (t, d) => d.ir.alreadyExists.value ? t.in.irExists : t.wrong.number,
-            regex: d => doesNotHaveIRNumber(d.ir.typ.value)
+            onError: (t, c) => c.v.ir.alreadyExists ? t.in.irExists : t.wrong.number,
+            regex: c => doesNotHaveIRNumber(c.v.ir.typ)
                 ? /[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9]{2}:[0-9]{2}/
-                : isCTC(d.ir.typ.value.first)
+                : isCTC(c.v.ir.typ.first)
                     ? /[0-9]{4}-[0-9]{4}-[0-9]{4}/
-                    : isMACAddressTypeIR12(d.ir.typ.value.first)
+                    : isMACAddressTypeIR12(c.v.ir.typ.first)
                         ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:09:[0-9A-F]{2}:[0-9A-F]{2}/
-                        : isMACAddressTypeIR10(d.ir.typ.value.first)
+                        : isMACAddressTypeIR10(c.v.ir.typ.first)
                             ? /[A-Z][1-9OND] [0-9]{4}|00:0A:14:06:[0-9A-F]{2}:[0-9A-F]{2}/
                             : /[A-Z][1-9OND] [0-9]{4}/,
             capitalize: true,
-            maskOptions: d => ({
-                mask: doesNotHaveIRNumber(d.ir.typ.value) ? `0000-00-00T00:00`
-                    : isCTC(d.ir.typ.value.first) ? `0000-0000-0000`
-                        : !supportsMACAddresses(d.ir.typ.value.first) ? 'Z8 0000'
-                            : d.ir.cislo.value.length == 0 ? 'X'
-                                : d.ir.cislo.value[0] == '0'
-                                    ? isMACAddressTypeIR10(d.ir.typ.value.first)
+            maskOptions: c => ({
+                mask: doesNotHaveIRNumber(c.v.ir.typ) ? `0000-00-00T00:00`
+                    : isCTC(c.v.ir.typ.first) ? `0000-0000-0000`
+                        : !supportsMACAddresses(c.v.ir.typ.first) ? 'Z8 0000'
+                            : c.v.ir.cislo.length == 0 ? 'X'
+                                : c.v.ir.cislo[0] == '0'
+                                    ? isMACAddressTypeIR10(c.v.ir.typ.first)
                                         ? 'NN:NA:14:N6:FF:FF'
                                         : 'NN:NA:14:N9:FF:FF'
                                     : 'Z8 0000',
@@ -540,121 +543,122 @@ export default (): FormPlus<FormIN> => ({
                     Z: /[A-Za-z]/,
                     8: /[1-9ONDond]/,
                 },
-            }), onValueSet: (d, v) => {
-                if (ecoHeat(d)) {
-                    d.tc.cislo.setValue(d, v);
+            }), onValueSet: (c, v) => {
+                if (ecoHeat(c)) {
+                    c.v.tc.cislo = v;
                 }
-                if (d.ir.typ.value.first) db.existsIR(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value))
-                    .then(e => d.ir.alreadyExists.setValue(d, e));
-            }, show: d => !doesNotHaveIRNumber(d.ir.typ.value),
+                if (c.v.ir.typ.first) db.existsIR(extractIRIDFromParts(c.v.ir.typ.first, c.v.ir.cislo))
+                    .then(e => c.v.ir.alreadyExists = e);
+            }, show: c => !doesNotHaveIRNumber(c.v.ir.typ),
         }),
         alreadyExists: new HiddenValueWidget(false, true),
         alreadyExistsWarning: new TextWidget({
-            text: (t, d) => !d.ir.typ.value.first ? '' : t.in.irExistsHtml({
-                link: detailIrUrl(extractIRIDFromParts(d.ir.typ.value.first, d.ir.cislo.value)),
-            }), show: d => d.ir.alreadyExists.value, showInXML: false,
+            text: (t, c) => !c.v.ir.typ.first ? '' : t.in.irExistsHtml({
+                link: detailIrUrl(extractIRIDFromParts(c.v.ir.typ.first, c.v.ir.cislo)),
+            }), show: c => c.v.ir.alreadyExists, showInXML: false,
         }),
         cisloBox: new InputWidget({
             label: t => t.in.serialNumberIndoor,
             onError: t => t.wrong.number,
-            regex: d => thermona(d) ? /^\d{9}T$/
-                : d.ir.cisloBox.value.length < 6 ? /[0-9]{5}[0-9-]/
-                    : d.ir.cisloBox.value[5] == '-' ? /[0-9]{5}-[0-9]-[0-9]{4}-[0-9]{3}/
+            regex: c => thermona(c) ? /^\d{9}T$/
+                : c.v.ir.cisloBox.length < 6 ? /[0-9]{5}[0-9-]/
+                    : c.v.ir.cisloBox[5] == '-' ? /[0-9]{5}-[0-9]-[0-9]{4}-[0-9]{3}/
                         : /[0-9]{7}-[0-9]{7}/,
-            maskOptions: d => ({
-                mask: thermona(d) ? '000000000T'
-                    : d.ir.cisloBox.value.length < 6 ? `00000S`
-                        : d.ir.cisloBox.value[5] == '-' ? `00000-0-0000-000`
+            maskOptions: c => ({
+                mask: thermona(c) ? '000000000T'
+                    : c.v.ir.cisloBox.length < 6 ? `00000S`
+                        : c.v.ir.cisloBox[5] == '-' ? `00000-0-0000-000`
                             : `0000000-0000000`,
                 definitions: {
                     'S': /[0-9-]/,
                     'T': /T/,
                 },
             }),
-            show: d => hasIndoorUnit(d.ir.typ.value.first),
-            required: d => hasIndoorUnit(d.ir.typ.value.first),
+            show: c => hasIndoorUnit(c.v.ir.typ.first),
+            required: c => hasIndoorUnit(c.v.ir.typ.first),
         }),
         boxType: new TextWidget({
-            text: (t, d) => t.in.recognised_BOX([typBOX(d.ir.cisloBox.value) ?? '']), showInXML: false,
-            show: d => isBox(d.ir.typ.value.first) && typBOX(d.ir.cisloBox.value) != undefined,
+            text: (t, c) => t.in.recognised_BOX([typBOX(c.v.ir.cisloBox) ?? '']), showInXML: false,
+            show: c => isBox(c.v.ir.typ.first) && typBOX(c.v.ir.cisloBox) != undefined,
         }),
         chceVyplnitK: new MultiCheckboxWidget({
             label: t => t.in.whatToAddInfoTo,
-            options: d => [
-                ...irOther(d) || doesNotSupportHeatPumps(d.ir.typ.value.first) ? [] : ['heatPump'] as const,
+            options: c => [
+                ...irOther(c) || doesNotSupportHeatPumps(c.v.ir.typ.first) ? [] : ['heatPump'] as const,
                 ...['solarCollector'] as const,
                 ...['accumulation', 'waterStorage'] as const,
-                ...irCTC(d) || irOther(d) ? [] : ['ventilation'] as const,
-                ...irCTC(d) ? [] : ['photovoltaicPowerPlant'] as const,
-                ...irCTC(d) || irOther(d) ? [] : ['other'] as const,
+                ...irCTC(c) || irOther(c) ? [] : ['ventilation'] as const,
+                ...irCTC(c) ? [] : ['photovoltaicPowerPlant'] as const,
+                ...irCTC(c) || irOther(c) ? [] : ['other'] as const,
             ],
-            required: false, showInXML: false, onValueSet: (d, v) => {
+            required: false, showInXML: false, onValueSet: (c, v) => {
                 if (!v.includes('heatPump')) {
-                    d.tc.typ.setValue(d, null);
-                    d.tc.pocet.setValue(d, 0);
+                    c.v.tc.typ = null;
+                    c.v.tc.pocet = 0;
                 } else {
-                    d.tc.pocet.setValue(d, 1);
+                    c.v.tc.pocet = 1;
                 }
                 if (!v.includes('solarCollector')) {
-                    d.sol.typ.setValue(d, '');
-                    d.sol.pocet.setValue(d, '');
+                    c.v.sol.typ = '';
+                    c.v.sol.pocet = '';
                 }
                 if (!v.includes('accumulation')) {
-                    d.tanks.accumulation.setValue(d, '');
+                    c.v.tanks.accumulation = '';
                 }
                 if (!v.includes('waterStorage')) {
-                    d.tanks.water.setValue(d, '');
+                    c.v.tanks.water = '';
                 }
                 if (!v.includes('ventilation')) {
-                    d.rek.typ.setValue(d, '');
+                    c.v.rek.typ = '';
                 }
                 if (!v.includes('photovoltaicPowerPlant')) {
-                    d.fve.pocet.setValue(d, '');
-                    d.fve.typStridace.setValue(d, '');
-                    d.fve.cisloStridace.setValue(d, '');
-                    d.fve.akumulaceDoBaterii.setValue(d, false);
-                    d.fve.typBaterii.setValue(d, '');
-                    d.fve.kapacitaBaterii.setValue(d, '');
-                    d.fve.wallbox.setValue(d, false);
-                    d.fve.spolupraceIR.setValue(d, false);
+                    c.v.fve.pocet = '';
+                    c.v.fve.typStridace = '';
+                    c.v.fve.cisloStridace = '';
+                    c.v.fve.akumulaceDoBaterii = false;
+                    c.v.fve.typBaterii = '';
+                    c.v.fve.kapacitaBaterii = '';
+                    c.v.fve.wallbox = false;
+                    c.v.fve.spolupraceIR = false;
                 }
                 if (!v.includes('other')) {
-                    d.jine.popis.setValue(d, '');
+                    c.v.jine.popis = '';
                 }
             }, labels: t => t.in.device,
         }),
     },
     tc: {
         nadpis: new TitleWidget({
-            text: (t, d) => d.tc.pocet.value > 1 ? t.in.heatPumps : t.in.device.heatPump,
+            text: (t, c) => c.v.tc.pocet > 1 ? t.in.heatPumps : t.in.device.heatPump,
             show: tc, level: 3, class: 'fs-4',
         }),
         poznamka: new TextWidget({
             text: t => t.in.pleaseFillInIrType, showInXML: false,
-            show: d => !subType(d) && tc(d), class: 'text-warning',
+            show: c => !subType(c) && tc(c), class: 'text-warning',
         }),
         typ: new RadioWidget({
-            label: (t, d) => d.tc.pocet.value > 1 ? t.in.heatPumpsType : t.in.heatPumpType,
+            label: (t, c) => c.v.tc.pocet > 1 ? t.in.heatPumpsType : t.in.heatPumpType,
             options: [`airToWater`, `groundToWater`], required: tc,
-            lock: d => ecoHeat(d) || rtc(d) || thermona(d), show: tc,
-            labels: t => t.in.tc, onValueSet: d => {
+            lock: c => ecoHeat(c) || rtc(c) || thermona(c), show: tc,
+            labels: t => t.in.tc, onValueSet: c => {
                 TCNumbers.forEach(i => {
-                    const f = d.tc[`model${i}`];
-                    if (f.value && ![...f.options(d), ...f.otherOptions(d)].includes(f.value))
-                        f.setValue(d, null);
+                    const w = c.f.tc[`model${i}`];
+                    const v = c.v.tc[`model${i}`];
+                    if (v && ![...w.options(c), ...w.otherOptions(c)].includes(v))
+                        c.v.tc[`model${i}`] = null;
                 });
             },
         }),
-        pocet: new CounterWidget<FormIN, true>({
+        pocet: new CounterWidget<ContextIN, true>({
             label: t => t.in.hpCount, min: 1, max: 10, chosen: 1, hideInRawData: true,
-            onValueSet: (d, p) => {
+            onValueSet: (c, p) => {
                 TCNumbers.slice(p).forEach(i =>
-                    d.tc[`model${i}`].setValue(d, null),
+                    c.v.tc[`model${i}`] = null,
                 );
-            }, lock: d => ecoHeat(d) || thermona(d),
-            show: d => subType(d) &&
-                (rtc(d) || d.tc.typ.value != null) &&
-                tc(d),
+            }, lock: c => ecoHeat(c) || thermona(c),
+            show: c => subType(c) &&
+                (rtc(c) || c.v.tc.typ != null) &&
+                tc(c),
         }),
         ...heatPump(1),
         ...heatPump(2),
@@ -680,7 +684,7 @@ export default (): FormPlus<FormIN> => ({
     },
     tanks: {
         title: new TitleWidget({
-            text: t => t.tc.tanks, level: 3, class: 'fs-4', show: d => aku(d) || zas(d),
+            text: t => t.tc.tanks, level: 3, class: 'fs-4', show: c => aku(c) || zas(c),
         }),
         accumulation: new InputWithSuggestionsWidget({
             label: t => t.tc.typeOfAccumulationTank, show: aku, required: aku, suggestions: accumulationTanks,
@@ -689,7 +693,7 @@ export default (): FormPlus<FormIN> => ({
             label: t => t.tc.typeOfStorageTank, show: zas, required: zas, suggestions: waterTanks,
         }),
         anode: new RadioWidget({
-            label: t => t.tc.anodeRod.label, show: d => zas(d) || akuDuo(d), required: d => zas(d) || akuDuo(d),
+            label: t => t.tc.anodeRod.label, show: c => zas(c) || akuDuo(c), required: c => zas(c) || akuDuo(c),
             options: ['magnesium', 'electronic', 'none'], labels: t => t.tc.anodeRod,
         }),
     },
@@ -708,7 +712,7 @@ export default (): FormPlus<FormIN> => ({
         typ: new ChooserWidget({
             label: t => t.in.panelType, chosen: 'DG-450-B',
             required: fve, show: fve, lock: irOther,
-            options: d => irOther(d) ? ['DG-450-B'] : ['DG-450-B', 'otherNotRegulusPanels'],
+            options: c => irOther(c) ? ['DG-450-B'] : ['DG-450-B', 'otherNotRegulusPanels'],
             labels: t => t.in.fve,
         }),
         pocet: new InputWidget({
@@ -725,13 +729,13 @@ export default (): FormPlus<FormIN> => ({
         }),
         typBaterii: new InputWidget({
             label: t => t.in.batteryType,
-            required: d => fveReg(d) && d.fve.akumulaceDoBaterii.value,
-            show: d => fveReg(d) && d.fve.akumulaceDoBaterii.value,
+            required: c => fveReg(c) && c.v.fve.akumulaceDoBaterii,
+            show: c => fveReg(c) && c.v.fve.akumulaceDoBaterii,
         }),
         kapacitaBaterii: new InputWidget({
             label: t => t.in.totalBatteryCapacity, type: 'number', suffix: t => t.units.kWh,
-            required: d => fveReg(d) && d.fve.akumulaceDoBaterii.value,
-            show: d => fveReg(d) && d.fve.akumulaceDoBaterii.value,
+            required: c => fveReg(c) && c.v.fve.akumulaceDoBaterii,
+            show: c => fveReg(c) && c.v.fve.akumulaceDoBaterii,
         }),
         wallbox: new CheckboxWidget({
             label: t => t.in.chargingStationWallbox, required: false, show: fveReg,
@@ -751,41 +755,41 @@ export default (): FormPlus<FormIN> => ({
     },
     ...userData(),
     vzdalenyPristup: {
-        nadpis: new TitleWidget({ text: t => t.in.remoteAccess.title, show: supportsRemoteAccessF, level: 2 }),
+        nadpis: new TitleWidget({ text: t => t.in.remoteAccess.title, show: supportsRemoteAccessC, level: 2 }),
         chce: new CheckboxWidget({
-            label: t => t.in.remoteAccess.doYouWantRemoteAccess, required: false, show: supportsRemoteAccessF,
-            onValueSet: (d, v) => {
+            label: t => t.in.remoteAccess.doYouWantRemoteAccess, required: false, show: supportsRemoteAccessC,
+            onValueSet: (c, v) => {
                 if (!v) {
-                    d.vzdalenyPristup.pristupMa.setValue(d, []);
-                    d.vzdalenyPristup.plati.setValue(d, null);
+                    c.v.vzdalenyPristup.pristupMa = [];
+                    c.v.vzdalenyPristup.plati = null;
                 }
             },
         }),
         _pumpNotSelected: new TextWidget({
             text: t => t.in.remoteAccess.warrantyWarning,
-            show: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value && !tc(d), class: 'text-warning',
+            show: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce && !tc(c), class: 'text-warning',
         }),
         pristupMa: new MultiCheckboxWidget({
             label: t => t.in.remoteAccess.whoHasAccess,
             options: [`endCustomer`, `assemblyCompany`, `commissioningCompany`],
-            show: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
-            required: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
+            show: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce,
+            required: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce,
             labels: t => t.in.remoteAccess,
         }),
         plati: new RadioWidget({
             label: t => t.in.remoteAccess.whoWillBeInvoiced,
-            options: d => !d.ir.regulus ? ['assemblyCompany', 'endCustomer']
+            options: c => !c.v.ir.regulus ? ['assemblyCompany', 'endCustomer']
                 : ['laterAccordingToTheProtocol', 'doNotInvoice', 'assemblyCompany', 'endCustomer'],
-            show: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
-            required: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
+            show: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce,
+            required: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce,
             labels: t => t.in.remoteAccess,
         }),
         showResponsiblePerson: new HiddenValueWidget(true, true),
         zodpovednaOsoba: new InputWidget({
             label: t => t.in.remoteAccess.responsiblePerson,
             autocomplete: `section-resp billing name`,
-            show: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value && d.vzdalenyPristup.showResponsiblePerson.value,
-            required: d => supportsRemoteAccessF(d) && d.vzdalenyPristup.chce.value,
+            show: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce && c.v.vzdalenyPristup.showResponsiblePerson,
+            required: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce,
         }),
     },
     ostatni: {

@@ -1,4 +1,4 @@
-<script generics="D, I extends string" lang="ts">
+<script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
     import { type Arr, type ChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
@@ -6,29 +6,33 @@
 
     interface Props {
         t: Translations;
-        widget: ChooserWidget<D, I>;
-        data: D;
+        widget: ChooserWidget<C, I>;
+        context: C;
+        value: I;
     }
 
-    let { t, widget = $bindable(), data }: Props = $props();
+    let { t, widget, value = $bindable(), context }: Props = $props();
 
     let other = $state([] as Arr<I>);
     let options = $state([] as Arr<I>);
     const onChange: ChangeEventHandler<HTMLSelectElement> = e => {
         const target = e.currentTarget;
-        const value = target.value;
-        if (value === 'otherOptions') {
+        const option = target.value;
+        if (option === 'otherOptions') {
             e.preventDefault();
             options = [...options, ...other];
             other = [];
             setTimeout(() => target.showPicker());
-        } else widget.setValue(data, value as I);
+        } else {
+            value = option as I;
+            widget.onValueSet(context, option as I);
+        }
     };
     $effect(() => {
-        options = widget.options(data);
-        other = widget.otherOptions(data);
+        options = widget.options(context);
+        other = widget.otherOptions(context);
         untrack(() => {
-            if (widget.value && other.includes(widget.value)) {
+            if (value && other.includes(value)) {
                 options = [...options, ...other];
                 other = [];
             }
@@ -47,25 +51,25 @@
 {/snippet}
 
 <div class="d-flex gap-1 flex-column">
-    {#if widget.compact(data)}
+    {#if widget.compact(context)}
         <label class="input-group">
-            <span class="input-group-text">{labelAndStar(widget, data, t)}</span>
-            <select class="form-select flex-grow-1" value={widget.value ?? 'notChosen'}
-                    onchange={onChange} disabled={widget.lock(data)}>
+            <span class="input-group-text">{labelAndStar(widget, context, t)}</span>
+            <select class="form-select flex-grow-1" value={value ?? 'notChosen'}
+                    onchange={onChange} disabled={widget.lock(context)}>
                 {@render showOptions()}
             </select>
         </label>
     {:else}
         <label class="form-floating d-block">
-            <select class="form-select" value={widget.value ?? 'notChosen'} onchange={onChange}
-                    disabled={widget.lock(data)}>
+            <select class="form-select" value={value ?? 'notChosen'} onchange={onChange}
+                    disabled={widget.lock(context)}>
                 {@render showOptions()}
             </select>
-            <label for="">{labelAndStar(widget, data, t)}</label>
+            <label for="">{labelAndStar(widget, context, t)}</label>
         </label>
     {/if}
 
-    {#if widget.showError(data)}
-        <span class="text-danger">{widget.onError(t, data)}</span>
+    {#if widget.showError(context, value)}
+        <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>

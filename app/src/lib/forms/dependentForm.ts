@@ -15,10 +15,10 @@ export const removeDependency = async <
 >(formInfo: FormInfo<D, F, S, P, O>, irid: IRID): Promise<IndependentFormInfo<D, F, S, P, O>> => {
     const {
         storeName,
-        defaultData,
+        form,
         openPdf,
         saveData,
-        createWidgetData,
+        createContext,
         getEditData,
         getViewData,
         onMount,
@@ -29,19 +29,19 @@ export const removeDependency = async <
     return {
         ...formInfo,
         type: '',
-        defaultData: (o) => defaultData(o, ir),
-        storeName: (o) => `${storeName(o)}_${irid}`,
+        form: o => form(o, ir),
+        storeName: o => `${storeName(o)}_${irid}`,
         getEditData: async (url, o) => getEditData?.(ir, url, o),
         getViewData: async url => getViewData?.(ir, url),
-        saveData: async (raw, edit, data, editResult, t, send, _draft, other) => {
-            const result = await saveData(irid!, raw, edit, data, editResult, t, send, ir, other);
+        saveData: async args => {
+            const result = await saveData({ ...args, irid, ir });
             return result != false;
         },
         redirectLink: async () => detailIrUrl(),
         openPdf: openPdf ? async (_raw, other) => ({
             ...openPdf(other), irid,
         } as OpenPdfOptions<P>) : undefined,
-        createWidgetData: (data, other, mode) => createWidgetData(ir.IN, data, ir, other, mode),
-        onMount: (d, f, m, o) => onMount?.(d, f, m, ir, o),
+        createContext: args => createContext({ ...args, ir, IN: ir.IN }),
+        onMount: args => onMount?.({ ...args, ir }),
     };
 };

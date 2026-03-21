@@ -1,41 +1,44 @@
-<script generics="D, I extends string" lang="ts">
+<script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { labelAndStar, type RadioWithInputWidget } from '$lib/forms/Widget.svelte.js';
+    import { labelAndStar, type RadioWithInputWidget, type RaI } from '$lib/forms/Widget.svelte.js';
     import Icon from '$lib/components/Icon.svelte';
 
     interface Props {
         t: Translations;
-        widget: RadioWithInputWidget<D, I>;
-        data: D;
+        widget: RadioWithInputWidget<C, I>;
+        context: C;
+        value: RaI<I>;
     }
 
-    let { t, widget = $bindable(), data }: Props = $props();
+    let { t, widget, value = $bindable(), context }: Props = $props();
 
     const chosen = $derived({
         get value() {
-            return widget.value.chosen;
+            return value.chosen;
         },
         set value(chosen) {
-            widget.mutateValue(data, v => ({ ...v, chosen }));
+            const newValue = { ...value, chosen };
+            value = newValue;
+            widget.onValueSet(context, newValue);
         },
     });
 
     const uid = $props.id();
 
-    const other = widget.options(data).at(-1)!;
+    const other = widget.options(context).at(-1)!;
 </script>
 
 <div class="d-flex gap-1 flex-column">
     <div class="d-flex align-items-center">
-        {labelAndStar(widget, data, t)}
-        {#if !widget.required(data)}
+        {labelAndStar(widget, context, t)}
+        {#if !widget.required(context)}
             <button class="btn py-1 px-2 m-1" aria-label={t.widget.clearSelection} onclick={() => chosen.value = null}>
                 <Icon icon="clear" />
             </button>
         {/if}
     </div>
     <div class="input-group input-group-grid" style="--grid-cols: 3">
-        {#each widget.options(data) as item}
+        {#each widget.options(context) as item}
             <button class="input-group-text input-group-input first" onclick={() => chosen.value = item}
                     aria-labelledby="label-{uid}-{item}" tabindex="-1" style:grid-column={'1'}
             >
@@ -50,32 +53,32 @@
                 {#if chosen.value !== other}
                     <input type="text" readonly
                            onclick={() => chosen.value = other} class="form-control shadow-none input-group-text"
-                           role="button" disabled={widget.lock(data)} tabindex="-1" />
+                           role="button" disabled={widget.lock(context)} tabindex="-1" />
                 {:else}
                     <div class="form-floating w-100">
                         <input
-                            type={widget.type(data)}
-                            inputmode={widget.inputmode(data)}
-                            enterkeyhint={widget.enterkeyhint(data)}
-                            autocapitalize={widget.autocapitalize(data)}
-                            placeholder={widget.otherLabel(t, data)}
+                            type={widget.type(context)}
+                            inputmode={widget.inputmode(context)}
+                            enterkeyhint={widget.enterkeyhint(context)}
+                            autocapitalize={widget.autocapitalize(context)}
+                            placeholder={widget.otherLabel(t, context)}
                             class="form-control last w-100"
-                            value={widget.value.text}
+                            value={value.text}
                             oninput={e => {
-                                widget.mutateValue(data, v => (
-                                    { chosen: other, text: e.currentTarget.value ?? v.text }
-                                ));
+                                const newValue = { chosen: other, text: e.currentTarget.value ?? value.text };
+                                value = newValue;
+                                widget.onValueSet(context, newValue);
                             }}
-                            disabled={widget.lock(data)}
+                            disabled={widget.lock(context)}
                         />
-                        <label for="">{widget.otherLabel(t, data)}</label>
+                        <label for="">{widget.otherLabel(t, context)}</label>
                     </div>
                 {/if}
             {/if}
         {/each}
     </div>
 
-    {#if widget.showError(data)}
-        <span class="text-danger">{widget.onError(t, data)}</span>
+    {#if widget.showError(context, value)}
+        <span class="text-danger">{widget.onError(t, context)}</span>
     {/if}
 </div>

@@ -1,6 +1,6 @@
 import { CheckboxWidget, InputWidget, RadioWidget, TextWidget, TitleWidget, Widget } from '$lib/forms/Widget.svelte';
 import type { FormIN } from '$lib/forms/IN/formIN';
-import type { Raw } from '$lib/forms/Form';
+import type { Raw, Values } from '$lib/forms/Form';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 import { irName, irWholeName } from '$lib/helpers/ir';
 import { type IR, type RecommendationSettings } from '$lib/data';
@@ -12,23 +12,23 @@ import { currentUser } from '$lib/client/auth';
 import MailDK from '$lib/emails/MailDK.svelte';
 import db from '$lib/Database';
 
-export type DataDK<D extends DataDK<D>> = {
-    evidence: Raw<FormIN>,
-    dk: FormPartDK<D>,
+export type ContextDK<D extends ContextDK<D>> = {
+    IN: Raw<FormIN>,
+    DK: Values<FormPartDK<D>>,
     mode: 'create' | 'edit' | 'view' | 'loading',
 }
 
-export interface FormPartDK<D extends DataDK<D>> extends Record<string, Widget<D, any, true>> {
-    title: TitleWidget<D>,
-    commissionDate: InputWidget<D, true>,
-    enabled: CheckboxWidget<D, true>,
-    executingCompany: RadioWidget<D, 'assembly' | 'commissioning' | 'regulus', true>,
-    chosenCompany: TextWidget<D>,
+export interface FormPartDK<C extends ContextDK<C>> extends Record<string, Widget<C, any, true>> {
+    title: TitleWidget<C>,
+    commissionDate: InputWidget<C, true>,
+    enabled: CheckboxWidget<C, true>,
+    executingCompany: RadioWidget<C, 'assembly' | 'commissioning' | 'regulus', true>,
+    chosenCompany: TextWidget<C>,
 }
 
-const show = (d: DataDK<any>) => d.mode == 'create';
+const show = (c: ContextDK<any>) => c.mode == 'create';
 
-export const defaultDK = <D extends DataDK<D>>(
+export const defaultDK = <D extends ContextDK<D>>(
     type: 'TČ' | 'SOL',
     date: string | undefined,
     settings: RecommendationSettings | undefined,
@@ -41,38 +41,38 @@ export const defaultDK = <D extends DataDK<D>>(
     }),
     commissionDate: new InputWidget({
         label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true,
-        show: d => !hideDate && show(d), text: date || '', lock: !!date,
+        show: c => !hideDate && show(c), text: date || '', lock: !!date,
     }),
     executingCompany: new RadioWidget({
-        options: d => d.evidence.uvedeni.ico == `${regulusCRN}` ? ['assembly', 'regulus']
-            : d.evidence.montazka.ico == `${regulusCRN}` ? ['regulus', 'commissioning']
+        options: c => c.IN.uvedeni.ico == `${regulusCRN}` ? ['assembly', 'regulus']
+            : c.IN.montazka.ico == `${regulusCRN}` ? ['regulus', 'commissioning']
                 : ['assembly', 'commissioning', 'regulus'],
         label: t => t.dk.executingCompany, showInXML: false, hideInRawData: true, labels: t => ({
             assembly: t.in.assemblyCompany,
             commissioning: t.in.commissioningCompany,
             regulus: t.dk.regulus,
-        }), show: d => d.dk.enabled.value && show(d), required: d => d.dk.enabled.value,
+        }), show: c => c.DK.enabled && show(c), required: c => c.DK.enabled,
         chosen: settings?.executingCompany,
     }),
     chosenCompany: new TextWidget({
-        show: d => d.dk.enabled.value && (d.dk.executingCompany.value == 'assembly' || d.dk.executingCompany.value == 'commissioning') && show(d),
-        showInXML: false, text: async (t, d) => {
-            const crn = d.dk.executingCompany.value == 'assembly' ? d.evidence.montazka.ico : d.evidence.uvedeni.ico;
+        show: c => c.DK.enabled && (c.DK.executingCompany == 'assembly' || c.DK.executingCompany == 'commissioning') && show(c),
+        showInXML: false, text: async (t, c) => {
+            const crn = c.DK.executingCompany == 'assembly' ? c.IN.montazka.ico : c.IN.uvedeni.ico;
             const company = await ares.getName(crn);
             return company ? `${t.in.chosenCompany}: ${company}` : '';
         },
     }),
 });
 
-export const saveDK = async <D extends DataDK<D>>(ir: IR, form: FormPartDK<D>, type: 'TČ' | 'SOL') => {
-    const enabled = form.enabled.value;
-    const companyType = form.executingCompany.value;
+export const saveDK = async <D extends ContextDK<D>>(ir: IR, values: Values<FormPartDK<D>>, type: 'TČ' | 'SOL') => {
+    const enabled = values.enabled;
+    const companyType = values.executingCompany;
     if (type == 'TČ') {
-        if (!ir.UP.dateTC) await db.updateDateUPT(ir.meta.id, form.commissionDate.value);
-        await db.updateDKT(ir.meta.id, enabled, form.executingCompany.value);
+        if (!ir.UP.dateTC) await db.updateDateUPT(ir.meta.id, values.commissionDate);
+        await db.updateDKT(ir.meta.id, enabled, values.executingCompany);
     } else {
-        if (!ir.UP.dateSOL) await db.updateDateUPS(ir.meta.id, form.commissionDate.value);
-        await db.updateDKS(ir.meta.id, enabled, form.executingCompany.value);
+        if (!ir.UP.dateSOL) await db.updateDateUPS(ir.meta.id, values.commissionDate);
+        await db.updateDKS(ir.meta.id, enabled, values.executingCompany);
     }
     const settings = type == 'TČ' ? ir.RK.DK.TC : ir.RK.DK.SOL;
     if (enabled == Boolean(settings) || companyType == settings?.executingCompany) return true;

@@ -8,21 +8,21 @@ const infoFT: FormInfo<DataFT, FormFT, [], 'FT'> = {
     type: 'IR',
     storeName: () => 'stored_facetable',
     title: t => t.ft.title,
-    defaultData: defaultFT,
-    createWidgetData: e => e,
+    form: defaultFT,
+    createContext: e => e,
     openPdf: () => ({
         link: 'FT',
     }),
-    saveData: async (irid, raw) => {
+    saveData: async ({ irid, raw }) => {
         await db.addFT(irid, raw);
     },
     pdfImport: {
         onImport: () => {},
         fields: fieldsFT,
     },
-    onMount: async (data, form, _, ir) => {
-        if (!form.info.setBy.value)
-            form.info.setBy.setValue(data, ir.IN.uvedeni.zastupce)
+    onMount: async ({ values, ir }) => {
+        if (!values.info.setBy)
+            values.info.setBy = ir.IN.uvedeni.zastupce
     }
 }
 

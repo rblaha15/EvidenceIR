@@ -1,62 +1,73 @@
-import { CheckboxWidget, CounterWidget, InputWidget, TextWidget } from '$lib/forms/Widget.svelte.js';
+import { CheckboxWidget, CounterWidget, type GetT, InputWidget, TextWidget } from '$lib/forms/Widget.svelte.js';
 import { type Form, type Raw } from '$lib/forms/Form';
 import type { FormIN } from '$lib/forms/IN/formIN';
 
-export type DataRKT = { IN: Raw<FormIN>, mode: 'create' | 'edit' | 'view' | 'loading' }
+export type ContextRKT = {
+    IN: Raw<FormIN>,
+    mode: 'create' | 'edit' | 'view' | 'loading',
+    dataFromLastYear?: {
+        celkoveProvozniHodinyKompresoru: GetT<ContextRKT>
+        provozniHodinyKompresoruDoTepleVody: GetT<ContextRKT>
+        celkovyPocetStartuKompresoru: GetT<ContextRKT>
+        pocetStartuKompresoruDoTepleVody: GetT<ContextRKT>
+        celkoveProvozniHodinyDoplnkovehoZdroje: GetT<ContextRKT>
+        celkoveProvozniHodinyDoplnkovehoZdrojeTepleVody: GetT<ContextRKT>
+    }
+}
 
-export interface FormRKT extends Form<DataRKT> {
+export interface FormRKT extends Form<ContextRKT> {
     info: {
-        osoba: InputWidget<DataRKT>,
-        datum: InputWidget<DataRKT>,
-        year: CounterWidget<DataRKT, true>,
+        osoba: InputWidget<ContextRKT>,
+        datum: InputWidget<ContextRKT>,
+        year: CounterWidget<ContextRKT, true>,
     },
     kontrolaTepelnehoCerpadla: {
-        kontrolaVenkovniJednotky: CheckboxWidget<DataRKT>,
-        kontrolaElektrickeCasti: CheckboxWidget<DataRKT>,
-        kontrolaChladivoveCasti: CheckboxWidget<DataRKT>,
+        kontrolaVenkovniJednotky: CheckboxWidget<ContextRKT>,
+        kontrolaElektrickeCasti: CheckboxWidget<ContextRKT>,
+        kontrolaChladivoveCasti: CheckboxWidget<ContextRKT>,
     },
     kontrolaPrimarnihoOkruhu: {
-        kontrola: CheckboxWidget<DataRKT>,
+        kontrola: CheckboxWidget<ContextRKT>,
     },
     kontrolaRegulace: {
-        kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: CheckboxWidget<DataRKT>,
-        celkoveProvozniHodinyKompresoru: InputWidget<DataRKT>,
-        celkoveProvozniHodinyKompresoruMinule: TextWidget<DataRKT>,
-        provozniHodinyKompresoruDoTepleVody: InputWidget<DataRKT>,
-        provozniHodinyKompresoruDoTepleVodyMinule: TextWidget<DataRKT>,
-        celkovyPocetStartuKompresoru: InputWidget<DataRKT>,
-        celkovyPocetStartuKompresoruMinule: TextWidget<DataRKT>,
-        pocetStartuKompresoruDoTepleVody: InputWidget<DataRKT>,
-        pocetStartuKompresoruDoTepleVodyMinule: TextWidget<DataRKT>,
-        celkoveProvozniHodinyDoplnkovehoZdroje: InputWidget<DataRKT>,
-        celkoveProvozniHodinyDoplnkovehoZdrojeMinule: TextWidget<DataRKT>,
-        celkoveProvozniHodinyDoplnkovehoZdrojeTepleVody: InputWidget<DataRKT>,
-        celkoveProvozniHodinyDoplnkovehoZdrojeTepleVodyMinule: TextWidget<DataRKT>,
-        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: InputWidget<DataRKT>,
-        prumernaDobaChoduKompresoruDoTepleVodyMinOdPosledniKontroly: InputWidget<DataRKT>,
+        kontrolaChybovychAInformacnichHlaseniRegulatoruAJejichPricin: CheckboxWidget<ContextRKT>,
+        celkoveProvozniHodinyKompresoru: InputWidget<ContextRKT>,
+        celkoveProvozniHodinyKompresoruMinule: TextWidget<ContextRKT>,
+        provozniHodinyKompresoruDoTepleVody: InputWidget<ContextRKT>,
+        provozniHodinyKompresoruDoTepleVodyMinule: TextWidget<ContextRKT>,
+        celkovyPocetStartuKompresoru: InputWidget<ContextRKT>,
+        celkovyPocetStartuKompresoruMinule: TextWidget<ContextRKT>,
+        pocetStartuKompresoruDoTepleVody: InputWidget<ContextRKT>,
+        pocetStartuKompresoruDoTepleVodyMinule: TextWidget<ContextRKT>,
+        celkoveProvozniHodinyDoplnkovehoZdroje: InputWidget<ContextRKT>,
+        celkoveProvozniHodinyDoplnkovehoZdrojeMinule: TextWidget<ContextRKT>,
+        celkoveProvozniHodinyDoplnkovehoZdrojeTepleVody: InputWidget<ContextRKT>,
+        celkoveProvozniHodinyDoplnkovehoZdrojeTepleVodyMinule: TextWidget<ContextRKT>,
+        prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly: InputWidget<ContextRKT>,
+        prumernaDobaChoduKompresoruDoTepleVodyMinOdPosledniKontroly: InputWidget<ContextRKT>,
     },
     kontrolaElektroinstalaceKomponentRegulus: {
-        kontrolaDotazeniSvorkovychSpoju: CheckboxWidget<DataRKT>,
-        vizualniKontrolaVsechPristupnychVodicuVInstalaci: CheckboxWidget<DataRKT>,
+        kontrolaDotazeniSvorkovychSpoju: CheckboxWidget<ContextRKT>,
+        vizualniKontrolaVsechPristupnychVodicuVInstalaci: CheckboxWidget<ContextRKT>,
     },
     kontrolaOtopneSoustavy: {
-        vycisteniFiltruInstalaceTepelnehoCerpadla: CheckboxWidget<DataRKT>,
-        kontrolaTesnostiOtopneSoustavy: CheckboxWidget<DataRKT>,
-        kontrolaPojistovacichVentilu: CheckboxWidget<DataRKT>,
-        kontrolaPojistovacichVentiluPoznamka: InputWidget<DataRKT>,
-        kontrolaTlakuVOtopneSoustavePriUPT: InputWidget<DataRKT, true>,
-        kontrolaTlakuVOtopneSoustave: InputWidget<DataRKT>,
+        vycisteniFiltruInstalaceTepelnehoCerpadla: CheckboxWidget<ContextRKT>,
+        kontrolaTesnostiOtopneSoustavy: CheckboxWidget<ContextRKT>,
+        kontrolaPojistovacichVentilu: CheckboxWidget<ContextRKT>,
+        kontrolaPojistovacichVentiluPoznamka: InputWidget<ContextRKT>,
+        kontrolaTlakuVOtopneSoustavePriUPT: InputWidget<ContextRKT, true>,
+        kontrolaTlakuVOtopneSoustave: InputWidget<ContextRKT>,
     },
     kontrolaTlakuExpanznichNadob: {
-        expanzniNadobaOtopneSoustavyPriUPT: InputWidget<DataRKT, true>,
-        expanzniNadobaOtopneSoustavy: InputWidget<DataRKT>,
-        expanzniNadobaPitneVodyPriUPT: InputWidget<DataRKT, true>,
-        expanzniNadobaPitneVody: InputWidget<DataRKT>,
+        expanzniNadobaOtopneSoustavyPriUPT: InputWidget<ContextRKT, true>,
+        expanzniNadobaOtopneSoustavy: InputWidget<ContextRKT>,
+        expanzniNadobaPitneVodyPriUPT: InputWidget<ContextRKT, true>,
+        expanzniNadobaPitneVody: InputWidget<ContextRKT>,
     },
     funkcniTest: {
-        provozniZkouska: CheckboxWidget<DataRKT>,
+        provozniZkouska: CheckboxWidget<ContextRKT>,
     },
     poznamky: {
-        poznamka: InputWidget<DataRKT>,
+        poznamka: InputWidget<ContextRKT>,
     },
 }

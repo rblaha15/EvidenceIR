@@ -8,14 +8,14 @@ import { page } from '$app/state';
 import xml from '$lib/forms/NK/xmlNK';
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import MailDemand from '$lib/emails/MailDemand.svelte';
-import type { FormNK } from '$lib/forms/NK/formNK';
+import type { ContextNK, FormNK } from '$lib/forms/NK/formNK';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 
-const infoNK: IndependentFormInfo<FormNK, FormNK> = {
+const infoNK: IndependentFormInfo<ContextNK, FormNK> = {
     type: '',
     storeName: () => 'stored_demand',
-    defaultData: defaultNK,
-    saveData: async (raw, _1, form, editResult, t, _2, _3, _4, resetForm) => {
+    form: defaultNK,
+    saveData: async ({ raw, form, editResult, t, resetForm }) => {
         const user = get(currentUser)!;
 
         const name = raw.contacts.name;
@@ -56,7 +56,7 @@ const infoNK: IndependentFormInfo<FormNK, FormNK> = {
             load: false,
         });
     },
-    createWidgetData: d => d,
+    createContext: ({ form: f, values: v }) => ({ f, v }),
     title: t => t.nk.demandForm,
     onMount: async () => {
         await startUsersListening();

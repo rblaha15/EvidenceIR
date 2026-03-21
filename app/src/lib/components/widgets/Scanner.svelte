@@ -1,4 +1,4 @@
-<script generics="D" lang="ts">
+<script generics="C" lang="ts">
     import { ScannerWidget } from '$lib/forms/Widget.svelte.js';
     import { Html5Qrcode } from 'html5-qrcode';
     import { onMount } from 'svelte';
@@ -15,18 +15,16 @@
     });
 
     interface Props {
-        data: D;
+        context: C;
+        value: string;
         t: Translations;
-        widget: ScannerWidget<D>;
+        widget: ScannerWidget<C>;
     }
 
-    let {
-        data, t,
-        widget = $bindable(),
-    }: Props = $props();
+    let { t, widget, value = $bindable(), context }: Props = $props();
 
     const onClick = async () => {
-        if (widget.lock(data)) return;
+        if (widget.lock(context)) return;
         const devices = await Html5Qrcode.getCameras();
 
         if (devices && devices.length) html5QrCode
@@ -34,7 +32,9 @@
                 { facingMode: 'environment' },
                 undefined,
                 decodedText => {
-                    widget.setValue(data, widget.processScannedText(decodedText, data));
+                    const scannedText = widget.processScannedText(decodedText, context);
+                    value = scannedText;
+                    widget.onValueSet(context, scannedText)
                     cancelBtn?.click();
                 },
                 undefined,
@@ -50,11 +50,11 @@
     };
 </script>
 
-<div class={["d-flex flex-column flex-sm-row gap-1", widget.showError(data) ? 'align-items-sm-start' : 'align-items-sm-center']}>
-    <div class="flex-grow-1"><Input bind:widget {data} {t} /></div>
+<div class={["d-flex flex-column flex-sm-row gap-1", widget.showError(context, value) ? 'align-items-sm-start' : 'align-items-sm-center']}>
+    <div class="flex-grow-1"><Input bind:value {widget} {context} {t} /></div>
     <div class="d-flex gap-1 align-items-sm-center flex-column flex-sm-row">
         <span class="text-center">{t.widget.or_Scan}</span>
-        <Button text={t.widget.scanBarcode} color="secondary" disabled={widget.lock(data)}
+        <Button text={t.widget.scanBarcode} color="secondary" disabled={widget.lock(context)}
                 class="h-auto" modalID="cam" onclick={onClick} />
     </div>
 </div>

@@ -5,8 +5,9 @@
     import Widget from '$lib/components/Widget.svelte';
     import Icon from '$lib/components/Icon.svelte';
     import { onMount } from 'svelte';
-    import { type DataChangeDK, getDKInfo } from '$lib/features/detail/domain/detailIR/DK';
+    import { type ContextChangeDK, getDKInfo } from '$lib/features/detail/domain/detailIR/DK';
     import Button from '$lib/components/Button.svelte';
+    import { defaultFormGroupValues } from '$lib/forms/Form';
 
     const { t, ir, type }: {
         t: Translations, ir: IR, type: 'TČ' | 'SOL'
@@ -17,22 +18,23 @@
     let error = $state(false);
 
     const { settings, show, commissionDate } = $derived(getDKInfo(type, ir));
-    const f = $derived<FormPartDK<DataChangeDK>>(defaultDK<DataChangeDK>(type, commissionDate, settings));
-    const data = $derived({ dk: f, evidence: ir.IN, mode: 'create' as const });
+    const f = $derived<FormPartDK<ContextChangeDK>>(defaultDK<ContextChangeDK>(type, commissionDate, settings));
+    let v = $derived(defaultFormGroupValues(f));
+    const context = $derived({ DK: v, IN: ir.IN, mode: 'create' as const });
 
     $effect(() => {
-        f.enabled.setValue(data, Boolean(settings));
-        f.executingCompany.setValue(data, settings?.executingCompany ?? null);
+        v.enabled = Boolean(settings);
+        v.executingCompany = settings?.executingCompany ?? null;
     });
 
     const save = async () => {
         f.executingCompany.displayErrorVeto = true;
         f.commissionDate.displayErrorVeto = true;
-        if (f.executingCompany.isError(data) || f.commissionDate.isError(data)) return;
+        if (f.executingCompany.isError(context, v.executingCompany) || f.commissionDate.isError(context, v.commissionDate)) return;
         error = false;
         loading = true;
         const modal = (await import('bootstrap')).Modal.getInstance(`#recommendations${type}Modal`);
-        const success = await saveDK(ir, f, type);
+        const success = await saveDK(ir, v, type);
         if (success)
             modal?.hide();
         else {
@@ -68,10 +70,10 @@
                     <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
                 </div>
                 <div class="modal-body d-flex flex-column gap-3">
-                    <Widget bind:widget={f.commissionDate} {data} {t} />
-                    <Widget bind:widget={f.enabled} {data} {t} />
-                    <Widget bind:widget={f.executingCompany} {data} {t} />
-                    <Widget bind:widget={f.chosenCompany} {data} {t} />
+                    <Widget bind:value={v.commissionDate} widget={f.commissionDate} {context} {t} />
+                    <Widget bind:value={v.enabled} widget={f.enabled} {context} {t} />
+                    <Widget bind:value={v.executingCompany} widget={f.executingCompany} {context} {t} />
+                    <Widget bind:value={v.chosenCompany} widget={f.chosenCompany} {context} {t} />
                 </div>
                 <div class="modal-footer">
                     {#if error}
@@ -82,7 +84,7 @@
                             <div class="spinner-border text-danger"></div>
                         {/if}
                         <button class="btn btn-warning" disabled={loading} onclick={save}>
-                            {#if f.enabled.value !== Boolean(settings) && !f.executingCompany.isError(data)}
+                            {#if v.enabled !== Boolean(settings) && !f.executingCompany.isError(context, v.executingCompany)}
                                 <Icon icon="send" />
                             {/if}
                             {tr.save}

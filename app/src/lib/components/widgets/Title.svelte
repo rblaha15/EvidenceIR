@@ -1,20 +1,20 @@
-<script generics="D" lang="ts">
+<script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
     import { TitleWidget } from '$lib/forms/Widget.svelte.js';
     import { parseTitleId } from '$lib/helpers/globals';
 
     interface Props {
         t: Translations;
-        widget: TitleWidget<D>;
-        data: D;
+        widget: TitleWidget<C>;
+        context: C;
     }
 
-    const { t, widget, data }: Props = $props();
+    const { t, widget, context }: Props = $props();
 </script>
 
-{#await widget.text(t, data) then text}
+{#await widget.text(t, context) then text}
     {#if text}
-        {@const attrs = { id: parseTitleId(text), class: [widget.class(data), 'm-0'] }}
+        {@const attrs = { id: parseTitleId(text), class: [widget.class(context), 'm-0'] }}
         {#if widget.level === 1}
             <h1 {...attrs}>{text}</h1>
         {:else if widget.level === 2}

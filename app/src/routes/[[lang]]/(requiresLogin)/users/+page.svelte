@@ -10,7 +10,7 @@
 
     const { data }: PageProps = $props();
 
-    const { translations: t, irid, ir } = $derived(data)
+    const { translations: t, irid, ir } = $derived(context)
 
     $effect(() => setTitle(t.users.title, true));
 

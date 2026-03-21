@@ -15,12 +15,12 @@ import {
     TitleWidget,
 } from '$lib/forms/Widget.svelte';
 import { type SparePart, sparePartsList } from '$lib/client/realtime';
-import type { FormSP, GenericFormSP, Operation, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
+import type { FormSP, GenericContextSP, GenericFormSP, Operation, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
 import type { Translations } from '$lib/translations';
 import { browser } from '$app/environment';
 import { derived } from 'svelte/store';
 import { generalizeServiceProtocol } from '$lib/pdf/pdf';
-import { dataToRawData, type FormGroupPlus, type FormPlus } from '$lib/forms/Form';
+import { type FormGroupPlus, type FormPlus } from '$lib/forms/Form';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { calculateProtocolPrice } from '$lib/pdf/generators/pdfSP';
 import { defaultGenericSZ } from './defaultSZ';
@@ -38,9 +38,9 @@ export const multilineTooLong = (text: string) => text.split('\n').sumBy(line =>
 ) > multilineMaxLength;
 export const inlineTooLong = (text: string) => measure(text) > inlineMaxLength;
 
-const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8): FormGroupPlus<SparePartWidgetGroup<D>> => {
-    const show = (d: D) => d.nahradniDily.pocet.value >= n;
-    const dil = (d: D) => d[`nahradniDil${n}` as const];
+const sparePart = <C extends GenericContextSP<C>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8): FormGroupPlus<SparePartWidgetGroup<C>> => {
+    const show = (c: C) => c.v.nahradniDily.pocet >= n;
+    const dil = (c: C) => c.v[`nahradniDil${n}` as const];
 
     return ({
         _label: new TextWidget({
@@ -54,13 +54,13 @@ const sparePart = <D extends GenericFormSP<D>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
                 }) satisfies SparePart),
             ),
             required: false, show, hideInRawData: true, label: t => t.sp.searchItem,
-            onValueSet: (d, part) => {
-                const nd = dil(d);
-                nd.code.setValue(d, part?.code?.let(String) ?? '');
-                nd.name.setValue(d, part?.name ?? '');
-                if (d.system.zaruka.value) nd.unitPrice.setValue(d, '0');
-                else nd.unitPrice.setValue(d, part?.unitPrice?.let(String) ?? '');
-                nd.dil._value = null;
+            onValueSet: (c, part) => {
+                const nd = dil(c);
+                nd.code = part?.code?.let(String) ?? '';
+                nd.name = part?.name ?? '';
+                if (c.v.system.zaruka) nd.unitPrice = '0';
+                else nd.unitPrice = part?.unitPrice?.let(String) ?? '';
+                nd.dil = null;
             }, getSearchItem: (i: SparePart, t) => ({
                 pieces: [
                     { text: i.code.toString(), width: .08 },
@@ -102,35 +102,35 @@ export const invoiceableParts = [
     'transportation' as const, 'work' as const, ...operations,
 ];
 
-const calculate = <D extends GenericFormSP<D>>(hpCount: Get<D, number>, d: D) =>
-    calculateProtocolPrice(dataToRawData(d), hpCount(d));
-const notFree = <D extends GenericFormSP<D>>(hpCount: Get<D, number>) =>
-    (d: D) => !calculate(hpCount, d).isFree;
-const notByCash = <D extends GenericFormSP<D>>(d: D) => d.fakturace.hotove.value == 'no';
+const calculate = <C extends GenericContextSP<C>>(hpCount: Get<C, number>, c: C) =>
+    calculateProtocolPrice(c.v, hpCount(c));
+const notFree = <C extends GenericContextSP<C>>(hpCount: Get<C, number>) =>
+    (c: C) => !calculate(hpCount, c).isFree;
+const notByCash = <C extends GenericContextSP<C>>(c: C) => c.v.fakturace.hotove == 'no';
 
-export const defaultGenericSP = <D extends GenericFormSP<D>>(
-    getPdfData: GetT<D, Omit<InlinePdfPreviewData<D, 'NSP'>, 'type'>>, hpCount: Get<D, number>, titleLevel: HeadingLevel = 2, reduceOperations = false,
-): FormPlus<GenericFormSP<D>> => ({
+export const defaultGenericSP = <C extends GenericContextSP<C>>(
+    getPdfData: GetT<C, Omit<InlinePdfPreviewData<C, 'NSP'>, 'type'>>, hpCount: Get<C, number>, titleLevel: HeadingLevel = 2, reduceOperations = false,
+): FormPlus<GenericFormSP<C>> => ({
     system: {
         datumUvedeni: new InputWidget({ label: t => t.sp.commissioningDate, type: 'date', required: false }),
         zaruka: new RadioWidget({
             label: t => t.sp.warranty, options: [`warrantyCommon`, `warrantyExtended`], required: false, labels,
-            onValueSet: (d, warranty) => {
-                if (warranty == 'warrantyCommon') d.fakturace.invoiceParts.setValue(d, invoiceableParts);
-                else d.fakturace.invoiceParts.setValue(d, []);
+            onValueSet: (c, warranty) => {
+                if (warranty == 'warrantyCommon') c.v.fakturace.invoiceParts = invoiceableParts;
+                else c.v.fakturace.invoiceParts = [];
             },
         }),
     },
     zasah: {
         _title: new TitleWidget({ text: t => t.sp.intervention, level: titleLevel }),
-        datum: defaultGenericSZ<D>().zasah.datum,
-        clovek: defaultGenericSZ<D>(d => d.zasah.showNameFileds.value).zasah.clovek,
+        datum: defaultGenericSZ<C>().zasah.datum,
+        clovek: defaultGenericSZ<C>(c => c.v.zasah.showNameFileds).zasah.clovek,
         showNameFileds: new HiddenValueWidget(false, true),
-        inicialy: new InputWidget({ label: t => t.sp.technicianInitials, show: d => d.zasah.showNameFileds.value, showInXML: false, lock: d => !!d.lockNameFields }),
+        inicialy: new InputWidget({ label: t => t.sp.technicianInitials, show: c => c.v.zasah.showNameFileds, showInXML: false, lock: c => !!c.v.lockNameFields }),
         nahlasenaZavada: new InputWidget({ label: t => t.sp.reportedFault, required: false }),
-        _overflowFault: new TextWidget({ text: (t, d) => inlineTooLong(d.zasah.nahlasenaZavada.value) ? t.sp.textTooLong : '' }),
-        popis: defaultGenericSZ<D>().zasah.popis,
-        _overflowIntervention: new TextWidget({ text: (t, d) => multilineTooLong(d.zasah.popis.value) ? t.sp.textTooLong : '' }),
+        _overflowFault: new TextWidget({ text: (t, c) => inlineTooLong(c.v.zasah.nahlasenaZavada) ? t.sp.textTooLong : '' }),
+        popis: defaultGenericSZ<C>().zasah.popis,
+        _overflowIntervention: new TextWidget({ text: (t, c) => multilineTooLong(c.v.zasah.popis) ? t.sp.textTooLong : '' }),
         interventionDuration: new InputWidget({
             label: t => t.sp.interventionTime,
             type: 'number',
@@ -140,23 +140,23 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     ukony: {
         _title: new TitleWidget({ text: t => t.sp.billing, level: titleLevel }),
         ukony: new MultiCheckboxWidget({
-            label: (t, d) => reduceOperations ? t.sp.operations : t.sp.operationsMax(3 - (d.ukony.ukony.value.includes('yearlyHPCheck') && hpCount(d) > 1 ? 1 : 0) - (d.ukony.ukony.value.includes('commissioningTC') && hpCount(d) > 1 ? 1 : 0) + (d.ukony.typPrace.value ? 0 : 1)),
-            max: d => d.ukony.typPrace.value ? 3 : 4,
+            label: (t, c) => reduceOperations ? t.sp.operations : t.sp.operationsMax(3 - (c.v.ukony.ukony.includes('yearlyHPCheck') && hpCount(c) > 1 ? 1 : 0) - (c.v.ukony.ukony.includes('commissioningTC') && hpCount(c) > 1 ? 1 : 0) + (c.v.ukony.typPrace ? 0 : 1)),
+            max: c => c.v.ukony.typPrace ? 3 : 4,
             required: false,
             options: reduceOperations ? independentOperations : operations,
             labels,
-            weights: (d, i) =>
-                i == 'yearlyHPCheck' && hpCount(d) > 1
-                || i == 'commissioningTC' && hpCount(d) > 1
+            weights: (c, i) =>
+                i == 'yearlyHPCheck' && hpCount(c) > 1
+                || i == 'commissioningTC' && hpCount(c) > 1
                     ? 2 : 1,
         }),
         typPrace: new RadioWidget({
-            label: t => t.sp.workType, required: false, labels, lock: d => d.ukony.ukony.value.sumBy(i => d.ukony.ukony.weights(d, i)) == 4,
+            label: t => t.sp.workType, required: false, labels, lock: c => c.v.ukony.ukony.sumBy(i => c.f.ukony.ukony.weights(c, i)) == 4,
             options: [`assemblyWork`, `technicalAssistance`, `assemblyWork12`],
         }),
         doba: new InputWidget({
             label: t => t.sp.billedTime, type: 'number',
-            show: d => d.ukony.typPrace.value != null, required: d => d.ukony.typPrace.value != null,
+            show: c => c.v.ukony.typPrace != null, required: c => c.v.ukony.typPrace != null,
             onError: t => t.wrong.number, suffix: t => t.units.h,
         }),
         doprava: new InputWidget({
@@ -167,7 +167,7 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     nahradniDily: {
         _title: new TitleWidget({ text: t => t.sp.usedSpareParts, level: titleLevel }),
         pocet: new CounterWidget({
-            label: t => t.sp.sparePartCount, min: 0, max: d => d.fakturace.discount.value ? 7 : 8, chosen: 0,
+            label: t => t.sp.sparePartCount, min: 0, max: c => c.v.fakturace.discount ? 7 : 8, chosen: 0,
         }),
     },
     nahradniDil1: sparePart(1),
@@ -181,21 +181,21 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
     fakturace: {
         _title: new TitleWidget({ text: t => t.sp.invoicing, level: titleLevel }),
         invoiceParts: new MultiCheckboxWidget({
-            label: t => t.sp.invoiceParts, options: d => [
+            label: t => t.sp.invoiceParts, options: c => [
                 'transportation' as const,
-                ...d.ukony.typPrace.value ? ['work' as const] : [],
-                ...d.ukony.ukony.value,
+                ...c.v.ukony.typPrace ? ['work' as const] : [],
+                ...c.v.ukony.ukony,
             ], labels, required: false,
         }),
         discount: new InputWidget({
             label: t => t.sp.discountNoTax, inputmode: 'numeric', onError: t => t.wrong.number, suffix: t => t.units.czk, required: false,
-            lock: d => d.nahradniDily.pocet.value == 8,
+            lock: c => c.v.nahradniDily.pocet == 8,
         }),
         discountReason: new InputWidget({
             label: t => t.sp.discountReason, required: false,
-            show: d => Boolean(d.fakturace.discount.value),
+            show: c => Boolean(c.v.fakturace.discount),
         }),
-        _price: new TextWidget({ text: (t, d) => t.sp.price(calculate(hpCount, d)), class: 'fs-5' }),
+        _price: new TextWidget({ text: (t, c) => t.sp.price(calculate(hpCount, c)), class: 'fs-5' }),
         hotove: new ChooserWidget({
             label: t => t.sp.paidInCash, options: ['yes', 'no'] as ('yes' | 'no' | 'doNotInvoice')[], labels, chosen: 'no',
             required: notFree(hpCount), show: notFree(hpCount),
@@ -203,11 +203,11 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
         komu: new RadioWithInputWidget({
             label: t => t.sp.whoToInvoice, labels, otherLabel: t => t.sp.crnOrName,
             options: ['investor', `assemblyCompany`, `commissioningCompany`, 'otherCompany'],
-            required: d => notByCash(d) && notFree(hpCount)(d), show: d => notByCash(d) && notFree(hpCount)(d),
+            required: c => notByCash(c) && notFree(hpCount)(c), show: c => notByCash(c) && notFree(hpCount)(c),
         }),
         jak: new RadioWidget({
             label: t => t.sp.send, options: ['onPaper', 'electronically'], labels,
-            required: d => notByCash(d) && notFree(hpCount)(d), show: d => notByCash(d) && notFree(hpCount)(d),
+            required: c => notByCash(c) && notFree(hpCount)(c), show: c => notByCash(c) && notFree(hpCount)(c),
         }),
     },
     other: {
@@ -215,16 +215,17 @@ export const defaultGenericSP = <D extends GenericFormSP<D>>(
             text: t => t.pdf.documentPreview, showInXML: false, level: 2,
         }),
         preview: new InlinePdfPreviewWidget({
-            pdfData: (t, d) => ({
+            pdfData: (t, c) => ({
                 type: 'NSP',
-                ...getPdfData(t, d),
+                ...getPdfData(t, c),
             }),
         }),
     },
 });
 
-export default (): FormSP => defaultGenericSP((t, d) => ({
-    data: generalizeServiceProtocol(d.meta, d.IN, d.raw, t),
-    form: d.form,
-    pumpCount: cascadePumps(d.IN).length,
-}), d => cascadePumps(d.IN).length);
+export default (): FormSP => defaultGenericSP((t, c) => ({
+    data: generalizeServiceProtocol(c.ir.meta, c.ir.IN, c.raw, t),
+    form: c.f,
+    values: c.v,
+    pumpCount: cascadePumps(c.ir.IN).length,
+}), c => cascadePumps(c.ir.IN).length);

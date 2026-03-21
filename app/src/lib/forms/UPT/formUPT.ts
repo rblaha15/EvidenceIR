@@ -1,63 +1,63 @@
 import { CheckboxWidget, ChooserWidget, InputWidget, SwitchWidget, TitleWidget } from '../Widget.svelte.js';
-import type { Form, Raw } from '$lib/forms/Form';
+import type { Form, Raw, Values } from '$lib/forms/Form';
 import type { FormIN } from '../IN/formIN';
 import type { FormPartDK } from '$lib/forms/DK/formDK';
 
-export type DataUPT = {
-    uvedeni: FormUPT,
-    evidence: Raw<FormIN>,
-    dk: FormPartDK<DataUPT>,
+export type ContextUPT = {
+    UP: Values<FormUPT>,
+    IN: Raw<FormIN>,
+    DK: Values<FormPartDK<ContextUPT>>,
     mode: 'create' | 'edit' | 'view' | 'loading',
 }
 
-export interface FormUPT extends Form<DataUPT> {
+export interface FormUPT extends Form<ContextUPT> {
     tc: {
-        nadpisSystem: TitleWidget<DataUPT>,
-        nadpis: TitleWidget<DataUPT>,
-        jisticTC: SwitchWidget<DataUPT>,
-        jisticVJ: SwitchWidget<DataUPT>,
-        vzdalenostZdi: SwitchWidget<DataUPT>,
-        kondenzator: CheckboxWidget<DataUPT>,
-        filtr: CheckboxWidget<DataUPT>,
+        nadpisSystem: TitleWidget<ContextUPT>,
+        nadpis: TitleWidget<ContextUPT>,
+        jisticTC: SwitchWidget<ContextUPT>,
+        jisticVJ: SwitchWidget<ContextUPT>,
+        vzdalenostZdi: SwitchWidget<ContextUPT>,
+        kondenzator: CheckboxWidget<ContextUPT>,
+        filtr: CheckboxWidget<ContextUPT>,
     },
     os: {
-        nadpis: TitleWidget<DataUPT>,
-        tvori: ChooserWidget<DataUPT, `radiators` | `underfloorHeating` | `combinationHeating` | `otherHeatingSystem`>,
-        popis: InputWidget<DataUPT>,
-        dzTop: CheckboxWidget<DataUPT>,
-        typDzTop: InputWidget<DataUPT>,
-        tcTv: CheckboxWidget<DataUPT>,
-        zTv: InputWidget<DataUPT>,
-        objemEnOs: SwitchWidget<DataUPT>,
-        tlakEnOs: InputWidget<DataUPT>,
-        tlakOs: InputWidget<DataUPT>,
-        tlakEnTv: InputWidget<DataUPT>,
-        bazenTc: CheckboxWidget<DataUPT>,
+        nadpis: TitleWidget<ContextUPT>,
+        tvori: ChooserWidget<ContextUPT, `radiators` | `underfloorHeating` | `combinationHeating` | `otherHeatingSystem`>,
+        popis: InputWidget<ContextUPT>,
+        dzTop: CheckboxWidget<ContextUPT>,
+        typDzTop: InputWidget<ContextUPT>,
+        tcTv: CheckboxWidget<ContextUPT>,
+        zTv: InputWidget<ContextUPT>,
+        objemEnOs: SwitchWidget<ContextUPT>,
+        tlakEnOs: InputWidget<ContextUPT>,
+        tlakOs: InputWidget<ContextUPT>,
+        tlakEnTv: InputWidget<ContextUPT>,
+        bazenTc: CheckboxWidget<ContextUPT>,
     },
     reg: {
-        nadpis: TitleWidget<DataUPT>,
-        pripojeniKInternetu: ChooserWidget<DataUPT, `connectedViaRegulusRoute` | `connectedWithPublicIpAddress` | `notConnected`>,
-        pospojeni: CheckboxWidget<DataUPT>,
-        spotrebice: CheckboxWidget<DataUPT>,
-        zalZdroj: CheckboxWidget<DataUPT>,
+        nadpis: TitleWidget<ContextUPT>,
+        pripojeniKInternetu: ChooserWidget<ContextUPT, `connectedViaRegulusRoute` | `connectedWithPublicIpAddress` | `notConnected`>,
+        pospojeni: CheckboxWidget<ContextUPT>,
+        spotrebice: CheckboxWidget<ContextUPT>,
+        zalZdroj: CheckboxWidget<ContextUPT>,
     },
     primar: {
-        nadpis: TitleWidget<DataUPT>,
-        typ: ChooserWidget<DataUPT, `groundBoreholes` | `surfaceCollector` | `otherCollector`>,
-        popis: InputWidget<DataUPT>,
-        nemrz: InputWidget<DataUPT>
-        nadoba: ChooserWidget<DataUPT, `expansionTankInstalled` | `bufferTankInstalled`>,
-        kontrola: CheckboxWidget<DataUPT>,
+        nadpis: TitleWidget<ContextUPT>,
+        typ: ChooserWidget<ContextUPT, `groundBoreholes` | `surfaceCollector` | `otherCollector`>,
+        popis: InputWidget<ContextUPT>,
+        nemrz: InputWidget<ContextUPT>
+        nadoba: ChooserWidget<ContextUPT, `expansionTankInstalled` | `bufferTankInstalled`>,
+        kontrola: CheckboxWidget<ContextUPT>,
     },
     uvadeni: {
-        nadpis: TitleWidget<DataUPT>,
-        tc: CheckboxWidget<DataUPT>,
-        reg: CheckboxWidget<DataUPT>,
-        vlastnik: CheckboxWidget<DataUPT>,
-        typZaruky: ChooserWidget<DataUPT, `no` | `yes`>,
-        zaruka: CheckboxWidget<DataUPT>,
-        date: InputWidget<DataUPT, true>,
-        note: InputWidget<DataUPT>,
+        nadpis: TitleWidget<ContextUPT>,
+        tc: CheckboxWidget<ContextUPT>,
+        reg: CheckboxWidget<ContextUPT>,
+        vlastnik: CheckboxWidget<ContextUPT>,
+        typZaruky: ChooserWidget<ContextUPT, `no` | `yes`>,
+        zaruka: CheckboxWidget<ContextUPT>,
+        date: InputWidget<ContextUPT, true>,
+        note: InputWidget<ContextUPT>,
     },
-    checkRecommendations: FormPartDK<DataUPT>,
+    checkRecommendations: FormPartDK<ContextUPT>,
 }

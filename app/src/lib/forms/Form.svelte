@@ -1,12 +1,21 @@
 <script generics="
-    D,
-    F extends Form<D>,
+    C,
+    F extends Form<C>,
     S extends unknown[][],
     P extends Pdf = Pdf,
     O extends Record<string, unknown> = Record<never, unknown>,
 " lang="ts">
     // noinspection ES6UnusedImports
-    import { compareRawData, dataToRawData, type Form, type Raw, rawDataToData } from '$lib/forms/Form';
+    import {
+        compareValues,
+        defaultValues,
+        type Form,
+        type Raw,
+        rawDataToValues,
+        type Values,
+        valuesToRawData,
+        widgetList,
+    } from '$lib/forms/Form';
     // noinspection ES6UnusedImports
     import { type Pdf } from '$lib/pdf/pdf';
     import type { Translations } from '$lib/translations';
@@ -16,7 +25,7 @@
     import WidgetComponent from '$lib/components/Widget.svelte';
     import { storable } from '$lib/helpers/stores';
     import { dev } from '$app/environment';
-    import { type ButtonKey, buttonKeys, type IndependentFormInfo, type Result } from '$lib/forms/FormInfo';
+    import { type ButtonKey, buttonKeys, type IndependentFormInfo, type Mode, type ModeL, type Result } from '$lib/forms/FormInfo';
     import { refreshTOC, runLoading } from '$lib/helpers/globals.js';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
     import { goto } from '$app/navigation';
@@ -27,7 +36,7 @@
 
     const { t, formInfo, editData, viewData, other }: {
         t: Translations,
-        formInfo: IndependentFormInfo<D, F, S, P, O>,
+        formInfo: IndependentFormInfo<C, F, S, P, O>,
         editData: Raw<F> | undefined,
         viewData: Raw<F> | undefined,
         other: O,
@@ -35,9 +44,9 @@
 
     const {
         storeName,
-        defaultData,
+        form: formDefinition,
         saveData,
-        createWidgetData,
+        createContext,
         title,
         onMount: mountEffect,
         storeEffects,
@@ -51,28 +60,34 @@
     } = formInfo;
 
     const storedData = storable<Raw<F>>(storeName(other));
-    let mode: 'create' | 'edit' | 'loading' | 'view' = $state('loading');
+    let mode: ModeL = $state('loading');
 
-    let f: F = $state(defaultData(other));
+    const form: F = formDefinition(other);
+    let values: Values<F> = $state(defaultValues(form));
+    const list = $derived(widgetList<C, F>(form, values));
+    const context = $derived(createContext({ form, other, values, mode })) as C;
+
     onMount(async () => {
         await runLoading(async () => {
             if (viewData) {
-                f = rawDataToData(f, viewData);
+                values = rawDataToValues(form, viewData);
                 mode = 'view';
             } else if (editData) {
-                f = rawDataToData(f, editData);
+                values = rawDataToValues(form, editData);
                 mode = 'edit';
             } else if ($storedData) {
-                f = rawDataToData(f, $storedData);
+                values = rawDataToValues(form, $storedData);
                 mode = 'create';
             } else
                 mode = 'create';
         });
 
-        await mountEffect?.(d, f, mode as 'create' | 'edit' | 'view', other);
+        await mountEffect?.({ mode: mode as Mode, context, other, values });
 
         storeEffects?.forEach(([callback, stores]) => {
-            derivedStore(stores, values => values).subscribe(values => callback(d, f, values, mode == 'edit', t));
+            derivedStore(stores, values => values).subscribe(storeValues => callback(
+                storeValues, { context, values, edit: mode === 'edit', t }
+            ));
         });
     });
 
@@ -82,25 +97,25 @@
         load: false,
     });
 
-    const list = $derived(f.getValues().flatMap(obj => obj.getValues()));
-    const d = $derived(createWidgetData(f, other, mode)) as D;
-
     $effect(() => {
         list
+            .map(w => w.widget)
             .filter(w => w instanceof TitleWidget)
-            .filter(w => w.show(d))
-            .map(w => w.text(t, d))
+            .filter(w => w.show(context))
+            .map(w => w.text(t, context))
             .awaitAll()
             .then(refreshTOC);
     });
 
     const save = (send: boolean, draft: boolean) => async () => {
         try {
-            const raw = dataToRawData(f);
-            const errors = list.filter(w => w.isError(d) && w.show(d)).map(w => w.label(t, d));
+            const raw = valuesToRawData(form, values);
+            const errors = list
+                .filter(({ widget, value }) => widget.isError(context, value) && widget.show(context))
+                .map(({ widget }) => widget.label(t, context));
             if (errors.length > 0 && !draft) {
                 for (const i in list) {
-                    list[i].displayErrorVeto = true;
+                    list[i].widget.displayErrorVeto = true;
                 }
                 result = {
                     red: true,
@@ -112,7 +127,11 @@
             }
 
             result = { load: true, red: false, text: t.form.saving };
-            const success = await saveData(raw, mode == 'edit', f, r => result = r, t, send, draft, other, () => f = defaultData(other));
+            const success = await saveData({
+                form, raw, other, draft, edit: mode == 'edit', send, t,
+                resetForm() { values = defaultValues(form) },
+                editResult: r => result = r, context, values,
+            });
 
             if (success) {
                 if (!dev) storedData.set(undefined);
@@ -145,27 +164,27 @@
 
     $effect(() => {
         if (mode == 'create') {
-            storedData.set((storeData ?? dataToRawData)(f, other));
+            storedData.set((storeData ?? valuesToRawData)(form, values, other));
         }
     });
 
     const onImportExcel = (newData: Raw<F>) => {
-        f = rawDataToData(f, newData);
+        values = rawDataToValues(form, newData);
         for (const i in list) {
-            list[i].displayErrorVeto = true;
+            list[i].widget.displayErrorVeto = true;
         }
-        excelImport!.onImport(d, f, other);
+        excelImport!.onImport(context, values, other);
     };
 
     const onImportPdf = (newData: Raw<F>) => {
-        f = rawDataToData(f, newData);
+        values = rawDataToValues(form, newData);
         for (const i in list) {
-            list[i].displayErrorVeto = true;
+            list[i].widget.displayErrorVeto = true;
         }
-        pdfImport!.onImport(d, f, other);
+        pdfImport!.onImport(context, values, other);
     };
 
-    const isDangerous = $derived(compareRawData(dataToRawData(f), dataToRawData(untrack(() => defaultData(other)))));
+    const isDangerous = $derived(compareValues(values, untrack(() => defaultValues(form))));
     const buttonsStore: Readable<{ [B in ButtonKey]: boolean }> = $derived.by(() => {
         const b = buttons?.(mode == 'edit', other) ?? {};
         const br = 'subscribe' in b ? b : readable(b);
@@ -179,16 +198,16 @@
     {/if}
 
     <FormHeader readonly={mode === 'view'} excelImport={excelImport ? {
-        ...excelImport, onImport: onImportExcel, isDangerous, defaultData: () => dataToRawData(defaultData(other))
+        ...excelImport, onImport: onImportExcel, isDangerous, defaultData: () => valuesToRawData(form, defaultValues(form))
     } : undefined} pdfImport={pdfImport ? {
-        ...pdfImport, onImport: onImportPdf, isDangerous, defaultData: () => dataToRawData(defaultData(other))
+        ...pdfImport, onImport: onImportPdf, isDangerous, defaultData: () => valuesToRawData(form, defaultValues(form))
     } : undefined} store={storedData} {t} title={title(t, mode, other)}
                 showBackButton={mode === 'view' || !$buttonsStore.hideBack} />
-    {#each list as _, i}
+    {#each list as item}
         {#if mode === 'view'}
-            <ReadonlyWidget widget={list[i]} {t} data={d} />
+            <ReadonlyWidget widget={item.widget} value={item.value} {t} {context} />
         {:else}
-            <WidgetComponent bind:widget={list[i]} {t} data={d} />
+            <WidgetComponent widget={item.widget} bind:value={item.value} {t} {context} />
         {/if}
     {/each}
     <div class="d-flex flex-column align-items-start gap-3">

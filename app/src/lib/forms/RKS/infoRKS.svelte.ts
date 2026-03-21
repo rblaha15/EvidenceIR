@@ -8,13 +8,13 @@ import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
 import defaultRKS from '$lib/forms/RKS/defaultRKS';
 import type { FormInfo } from '$lib/forms/FormInfo';
-import type { DataRKS, FormRKS } from '$lib/forms/RKS/formRKS';
+import type { ContextRKS, FormRKS } from '$lib/forms/RKS/formRKS';
 import db from '$lib/Database';
 
-const infoRKS: FormInfo<DataRKS, FormRKS, [], 'RKS', { defaultYear: Year, filledYears: Year[] }> = {
+const infoRKS: FormInfo<ContextRKS, FormRKS, [], 'RKS', { defaultYear: Year, filledYears: Year[] }> = {
     type: 'IR',
     storeName: () => `stored_check`,
-    defaultData: ({ defaultYear, filledYears }) => defaultRKS(defaultYear, filledYears),
+    form: ({ defaultYear, filledYears }) => defaultRKS(defaultYear, filledYears),
     openPdf: () => ({
         link: 'RKS',
     }),
@@ -48,8 +48,8 @@ const infoRKS: FormInfo<DataRKS, FormRKS, [], 'RKS', { defaultYear: Year, filled
             return { other: { defaultYear: yearOfNextCheck as Year, filledYears } };
         }
     },
-    saveData: async (irid, raw, edit, form, editResult, t, _, ir) => {
-        await db.addRKS(irid, form.info.year.value as Year, raw);
+    saveData: async ({ irid, values, raw, edit, editResult, t, ir }) => {
+        await db.addRKS(irid, values.info.year as Year, raw);
 
         if (await checkRegulusOrAdmin()) return;
 
@@ -77,7 +77,7 @@ const infoRKS: FormInfo<DataRKS, FormRKS, [], 'RKS', { defaultYear: Year, filled
         saveAndSendAgain: edit && !regulus,
     })),
     title: t => t.rks.formTitle,
-    createWidgetData: (_1, _2, _3, _4, mode) => ({ mode }),
+    createContext: ({ mode }) => ({ mode }),
 };
 
 export default infoRKS;
