@@ -7,7 +7,6 @@ import {
     CountersWidget,
     InputWidget,
     InputWithChooserWidget,
-    InputWithSuggestionsWidget,
     MultiCheckboxWidget,
     PhotoSelectorWidget,
     RadioWidget,
@@ -67,7 +66,7 @@ export interface FormNK extends Form<ContextNK> {
         locationBuildingType: InputWidget<ContextNK>
         info: TextWidget<ContextNK>
         lightningRod: CheckboxWidget<ContextNK>
-        roofMaterial: InputWithSuggestionsWidget<ContextNK>
+        roofMaterial: InputWidget<ContextNK>
         tileType: InputWidget<ContextNK>
         roofAge: InputWidget<ContextNK>
         useOptimizers: CheckboxWidget<ContextNK>
@@ -109,8 +108,8 @@ export interface FormNK extends Form<ContextNK> {
         hPType: RadioWidget<ContextNK, `airToWater` | `groundToWater`>
         hPModel: ChooserWidget<ContextNK, `iDoNotKnow` | HeatPump>
         indoorUnitType: ChooserWidget<ContextNK, `indoorUnitNone` | IndoorUnit>
-        thermalStore: InputWithSuggestionsWidget<ContextNK>
-        waterTank: InputWithSuggestionsWidget<ContextNK>
+        thermalStore: InputWidget<ContextNK>
+        waterTank: InputWidget<ContextNK>
         heatingSystem: ChooserWidget<ContextNK, `iDoNotKnow` | `heatingSystem1circuit` | `heatingSystem2circuits` | `heatingSystem3circuits` | `heatingSystemInvertor` | `heatingSystemOther`>
         hotWaterCirculation: CheckboxWidget<ContextNK>
         wantsPool: CheckboxWidget<ContextNK>

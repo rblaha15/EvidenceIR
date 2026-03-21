@@ -6,7 +6,6 @@ import {
     DoubleChooserWidget,
     HiddenValueWidget,
     InputWidget,
-    InputWithSuggestionsWidget,
     MultiCheckboxWidget,
     RadioWidget,
     ScannerWidget,
@@ -675,7 +674,7 @@ export default (): FormPlus<FormIN> => ({
         title: new TitleWidget({
             text: t => t.in.device.solarCollector, show: sol, level: 3, class: 'fs-4',
         }),
-        typ: new InputWithSuggestionsWidget({
+        typ: new InputWidget({
             label: t => t.in.solarCollectorType, required: sol, show: sol, suggestions: solarCollectors,
         }),
         pocet: new InputWidget({
@@ -686,10 +685,10 @@ export default (): FormPlus<FormIN> => ({
         title: new TitleWidget({
             text: t => t.tc.tanks, level: 3, class: 'fs-4', show: c => aku(c) || zas(c),
         }),
-        accumulation: new InputWithSuggestionsWidget({
+        accumulation: new InputWidget({
             label: t => t.tc.typeOfAccumulationTank, show: aku, required: aku, suggestions: accumulationTanks,
         }),
-        water: new InputWithSuggestionsWidget({
+        water: new InputWidget({
             label: t => t.tc.typeOfStorageTank, show: zas, required: zas, suggestions: waterTanks,
         }),
         anode: new RadioWidget({

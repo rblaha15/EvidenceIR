@@ -134,9 +134,6 @@ type SearchArgs<C, T> = {
     getXmlEntry?: () => string;
     inline?: GetBOrVal<C>;
     type?: GetOrVal<C, HTMLInputTypeAttribute>;
-    enterkeyhint?: GetOrVal<C, HTMLInputAttributes['enterkeyhint']>;
-    inputmode?: GetOrVal<C, HTMLInputAttributes['inputmode']>;
-    autocapitalize?: GetOrVal<C, HTMLInputAttributes['autocapitalize']>;
     chosen?: null | T;
 } & ({
     items: GetTROrVal<C, T[]>;
@@ -157,36 +154,34 @@ type MultiChooserArgs<C, I extends K> = {
     max?: GetOrVal<C, number>;
     inverseSelection?: boolean;
 } & LabelsArgs<I>;
-type Input1Args<C> = {
+type BaseInputArgs<C> = {
     regex?: GetOrVal<C, RegExp>;
-    capitalize?: GetBOrVal<C>;
     type?: GetOrVal<C, HTMLInputTypeAttribute>;
     enterkeyhint?: GetOrVal<C, HTMLInputAttributes['enterkeyhint']>;
     inputmode?: GetOrVal<C, HTMLInputAttributes['inputmode']>;
     autocapitalize?: GetOrVal<C, HTMLInputAttributes['autocapitalize']>;
-    placeholder?: GetTOrVal<C>;
 };
-type Input2Args<C> = {
+type AdvancedInputArgs<C> = {
     textArea?: GetBOrVal<C>;
     maskOptions?: GetOrVal<C, Opts>;
     autocomplete?: GetOrVal<C, FullAutoFill>;
-};
-type Input3Args<C> = {
-    text?: string;
+    capitalize?: GetBOrVal<C>;
+    placeholder?: GetTOrVal<C>;
     suffix?: GetTUOrVal<C>;
+    suggestions?: GetTAROrVal<C>;
 };
-type SuggestionsArgs<C> = {
-    suggestions: GetTAROrVal<C>;
+type OnlyInputArgs = {
+    text?: string;
 };
 
 type Info<C, U> = Widget<C, U> & { text: GetTP<C>; class: Get<C, ClassValue | undefined>; };
 type Btn<C, U> = Widget<C, U> & { text: GetT<C>; color: Get<C, BtnColor>; icon: Get<C, string | undefined>; onClick: Get<C, void> };
 type Title<C> = Widget<C, undefined> & { level: HeadingLevel; };
 type Pdf<C, P extends PdfType> = Widget<C, undefined> & { pdfData: GetT<C, InlinePdfPreviewData<C, P>> };
-type Required<C, U, H extends boolean> = Widget<C, U, H> & { required: GetB<C>; };
+export type Required<C, U, H extends boolean> = Widget<C, U, H> & { required: GetB<C>; };
 type Labels<C, U, I extends string> = Widget<C, U> & { labels: T<I>; get: (t: Translations, v: I | null) => string; };
 type File<C> = Widget<C, Files> & { multiple: GetB<C>; max: Get<C, number>; accept: Get<C, string>; };
-type Lock<C, U> = Widget<C, U> & { lock: GetB<C>; };
+export type Lock<C, U> = Widget<C, U> & { lock: GetB<C>; };
 type Compact<C, U> = Widget<C, U> & { compact: GetB<C>; };
 type DoubleLock<C, U> = Widget<C, U> & { lock1: GetB<C>; lock2: GetB<C>; };
 type Chooser<C, I extends K> = Widget<C, I | null> & { options: Get<C, Arr<I>>; otherOptions: Get<C, Arr<I>> };
@@ -204,9 +199,6 @@ type Search<C, T> = Widget<C, T | null> & {
     items: GetTR<C, T[]>;
     search?: (search: string) => Promise<T[] | null>;
     type: Get<C, HTMLInputTypeAttribute>;
-    enterkeyhint: Get<C, HTMLInputAttributes['enterkeyhint']>;
-    inputmode: Get<C, HTMLInputAttributes['inputmode']>;
-    autocapitalize: Get<C, HTMLInputAttributes['autocapitalize']>;
 };
 type Counter<C> = Widget<C, number> & { min: Get<C, number>; max: Get<C, number>; validate: (v: number, c: C) => boolean; };
 type Counters<C, I extends K> = Widget<C, Rec<I>> & { max: Get<C, number> };
@@ -218,27 +210,25 @@ type MultiChooser<C, I extends K> = Widget<C, Arr<I>> & {
     inverseSelection: boolean;
     weights: (c: C, i: I) => number;
 };
-type Input1<C, U> = Widget<C, U> & {
+export type BaseInput<C, U> = Widget<C, U> & {
     type: Get<C, HTMLInputTypeAttribute>;
     enterkeyhint: Get<C, HTMLInputAttributes['enterkeyhint']>;
     inputmode: Get<C, HTMLInputAttributes['inputmode']>;
     autocapitalize: Get<C, HTMLInputAttributes['autocapitalize']>;
     regex: Get<C, RegExp>;
-    capitalize: GetB<C>;
-    placeholder: GetT<C>;
 };
-type Input2<C, U> = Widget<C, U> & {
+export type AdvancedInput<C, U> = Widget<C, U> & {
     textArea: GetB<C>;
     autocomplete: Get<C, FullAutoFill>;
     updateMaskValue: (text: string) => void;
     maskOptions: Get<C, Opts>;
-};
-type Input3<C> = Widget<C, string> & {
+    capitalize: GetB<C>;
+    placeholder: GetT<C>;
     suffix: GetTU<C>;
-}
-type Suggestions<C> = Widget<C, string> & {
     suggestions: GetTAR<C>;
 };
+export type OnlyInput<C> = Widget<C, string> & {
+}
 
 const get = <I extends string>(l: Record<Exclude<I, Untranslatable>, string | undefined>, v: I | null): string =>
     v ? l[v] ?? v ?? '' : '';
@@ -315,9 +305,6 @@ const initSearch = function <C, T>(widget: Search<C, T>, args: SearchArgs<C, T>)
     widget.getSearchItem = args.getSearchItem;
     widget.getXmlEntry = args.getXmlEntry ?? (v => JSON.stringify(v));
     widget.type = toGetA(args.type ?? 'search');
-    widget.enterkeyhint = toGetA(args.enterkeyhint);
-    widget.inputmode = toGetA(args.inputmode);
-    widget.autocapitalize = toGetA(args.autocapitalize);
     widget.inline = toGetA(args.inline ?? false);
 };
 const initCounter = function <C>(widget: Counter<C>, args: CounterArgs<C>) {
@@ -347,26 +334,24 @@ const initMultiChooser = function <C, I extends K>(widget: MultiChooser<C, I>, a
     widget.inverseSelection = Boolean(args.inverseSelection);
     widget.weights = args.weights ?? (() => 1);
 };
-const initInput1 = function <C, U>(widget: Input1<C, U>, args: Input1Args<C>) {
+const initBaseInput = function <C, U>(widget: BaseInput<C, U>, args: BaseInputArgs<C>) {
     widget.regex = toGetA(args.regex ?? /.*/);
-    widget.capitalize = toGetA(args.capitalize ?? false);
     widget.type = toGetA(args.type ?? 'text');
     widget.enterkeyhint = toGetA(args.enterkeyhint);
     widget.inputmode = toGetA(args.inputmode);
     widget.autocapitalize = toGetA(args.autocapitalize);
-    widget.placeholder = toGetT(args.placeholder ?? '');
 };
-const initInput2 = function <C, U>(widget: Input2<C, U>, args: Input2Args<C>) {
+const initAdvancedInput = function <C, U>(widget: AdvancedInput<C, U>, args: AdvancedInputArgs<C>) {
     widget.textArea = toGetA(args.textArea ?? false);
     widget.maskOptions = toGetA(args.maskOptions ?? undefined);
     widget.autocomplete = toGetA(args.autocomplete ?? 'off');
-};
-const initInput3 = function <C>(widget: Input3<C>, args: Input3Args<C>) {
-    widget.defaultValue = args.text ?? '';
+    widget.capitalize = toGetA(args.capitalize ?? false);
+    widget.placeholder = toGetT(args.placeholder ?? '');
     widget.suffix = toGetT(args.suffix);
+    widget.suggestions = toGetT(args.suggestions ?? readable([]));
 };
-const initSuggestions = function <C>(widget: Suggestions<C>, args: SuggestionsArgs<C>) {
-    widget.suggestions = toGetT(args.suggestions);
+const initOnlyInput = function <C>(widget: OnlyInput<C>, args: OnlyInputArgs) {
+    widget.defaultValue = args.text ?? '';
 };
 
 export class TitleWidget<C> extends Widget<C, undefined, true> {
@@ -515,43 +500,11 @@ export class SearchWidget<C, T, H extends boolean = false> extends Widget<C, T |
     items!: GetTR<C, T[]>;
     search!: undefined | ((search: string) => Promise<T[] | null>);
     type!: Get<C, HTMLInputTypeAttribute>;
-    enterkeyhint!: Get<C, HTMLInputAttributes['enterkeyhint']>;
-    inputmode!: Get<C, HTMLInputAttributes['inputmode']>;
-    autocapitalize!: Get<C, HTMLInputAttributes['autocapitalize']>;
 
     constructor(args: ValueArgs<C, T | null, H> & SearchArgs<C, T>) {
         super();
         initValue(this, args);
         initSearch(this, args);
-    }
-}
-
-export class InputWithSuggestionsWidget<C, H extends boolean = false> extends Widget<C, string, H> {
-    label!: GetT<C>;
-    onError!: GetT<C>;
-    show!: GetB<C>;
-    showTextValue!: GetB<C>;
-    defaultValue!: string;
-    onValueSet!: (context: C, newValue: string) => void;
-    hideInRawData!: H;
-    isError = (c: C, v: string) => v == null && this.required(c);
-    required!: GetB<C>;
-    suggestions!: GetTAR<C>;
-    type!: Get<C, HTMLInputTypeAttribute>;
-    enterkeyhint!: Get<C, HTMLInputAttributes['enterkeyhint']>;
-    inputmode!: Get<C, HTMLInputAttributes['inputmode']>;
-    autocapitalize!: Get<C, HTMLInputAttributes['autocapitalize']>;
-    suffix!: GetTU<C>;
-    regex!: Get<C, RegExp>;
-    capitalize!: GetB<C>;
-    placeholder!: GetT<C>;
-
-    constructor(args: ValueArgs<C, string, H> & Input1Args<C> & Input3Args<C> & SuggestionsArgs<C>) {
-        super();
-        initValue(this, args);
-        initInput1(this, args);
-        initInput3(this, args);
-        initSuggestions(this, args);
     }
 }
 
@@ -681,16 +634,14 @@ export class RadioWithInputWidget<C, I extends K, H extends boolean = false> ext
     regex!: Get<C, RegExp>;
     labels!: T<I>;
     get!: ((t: Translations, v: I | null) => string);
-    capitalize!: GetB<C>;
-    placeholder!: GetT<C>;
 
-    constructor(args: ValueArgs<C, RaI<I>, H> & LockArgs<C> & Input1Args<C> & Input3Args<C> & ChooserArgs<C, I> & LabelsArgs<I> & {
+    constructor(args: ValueArgs<C, RaI<I>, H> & LockArgs<C> & BaseInputArgs<C> & OnlyInputArgs & ChooserArgs<C, I> & LabelsArgs<I> & {
         otherLabel: GetTOrVal<C>
     }) {
         super();
         initValue(this, args);
         initLock(this, args);
-        initInput1(this, args);
+        initBaseInput(this, args);
         initLabels(this, args);
         this.otherLabel = toGetT(args.otherLabel);
         this.options = toGetA(args.options);
@@ -764,6 +715,7 @@ export class InputWidget<C, H extends boolean = false> extends Widget<C, string,
     inputmode!: Get<C, HTMLInputAttributes['inputmode']>;
     autocapitalize!: Get<C, HTMLInputAttributes['autocapitalize']>;
     suffix!: GetTU<C>;
+    suggestions!: GetTAR<C>;
     autocomplete!: Get<C, FullAutoFill>;
     updateMaskValue = $state(() => {
     }) as (text: string) => void;
@@ -773,13 +725,13 @@ export class InputWidget<C, H extends boolean = false> extends Widget<C, string,
     textArea!: GetB<C>;
     placeholder!: GetT<C>;
 
-    constructor(args: ValueArgs<C, string, H> & LockArgs<C> & Input1Args<C> & Input2Args<C> & Input3Args<C>) {
+    constructor(args: ValueArgs<C, string, H> & LockArgs<C> & BaseInputArgs<C> & AdvancedInputArgs<C> & OnlyInputArgs) {
         super();
         initValue(this, args);
         initLock(this, args);
-        initInput1(this, args);
-        initInput2(this, args);
-        initInput3(this, args);
+        initBaseInput(this, args);
+        initAdvancedInput(this, args);
+        initOnlyInput(this, args);
     }
 }
 
@@ -787,7 +739,7 @@ export class ScannerWidget<C, H extends boolean = false> extends InputWidget<C, 
 
     processScannedText!: (text: string, context: C) => string;
 
-    constructor(args: ValueArgs<C, string, H> & LockArgs<C> & Input1Args<C> & Input2Args<C> & Input3Args<C> & {
+    constructor(args: ValueArgs<C, string, H> & LockArgs<C> & BaseInputArgs<C> & AdvancedInputArgs<C> & OnlyInputArgs & {
         processScannedText?: (text: string, context: C) => string
     }) {
         super(args);
@@ -869,13 +821,15 @@ export class InputWithChooserWidget<C, I extends K, H extends boolean = false> e
     labels!: T<I>;
     get!: ((t: Translations, v: I | null) => string);
     placeholder!: GetT<C>;
+    suffix!: GetTU<C>;
+    suggestions!: GetTAR<C>;
 
-    constructor(args: ValueArgs<C, SeI<I>, H> & LockArgs<C> & Input1Args<C> & Input2Args<C> & Input3Args<C> & SecondChooserArgs<I> & LabelsArgs<I>) {
+    constructor(args: ValueArgs<C, SeI<I>, H> & LockArgs<C> & BaseInputArgs<C> & AdvancedInputArgs<C> & OnlyInputArgs & SecondChooserArgs<I> & LabelsArgs<I>) {
         super();
         initValue(this, args);
         initLock(this, args);
-        initInput1(this, args);
-        initInput2(this, args);
+        initBaseInput(this, args);
+        initAdvancedInput(this, args);
         initSecondChooser(this, args);
         initLabels(this, args);
     }
@@ -908,13 +862,15 @@ export class CheckboxWithInputWidget<C, H extends boolean = false> extends Widge
     capitalize!: GetB<C>;
     textArea!: GetB<C>;
     placeholder!: GetT<C>;
+    suffix!: GetTU<C>;
+    suggestions!: GetTAR<C>;
 
-    constructor(args: ValueArgs<C, ChI, H> & LockArgs<C> & Input1Args<C> & Input2Args<C> & Input3Args<C> & CheckArgs) {
+    constructor(args: ValueArgs<C, ChI, H> & LockArgs<C> & BaseInputArgs<C> & AdvancedInputArgs<C> & OnlyInputArgs & CheckArgs) {
         super();
         initValue(this, args);
         initLock(this, args);
-        initInput1(this, args);
-        initInput2(this, args);
+        initBaseInput(this, args);
+        initAdvancedInput(this, args);
         this.defaultValue = { checked: args.checked ?? false, text: args.text ?? '' };
     }
 }
