@@ -1,10 +1,10 @@
 <script generics="C" lang="ts">
-    import { ScannerWidget } from '$lib/forms/Widget.svelte.js';
     import { Html5Qrcode } from 'html5-qrcode';
     import { onMount } from 'svelte';
     import type { Translations } from '$lib/translations';
     import Button from '$lib/components/Button.svelte';
     import CoreInput from '$lib/components/CoreInput.svelte';
+    import type { ScannerWidget } from '$lib/forms/Widget';
 
     let cancelBtn = $state<HTMLButtonElement>();
 

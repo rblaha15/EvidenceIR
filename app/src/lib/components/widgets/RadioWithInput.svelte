@@ -1,7 +1,7 @@
 <script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { labelAndStar, type RadioWithInputWidget, type RaI } from '$lib/forms/Widget.svelte.js';
     import Icon from '$lib/components/Icon.svelte';
+    import { labelAndStar, type RadioWithInputWidget, type RaI } from '$lib/forms/Widget';
 
     interface Props {
         t: Translations;

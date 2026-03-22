@@ -1,7 +1,7 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { TitleWidget } from '$lib/forms/Widget.svelte.js';
     import { parseTitleId } from '$lib/helpers/globals';
+    import type { TitleWidget } from '$lib/forms/Widget';
 
     interface Props {
         t: Translations;

@@ -1,5 +1,5 @@
-import { CheckboxWidget, CounterWidget, InputWidget, TitleWidget } from '$lib/forms/Widget.svelte.js';
 import { type Form } from '$lib/forms/Form';
+import type { CheckboxWidget, CounterWidget, InputWidget, TitleWidget } from '../Widget';
 
 export type ContextRKS = {
     mode: 'create' | 'edit' | 'view' | 'loading',

@@ -1,8 +1,8 @@
 <script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { CheckboxWithChooserWidget, labelAndStar, type SeCh } from '$lib/forms/Widget.svelte.js';
     import type { Action } from 'svelte/action';
     import { onMount } from 'svelte';
+    import { type CheckboxWithChooserWidget, labelAndStar, type SeCh } from '$lib/forms/Widget';
 
     interface Props {
         t: Translations;

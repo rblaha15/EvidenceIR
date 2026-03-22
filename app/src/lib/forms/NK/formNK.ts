@@ -1,5 +1,5 @@
 import { type Form, type Values } from '$lib/forms/Form';
-import {
+import type {
     CheckboxWidget,
     CheckboxWithChooserWidget,
     CheckboxWithInputWidget,
@@ -13,7 +13,7 @@ import {
     SearchWidget,
     TextWidget,
     TitleWidget,
-} from '$lib/forms/Widget.svelte.js';
+} from '$lib/forms/Widget';
 import { type Company, type Person } from '$lib/client/realtime';
 import { type HeatPump, type IndoorUnit } from '$lib/helpers/products';
 

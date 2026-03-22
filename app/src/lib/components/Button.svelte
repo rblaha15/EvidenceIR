@@ -1,5 +1,5 @@
 <script lang="ts" module>
-    import type { Color } from '$lib/forms/Widget.svelte';
+    import type { Color } from '$lib/forms/Widget';
     import type { ClassValue, EventHandler, HTMLAttributeAnchorTarget } from 'svelte/elements';
     import type { Snippet } from 'svelte';
 

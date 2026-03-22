@@ -1,4 +1,3 @@
-import { CheckboxWidget, InputWidget, RadioWidget, TextWidget, TitleWidget, Widget } from '$lib/forms/Widget.svelte';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw, Values } from '$lib/forms/Form';
 import ares, { regulusCRN } from '$lib/helpers/ares';
@@ -11,6 +10,20 @@ import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
 import MailDK from '$lib/emails/MailDK.svelte';
 import db from '$lib/Database';
+import {
+    type CheckboxWidget,
+    type InputWidget,
+    newCheckboxWidget,
+    newInputWidget,
+    newRadioWidget,
+    newTextWidget,
+    newTitleWidget,
+    type RadioWidget,
+    type TextWidget,
+    type TitleWidget,
+    type Widget,
+    type WidgetType,
+} from '$lib/forms/Widget';
 
 export type ContextDK<D extends ContextDK<D>> = {
     IN: Raw<FormIN>,
@@ -18,7 +31,7 @@ export type ContextDK<D extends ContextDK<D>> = {
     mode: 'create' | 'edit' | 'view' | 'loading',
 }
 
-export interface FormPartDK<C extends ContextDK<C>> extends Record<string, Widget<C, any, true>> {
+export interface FormPartDK<C extends ContextDK<C>> extends Record<string, Widget<C, WidgetType, true>> {
     title: TitleWidget<C>,
     commissionDate: InputWidget<C, true>,
     enabled: CheckboxWidget<C, true>,
@@ -34,16 +47,16 @@ export const defaultDK = <D extends ContextDK<D>>(
     settings: RecommendationSettings | undefined,
     hideDate?: boolean,
 ): FormPartDK<D> => ({
-    title: new TitleWidget({ text: t => t.dk.title, level: 2, showInXML: false, show }),
-    enabled: new CheckboxWidget({
+    title: newTitleWidget({ text: t => t.dk.title, level: 2, showInXML: false, show }),
+    enabled: newCheckboxWidget({
         label: t => t.dk.userWantsTo(type), hideInRawData: true, showInXML: false,
         required: false, show, checked: !!settings,
     }),
-    commissionDate: new InputWidget({
+    commissionDate: newInputWidget({
         label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true,
         show: c => !hideDate && show(c), text: date || '', lock: !!date,
     }),
-    executingCompany: new RadioWidget({
+    executingCompany: newRadioWidget({
         options: c => c.IN.uvedeni.ico == `${regulusCRN}` ? ['assembly', 'regulus']
             : c.IN.montazka.ico == `${regulusCRN}` ? ['regulus', 'commissioning']
                 : ['assembly', 'commissioning', 'regulus'],
@@ -54,7 +67,7 @@ export const defaultDK = <D extends ContextDK<D>>(
         }), show: c => c.DK.enabled && show(c), required: c => c.DK.enabled,
         chosen: settings?.executingCompany,
     }),
-    chosenCompany: new TextWidget({
+    chosenCompany: newTextWidget({
         show: c => c.DK.enabled && (c.DK.executingCompany == 'assembly' || c.DK.executingCompany == 'commissioning') && show(c),
         showInXML: false, text: async (t, c) => {
             const crn = c.DK.executingCompany == 'assembly' ? c.IN.montazka.ico : c.IN.uvedeni.ico;

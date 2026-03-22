@@ -1,10 +1,10 @@
 <script generics="C, T" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { labelAndStar, type SearchWidget } from '$lib/forms/Widget.svelte.js';
     import { browser } from '$app/environment';
     import type { ClassValue } from 'svelte/elements';
     import Icon from '$lib/components/Icon.svelte';
     import { derived, writable } from 'svelte/store';
+    import { labelAndStar, type SearchWidget } from '$lib/forms/Widget';
 
     export const textToFilter = (s: string) => s
         .normalize('NFD')

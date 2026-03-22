@@ -30,7 +30,6 @@
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
     import { goto } from '$app/navigation';
     import { relUrl } from '$lib/helpers/runes.svelte';
-    import { TitleWidget } from '$lib/forms/Widget.svelte';
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
     import Button from '$lib/components/Button.svelte';
 
@@ -101,7 +100,7 @@
     $effect(() => {
         list
             .map(w => w.widget)
-            .filter(w => w instanceof TitleWidget)
+            .filter(w => w.widgetType == 'title')
             .filter(w => w.show(context))
             .map(w => w.text(t, context))
             .awaitAll()

@@ -1,18 +1,7 @@
 // noinspection SuspiciousTypeOfGuard
 
 import type { ContextIN } from '$lib/forms/IN/formIN';
-import {
-    CheckboxWidget,
-    ChooserWidget,
-    CounterWidget,
-    DoubleChooserWidget,
-    InputWidget,
-    MultiCheckboxWidget,
-    RadioWidget,
-    SearchWidget,
-    SwitchWidget,
-    type Widget,
-} from '$lib/forms/Widget.svelte.js';
+import type { BaseWidget, Widget } from '$lib/forms/Widget';
 import type { Translations } from '$lib/translations';
 import type { Form, WidgetValue } from '$lib/forms/Form';
 import { browser, dev, version } from '$app/environment';
@@ -23,27 +12,27 @@ import { page } from '$app/state';
 const camelToSnakeCase = (str: string) =>
     str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
-const vw = <U>(_w: Widget<ContextIN, U>, _v: unknown): _v is U => true;
+const vw = <U>(_w: BaseWidget<ContextIN, U>, _v: unknown): _v is U => true;
 
 const widgetToXML = (w: Widget<ContextIN>, v: WidgetValue<Widget<ContextIN>>, t: Translations) => {
-    if (w instanceof InputWidget && vw(w, v))
+    if (w.widgetType === 'input' && vw(w, v))
         return v;
-    if (w instanceof DoubleChooserWidget && vw(w, v))
+    if (w.widgetType === 'doubleChooser' && vw(w, v))
         return `${w.get(t, v.first) ?? ''} ${w.get(t, v.second) ?? ''}`;
-    if (w instanceof ChooserWidget && vw(w, v))
+    if (w.widgetType === 'chooser' && vw(w, v))
         return w.get(t, v) ?? '';
-    if (w instanceof RadioWidget && vw(w, v))
+    if (w.widgetType === 'radio' && vw(w, v))
         return w.get(t, v) ?? '';
-    if (w instanceof SwitchWidget && vw(w, v))
+    if (w.widgetType === 'switch' && vw(w, v))
         return v ? w.options(t)[1] : w.options(t)[0];
-    if (w instanceof MultiCheckboxWidget && vw(w, v))
+    if (w.widgetType === 'multiCheckbox' && vw(w, v))
         return v.map(s => w.get(t, s)).join(', ');
-    if (w instanceof CheckboxWidget && vw(w, v))
+    if (w.widgetType === 'checkbox' && vw(w, v))
         return v ? t.tc.yes : t.tc.no;
-    if (w instanceof CounterWidget && vw(w, v))
+    if (w.widgetType === 'counter' && vw(w, v))
         return v.toLocaleString('cs');
-    if (w instanceof SearchWidget && vw(w, v))
-        return w.getXmlEntry();
+    if (w.widgetType === 'search' && vw(w, v))
+        return w.getXmlEntry(v);
     return '';
 };
 

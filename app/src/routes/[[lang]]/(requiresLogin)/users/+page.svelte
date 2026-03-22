@@ -2,39 +2,40 @@
     import type { PageProps } from './$types';
     import { setTitle } from '$lib/helpers/globals.js';
     import { irWholeName } from '$lib/helpers/ir';
-    import { SearchWidget } from '$lib/forms/Widget.svelte.js';
-        import Search from '$lib/components/widgets/Search.svelte';
+    import Search from '$lib/components/widgets/Search.svelte';
     import { usersList } from '$lib/client/realtime';
     import { derived } from 'svelte/store';
     import db from '$lib/Database';
+    import { newSearchWidget } from '$lib/forms/Widget';
 
     const { data }: PageProps = $props();
 
-    const { translations: t, irid, ir } = $derived(context)
+    const { translations: t, irid, ir } = $derived(data)
 
     $effect(() => setTitle(t.users.title, true));
 
-    let w = $state(new SearchWidget({
+    const w = newSearchWidget({
         items: derived(usersList, l => l.map(i => i.email)), getSearchItem: i => ({
             pieces: [
                 { text: i },
             ],
         }), required: false, label: t => t.users.email, type: 'email',
-    }));
+    });
+    let v = $state(w.defaultValue);
 </script>
 
 {#if $ir && irid}
     <h3 class="m-0">{irWholeName($ir.IN)}</h3>
 
     <div class="d-flex align-items-center gap-3">
-        <Search bind:widget={w} data={undefined} {t} class="flex-grow-1" />
+        <Search bind:value={v} widget={w} context={{}} {t} class="flex-grow-1" showAllErrors={true} />
         <button
             class="btn btn-success"
             type="submit"
             onclick={() => {
-                if (!w.value) return;
-				db.updateUsersWithAccessToIR(irid, [...new Set([...$ir.meta.usersWithAccess, w.value])]);
-				w.setValue(undefined, null);
+                if (!v) return;
+				db.updateUsersWithAccessToIR(irid, [...new Set([...$ir.meta.usersWithAccess, v])]);
+				v = null;
 			}}
         >{t.users.addUser}</button>
     </div>

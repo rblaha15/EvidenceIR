@@ -1,8 +1,8 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { CheckboxWithInputWidget, type ChI, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import { type Snippet } from 'svelte';
     import CoreInput from '$lib/components/CoreInput.svelte';
+    import { type CheckboxWithInputWidget, type ChI, labelAndStar } from '$lib/forms/Widget';
 
     interface Props {
         t: Translations;

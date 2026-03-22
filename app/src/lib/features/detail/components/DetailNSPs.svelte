@@ -7,7 +7,6 @@
     import { defaultNSP } from '$lib/forms/NSP/formNSP';
     import { type Raw, valuesToRawData, defaultValues } from '$lib/forms/Form';
     import { endUserEmails, type IRID } from '$lib/helpers/ir';
-    import { InputWidget } from '$lib/forms/Widget.svelte.js';
     import defaultSP from '$lib/forms/SP/defaultSP';
     import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
     import DetailNSP from './DetailNSP.svelte';
@@ -20,6 +19,7 @@
     import type { LanguageCode } from '$lib/languageCodes';
     import type { ExistingNSP, NSP } from '$lib/data';
     import db from '$lib/Database';
+    import { newInputWidget } from '$lib/forms/Widget';
 
     const { t, sps, lang }: {
         t: Translations, sps: NSP[], lang: LanguageCode,
@@ -28,7 +28,7 @@
 
     const protocolGroups: (keyof Raw<FormSP>)[] = defaultSP().keys();
 
-    const widget = new InputWidget({ label: t => t.detail.newIRIDLabel });
+    const widget = newInputWidget({ label: t => t.detail.newIRIDLabel });
     let newIRID = $state(widget.defaultValue);
     let showAllErrors = $state(false);
     const transfer = async () => {

@@ -1,18 +1,18 @@
-import {
+import type {
     ButtonWidget,
-    type CheckboxWidget,
-    type ChooserWidget,
-    type CounterWidget,
-    type DoubleChooserWidget,
+    CheckboxWidget,
+    ChooserWidget,
+    CounterWidget,
+    DoubleChooserWidget,
     HiddenValueWidget,
-    type InputWidget,
-    type MultiCheckboxWidget,
-    type RadioWidget,
-    type ScannerWidget,
-    type SearchWidget,
-    type TextWidget,
-    type TitleWidget,
-} from '$lib/forms/Widget.svelte.js';
+    InputWidget,
+    MultiCheckboxWidget,
+    RadioWidget,
+    ScannerWidget,
+    SearchWidget,
+    TextWidget,
+    TitleWidget,
+} from '$lib/forms/Widget';
 import type { Company } from '$lib/client/realtime';
 import type { Form, Values } from '$lib/forms/Form';
 import type { HeatPump } from '$lib/helpers/products';

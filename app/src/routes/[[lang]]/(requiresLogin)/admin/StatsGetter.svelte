@@ -1,17 +1,17 @@
 <script lang="ts">
-    import { InputWidget } from '$lib/forms/Widget.svelte';
     import Widget from '$lib/components/Widget.svelte';
     import { getTranslations } from '$lib/translations';
     import { dateFromISO, dayISO } from '$lib/helpers/date';
     import type { ExistingIR, ExistingNSP } from '$lib/data';
     import { adminDatabase } from '$lib/client/firestore';
     import { isSP } from '$lib/forms/SP/infoSP.svelte';
+    import { newInputWidget } from '$lib/forms/Widget';
 
-    const fromW = new InputWidget({
+    const fromW = newInputWidget({
         type: 'date', label: 'Od (včetně)', text: dayISO(),
     });
     let from = $state(fromW.defaultValue);
-    const toW = new InputWidget({
+    const toW = newInputWidget({
         type: 'date', label: 'Do (vyjma)', text: dayISO(),
     });
     let to = $state(toW.defaultValue);
@@ -33,7 +33,7 @@
 
             const irs = (await adminDatabase.getAllIRs()).filter((ir): ir is ExistingIR => !ir.deleted);
             const nsps = (await adminDatabase.getAllNSPs()).filter((sp): sp is ExistingNSP => !sp.deleted);
-4
+
             const allProtocols = [...irs.flatMap(ir => ir.SPs), ...nsps.map(sp => sp.NSP)].filter(isSP);
 
             const namesAndDates = allProtocols.map(p => ({

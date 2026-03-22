@@ -1,19 +1,20 @@
 import {
-    ChooserWidget,
-    CounterWidget,
     type Get,
     type GetT,
-    type HeadingLevel, HiddenValueWidget,
+    type HeadingLevel,
     type InlinePdfPreviewData,
-    InlinePdfPreviewWidget,
-    InputWidget,
-    MultiCheckboxWidget,
-    RadioWidget,
-    RadioWithInputWidget,
-    SearchWidget,
-    TextWidget,
-    TitleWidget,
-} from '$lib/forms/Widget.svelte';
+    newChooserWidget,
+    newCounterWidget,
+    newHiddenValueWidget,
+    newInlinePdfPreviewWidget,
+    newInputWidget,
+    newMultiCheckboxWidget,
+    newRadioWidget,
+    newRadioWithInputWidget,
+    newSearchWidget,
+    newTextWidget,
+    newTitleWidget,
+} from '$lib/forms/Widget';
 import { type SparePart, sparePartsList } from '$lib/client/realtime';
 import type { FormSP, GenericContextSP, GenericFormSP, Operation, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
 import type { Translations } from '$lib/translations';
@@ -43,10 +44,10 @@ const sparePart = <C extends GenericContextSP<C>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 |
     const dil = (c: C) => c.v[`nahradniDil${n}` as const];
 
     return ({
-        _label: new TextWidget({
+        _label: newTextWidget({
             show, text: t => t.sp.sparePart(n), class: 'fs-5',
         }),
-        dil: new SearchWidget({
+        dil: newSearchWidget({
             items: derived(sparePartsList, $sparePartsList =>
                 $sparePartsList.map(it => ({
                     ...it,
@@ -69,19 +70,19 @@ const sparePart = <C extends GenericContextSP<C>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 |
                 ] as const,
             }), showInXML: false,
         }),
-        name: new InputWidget({
+        name: newInputWidget({
             label: t => t.sp.name, required: show, show,
         }),
-        code: new InputWidget({
+        code: newInputWidget({
             label: t => t.sp.code, type: 'number', required: false, show,
         }),
-        unitPrice: new InputWidget({
+        unitPrice: newInputWidget({
             label: t => t.sp.unitPrice, type: 'number', required: show, show, suffix: t => t.units.czk,
         }),
-        warehouse: new InputWidget({
+        warehouse: newInputWidget({
             label: t => t.sp.warehouse, required: false, show,
         }),
-        mnozstvi: new InputWidget({
+        mnozstvi: newInputWidget({
             label: t => t.sp.amount, type: `number`, onError: t => t.wrong.number, text: '1',
             required: show, show,
         }),
@@ -112,8 +113,8 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
     getPdfData: GetT<C, Omit<InlinePdfPreviewData<C, 'NSP'>, 'type'>>, hpCount: Get<C, number>, titleLevel: HeadingLevel = 2, reduceOperations = false,
 ): FormPlus<GenericFormSP<C>> => ({
     system: {
-        datumUvedeni: new InputWidget({ label: t => t.sp.commissioningDate, type: 'date', required: false }),
-        zaruka: new RadioWidget({
+        datumUvedeni: newInputWidget({ label: t => t.sp.commissioningDate, type: 'date', required: false }),
+        zaruka: newRadioWidget({
             label: t => t.sp.warranty, options: [`warrantyCommon`, `warrantyExtended`], required: false, labels,
             onValueSet: (c, warranty) => {
                 if (warranty == 'warrantyCommon') c.v.fakturace.invoiceParts = invoiceableParts;
@@ -122,24 +123,29 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
         }),
     },
     zasah: {
-        _title: new TitleWidget({ text: t => t.sp.intervention, level: titleLevel }),
+        _title: newTitleWidget({ text: t => t.sp.intervention, level: titleLevel }),
         datum: defaultGenericSZ<C>().zasah.datum,
         clovek: defaultGenericSZ<C>(c => c.v.zasah.showNameFileds).zasah.clovek,
-        showNameFileds: new HiddenValueWidget(false, true),
-        inicialy: new InputWidget({ label: t => t.sp.technicianInitials, show: c => c.v.zasah.showNameFileds, showInXML: false, lock: c => !!c.v.lockNameFields }),
-        nahlasenaZavada: new InputWidget({ label: t => t.sp.reportedFault, required: false }),
-        _overflowFault: new TextWidget({ text: (t, c) => inlineTooLong(c.v.zasah.nahlasenaZavada) ? t.sp.textTooLong : '' }),
+        showNameFileds: newHiddenValueWidget(false, true),
+        inicialy: newInputWidget({
+            label: t => t.sp.technicianInitials,
+            show: c => c.v.zasah.showNameFileds,
+            showInXML: false,
+            lock: c => !!c.v.lockNameFields,
+        }),
+        nahlasenaZavada: newInputWidget({ label: t => t.sp.reportedFault, required: false }),
+        _overflowFault: newTextWidget<C>({ text: (t, c) => inlineTooLong(c.v.zasah.nahlasenaZavada) ? t.sp.textTooLong : '' }),
         popis: defaultGenericSZ<C>().zasah.popis,
-        _overflowIntervention: new TextWidget({ text: (t, c) => multilineTooLong(c.v.zasah.popis) ? t.sp.textTooLong : '' }),
-        interventionDuration: new InputWidget({
+        _overflowIntervention: newTextWidget<C>({ text: (t, c) => multilineTooLong(c.v.zasah.popis) ? t.sp.textTooLong : '' }),
+        interventionDuration: newInputWidget({
             label: t => t.sp.interventionTime,
             type: 'number',
             onError: t => t.wrong.number, suffix: t => t.units.h, required: false,
         }),
     },
     ukony: {
-        _title: new TitleWidget({ text: t => t.sp.billing, level: titleLevel }),
-        ukony: new MultiCheckboxWidget({
+        _title: newTitleWidget({ text: t => t.sp.billing, level: titleLevel }),
+        ukony: newMultiCheckboxWidget({
             label: (t, c) => reduceOperations ? t.sp.operations : t.sp.operationsMax(3 - (c.v.ukony.ukony.includes('yearlyHPCheck') && hpCount(c) > 1 ? 1 : 0) - (c.v.ukony.ukony.includes('commissioningTC') && hpCount(c) > 1 ? 1 : 0) + (c.v.ukony.typPrace ? 0 : 1)),
             max: c => c.v.ukony.typPrace ? 3 : 4,
             required: false,
@@ -150,23 +156,23 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
                 || i == 'commissioningTC' && hpCount(c) > 1
                     ? 2 : 1,
         }),
-        typPrace: new RadioWidget({
+        typPrace: newRadioWidget({
             label: t => t.sp.workType, required: false, labels, lock: c => c.v.ukony.ukony.sumBy(i => c.f.ukony.ukony.weights(c, i)) == 4,
             options: [`assemblyWork`, `technicalAssistance`, `assemblyWork12`],
         }),
-        doba: new InputWidget({
+        doba: newInputWidget({
             label: t => t.sp.billedTime, type: 'number',
             show: c => c.v.ukony.typPrace != null, required: c => c.v.ukony.typPrace != null,
             onError: t => t.wrong.number, suffix: t => t.units.h,
         }),
-        doprava: new InputWidget({
+        doprava: newInputWidget({
             label: t => t.sp.transportation, type: 'number',
             onError: t => t.wrong.number, suffix: t => t.units.km,
         }),
     },
     nahradniDily: {
-        _title: new TitleWidget({ text: t => t.sp.usedSpareParts, level: titleLevel }),
-        pocet: new CounterWidget({
+        _title: newTitleWidget({ text: t => t.sp.usedSpareParts, level: titleLevel }),
+        pocet: newCounterWidget({
             label: t => t.sp.sparePartCount, min: 0, max: c => c.v.fakturace.discount ? 7 : 8, chosen: 0,
         }),
     },
@@ -179,42 +185,42 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
     nahradniDil7: sparePart(7),
     nahradniDil8: sparePart(8),
     fakturace: {
-        _title: new TitleWidget({ text: t => t.sp.invoicing, level: titleLevel }),
-        invoiceParts: new MultiCheckboxWidget({
+        _title: newTitleWidget({ text: t => t.sp.invoicing, level: titleLevel }),
+        invoiceParts: newMultiCheckboxWidget({
             label: t => t.sp.invoiceParts, options: c => [
                 'transportation' as const,
                 ...c.v.ukony.typPrace ? ['work' as const] : [],
                 ...c.v.ukony.ukony,
             ], labels, required: false,
         }),
-        discount: new InputWidget({
+        discount: newInputWidget({
             label: t => t.sp.discountNoTax, inputmode: 'numeric', onError: t => t.wrong.number, suffix: t => t.units.czk, required: false,
             lock: c => c.v.nahradniDily.pocet == 8,
         }),
-        discountReason: new InputWidget({
+        discountReason: newInputWidget({
             label: t => t.sp.discountReason, required: false,
             show: c => Boolean(c.v.fakturace.discount),
         }),
-        _price: new TextWidget({ text: (t, c) => t.sp.price(calculate(hpCount, c)), class: 'fs-5' }),
-        hotove: new ChooserWidget({
+        _price: newTextWidget<C>({ text: (t, c) => t.sp.price(calculate(hpCount, c)), class: 'fs-5' }),
+        hotove: newChooserWidget({
             label: t => t.sp.paidInCash, options: ['yes', 'no'] as ('yes' | 'no' | 'doNotInvoice')[], labels, chosen: 'no',
             required: notFree(hpCount), show: notFree(hpCount),
         }),
-        komu: new RadioWithInputWidget({
+        komu: newRadioWithInputWidget({
             label: t => t.sp.whoToInvoice, labels, otherLabel: t => t.sp.crnOrName,
             options: ['investor', `assemblyCompany`, `commissioningCompany`, 'otherCompany'],
             required: c => notByCash(c) && notFree(hpCount)(c), show: c => notByCash(c) && notFree(hpCount)(c),
         }),
-        jak: new RadioWidget({
+        jak: newRadioWidget({
             label: t => t.sp.send, options: ['onPaper', 'electronically'], labels,
             required: c => notByCash(c) && notFree(hpCount)(c), show: c => notByCash(c) && notFree(hpCount)(c),
         }),
     },
     other: {
-        _title: new TitleWidget({
+        _title: newTitleWidget({
             text: t => t.pdf.documentPreview, showInXML: false, level: 2,
         }),
-        preview: new InlinePdfPreviewWidget({
+        preview: newInlinePdfPreviewWidget({
             pdfData: (t, c) => ({
                 type: 'NSP',
                 ...getPdfData(t, c),

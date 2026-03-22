@@ -1,7 +1,7 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { ButtonWidget } from '$lib/forms/Widget.svelte.js';
     import Icon from '$lib/components/Icon.svelte';
+    import type { ButtonWidget } from '$lib/forms/Widget';
 
     interface Props {
         t: Translations;

@@ -2,8 +2,8 @@
     import { onMount, untrack } from 'svelte';
     import type { Action } from 'svelte/action';
     import type { Translations } from '$lib/translations';
-    import { type Arr, type DoubleChooserWidget, labelAndStar, type Pair } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
+    import { type Arr, type DoubleChooserWidget, labelAndStar, type Pair } from '$lib/forms/Widget';
 
     interface Props {
         t: Translations;

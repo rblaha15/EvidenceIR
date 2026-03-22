@@ -1,6 +1,6 @@
 <script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { InputWithChooserWidget, labelAndStar, type SeI } from '$lib/forms/Widget.svelte.js';
+    import { type InputWithChooserWidget, labelAndStar, type SeI } from '$lib/forms/Widget';
     import CoreInput from '$lib/components/CoreInput.svelte';
     import type { ChangeEventHandler } from 'svelte/elements';
 

@@ -2,10 +2,10 @@
     import type { ContextIN, FormIN } from '$lib/forms/IN/formIN';
     import type { Translations } from '$lib/translations';
     import type { User } from 'firebase/auth';
-    import { widgetList } from '$lib/forms/Form';
     import { extractIRIDFromParts } from '$lib/helpers/ir';
     import { detailIrUrl } from '$lib/helpers/runes.svelte';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
+    import { widgetList } from '$lib/forms/Form';
 
     interface Props {
         context: ContextIN;

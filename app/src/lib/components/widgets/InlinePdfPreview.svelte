@@ -1,10 +1,10 @@
 <script generics="C, P extends Pdf" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { InlinePdfPreviewWidget } from '$lib/forms/Widget.svelte.js';
     import { type Pdf, pdfInfo, type PdfParameters } from '$lib/pdf/pdf';
     import PdfPreview from '$lib/components/pdf/PdfPreview.svelte';
     import { generatePdfUrl } from '$lib/pdf/pdfGeneration';
     import { currentPreferredDocumentLanguage } from '$lib/languages';
+    import type { InlinePdfPreviewWidget } from '$lib/forms/Widget';
     import { type Form, widgetList } from '$lib/forms/Form';
 
     interface Props<P extends Pdf> {

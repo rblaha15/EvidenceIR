@@ -1,7 +1,7 @@
-import { CheckboxWidget, ChooserWidget, InputWidget, SwitchWidget, TitleWidget } from '../Widget.svelte.js';
 import type { Form, Raw, Values } from '$lib/forms/Form';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { FormPartDK } from '$lib/forms/DK/formDK';
+import type { CheckboxWidget, ChooserWidget, InputWidget, SwitchWidget, TitleWidget } from '$lib/forms/Widget';
 
 export type ContextUPS = {
     UP: Values<FormUPS>,

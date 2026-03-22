@@ -1,8 +1,8 @@
 <script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { type Arr, type ChooserWidget, labelAndStar } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { untrack } from 'svelte';
+    import { type Arr, type ChooserWidget, labelAndStar } from '$lib/forms/Widget';
 
     interface Props {
         t: Translations;

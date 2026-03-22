@@ -27,9 +27,9 @@
 
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { labelAndStar, type FileWidget, type Files } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
     import Icon from '$lib/components/Icon.svelte';
+    import { type Files, type FileWidget, labelAndStar } from '$lib/forms/Widget';
 
     interface Props {
         t: Translations;

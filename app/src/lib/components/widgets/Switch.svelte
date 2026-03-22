@@ -1,6 +1,7 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { type SwitchWidget } from '$lib/forms/Widget.svelte.js';
+    import type { SwitchWidget } from '$lib/forms/Widget';
+
 
     interface Props {
         t: Translations;

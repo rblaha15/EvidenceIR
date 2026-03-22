@@ -1,7 +1,7 @@
 <script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { CountersWidget, type Rec } from '$lib/forms/Widget.svelte.js';
     import Button from '$lib/components/Button.svelte';
+    import type { CountersWidget, Rec } from '$lib/forms/Widget';
 
     interface Props {
         t: Translations;

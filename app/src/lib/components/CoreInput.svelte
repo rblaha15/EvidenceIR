@@ -1,20 +1,21 @@
 <script generics="C, U" lang="ts">
     import type { Translations } from '$lib/translations';
     import {
-        type BaseInput,
         type AdvancedInput,
+        type BaseInput,
+        type BaseWidget,
         labelAndStar,
         type Lock,
         type Required,
-        Widget,
-    } from '$lib/forms/Widget.svelte.js';
+        type WidgetType,
+    } from '$lib/forms/Widget';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount, type Snippet, untrack } from 'svelte';
     import Icon from '$lib/components/Icon.svelte';
     import { readable } from 'svelte/store';
     import type { ClassValue } from 'svelte/elements';
 
-    type GenericInputWidget<C, U> = Widget<C, U> & BaseInput<C, U> & ({
+    type GenericInputWidget<C, U> = BaseWidget<C, U> & BaseInput<C> & ({
         textArea?: undefined;
         autocomplete?: undefined;
         maskOptions?: undefined;
@@ -22,7 +23,7 @@
         placeholder?: undefined;
         suffix?: undefined;
         suggestions?: undefined;
-    } | AdvancedInput<C, U>) & Lock<C, U> & Required<C, U, boolean>;
+    } | AdvancedInput<C>) & Lock<C> & Required<C, U, WidgetType, boolean>;
 
     interface Props {
         t: Translations;
@@ -107,7 +108,7 @@
         value;
         untrack(() => {
             if (mask) mask.value = value;
-        })
+        });
     });
     const onClick = () => {
         setValueAndUpdate('');
