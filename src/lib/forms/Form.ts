@@ -1,5 +1,5 @@
-import { Widget } from '$lib/forms/Widget.svelte.js';
 import '$lib/extensions';
+import type { BaseWidget, Widget, WidgetType } from '$lib/forms/Widget';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -23,17 +23,17 @@ export type RawForm<F extends Form> = {
     [K in keyof F]: RawFormPart<F[K]>
 };
 export type HiddenWidgets<P extends Record<string, Widget>> = {
-    [K in keyof P]: P[K] extends Widget<never, unknown, infer H> ? H extends true ? K : never : never;
+    [K in keyof P]: P[K] extends Widget<never, WidgetType, infer H> ? H extends true ? K : never : never;
 }[keyof P];
 export type RawFormPart<P extends Record<string, Widget>> = {
     [K in keyof Omit<P, HiddenWidgets<P>>]: RawWidget<P[K]>;
 };
 export type RawWidget<W extends Widget> =
-    W extends Widget<never, infer T, infer H>
+    W extends BaseWidget<never, infer U, WidgetType, infer H>
         ? H extends true
             ? never
-            : T extends readonly (infer RT)[] ? RT[]
-                : T extends Record<string, unknown> ? Writeable<T> : T
+            : U extends readonly (infer RU)[] ? RU[]
+                : U extends Record<string, unknown> ? Writeable<U> : U
         : never;
 
 export type Values<Q extends Form | Record<string, Widget> | Widget> =
@@ -49,9 +49,9 @@ export type FormPartValues<P extends Record<string, Widget>> = {
     [K in keyof P]: WidgetValue<P[K]>;
 };
 export type WidgetValue<W extends Widget> =
-    W extends Widget<never, infer T, infer H>
-        ? T extends readonly (infer RT)[] ? RT[]
-            : T extends Record<string, unknown> ? Writeable<T> : T
+    W extends BaseWidget<never, infer U, WidgetType>
+        ? U extends readonly (infer RU)[] ? RU[]
+            : U extends Record<string, unknown> ? Writeable<U> : U
         : never;
 
 export const defaultFormGroupValues = <G extends Record<string, Widget>, V extends FormPartValues<G> = FormPartValues<G>>(formGroup: G): V =>
@@ -96,8 +96,8 @@ export const compareValues = <F extends Form>(currentValues: Values<F>, defaultV
             !currentValues[k1][k2] || currentValues[k1][k2] == value,
         ));
 
-export type WidgetWithValue<C = never, U = any, H extends boolean = boolean> = {
-    widget: Widget<C, U, H>;
+export type WidgetWithValue<C = never, U = any, T extends WidgetType = WidgetType, H extends boolean = boolean> = {
+    widget: Widget<C, T, H>;
     get value(): U;
     set value(newValue: U);
 }

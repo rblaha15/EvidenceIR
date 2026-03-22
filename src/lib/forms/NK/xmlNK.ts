@@ -1,6 +1,6 @@
 import type { Raw } from '$lib/forms/Form';
 import { get, type Translations } from '$lib/translations';
-import type { SeCh } from '$lib/forms/Widget.svelte';
+import type { SeCh } from '$lib/forms/Widget';
 import type { User } from 'firebase/auth';
 import { browser, dev, version } from '$app/environment';
 import { type FormNK, origins } from './formNK';

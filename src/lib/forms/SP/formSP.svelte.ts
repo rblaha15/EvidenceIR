@@ -1,13 +1,13 @@
 import {
     type ChooserWidget,
-    type CounterWidget, HiddenValueWidget,
+    type CounterWidget, type HiddenValueWidget,
     type InlinePdfPreviewWidget,
     type InputWidget,
     type MultiCheckboxWidget,
     type RadioWidget,
     type RadioWithInputWidget,
     type SearchWidget,
-} from '$lib/forms/Widget.svelte';
+} from '$lib/forms/Widget';
 import { type SparePart } from '$lib/client/realtime';
 import { type Form, type Raw, type Values } from '$lib/forms/Form';
 import type { IR } from '$lib/data';
@@ -52,7 +52,7 @@ export interface GenericFormSP<C extends GenericContextSP<C>> extends GenericFor
     system: {
         datumUvedeni: InputWidget<C>;
         zaruka: RadioWidget<C, `warrantyCommon` | `warrantyExtended`>,
-    }
+    },
     zasah: {
         showNameFileds: HiddenValueWidget<C, boolean, true>,
         inicialy: InputWidget<C>,

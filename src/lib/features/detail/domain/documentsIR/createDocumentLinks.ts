@@ -1,6 +1,6 @@
 import type { Pdf, PdfParameters } from '$lib/pdf/pdf';
 import type { Snippet } from 'svelte';
-import type { Color } from '$lib/forms/Widget.svelte.js';
+import type { Color } from '$lib/forms/Widget';
 import type { ExistingIR } from '$lib/data';
 import * as rules from './documentLinkRules';
 import type { Translations } from '$lib/translations';

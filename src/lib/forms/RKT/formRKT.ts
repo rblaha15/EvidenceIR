@@ -1,6 +1,6 @@
-import { CheckboxWidget, CounterWidget, type GetT, InputWidget, TextWidget } from '$lib/forms/Widget.svelte.js';
 import { type Form, type Raw } from '$lib/forms/Form';
 import type { FormIN } from '$lib/forms/IN/formIN';
+import type { CheckboxWidget, CounterWidget, GetT, InputWidget, TextWidget } from '$lib/forms/Widget';
 
 export type ContextRKT = {
     IN: Raw<FormIN>,

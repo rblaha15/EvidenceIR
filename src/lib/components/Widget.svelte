@@ -1,24 +1,6 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
-    import {
-        DoubleChooserWidget,
-        MultiCheckboxWidget,
-        TitleWidget,
-        InputWidget, CounterWidget,
-        SwitchWidget,
-        RadioWidget, SearchWidget,
-        TextWidget,
-        type Widget,
-        ChooserWidget,
-        CheckboxWidget,
-        ScannerWidget,
-        CheckboxWithChooserWidget,
-        CountersWidget,
-        InputWithChooserWidget,
-        CheckboxWithInputWidget,
-        PhotoSelectorWidget,
-        FileWidget, InlinePdfPreviewWidget, RadioWithInputWidget, ButtonWidget,
-    } from '$lib/forms/Widget.svelte.js';
+    import { type Widget, type WidgetType } from '$lib/forms/Widget';
     import Input from '$lib/components/widgets/Input.svelte';
     import DoubleChooser from '$lib/components/widgets/DoubleChooser.svelte';
     import Chooser from '$lib/components/widgets/Chooser.svelte';
@@ -43,7 +25,7 @@
 
     interface Props {
         t: Translations;
-        widget: Widget<C>;
+        widget: Widget<C, WidgetType, any>;
         context: C;
         value: WidgetValue<Widget<C>>;
         showAllErrors: boolean;
@@ -52,48 +34,48 @@
     let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
 </script>
 
-{#if widget instanceof TitleWidget && widget.show(context)}
+{#if widget.widgetType === 'title' && widget.show(context)}
     <Title {widget} {t} {context} />
-{:else if widget instanceof TextWidget && widget.show(context)}
+{:else if widget.widgetType === 'text' && widget.show(context)}
     {#await widget.text(t, context) then text}
         {#if text}<p class={[widget.class(context), 'm-0']}>{@html text}</p>{/if}
     {/await}
-{:else if widget instanceof InlinePdfPreviewWidget && widget.show(context)}
+{:else if widget.widgetType === 'inlinePdfPreview' && widget.show(context)}
     <InlinePdfPreview {widget} {t} {context} />
-{:else if widget instanceof ButtonWidget && widget.show(context)}
+{:else if widget.widgetType === 'button' && widget.show(context)}
     <Button {widget} {t} {context} />
-{:else if widget instanceof ScannerWidget && widget.show(context)}
+{:else if widget.widgetType === 'scanner' && widget.show(context)}
     <Scanner {widget} {t} bind:value {showAllErrors} {context} />
-{:else if widget instanceof InputWidget && widget.show(context)}
+{:else if widget.widgetType === 'input' && widget.show(context)}
     <Input {widget} {t} bind:value {showAllErrors} {context} />
-{:else if widget instanceof DoubleChooserWidget && widget.show(context)}
+{:else if widget.widgetType === 'doubleChooser' && widget.show(context)}
     <DoubleChooser {widget} {t} bind:value {showAllErrors} {context} />
-{:else if widget instanceof ChooserWidget && widget.show(context)}
+{:else if widget.widgetType === 'chooser' && widget.show(context)}
     <Chooser {widget} {t} bind:value {showAllErrors} {context} />
-{:else if widget instanceof RadioWidget && widget.show(context)}
+{:else if widget.widgetType === 'radio' && widget.show(context)}
     <Radio {widget} {t} bind:value {showAllErrors} {context} />
-{:else if widget instanceof RadioWithInputWidget && widget.show(context)}
+{:else if widget.widgetType === 'radioWithInput' && widget.show(context)}
     <RadioWithInput {widget} {t} bind:value {showAllErrors} {context} />
-{:else if widget instanceof SwitchWidget && widget.show(context)}
+{:else if widget.widgetType === 'switch' && widget.show(context)}
     <Switch {widget} {t} bind:value {showAllErrors} {context} />
-{:else if widget instanceof MultiCheckboxWidget && widget.show(context)}
+{:else if widget.widgetType === 'multiCheckbox' && widget.show(context)}
     <MultiCheckbox {t} {widget} bind:value {context} {showAllErrors} />
-{:else if widget instanceof CheckboxWidget && widget.show(context)}
+{:else if widget.widgetType === 'checkbox' && widget.show(context)}
     <Checkbox {t} {widget} bind:value {context} {showAllErrors} />
-{:else if widget instanceof CounterWidget && widget.show(context)}
+{:else if widget.widgetType === 'counter' && widget.show(context)}
     <Counter {t} {widget} bind:value {context} {showAllErrors} />
-{:else if widget instanceof CheckboxWithChooserWidget && widget.show(context)}
+{:else if widget.widgetType === 'checkboxWithChooser' && widget.show(context)}
     <CheckboxWithChooser {t} {widget} bind:value {context} {showAllErrors} />
-{:else if widget instanceof CountersWidget && widget.show(context)}
+{:else if widget.widgetType === 'counters' && widget.show(context)}
     <Counters {t} {widget} bind:value {context} {showAllErrors} />
-{:else if widget instanceof InputWithChooserWidget && widget.show(context)}
+{:else if widget.widgetType === 'inputWithChooser' && widget.show(context)}
     <InputWithChooser {t} {widget} bind:value {context} {showAllErrors} />
-{:else if widget instanceof CheckboxWithInputWidget && widget.show(context)}
+{:else if widget.widgetType === 'checkboxWithInput' && widget.show(context)}
     <CheckboxWithInput {t} {widget} bind:value {context} {showAllErrors} />
-{:else if widget instanceof SearchWidget && widget.show(context)}
+{:else if widget.widgetType === 'search' && widget.show(context)}
     <Search {t} {widget} bind:value {context} {showAllErrors} />
-{:else if widget instanceof FileWidget && widget.show(context)}
+{:else if widget.widgetType === 'file' && widget.show(context)}
     <File {t} {widget} bind:value {context} {showAllErrors} />
-{:else if widget instanceof PhotoSelectorWidget && widget.show(context)}
+{:else if widget.widgetType === 'photoSelector' && widget.show(context)}
     <PhotoSelector {t} {widget} bind:value {context} {showAllErrors} />
 {/if}

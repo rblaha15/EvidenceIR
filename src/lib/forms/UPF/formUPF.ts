@@ -1,11 +1,11 @@
-import {
+import type {
     CheckboxWidget,
     ChooserWidget,
     CounterWidget,
     InputWidget,
     TextWidget,
     TitleWidget,
-} from '../Widget.svelte.js';
+} from '$lib/forms/Widget';
 import type { Form, Values } from '$lib/forms/Form';
 
 export type PanelOrientations = 'Z' | 'JZ' | 'J' | 'JV' | 'V';

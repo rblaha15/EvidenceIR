@@ -6,13 +6,13 @@
     import { endLoading, setTitle, startLoading } from '$lib/helpers/globals.js';
     import { type ExcelImport, processExcel } from '$lib/forms/ExcelImport';
     import readXlsxFile, { readSheetNames } from 'read-excel-file';
-    import { ChooserWidget, STAR } from '$lib/forms/Widget.svelte.js';
     import Widget from '$lib/components/Widget.svelte';
     import { invalidateAll } from '$app/navigation';
     import { type PdfImport, processPdf } from '$lib/forms/PdfImport';
     import { PDFDocument } from 'pdf-lib';
     import type { US } from '$lib/translations/untranslatables';
     import Icon from '$lib/components/Icon.svelte';
+    import { newChooserWidget, STAR } from '$lib/forms/Widget';
 
     interface Props {
         title: string;
@@ -51,7 +51,7 @@
     let closeBtn = $state() as HTMLButtonElement;
     let fileExcel = $state<File>();
     let filePdf = $state<File>();
-    let sheetWidget = $state(new ChooserWidget({
+    let sheetWidget = $state(newChooserWidget({
         options: [] as US[], show: (d): boolean => sheetWidget.options(d).length > 1, label: t => t.form.import.workbookSheet,
     }));
     let value = $state(null as US | null);

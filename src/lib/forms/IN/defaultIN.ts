@@ -1,18 +1,12 @@
 import {
-    ButtonWidget,
-    CheckboxWidget,
-    ChooserWidget,
-    CounterWidget,
-    DoubleChooserWidget,
-    HiddenValueWidget,
-    InputWidget,
-    MultiCheckboxWidget,
-    RadioWidget,
-    ScannerWidget,
-    SearchWidget,
-    TextWidget,
-    TitleWidget,
-} from '../Widget.svelte.js';
+    newRadioWidget,
+    newTitleWidget,
+    type ChooserWidget,
+    type ScannerWidget, newInputWidget, newButtonWidget, newHiddenValueWidget, newTextWidget, newSearchWidget, newChooserWidget,
+    newScannerWidget,
+    newDoubleChooserWidget,
+    newMultiCheckboxWidget, newCounterWidget, newCheckboxWidget,
+} from '../Widget';
 import { type ContextIN, type FormIN, unknownCompany, unknownCRN, type UserForm, type UserFormContext } from './formIN';
 import { accumulationTanks, type Company, solarCollectors, type Technician, techniciansList, waterTanks } from '$lib/client/realtime';
 import ares, { regulusCRN } from '$lib/helpers/ares';
@@ -72,29 +66,29 @@ export const multiple = (r: RegExp) => new RegExp(`${r.source}(?: ?${separatorsR
 
 export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> => ({
     koncovyUzivatel: {
-        nadpis: new TitleWidget({ text: t => t.in.endUser, level: 2 }),
-        typ: new RadioWidget({
+        nadpis: newTitleWidget({ text: t => t.in.endUser, level: 2 }),
+        typ: newRadioWidget({
             label: '', chosen: `individual`, showInXML: false,
             options: [`individual`, `company`], labels: t => t.in.userType,
         }),
-        jmeno: new InputWidget({
+        jmeno: newInputWidget({
             label: t => t.in.name, show: fo, required: fo,
             autocomplete: `section-user billing given-name`,
         }),
-        prijmeni: new InputWidget({
+        prijmeni: newInputWidget({
             label: t => t.in.surname, autocomplete: `section-user billing family-name`, show: fo, required: fo,
         }),
-        narozeni: new InputWidget({
+        narozeni: newInputWidget({
             label: t => t.in.birthday, onError: t => t.wrong.date,
             regex: /^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?[0-9]{4}$/,
             autocomplete: `bday`, required: false, show: fo,
         }),
-        ico: new InputWidget({
+        ico: newInputWidget({
             label: t => t.in.crn, onError: t => t.wrong.crn,
             regex: /^\d{8}(\d{2})?$/, required: po, show: po,
             maskOptions: { mask: `00000000[00]` },
         }),
-        searchButton: new ButtonWidget({
+        searchButton: newButtonWidget({
             text: t => t.in.searchInARES, color: 'secondary', icon: 'search', show: po, showInXML: false,
             onClick: (c: C) => {
                 c.v.koncovyUzivatel.searchFail = false;
@@ -108,33 +102,33 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
                 });
             },
         }),
-        searchFail: new HiddenValueWidget(false, true),
-        searchFailText: new TextWidget({
+        searchFail: newHiddenValueWidget(false, true),
+        searchFailText: newTextWidget({
             text: t => t.in.notFound,
             showInXML: false,
             show: c => po(c) && c.v.koncovyUzivatel.searchFail,
         }),
-        nazev: new InputWidget({ label: t => t.in.companyName, show: po, required: po }),
-        wrongFormat: new TextWidget({
+        nazev: newInputWidget({ label: t => t.in.companyName, show: po, required: po }),
+        wrongFormat: newTextWidget({
             text: t => t.wrong.company, showInXML: false,
             show: c => !jeFO(c) && isCompanyFormInvalid(c.v.koncovyUzivatel.nazev),
         }),
-        pobocka: new InputWidget({ label: t => t.in.establishment, required: false, show: po }),
-        kontaktniOsoba: new InputWidget({ label: t => t.in.contactPerson, required: false, show: po }),
-        telefon: new InputWidget({
+        pobocka: newInputWidget({ label: t => t.in.establishment, required: false, show: po }),
+        kontaktniOsoba: newInputWidget({ label: t => t.in.contactPerson, required: false, show: po }),
+        telefon: newInputWidget({
             label: t => t.in.phone, onError: t => t.wrong.phone,
             regex: multiple(phoneRegExp),
             type: `tel`, autocomplete: `section-user billing mobile tel`,
         }),
-        email: new InputWidget({
+        email: newInputWidget({
             label: t => t.in.email, onError: t => t.wrong.email,
             regex: multiple(emailRegExp),
             type: `email`, autocomplete: `section-user billing mobile email`,
         }),
     },
     bydliste: {
-        _title: new TitleWidget({ text: (t, c) => jeFO(c) ? t.in.residence : t.in.headquarters, level: 3, class: 'fs-4' }),
-        search: new SearchWidget({
+        _title: newTitleWidget<C>({ text: (t, c) => jeFO(c) ? t.in.residence : t.in.headquarters, level: 3, class: 'fs-4' }),
+        search: newSearchWidget({
             label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
                 pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }],
             }), search: ruian.suggest, onValueSet: (c, a) => {
@@ -143,12 +137,12 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
                 c.v.bydliste.obec = a?.city ?? '';
             }, required: false, showInXML: false,
         }),
-        ulice: new InputWidget({
+        ulice: newInputWidget({
             label: t => t.in.street,
             autocomplete: `section-user billing street-address`,
         }),
-        obec: new InputWidget({ label: t => t.in.town, autocomplete: `section-user billing address-level2` }),
-        psc: new InputWidget({
+        obec: newInputWidget({ label: t => t.in.town, autocomplete: `section-user billing address-level2` }),
+        psc: newInputWidget({
             label: t => t.in.zip,
             onError: t => t.wrong.zip,
             regex: /^\d{3} \d{2}$/,
@@ -159,8 +153,8 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         }),
     },
     mistoRealizace: {
-        _title: new TitleWidget({ text: t => t.in.realizationLocation, level: 3, class: 'fs-4' }),
-        _setAsResidence: new ButtonWidget<C>({
+        _title: newTitleWidget({ text: t => t.in.realizationLocation, level: 3, class: 'fs-4' }),
+        _setAsResidence: newButtonWidget<C>({
             text: (t, c) => jeFO(c) ? t.in.copyResidence : t.in.copyHeadquarters,
             color: 'secondary', onClick: c => {
                 c.v.mistoRealizace.search = c.v.bydliste.search;
@@ -169,7 +163,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
                 c.v.mistoRealizace.ulice = c.v.bydliste.ulice;
             },
         }),
-        search: new SearchWidget({
+        search: newSearchWidget({
             label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
                 pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }],
             }), search: ruian.suggest, onValueSet: (c, a) => {
@@ -178,15 +172,15 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
                 c.v.mistoRealizace.obec = a?.city ?? '';
             }, required: false, showInXML: false,
         }),
-        ulice: new InputWidget({
+        ulice: newInputWidget({
             label: t => t.in.street, required: false, showInXML: true,
             autocomplete: `section-realization shipping address-level2`,
         }),
-        obec: new InputWidget({
+        obec: newInputWidget({
             label: t => t.in.town, showInXML: true,
             autocomplete: `section-realization shipping address-level1`,
         }),
-        psc: new InputWidget({
+        psc: newInputWidget({
             label: t => t.in.zip, showInXML: true,
             onError: t => t.wrong.zip,
             regex: /^\d{3} \d{2}$/,
@@ -197,9 +191,9 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         }),
     },
     montazka: {
-        _titleCompanies: new TitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
-        _title: new TitleWidget({ text: t => t.in.assemblyCompany, level: 3, class: 'fs-4' }),
-        company: new SearchWidget<C, Company, true>({
+        _titleCompanies: newTitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
+        _title: newTitleWidget({ text: t => t.in.assemblyCompany, level: 3, class: 'fs-4' }),
+        company: newSearchWidget<C, Company, true>({
             items: t => derived(assemblyCompanies, c => [unknownCompany(t), ...c]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
                 pieces: i.crn == unknownCRN ? [
@@ -218,8 +212,8 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
                 c.v.montazka.zastupce = company?.representative ?? '';
             },
         }),
-        _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: c => c.v.montazka.company?.crn != unknownCRN }),
-        ico: new InputWidget({
+        _or: newTextWidget<C>({ text: t => t.in.or_CRN, showInXML: false, show: c => c.v.montazka.company?.crn != unknownCRN }),
+        ico: newInputWidget({
             label: t => t.in.crnToARES,
             onError: t => t.wrong.crn,
             regex: /^\d{8}(\d{2})?$/,
@@ -229,18 +223,18 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
             required: false, showInXML: true,
             show: c => c.v.montazka.company?.crn != unknownCRN,
         }),
-        chosen: new TextWidget({
+        chosen: newTextWidget({
             text: async (t, c) => {
                 const company = await ares.getName(c.v.montazka.ico);
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
             }, showInXML: false, show: c => c.v.montazka.company?.crn != unknownCRN,
         }),
-        zastupce: new InputWidget({
+        zastupce: newInputWidget({
             label: t => t.in.representativeName, showInXML: true,
             autocomplete: `section-assemblyRepr billing name`,
             show: c => c.v.montazka.company?.crn != unknownCRN,
         }),
-        email: new InputWidget({
+        email: newInputWidget({
             label: t => t.in.email,
             onError: t => t.wrong.email,
             regex: emailRegExp,
@@ -248,7 +242,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
             show: c => c.v.montazka.company?.crn != unknownCRN,
             required: false, showInXML: true,
         }),
-        telefon: new InputWidget({
+        telefon: newInputWidget({
             label: t => t.in.phone,
             onError: t => t.wrong.phone,
             regex: phoneRegExp,
@@ -259,8 +253,8 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         }),
     },
     uvedeni: {
-        _title: new TitleWidget({ text: t => t.in.commissioning, level: 3, class: 'fs-4' }),
-        _setAsAssembly: new ButtonWidget<C>({
+        _title: newTitleWidget({ text: t => t.in.commissioning, level: 3, class: 'fs-4' }),
+        _setAsAssembly: newButtonWidget<C>({
             text: t => t.in.copyAssemblyCompany, color: 'secondary',
             onClick: c => {
                 c.v.uvedeni.company = c.v.montazka.company;
@@ -270,7 +264,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
                 c.v.uvedeni.telefon = c.v.montazka.telefon;
             },
         }),
-        company: new SearchWidget<C, Company, true>({
+        company: newSearchWidget<C, Company, true>({
             items: t => derived(commissioningCompanies, c => [unknownCompany(t), ...c]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
                 pieces: i.crn == unknownCRN ? [
@@ -289,8 +283,8 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
                 c.v.uvedeni.zastupce = company?.representative ?? '';
             },
         }),
-        _or: new TextWidget({ text: t => t.in.or_CRN, showInXML: false, show: c => c.v.montazka.company?.crn != unknownCRN }),
-        ico: new InputWidget({
+        _or: newTextWidget<C>({ text: t => t.in.or_CRN, showInXML: false, show: c => c.v.montazka.company?.crn != unknownCRN }),
+        ico: newInputWidget({
             label: t => t.in.crnToARES,
             onError: t => t.wrong.crn,
             regex: /^\d{8}(\d{2})?$/,
@@ -299,14 +293,14 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
             }, showInXML: true,
             show: c => c.v.uvedeni.company?.crn != unknownCRN,
         }),
-        chosen: new TextWidget({
+        chosen: newTextWidget({
             text: async (t, c) => {
                 if (c.v.uvedeni.ico == unknownCRN) return '';
                 const company = await ares.getName(c.v.uvedeni.ico);
                 return company ? `${t.in.chosenCompany}: ${company}` : '';
             }, showInXML: false,
         }),
-        _regulus: new SearchWidget<C, Technician, true>({
+        _regulus: newSearchWidget<C, Technician, true>({
             items: derived(techniciansList, $technicians =>
                 $technicians.filter(t => t.email.endsWith('cz')),
             ),
@@ -325,13 +319,13 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
                 }
             },
         }),
-        zastupce: new InputWidget({
+        zastupce: newInputWidget({
             label: t => t.in.representativeName,
             autocomplete: `section-commissioningRepr billing name`,
             showInXML: true,
             show: c => c.v.uvedeni.company?.crn != unknownCRN,
         }),
-        email: new InputWidget({
+        email: newInputWidget({
             label: t => t.in.email,
             onError: t => t.wrong.email,
             regex: emailRegExp,
@@ -340,7 +334,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
             required: false,
             autocomplete: `section-commissioning billing work email`,
         }),
-        telefon: new InputWidget({
+        telefon: newInputWidget({
             label: t => t.in.phone,
             onError: t => t.wrong.phone,
             regex: phoneRegExp,
@@ -367,7 +361,7 @@ const model = <I>(c: ContextIN, i: I) => c.v.tc[`model${i == 1 ? '' : i as B}`];
 const setModel = <I>(c: ContextIN, i: I, v: null | HeatPump) => c.v.tc[`model${i == 1 ? '' : i as B}`] = v;
 
 const heatPump = <const I extends TC>(i: I) => ({
-    [`model${i == 1 ? '' : i as B}`]: new ChooserWidget<ContextIN, HeatPump>({
+    [`model${i == 1 ? '' : i as B}`]: newChooserWidget<ContextIN, HeatPump>({
         label: (t, c) => cap(t.in.heatPumpModel([c.v.tc.pocet == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
         options: c =>
             thermona(c) ? ['airTHERM 10']
@@ -396,7 +390,7 @@ const heatPump = <const I extends TC>(i: I) => ({
         }, lock: thermona,
         labels: t => ({ prototype: t.tc.prototype }),
     }),
-    [`cislo${i == 1 ? '' : i as B}`]: new ScannerWidget<ContextIN>({
+    [`cislo${i == 1 ? '' : i as B}`]: newScannerWidget<ContextIN>({
         label: (t, c) => cap(t.in.heatPumpManufactureNumber([c.v.tc.pocet == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
         onError: t => t.wrong.number,
         regex: c => model(c, i) == 'prototype' ? /.*/ : ctc(c)
@@ -437,10 +431,10 @@ const heatPump = <const I extends TC>(i: I) => ({
 
 export default (): FormPlus<FormIN> => ({
     ir: {
-        nadpisSystem: new TitleWidget({ text: t => t.in.system, level: 2 }),
-        nadpis: new TitleWidget({ text: t => t.in.controller, level: 3, class: 'fs-4' }),
-        regulus: new HiddenValueWidget(false, true),
-        typ: new DoubleChooserWidget({
+        nadpisSystem: newTitleWidget({ text: t => t.in.system, level: 2 }),
+        nadpis: newTitleWidget({ text: t => t.in.controller, level: 3, class: 'fs-4' }),
+        regulus: newHiddenValueWidget(false, true),
+        typ: newDoubleChooserWidget({
             label: t => t.in.controllerType,
             options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
             otherOptions1: c => [
@@ -506,7 +500,7 @@ export default (): FormPlus<FormIN> => ({
             },
             labels: t => t.in.ir,
         }),
-        cislo: new InputWidget({
+        cislo: newInputWidget({
             label: t => t.in.serialNumber,
             onError: (t, c) => c.v.ir.alreadyExists ? t.in.irExists : t.wrong.number,
             regex: c => doesNotHaveIRNumber(c.v.ir.typ)
@@ -550,13 +544,13 @@ export default (): FormPlus<FormIN> => ({
                     .then(e => c.v.ir.alreadyExists = e);
             }, show: c => !doesNotHaveIRNumber(c.v.ir.typ),
         }),
-        alreadyExists: new HiddenValueWidget(false, true),
-        alreadyExistsWarning: new TextWidget({
+        alreadyExists: newHiddenValueWidget(false, true),
+        alreadyExistsWarning: newTextWidget({
             text: (t, c) => !c.v.ir.typ.first ? '' : t.in.irExistsHtml({
                 link: detailIrUrl(extractIRIDFromParts(c.v.ir.typ.first, c.v.ir.cislo)),
             }), show: c => c.v.ir.alreadyExists, showInXML: false,
         }),
-        cisloBox: new InputWidget({
+        cisloBox: newInputWidget({
             label: t => t.in.serialNumberIndoor,
             onError: t => t.wrong.number,
             regex: c => thermona(c) ? /^\d{9}T$/
@@ -576,11 +570,11 @@ export default (): FormPlus<FormIN> => ({
             show: c => hasIndoorUnit(c.v.ir.typ.first),
             required: c => hasIndoorUnit(c.v.ir.typ.first),
         }),
-        boxType: new TextWidget({
+        boxType: newTextWidget({
             text: (t, c) => t.in.recognised_BOX([typBOX(c.v.ir.cisloBox) ?? '']), showInXML: false,
             show: c => isBox(c.v.ir.typ.first) && typBOX(c.v.ir.cisloBox) != undefined,
         }),
-        chceVyplnitK: new MultiCheckboxWidget({
+        chceVyplnitK: newMultiCheckboxWidget({
             label: t => t.in.whatToAddInfoTo,
             options: c => [
                 ...irOther(c) || doesNotSupportHeatPumps(c.v.ir.typ.first) ? [] : ['heatPump'] as const,
@@ -627,15 +621,15 @@ export default (): FormPlus<FormIN> => ({
         }),
     },
     tc: {
-        nadpis: new TitleWidget({
+        nadpis: newTitleWidget({
             text: (t, c) => c.v.tc.pocet > 1 ? t.in.heatPumps : t.in.device.heatPump,
             show: tc, level: 3, class: 'fs-4',
         }),
-        poznamka: new TextWidget({
+        poznamka: newTextWidget({
             text: t => t.in.pleaseFillInIrType, showInXML: false,
             show: c => !subType(c) && tc(c), class: 'text-warning',
         }),
-        typ: new RadioWidget({
+        typ: newRadioWidget({
             label: (t, c) => c.v.tc.pocet > 1 ? t.in.heatPumpsType : t.in.heatPumpType,
             options: [`airToWater`, `groundToWater`], required: tc,
             lock: c => ecoHeat(c) || rtc(c) || thermona(c), show: tc,
@@ -648,7 +642,7 @@ export default (): FormPlus<FormIN> => ({
                 });
             },
         }),
-        pocet: new CounterWidget<ContextIN, true>({
+        pocet: newCounterWidget<ContextIN, true>({
             label: t => t.in.hpCount, min: 1, max: 10, chosen: 1, hideInRawData: true,
             onValueSet: (c, p) => {
                 TCNumbers.slice(p).forEach(i =>
@@ -671,91 +665,91 @@ export default (): FormPlus<FormIN> => ({
         ...heatPump(10),
     },
     sol: {
-        title: new TitleWidget({
+        title: newTitleWidget({
             text: t => t.in.device.solarCollector, show: sol, level: 3, class: 'fs-4',
         }),
-        typ: new InputWidget({
+        typ: newInputWidget({
             label: t => t.in.solarCollectorType, required: sol, show: sol, suggestions: solarCollectors,
         }),
-        pocet: new InputWidget({
+        pocet: newInputWidget({
             label: t => t.in.solarCollectorCount, type: `number`, required: sol, show: sol,
         }),
     },
     tanks: {
-        title: new TitleWidget({
+        title: newTitleWidget({
             text: t => t.tc.tanks, level: 3, class: 'fs-4', show: c => aku(c) || zas(c),
         }),
-        accumulation: new InputWidget({
+        accumulation: newInputWidget({
             label: t => t.tc.typeOfAccumulationTank, show: aku, required: aku, suggestions: accumulationTanks,
         }),
-        water: new InputWidget({
+        water: newInputWidget({
             label: t => t.tc.typeOfStorageTank, show: zas, required: zas, suggestions: waterTanks,
         }),
-        anode: new RadioWidget({
+        anode: newRadioWidget({
             label: t => t.tc.anodeRod.label, show: c => zas(c) || akuDuo(c), required: c => zas(c) || akuDuo(c),
             options: ['magnesium', 'electronic', 'none'], labels: t => t.tc.anodeRod,
         }),
     },
     rek: {
-        title: new TitleWidget({ text: t => t.in.device.ventilation, show: rek, level: 3, class: 'fs-4' }),
-        typ: new InputWidget({
+        title: newTitleWidget({ text: t => t.in.device.ventilation, show: rek, level: 3, class: 'fs-4' }),
+        typ: newInputWidget({
             label: t => t.in.recoveryVentilationUnitType,
             required: rek, show: rek,
         }),
     },
     fve: {
-        title: new TitleWidget({
+        title: newTitleWidget({
             text: t => t.in.photovoltaicSystem,
             show: fve, level: 3, class: 'fs-4',
         }),
-        typ: new ChooserWidget({
+        typ: newChooserWidget({
             label: t => t.in.panelType, chosen: 'DG-450-B',
             required: fve, show: fve, lock: irOther,
             options: c => irOther(c) ? ['DG-450-B'] : ['DG-450-B', 'otherNotRegulusPanels'],
             labels: t => t.in.fve,
         }),
-        pocet: new InputWidget({
+        pocet: newInputWidget({
             label: t => t.in.panelCount, type: `number`, required: fveReg, show: fveReg,
         }),
-        typStridace: new InputWidget({
+        typStridace: newInputWidget({
             label: t => t.in.inverterType, required: fveReg, show: fveReg,
         }),
-        cisloStridace: new InputWidget({
+        cisloStridace: newInputWidget({
             label: t => t.in.inverterManufactureNumber, required: fveReg, show: fveReg,
         }),
-        akumulaceDoBaterii: new CheckboxWidget({
+        akumulaceDoBaterii: newCheckboxWidget({
             label: t => t.in.accumulationToBatteries, required: false, show: fveReg,
         }),
-        typBaterii: new InputWidget({
+        typBaterii: newInputWidget({
             label: t => t.in.batteryType,
             required: c => fveReg(c) && c.v.fve.akumulaceDoBaterii,
             show: c => fveReg(c) && c.v.fve.akumulaceDoBaterii,
         }),
-        kapacitaBaterii: new InputWidget({
+        kapacitaBaterii: newInputWidget({
             label: t => t.in.totalBatteryCapacity, type: 'number', suffix: t => t.units.kWh,
             required: c => fveReg(c) && c.v.fve.akumulaceDoBaterii,
             show: c => fveReg(c) && c.v.fve.akumulaceDoBaterii,
         }),
-        wallbox: new CheckboxWidget({
+        wallbox: newCheckboxWidget({
             label: t => t.in.chargingStationWallbox, required: false, show: fveReg,
         }),
-        spolupraceIR: new CheckboxWidget({
+        spolupraceIR: newCheckboxWidget({
             label: t => t.in.irCooperation, required: false, show: fve,
         }),
     },
     jine: {
-        title: new TitleWidget({
+        title: newTitleWidget({
             text: t => t.in.device.other,
             show: other, level: 3, class: 'fs-4',
         }),
-        popis: new InputWidget({
+        popis: newInputWidget({
             label: t => t.in.description, required: other, show: other,
         }),
     },
     ...userData(),
     vzdalenyPristup: {
-        nadpis: new TitleWidget({ text: t => t.in.remoteAccess.title, show: supportsRemoteAccessC, level: 2 }),
-        chce: new CheckboxWidget({
+        nadpis: newTitleWidget({ text: t => t.in.remoteAccess.title, show: supportsRemoteAccessC, level: 2 }),
+        chce: newCheckboxWidget({
             label: t => t.in.remoteAccess.doYouWantRemoteAccess, required: false, show: supportsRemoteAccessC,
             onValueSet: (c, v) => {
                 if (!v) {
@@ -764,18 +758,18 @@ export default (): FormPlus<FormIN> => ({
                 }
             },
         }),
-        _pumpNotSelected: new TextWidget({
+        _pumpNotSelected: newTextWidget<ContextIN>({
             text: t => t.in.remoteAccess.warrantyWarning,
             show: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce && !tc(c), class: 'text-warning',
         }),
-        pristupMa: new MultiCheckboxWidget({
+        pristupMa: newMultiCheckboxWidget({
             label: t => t.in.remoteAccess.whoHasAccess,
             options: [`endCustomer`, `assemblyCompany`, `commissioningCompany`],
             show: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce,
             required: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce,
             labels: t => t.in.remoteAccess,
         }),
-        plati: new RadioWidget({
+        plati: newRadioWidget({
             label: t => t.in.remoteAccess.whoWillBeInvoiced,
             options: c => !c.v.ir.regulus ? ['assemblyCompany', 'endCustomer']
                 : ['laterAccordingToTheProtocol', 'doNotInvoice', 'assemblyCompany', 'endCustomer'],
@@ -783,8 +777,8 @@ export default (): FormPlus<FormIN> => ({
             required: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce,
             labels: t => t.in.remoteAccess,
         }),
-        showResponsiblePerson: new HiddenValueWidget(true, true),
-        zodpovednaOsoba: new InputWidget({
+        showResponsiblePerson: newHiddenValueWidget(true, true),
+        zodpovednaOsoba: newInputWidget({
             label: t => t.in.remoteAccess.responsiblePerson,
             autocomplete: `section-resp billing name`,
             show: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce && c.v.vzdalenyPristup.showResponsiblePerson,
@@ -792,6 +786,6 @@ export default (): FormPlus<FormIN> => ({
         }),
     },
     ostatni: {
-        poznamka: new InputWidget({ label: t => t.in.note, required: false }),
+        poznamka: newInputWidget({ label: t => t.in.note, required: false }),
     },
 });

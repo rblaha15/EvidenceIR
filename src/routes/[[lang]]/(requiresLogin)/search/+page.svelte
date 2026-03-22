@@ -1,6 +1,5 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { SearchWidget } from '$lib/forms/Widget.svelte.js';
     import Search from '$lib/components/widgets/Search.svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { detailIrUrl, detailSpUrl } from '$lib/helpers/runes.svelte';
@@ -11,6 +10,7 @@
     import { derived, readable } from 'svelte/store';
     import { analytics } from '../../../../hooks.client';
     import { logEvent } from 'firebase/analytics';
+    import { newSearchWidget } from '$lib/forms/Widget';
 
     const { data }: PageProps = $props()
 
@@ -20,7 +20,7 @@
     const statusStore = $derived(data.data ? derived(data.data, data => data.status) : readable('loaded'));
     const itemsStore = $derived(data.data ? derived(data.data, data => data.items) : readable([]));
 
-    let w = $state(new SearchWidget({
+    const w = newSearchWidget({
         type: 'search',
         required: false,
         label: t => t.search.search,
@@ -44,7 +44,8 @@
             if (i) goto(i.t == 'NSP' ? detailSpUrl(i.id) : detailIrUrl(i.id));
         },
         inline: true,
-    }));
+    });
+    let v = $state(w.defaultValue);
 
     $effect(() => setTitle($isUserRegulusOrAdmin ? t.search.titleControllersAndProtocols : t.search.titleControllers))
 
@@ -70,9 +71,11 @@
 </div>
 
 <Search
-    bind:widget={w}
-    data={undefined}
+    bind:value={v}
+    widget={w}
+    context={{}}
     {t}
+    showAllErrors={true}
 />
 
 <div aria-hidden="true" aria-labelledby="problemsModalLabel" class="modal fade" id="problemsModal" tabindex="-1">

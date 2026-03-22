@@ -1,5 +1,5 @@
 import type { Form, Raw } from '$lib/forms/Form';
-import type { ChooserWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget.svelte';
+import type { ChooserWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget';
 import type { OptionsInputsB, OptionsInputsC, OptionsOutputsB, OptionsOutputsF } from '$lib/forms/FT/portsOptions';
 import type { FormIN } from '$lib/forms/IN/formIN';
 

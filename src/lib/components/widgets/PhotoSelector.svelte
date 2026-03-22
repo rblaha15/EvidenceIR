@@ -1,9 +1,9 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { type Files, labelAndStar, type PhotoSelectorWidget } from '$lib/forms/Widget.svelte.js';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { addFile, getFile, removeFile } from '$lib/components/widgets/File.svelte';
     import Button from '$lib/components/Button.svelte';
+    import { type Files, labelAndStar, type PhotoSelectorWidget } from '$lib/forms/Widget';
 
     interface Props {
         t: Translations;

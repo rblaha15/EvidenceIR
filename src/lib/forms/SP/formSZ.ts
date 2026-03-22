@@ -1,4 +1,4 @@
-import type { InputWidget } from '$lib/forms/Widget.svelte';
+import type { InputWidget } from '$lib/forms/Widget';
 import { type Form, type Values } from '$lib/forms/Form';
 
 export interface ContextSZ extends GenericContextSZ<ContextSZ> {

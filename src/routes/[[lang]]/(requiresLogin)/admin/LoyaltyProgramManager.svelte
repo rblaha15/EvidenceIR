@@ -3,7 +3,6 @@
     import { adminDescriptions, type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
     import { detailIrUrl } from '$lib/helpers/runes.svelte';
     import { datetimeFromISO, nowISO } from '$lib/helpers/date';
-    import { InputWidget, SearchWidget } from '$lib/forms/Widget.svelte';
     import { type Person, usersList } from '$lib/client/realtime';
     import type { IR } from '$lib/data';
     import { derived } from 'svelte/store';
@@ -12,8 +11,9 @@
     import { getTranslations } from '$lib/translations';
     import { getAllIRs } from '$lib/client/incrementalUpdates';
     import { storable } from '$lib/helpers/stores';
+    import { newInputWidget, newSearchWidget } from '$lib/forms/Widget';
 
-    const userW = new SearchWidget<unknown, Person>({
+    const userW = newSearchWidget<unknown, Person>({
         label: 'Uživatel', items: usersList, getSearchItem: i => ({
             pieces: [
                 { text: i.email },
@@ -21,19 +21,19 @@
         }),
     });
     let user = $state(userW.defaultValue);
-    const pointsW = new InputWidget({
+    const pointsW = newInputWidget({
         type: 'number', label: 'Počet bodů k přičtení (může být záporný)',
     });
     let points = $state(pointsW.defaultValue);
-    const noteW = new InputWidget({
+    const noteW = newInputWidget({
         label: 'Poznámka', required: false,
     });
     let note = $state(noteW.defaultValue);
-    const dateW = new InputWidget({
+    const dateW = newInputWidget({
         type: 'datetime-local', label: 'Datum a čas (UTC)', text: nowISO(true),
     });
     let date = $state(dateW.defaultValue);
-    const installationW = new SearchWidget<unknown, IR>({
+    const installationW = newSearchWidget<unknown, IR>({
         label: 'Související instalace (pokud je)', required: false,
         items: derived(getAllIRs(), irs => irs.data), getSearchItem: i => ({
             pieces: [
