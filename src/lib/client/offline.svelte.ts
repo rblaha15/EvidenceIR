@@ -1,5 +1,5 @@
 import { derived, get, writable } from 'svelte/store';
-import { type DBSchema as DBS, type IDBPDatabase, openDB } from 'idb';
+import { type IDBPDatabase, openDB } from 'idb';
 import { type IRID, type SPID } from '$lib/helpers/ir';
 import { currentUser } from '$lib/client/auth';
 import type { Database, ReadDatabase, WriteDatabase } from '$lib/Database';
@@ -113,7 +113,16 @@ const readDatabase: ReadDatabase = {
 
 const writeDatabase: WriteDatabase = {
     addIR: ir => odm.put('IR', ir.meta.id, ir),
-    deleteIR: (irid, movedTo) => odm.update('IR', irid, ir => deletedIR(ir, movedTo)),
+    deleteIR: irid => odm.update('IR', irid, ir => deletedIR(ir)),
+    moveIR: async (irid, ir) => {
+        if (await readDatabase.existsIR(ir.meta.id)) throw new Error(`IR ${ir.meta.id} already exists`);
+        const oldIr = await readDatabase.getIR(irid);
+        if (!oldIr) throw new Error(`IR ${irid} doesn't exists`);
+        await odm.put('IR', ir.meta.id, ir);
+        const newIr = await readDatabase.getIR(ir.meta.id);
+        if (!newIr) throw new Error(`IR ${ir.meta.id} doesn't exists`);
+        await odm.update('IR', irid, ir => deletedIR(oldIr, ir.meta.id));
+    },
     updateIN: (irid, rawData, isDraft) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.IN = rawData;

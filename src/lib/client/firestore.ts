@@ -12,6 +12,7 @@ import {
     updateDoc,
     where,
     type WithFieldValue,
+    runTransaction,
 } from 'firebase/firestore';
 import { logEvent } from 'firebase/analytics';
 import type { Raw } from '$lib/forms/Form';
@@ -138,10 +139,19 @@ const writeDatabase: WriteDatabase = {
         if (await readDatabase.existsIR(ir.meta.id)) throw new Error(`IR ${ir.meta.id} already exists`);
         await setDoc(irDoc(ir.meta.id), ir);
     },
-    deleteIR: async (irid, movedTo) => {
+    deleteIR: async irid => {
         const ir = await readDatabase.getIR(irid);
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
-        await setDoc(irDoc(irid), deletedIR(ir, movedTo));
+        await setDoc(irDoc(irid), deletedIR(ir));
+    },
+    moveIR: async (irid, ir) => {
+        if (await readDatabase.existsIR(ir.meta.id)) throw new Error(`IR ${ir.meta.id} already exists`);
+        await runTransaction(firestore, async tx => {
+            const oldIr = (await tx.get(irDoc(irid))).data();
+            if (!oldIr) throw new Error(`IR ${irid} doesn't exists`);
+            tx.set(irDoc(ir.meta.id), ir);
+            tx.set(irDoc(irid), deletedIR(oldIr, ir.meta.id));
+        });
     },
     updateIN: async (irid, rawData, isDraft) => await updateDoc(irDoc(irid), {
         IN: rawData, isDraft,

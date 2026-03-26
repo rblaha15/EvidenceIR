@@ -49,11 +49,14 @@ export interface ReadDatabase {
  * - add
  * - delete
  * - update
+ * - move
  */
 export interface WriteDatabase {
     addIR(ir: IR): Promise<void>;
 
-    deleteIR(irid: IRID, movedTo?: IRID): Promise<void>;
+    deleteIR(irid: IRID): Promise<void>;
+
+    moveIR(irid: IRID, newIr: IR): Promise<void>;
 
     updateIN(irid: IRID, rawData: Raw<FormIN>, isDraft: boolean): Promise<void>;
 
@@ -98,7 +101,7 @@ export interface Database extends ReadDatabase, WriteDatabase {
 }
 
 const databaseMethods = [
-    'getIR', 'getChangedIRs', 'getDeletedIRs', 'addIR', 'deleteIR', 'existsIR', 'updateIN',
+    'getIR', 'getChangedIRs', 'getDeletedIRs', 'addIR', 'deleteIR', 'moveIR', 'existsIR', 'updateIN',
     'addRKT', 'addRKS', 'updateUPT', 'updateDateUPT', 'addUPS', 'updateDateUPS', 'addUPF',
     'addSPs', 'updateSP', 'deleteSP', 'updateUsersWithAccessToIR', 'markRefsiteConfirmed', 'updateDKT', 'updateDKS', 'addFT',
     'addNSP', 'deleteNSP', 'getNSP', 'getChangedNSPs', 'getDeletedNSPs', 'updateNSP',
@@ -135,7 +138,7 @@ const decide = <F extends keyof Database>(name: F, args: Parameters<Database[F]>
 
 export type WriteFunction = keyof WriteDatabase;
 export const isWriteFunction = (name: keyof Database): name is WriteFunction =>
-    ['add', 'update', 'delete'].some(prefix => name.startsWith(prefix));
+    ['add', 'update', 'delete', 'move'].some(prefix => name.startsWith(prefix));
 
 export type GetAsStoreFunction = {
     [F in keyof ReadDatabase]: F extends `get${string}AsStore` ? F : never;
