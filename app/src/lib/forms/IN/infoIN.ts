@@ -121,17 +121,17 @@ const changeIRID = async (
     newIR.meta.changedAt = serverTimestamp() as Timestamp;
     newIR.meta.keysChangedAt = serverTimestamp() as Timestamp;
     newIR.meta.createdBy = { uid: user.uid, email: user.email! };
-    await db.addIR(newIR);
 
-    const newRecord = await db.getIR(newIRID);
-    if (!newRecord || newRecord.deleted || !newRecord.IN) {
+    try {
+        await db.moveIR(oldIRID, newIR);
+    } catch (e) {
+        console.error(e);
         editResult({
             red: true, load: false, text: t.form.somethingWentWrongContactUsHtml,
-            error: `Failed to create a new record: ${newRecord}`,
+            error: `Failed to create a new record`,
         });
         return false;
     }
-    await db.deleteIR(oldIRID!, newIRID);
     if (!draft) await grantPoints({ type: 'disconnectRegulusRoute', irid: oldIRID });
     return true;
 };
