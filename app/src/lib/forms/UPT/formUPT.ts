@@ -32,6 +32,9 @@ export interface FormUPT extends Form<ContextUPT> {
         tlakEnOs: InputWidget<ContextUPT>,
         tlakOs: InputWidget<ContextUPT>,
         tlakEnTv: InputWidget<ContextUPT>,
+        prutokTcTopeni: InputWidget<ContextUPT>,
+        prutokTcTepleVody: InputWidget<ContextUPT>,
+        prutokTcChlazeni: InputWidget<ContextUPT>,
         bazenTc: CheckboxWidget<ContextUPT>,
     },
     reg: {

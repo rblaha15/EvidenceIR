@@ -566,6 +566,9 @@ const en: PlainTranslations = {
         bufferTankInstalled: `buffer tank`,
         isExtendedWarrantyDesired: `Is the owner of the heat pump interested in an extended 10-year warranty on the compressor?`,
         prototype: 'Other – prototype',
+        heatPumpFlowRateHeating: 'Flow rate in heat pump during the heating mode',
+        heatPumpFlowRateHotWater: 'Flow rate in heat pump during the water heating mode',
+        heatPumpFlowRateCooling: 'Flow rate in heat pump during the cooling mode',
         ...(['heatingSystemDescription', 'isAdditionalHeatingSourceConnected', 'typeAndPowerOfAdditionalHeatingSource', 'doesHeatPumpPrepareHotWater', 'volumeOfExpansionTankOfHeatingSystem', 'pressureOfExpansionTankOfHeatingSystem', 'pressureOfHeatingSystem', 'pressureOfExpansionTankForWater', 'isPoolHeatingManagedByHeatPump', 'controlAndElectricalInstallation', 'internetConnection', 'isElectricalBondingComplete', 'areElectricalDevicesTested', 'isBackupPowerSourceInstalled', 'primaryCircuit', 'typeOfPrimaryCircuit', 'typeOfAntifreezeMixture', 'onPrimaryCircuitInstalled', 'wasPrimaryCircuitTested', 'commissioningSteps', 'wasInstallationAccordingToManual', 'wasControllerSetToParameters', 'wasOwnerFamiliarizedWithFunction', 'isInstallationInWarrantyConditions'] as const)
             .associateWith(k => cs.tc[k]),
     },
