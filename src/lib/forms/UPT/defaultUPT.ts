@@ -69,9 +69,18 @@ export default (ir: IR): FormUPT => ({
                 required: c => !c.UP.os.tcTv,
             }),
         objemEnOs: newSuitsWidget({ label: t => t.tc.volumeOfExpansionTankOfHeatingSystem }),
-        tlakEnOs: newInputWidget({ label: t => t.tc.pressureOfExpansionTankOfHeatingSystem }),
-        tlakOs: newInputWidget({ label: t => t.tc.pressureOfHeatingSystem }),
-        tlakEnTv: newInputWidget({ label: t => t.tc.pressureOfExpansionTankForWater }),
+        tlakEnOs: newInputWidget({ label: t => t.tc.pressureOfExpansionTankOfHeatingSystem, type: 'number', suffix: t => t.units.bar }),
+        tlakOs: newInputWidget({ label: t => t.tc.pressureOfHeatingSystem, type: 'number', suffix: t => t.units.bar }),
+        tlakEnTv: newInputWidget({ label: t => t.tc.pressureOfExpansionTankForWater, type: 'number', suffix: t => t.units.bar }),
+        prutokTcTopeni: newInputWidget({
+            label: t => t.tc.heatPumpFlowRateHeating, type: 'number', suffix: t => t.units.lPerH, required: false,
+        }),
+        prutokTcTepleVody: newInputWidget({
+            label: t => t.tc.heatPumpFlowRateHotWater, type: 'number', suffix: t => t.units.lPerH, required: false,
+        }),
+        prutokTcChlazeni: newInputWidget({
+            label: t => t.tc.heatPumpFlowRateCooling, type: 'number', suffix: t => t.units.lPerH, required: false,
+        }),
         bazenTc: newCheckboxWidget({ required: false, label: t => t.tc.isPoolHeatingManagedByHeatPump }),
     },
     reg: {
