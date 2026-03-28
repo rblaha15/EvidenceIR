@@ -360,6 +360,8 @@ const de: PlainTranslations = {
         internetConnection: `Internet verbunden`,
         connectedViaRegulusRoute: `Verbunden über RegulusRoute`,
         connectedWithPublicIpAddress: `Verbunden über öffentliche IP-Adresse`,
+        publicIpAddress: `IP-Adresse`,
+        remoteAccessAgreement: `Mit der Unterzeichnung des Inbetriebnahmeprotokolls stimmt der Kunde dem Fernzugriff von Regulus auf die Steuerung zu.`,
         notConnected: `Nicht verbunden`,
         isElectricalBondingComplete: `Wurde ein kompletter elektrischer Anschluss hergestellt?`,
         areElectricalDevicesTested: `Wurden alle an die Steuerung angeschlossenen Geräte getestet?`,
@@ -429,6 +431,7 @@ const de: PlainTranslations = {
         date: `Falsches Datumsformat`,
         number: `Falsches Zahlenformat`,
         company: `Achtung, die eingegebene Firmenform ist nicht korrekt formatiert!`,
+        ip: `Falsches IP-Adresse-Format`,
     },
     theme: {
         dark: 'Dunkel',

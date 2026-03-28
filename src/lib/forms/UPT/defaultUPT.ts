@@ -1,14 +1,18 @@
 import {
-    newSwitchWidget,
-    newTitleWidget,
     type GetBOrVal,
-    type GetTOrVal, newCheckboxWidget, newChooserWidget,
+    type GetTOrVal,
+    newCheckboxWidget,
+    newChooserWidget,
     newInputWidget,
+    newSwitchWidget,
+    newTextWidget,
+    newTitleWidget,
 } from '$lib/forms/Widget';
-import type { FormUPT } from '$lib/forms/UPT/formUPT';
+import type { ContextUPT, FormUPT } from '$lib/forms/UPT/formUPT';
 import { defaultDK } from '$lib/forms/DK/formDK';
 import type { IR } from '$lib/data';
 import { dayISO } from '$lib/helpers/date';
+import type { FormPlus } from '$lib/forms/Form';
 
 const newSuitsWidget = <D>(args: {
     label: GetTOrVal<D>,
@@ -24,7 +28,7 @@ const newSuitsWidget = <D>(args: {
     hasPositivity: true,
 });
 
-export default (ir: IR): FormUPT => ({
+export default (ir: IR): FormPlus<FormUPT> => ({
     tc: {
         nadpisSystem: newTitleWidget({ text: t => t.in.system, level: 2 }),
         nadpis: newTitleWidget({ text: t => t.in.device.heatPump, level: 3 }),
@@ -91,6 +95,14 @@ export default (ir: IR): FormUPT => ({
                 `connectedWithPublicIpAddress`,
                 `notConnected`,
             ], labels: t => t.tc,
+        }),
+        ipAdresa: newInputWidget({
+            label: t => t.tc.publicIpAddress, show: c => c.UP.reg.pripojeniKInternetu == 'connectedWithPublicIpAddress',
+            regex: /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})|(([0-9a-fA-F]{4}:){7}[0-9a-fA-F]{4})$/, onError: t => t.wrong.ip,
+        }),
+        _userAgreesWithRemoteAccess: newTextWidget<ContextUPT>({
+            text: t => t.tc.remoteAccessAgreement,
+            show: c => c.UP.reg.pripojeniKInternetu == 'connectedViaRegulusRoute' || c.UP.reg.pripojeniKInternetu == 'connectedWithPublicIpAddress',
         }),
         pospojeni: newCheckboxWidget({ required: false, label: t => t.tc.isElectricalBondingComplete }),
         spotrebice: newCheckboxWidget({ required: false, label: t => t.tc.areElectricalDevicesTested }),

@@ -465,6 +465,8 @@ export default {
         internetConnection: `Připojení k internetu`,
         connectedViaRegulusRoute: `Připojen pomocí RegulusRoute`,
         connectedWithPublicIpAddress: `Připojen veřejnou IP adresou`,
+        publicIpAddress: `IP adresa`,
+        remoteAccessAgreement: `Podepsáním protokolu o uvedení do provozu odsouhlasí zákazník vzdálený přístup firmě Regulus k regulátoru`,
         notConnected: `Nepřipojen`,
         isElectricalBondingComplete: `Bylo provedeno kompletní elektrické pospojení`,
         areElectricalDevicesTested: `Byly odzkoušeny všechny elektrické spotřebiče zapojené do regulace`,
@@ -809,6 +811,7 @@ export default {
         number: `Nesprávný formát čísla`,
         phone: `Nesprávný formát telefoního čísla`,
         zip: `Nesprávný formát PSČ`,
+        ip: `Nesprávný formát IP adresy`,
     },
     countsGenitive: {
         first: `prvního`,

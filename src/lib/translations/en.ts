@@ -236,6 +236,7 @@ const en: PlainTranslations = {
         zip: 'Invalid postal code format',
         crn: 'Invalid CRN format',
         company: `Warning, the company form is incorrectly formatted!`,
+        ip: `Invalid IP address format`,
     },
     nav: {
         appName: "SEIR",
@@ -558,6 +559,8 @@ const en: PlainTranslations = {
         dateOfCommission: `Commission date`,
         connectedViaRegulusRoute: `Connected using RegulusRoute`,
         connectedWithPublicIpAddress: `Connected using a public IP address`,
+        publicIpAddress: `IP address`,
+        remoteAccessAgreement: `By signing the commissioning protocol, the customer agrees to Regulus' remote access to the controller.`,
         notConnected: `Not connected`,
         groundBoreholes: `Ground boreholes`,
         surfaceCollector: `Surface collector`,

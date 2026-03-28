@@ -40,6 +40,7 @@ export interface FormUPT extends Form<ContextUPT> {
     reg: {
         nadpis: TitleWidget<ContextUPT>,
         pripojeniKInternetu: ChooserWidget<ContextUPT, `connectedViaRegulusRoute` | `connectedWithPublicIpAddress` | `notConnected`>,
+        ipAdresa: InputWidget<ContextUPT>,
         pospojeni: CheckboxWidget<ContextUPT>,
         spotrebice: CheckboxWidget<ContextUPT>,
         zalZdroj: CheckboxWidget<ContextUPT>,
