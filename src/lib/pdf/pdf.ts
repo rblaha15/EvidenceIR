@@ -285,7 +285,7 @@ export const generalizeServiceProtocol = (
     meta: {
         ...meta,
         id: extractSPIDFromRawData(SP.zasah),
-        createdAt: meta.createdAt || meta.keysChangedAt,
+        createdAt: meta.createdAt || meta.changedAt,
     },
     NSP: {
         ...IN,

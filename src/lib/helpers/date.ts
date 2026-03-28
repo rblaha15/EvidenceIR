@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export function today() {
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
@@ -56,4 +58,16 @@ export function timeFromISO(timeISO: string) {
 
 export function datetimeFromISO(datetimeISO: string) {
     return `${dateFromISO(datetimeISO)} ${timeFromISO(datetimeISO)}`;
+}
+
+export function dateFromTimestamp(timestamp: Timestamp): Date
+export function dateFromTimestamp(timestamp: Timestamp | null): Date | null
+export function dateFromTimestamp(timestamp: Timestamp | undefined): Date | undefined
+export function dateFromTimestamp(timestamp: Timestamp | null | undefined): Date | null | undefined
+export function dateFromTimestamp(
+    timestamp: Timestamp | null | undefined | { _seconds: number, _nanoseconds: number }
+): Date | null | undefined {
+    return !timestamp ? timestamp : !('seconds' in timestamp) && '_seconds' in timestamp
+        ? new Timestamp(timestamp._seconds, timestamp._nanoseconds).toDate()
+        : new Timestamp(timestamp.seconds, timestamp.nanoseconds).toDate();
 }

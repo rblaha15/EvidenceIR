@@ -222,6 +222,11 @@ Number.prototype.roundTo = function(decimalPlaces = 0) {
 
 
 declare global {
+    type Comparator<T> = {
+        value: (value: T, index: number, array: T[]) => Comparable,
+        direction: 'ascending' | 'descending'
+    };
+
     interface Array<T> {
         zip<T, U>(
             this: T[] | readonly T[],
@@ -319,33 +324,48 @@ declare global {
             callback: (value: T, index: number, array: T[]) => number,
         ): number;
 
+        sortedByAll<T>(
+            this: T[] | readonly T[],
+            ...comparators: Comparator<T>[]
+        ): T[];
+
+        sortedBy<T>(
+            this: T[] | readonly T[],
+            callback: (value: T, index: number, array: T[]) => Comparable,
+        ): T[];
+
+        sortedByDescending<T>(
+            this: T[] | readonly T[],
+            callback: (value: T, index: number, array: T[]) => Comparable,
+        ): T[];
+
         minBy<T>(
             this: T[] | readonly T[],
-            callback: (value: T, index: number, array: T[]) => number,
+            callback: (value: T, index: number, array: T[]) => Comparable,
         ): T;
 
         maxBy<T>(
             this: T[] | readonly T[],
-            callback: (value: T, index: number, array: T[]) => number,
+            callback: (value: T, index: number, array: T[]) => Comparable,
         ): T;
 
-        minOf<T>(
+        minOf<T, C extends Comparable>(
             this: T[],
-            callback: (value: T, index: number, array: T[]) => number,
-        ): number;
+            callback: (value: T, index: number, array: T[]) => C,
+        ): C;
 
-        maxOf<T>(
+        maxOf<T, C extends Comparable>(
             this: T[],
-            callback: (value: T, index: number, array: T[]) => number,
-        ): number;
+            callback: (value: T, index: number, array: T[]) => C,
+        ): C;
 
-        min(
-            this: number[] | readonly number[],
-        ): number;
+        min<C extends Comparable>(
+            this: C[] | readonly C[],
+        ): C;
 
-        max(
-            this: number[] | readonly number[],
-        ): number;
+        max<C extends Comparable>(
+            this: C[] | readonly C[],
+        ): C;
 
         groupBy<K extends PropertyKey, T>(
             this: T[],
@@ -539,18 +559,58 @@ Array.prototype.sumBy = function(callback) {
     return [...this].reduce((sum, v, i, a) => sum + callback(v, i, a), 0);
 } as typeof Array.prototype.sumBy;
 
+type PrimitiveComparable = number | string | boolean;
+type NotNullComparable = PrimitiveComparable | { valueOf(): PrimitiveComparable }
+export type Comparable = null | undefined | NotNullComparable
+
+const compareStrings = (a: string, b: string) => a.localeCompare(b);
+const compareNumbers = (a: number, b: number) => a - b;
+const compareBooleans = (a: boolean, b: boolean) => a == b ? 0 : a ? 1 : -1;
+const compareNotNullable = (a: NotNullComparable, b: NotNullComparable): number =>
+    typeof a == 'string' && typeof b == 'string' ? compareStrings(a, b)
+        : typeof a == 'number' && typeof b == 'number' ? compareNumbers(a, b)
+            : typeof a == 'boolean' && typeof b == 'boolean' ? compareBooleans(a, b)
+                : compareNotNullable(a.valueOf(), b.valueOf());
+const compare = (a: Comparable, b: Comparable) => a == null
+    ? b == null ? 0 : Number.POSITIVE_INFINITY
+    : b == null ? Number.NEGATIVE_INFINITY : compareNotNullable(a, b);
+
+Array.prototype.sortedByAll = function(...comparators) {
+    return comparators.reverse().reduce(
+        (array, comparator) => comparator.direction == 'ascending'
+            ? array.sortedBy(comparator.value) : array.sortedByDescending(comparator.value),
+        [...this],
+    );
+} as typeof Array.prototype.sortedByAll;
+
+Array.prototype.sortedBy = function(callback) {
+    return [...this]
+        .map((v, i, a) => ({ value: v, comparableValue: callback(v, i, a) }))
+        .sort((a, b) => compare(a.comparableValue, b.comparableValue))
+        .map(({ value }) => value);
+} as typeof Array.prototype.sortedBy;
+
+Array.prototype.sortedByDescending = function(callback) {
+    return [...this]
+        .map((v, i, a) => ({ value: v, comparableValue: callback(v, i, a) }))
+        .sort((a, b) => compare(b.comparableValue, a.comparableValue))
+        .map(({ value }) => value);
+} as typeof Array.prototype.sortedByDescending;
+
 Array.prototype.minBy = function(callback) {
+    if (this.length == 0) return null;
     return [...this].reduce((min, v, i, a) => {
         const val = callback(v, i, a);
-        return val < min ? val : min;
-    }, Number.POSITIVE_INFINITY);
+        return compare(val, min) < 0 ? val : min;
+    }, callback(this[0], 0, [...this]));
 } as typeof Array.prototype.minBy;
 
 Array.prototype.maxBy = function(callback) {
+    if (this.length == 0) return null;
     return [...this].reduce((max, v, i, a) => {
         const val = callback(v, i, a);
-        return val > max ? val : max;
-    }, Number.NEGATIVE_INFINITY);
+        return compare(val, max) > 0 ? val : max;
+    }, callback(this[0], 0, [...this]));
 } as typeof Array.prototype.maxBy;
 
 Array.prototype.maxOf = function(callback) {
@@ -562,11 +622,11 @@ Array.prototype.minOf = function(callback) {
 } as typeof Array.prototype.minOf;
 
 Array.prototype.min = function() {
-    return [...this].reduce((min, val) => val < min ? val : min, Number.POSITIVE_INFINITY);
+    return [...this].minBy(a => a);
 } as typeof Array.prototype.min;
 
 Array.prototype.max = function() {
-    return [...this].reduce((max, val) => val > max ? val : max, Number.NEGATIVE_INFINITY);
+    return [...this].maxBy(a => a);
 } as typeof Array.prototype.max;
 
 Array.prototype.last = function() {
