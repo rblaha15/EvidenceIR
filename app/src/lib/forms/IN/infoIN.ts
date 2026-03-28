@@ -119,7 +119,6 @@ const changeIRID = async (
     newIR.meta.id = newIRID;
     newIR.meta.createdAt = serverTimestamp() as Timestamp;
     newIR.meta.changedAt = serverTimestamp() as Timestamp;
-    newIR.meta.keysChangedAt = serverTimestamp() as Timestamp;
     newIR.meta.createdBy = { uid: user.uid, email: user.email! };
 
     try {

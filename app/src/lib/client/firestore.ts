@@ -15,15 +15,13 @@ import {
     runTransaction,
 } from 'firebase/firestore';
 import { logEvent } from 'firebase/analytics';
-import type { Raw } from '$lib/forms/Form';
 import { get } from 'svelte/store';
 import { checkAdmin, checkRegulusOrAdmin, currentUser } from './auth';
 import { analytics, firestore } from '../../hooks.client';
-import { type IRID, irWholeName, type SPID } from '$lib/helpers/ir';
+import { type IRID, type SPID } from '$lib/helpers/ir';
 import { offlineDatabase, offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
 import { deleteField, Query } from '@firebase/firestore';
 import type { Database, ReadDatabase, WriteDatabase } from '$lib/Database';
-import type { FormIN } from '$lib/forms/IN/formIN';
 import {
     deletedIR,
     type DeletedIR,
@@ -69,11 +67,6 @@ const getSnps = async <T>(reference: Query<T>) => {
     }
 };
 
-const shouldUpdateKeyChangeIR = async (irid: IRID, newIN: Raw<FormIN>, isDraft: boolean) => {
-    const oldIR = await odm.get('IR', irid) as ExistingIR;
-    return irWholeName(newIN) != irWholeName(oldIR.IN) || isDraft != oldIR.isDraft;
-};
-
 const addStampIR = (field: keyof IR | string, value: unknown) => ({
     [field]: value,
     'meta.changedAt': serverTimestamp() as Timestamp,
@@ -87,12 +80,12 @@ const readDatabase: ReadDatabase = {
         const q = await checkRegulusOrAdmin() ? query(
             irCollection,
             where('deleted', '!=', true),
-            where('meta.keysChangedAt', '>', lastUpdatedAt),
+            where('meta.changedAt', '>', lastUpdatedAt),
         ) : query(
             irCollection,
             where('meta.usersWithAccess', 'array-contains', user?.email ?? ''),
             where('deleted', '!=', true),
-            where('meta.keysChangedAt', '>', lastUpdatedAt),
+            where('meta.changedAt', '>', lastUpdatedAt),
         );
         return await getSnps(q) as ExistingIR[];
     },
@@ -156,8 +149,6 @@ const writeDatabase: WriteDatabase = {
     updateIN: async (irid, rawData, isDraft) => await updateDoc(irDoc(irid), {
         IN: rawData, isDraft,
         'meta.changedAt': serverTimestamp() as Timestamp,
-        ...await shouldUpdateKeyChangeIR(irid, rawData, isDraft)
-            ? { 'meta.keysChangedAt': serverTimestamp() as Timestamp } : {},
     }),
     addRKT: (irid, pump, year, check) =>
         updateDoc(irDoc(irid), addStampIR(`RK.TC.${pump}.${year}`, check)),
@@ -173,7 +164,6 @@ const writeDatabase: WriteDatabase = {
             meta: {
                 ...ir.meta,
                 changedAt: serverTimestamp() as Timestamp,
-                keysChangedAt: serverTimestamp() as Timestamp,
             },
         });
     },
@@ -200,7 +190,6 @@ const writeDatabase: WriteDatabase = {
             meta: {
                 ...ir.meta,
                 changedAt: serverTimestamp() as Timestamp,
-                keysChangedAt: serverTimestamp() as Timestamp,
             },
         });
     },

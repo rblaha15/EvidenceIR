@@ -50,7 +50,7 @@ const getData = async <T extends 'IR' | 'NSP'>(type: T, store: Writable<Results<
     store.set({ data: newList, status: 'loaded' });
     await odm.setAll(type, newList.associateBy(it => it.meta.id as ID<T>))
     const key = (it: ExistingData<T>) =>
-        ({ IR: (it as IR).meta.keysChangedAt, NSP: (it as NSP).meta.createdAt }[type])
+        ({ IR: (it as IR).meta.changedAt, NSP: (it as NSP).meta.createdAt }[type])
     if (changes.length) lastChangedAtStore.set(
         changes.map(key).maxOf(t => t.toMillis()),
     );

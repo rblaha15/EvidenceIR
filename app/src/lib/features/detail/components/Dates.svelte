@@ -1,9 +1,8 @@
 <script lang="ts">
     import { isUserAdmin } from '$lib/client/auth';
     import type { IR, NSP } from '$lib/data';
-    import { datetimeFromISO } from '$lib/helpers/date';
+    import { dateFromTimestamp, datetimeFromISO } from '$lib/helpers/date';
     import { aA } from '$lib/helpers/stores';
-    import { Timestamp } from 'firebase/firestore';
     import Icon from '$lib/components/Icon.svelte';
 
     const { data }: {
@@ -20,21 +19,21 @@
             </span>
         {/if}
         {#if 'createdAt' in data.meta && data.meta.createdAt && !('_seconds' in data.meta.createdAt)}
-            {@const date = new Timestamp(data.meta.createdAt.seconds, data.meta.createdAt.nanoseconds).toDate()}
+            {@const date = dateFromTimestamp(data.meta.createdAt)}
             <span>
                 <Icon icon="add" />
                 Vytvořeno: {datetimeFromISO(date.toISOString())} UTC{$aA}
             </span>
         {/if}
         {#if 'changedAt' in data.meta && data.meta.changedAt && !('_seconds' in data.meta.changedAt)}
-            {@const date = new Timestamp(data.meta.changedAt.seconds, data.meta.changedAt.nanoseconds).toDate()}
+            {@const date = dateFromTimestamp(data.meta.changedAt)}
             <span>
                 <Icon icon="edit" />
                 Změněno: {datetimeFromISO(date.toISOString())} UTC{$aA}
             </span>
         {/if}
         {#if data.deleted && 'deletedAt' in data.meta && data.meta.deletedAt && !('_seconds' in data.meta.deletedAt)}
-            {@const date = new Timestamp(data.meta.deletedAt.seconds, data.meta.deletedAt.nanoseconds).toDate()}
+            {@const date = dateFromTimestamp(data.meta.deletedAt)}
             <span>
                 <Icon icon="delete" />
                 Odstraněno: {datetimeFromISO(date.toISOString())} UTC{$aA}

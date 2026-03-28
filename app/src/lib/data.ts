@@ -43,8 +43,7 @@ interface BaseIR {
     isDraft: boolean;
     meta: {
         id: IRID;
-        keysChangedAt: Timestamp;
-        changedAt?: Timestamp;
+        changedAt: Timestamp;
         createdAt?: Timestamp;
         createdBy?: {
             uid: string;
@@ -130,7 +129,6 @@ export const newIR = (
     deleted: false,
     meta: {
         id: extractIRIDFromRawData(raw),
-        keysChangedAt: serverTimestamp() as Timestamp,
         changedAt: serverTimestamp() as Timestamp,
         createdAt: serverTimestamp() as Timestamp,
         createdBy: {
