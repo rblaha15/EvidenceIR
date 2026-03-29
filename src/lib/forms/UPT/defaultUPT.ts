@@ -77,13 +77,16 @@ export default (ir: IR): FormPlus<FormUPT> => ({
         tlakOs: newInputWidget({ label: t => t.tc.pressureOfHeatingSystem, type: 'number', suffix: t => t.units.bar }),
         tlakEnTv: newInputWidget({ label: t => t.tc.pressureOfExpansionTankForWater, type: 'number', suffix: t => t.units.bar }),
         prutokTcTopeni: newInputWidget({
-            label: t => t.tc.heatPumpFlowRateHeating, type: 'number', suffix: t => t.units.lPerH, required: false,
+            label: t => t.tc.heatPumpFlowRateHeating,
+            type: 'number', suffix: t => t.units.lPerH, required: false, show: c => c.IN.tc.typ == 'airToWater',
         }),
         prutokTcTepleVody: newInputWidget({
-            label: t => t.tc.heatPumpFlowRateHotWater, type: 'number', suffix: t => t.units.lPerH, required: false,
+            label: t => t.tc.heatPumpFlowRateHotWater,
+            type: 'number', suffix: t => t.units.lPerH, required: false, show: c => c.IN.tc.typ == 'airToWater',
         }),
         prutokTcChlazeni: newInputWidget({
-            label: t => t.tc.heatPumpFlowRateCooling, type: 'number', suffix: t => t.units.lPerH, required: false,
+            label: t => t.tc.heatPumpFlowRateCooling,
+            type: 'number', suffix: t => t.units.lPerH, required: false, show: c => c.IN.tc.typ == 'airToWater',
         }),
         bazenTc: newCheckboxWidget({ required: false, label: t => t.tc.isPoolHeatingManagedByHeatPump }),
     },
