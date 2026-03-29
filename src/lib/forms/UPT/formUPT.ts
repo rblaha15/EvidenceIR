@@ -1,7 +1,7 @@
 import type { Form, Raw, Values } from '$lib/forms/Form';
 import type { FormIN } from '../IN/formIN';
 import type { FormPartDK } from '$lib/forms/DK/formDK';
-import type { CheckboxWidget, ChooserWidget, InputWidget, SwitchWidget, TitleWidget } from '$lib/forms/Widget';
+import type { CheckboxWidget, ChooserWidget, InputWidget, RadioWidget, SwitchWidget, TitleWidget } from '$lib/forms/Widget';
 
 export type ContextUPT = {
     UP: Values<FormUPT>,
@@ -58,7 +58,9 @@ export interface FormUPT extends Form<ContextUPT> {
         tc: CheckboxWidget<ContextUPT>,
         reg: CheckboxWidget<ContextUPT>,
         vlastnik: CheckboxWidget<ContextUPT>,
-        typZaruky: ChooserWidget<ContextUPT, `no` | `yes`>,
+        typZaruky: RadioWidget<ContextUPT, `no` | `yes`>,
+        fullPaidWarranty: RadioWidget<ContextUPT, `yes` | 'unsure' | 'no'>,
+        compressorWarranty: RadioWidget<ContextUPT, `yes` | 'no'>,
         zaruka: CheckboxWidget<ContextUPT>,
         date: InputWidget<ContextUPT, true>,
         note: InputWidget<ContextUPT>,
