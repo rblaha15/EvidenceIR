@@ -12,23 +12,50 @@ import { cascadePumps } from '$lib/forms/IN/infoIN';
 import type { Raw, Values } from '$lib/forms/Form';
 import type { GenericContextSP, GenericFormSP } from '$lib/forms/SP/formSP.svelte';
 
-const prices = {
-    transportation: 12 / 1.21,
-    work: 800 / 1.21,
-    regulusRoute: 1_000 / 1.21,
-    installationApproval: 3_000 / 1.21,
-    extendedWarranty: 6_000 / 1.21,
-    commissioningTC: 4_000 / 1.21,
-    commissioningHPInCascade: 1_600 / 1.21,
-    commissioningSOL: 2_000 / 1.21,
-    commissioningFVE: 2_000 / 1.21,
-    yearlyHPCheck: 3_000 / 1.21,
-    yearlyHPInCascadeCheck: 1_200 / 1.21,
-    yearlySOLCheck: 1_500 / 1.21,
-    withoutCode: 0,
-} as const;
+const minDate = new Date(0);
+const maxDate = new Date(8e15);
+const date2026_04_01 = new Date(2026, 3, 1);
+export const newPrices = date2026_04_01
+
+const allPrices = new Map([
+    [[minDate, newPrices] as const, {
+        transportation: 12 / 1.21,
+        work: 800 / 1.21,
+        regulusRoute: 1_000 / 1.21,
+        installationApproval: 3_000 / 1.21,
+        extendedWarranty: 6_000 / 1.21,
+        commissioningTC: 4_000 / 1.21,
+        commissioningHPInCascade: 1_600 / 1.21,
+        commissioningSOL: 2_000 / 1.21,
+        commissioningFVE: 2_000 / 1.21,
+        yearlyHPCheck: 3_000 / 1.21,
+        yearlyHPInCascadeCheck: 1_200 / 1.21,
+        yearlySOLCheck: 1_500 / 1.21,
+        withoutCode: 0,
+    } as const],
+    [[newPrices, maxDate] as const, {
+        transportation: 14 / 1.12,
+        work: 1_000 / 1.12,
+        regulusRoute: 1_500 / 1.12,
+        installationApproval: 3_000 / 1.21,
+        extendedWarranty: 6_000 / 1.21,
+        commissioningTC: 4_000 / 1.21,
+        commissioningHPInCascade: 1_600 / 1.21,
+        commissioningSOL: 2_000 / 1.21,
+        commissioningFVE: 2_000 / 1.21,
+        yearlyHPCheck: 3_000 / 1.12,
+        yearlyHPInCascadeCheck: 2_300 / 1.12,
+        yearlySOLCheck: 1_500 / 1.12,
+        withoutCode: 0,
+    } as const],
+])
+
+const getPrices = (commission: Date) => allPrices.entries()
+    .find(([[from, to]]) => from <= commission && commission < to)!
+    [1]
 
 const codes = {
+    work: 12510,
     assemblyWork: 18261,
     technicalAssistance: 12510,
     assemblyWork12: 20486,
@@ -67,9 +94,10 @@ export const calculateProtocolPrice = <C extends GenericContextSP<C>>(
     const ip = invoiceableParts.associateWith(it => !p.fakturace.invoiceParts?.includes(it)).let(ip => ({
         ...ip, yearlyHPInCascadeCheck: ip.yearlyHPCheck, commissioningHPInCascade: ip.commissioningTC,
     }));
+    const prices = getPrices(new Date(p.zasah.datum));
 
     const priceTransportation = ip.transportation ? prices.transportation * Number(p.ukony.doprava) : 0;
-    const priceWork = p.ukony.typPrace && ip.work ? prices.work * Number(p.ukony.doba) : 0;
+    const priceWork = p.ukony.doba && ip.work ? prices.work * Number(p.ukony.doba) : 0;
     const operationsWithCascades = p.ukony.ukony.flatMap(type => [
         ...type == 'yearlyHPCheck' && (pumpCount ?? 1) > 1 ? [['yearlyHPCheck', 1 as number] as const, ['yearlyHPInCascadeCheck', pumpCount! - 1] as const]
             : type == 'commissioningTC' && (pumpCount ?? 1) > 1 ? [['commissioningTC', 1 as number] as const, ['commissioningHPInCascade', pumpCount! - 1] as const]
@@ -81,10 +109,10 @@ export const calculateProtocolPrice = <C extends GenericContextSP<C>>(
     const discount = Math.min(p.fakturace.discount?.toNumber() ?? 0, priceWithoutDiscount);
     const priceOther = priceOperations + priceParts - discount;
     const sum = priceTransportation + priceWork + priceOther;
-    const tax = p.ukony.typPrace == 'assemblyWork12' ? 1.12 : 1.21;
+    const tax = p.ukony.taxRate == '12' || p.ukony.typPrace == 'assemblyWork12' ? 1.12 : 1.21;
     const sumWithTax = sum * tax;
     const isFree = sumWithTax < 1.0;
-    return { spareParts, ip, priceTransportation, priceWork, operationsWithCascades, discount, priceOther, sum, tax, sumWithTax, isFree };
+    return { spareParts, ip, priceTransportation, priceWork, operationsWithCascades, discount, priceOther, sum, tax, sumWithTax, isFree, prices };
 };
 
 export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) => {
@@ -103,6 +131,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
         tax,
         sumWithTax,
         isFree,
+        prices,
     } = calculateProtocolPrice(NSP, pumpCount);
     let response: Response;
     try {
@@ -111,6 +140,8 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
         response = new Response(null, { status: 400 });
     }
     const signature = response.ok && !response.redirected ? await response.arrayBuffer() : null;
+
+    const areNewPrices = new Date(NSP.zasah.datum) >= newPrices;
 
     const system = NSP.system.popis;
     const zavada = NSP.zasah.nahlasenaZavada;
@@ -121,7 +152,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
     if (tax == 1.12) await addDoc({ args: pdfInfo.CP, data, lang: 'cs' });
 
     const isUnknown = NSP.montazka.ico == unknownCRN;
-    const fo = NSP.ukony.typPrace ? fieldsOperations.slice(1) : fieldsOperations;
+    const fo = NSP.ukony.doba ? fieldsOperations.slice(1) : fieldsOperations;
     return {
         fileNameSuffix: spName(NSP.zasah).replaceAll(/\/:/g, '_'),
         Text1: spName(NSP.zasah),
@@ -152,12 +183,13 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
         Text20: multilineTooLong(zasah) ? ts.seeSecondPage : zasah,
         Text21: NSP.ukony.doprava.toNumber().roundTo(2).toLocaleString('cs') + ' km',
         Text22: ip.transportation ? prices.transportation.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč',
-        'Kombinované pole32': get(ts, NSP.ukony.typPrace) || ts.intervention,
-        Text25: NSP.ukony.typPrace ? codes[NSP.ukony.typPrace].toString().let(k => k == '0' ? '' : k) : '',
-        Text23: NSP.ukony.typPrace ? NSP.ukony.doba.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
+        'Kombinované pole32': (!areNewPrices ? get(ts, NSP.ukony.typPrace) : NSP.ukony.doba ? ts.serviceTechnicianWork : '')
+            || ts.intervention,
+        Text25: NSP.ukony.doba ? (areNewPrices ? codes.work : codes[NSP.ukony.typPrace!]).toString().let(k => k == '0' ? '' : k) : '',
+        Text23: NSP.ukony.doba ? NSP.ukony.doba.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
         Text87: NSP.zasah.interventionDuration
             ? NSP.zasah.interventionDuration.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
-        Text24: NSP.ukony.typPrace ? ip.work ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč' : '',
+        Text24: NSP.ukony.doba ? ip.work ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč' : '',
         ...fo.map(p => [p.type, ' '] as const).toRecord(),
         ...operationsWithCascades.map(([type, count], i) => [
             [fo[i].type, get(ts, type)],

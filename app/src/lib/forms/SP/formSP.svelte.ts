@@ -62,6 +62,7 @@ export interface GenericFormSP<C extends GenericContextSP<C>> extends GenericFor
     ukony: {
         ukony: MultiCheckboxWidget<C, Operation>,
         typPrace: RadioWidget<C, `assemblyWork` | `technicalAssistance` | `assemblyWork12`>,
+        taxRate: RadioWidget<C, `12` | `21`>,
         doba: InputWidget<C>,
         doprava: InputWidget<C>,
     },

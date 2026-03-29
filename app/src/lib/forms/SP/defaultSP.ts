@@ -23,7 +23,7 @@ import { derived } from 'svelte/store';
 import { generalizeServiceProtocol } from '$lib/pdf/pdf';
 import { type FormGroupPlus, type FormPlus } from '$lib/forms/Form';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
-import { calculateProtocolPrice } from '$lib/pdf/generators/pdfSP';
+import { calculateProtocolPrice, newPrices } from '$lib/pdf/generators/pdfSP';
 import { defaultGenericSZ } from './defaultSZ';
 
 const multilineLineLength = 670;
@@ -108,6 +108,7 @@ const calculate = <C extends GenericContextSP<C>>(hpCount: Get<C, number>, c: C)
 const notFree = <C extends GenericContextSP<C>>(hpCount: Get<C, number>) =>
     (c: C) => !calculate(hpCount, c).isFree;
 const notByCash = <C extends GenericContextSP<C>>(c: C) => c.v.fakturace.hotove == 'no';
+const areNewPrices = <C extends GenericContextSP<C>>(c: C) => new Date(c.v.zasah.datum) >= newPrices;
 
 export const defaultGenericSP = <C extends GenericContextSP<C>>(
     getPdfData: GetT<C, Omit<InlinePdfPreviewData<C, 'NSP'>, 'type'>>, hpCount: Get<C, number>, titleLevel: HeadingLevel = 2, reduceOperations = false,
@@ -146,8 +147,8 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
     ukony: {
         _title: newTitleWidget({ text: t => t.sp.billing, level: titleLevel }),
         ukony: newMultiCheckboxWidget({
-            label: (t, c) => reduceOperations ? t.sp.operations : t.sp.operationsMax(3 - (c.v.ukony.ukony.includes('yearlyHPCheck') && hpCount(c) > 1 ? 1 : 0) - (c.v.ukony.ukony.includes('commissioningTC') && hpCount(c) > 1 ? 1 : 0) + (c.v.ukony.typPrace ? 0 : 1)),
-            max: c => c.v.ukony.typPrace ? 3 : 4,
+            label: (t, c) => reduceOperations ? t.sp.operations : t.sp.operationsMax(3 - (c.v.ukony.ukony.includes('yearlyHPCheck') && hpCount(c) > 1 ? 1 : 0) - (c.v.ukony.ukony.includes('commissioningTC') && hpCount(c) > 1 ? 1 : 0) + (c.v.ukony.typPrace || c.v.ukony.doba ? 0 : 1)),
+            max: c => c.v.ukony.typPrace || c.v.ukony.doba ? 3 : 4,
             required: false,
             options: reduceOperations ? independentOperations : operations,
             labels,
@@ -157,13 +158,19 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
                     ? 2 : 1,
         }),
         typPrace: newRadioWidget({
-            label: t => t.sp.workType, required: false, labels, lock: c => c.v.ukony.ukony.sumBy(i => c.f.ukony.ukony.weights(c, i)) == 4,
+            label: t => t.sp.workType, required: false, labels, show: c => !areNewPrices(c),
+            lock: c => c.v.ukony.ukony.sumBy(i => c.f.ukony.ukony.weights(c, i)) == 4,
             options: [`assemblyWork`, `technicalAssistance`, `assemblyWork12`],
         }),
+        taxRate: newRadioWidget({
+            label: t => t.sp.taxRate, show: areNewPrices, required: areNewPrices, options: [`12`, `21`],
+            labels: _ => ({ 12: '12 %', 21: '21 %' }),
+        }),
         doba: newInputWidget({
-            label: t => t.sp.billedTime, type: 'number',
-            show: c => c.v.ukony.typPrace != null, required: c => c.v.ukony.typPrace != null,
-            onError: t => t.wrong.number, suffix: t => t.units.h,
+            label: (t, c) => areNewPrices(c) ? t.sp.billedServiceTechnicianWork : t.sp.billedTime,
+            type: 'number', show: c => c.v.ukony.typPrace != null || areNewPrices(c),
+            required: c => c.v.ukony.typPrace != null, onError: t => t.wrong.number, suffix: t => t.units.h,
+            lock: c => c.v.ukony.ukony.sumBy(i => c.f.ukony.ukony.weights(c, i)) == 4,
         }),
         doprava: newInputWidget({
             label: t => t.sp.transportation, type: 'number',
