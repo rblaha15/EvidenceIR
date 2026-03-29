@@ -4,6 +4,7 @@ import {
     newCheckboxWidget,
     newChooserWidget,
     newInputWidget,
+    newRadioWidget,
     newSwitchWidget,
     newTextWidget,
     newTitleWidget,
@@ -163,12 +164,20 @@ export default (ir: IR): FormPlus<FormUPT> => ({
         tc: newCheckboxWidget({ required: false, label: t => t.tc.wasInstallationAccordingToManual }),
         reg: newCheckboxWidget({ required: false, label: t => t.tc.wasControllerSetToParameters }),
         vlastnik: newCheckboxWidget({ required: false, label: t => t.tc.wasOwnerFamiliarizedWithFunction }),
-        typZaruky: newChooserWidget({
+        typZaruky: newRadioWidget({
             label: t => t.tc.isExtendedWarrantyDesired, options: [`no`, `yes`], labels: t => t.tc,
+            required: false, show: c => !!c.UP.uvadeni.typZaruky,
+        }),
+        fullPaidWarranty: newRadioWidget({
+            label: t => t.tc.isFullPaidWarrantyDesired, options: [`yes`, `unsure`, `no`], labels: t => t.tc,
+        }),
+        compressorWarranty: newRadioWidget({
+            label: t => t.tc.isCompressorWarrantyDesired, options: [`yes`, `no`], labels: t => t.tc,
+            show: c => !!c.UP.uvadeni.fullPaidWarranty && c.UP.uvadeni.fullPaidWarranty != 'yes'
         }),
         zaruka: newCheckboxWidget({
             required: false, label: t => t.tc.isInstallationInWarrantyConditions,
-            show: c => c.UP.uvadeni.typZaruky == 'yes',
+            show: c => [c.UP.uvadeni.typZaruky, c.UP.uvadeni.fullPaidWarranty, c.UP.uvadeni.compressorWarranty].includes('yes'),
         }),
         date: newInputWidget({
             label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true,
