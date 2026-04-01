@@ -15,7 +15,7 @@ export const showNNT: Rule = ir => ir.IN.ir.typ.second === 'TRS6 K';
 export const showTC: Rule = ir =>
     ir.IN.ir.chceVyplnitK.includes('heatPump') && ir.IN.tc.model !== 'airTHERM 10';
 
-export const disableUPT: Rule = ir => !ir.UP.TC?.uvadeni?.typZaruky
+export const disableUPT: Rule = ir => !ir.UP.TC?.os
 
 export const useRKTL: RuleT = (ir, tc) => hasRKTL(ir.RK.TC[tc.N]);
 export const isImportantRKT: Rule = ir => ir.RK.DK.TC?.state == 'sentRequest';
