@@ -44,7 +44,7 @@ export const heatPumps = {
         'EcoPart 417',
         'EcoPart 435',
     ], [
-        'Ecopart 8,5',
+        'EcoPart 8,5',
         'EcoPart 10,5',
         'EcoPart 12',
     ]],
