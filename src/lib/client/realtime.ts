@@ -21,6 +21,7 @@ export type Person = {
     email: string;
     assemblyCompanies: SelfObject<CRN>;
     commissioningCompanies: SelfObject<CRN>;
+    allowUPT: boolean;
     responsiblePerson?: string;
     koNumber?: string;
 };

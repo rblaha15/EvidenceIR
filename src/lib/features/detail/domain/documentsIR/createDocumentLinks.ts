@@ -152,6 +152,7 @@ export const createDocumentLinks = (
     ir: ExistingIR, t: Translations, user: {
         isAdmin: boolean,
         isRegulusOrAdmin: boolean,
+        allowUPT: boolean,
     },
 ) => {
     const links: DocumentLinkDefinition<Pdf<'IR' | ''>>[] = [];
@@ -172,7 +173,7 @@ export const createDocumentLinks = (
     if (rules.showTC(ir)) {
         add({
             link: 'UPT', disabled: rules.disableUPT(ir), name: t.tc.name,
-            additionalButton: getButtonUPT(t),
+            additionalButton: user.isRegulusOrAdmin || user.allowUPT ? getButtonUPT(t) : undefined,
             dropdownItems: user.isRegulusOrAdmin ? [getDropdownItemUPT(t, user)] : undefined,
         });
 

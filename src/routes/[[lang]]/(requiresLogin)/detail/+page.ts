@@ -2,7 +2,7 @@ import type { EntryGenerator, PageLoad } from './$types';
 import { error } from '@sveltejs/kit';
 import { browser } from '$app/environment';
 import { checkAuth } from '$lib/client/auth';
-import { startTechniciansListening } from '$lib/client/realtime';
+import { startTechniciansListening, startUsersListening } from '$lib/client/realtime';
 import { derived, type Readable, readable } from 'svelte/store';
 import { waitUntil } from '$lib/helpers/stores';
 import type { IRID, SPID } from '$lib/helpers/ir';
@@ -19,6 +19,7 @@ export const load: PageLoad = async ({ url }) => {
 
     await checkAuth();
     await startTechniciansListening();
+    await startUsersListening();
 
     const data = getDataAsStore(id);
 
