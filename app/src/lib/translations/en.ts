@@ -188,7 +188,7 @@ const en: PlainTranslations = {
             doYouWantRemoteAccess: 'Create a remote access to the controller',
             warrantyWarning: 'Attention! You have not filled in any information about the heat pump, so the customer will not be entitled to an extended compressor warranty.',
             whoHasAccess: 'Who is going to have access to it?',
-            whoWillBeInvoiced: 'Who will be invoiced for the remote access (one-time price 1000 CZK incl. VAT)',
+            whoWillBeInvoiced: 'Who will be invoiced for the remote access (one-time price 1339 CZK excl. VAT)',
             responsiblePerson: `Responsible person`,
             endCustomer: `End customer`,
             assemblyCompany: 'Assembly company',
@@ -501,7 +501,7 @@ const en: PlainTranslations = {
     rr: {
         name: `Approval with RegulusRoute`,
         title: `Consent to making the IR controller available to the RegulusRoute service`,
-        agreeWIthRRPrice: `I agree with the one-time price of CZK 1000 incl. VAT for this service.`,
+        agreeWIthRRPrice: `I agree with the one-time price of CZK 1339 excl. VAT for this service.`,
     },
     nn: {
         title: `App Guide`,
