@@ -1,7 +1,7 @@
 import type { FormInfo } from '$lib/forms/FormInfo';
 import defaultUPT from '$lib/forms/UPT/defaultUPT';
-import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
-import { derived, get } from 'svelte/store';
+import { currentUser } from '$lib/client/auth';
+import { get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
@@ -27,8 +27,6 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
 
         await grantPoints({ type: 'heatPumpCommission', irid });
 
-        if (await checkRegulusOrAdmin()) return;
-
         const user = get(currentUser)!;
         const response = await sendEmail({
             ...defaultAddresses(),
@@ -47,11 +45,11 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
         });
         return false;
     },
-    buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
-        hideSave: !regulus,
-        saveAndSend: !edit && !regulus,
-        saveAndSendAgain: edit && !regulus,
-    })),
+    buttons: edit => ({
+        hideSave: true,
+        saveAndSend: !edit,
+        saveAndSendAgain: edit,
+    }),
     createContext: ({ IN, values: UP, mode }) => ({ UP, IN, DK: UP.checkRecommendations, mode }),
     title: t => t.tc.title,
     getEditData: (ir, url) =>
