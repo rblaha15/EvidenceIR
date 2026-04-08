@@ -3,9 +3,9 @@ import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
 import { endUserName, irType, typBOX } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { get } from '$lib/translations';
-import ares from '$lib/helpers/ares';
+import ares, { regulusCRN } from '$lib/helpers/ares';
 
-const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc, lang }) => {
+const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
     const { IN, UP: { TC: UP, dateTC } } = data
     if (!UP) throw new Error("UP TC not filled")
     const tu = t.tc
@@ -30,8 +30,8 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc, lang }) => {
         Text5: await ares.getName(IN.montazka.ico) ?? '',
         Text6: IN.montazka.ico,
         Text7: IN.uvedeni.zastupce,
-        Text8: IN.uvedeni.telefon,
-        Text9: IN.uvedeni.email,
+        Text8: IN.uvedeni.ico == `${regulusCRN}` ? '+420 244 016 901' : IN.uvedeni.telefon,
+        Text9: IN.uvedeni.ico == `${regulusCRN}` ? 'servis@regulus.cz' : IN.uvedeni.email,
         Text10: dateFromISO(dateTC || dayISO()),
         Text11: isCascade ? tu.cascadeSee : IN.tc.model!,
         Text12: isCascade ? '—' : IN.tc.cislo,
