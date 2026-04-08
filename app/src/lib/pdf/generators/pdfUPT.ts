@@ -22,6 +22,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t }) => {
         .map(tu.pumpDetails).chunk(3)
         .map(g => g.join('; ')).join('\n');
     const noteText = UP.uvadeni.note ? `Poznámka: ${UP.uvadeni.note}` : '';
+    const pripojeni = get(tu, UP.reg.pripojeniKInternetu!);
     return ({
         Text1: endUserName(IN.koncovyUzivatel),
         Text2: IN.koncovyUzivatel.telefon,
@@ -54,7 +55,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t }) => {
         Text29: UP.os.bazenTc ? tu.yes : tu.no,
         Text30: irType(IN.ir.typ),
         Text31: IN.ir.typ.first == 'SOREL' ? '—' : IN.ir.cislo,
-        Text32: get(tu, UP.reg.pripojeniKInternetu!),
+        Text32: UP.reg.pripojeniKInternetu == 'connectedWithPublicIpAddress' ? `${pripojeni} – ${UP.reg.ipAdresa}` : pripojeni,
         Text33: UP.reg.pospojeni ? tu.yes : tu.no,
         Text34: UP.reg.spotrebice ? tu.yes : tu.no,
         Text35: IN.tc.typ == 'airToWater' ? UP.reg.zalZdroj ? tu.yes : tu.no : '—',
