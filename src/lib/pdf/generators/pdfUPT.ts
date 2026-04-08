@@ -1,22 +1,22 @@
 import { dateFromISO, dayISO } from '$lib/helpers/date';
-import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
+import { type GetPdfData } from '$lib/pdf/pdf';
 import { endUserName, irType, typBOX } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { get } from '$lib/translations';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 
-const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
+const pdfUPT: GetPdfData<'UPT'> = async ({ data, t }) => {
     const { IN, UP: { TC: UP, dateTC } } = data
     if (!UP) throw new Error("UP TC not filled")
     const tu = t.tc
     const pumps = cascadePumps(IN);
     const isCascade = Boolean(IN.tc.model2);
 
-    await addDoc({
-        lang: 'cs',
-        args: pdfInfo.TCI,
-        data: {},
-    })
+    // await addDoc({
+    //     lang: 'cs',
+    //     args: pdfInfo.TCI,
+    //     data: {},
+    // })
 
     const cascadeText = !isCascade ? '' : tu.cascade + '\n' + pumps
         .map(tu.pumpDetails).chunk(3)
