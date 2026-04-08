@@ -178,10 +178,6 @@ export const createDocumentLinks = (
 
         for (const tc of cascadePumps(ir.IN)) {
             add({
-                link: 'ZLT', name: t.zlt.name(tc), pump: tc.N,
-            });
-
-            add({
                 link: rules.useRKTL(ir, tc) ? 'RKTL' : 'RKT', pump: tc.N,
                 name: t.rkt.name(tc),
                 disabled: rules.disableRKT(ir, tc),
