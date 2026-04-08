@@ -19,7 +19,7 @@ const de: PlainTranslations = {
         remoteAccess: {
             title: `Fernzugriff`,
             doNotInvoice: `Nicht in Rechnung stellen`,
-            whoWillBeInvoiced: `Wem wird der Fernzugriff in Rechnung gestellt? (einmaliger Preis 50 € inkl. MwSt.)`,
+            whoWillBeInvoiced: `Wem wird der Fernzugriff in Rechnung gestellt? (einmaliger Preis 55 € ohne MwSt.)`,
             warrantyWarning: `Achtung! Da Sie die Angaben zur Wärmepumpe nicht ausgefüllt haben, besteht für den Kunden kein Anspruch auf eine erweiterte Kompressorgarantie.`,
             whoHasAccess: `Wer wird Zugriff darauf haben?`,
             doYouWantRemoteAccess: `Fernzugriff auf den Regler einrichten?`,
@@ -487,7 +487,7 @@ const de: PlainTranslations = {
     rr: {
         name: `RegulusRoute Zustimmung`,
         title: `Zustimmung zur Bereitstellung des IR-Controllers RegulusRoute`,
-        agreeWIthRRPrice: `Ich stimme dem einmaligen Preis von 50 € inklusive MwSt. für diese Dienstleistung zu.`,
+        agreeWIthRRPrice: `Ich stimme dem einmaligen Preis von 55 € ohne MwSt. für diese Dienstleistung zu.`,
     },
     rkt: {
         kontrolniElektroinstalace: 'Verkabelung der Steuerung',

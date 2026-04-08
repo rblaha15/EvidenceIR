@@ -383,7 +383,7 @@ export default {
     rr: {
         name: `Souhlas s RegulusRoute`,
         title: `Souhlas se zpřístupněním regulátoru IR službě RegulusRoute`,
-        agreeWIthRRPrice: `Souhlasím s jednorázovou cenou 1000 Kč včetně DPH za tuto službu.`,
+        agreeWIthRRPrice: `Souhlasím s jednorázovou cenou 1339 Kč bez DPH za tuto službu.`,
     },
     nn: {
         title: `Návod`,
@@ -771,7 +771,7 @@ export default {
             doYouWantRemoteAccess: `Založit vzdálený přístup k regulátoru`,
             warrantyWarning: `Pozor! Nevyplnili jste informace o tepelném čerpadle, takže zákazník nebude mít nárok na prodlouženou záruku kompresoru.`,
             whoHasAccess: `Kdo k němu bude mít přístup?`,
-            whoWillBeInvoiced: `Komu bude vzdálený přístup fakturován? (jednorázová cena 1000 Kč včetně DPH)`,
+            whoWillBeInvoiced: `Komu bude vzdálený přístup fakturován? (jednorázová cena 1339 Kč bez DPH)`,
             responsiblePerson: `Obchodní zástupce Regulus`,
             endCustomer: `Koncový zákazník`,
             assemblyCompany: `Montážní firma`,
