@@ -208,7 +208,7 @@ export const createDocumentLinks = (
 
     if (rules.showFVE(ir)) add({
         link: 'UPF', disabled: rules.disableUPF(ir), name: t.fve.name,
-        additionalButton: getButtonUPF(t),
+        additionalButton: user.isRegulusOrAdmin ? getButtonUPF(t) : undefined,
     });
 
     if (rules.showFT(ir)) add({
