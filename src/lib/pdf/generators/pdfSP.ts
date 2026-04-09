@@ -185,7 +185,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
         Text22: ip.transportation ? prices.transportation.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč',
         'Kombinované pole32': (!areNewPrices ? get(ts, NSP.ukony.typPrace) : NSP.ukony.doba ? ts.serviceTechnicianWork : '')
             || ts.intervention,
-        Text25: NSP.ukony.doba ? (areNewPrices ? codes.work : codes[NSP.ukony.typPrace!]).toString().let(k => k == '0' ? '' : k) : '',
+        Text25: NSP.ukony.doba ? (areNewPrices ? codes.work : codes[NSP.ukony.typPrace! || 'work']).toString().let(k => k == '0' ? '' : k) : '',
         Text23: NSP.ukony.doba ? NSP.ukony.doba.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
         Text87: NSP.zasah.interventionDuration
             ? NSP.zasah.interventionDuration.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
