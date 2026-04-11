@@ -62,7 +62,6 @@
                 <Button color="warning" icon="edit_document" text={td.editInstallationData}
                         href={relUrl(`/IN?edit-irid=${irid}`)} />
             {/if}
-            <p class="m-0">{@html t.detail.changeControllerHtml}</p>
             <DeleteIR {irid} {td} />
 
             {#if $isUserRegulusOrAdmin && !ir.isDraft}

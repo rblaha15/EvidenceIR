@@ -1,6 +1,7 @@
 import type { PlainTranslations } from '$lib/translations';
 import { template as t } from '$lib/helpers/templates';
 import en from './en';
+import { pricesNoVAT } from '$lib/helpers/prices';
 
 const de: PlainTranslations = {
     fve: {
@@ -19,7 +20,7 @@ const de: PlainTranslations = {
         remoteAccess: {
             title: `Fernzugriff`,
             doNotInvoice: `Nicht in Rechnung stellen`,
-            whoWillBeInvoiced: `Wem wird der Fernzugriff in Rechnung gestellt? (einmaliger Preis 55 € ohne MwSt.)`,
+            whoWillBeInvoiced: `Wem wird der Fernzugriff in Rechnung gestellt? (einmaliger Preis ${pricesNoVAT.regulusRoute.de_EUR} € exkl. MwSt.)`,
             warrantyWarning: `Achtung! Da Sie die Angaben zur Wärmepumpe nicht ausgefüllt haben, besteht für den Kunden kein Anspruch auf eine erweiterte Kompressorgarantie.`,
             whoHasAccess: `Wer wird Zugriff darauf haben?`,
             doYouWantRemoteAccess: `Fernzugriff auf den Regler einrichten?`,
@@ -352,16 +353,17 @@ const de: PlainTranslations = {
         pressureOfExpansionTankOfHeatingSystem: `Einstelldruck im Ausdehnungsgefäß des Heizungsystems`,
         pressureOfHeatingSystem: `Einstelldruck im Heizungsystem`,
         pressureOfExpansionTankForWater: `Einstelldruck im Trinkwasserausdehnungsgefäß`,
-        heatPumpFlowRateHeating: 'WP Volumenstrom im Heizbetrieb',
-        heatPumpFlowRateHotWater: 'WP Volumenstrom im Warmwasserbetrieb',
-        heatPumpFlowRateCooling: 'WP Volumenstrom im Kühlbetrieb',
+        heatPumpFlowRateHeating: 'WP Volumenstrom im Heizbetrieb bei 100% PWM',
+        heatPumpFlowRateHotWater: 'WP Volumenstrom im Warmwasserbetrieb bei 100% PWM',
+        heatPumpFlowRateCooling: 'WP Volumenstrom im Kühlbetrieb bei 100% PWM',
         isPoolHeatingManagedByHeatPump: `Wird auch die Poolheizung durch die Wärmepumpe geregelt?`,
         controlAndElectricalInstallation: `Regulierung und Verkabelung`,
         internetConnection: `Internet verbunden`,
         connectedViaRegulusRoute: `Verbunden über RegulusRoute`,
         connectedWithPublicIpAddress: `Verbunden über öffentliche IP-Adresse`,
         publicIpAddress: `IP-Adresse`,
-        remoteAccessAgreement: `Mit der Unterzeichnung des Inbetriebnahmeprotokolls stimmt der Kunde dem Fernzugriff von Regulus auf die Steuerung zu.`,
+        remoteAccessAgreement: `Der Investor stimmt der Fernsteuerung des IR-Reglers zu.`,
+        remoteAccessWarning: `Der Investor hat dann Anspruch nur auf eine Basisgarantie von 2 Jahren, wenn die Garantiebedingungen erfüllt sind!`,
         notConnected: `Nicht verbunden`,
         isElectricalBondingComplete: `Wurde ein kompletter elektrischer Anschluss hergestellt?`,
         areElectricalDevicesTested: `Wurden alle an die Steuerung angeschlossenen Geräte getestet?`,
@@ -385,6 +387,8 @@ const de: PlainTranslations = {
         wasControllerSetToParameters: `Wurde die Regulationseinheit der WP auf die vorgeschriebenen Parameter eingestellt?`,
         wasOwnerFamiliarizedWithFunction: `Wurde der Besitzer in die Grundfunktionen der WP und ihre Bedienung eingewiesen?`,
         isExtendedWarrantyDesired: `Ist der Besitzer der Wärmepumpe an einer erweiterten 10-Jahres-Garantie auf den Kompressor interessiert?`,
+        isFullPaidWarrantyDesired: `Ist der Investor an einer erweiterten "KOMPLET 10" Garantie interessiert? (Preis exkl. MwSt. ${pricesNoVAT.KOMPlET10.monthly.de_EUR} € pro Monat oder ${pricesNoVAT.KOMPlET10.yearly.de_EUR} € pro Jahr)`,
+        isCompressorWarrantyDesired: `Ist der Investor an einer erweiterten "KOMPRESOR 7" Garantie interessiert?`,
         isInstallationInWarrantyConditions: `Entsprechen die Installation und Inbetriebnahme den Bedingungen der verlängerten Garantie?`,
         cascadeSee: `Kaskade – siehe unten`,
         cascade: `Kaskade:`,
@@ -394,6 +398,7 @@ const de: PlainTranslations = {
         commissioningTitle: 'Inbetriebnahme',
         yes: `ja`,
         no: `nein`,
+        unsure : `möglich`,
         pumpDetails: t`WP${'n'}: ${'model'} – ${'cislo'}`,
         prototype: 'Andere – Prototyp',
     },
@@ -487,7 +492,7 @@ const de: PlainTranslations = {
     rr: {
         name: `RegulusRoute Zustimmung`,
         title: `Zustimmung zur Bereitstellung des IR-Controllers RegulusRoute`,
-        agreeWIthRRPrice: `Ich stimme dem einmaligen Preis von 55 € ohne MwSt. für diese Dienstleistung zu.`,
+        agreeWIthRRPrice: `Ich stimme dem einmaligen Preis von ${pricesNoVAT.regulusRoute.de_EUR} € exkl. MwSt. für diese Dienstleistung zu.`,
     },
     rkt: {
         kontrolniElektroinstalace: 'Verkabelung der Steuerung',

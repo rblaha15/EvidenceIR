@@ -4,12 +4,23 @@
     import type { FormIN } from '$lib/forms/IN/formIN';
     import type { FormNSP } from '$lib/forms/NSP/formNSP';
 
-    export type Props = { name: string, url: string, discountReason?: string, e: Raw<FormIN> | Raw<FormNSP> }
-    const { name, url, discountReason, e }: Props = $props();
+    export type Props = {
+        name: string, url: string, e: Raw<FormIN> | Raw<FormNSP>,
+        warrantyInfo?: string, routeApproval?: string, discountReason?: string
+    }
+    const { name, url, e, warrantyInfo, routeApproval, discountReason }: Props = $props();
 </script>
 
 {#if discountReason}
     <p>Důvod slevy: {discountReason}</p>
+{/if}
+
+{#if warrantyInfo}
+    <p>Záruka: KOMPLET 10: {warrantyInfo}</p>
+{/if}
+
+{#if routeApproval}
+    <p>Souhlasí s RegulusRoute: {routeApproval}</p>
 {/if}
 
 {#if !('zasah' in e)}

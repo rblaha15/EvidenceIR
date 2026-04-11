@@ -11,48 +11,7 @@ import ares from '$lib/helpers/ares';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import type { Raw, Values } from '$lib/forms/Form';
 import type { GenericContextSP, GenericFormSP } from '$lib/forms/SP/formSP.svelte';
-
-const minDate = new Date(0);
-const maxDate = new Date(8e15);
-const date2026_04_01 = new Date(2026, 3, 1);
-export const newPrices = date2026_04_01
-
-const allPrices = new Map([
-    [[minDate, newPrices] as const, {
-        transportation: 12 / 1.21,
-        work: 800 / 1.21,
-        regulusRoute: 1_000 / 1.21,
-        installationApproval: 3_000 / 1.21,
-        extendedWarranty: 6_000 / 1.21,
-        commissioningTC: 4_000 / 1.21,
-        commissioningHPInCascade: 1_600 / 1.21,
-        commissioningSOL: 2_000 / 1.21,
-        commissioningFVE: 2_000 / 1.21,
-        yearlyHPCheck: 3_000 / 1.21,
-        yearlyHPInCascadeCheck: 1_200 / 1.21,
-        yearlySOLCheck: 1_500 / 1.21,
-        withoutCode: 0,
-    } as const],
-    [[newPrices, maxDate] as const, {
-        transportation: 14 / 1.12,
-        work: 1_000 / 1.12,
-        regulusRoute: 1_500 / 1.12,
-        installationApproval: 3_000 / 1.21,
-        extendedWarranty: 6_000 / 1.21,
-        commissioningTC: 4_000 / 1.21,
-        commissioningHPInCascade: 1_600 / 1.21,
-        commissioningSOL: 2_000 / 1.21,
-        commissioningFVE: 2_000 / 1.21,
-        yearlyHPCheck: 3_000 / 1.12,
-        yearlyHPInCascadeCheck: 2_300 / 1.12,
-        yearlySOLCheck: 1_500 / 1.12,
-        withoutCode: 0,
-    } as const],
-])
-
-const getPrices = (commission: Date) => allPrices.entries()
-    .find(([[from, to]]) => from <= commission && commission < to)!
-    [1]
+import { getOperationPrices, isNewPrices } from '$lib/helpers/prices';
 
 const codes = {
     work: 12510,
@@ -94,7 +53,7 @@ export const calculateProtocolPrice = <C extends GenericContextSP<C>>(
     const ip = invoiceableParts.associateWith(it => !p.fakturace.invoiceParts?.includes(it)).let(ip => ({
         ...ip, yearlyHPInCascadeCheck: ip.yearlyHPCheck, commissioningHPInCascade: ip.commissioningTC,
     }));
-    const prices = getPrices(new Date(p.zasah.datum));
+    const prices = getOperationPrices(new Date(p.zasah.datum));
 
     const priceTransportation = ip.transportation ? prices.transportation * Number(p.ukony.doprava) : 0;
     const priceWork = p.ukony.doba && ip.work ? prices.work * Number(p.ukony.doba) : 0;
@@ -141,7 +100,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
     }
     const signature = response.ok && !response.redirected ? await response.arrayBuffer() : null;
 
-    const areNewPrices = new Date(NSP.zasah.datum) >= newPrices;
+    const areNewPrices = isNewPrices(NSP.zasah.datum);
 
     const system = NSP.system.popis;
     const zavada = NSP.zasah.nahlasenaZavada;
