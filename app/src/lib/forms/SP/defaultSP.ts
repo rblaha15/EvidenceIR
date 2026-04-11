@@ -23,8 +23,9 @@ import { derived } from 'svelte/store';
 import { generalizeServiceProtocol } from '$lib/pdf/pdf';
 import { type FormGroupPlus, type FormPlus } from '$lib/forms/Form';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
-import { calculateProtocolPrice, newPrices } from '$lib/pdf/generators/pdfSP';
+import { calculateProtocolPrice } from '$lib/pdf/generators/pdfSP';
 import { defaultGenericSZ } from './defaultSZ';
+import { isNewPrices } from '$lib/helpers/prices';
 
 const multilineLineLength = 670;
 const multilineMaxLength = multilineLineLength * 4;
@@ -108,7 +109,7 @@ const calculate = <C extends GenericContextSP<C>>(hpCount: Get<C, number>, c: C)
 const notFree = <C extends GenericContextSP<C>>(hpCount: Get<C, number>) =>
     (c: C) => !calculate(hpCount, c).isFree;
 const notByCash = <C extends GenericContextSP<C>>(c: C) => c.v.fakturace.hotove == 'no';
-const areNewPrices = <C extends GenericContextSP<C>>(c: C) => new Date(c.v.zasah.datum) >= newPrices;
+const areNewPrices = <C extends GenericContextSP<C>>(c: C) => isNewPrices(c.v.zasah.datum);
 
 export const defaultGenericSP = <C extends GenericContextSP<C>>(
     getPdfData: GetT<C, Omit<InlinePdfPreviewData<C, 'NSP'>, 'type'>>, hpCount: Get<C, number>, titleLevel: HeadingLevel = 2, reduceOperations = false,

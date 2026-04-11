@@ -102,15 +102,25 @@ export type WidgetWithValue<C = never, U = any, T extends WidgetType = WidgetTyp
     set value(newValue: U);
 }
 
-export const widgetList = <C, F extends Form<C>, V extends Values<F> = Values<F>>(form: F, values: V) =>
-    form.mapTo((groupKey, formGroup) =>
-        formGroup.mapTo((key, widget) => ({
-            widget,
-            get value() {
-                return values[groupKey as keyof V][key as keyof V[keyof V]];
-            },
-            set value(newValue) {
-                values[groupKey as keyof V][key as keyof V[keyof V]] = newValue;
-            },
-        }) as WidgetWithValue<C>),
-    ).flat();
+export const widgetList = <C, F extends Form<C>, V extends Values<F> = Values<F>>(
+    form: F, values: V,
+) => form.mapTo(
+    (groupKey, formGroup) => widgetListFromGroup<C, F[keyof F]>(
+        formGroup,
+        values[groupKey as keyof V] as FormPartValues<F[keyof F]>,
+    ),
+).flat();
+
+export const widgetListFromGroup = <C, F extends Record<string, Widget<C>>, V extends FormPartValues<F> = FormPartValues<F>>(
+    formGroup: F, groupValues: V,
+) =>
+    formGroup.mapTo((key, widget) => ({
+        widget,
+        get value() {
+            return groupValues[key as keyof V];
+        },
+        set value(newValue) {
+            console.log('set', key, newValue);
+            groupValues[key as keyof V] = newValue;
+        },
+    }) as WidgetWithValue<C>);

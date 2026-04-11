@@ -172,7 +172,8 @@ export const createDocumentLinks = (
 
     if (rules.showTC(ir)) {
         add({
-            link: 'UPT', disabled: rules.disableUPT(ir), name: t.tc.name,
+            link: rules.useUPTL(ir) ? 'UPTL' : 'UPT',
+            disabled: rules.disableUPT(ir), name: t.tc.name,
             additionalButton: user.isRegulusOrAdmin || user.allowUPT ? getButtonUPT(t) : undefined,
             dropdownItems: user.isRegulusOrAdmin ? [getDropdownItemUPT(t, user)] : undefined,
         });

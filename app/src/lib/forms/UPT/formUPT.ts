@@ -32,15 +32,16 @@ export interface FormUPT extends Form<ContextUPT> {
         tlakEnOs: InputWidget<ContextUPT>,
         tlakOs: InputWidget<ContextUPT>,
         tlakEnTv: InputWidget<ContextUPT>,
-        prutokTcTopeni: InputWidget<ContextUPT>,
-        prutokTcTepleVody: InputWidget<ContextUPT>,
-        prutokTcChlazeni: InputWidget<ContextUPT>,
+        prutokTcTopeni: InputWidget<ContextUPT>, // legacy
+        prutokTcTepleVody: InputWidget<ContextUPT>, // legacy
+        prutokTcChlazeni: InputWidget<ContextUPT>, // legacy
         bazenTc: CheckboxWidget<ContextUPT>,
     },
     reg: {
         nadpis: TitleWidget<ContextUPT>,
         pripojeniKInternetu: ChooserWidget<ContextUPT, `connectedViaRegulusRoute` | `connectedWithPublicIpAddress` | `notConnected`>,
         ipAdresa: InputWidget<ContextUPT>,
+        souhlasSPristupem: CheckboxWidget<ContextUPT>,
         pospojeni: CheckboxWidget<ContextUPT>,
         spotrebice: CheckboxWidget<ContextUPT>,
         zalZdroj: CheckboxWidget<ContextUPT>,
@@ -58,12 +59,12 @@ export interface FormUPT extends Form<ContextUPT> {
         tc: CheckboxWidget<ContextUPT>,
         reg: CheckboxWidget<ContextUPT>,
         vlastnik: CheckboxWidget<ContextUPT>,
-        typZaruky: RadioWidget<ContextUPT, `no` | `yes`>,
-        fullPaidWarranty: RadioWidget<ContextUPT, `yes` | 'unsure' | 'no'>,
-        compressorWarranty: RadioWidget<ContextUPT, `yes` | 'no'>,
-        zaruka: CheckboxWidget<ContextUPT>,
+        typZaruky: RadioWidget<ContextUPT, `no` | `yes`>, // legacy
+        fullPaidWarranty: RadioWidget<ContextUPT, `yes` | 'unsure' | 'no'>, // only new
+        compressorWarranty: RadioWidget<ContextUPT, `yes` | 'no'>, // only new
+        zaruka: CheckboxWidget<ContextUPT>, // legacy
         date: InputWidget<ContextUPT, true>,
         note: InputWidget<ContextUPT>,
     },
-    checkRecommendations: FormPartDK<ContextUPT>,
+    checkRecommendations: FormPartDK<ContextUPT>, // legacy
 }

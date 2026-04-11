@@ -7,7 +7,7 @@
     import { onMount } from 'svelte';
     import { type ContextChangeDK, getDKInfo } from '$lib/features/detail/domain/detailIR/DK';
     import Button from '$lib/components/Button.svelte';
-    import { defaultFormGroupValues } from '$lib/forms/Form';
+    import { defaultFormGroupValues, type FormPartValues, widgetListFromGroup } from '$lib/forms/Form';
 
     const { t, ir, type }: {
         t: Translations, ir: IR, type: 'TČ' | 'SOL'
@@ -19,7 +19,12 @@
 
     const { settings, show, commissionDate } = $derived(getDKInfo(type, ir));
     const f = $derived<FormPartDK<ContextChangeDK>>(defaultDK<ContextChangeDK>(type, commissionDate, settings));
-    let v = $derived(defaultFormGroupValues(f));
+    let v = $state({} as FormPartValues<FormPartDK<ContextChangeDK>>);
+    $effect(() => {
+        v = defaultFormGroupValues(f);
+    });
+
+    const list = $derived(widgetListFromGroup<ContextChangeDK, FormPartDK<ContextChangeDK>>(f, v));
     let showAllErrors = $state(false);
     const context = $derived({ DK: v, IN: ir.IN, mode: 'create' as const });
 
@@ -69,10 +74,9 @@
                     <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
                 </div>
                 <div class="modal-body d-flex flex-column gap-3">
-                    <Widget bind:value={v.commissionDate} widget={f.commissionDate} {context} {t} {showAllErrors} />
-                    <Widget bind:value={v.enabled} widget={f.enabled} {context} {t} {showAllErrors} />
-                    <Widget bind:value={v.executingCompany} widget={f.executingCompany} {context} {t} {showAllErrors} />
-                    <Widget bind:value={v.chosenCompany} widget={f.chosenCompany} {context} {t} {showAllErrors} />
+                    {#each list as item}
+                        <Widget widget={item.widget} bind:value={item.value} {t} {context} {showAllErrors} />
+                    {/each}
                 </div>
                 <div class="modal-footer">
                     {#if error}
