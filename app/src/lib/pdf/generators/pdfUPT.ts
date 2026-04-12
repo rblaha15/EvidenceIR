@@ -121,6 +121,9 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t }) => {
         Text26: UP.os.tcTv ? tu.yes : tu.no,
         Text27: UP.os.zTv,
         Text28: UP.os.objemEnOs ? tu.suits : tu.suitsNot,
+        Text48: UP.os.prutokTcTopeni,
+        Text49: UP.os.prutokTcTepleVody,
+        Text50: UP.os.prutokTcChlazeni,
         Text29: UP.os.bazenTc ? tu.yes : tu.no,
         Text30: irType(IN.ir.typ),
         Text31: IN.ir.typ.first == 'SOREL' ? '—' : IN.ir.cislo,
@@ -139,10 +142,11 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t }) => {
         Text43: UP.uvadeni.reg ? tu.yes : tu.no,
         Text44: UP.uvadeni.vlastnik ? tu.yes : tu.no,
         Text52: UP.reg.souhlasSPristupem ? tu.isFullPaidWarrantyDesired : tu.remoteAccessWarning,
-        Text45: UP.uvadeni.fullPaidWarranty ? get(tu, UP.uvadeni.fullPaidWarranty) : '',
-        Text53: UP.uvadeni.compressorWarranty ? tu.isCompressorWarrantyDesired : '',
-        Text46: UP.uvadeni.compressorWarranty ? get(tu, UP.uvadeni.compressorWarranty!) : '',
+        Text45: UP.reg.souhlasSPristupem && UP.uvadeni.fullPaidWarranty ? get(tu, UP.uvadeni.fullPaidWarranty) : '',
+        Text53: UP.reg.souhlasSPristupem && UP.uvadeni.compressorWarranty ? tu.isCompressorWarrantyDesired : '',
+        Text46: UP.reg.souhlasSPristupem && UP.uvadeni.compressorWarranty ? get(tu, UP.uvadeni.compressorWarranty!) : '',
         Text47: [cascadeText, noteText].filter(Boolean).join('\n'),
+        Text54: dateFromISO(dateTC || dayISO()),
     });
 };
 export default pdfUPT;

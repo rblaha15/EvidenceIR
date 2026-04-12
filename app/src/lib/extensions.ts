@@ -339,6 +339,14 @@ declare global {
             callback: (value: T, index: number, array: T[]) => Comparable,
         ): T[];
 
+        sorted<C extends Comparable>(
+            this: C[] | readonly C[],
+        ): C[];
+
+        sortedDescending<C extends Comparable>(
+            this: C[] | readonly C[],
+        ): C[];
+
         minBy<T>(
             this: T[] | readonly T[],
             callback: (value: T, index: number, array: T[]) => Comparable,
@@ -596,6 +604,16 @@ Array.prototype.sortedByDescending = function(callback) {
         .sort((a, b) => compare(b.comparableValue, a.comparableValue))
         .map(({ value }) => value);
 } as typeof Array.prototype.sortedByDescending;
+
+Array.prototype.sorted = function() {
+    return [...this]
+        .sort((a, b) => compare(a, b))
+} as typeof Array.prototype.sorted;
+
+Array.prototype.sortedDescending = function() {
+    return [...this]
+        .sort((a, b) => compare(b, a))
+} as typeof Array.prototype.sortedDescending;
 
 Array.prototype.minBy = function(callback) {
     if (this.length == 0) return null;

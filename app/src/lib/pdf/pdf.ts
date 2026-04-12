@@ -243,6 +243,7 @@ export type GeneratePdfOptions<P extends Pdf> = {
     lang: LanguageCode,
     data: DataOfPdf<P>,
     fetch?: typeof window.fetch,
+    pages?: number[],
 } & PdfParameters<P>;
 
 export type GetPdfData<P extends Pdf> = (o: {
