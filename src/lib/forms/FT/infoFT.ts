@@ -9,7 +9,7 @@ const infoFT: FormInfo<DataFT, FormFT, [], 'FT'> = {
     storeName: () => 'stored_facetable',
     title: t => t.ft.title,
     form: defaultFT,
-    createContext: e => e,
+    createContext: ({ IN }) => IN,
     openPdf: () => ({
         link: 'FT',
     }),

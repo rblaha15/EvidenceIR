@@ -190,6 +190,7 @@ type BaseInputArgs<C> = {
 };
 type AdvancedInputArgs<C> = {
     textArea?: GetBOrVal<C>;
+    compact?: GetBOrVal<C>;
     maskOptions?: GetOrVal<C, Opts>;
     autocomplete?: GetOrVal<C, FullAutoFill>;
     capitalize?: GetBOrVal<C>;
@@ -246,6 +247,7 @@ export type BaseInput<C> = {
 };
 export type AdvancedInput<C> = {
     textArea: GetB<C>;
+    compact: GetB<C>;
     autocomplete: Get<C, FullAutoFill>;
     maskOptions: Get<C, Opts>;
     capitalize: GetB<C>;
@@ -366,6 +368,7 @@ const initBaseInput = <C>(args: BaseInputArgs<C>) => ({
 });
 const initAdvancedInput = <C>(args: AdvancedInputArgs<C>) => ({
     textArea: toGetA(args.textArea ?? false),
+    compact: toGetA(args.compact ?? false),
     maskOptions: toGetA(args.maskOptions ?? undefined),
     autocomplete: toGetA(args.autocomplete ?? 'off'),
     capitalize: toGetA(args.capitalize ?? false),
