@@ -17,6 +17,7 @@
 
     type GenericInputWidget<C, U> = BaseWidget<C, U> & BaseInput<C> & ({
         textArea?: undefined;
+        compact?: undefined;
         autocomplete?: undefined;
         maskOptions?: undefined;
         capitalize?: undefined;
@@ -114,6 +115,11 @@
         setValueAndUpdate('');
         showError = true;
     };
+    const placeholder = $derived(
+        widget.compact?.(context)
+            ? widget.placeholder?.(t, context)
+            : widget.placeholder?.(t, context) || labelAndStar(widget, context, t),
+    );
 </script>
 
 {#snippet defaultCore(field: Snippet)}
@@ -123,11 +129,12 @@
 {#snippet field()}
     {#if widget.textArea?.(context)}
         <textarea
+            id="input-{uid}"
             autocomplete={widget.autocomplete(context)}
             inputmode={widget.inputmode(context)}
             enterkeyhint={widget.enterkeyhint(context)}
             autocapitalize={widget.autocapitalize(context)}
-            placeholder={widget.placeholder(t, context) || labelAndStar(widget, context, t)}
+            placeholder={placeholder}
             class={['form-control', "lh-base"]}
             bind:this={textarea}
             {value}
@@ -140,13 +147,14 @@
         ></textarea>
     {:else if options !== undefined}
         <input
+            id="input-{uid}"
             list="suggestions-{uid}"
             type={widget.type(context)}
             inputmode={widget.inputmode(context)}
             enterkeyhint={widget.enterkeyhint(context)}
             autocapitalize={widget.autocapitalize(context)}
             autocomplete={widget.autocomplete?.(context)}
-            placeholder={widget.placeholder?.(t, context) || labelAndStar(widget, context, t)}
+            placeholder={placeholder}
             class="form-control"
             bind:this={input}
             onblur={() => showError = true}
@@ -154,13 +162,14 @@
         />
     {:else}
         <input
+            id="input-{uid}"
             list="suggestions-{uid}"
             type={widget.type(context)}
             inputmode={widget.inputmode(context)}
             enterkeyhint={widget.enterkeyhint(context)}
             autocapitalize={widget.autocapitalize(context)}
             autocomplete={widget.autocomplete?.(context)}
-            placeholder={widget.placeholder?.(t, context) || labelAndStar(widget, context, t)}
+            placeholder={placeholder}
             class="form-control"
             bind:this={input}
             value={value}
@@ -175,10 +184,12 @@
 
 <div class="d-flex gap-1 flex-column">
     <div class="input-group">
-        <label class={['d-block', {'form-floating': !widget.placeholder?.(t, context)}, labelClass]} id="label-{uid}">
+        {#if widget.compact?.(context)}
+            {#if widget.label(t, context)}
+                <label for="input-{uid}" id="label-{uid}" class="input-group-text">{labelAndStar(widget, context, t)}</label>
+            {/if}
             {@render leadingContent?.()}
             {@render coreContent(field)}
-
             {#if $suggestions.length}
                 <datalist id="suggestions-{uid}">
                     {#each $suggestions as suggestion}
@@ -186,16 +197,35 @@
                     {/each}
                 </datalist>
             {/if}
-            {#if widget.label(t, context)}
-                <label for="">{labelAndStar(widget, context, t)}</label>
+            {#if value && widget.type(context) === 'date' && !widget.required(context)}
+                <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" onclick={onClick}>
+                    <Icon icon="clear" />
+                </button>
             {/if}
-            <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1"
-                    class:d-none={!value || widget.type(context) !== 'date' || widget.required(context)} onclick={onClick}>
-                <Icon icon="clear" />
-            </button>
-        </label>
+        {:else}
+            <div class={['d-block', {'form-floating': !widget.placeholder?.(t, context)}, labelClass]}>
+                {@render leadingContent?.()}
+                {@render coreContent(field)}
+
+                {#if widget.label(t, context)}
+                    <label for="input-{uid}" id="label-{uid}">{labelAndStar(widget, context, t)}</label>
+                {/if}
+                {#if $suggestions.length}
+                    <datalist id="suggestions-{uid}">
+                        {#each $suggestions as suggestion}
+                            <option value={suggestion}>{suggestion}</option>
+                        {/each}
+                    </datalist>
+                {/if}
+                {#if value && widget.type(context) === 'date' && !widget.required(context)}
+                    <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" onclick={onClick}>
+                        <Icon icon="clear" />
+                    </button>
+                {/if}
+            </div>
+        {/if}
         {#if widget.suffix?.(t, context)}
-            <span class="input-group-text">{widget.suffix(t, context) ?? ''}</span>
+            <span class="input-group-text text-nowrap">{widget.suffix(t, context) ?? ''}</span>
         {/if}
         {@render trailingContent?.()}
     </div>
@@ -210,5 +240,9 @@
         position: absolute;
         right: calc(var(--bs-border-width) + 2rem);
         top: calc(50% - var(--bs-body-font-size));
+    }
+
+    textarea.form-control, input.form-control {
+        min-width: 5em;
     }
 </style>

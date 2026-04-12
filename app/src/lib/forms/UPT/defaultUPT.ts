@@ -88,19 +88,25 @@ export default (ir: IR): FormPlus<FormUPT> => ({
                 required: c => !c.UP.os.tcTv,
             }),
         objemEnOs: newSuitsWidget({ label: t => t.tc.volumeOfExpansionTankOfHeatingSystem }),
-        tlakEnOs: newInputWidget({ label: t => t.tc.pressureOfExpansionTankOfHeatingSystem, type: 'number', suffix: t => t.units.bar }),
-        tlakOs: newInputWidget({ label: t => t.tc.pressureOfHeatingSystem, type: 'number', suffix: t => t.units.bar }),
-        tlakEnTv: newInputWidget({ label: t => t.tc.pressureOfExpansionTankForWater, type: 'number', suffix: t => t.units.bar }),
+        tlakEnOs: newInputWidget({
+            label: t => t.tc.pressureOfExpansionTankOfHeatingSystem, type: 'number', suffix: t => t.units.bar, compact: true,
+        }),
+        tlakOs: newInputWidget({
+            label: t => t.tc.pressureOfHeatingSystem, type: 'number', suffix: t => t.units.bar, compact: true,
+        }),
+        tlakEnTv: newInputWidget({
+            label: t => t.tc.pressureOfExpansionTankForWater, type: 'number', suffix: t => t.units.bar, compact: true,
+        }),
         prutokTcTopeni: newInputWidget({ // only new
-            label: t => t.tc.heatPumpFlowRateHeating,
+            label: t => t.tc.heatPumpFlowRateHeating, compact: true,
             type: 'number', suffix: t => t.units.lPerH, required: c => atw(c) && nw(c), show: c => atw(c) && nw(c),
         }),
         prutokTcTepleVody: newInputWidget({ // only new
-            label: t => t.tc.heatPumpFlowRateHotWater,
+            label: t => t.tc.heatPumpFlowRateHotWater, compact: true,
             type: 'number', suffix: t => t.units.lPerH, required: false, show: c => atw(c) && nw(c),
         }),
         prutokTcChlazeni: newInputWidget({ // only new
-            label: t => t.tc.heatPumpFlowRateCooling,
+            label: t => t.tc.heatPumpFlowRateCooling, compact: true,
             type: 'number', suffix: t => t.units.lPerH, required: false, show: c => atw(c) && nw(c),
         }),
         bazenTc: newCheckboxWidget({ required: false, label: t => t.tc.isPoolHeatingManagedByHeatPump }),

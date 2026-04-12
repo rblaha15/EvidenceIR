@@ -37,7 +37,7 @@
                 id={widget.label(t, context) + Boolean(i)}
                 autocomplete="off"
             />
-            <label class={["btn text-nowrap",
+            <label class={["btn text-nowrap d-flex align-items-center",
                 checked.value !== Boolean(i) ? 'btn-outline-secondary'
                     : !widget.hasPositivity(context) ? 'btn-secondary'
                     : i === 1 ? 'btn-success' : 'btn-danger'
