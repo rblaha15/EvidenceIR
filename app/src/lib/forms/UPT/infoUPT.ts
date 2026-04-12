@@ -45,7 +45,8 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
         });
         return false;
     },
-    createContext: ({ IN, values: UP, mode }) => ({ UP, IN, DK: UP.checkRecommendations, mode }),
+    createContext: ({ IN, values: UP, mode, ir, form }) =>
+        ({ UP, IN, DK: UP.checkRecommendations, mode, ir, form }),
     title: t => t.tc.title,
     getEditData: (ir, url) =>
         url.searchParams.has('edit') ? { raw: ir.UP.TC as Raw<FormUPT> } : undefined,

@@ -1,9 +1,20 @@
 import type { Form, Raw, Values } from '$lib/forms/Form';
 import type { FormIN } from '../IN/formIN';
 import type { FormPartDK } from '$lib/forms/DK/formDK';
-import type { CheckboxWidget, ChooserWidget, InputWidget, RadioWidget, SwitchWidget, TitleWidget } from '$lib/forms/Widget';
+import type {
+    CheckboxWidget,
+    ChooserWidget,
+    InlinePdfPreviewWidget,
+    InputWidget,
+    RadioWidget,
+    SwitchWidget,
+    TitleWidget,
+} from '$lib/forms/Widget';
+import type { IR } from '$lib/data';
 
 export type ContextUPT = {
+    ir: IR;
+    form: FormUPT;
     UP: Values<FormUPT>,
     IN: Raw<FormIN>,
     DK: Values<FormPartDK<ContextUPT>>,
@@ -65,6 +76,7 @@ export interface FormUPT extends Form<ContextUPT> {
         zaruka: CheckboxWidget<ContextUPT>, // legacy
         date: InputWidget<ContextUPT, true>,
         note: InputWidget<ContextUPT>,
+        preview: InlinePdfPreviewWidget<ContextUPT, 'UPT' | 'UPTL'>,
     },
     checkRecommendations: FormPartDK<ContextUPT>, // legacy
 }

@@ -2,7 +2,7 @@ import {
     type GetBOrVal,
     type GetTOrVal,
     newCheckboxWidget,
-    newChooserWidget,
+    newChooserWidget, newInlinePdfPreviewWidget,
     newInputWidget,
     newRadioWidget,
     newSwitchWidget,
@@ -11,9 +11,9 @@ import {
 } from '$lib/forms/Widget';
 import type { ContextUPT, FormUPT } from '$lib/forms/UPT/formUPT';
 import { defaultDK } from '$lib/forms/DK/formDK';
-import type { IR } from '$lib/data';
+import type { ExistingIR, IR } from '$lib/data';
 import { dayISO } from '$lib/helpers/date';
-import type { FormPlus } from '$lib/forms/Form';
+import { type FormPlus, valuesToRawData } from '$lib/forms/Form';
 import { isNewWarranties } from '$lib/helpers/prices';
 
 const newSuitsWidget = <D>(args: {
@@ -197,6 +197,23 @@ export default (ir: IR): FormPlus<FormUPT> => ({
             },
         }),
         note: newInputWidget({ label: t => t.in.note, required: false }),
+        _title: newTitleWidget({
+            text: t => t.pdf.documentPreview, showInXML: false, level: 2,
+        }),
+        preview: newInlinePdfPreviewWidget({
+            pdfData: (_, c) => ({
+                type: nw(c) ? 'UPT' : 'UPTL',
+                data: {
+                    ...c.ir as ExistingIR,
+                    UP: {
+                        ...c.ir.UP,
+                        TC: valuesToRawData(c.form, c.UP),
+                    },
+                },
+                form: c.form,
+                values: c.UP,
+            }),
+        }),
     },
     checkRecommendations: defaultDK('TČ', ir.UP.dateTC, ir.RK.DK.TC, true),
 });
