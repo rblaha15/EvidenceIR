@@ -25,6 +25,7 @@ import {
     type WidgetType,
 } from '$lib/forms/Widget';
 import { isNewWarranties } from '$lib/helpers/prices';
+import { dayISO } from '$lib/helpers/date';
 
 export type ContextDK<D extends ContextDK<D>> = {
     IN: Raw<FormIN>,
@@ -57,7 +58,7 @@ export const defaultDK = <D extends ContextDK<D>>(
     }),
     commissionDate: newInputWidget({
         label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true,
-        show: !isInline, text: initialCommissionDate || '', lock: !!initialCommissionDate,
+        show: !isInline, text: initialCommissionDate || dayISO(), lock: !!initialCommissionDate,
     }),
     _warning: newTextWidget({
         show: c => !isInline && isNew(c, type),

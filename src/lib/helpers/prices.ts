@@ -5,8 +5,8 @@ export const pricesNoVAT = {
     },
     KOMPlET10: {
         monthly: {
-            cs_CZK: 517,
-            de_EUR: 21,
+            cs_CZK: 417,
+            de_EUR: 17,
         },
         yearly: {
             cs_CZK: 5000,

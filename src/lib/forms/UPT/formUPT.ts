@@ -23,6 +23,7 @@ export type ContextUPT = {
 
 export interface FormUPT extends Form<ContextUPT> {
     tc: {
+        date: InputWidget<ContextUPT, true>,
         nadpisSystem: TitleWidget<ContextUPT>,
         nadpis: TitleWidget<ContextUPT>,
         jisticTC: SwitchWidget<ContextUPT>,
@@ -74,7 +75,6 @@ export interface FormUPT extends Form<ContextUPT> {
         fullPaidWarranty: RadioWidget<ContextUPT, `yes` | 'unsure' | 'no'>, // only new
         compressorWarranty: RadioWidget<ContextUPT, `yes` | 'no'>, // only new
         zaruka: CheckboxWidget<ContextUPT>, // legacy
-        date: InputWidget<ContextUPT, true>,
         note: InputWidget<ContextUPT>,
         preview: InlinePdfPreviewWidget<ContextUPT, 'UPT' | 'UPTL'>,
     },

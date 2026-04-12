@@ -15,7 +15,7 @@
 
     const { t, widget, context }: Props<P> = $props();
 
-    const { type, data, values, form, ...parameters } = $derived(widget.pdfData(t, context));
+    const { type, data, values, form, pages, ...parameters } = $derived(widget.pdfData(t, context));
 
     const args = $derived(pdfInfo[type]);
 
@@ -33,7 +33,7 @@
 
     const result = $derived(errors.length ? null : generatePdfUrl({
         ...(parameters as unknown as PdfParameters<P>),
-        args, lang, data,
+        args, lang, data, pages,
     }));
 
     let url = $state<string>();

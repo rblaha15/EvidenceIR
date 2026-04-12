@@ -123,6 +123,7 @@ export type InlinePdfPreviewData<C, P extends PdfType> = {
     data: DataOfPdf<P>,
     form: Form<C>,
     values: Values<Form<C>>,
+    pages?: number[],
 } & PdfParameters<P>;
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
 export type Color = 'warning' | 'danger' | 'primary' | 'info' | 'secondary' | 'success'

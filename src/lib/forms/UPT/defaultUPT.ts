@@ -13,7 +13,7 @@ import type { ContextUPT, FormUPT } from '$lib/forms/UPT/formUPT';
 import { defaultDK } from '$lib/forms/DK/formDK';
 import type { ExistingIR, IR } from '$lib/data';
 import { dayISO } from '$lib/helpers/date';
-import { type FormPlus, valuesToRawData } from '$lib/forms/Form';
+import { type Form, type FormPlus, valuesToRawData } from '$lib/forms/Form';
 import { isNewWarranties } from '$lib/helpers/prices';
 
 const newSuitsWidget = <D>(args: {
@@ -30,8 +30,8 @@ const newSuitsWidget = <D>(args: {
     hasPositivity: true,
 });
 
-const nw = (c: ContextUPT) => isNewWarranties(c.UP.uvadeni.date);
-const ow = (c: ContextUPT) => !isNewWarranties(c.UP.uvadeni.date);
+const nw = (c: ContextUPT) => isNewWarranties(c.UP.tc.date);
+const ow = (c: ContextUPT) => !isNewWarranties(c.UP.tc.date);
 const agrees = (c: ContextUPT) => c.UP.reg.souhlasSPristupem;
 const atw = (c: ContextUPT) => c.IN.tc.typ == 'airToWater';
 const gtw = (c: ContextUPT) => c.IN.tc.typ == 'groundToWater';
@@ -40,11 +40,11 @@ const connected = (c: ContextUPT) => c.UP.reg.pripojeniKInternetu == 'connectedV
 
 export default (ir: IR): FormPlus<FormUPT> => ({
     tc: {
-        _date: newInputWidget<ContextUPT, true>({
+        date: newInputWidget<ContextUPT, true>({
             label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true,
             text: ir.UP.dateTC || dayISO(), onValueSet: (c, date) => {
-                c.UP.uvadeni.date = date;
                 c.DK.commissionDate = date;
+                c.UP.checkRecommendations.commissionDate = date;
             },
         }),
         nadpisSystem: newTitleWidget({ text: t => t.in.system, level: 2 }),
@@ -190,12 +190,6 @@ export default (ir: IR): FormPlus<FormUPT> => ({
             required: false, label: t => t.tc.isInstallationInWarrantyConditions,
             show: c => c.UP.uvadeni.typZaruky == 'yes',
         }),
-        date: newInputWidget({
-            label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true, show: false,
-            text: ir.UP.dateTC || dayISO(), onValueSet: (c, date) => {
-                c.DK.commissionDate = date;
-            },
-        }),
         note: newInputWidget({ label: t => t.in.note, required: false }),
         _title: newTitleWidget({
             text: t => t.pdf.documentPreview, showInXML: false, level: 2,
@@ -208,10 +202,12 @@ export default (ir: IR): FormPlus<FormUPT> => ({
                     UP: {
                         ...c.ir.UP,
                         TC: valuesToRawData(c.form, c.UP),
+                        dateTC: c.UP.tc.date,
                     },
                 },
-                form: c.form,
+                form: (c.form as Form).omit('checkRecommendations') as FormUPT,
                 values: c.UP,
+                pages: [0],
             }),
         }),
     },
