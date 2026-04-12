@@ -127,6 +127,23 @@ export const responsiblePerson = derived(
     null as string | null,
 );
 
+const _allowUPT = async (user: User | null) => {
+    if (!user) return false;
+    const { child } = await import('firebase/database');
+    const ja = await getWithCache<Person>(child(lidiRef, user.uid));
+    return ja?.allowUPT ?? false;
+};
+
+export const allowUPT = derived(
+    currentUser,
+    (user, set) => {
+        setTimeout(async () => {
+            set(user ? await _allowUPT(user) : false);
+        }, 500);
+    },
+    false,
+);
+
 export const usersList = writable([] as Person[]);
 
 export const startUsersListening = async () => {
