@@ -45,11 +45,6 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
         });
         return false;
     },
-    buttons: edit => ({
-        hideSave: true,
-        saveAndSend: !edit,
-        saveAndSendAgain: edit,
-    }),
     createContext: ({ IN, values: UP, mode }) => ({ UP, IN, DK: UP.checkRecommendations, mode }),
     title: t => t.tc.title,
     getEditData: (ir, url) =>
