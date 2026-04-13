@@ -166,5 +166,6 @@ export interface FormIN extends UserForm<ContextIN>, Form<ContextIN> {
 }
 
 export const unknownCRN = '99999999';
+export const unknownCompanyEmail = 'neznama@montazni.fi';
 export const unknownCompany = (t: Translations = getTranslations('cs')): Company =>
-    ({ ...t.in.unknownCompany, crn: unknownCRN });
+    ({ ...t.in.unknownCompany, crn: unknownCRN, email: unknownCompanyEmail });

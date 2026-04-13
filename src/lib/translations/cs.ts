@@ -786,7 +786,6 @@ export default {
         contactPerson: 'Kontaktní osoba',
         unknownCompany: {
             companyName: 'Neznámá',
-            email: 'neznama@montazni.fi',
             phone: '+420999999999',
             representative: 'Neznámý montážník',
         },

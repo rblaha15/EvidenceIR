@@ -221,7 +221,6 @@ const en: PlainTranslations = {
         contactPerson: 'Contact person',
         unknownCompany: {
             companyName: 'Neznámá',
-            email: 'neznama@montazni.fi',
             phone: '+420999999999',
             representative: 'Neznámý montážník',
         },

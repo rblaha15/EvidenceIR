@@ -120,7 +120,6 @@ const de: PlainTranslations = {
         contactPerson: 'Ansprechperson',
         unknownCompany: {
             companyName: 'Unbekannt',
-            email: 'unbekannt@montage.fi',
             phone: '+499999999999',
             representative: 'Unbekannter Installateur',
         },
