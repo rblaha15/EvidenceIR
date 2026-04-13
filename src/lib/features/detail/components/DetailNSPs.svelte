@@ -14,7 +14,7 @@
     import infoNSP from '$lib/forms/NSP/infoNSP';
     import IN from '$lib/forms/IN/infoIN';
     import Icon from '$lib/components/Icon.svelte';
-    import type { FormIN } from '$lib/forms/IN/formIN';
+    import { type FormIN, unknownCompanyEmail } from '$lib/forms/IN/formIN';
     import defaultIN from '$lib/forms/IN/defaultIN';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { ExistingNSP, NSP } from '$lib/data';
@@ -60,6 +60,7 @@
         };
         storable<Raw<FormIN>>(IN.storeName({ draft: false })).set(newIN);
     };
+    const mf = $derived(sps[0].NSP.montazka.email == unknownCompanyEmail ? '' : sps[0].NSP.montazka.email.trim());
 </script>
 
 <div class="d-flex flex-wrap gap-3 justify-content-between">
@@ -81,7 +82,7 @@
     {#if !sps[0].deleted}
         <div class="d-flex flex-column gap-3 align-items-sm-start">
             <a class="btn btn-primary"
-               href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].NSP.koncovyUzivatel).join(';')}`)} tabindex="0">
+               href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].NSP.koncovyUzivatel).join(';')}&assembly=${mf}`)} tabindex="0">
                 <Icon icon="attach_email" />
                 {td.sendDocuments}
             </a>
