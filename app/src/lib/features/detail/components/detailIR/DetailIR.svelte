@@ -13,11 +13,13 @@
     import { downloadXML } from '$lib/features/detail/actions/detailIR/ir';
     import DeleteIR from '$lib/features/detail/components/detailIR/DeleteIR.svelte';
     import Button from '$lib/components/Button.svelte';
+    import { unknownCompanyEmail } from '$lib/forms/IN/formIN';
 
     const { t, ir, lang, irid }: {
         t: Translations, ir: ExistingIR, lang: LanguageCode, irid: IRID,
     } = $props();
     const td = $derived(t.detail);
+    const mf = $derived(ir.IN.montazka.email == unknownCompanyEmail ? '' : ir.IN.montazka.email.trim())
 </script>
 
 <div class="d-flex flex-wrap flex-lg-nowrap gap-4 justify-content-between">
@@ -39,7 +41,7 @@
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#if !ir.isDraft}
                 <Button color="primary" icon="attach_email" text={td.sendDocuments}
-                        href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.IN.koncovyUzivatel).join(';')}&assembly=${ir.IN.montazka.email.trim()}`)} />
+                        href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.IN.koncovyUzivatel).join(';')}&assembly=${mf}`)} />
             {/if}
             {#if ir.isDraft}
                 <Button color="primary" icon="edit_document" text={td.editInstallationData}
