@@ -2,6 +2,7 @@
 
 import { template as t } from '$lib/helpers/templates';
 import '$lib/extensions';
+import { pricesNoVAT } from '$lib/helpers/prices';
 
 export default {
     form: {
@@ -383,7 +384,7 @@ export default {
     rr: {
         name: `Souhlas s RegulusRoute`,
         title: `Souhlas se zpřístupněním regulátoru IR službě RegulusRoute`,
-        agreeWIthRRPrice: `Souhlasím s jednorázovou cenou 1339 Kč bez DPH za tuto službu.`,
+        agreeWIthRRPrice: `Souhlasím s jednorázovou cenou ${pricesNoVAT.regulusRoute.cs_CZK} Kč bez DPH za tuto službu.`,
     },
     nn: {
         title: `Návod`,
@@ -449,9 +450,9 @@ export default {
         pressureOfExpansionTankOfHeatingSystem: `Nastavený tlak v expanzní nádobě otopného systému`,
         pressureOfHeatingSystem: `Nastavený tlak v otopném systému`,
         pressureOfExpansionTankForWater: `Nastavený tlak v expanzní nádobě pitné vody`,
-        heatPumpFlowRateHeating: `Průtok TČ v režimu topení`,
-        heatPumpFlowRateHotWater: `Průtok TČ v režimu teplé vody`,
-        heatPumpFlowRateCooling: `Průtok TČ v režimu chlazení`,
+        heatPumpFlowRateHeating: `Průtok TČ v režimu topení při 100% PWM`,
+        heatPumpFlowRateHotWater: `Průtok TČ v režimu teplé vody při 100% PWM`,
+        heatPumpFlowRateCooling: `Průtok TČ v režimu chlazení při 100% PWM`,
         isPoolHeatingManagedByHeatPump: `Prostřednictvím tepelného čerpadla je také řešen ohřev bazénu`,
         heatingSystemDescription: `Popis systému`,
         typeOfAntifreezeMixture: `Typ použité nemrznoucí směsi`,
@@ -464,15 +465,16 @@ export default {
         wasControllerSetToParameters: `Regulátor tepelného čerpadla byl nastaven na předepsané parametry`,
         wasOwnerFamiliarizedWithFunction: `Vlastník nebo provozovatel byl seznámen se základní funkcí tep. čerpadla a jeho obsluhou`,
         isExtendedWarrantyDesired: `Má vlastník TČ zájem o prodlouženou příplatkovou záruku 10 let na kompresor?`,
-        isFullPaidWarrantyDesired: `Má vlastník TČ zájem o plnohodnotnou placenou záruku?`,
-        isCompressorWarrantyDesired: `Má vlastník TČ zájem o záruku 7 let na kompresor?`,
+        isFullPaidWarrantyDesired: `Má investor zájem o rozšířenou záruku KOMPLET 10? (cena bez DPH ${pricesNoVAT.KOMPlET10.monthly.cs_CZK} Kč měsíčně nebo ${pricesNoVAT.KOMPlET10.yearly.cs_CZK} Kč ročně)`,
+        isCompressorWarrantyDesired: `Má investor zájem o prodlouženou záruku KOMPRESOR 7?`,
         isInstallationInWarrantyConditions: `Instalace a uvedení do provozu jsou v souladu s podmínkami záruky`,
         controlAndElectricalInstallation: `Regulace a elektroinstalace`,
         internetConnection: `Připojení k internetu`,
         connectedViaRegulusRoute: `Připojen pomocí RegulusRoute`,
         connectedWithPublicIpAddress: `Připojen veřejnou IP adresou`,
         publicIpAddress: `IP adresa`,
-        remoteAccessAgreement: `Podepsáním protokolu o uvedení do provozu odsouhlasí zákazník vzdálený přístup firmě Regulus k regulátoru`,
+        remoteAccessAgreement: `Investor souhlasí se vzdálenou správou regulátoru IR`,
+        remoteAccessWarning: `Investor má nárok pouze na základní záruku po dobu 2 let při splnění záručních podmínek!`,
         notConnected: `Nepřipojen`,
         isElectricalBondingComplete: `Bylo provedeno kompletní elektrické pospojení`,
         areElectricalDevicesTested: `Byly odzkoušeny všechny elektrické spotřebiče zapojené do regulace`,
@@ -771,7 +773,7 @@ export default {
             doYouWantRemoteAccess: `Založit vzdálený přístup k regulátoru`,
             warrantyWarning: `Pozor! Nevyplnili jste informace o tepelném čerpadle, takže zákazník nebude mít nárok na prodlouženou záruku kompresoru.`,
             whoHasAccess: `Kdo k němu bude mít přístup?`,
-            whoWillBeInvoiced: `Komu bude vzdálený přístup fakturován? (jednorázová cena 1339 Kč bez DPH)`,
+            whoWillBeInvoiced: `Komu bude vzdálený přístup fakturován? (jednorázová cena ${pricesNoVAT.regulusRoute.cs_CZK} Kč bez DPH)`,
             responsiblePerson: `Obchodní zástupce Regulus`,
             endCustomer: `Koncový zákazník`,
             assemblyCompany: `Montážní firma`,

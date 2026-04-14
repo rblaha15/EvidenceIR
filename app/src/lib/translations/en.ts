@@ -1,6 +1,7 @@
 import type { PlainTranslations } from "$lib/translations"
 import { template as t } from "$lib/helpers/templates"
 import cs from "./cs"
+import { pricesNoVAT } from '$lib/helpers/prices';
 
 const en: PlainTranslations = {
     search: {
@@ -188,7 +189,7 @@ const en: PlainTranslations = {
             doYouWantRemoteAccess: 'Create a remote access to the controller',
             warrantyWarning: 'Attention! You have not filled in any information about the heat pump, so the customer will not be entitled to an extended compressor warranty.',
             whoHasAccess: 'Who is going to have access to it?',
-            whoWillBeInvoiced: 'Who will be invoiced for the remote access (one-time price 1339 CZK excl. VAT)',
+            whoWillBeInvoiced: `Who will be invoiced for the remote access (one-time price ${pricesNoVAT.regulusRoute.cs_CZK} CZK excl. VAT)`,
             responsiblePerson: `Responsible person`,
             endCustomer: `End customer`,
             assemblyCompany: 'Assembly company',
@@ -500,7 +501,7 @@ const en: PlainTranslations = {
     rr: {
         name: `Approval with RegulusRoute`,
         title: `Consent to making the IR controller available to the RegulusRoute service`,
-        agreeWIthRRPrice: `I agree with the one-time price of CZK 1339 excl. VAT for this service.`,
+        agreeWIthRRPrice: `I agree with the one-time price of CZK ${pricesNoVAT.regulusRoute.cs_CZK} excl. VAT for this service.`,
     },
     nn: {
         title: `App Guide`,
@@ -563,7 +564,8 @@ const en: PlainTranslations = {
         connectedViaRegulusRoute: `Connected using RegulusRoute`,
         connectedWithPublicIpAddress: `Connected using a public IP address`,
         publicIpAddress: `IP address`,
-        remoteAccessAgreement: `By signing the commissioning protocol, the customer agrees to Regulus' remote access to the controller.`,
+        remoteAccessAgreement: `The investor agrees to remote management of the IR controller.`,
+        remoteAccessWarning: `The investor is entitled only to a basic warranty for a period of 2 years if the warranty conditions are met!`,
         notConnected: `Not connected`,
         groundBoreholes: `Ground boreholes`,
         surfaceCollector: `Surface collector`,
@@ -571,12 +573,12 @@ const en: PlainTranslations = {
         expansionTankInstalled: `expansion tank`,
         bufferTankInstalled: `buffer tank`,
         isExtendedWarrantyDesired: `Is the owner of the heat pump interested in an extended 10-year warranty on the compressor?`,
-        isFullPaidWarrantyDesired: `Má vlastník TČ zájem o plnohodnotnou placenou záruku?`,
-        isCompressorWarrantyDesired: `Má vlastník TČ zájem o záruku 7 let na kompresor?`,
+        isFullPaidWarrantyDesired: `Is the investor interested in an extended "KOMPLET 10" warranty? (price excl. VAT ${pricesNoVAT.KOMPlET10.monthly.cs_CZK} CZK monthly or ${pricesNoVAT.KOMPlET10.yearly.cs_CZK} CZK yearly)`,
+        isCompressorWarrantyDesired: `Is the investor interested in an extended "KOMPRESOR 7" warranty?`,
         prototype: 'Other – prototype',
-        heatPumpFlowRateHeating: 'Flow rate in heat pump during the heating mode',
-        heatPumpFlowRateHotWater: 'Flow rate in heat pump during the water heating mode',
-        heatPumpFlowRateCooling: 'Flow rate in heat pump during the cooling mode',
+        heatPumpFlowRateHeating: 'Flow rate in heat pump during the heating mode at 100% PWM',
+        heatPumpFlowRateHotWater: 'Flow rate in heat pump during the water heating mode at 100% PWM',
+        heatPumpFlowRateCooling: 'Flow rate in heat pump during the cooling mode at 100% PWM',
         ...(['heatingSystemDescription', 'isAdditionalHeatingSourceConnected', 'typeAndPowerOfAdditionalHeatingSource', 'doesHeatPumpPrepareHotWater', 'volumeOfExpansionTankOfHeatingSystem', 'pressureOfExpansionTankOfHeatingSystem', 'pressureOfHeatingSystem', 'pressureOfExpansionTankForWater', 'isPoolHeatingManagedByHeatPump', 'controlAndElectricalInstallation', 'internetConnection', 'isElectricalBondingComplete', 'areElectricalDevicesTested', 'isBackupPowerSourceInstalled', 'primaryCircuit', 'typeOfPrimaryCircuit', 'typeOfAntifreezeMixture', 'onPrimaryCircuitInstalled', 'wasPrimaryCircuitTested', 'commissioningSteps', 'wasInstallationAccordingToManual', 'wasControllerSetToParameters', 'wasOwnerFamiliarizedWithFunction', 'isInstallationInWarrantyConditions'] as const)
             .associateWith(k => cs.tc[k]),
     },

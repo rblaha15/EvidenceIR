@@ -24,6 +24,8 @@ import {
     type Widget,
     type WidgetType,
 } from '$lib/forms/Widget';
+import { isNewWarranties } from '$lib/helpers/prices';
+import { dayISO } from '$lib/helpers/date';
 
 export type ContextDK<D extends ContextDK<D>> = {
     IN: Raw<FormIN>,
@@ -39,22 +41,32 @@ export interface FormPartDK<C extends ContextDK<C>> extends Record<string, Widge
     chosenCompany: TextWidget<C>,
 }
 
-const show = (c: ContextDK<any>) => c.mode == 'create';
+const isCreate = (c: ContextDK<any>) => c.mode == 'create';
+const isNew = (c: ContextDK<any>, type: 'TČ' | 'SOL') => isNewWarranties(c.DK.commissionDate) && type == 'TČ';
+const show = (type: 'TČ' | 'SOL') => (c: ContextDK<any>) =>
+    isCreate(c) && !isNew(c, type);
 
 export const defaultDK = <D extends ContextDK<D>>(
     type: 'TČ' | 'SOL',
-    date: string | undefined,
+    initialCommissionDate: string | undefined,
     settings: RecommendationSettings | undefined,
-    hideDate?: boolean,
+    isInline?: boolean,
 ): FormPartDK<D> => ({
-    title: newTitleWidget({ text: t => t.dk.title, level: 2, showInXML: false, show }),
-    enabled: newCheckboxWidget({
-        label: t => t.dk.userWantsTo(type), hideInRawData: true, showInXML: false,
-        required: false, show, checked: !!settings,
+    title: newTitleWidget({
+        text: t => t.dk.title, level: 2, showInXML: false,
+        show: c => show(type)(c) && !!isInline,
     }),
     commissionDate: newInputWidget({
         label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true,
-        show: c => !hideDate && show(c), text: date || '', lock: !!date,
+        show: !isInline, text: initialCommissionDate || dayISO(), lock: !!initialCommissionDate,
+    }),
+    _warning: newTextWidget({
+        show: c => !isInline && isNew(c, type),
+        text: 'Není podporováno',
+    }),
+    enabled: newCheckboxWidget({
+        label: t => t.dk.userWantsTo(type), hideInRawData: true, showInXML: false,
+        required: false, show: show(type), checked: !!settings,
     }),
     executingCompany: newRadioWidget({
         options: c => c.IN.uvedeni.ico == `${regulusCRN}` ? ['assembly', 'regulus']
@@ -64,11 +76,11 @@ export const defaultDK = <D extends ContextDK<D>>(
             assembly: t.in.assemblyCompany,
             commissioning: t.in.commissioningCompany,
             regulus: t.dk.regulus,
-        }), show: c => c.DK.enabled && show(c), required: c => c.DK.enabled,
+        }), show: c => c.DK.enabled && show(type)(c), required: c => c.DK.enabled,
         chosen: settings?.executingCompany,
     }),
     chosenCompany: newTextWidget({
-        show: c => c.DK.enabled && (c.DK.executingCompany == 'assembly' || c.DK.executingCompany == 'commissioning') && show(c),
+        show: c => c.DK.enabled && (c.DK.executingCompany == 'assembly' || c.DK.executingCompany == 'commissioning') && show(type)(c),
         showInXML: false, text: async (t, c) => {
             const crn = c.DK.executingCompany == 'assembly' ? c.IN.montazka.ico : c.IN.uvedeni.ico;
             const company = await ares.getName(crn);

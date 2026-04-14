@@ -52,13 +52,13 @@ export const generatePdfFile = async <P extends Pdf>(
 
     return new File([pdfData.pdfBytes], pdfData.fileName, {
         type: 'application/pdf',
-    })
+    });
 };
 
 export const generatePdf = async <P extends Pdf>(
     o: GeneratePdfOptions<P>,
 ) => {
-    const { args, lang, data, fetch = window.fetch } = o;
+    const { args, lang, data, pages, fetch = window.fetch } = o;
 
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
     const t = getTranslations(formLanguage);
@@ -91,7 +91,7 @@ export const generatePdf = async <P extends Pdf>(
     const initDropdown = (name: string, value: string | null) => {
         const field = form.getDropdown(name);
         if (!field.getOptions().includes(value ?? ''))
-            field.addOptions(value ?? '')
+            field.addOptions(value ?? '');
         field.select(value ?? '');
         field.disableSpellChecking();
         // if (value == null) field.select('');
@@ -167,6 +167,11 @@ export const generatePdf = async <P extends Pdf>(
     //     }
     // });
     if (!args.doNotFlatten) form.flatten();
+
+    if (pages) pdfDoc.getPageIndices().reverse().forEach(pageI => {
+        if (!pages.includes(pageI))
+            pdfDoc.removePage(pageI);
+    });
 
     const pdfBytes = await pdfDoc.save(args.saveOptions);
 
