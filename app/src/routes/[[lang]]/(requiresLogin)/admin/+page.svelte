@@ -8,7 +8,7 @@
         type SparePart,
         sparePartsList,
         type Technician,
-        techniciansList, accumulationTanks, waterTanks, solarCollectors,
+        techniciansList, accumulationTanks, waterTanks, solarCollectors, inverters, batteries,
     } from '$lib/client/realtime';
     import { type Component, untrack } from 'svelte';
     import { setTitle } from '$lib/helpers/globals.js';
@@ -21,6 +21,7 @@
     import StatsGetter from './StatsGetter.svelte';
     import BackupDownloader from './BackupDownloader.svelte';
     import LoyaltyProgramManager from './LoyaltyProgramManager.svelte';
+    import AdminArrays, { type ArraysOptions } from './AdminArrays.svelte';
 
     interface BaseTabDefinition {
         title: string,
@@ -32,6 +33,11 @@
         tableOptions: TableOptions<T, K>,
     }
 
+    interface ArraysDefinition<K extends string> extends BaseTabDefinition {
+        contentType: 'arrays',
+        arraysOptions: ArraysOptions<K>,
+    }
+
     interface CustomDefinition extends BaseTabDefinition {
         contentType: 'custom',
         contentOptions: {
@@ -39,7 +45,7 @@
         }
     }
 
-    type TabDefinition = TableDefinition<any> | CustomDefinition;
+    type TabDefinition = TableDefinition<any> | CustomDefinition | ArraysDefinition<any>;
 
     const addCompaniesLinks = (companies: Record<string, string>) => (companies?.keys() ?? [])
         .map(c => `<a href="#companies-${c}">${c}</a>`)
@@ -179,63 +185,39 @@
                 },
             },
         } satisfies TableDefinition<SparePart>,
-        accumulationTanks: {
-            title: 'Nádrže',
-            longerTitle: 'Seznam akumulačních nádrží',
-            contentType: 'table',
-            tableOptions: {
-                fileType: 'csv',
-                fileName: 'nadrze',
-                store: accumulationTanks,
-                construct: ([name]) => name ?? '',
-                deconstruct: name => [name],
-                key: t => t,
+        arrays: {
+            title: 'Seznamy',
+            contentType: 'arrays',
+            arraysOptions: {
+                fileType: 'xlsx',
+                fileName: 'seznamy',
                 instructions: [
-                    'Vložte .csv soubor se seznamem akumulačních nádrží, který obsahuje záhlaví (1. řádek) a jeden sloupec s názvy.',
+                    'Vložte .xlsx soubor se seznamy akumulačních nádrží, zásobníků, solárních kolektorů, střídačů a baterií, který obsahuje záhlaví (1. řádek) a sloupce s názvy.',
                 ],
-                columns: {
-                    name: { header: 'Název', cellType: 'header', getValue: t => t },
+                arrays: {
+                    nadrze: {
+                        header: 'Nádrže',
+                        store: accumulationTanks,
+                    },
+                    zasobniky: {
+                        header: 'Zásobníky',
+                        store: waterTanks,
+                    },
+                    kolektory: {
+                        header: 'Kolektory',
+                        store: solarCollectors,
+                    },
+                    stridace: {
+                        header: 'Střídače',
+                        store: inverters,
+                    },
+                    baterie: {
+                        header: 'Baterie',
+                        store: batteries,
+                    },
                 },
             },
-        } satisfies TableDefinition<string, 'name'>,
-        waterTanks: {
-            title: 'Zásobníky',
-            longerTitle: 'Seznam zásobníků',
-            contentType: 'table',
-            tableOptions: {
-                fileType: 'csv',
-                fileName: 'zasobniky',
-                store: waterTanks,
-                construct: ([name]) => name ?? '',
-                deconstruct: name => [name],
-                key: t => t,
-                instructions: [
-                    'Vložte .csv soubor se seznamem zásobníků, který obsahuje záhlaví (1. řádek) a jeden sloupec s názvy.',
-                ],
-                columns: {
-                    name: { header: 'Název', cellType: 'header', getValue: t => t },
-                },
-            },
-        } satisfies TableDefinition<string, 'name'>,
-        solarCollectors: {
-            title: 'Kolektory',
-            longerTitle: 'Seznam solárních kolektorů',
-            contentType: 'table',
-            tableOptions: {
-                fileType: 'csv',
-                fileName: 'kolektory',
-                store: solarCollectors,
-                construct: ([name]) => name ?? '',
-                deconstruct: name => [name],
-                key: t => t,
-                instructions: [
-                    'Vložte .csv soubor se seznamem solárních kolektorů, který obsahuje záhlaví (1. řádek) a jeden sloupec s názvy.',
-                ],
-                columns: {
-                    name: { header: 'Název', cellType: 'header', getValue: t => t },
-                },
-            },
-        } satisfies TableDefinition<string, 'name'>,
+        },
         stats: {
             title: 'Statistiky',
             contentType: 'custom',
@@ -307,6 +289,8 @@
                 <h2 class="m-0">{t.longerTitle || t.title}</h2>
                 {#if t.contentType === 'table'}
                     <AdminTable options={t.tableOptions} id={tab} />
+                {:else if t.contentType === 'arrays'}
+                    <AdminArrays options={t.arraysOptions} id={tab} />
                 {:else if t.contentType === 'custom'}
                     <t.contentOptions.component />
                 {/if}

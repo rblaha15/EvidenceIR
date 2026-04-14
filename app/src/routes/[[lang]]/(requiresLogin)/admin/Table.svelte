@@ -1,25 +1,31 @@
 <script generics="T, K extends string = keyof T & string" lang="ts">
     import { page } from '$app/state';
     import type { TableOptions } from './AdminTable.svelte';
+    import type { Color } from '$lib/forms/Widget';
 
+    type ItemColors = { [_ in K]: Color | undefined };
     interface Props<T, K extends string = keyof T & string> {
         items?: T[];
-        itemsWithColors?: [T, string][];
-        options: TableOptions<T, K>;
+        itemsWithColors?: [T, Color | undefined][];
+        itemsWithItemColors?: [T, ItemColors][];
+        options: Pick<TableOptions<T, K>, 'key' | 'columns'>;
         id: string;
     }
 
-    let { items, itemsWithColors, options, id }: Props<T, K> = $props();
+    let { items, itemsWithColors, itemsWithItemColors, options, id }: Props<T, K> = $props();
     const { key, columns } = options;
 
-    let colors = $state() as string[];
+    let colors = $state() as ItemColors[];
 
     $effect(() => {
-        if (itemsWithColors) {
+        if (itemsWithItemColors) {
+            items = itemsWithItemColors.map(([item]) => item);
+            colors = itemsWithItemColors.map(([_, colors]) => colors);
+        } else if (itemsWithColors) {
             items = itemsWithColors.map(([item]) => item);
-            colors = itemsWithColors.map(([, color]) => color);
+            colors = itemsWithColors.map(([_, color]) => columns.mapValues(() => color));
         } else if (items) {
-            colors = items.map(() => '');
+            colors = items.map(() => columns.mapValues(() => undefined));
         } else {
             throw 'No items';
         }
@@ -40,15 +46,15 @@
         </thead>
         <tbody>
         {#each (items ?? []) as item, i}
-            <tr class="table-{colors?.[i]}" id="{id}-{key(item)}"
+            <tr id="{id}-{key(item, i)}"
                 style:scroll-margin-top={6 + (document.querySelector('nav')?.getBoundingClientRect()?.height ?? 0) + 'px'}
-                class:table-info={page.url.hash.split("-")[1] === key(item)}
+                class:table-info={page.url.hash.split("-")[1] === key(item, i)}
             >
                 {#each columns.entries() ?? [] as [key, column]}
                     {#if column.cellType === 'header'}
-                        <th>{@html itemText(key, column, item)}</th>
+                        <th class="table-{colors?.[i]?.[key]}">{@html itemText(key, column, item)}</th>
                     {:else}
-                        <td>{@html itemText(key, column, item)}</td>
+                        <td class="table-{colors?.[i]?.[key]}">{@html itemText(key, column, item)}</td>
                     {/if}
                 {/each}
             </tr>
