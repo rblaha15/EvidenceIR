@@ -48,15 +48,6 @@ const FriendlyCompanies = (
     commissioningCompanies: commissioningCompanies ?? assemblyCompanies,
 });
 
-const firmyRef = ref(realtime, '/companies');
-const lidiRef = ref(realtime, '/people');
-const techniciRef = ref(realtime, '/technicians');
-const dilyRef = ref(realtime, '/spareParts');
-const nadrzeRef = ref(realtime, '/accumulationTanks');
-const zasobnikyRef = ref(realtime, '/waterTanks');
-const kolektoryRef = ref(realtime, '/solarCollectors');
-const loyaltyProgramRef = ref(realtime, '/loyaltyProgram');
-
 const getWithCache = async <T>(query: Query) => {
     const { get } = await import('firebase/database');
     const store = storable<T>(
@@ -77,10 +68,10 @@ const _friendlyCompanies = async (user: User | null): Promise<FriendlyCompanies>
     }
     const { child } = await import('firebase/database');
     if (await checkRegulusOrAdmin()) {
-        const vsechnyFirmy = await getWithCache<{ [crn: CRN]: Company }>(firmyRef);
+        const vsechnyFirmy = await getWithCache<{ [crn: CRN]: Company }>(companiesRef);
         return FriendlyCompanies(vsechnyFirmy?.getValues() ?? []);
     }
-    const ja = await getWithCache<Person>(child(lidiRef, user.uid));
+    const ja = await getWithCache<Person>(child(usersRef, user.uid));
     if (!ja || ja.email !== user.email) {
         return FriendlyCompanies([]);
     }
@@ -90,11 +81,11 @@ const _friendlyCompanies = async (user: User | null): Promise<FriendlyCompanies>
     };
     return {
         assemblyCompanies: await Promise.all(
-            dovolenaIca.assembly.map(async (crn) => await getWithCache<Company>(child(firmyRef, crn))),
+            dovolenaIca.assembly.map(async (crn) => await getWithCache<Company>(child(companiesRef, crn))),
         ),
         commissioningCompanies: await Promise.all(
             dovolenaIca.commissioning.map(
-                async (crn) => await getWithCache<Company>(child(firmyRef, crn)),
+                async (crn) => await getWithCache<Company>(child(companiesRef, crn)),
             ),
         ),
     } as FriendlyCompanies;
@@ -113,7 +104,7 @@ export const friendlyCompanies = derived(
 const _responsiblePerson = async (user: User | null) => {
     if (!user) return null;
     const { child } = await import('firebase/database');
-    const ja = await getWithCache<Person>(child(lidiRef, user.uid));
+    const ja = await getWithCache<Person>(child(usersRef, user.uid));
     return ja?.responsiblePerson ?? null;
 };
 
@@ -130,7 +121,7 @@ export const responsiblePerson = derived(
 const _allowUPT = async (user: User | null) => {
     if (!user) return false;
     const { child } = await import('firebase/database');
-    const ja = await getWithCache<Person>(child(lidiRef, user.uid));
+    const ja = await getWithCache<Person>(child(usersRef, user.uid));
     return ja?.allowUPT ?? false;
 };
 
@@ -144,73 +135,101 @@ export const allowUPT = derived(
     false,
 );
 
+const usersRef = ref(realtime, '/people');
 export const usersList = writable([] as Person[]);
 
 export const startUsersListening = async () => {
     const { onValue } = await import('firebase/database');
-    return onValue(lidiRef, (data) => {
+    return onValue(usersRef, (data) => {
         usersList.set((data.val() as { [uid: string]: Person } ?? {}).getValues().map(p => ({
             ...p, assemblyCompanies: p.assemblyCompanies ?? {}, commissioningCompanies: p.commissioningCompanies ?? {},
         })));
     });
 };
 
+const companiesRef = ref(realtime, '/companies');
 export const companiesList = writable([] as Company[]);
 
 export const startCompaniesListening = async () => {
     const { onValue } = await import('firebase/database');
-    return onValue(firmyRef, (data) => {
+    return onValue(companiesRef, (data) => {
         companiesList.set((data.val() as { [crn: CRN]: Company } ?? {}).getValues());
     });
 };
 
+const techniciansRef = ref(realtime, '/technicians');
 export const techniciansList = writable([] as Technician[]);
 
 export const startTechniciansListening = async () => {
     const { onValue } = await import('firebase/database');
-    return onValue(techniciRef, (data) => {
+    return onValue(techniciansRef, (data) => {
         techniciansList.set((data.val() as Technician[]) ?? []);
     });
 };
 
+const sparePartsRef = ref(realtime, '/spareParts');
 export const sparePartsList = writable([] as SparePart[]);
 
 export const startSparePartsListening = async () => {
     const { onValue } = await import('firebase/database');
-    return onValue(dilyRef, (data) => {
+    return onValue(sparePartsRef, (data) => {
         sparePartsList.set((data.val() as SparePart[]) ?? []);
     });
 };
 
+const accumulationTanksRef = ref(realtime, '/accumulationTanks');
 export const accumulationTanks = writable([] as string[]);
 
 export const startAccumulationTanksListening = async () => {
     const { onValue } = await import('firebase/database');
-    return onValue(nadrzeRef, (data) => {
+    return onValue(accumulationTanksRef, (data) => {
         accumulationTanks.set((data.val() as string[]) ?? []);
     });
 };
 
+const waterTanksRef = ref(realtime, '/waterTanks');
 export const waterTanks = writable([] as string[]);
 
 export const startWaterTanksListening = async () => {
     const { onValue } = await import('firebase/database');
-    return onValue(zasobnikyRef, (data) => {
+    return onValue(waterTanksRef, (data) => {
         waterTanks.set((data.val() as string[]) ?? []);
     });
 };
 
+const solarCollectorsRef = ref(realtime, '/solarCollectors');
 export const solarCollectors = writable([] as string[]);
 
 export const startSolarCollectorsListening = async () => {
     const { onValue } = await import('firebase/database');
-    return onValue(kolektoryRef, (data) => {
+    return onValue(solarCollectorsRef, (data) => {
         solarCollectors.set((data.val() as string[]) ?? []);
+    });
+};
+
+const invertersRef = ref(realtime, '/inverters');
+export const inverters = writable([] as string[]);
+
+export const startInvertersListening = async () => {
+    const { onValue } = await import('firebase/database');
+    return onValue(invertersRef, (data) => {
+        inverters.set((data.val() as string[]) ?? []);
+    });
+};
+
+const batteriesRef = ref(realtime, '/batteries');
+export const batteries = writable([] as string[]);
+
+export const startBatteriesListening = async () => {
+    const { onValue } = await import('firebase/database');
+    return onValue(batteriesRef, (data) => {
+        batteries.set((data.val() as string[]) ?? []);
     });
 };
 
 const pointsStores: Record<string, Readable<LoyaltyProgramUserData | null>> = {};
 
+const loyaltyProgramRef = ref(realtime, '/loyaltyProgram');
 export const loyaltyProgramDataStore = flattenStores(derived<Readable<User | null>, Readable<LoyaltyProgramUserData | null>>(
     currentUser, (user, set) => {
         if (!user) return set(readable(null));

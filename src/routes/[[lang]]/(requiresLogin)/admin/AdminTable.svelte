@@ -1,5 +1,6 @@
 <script lang="ts" module>
     import type { Readable } from 'svelte/store';
+    import type { Comparable } from '$lib/extensions';
 
     export interface TableOptions<T, K extends string = keyof T & string> {
         fileType: 'xlsx' | 'csv';
@@ -7,7 +8,7 @@
         store: Readable<T[]>;
         construct: (items: (string | undefined)[]) => T;
         deconstruct: (value: T) => (string | undefined)[];
-        key: (value: T) => string;
+        key: (value: T, index: number) => Comparable;
         instructions: string[];
         columns: {
             [Key in K]: ({
@@ -31,6 +32,7 @@
     import Table from './Table.svelte';
     import FileSaver from 'file-saver';
     import writeXlsxFile from 'write-excel-file';
+    import type { Color } from '$lib/forms/Widget';
 
     const { id, options }: { id: string, options: TableOptions<T> } = $props();
     const { fileType, construct, deconstruct, store, fileName, key, instructions, columns } = options;
@@ -108,25 +110,20 @@
         else error = true;
     };
 
-    const sort = (array: T[]) => array
-        .map(value => ({ value, key: key(value) }))
-        .toSorted((a, b) => a.key.localeCompare(b.key))
-        .map(value => value.value);
-
     const shallowEquals = (a: T, b: T) =>
         [...a.keys(), ...b.keys()].every(key => JSON.stringify(a[key]) === JSON.stringify(b[key]));
 
-    const oldData = $derived(sort($store));
+    const oldData = $derived($store.sortedBy((it, i) => key(it, i)));
 
-    const find = (values: T[], findKey: string) => values.find(value => key(value) === findKey);
+    const find = (values: T[], findKey: Comparable) => values.find((value, i) => key(value, i) === findKey);
     const oldKeys = $derived(oldData.map(key));
     const newKeys = $derived(newData.map(key));
     const changes = $derived(newData.filter(
-        value => oldKeys.includes(key(value)) &&
-            !shallowEquals(value, find(oldData, key(value)) ?? value),
+        (value, i) => oldKeys.includes(key(value, i)) &&
+            !shallowEquals(value, find(oldData, key(value, i)) ?? value),
     ));
-    const removals = $derived(oldData.filter(value => !newKeys.includes(key(value))));
-    const additions = $derived(newData.filter(value => !oldKeys.includes(key(value))));
+    const removals = $derived(oldData.filter((value, i) => !newKeys.includes(key(value, i))));
+    const additions = $derived(newData.filter((value, i) => !oldKeys.includes(key(value, i))));
 
 
     $effect(() => {
@@ -144,7 +141,7 @@
 
     const selectFile = () => input.click();
 
-    const addColor = <T>(array: T[], color: string) => array.map(it => [it, color] as [T, string]);
+    const addColor = <T>(array: T[], color: Color) => array.map(it => [it, color] as [T, Color]);
     const withColors = $derived([
         ...addColor(additions, 'success'),
         ...addColor(changes, 'warning'),

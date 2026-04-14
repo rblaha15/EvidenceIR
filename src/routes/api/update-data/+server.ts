@@ -3,13 +3,11 @@ import { checkAdmin, checkToken, createUser, getUserByEmail, getUsersByEmail, re
 import {
     people,
     removePerson,
-    setAccumulationTanks,
+    setArray,
     setCompanies,
     setPersonDetails,
-    setSolarCollectors,
     setSpareParts,
     setTechnicians,
-    setWaterTanks,
 } from '$lib/server/realtime';
 import type { RequestHandler } from './$types';
 import { error } from '@sveltejs/kit';
@@ -20,7 +18,7 @@ import { processLoyaltyReward } from '$lib/server/loyaltyProgram';
 
 export const POST: RequestHandler = async ({ request, url }) => {
     const t = url.searchParams.get('token');
-    const typ = url.searchParams.get('type') as 'users' | 'companies' | 'technicians' | 'spareParts' | 'accumulationTanks' | 'waterTanks' | 'solarCollectors' | 'loyaltyPoints' | null;
+    const typ = url.searchParams.get('type') as 'users' | 'companies' | 'technicians' | 'spareParts' | 'arrays' | 'loyaltyPoints' | null;
 
     if (!typ) error(400, 'Bad Request');
 
@@ -73,18 +71,22 @@ export const POST: RequestHandler = async ({ request, url }) => {
         if (!await checkAdmin(token)) error(401, 'Unauthorized');
         const { array }: { array: SparePart[] } = await request.json();
         await setSpareParts(array);
-    } else if (typ == 'accumulationTanks') {
+    } else if (typ == 'arrays') {
         if (!await checkAdmin(token)) error(401, 'Unauthorized');
-        const { array }: { array: string[] } = await request.json();
-        await setAccumulationTanks(array);
-    } else if (typ == 'waterTanks') {
-        if (!await checkAdmin(token)) error(401, 'Unauthorized');
-        const { array }: { array: string[] } = await request.json();
-        await setWaterTanks(array);
-    } else if (typ == 'solarCollectors') {
-        if (!await checkAdmin(token)) error(401, 'Unauthorized');
-        const { array }: { array: string[] } = await request.json();
-        await setSolarCollectors(array);
+        const { arrays }: {
+            arrays: {
+                nadrze: string[],
+                zasobniky: string[],
+                kolektory: string[],
+                stridace: string[],
+                baterie: string[],
+            }
+        } = await request.json();
+        await setArray('accumulationTanks', arrays.nadrze);
+        await setArray('waterTanks', arrays.zasobniky);
+        await setArray('solarCollectors', arrays.kolektory);
+        await setArray('inverters', arrays.stridace);
+        await setArray('batteries', arrays.baterie);
     } else if (typ == 'loyaltyPoints') {
         const data: LoyaltyProgramTrigger = await request.json();
         await processLoyaltyReward(data, token);

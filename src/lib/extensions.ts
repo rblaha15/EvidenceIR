@@ -383,6 +383,15 @@ declare global {
         last<T>(
             this: T[] | readonly T[],
         ): T;
+
+        transpose<T>(
+            this: T[][],
+        ): (T | undefined)[][],
+
+        transpose<T>(
+            this: T[][],
+            fill: (row: T[], colIndex: number) => T,
+        ): T[][],
     }
 
     interface ReadonlyArray<T> {
@@ -607,12 +616,12 @@ Array.prototype.sortedByDescending = function(callback) {
 
 Array.prototype.sorted = function() {
     return [...this]
-        .sort((a, b) => compare(a, b))
+        .sort((a, b) => compare(a, b));
 } as typeof Array.prototype.sorted;
 
 Array.prototype.sortedDescending = function() {
     return [...this]
-        .sort((a, b) => compare(b, a))
+        .sort((a, b) => compare(b, a));
 } as typeof Array.prototype.sortedDescending;
 
 Array.prototype.minBy = function(callback) {
@@ -650,6 +659,13 @@ Array.prototype.max = function() {
 Array.prototype.last = function() {
     return this.at(-1);
 } as typeof Array.prototype.last;
+
+Array.prototype.transpose = function(fill) {
+    const newColumns = range(this.maxOf(row => row.length));
+    return newColumns.map(colIndex =>
+        this.map(row => colIndex < row.length ? row[colIndex] : fill ? fill(row, colIndex) : undefined),
+    );
+} as typeof Array.prototype.transpose;
 
 declare global {
     interface String {
