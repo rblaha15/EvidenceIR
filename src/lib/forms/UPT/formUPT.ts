@@ -1,9 +1,20 @@
 import type { Form, Raw, Values } from '$lib/forms/Form';
 import type { FormIN } from '../IN/formIN';
 import type { FormPartDK } from '$lib/forms/DK/formDK';
-import type { CheckboxWidget, ChooserWidget, InputWidget, RadioWidget, SwitchWidget, TitleWidget } from '$lib/forms/Widget';
+import type {
+    CheckboxWidget,
+    ChooserWidget,
+    InlinePdfPreviewWidget,
+    InputWidget,
+    RadioWidget,
+    SwitchWidget,
+    TitleWidget,
+} from '$lib/forms/Widget';
+import type { IR } from '$lib/data';
 
 export type ContextUPT = {
+    ir: IR;
+    form: FormUPT;
     UP: Values<FormUPT>,
     IN: Raw<FormIN>,
     DK: Values<FormPartDK<ContextUPT>>,
@@ -12,6 +23,7 @@ export type ContextUPT = {
 
 export interface FormUPT extends Form<ContextUPT> {
     tc: {
+        date: InputWidget<ContextUPT, true>,
         nadpisSystem: TitleWidget<ContextUPT>,
         nadpis: TitleWidget<ContextUPT>,
         jisticTC: SwitchWidget<ContextUPT>,
@@ -32,15 +44,16 @@ export interface FormUPT extends Form<ContextUPT> {
         tlakEnOs: InputWidget<ContextUPT>,
         tlakOs: InputWidget<ContextUPT>,
         tlakEnTv: InputWidget<ContextUPT>,
-        prutokTcTopeni: InputWidget<ContextUPT>,
-        prutokTcTepleVody: InputWidget<ContextUPT>,
-        prutokTcChlazeni: InputWidget<ContextUPT>,
+        prutokTcTopeni: InputWidget<ContextUPT>, // legacy
+        prutokTcTepleVody: InputWidget<ContextUPT>, // legacy
+        prutokTcChlazeni: InputWidget<ContextUPT>, // legacy
         bazenTc: CheckboxWidget<ContextUPT>,
     },
     reg: {
         nadpis: TitleWidget<ContextUPT>,
         pripojeniKInternetu: ChooserWidget<ContextUPT, `connectedViaRegulusRoute` | `connectedWithPublicIpAddress` | `notConnected`>,
         ipAdresa: InputWidget<ContextUPT>,
+        souhlasSPristupem: CheckboxWidget<ContextUPT>,
         pospojeni: CheckboxWidget<ContextUPT>,
         spotrebice: CheckboxWidget<ContextUPT>,
         zalZdroj: CheckboxWidget<ContextUPT>,
@@ -58,12 +71,12 @@ export interface FormUPT extends Form<ContextUPT> {
         tc: CheckboxWidget<ContextUPT>,
         reg: CheckboxWidget<ContextUPT>,
         vlastnik: CheckboxWidget<ContextUPT>,
-        typZaruky: RadioWidget<ContextUPT, `no` | `yes`>,
-        fullPaidWarranty: RadioWidget<ContextUPT, `yes` | 'unsure' | 'no'>,
-        compressorWarranty: RadioWidget<ContextUPT, `yes` | 'no'>,
-        zaruka: CheckboxWidget<ContextUPT>,
-        date: InputWidget<ContextUPT, true>,
+        typZaruky: RadioWidget<ContextUPT, `no` | `yes`>, // legacy
+        fullPaidWarranty: RadioWidget<ContextUPT, `yes` | 'unsure' | 'no'>, // only new
+        compressorWarranty: RadioWidget<ContextUPT, `yes` | 'no'>, // only new
+        zaruka: CheckboxWidget<ContextUPT>, // legacy
         note: InputWidget<ContextUPT>,
+        preview: InlinePdfPreviewWidget<ContextUPT, 'UPT' | 'UPTL'>,
     },
-    checkRecommendations: FormPartDK<ContextUPT>,
+    checkRecommendations: FormPartDK<ContextUPT>, // legacy
 }

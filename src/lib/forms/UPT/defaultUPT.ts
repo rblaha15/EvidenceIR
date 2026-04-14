@@ -2,7 +2,7 @@ import {
     type GetBOrVal,
     type GetTOrVal,
     newCheckboxWidget,
-    newChooserWidget,
+    newChooserWidget, newInlinePdfPreviewWidget,
     newInputWidget,
     newRadioWidget,
     newSwitchWidget,
@@ -11,9 +11,10 @@ import {
 } from '$lib/forms/Widget';
 import type { ContextUPT, FormUPT } from '$lib/forms/UPT/formUPT';
 import { defaultDK } from '$lib/forms/DK/formDK';
-import type { IR } from '$lib/data';
+import type { ExistingIR, IR } from '$lib/data';
 import { dayISO } from '$lib/helpers/date';
-import type { FormPlus } from '$lib/forms/Form';
+import { type Form, type FormPlus, valuesToRawData } from '$lib/forms/Form';
+import { isNewWarranties } from '$lib/helpers/prices';
 
 const newSuitsWidget = <D>(args: {
     label: GetTOrVal<D>,
@@ -29,8 +30,23 @@ const newSuitsWidget = <D>(args: {
     hasPositivity: true,
 });
 
+const nw = (c: ContextUPT) => isNewWarranties(c.UP.tc.date);
+const ow = (c: ContextUPT) => !isNewWarranties(c.UP.tc.date);
+const agrees = (c: ContextUPT) => c.UP.reg.souhlasSPristupem;
+const atw = (c: ContextUPT) => c.IN.tc.typ == 'airToWater';
+const gtw = (c: ContextUPT) => c.IN.tc.typ == 'groundToWater';
+const no10 = (c: ContextUPT) => c.UP.uvadeni.fullPaidWarranty == 'no' || c.UP.uvadeni.fullPaidWarranty == 'unsure';
+const connected = (c: ContextUPT) => c.UP.reg.pripojeniKInternetu == 'connectedViaRegulusRoute' || c.UP.reg.pripojeniKInternetu == 'connectedWithPublicIpAddress';
+
 export default (ir: IR): FormPlus<FormUPT> => ({
     tc: {
+        date: newInputWidget<ContextUPT, true>({
+            label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true,
+            text: ir.UP.dateTC || dayISO(), onValueSet: (c, date) => {
+                c.DK.commissionDate = date;
+                c.UP.checkRecommendations.commissionDate = date;
+            },
+        }),
         nadpisSystem: newTitleWidget({ text: t => t.in.system, level: 2 }),
         nadpis: newTitleWidget({ text: t => t.in.device.heatPump, level: 3 }),
         jisticTC: newSuitsWidget({ label: t => t.tc.characteristicsAndSizeOfHeatPumpBreaker }),
@@ -38,11 +54,9 @@ export default (ir: IR): FormPlus<FormUPT> => ({
             show: c => c.IN.ir.typ.first!.includes('BOX'),
             label: t => t.tc.characteristicsAndSizeOfIndoorUnitBreaker,
         }),
-        vzdalenostZdi: newSuitsWidget({ label: t => t.tc.distanceFromWall, show: c => c.IN.tc.typ == `airToWater` }),
+        vzdalenostZdi: newSuitsWidget({ label: t => t.tc.distanceFromWall, show: atw }),
         kondenzator: newCheckboxWidget({
-            required: false,
-            label: t => t.tc.isCompensatorInstalled,
-            show: c => c.IN.tc.typ == `airToWater`,
+            required: false, label: t => t.tc.isCompensatorInstalled, show: atw,
         }),
         filtr: newCheckboxWidget({ required: false, label: t => t.tc.isCirculationPumpFilterInstalled }),
     },
@@ -74,20 +88,26 @@ export default (ir: IR): FormPlus<FormUPT> => ({
                 required: c => !c.UP.os.tcTv,
             }),
         objemEnOs: newSuitsWidget({ label: t => t.tc.volumeOfExpansionTankOfHeatingSystem }),
-        tlakEnOs: newInputWidget({ label: t => t.tc.pressureOfExpansionTankOfHeatingSystem, type: 'number', suffix: t => t.units.bar }),
-        tlakOs: newInputWidget({ label: t => t.tc.pressureOfHeatingSystem, type: 'number', suffix: t => t.units.bar }),
-        tlakEnTv: newInputWidget({ label: t => t.tc.pressureOfExpansionTankForWater, type: 'number', suffix: t => t.units.bar }),
-        prutokTcTopeni: newInputWidget({
-            label: t => t.tc.heatPumpFlowRateHeating,
-            type: 'number', suffix: t => t.units.lPerH, required: false, show: c => c.IN.tc.typ == 'airToWater',
+        tlakEnOs: newInputWidget({
+            label: t => t.tc.pressureOfExpansionTankOfHeatingSystem, type: 'number', suffix: t => t.units.bar, compact: true,
         }),
-        prutokTcTepleVody: newInputWidget({
-            label: t => t.tc.heatPumpFlowRateHotWater,
-            type: 'number', suffix: t => t.units.lPerH, required: false, show: c => c.IN.tc.typ == 'airToWater',
+        tlakOs: newInputWidget({
+            label: t => t.tc.pressureOfHeatingSystem, type: 'number', suffix: t => t.units.bar, compact: true,
         }),
-        prutokTcChlazeni: newInputWidget({
-            label: t => t.tc.heatPumpFlowRateCooling,
-            type: 'number', suffix: t => t.units.lPerH, required: false, show: c => c.IN.tc.typ == 'airToWater',
+        tlakEnTv: newInputWidget({
+            label: t => t.tc.pressureOfExpansionTankForWater, type: 'number', suffix: t => t.units.bar, compact: true,
+        }),
+        prutokTcTopeni: newInputWidget({ // only new
+            label: t => t.tc.heatPumpFlowRateHeating, compact: true,
+            type: 'number', suffix: t => t.units.lPerH, required: c => atw(c) && nw(c), show: c => atw(c) && nw(c),
+        }),
+        prutokTcTepleVody: newInputWidget({ // only new
+            label: t => t.tc.heatPumpFlowRateHotWater, compact: true,
+            type: 'number', suffix: t => t.units.lPerH, required: false, show: c => atw(c) && nw(c),
+        }),
+        prutokTcChlazeni: newInputWidget({ // only new
+            label: t => t.tc.heatPumpFlowRateCooling, compact: true,
+            type: 'number', suffix: t => t.units.lPerH, required: false, show: c => atw(c) && nw(c),
         }),
         bazenTc: newCheckboxWidget({ required: false, label: t => t.tc.isPoolHeatingManagedByHeatPump }),
     },
@@ -104,23 +124,21 @@ export default (ir: IR): FormPlus<FormUPT> => ({
             label: t => t.tc.publicIpAddress, show: c => c.UP.reg.pripojeniKInternetu == 'connectedWithPublicIpAddress',
             regex: /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})|(([0-9a-fA-F]{4}:){7}[0-9a-fA-F]{4})$/, onError: t => t.wrong.ip,
         }),
-        _userAgreesWithRemoteAccess: newTextWidget<ContextUPT>({
-            text: t => t.tc.remoteAccessAgreement,
-            show: c => c.UP.reg.pripojeniKInternetu == 'connectedViaRegulusRoute' || c.UP.reg.pripojeniKInternetu == 'connectedWithPublicIpAddress',
+        souhlasSPristupem: newCheckboxWidget({
+            label: t => t.tc.remoteAccessAgreement, required: false, show: connected,
+        }),
+        _varovaniNesouhlasi: newTextWidget<ContextUPT>({
+            text: t => t.tc.remoteAccessWarning, show: c => !agrees(c) && connected(c),
         }),
         pospojeni: newCheckboxWidget({ required: false, label: t => t.tc.isElectricalBondingComplete }),
         spotrebice: newCheckboxWidget({ required: false, label: t => t.tc.areElectricalDevicesTested }),
         zalZdroj: newCheckboxWidget({
-            required: false,
-            label: t => t.tc.isBackupPowerSourceInstalled,
-            show: c => c.IN.tc.typ == `airToWater`,
+            required: false, label: t => t.tc.isBackupPowerSourceInstalled, show: atw,
         }),
     },
     primar: {
         nadpis: newTitleWidget({
-            text: t => t.tc.primaryCircuit,
-            show: c => c.IN.tc.typ == 'groundToWater',
-            level: 3,
+            text: t => t.tc.primaryCircuit, show: gtw, level: 3,
         }),
         typ: newChooserWidget({
             label: t => t.tc.typeOfPrimaryCircuit,
@@ -128,35 +146,26 @@ export default (ir: IR): FormPlus<FormUPT> => ({
                 `groundBoreholes`,
                 `surfaceCollector`,
                 `otherCollector`,
-            ], labels: t => t.tc,
-            show: c => c.IN.tc.typ == 'groundToWater',
-            required: c => c.IN.tc.typ == 'groundToWater',
+            ], labels: t => t.tc, show: gtw, required: gtw,
         }),
         popis: newInputWidget({
             label: (t, c) => ({
                 groundBoreholes: t.tc.numberAndDepthOfBoreholes,
                 surfaceCollector: t.tc.numberAndLengthOfCircuits,
                 otherCollector: t.tc.collectorDescription,
-            })[c.UP.primar.typ!],
-            show: c => c.IN.tc.typ == 'groundToWater',
-            required: c => c.IN.tc.typ == 'groundToWater' && c.UP.primar.typ != null,
+            })[c.UP.primar.typ!], show: gtw,
+            required: c => gtw(c) && c.UP.primar.typ != null,
         }),
         nemrz: newInputWidget({
-            label: t => t.tc.typeOfAntifreezeMixture,
-            show: c => c.IN.tc.typ == 'groundToWater',
-            required: c => c.IN.tc.typ == 'groundToWater',
+            label: t => t.tc.typeOfAntifreezeMixture, show: gtw, required: gtw,
         }),
         nadoba: newChooserWidget({
             label: t => t.tc.onPrimaryCircuitInstalled,
             options: [`expansionTankInstalled`, `bufferTankInstalled`],
-            show: c => c.IN.tc.typ == 'groundToWater',
-            required: c => c.IN.tc.typ == 'groundToWater',
-            labels: t => t.tc,
+            show: gtw, required: gtw, labels: t => t.tc,
         }),
         kontrola: newCheckboxWidget({
-            required: false,
-            label: t => t.tc.wasPrimaryCircuitTested,
-            show: c => c.IN.tc.typ == 'groundToWater',
+            required: false, label: t => t.tc.wasPrimaryCircuitTested, show: gtw,
         }),
     },
     uvadeni: {
@@ -164,28 +173,43 @@ export default (ir: IR): FormPlus<FormUPT> => ({
         tc: newCheckboxWidget({ required: false, label: t => t.tc.wasInstallationAccordingToManual }),
         reg: newCheckboxWidget({ required: false, label: t => t.tc.wasControllerSetToParameters }),
         vlastnik: newCheckboxWidget({ required: false, label: t => t.tc.wasOwnerFamiliarizedWithFunction }),
-        typZaruky: newRadioWidget({
+        typZaruky: newRadioWidget({ // legacy
             label: t => t.tc.isExtendedWarrantyDesired, options: [`no`, `yes`], labels: t => t.tc,
-            required: false, show: c => !!c.UP.uvadeni.typZaruky,
+            required: false, show: c => ow(c) && agrees(c),
         }),
-        fullPaidWarranty: newRadioWidget({
+        fullPaidWarranty: newRadioWidget({ // only new
             label: t => t.tc.isFullPaidWarrantyDesired, options: [`yes`, `unsure`, `no`], labels: t => t.tc,
+            show: c => nw(c) && agrees(c),
+            required: c => nw(c) && agrees(c),
         }),
-        compressorWarranty: newRadioWidget({
+        compressorWarranty: newRadioWidget({ // only new
             label: t => t.tc.isCompressorWarrantyDesired, options: [`yes`, `no`], labels: t => t.tc,
-            show: c => !!c.UP.uvadeni.fullPaidWarranty && c.UP.uvadeni.fullPaidWarranty != 'yes'
+            show: no10, required: no10,
         }),
-        zaruka: newCheckboxWidget({
+        zaruka: newCheckboxWidget({ // legacy
             required: false, label: t => t.tc.isInstallationInWarrantyConditions,
-            show: c => [c.UP.uvadeni.typZaruky, c.UP.uvadeni.fullPaidWarranty, c.UP.uvadeni.compressorWarranty].includes('yes'),
-        }),
-        date: newInputWidget({
-            label: t => t.tc.dateOfCommission, type: 'date', hideInRawData: true,
-            text: ir.UP.dateTC || dayISO(), onValueSet: (c, date) => {
-                c.DK.commissionDate = date;
-            },
+            show: c => c.UP.uvadeni.typZaruky == 'yes',
         }),
         note: newInputWidget({ label: t => t.in.note, required: false }),
+        _title: newTitleWidget({
+            text: t => t.pdf.documentPreview, showInXML: false, level: 2,
+        }),
+        preview: newInlinePdfPreviewWidget({
+            pdfData: (_, c) => ({
+                type: nw(c) ? 'UPT' : 'UPTL',
+                data: {
+                    ...c.ir as ExistingIR,
+                    UP: {
+                        ...c.ir.UP,
+                        TC: valuesToRawData(c.form, c.UP),
+                        dateTC: c.UP.tc.date,
+                    },
+                },
+                form: (c.form as Form).omit('checkRecommendations') as FormUPT,
+                values: c.UP,
+                pages: [0],
+            }),
+        }),
     },
     checkRecommendations: defaultDK('TČ', ir.UP.dateTC, ir.RK.DK.TC, true),
 });

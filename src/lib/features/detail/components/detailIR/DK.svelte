@@ -17,19 +17,22 @@
     const { settings, show, commissionDate } = $derived(getDKInfo(type, ir));
 </script>
 
-{#if show}
+{#if show || commissionDate}
     <div class="d-flex flex-column gap-1 align-items-sm-start">
-        <Button color="info" icon="alarm" text={tr.settingsTitle(type)}
-                modalID="recommendations{type}Modal" />
-        {#if $isUserAdmin && settings?.code}
-            <Button color="secondary" icon="cloud_circle" text="{t.detail.openInDatabase}{iaA}"
-                    href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Frk~2F{settings?.code}"
-                    target="_blank" />
+        {#if show}
+            <Button color="info" icon="alarm" text={tr.settingsTitle(type)}
+                    modalID="recommendations{type}Modal" />
+            {#if $isUserAdmin && settings?.code}
+                <Button color="secondary" icon="cloud_circle" text="{t.detail.openInDatabase}{iaA}"
+                        href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Frk~2F{settings?.code}"
+                        target="_blank" />
+            {/if}
         {/if}
         {#if commissionDate}
             <span>{tr.commissionedAt(type)}: {dateFromISO(commissionDate)}</span>
         {/if}
     </div>
-
+{/if}
+{#if show && ir}
     <ModalDK {t} {ir} {type} />
 {/if}

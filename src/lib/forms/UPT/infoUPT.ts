@@ -22,7 +22,7 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
     }),
     saveData: async ({ irid, raw, edit, values, editResult, t, ir }) => {
         await db.updateUPT(irid, raw);
-        await db.updateDateUPT(irid, values.uvadeni.date);
+        await db.updateDateUPT(irid, values.tc.date);
         if (!edit) await saveDK(ir, values.checkRecommendations, 'TČ');
 
         await grantPoints({ type: 'heatPumpCommission', irid });
@@ -45,12 +45,8 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
         });
         return false;
     },
-    buttons: edit => ({
-        hideSave: true,
-        saveAndSend: !edit,
-        saveAndSendAgain: edit,
-    }),
-    createContext: ({ IN, values: UP, mode }) => ({ UP, IN, DK: UP.checkRecommendations, mode }),
+    createContext: ({ IN, values: UP, mode, ir, form }) =>
+        ({ UP, IN, DK: UP.checkRecommendations, mode, ir, form }),
     title: t => t.tc.title,
     getEditData: (ir, url) =>
         url.searchParams.has('edit') ? { raw: ir.UP.TC as Raw<FormUPT> } : undefined,

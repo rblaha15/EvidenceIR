@@ -8,7 +8,7 @@ import NN from '$lib/pdf/generators/pdfNN';
 import ZLT from '$lib/pdf/generators/pdfZLT';
 import ZLS from '$lib/pdf/generators/pdfZLS';
 import RR from '$lib/pdf/generators/pdfRR';
-import UPT from '$lib/pdf/generators/pdfUPT';
+import UPT, { pdfUPTL as UPTL } from '$lib/pdf/generators/pdfUPT';
 import UPS from '$lib/pdf/generators/pdfUPS';
 import SP, { pdfCP as CP, pdfNSP as NSP, pdfPS as PS } from '$lib/pdf/generators/pdfSP';
 import UPF from '$lib/pdf/generators/pdfUPF';
@@ -42,6 +42,8 @@ type AllPdf = {
     NNR: 'IR'
     /** Uživatelský průvodce pro RegulusBIO  */
     NNT: ''
+    /** Zastaralé uvedení TČ do provozu */
+    UPTL: 'IR'
     /** Uvedení TČ do provozu */
     UPT: 'IR'
     /** Uvedení SOL do provozu */
@@ -106,6 +108,7 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs', 'de'],
         title: t => t.rr.title,
         getPdfData: RR,
+        doNotFlatten: true,
     },
     NN: {
         type: '',
@@ -131,6 +134,14 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'NNT',
         supportedLanguages: ['cs'],
         title: t => t.nnt.title,
+    },
+    UPTL: {
+        type: 'IR',
+        pdfName: 'UPTL',
+        supportedLanguages: ['cs', 'de'],
+        title: t => t.tc.title,
+        getPdfData: UPTL,
+        doNotFlatten: true,
     },
     UPT: {
         type: 'IR',
@@ -232,6 +243,7 @@ export type GeneratePdfOptions<P extends Pdf> = {
     lang: LanguageCode,
     data: DataOfPdf<P>,
     fetch?: typeof window.fetch,
+    pages?: number[],
 } & PdfParameters<P>;
 
 export type GetPdfData<P extends Pdf> = (o: {
