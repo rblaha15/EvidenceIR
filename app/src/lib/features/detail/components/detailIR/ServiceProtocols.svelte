@@ -23,7 +23,7 @@
 
 <h4 class="m-0">{r ? td.serviceProtocols : td.serviceInterventions}</h4>
 {#if ir.SPs.length}
-    <div class="flex flex-column gap-1 align-items-sm-start">
+    <div class="flex flex-col gap-1 align-items-sm-start">
         {#each ir.SPs as p, i}
             {@const showSP = isSP(p) && r}
             {#snippet deleteButton()}

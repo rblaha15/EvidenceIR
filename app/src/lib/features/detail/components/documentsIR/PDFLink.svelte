@@ -31,7 +31,7 @@
     } as unknown as OpenPdfOptions<P>);
 </script>
 
-<div class={["flex column-gap-4 row-gap-1", lang === 'de' ? 'flex-column align-items-start' : 'flex-wrap align-items-center']}>
+<div class={["flex column-gap-4 row-gap-1", lang === 'de' ? 'flex-col align-items-start' : 'flex-wrap align-items-center']}>
     {#if !disabled}
         <div class="flex flex-row gap-4 flex-shrink-0">
             <a

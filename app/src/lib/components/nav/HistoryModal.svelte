@@ -11,7 +11,7 @@
 {#snippet changes(list: DisplayableHistoryEntry[])}
     <ul class="list-group list-group-flush list-group">
         {#each list as entry}
-            <li class="list-group-item flex flex-column gap-1 px-0">
+            <li class="list-group-item flex flex-col gap-1 px-0">
                 <span class="">{entry.datetime}</span>
                 <div class="flex gap-4 align-items-center">
                     <Icon class="fs-12" icon={entry.type === 'database' ? 'storage' : 'outgoing_mail'} />
@@ -30,7 +30,7 @@
                 <Button label={th.close} class="btn-close" dismissModal />
             </div>
 
-            <div class="modal-body flex flex-column gap-4">
+            <div class="modal-body flex flex-col gap-4">
                 {#if $readableHistory.incompleted.length}
                     <p class="m-0">{th.description}</p>
                     <h5 class="m-0">{th.incompletedChanges}</h5>

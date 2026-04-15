@@ -53,7 +53,7 @@
     {/if}
 {/snippet}
 
-<div class="flex gap-1 flex-column">
+<div class="flex gap-1 flex-col">
     {#if widget.compact(context)}
         <label class="input-group">
             <span class="input-group-text">{labelAndStar(widget, context, t)}</span>

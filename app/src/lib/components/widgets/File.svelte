@@ -71,9 +71,9 @@
     };
 </script>
 
-<div class="flex gap-1 flex-column">
+<div class="flex gap-1 flex-col">
     <div>{labelAndStar(widget, context, t)}</div>
-    <div class="flex gap-4 flex-column align-items-start">
+    <div class="flex gap-4 flex-col align-items-start">
         {#if value.length === 0 || (multiple && value.length < max)}
             <button
                 type="button"

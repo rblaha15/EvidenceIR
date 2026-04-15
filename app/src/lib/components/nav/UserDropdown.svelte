@@ -32,7 +32,7 @@
         <Icon class="fs-2" icon="account_circle" />
     </button>
     <div class="dropdown-menu hidden dropdown-menu-end">
-        <div class="flex flex-column gap-4 px-4 pt-1">
+        <div class="flex flex-col gap-4 px-4 pt-1">
             {#if $currentUser?.displayName}
                 <h5 class="m-0">
                     {$currentUser?.displayName}
@@ -54,7 +54,7 @@
         </div>
         {#if !$isUserAnyRegulusOrAdmin && $loyaltyProgramDataStore}
             <hr class="my-4" />
-            <div class="flex flex-column gap-1 px-4 align-items-start">
+            <div class="flex flex-col gap-1 px-4 align-items-start">
                 <h6 class="m-0">{ta.loyaltyProgram}</h6>
                 <span>{ta.currentPointBalance}: {$loyaltyProgramDataStore.points}</span>
                 <a class="btn btn-secondary" href={relUrl('/rewards')}>
@@ -64,7 +64,7 @@
             </div>
         {/if}
         <hr class="my-4" />
-        <div class="flex flex-column gap-1 px-4 align-items-start">
+        <div class="flex flex-col gap-1 px-4 align-items-start">
             <button class="btn btn-warning" onclick={changePassword}>
                 <Icon icon="password" />
                 {ta.changePassword}

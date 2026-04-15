@@ -35,7 +35,7 @@
     const uid = $props.id();
 </script>
 
-<div class="flex gap-1 flex-column">
+<div class="flex gap-1 flex-col">
     <div>{labelAndStar(widget, context, t)}</div>
     <div class="input-group input-group-grid">
         {#each options as item}

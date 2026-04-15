@@ -35,6 +35,6 @@
     });
 </script>
 
-<div class="flex flex-column">
+<div class="flex flex-col">
     <canvas bind:this={canvas} style="max-width: min(1024px, 100%)"></canvas>
 </div>

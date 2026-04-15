@@ -25,7 +25,7 @@
     };
 </script>
 
-<div class="flex gap-1 flex-column align-items-start">
+<div class="flex gap-1 flex-col align-items-start">
     <div class="input-group flex flex-nowrap">
         <span class="input-group-text">{widget.label(t, context)}</span>
         {#each widget.options(t) as option, i}
