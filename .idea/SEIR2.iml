@@ -3,6 +3,8 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/app/.svelte-kit/generated" />
+      <excludeFolder url="file://$MODULE_DIR$/app/.svelte-kit/output" />
+      <excludeFolder url="file://$MODULE_DIR$/app/.vercel/output" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

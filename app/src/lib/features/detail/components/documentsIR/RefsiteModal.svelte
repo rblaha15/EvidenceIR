@@ -16,7 +16,7 @@
     } = $props()
 </script>
 
-<div class="modal fade" id="refsiteModal-{tc.N}" tabindex="-1" aria-labelledby="refsiteModalLabel-{tc.N}" aria-hidden="true">
+<div class="modal fade hidden" id="refsiteModal-{tc.N}" tabindex="-1" aria-labelledby="refsiteModalLabel-{tc.N}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
