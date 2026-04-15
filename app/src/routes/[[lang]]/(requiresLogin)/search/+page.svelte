@@ -57,7 +57,7 @@
 </script>
 
 <div class="flex flex-wrap">
-    <div class="flex me-auto align-items-center gap-3">
+    <div class="flex me-auto align-items-center gap-4">
         {#if $statusStore === 'loadingOnline' && $isOnline}
             <div class="spinner-border text-danger"></div>
             <span>{ts.downloadingChanges}</span>
@@ -82,7 +82,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="problemsModalLabel">{ts.searchProblemsTitle}</h1>
+                <h1 class="modal-title fs-12" id="problemsModalLabel">{ts.searchProblemsTitle}</h1>
                 <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
             </div>
             <div class="modal-body">

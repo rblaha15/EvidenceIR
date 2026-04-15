@@ -27,7 +27,7 @@
 {#if $ir && irid}
     <h3 class="m-0">{irWholeName($ir.IN)}</h3>
 
-    <div class="flex align-items-center gap-3">
+    <div class="flex align-items-center gap-4">
         <Search bind:value={v} widget={w} context={{}} {t} class="flex-grow-1" showAllErrors={true} />
         <button
             class="btn btn-success"
@@ -41,7 +41,7 @@
     </div>
     <div class="list-group list-group-flush">
         {#each $ir.meta.usersWithAccess as user}
-            <div class="list-group-item flex align-items-center gap-3">
+            <div class="list-group-item flex align-items-center gap-4">
                 {user}
                 <button
                     class="btn text-danger"
@@ -58,7 +58,7 @@
                         viewBox="0 0 16 16"
                     >
                         <path
-                            d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"
+                            d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-12.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-12.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"
                         />
                     </svg>
                 </button>

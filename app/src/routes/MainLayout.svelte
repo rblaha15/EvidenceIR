@@ -106,12 +106,12 @@
 </svelte:head>
 
 {#snippet loading()}
-    <div class="spinner-border text-danger m-3"></div>
+    <div class="spinner-border text-danger m-4"></div>
 {/snippet}
 
 {#snippet errorAlert(error: E)}
-    <div class="alert alert-danger m-3 flex flex-column gap-3">
-        <div class="flex align-items-center gap-3">
+    <div class="alert alert-danger m-4 flex flex-column gap-4">
+        <div class="flex align-items-center gap-4">
             <Icon icon="error_outline" />
             <h4 class="alert-heading m-0">{error.name}</h4>
         </div>
@@ -141,9 +141,9 @@
                      style="transition: width 5s;"
                 ></div>
             </div>
-            <main class="container flex gap-3">
-                <div class="mt-3 flex flex-column gap-3 w-100">
-                    <h1 id="main-title" class="m-0 flex align-items-center gap-3">
+            <main class="container flex gap-4">
+                <div class="mt-4 flex flex-column gap-4 w-100">
+                    <h1 id="main-title" class="m-0 flex align-items-center gap-4">
                         {#if $backButton}
                             <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}
                                     style="margin: -2rem 0">
@@ -156,7 +156,7 @@
                 </div>
                 {#if page.route.id?.includes('[form=form]') && !page.error}
                     {#key page.url.pathname + page.url.search}
-                        <div class="hidden md:block position-sticky top-0 pt-3 end-0 h-100 toc">
+                        <div class="hidden md:block position-sticky top-0 pt-4 end-0 h-100 toc">
                             <TableOfContents {t} />
                         </div>
                     {/key}

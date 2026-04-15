@@ -63,14 +63,14 @@
     const mf = $derived(sps[0].NSP.montazka.email == unknownCompanyEmail ? '' : sps[0].NSP.montazka.email.trim());
 </script>
 
-<div class="flex flex-wrap gap-3 justify-content-between">
-    <div class="flex flex-column gap-3">
+<div class="flex flex-wrap gap-4 justify-content-between">
+    <div class="flex flex-column gap-4">
         <div class="flex flex-column gap-1 align-items-sm-start">
             {#each sps as sp}
                 {#if !sp.deleted}
                     <DetailNSP {sp} {lang} {t} />
                 {:else}
-                    <div class="flex gap-3 align-items-center flex-wrap">
+                    <div class="flex gap-4 align-items-center flex-wrap">
                         <span>{sp.meta.id.replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}</span>
                         <span>{td.deletedNSP}</span>
                     </div>
@@ -80,7 +80,7 @@
     </div>
 
     {#if !sps[0].deleted}
-        <div class="flex flex-column gap-3 align-items-sm-start">
+        <div class="flex flex-column gap-4 align-items-sm-start">
             <a class="btn btn-primary"
                href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].NSP.koncovyUzivatel).join(';')}&assembly=${mf}`)} tabindex="0">
                 <Icon icon="attach_email" />
