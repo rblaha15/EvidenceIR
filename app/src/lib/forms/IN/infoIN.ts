@@ -1,7 +1,7 @@
 import {
     friendlyCompanies,
     responsiblePerson,
-    startAccumulationTanksListening,
+    startAccumulationTanksListening, startBatteriesListening, startInvertersListening,
     startSolarCollectorsListening,
     startTechniciansListening,
     startWaterTanksListening,
@@ -202,6 +202,8 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [str
         await startSolarCollectorsListening();
         await startAccumulationTanksListening();
         await startWaterTanksListening();
+        await startInvertersListening();
+        await startBatteriesListening();
 
         const count = cascadePumps(values).length;
         values.tc.pocet = count == 0 ? 1 : count;
