@@ -415,6 +415,12 @@ const en: PlainTranslations = {
     sp: {
         title: `Service protocol`,
         editSP: `SP editing`,
+        warranties: {
+            warrantyCommon: `Base 2year – whole intervention free`,
+            komplet10: `KOMPLET 10 – whole intervention free`,
+            kompresor7: `KOMPRESOR 7 – spare parts free`,
+            warrantyExtended: `Extended (SOL, AKU, ZAS, TČ commissioned before 1/4/2026) – spare parts free`,
+        },
         yearlyHPCheck: `Heat pump service inspection`,
         yearlyHPInCascadeCheck: `Heat pump in a cascade service inspection`,
         warrantyRepair: `Warranty repair`,
@@ -423,8 +429,6 @@ const en: PlainTranslations = {
         otherType: `Other`,
         regulusRoute: `RegulusRoute`,
         extendedWarranty: `Extended warranty`,
-        warrantyExtended: `Extended`,
-        warrantyCommon: `Common`,
         commissioningTC: `Heat pump commission`,
         commissioningHPInCascade: `Heat pump commission`,
         commissioningSOL: `Solar system commission`,

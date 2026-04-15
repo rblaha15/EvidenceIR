@@ -63,11 +63,11 @@ const sparePart = <C extends GenericContextSP<C>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 |
                 if (c.v.system.zaruka) nd.unitPrice = '0';
                 else nd.unitPrice = part?.unitPrice?.let(String) ?? '';
                 nd.dil = null;
-            }, getSearchItem: (i: SparePart, t) => ({
+            }, getSearchItem: (i: SparePart, t, c) => ({
                 pieces: [
                     { text: i.code.toString(), width: .08 },
                     { text: i.name, width: .8 },
-                    { text: i.unitPrice.roundTo(2).toLocaleString('cs') + t.units.czk, width: .12 },
+                    { text: i.unitPrice.roundTo(2).toLocaleString('cs') + t.units.czk, width: .12, class: c.v.system.zaruka ? 'text-decoration-line-through' : '' },
                 ] as const,
             }), showInXML: false,
         }),
@@ -97,8 +97,7 @@ const independentOperations = [
 ] as const satisfies Operation[];
 const operations = [
     ...independentOperations,
-    `regulusRoute`, `commissioningTC`, `commissioningSOL`, `commissioningFVE`, `extendedWarranty`,
-    `installationApproval`,
+    `regulusRoute`, `commissioningTC`, `commissioningSOL`, `commissioningFVE`,
 ] as const satisfies Operation[];
 export const invoiceableParts = [
     'transportation' as const, 'work' as const, ...operations,
@@ -117,10 +116,12 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
     system: {
         datumUvedeni: newInputWidget({ label: t => t.sp.commissioningDate, type: 'date', required: false }),
         zaruka: newRadioWidget({
-            label: t => t.sp.warranty, options: [`warrantyCommon`, `warrantyExtended`], required: false, labels,
-            onValueSet: (c, warranty) => {
-                if (warranty == 'warrantyCommon') c.v.fakturace.invoiceParts = invoiceableParts;
-                else c.v.fakturace.invoiceParts = [];
+            label: t => t.sp.warranty, options: [`warrantyCommon`, 'komplet10', 'kompresor7', `warrantyExtended`],
+            required: false, labels: t => t.sp.warranties, onValueSet: (c, warranty) => {
+                if (warranty == 'warrantyCommon' || warranty == 'komplet10')
+                    c.v.fakturace.invoiceParts = invoiceableParts;
+                else
+                    c.v.fakturace.invoiceParts = [];
             },
         }),
     },
@@ -140,9 +141,12 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
         popis: defaultGenericSZ<C>().zasah.popis,
         _overflowIntervention: newTextWidget<C>({ text: (t, c) => multilineTooLong(c.v.zasah.popis) ? t.sp.textTooLong : '' }),
         interventionDuration: newInputWidget({
-            label: t => t.sp.interventionTime,
-            type: 'number',
+            label: t => t.sp.interventionTime, type: 'number',
             onError: t => t.wrong.number, suffix: t => t.units.h, required: false,
+            onValueSet: (c, v) => {
+                if (!c.v.ukony.doba)
+                    c.v.ukony.doba = v;
+            },
         }),
     },
     ukony: {
@@ -151,12 +155,16 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
             label: (t, c) => reduceOperations ? t.sp.operations : t.sp.operationsMax(3 - (c.v.ukony.ukony.includes('yearlyHPCheck') && hpCount(c) > 1 ? 1 : 0) - (c.v.ukony.ukony.includes('commissioningTC') && hpCount(c) > 1 ? 1 : 0) + (c.v.ukony.typPrace || c.v.ukony.doba ? 0 : 1)),
             max: c => c.v.ukony.typPrace || c.v.ukony.doba ? 3 : 4,
             required: false,
-            options: reduceOperations ? independentOperations : operations,
+            options: (reduceOperations ? independentOperations : operations) as Operation[],
             labels,
             weights: (c, i) =>
                 i == 'yearlyHPCheck' && hpCount(c) > 1
                 || i == 'commissioningTC' && hpCount(c) > 1
                     ? 2 : 1,
+            onValueSet: (c, v) => {
+                if (v.length)
+                    c.v.ukony.doba = '';
+            },
         }),
         typPrace: newRadioWidget({
             label: t => t.sp.workType, required: false, labels, show: c => !areNewPrices(c),

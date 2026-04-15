@@ -230,6 +230,12 @@ export default {
     sp: {
         title: `Instalační a servisní protokol`,
         editSP: `Editace SP`,
+        warranties: {
+            warrantyCommon: `Základní 2letá – zdarma celý zásah`,
+            komplet10: `KOMPLET 10 – zdarma celý zásah`,
+            kompresor7: `KOMPRESOR 7 – zdarma náhradní díly`,
+            warrantyExtended: `Prodloužená (SOL, AKU, ZAS, TČ uvedené do 1. 4. 2026) – zdarma náhradní díly`,
+        },
         yearlyHPCheck: `Servisní prohlídka TČ`,
         yearlyHPInCascadeCheck: `Servisní prohlídka dalších TČ v kaskádě`,
         warrantyRepair: `Záruční oprava`,
@@ -238,8 +244,6 @@ export default {
         otherType: `Jiné`,
         regulusRoute: `RegulusRoute`,
         extendedWarranty: `Prodloužená záruka`,
-        warrantyExtended: `Prodloužená (Zdarma náhradní díly)`,
-        warrantyCommon: `Běžná (Zdarma celý zásah)`,
         commissioningTC: `Uvedení TČ do provozu`,
         commissioningHPInCascade: `Uvedení do provozu dalších TČ v kaskádě`,
         commissioningSOL: `Uvedení SOL do provozu`,
