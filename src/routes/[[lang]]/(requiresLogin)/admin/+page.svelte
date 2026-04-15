@@ -51,6 +51,11 @@
         .map(c => `<a href="#companies-${c}">${c}</a>`)
         .join(', ');
 
+    const addUserLink = (email: string | undefined) =>
+        email ? `<a href="#users-${email}">${email}</a>` : '';
+
+    const emptyUndefined = (v: string | undefined) => v || '';
+
     const tabs: Record<string, TabDefinition> = {
         users: {
             title: 'Uživatelé',
@@ -74,7 +79,7 @@
                     assemblyCompanies.getValues().join('#'),
                     commissioningCompanies.getValues().join('#'),
                     `${allowUPT}`,
-                    responsiblePerson, koNumber,
+                    responsiblePerson || '', koNumber || '',
                 ],
                 key: p => p.email,
                 instructions: [
@@ -90,7 +95,7 @@
                     commissioningCompanies: { header: 'Uvaděči', transformValue: addCompaniesLinks },
                     allowUPT: { header: 'Vytvořit UPT?' },
                     responsiblePerson: { header: 'Zodpovědná osoba' },
-                    koNumber: { header: 'Číslo KO' },
+                    koNumber: { header: 'Číslo KO', transformValue: emptyUndefined },
                 },
             },
         } satisfies TableDefinition<Person>,
@@ -102,27 +107,28 @@
                 fileType: 'csv',
                 fileName: 'firmy',
                 store: companiesList,
-                construct: ([crn, companyName, email, phone, representative]) => ({
-                    crn: crn ?? '',
-                    companyName: companyName ?? '',
+                construct: ([crn, companyName, email, phone, representative, representativeUserEmail]) => ({
+                    crn: crn!, companyName: companyName!,
                     email, phone, representative,
+                    representativeUserEmail,
                 }),
-                deconstruct: ({ crn, companyName, email, phone, representative }) =>
-                    [crn, companyName, email, phone, representative],
+                deconstruct: ({ crn, companyName, email, phone, representative, representativeUserEmail }) =>
+                    [crn, companyName, email || '', phone || '', representative || '', representativeUserEmail || ''],
                 key: c => c.crn,
                 instructions: [
                     'Vložte .csv soubor oddělený středníky (;), kde každý řádek popisuje jednu montážní firmu nebo uvaděče.',
-                    'V případě FO: ičo;jméno;email;telefonní číslo;jméno (znovu)<br />Př.: 12345678;Jan Novák;jan.novak@seznam.cz;+420777666555;Jan Novák',
-                    'V případě PO: ičo;název firmy;email na firmu;telefonní číslo na firmu;jméno zástupce firmy<br />Př.: 87654321;Topení Novák s.r.o.;info@novak.cz;+420765765765;Jan Novák',
+                    'V případě FO: ičo;jméno;email;telefonní číslo;jméno (znovu);uživatelský email (pokud se neshoduje)<br />Př.: 12345678;Jan Novák;info@novak.cz;+420777666555;Jan Novák;jan.novak@seznam.cz',
+                    'V případě PO: ičo;název firmy;email na firmu;telefonní číslo na firmu;jméno zástupce firmy;uživatelský email zástupce<br />Př.: 87654321;Topení Novák s.r.o.;info@novak.cz;+420765765765;Jan Novák;jan.novak@seznam.cz',
                     'Uvaděči Regulusu jsou vedeni na kartě <a href="#technicians">Technici</a>',
                     'Všechna pole kromě iča a názvu/jména osoby mohou být vynechána',
                 ],
                 columns: {
                     crn: { header: 'IČO', cellType: 'header' },
                     companyName: { header: 'Jméno' },
-                    email: { header: 'Email' },
-                    phone: { header: 'Telefon' },
-                    representative: { header: 'Zástupce' },
+                    email: { header: 'Email', transformValue: emptyUndefined },
+                    phone: { header: 'Telefon', transformValue: emptyUndefined },
+                    representative: { header: 'Zástupce', transformValue: emptyUndefined },
+                    representativeUserEmail: { header: 'Uživatel', transformValue: addUserLink },
                 },
             },
         } satisfies TableDefinition<Company>,
