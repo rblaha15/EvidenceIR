@@ -140,10 +140,12 @@ export const newIR = (
         usersWithAccess: [
             user.email!,
             friendlyCompanies.commissioningCompanies.find(c => c.email == raw.uvedeni.email)
-                ?.representativeUserEmail ?? raw.uvedeni.email,
+                ?.representativeUserEmail,
+            raw.uvedeni.email,
             friendlyCompanies.assemblyCompanies.find(c => c.email == raw.montazka.email)
-                ?.representativeUserEmail ?? raw.montazka.email,
-        ].distinct().filter(Boolean),
+                ?.representativeUserEmail,
+            raw.montazka.email,
+        ].filterNotUndefined().distinct().filter(Boolean),
         flags: {
             grantedCommission: false,
             confirmedRefsite: false,
