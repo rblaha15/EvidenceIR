@@ -98,7 +98,7 @@
 {:else if mode === 'resetEmail' || !oobCode}
     <form>
         <FormDefaults />
-        <div class="mt-3">
+        <div class="mt-4">
             <input
                 autocomplete="email"
                 type="email"
@@ -108,9 +108,9 @@
             />
         </div>
         {#if error}
-            <p class="text-danger mt-3 mb-0">{@html error}</p>
+            <p class="text-danger mt-4 mb-0">{@html error}</p>
         {/if}
-        <div class="flex align-content-center mt-3">
+        <div class="flex align-content-center mt-4">
             <button type="submit" class="btn btn-primary me-2" onclick={sendCode}>
                 {t.sendConfirmEmail}
             </button>
@@ -122,7 +122,7 @@
 {:else}
     <form>
         <FormDefaults />
-        <div class="mt-3">
+        <div class="mt-4">
             <input
                 autocomplete="new-password"
                 type="password"
@@ -131,7 +131,7 @@
                 bind:value={password}
             />
         </div>
-        <div class="mt-3">
+        <div class="mt-4">
             <input
                 autocomplete="new-password"
                 type="password"
@@ -141,9 +141,9 @@
             />
         </div>
         {#if error}
-            <p class="text-danger mt-3 mb-0">{@html error}</p>
+            <p class="text-danger mt-4 mb-0">{@html error}</p>
         {/if}
-        <div class="flex align-content-center mt-3">
+        <div class="flex align-content-center mt-4">
             {#if mode === "saving"}
                 <div class="spinner-border text-danger m-2"></div>
             {:else}

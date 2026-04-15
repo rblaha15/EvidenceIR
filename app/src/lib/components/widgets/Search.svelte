@@ -89,7 +89,7 @@
         <label class="form-floating block">
             <input
                 autofocus={widget.inline(context)}
-                class="form-control border ps-3 bi"
+                class="form-control border ps-4 bi"
                 class:border-bottom-0={(!hidden && $filtered != null) || value}
                 class:rb-0={(!hidden && $filtered != null)}
                 oninput={e => $search = e.currentTarget.value}
@@ -107,7 +107,7 @@
         </label>
 
         {#if !hidden}
-            <div class="list-group z-3 w-100 overflow-y-auto shadow-lg mb-2" class:options={!widget.inline(context)}>
+            <div class="list-group z-4 w-100 overflow-y-auto shadow-lg mb-2" class:options={!widget.inline(context)}>
                 {#each $filtered as item, i}
                     {@const searchItem = widget.getSearchItem(item, t, context)}
                     <a

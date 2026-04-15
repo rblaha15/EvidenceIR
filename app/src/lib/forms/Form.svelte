@@ -204,8 +204,8 @@
             <WidgetComponent widget={item.widget} bind:value={item.value} {t} {context} {showAllErrors} />
         {/if}
     {/each}
-    <div class="flex flex-column align-items-start gap-3">
-        <div class="flex gap-3 flex-wrap">
+    <div class="flex flex-column align-items-start gap-4">
+        <div class="flex gap-4 flex-wrap">
             {#if mode !== 'view'}
                 {#if !result.load && !$buttonsStore.hideSave}
                     <Button text={t.form.save} icon="save" color="success"

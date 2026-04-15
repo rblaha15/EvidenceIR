@@ -81,7 +81,7 @@
 {/if}
 <form>
 	<FormDefaults />
-	<div class="mt-3">
+	<div class="mt-4">
 		<input
 			autocomplete="email"
 			type="email"
@@ -90,7 +90,7 @@
 			bind:value={email}
 		/>
 	</div>
-	<div class="mt-3">
+	<div class="mt-4">
 		<input
 			autocomplete="current-password"
 			type="password"
@@ -100,9 +100,9 @@
 		/>
 	</div>
 	{#if error}
-		<p class="text-danger mt-3 mb-0">{@html error}</p>
+		<p class="text-danger mt-4 mb-0">{@html error}</p>
 	{/if}
-	<div class="flex align-content-center mt-3">
+	<div class="flex align-content-center mt-4">
 		<button type="submit" class="btn btn-primary me-2" onclick={signIn}>
 			{t.toLogIn}
 		</button>
@@ -110,7 +110,7 @@
 			{t.back}
 		</button>
 	</div>
-	<p class="mt-3">
+	<p class="mt-4">
 		{t.dontHaveAccount}
 		<a class="btn btn-link" href={signUpLink}>{t.toSignUp}</a>
 	</p>

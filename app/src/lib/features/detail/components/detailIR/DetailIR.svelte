@@ -22,21 +22,21 @@
     const mf = $derived(ir.IN.montazka.email == unknownCompanyEmail ? '' : ir.IN.montazka.email.trim())
 </script>
 
-<div class="flex flex-wrap flex-lg-nowrap gap-4 justify-content-between">
+<div class="flex flex-wrap flex-lg-nowrap gap-6 justify-content-between">
     {#if !ir.isDraft}
-        <div class="flex flex-column gap-5 flex-grow-1">
-            <div class="flex flex-column gap-3">
+        <div class="flex flex-column gap-12 flex-grow-1">
+            <div class="flex flex-column gap-4">
                 <h4 class="m-0">{td.documents}</h4>
                 <div class="flex flex-column gap-1">
                     <DocumentsIR {ir} {t} {lang} {irid} />
                 </div>
             </div>
-            <div class="flex flex-column gap-3">
+            <div class="flex flex-column gap-4">
                 <ServiceProtocols {ir} {t} {lang} {irid} />
             </div>
         </div>
     {/if}
-    <div class="flex flex-column gap-3 flex-shrink-1 align-items-sm-start">
+    <div class="flex flex-column gap-4 flex-shrink-1 align-items-sm-start">
         <h4 class="m-0">{ir.isDraft ? td.draftManagement : td.recordManagement}</h4>
         <div class="flex flex-column gap-1 align-items-sm-start">
             {#if !ir.isDraft}

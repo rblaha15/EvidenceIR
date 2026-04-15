@@ -291,7 +291,7 @@
             role="tabpanel"
             tabindex="0"
         >
-            <div class="flex flex-column gap-3">
+            <div class="flex flex-column gap-4">
                 <h2 class="m-0">{t.longerTitle || t.title}</h2>
                 {#if t.contentType === 'table'}
                     <AdminTable options={t.tableOptions} id={tab} />

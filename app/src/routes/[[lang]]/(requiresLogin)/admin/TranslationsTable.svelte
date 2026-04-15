@@ -40,7 +40,7 @@
 
 {#snippet group(key: String, gs: JointTranslations)}
     {#if key}
-        <h3 class="p-3">{key}</h3>
+        <h3 class="p-4">{key}</h3>
     {/if}
     {#each gs.entries() as [k, v]}
         {#if 'cs' in v}

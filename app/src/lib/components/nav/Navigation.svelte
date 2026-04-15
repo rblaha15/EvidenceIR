@@ -23,20 +23,20 @@
 
 {#snippet help()}
     <Button icon="help" iconClass="fs-2" label={t.nn.title}
-            link class="nav-link ms-3" href={relUrl('/help')} />
+            link class="nav-link ms-4" href={relUrl('/help')} />
 {/snippet}
 {#snippet settings()}
     <Button icon="settings" iconClass="fs-2" label="Settings"
-            link class="nav-link ms-3" modalID="settings" />
+            link class="nav-link ms-4" modalID="settings" />
 {/snippet}
 {#snippet history()}
     {#if $readableHistory.incompleted.length}
-        <div class="ms-3">
+        <div class="ms-4">
             <Button icon="sync_problem" iconClass="fs-2" label="History"
                     link class="nav-link text-warning-emphasis" modalID="history" />
         </div>
     {:else if $readableHistory.completed.length}
-        <div class="ms-3">
+        <div class="ms-4">
             <Button icon="history" iconClass="fs-2" label="History"
                     link class="nav-link" modalID="history" />
         </div>
@@ -74,7 +74,7 @@
         {#if !$isOnline && !$hideNav}
             <Icon icon="wifi_off" />
         {/if}
-        <div class="me-auto me-lg-3"></div>
+        <div class="me-auto me-lg-4"></div>
         {#if isLoggedIn && !$hideNav}
             <div class="hidden md:flex lg:hidden flex-row ms-auto ms-md-0">
                 {@render buttons()}

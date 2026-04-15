@@ -32,13 +32,13 @@
 </script>
 
 {#if status === 'loading'}
-    <div class="alert alert-secondary flex align-items-center gap-3">
+    <div class="alert alert-secondary flex align-items-center gap-4">
         <span class="spinner-border text-danger"></span>
         <p class="m-0">{t.sending}</p>
     </div>
 {:else if status === 'accepted'}
-    <div class="alert alert-success flex flex-column gap-3">
-        <div class="flex align-items-center gap-3">
+    <div class="alert alert-success flex flex-column gap-4">
+        <div class="flex align-items-center gap-4">
             <Icon icon="done" />
             <h4 class="alert-heading m-0">{t.requestSent}</h4>
         </div>
@@ -46,8 +46,8 @@
     </div>
 {/if}
 {#if status === 'error'}
-    <div class="alert alert-danger flex flex-column gap-3">
-        <div class="flex align-items-center gap-3">
+    <div class="alert alert-danger flex flex-column gap-4">
+        <div class="flex align-items-center gap-4">
             <Icon icon="error_outline" />
             <h4 class="alert-heading m-0">{t.somethingWentWrong}</h4>
         </div>

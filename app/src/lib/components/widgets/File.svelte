@@ -73,7 +73,7 @@
 
 <div class="flex gap-1 flex-column">
     <div>{labelAndStar(widget, context, t)}</div>
-    <div class="flex gap-3 flex-column align-items-start">
+    <div class="flex gap-4 flex-column align-items-start">
         {#if value.length === 0 || (multiple && value.length < max)}
             <button
                 type="button"
@@ -87,7 +87,7 @@
         {#if value.length}
             <ul class="list-group">
                 {#each value as { fileName, uuid }}
-                    <li class="flex w-100 align-items-center list-group-item gap-3">
+                    <li class="flex w-100 align-items-center list-group-item gap-4">
                         <div class="flex-grow-1 flex-shrink-1" style="word-break: break-all">{fileName}</div>
                         <button class="btn text-danger" onclick={remove(uuid)}>
                             <Icon icon="delete" />

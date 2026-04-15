@@ -27,12 +27,12 @@
     };
 </script>
 
-<div class="dropdown ms-3">
+<div class="dropdown ms-4">
     <button aria-label="User" class="btn btn-link nav-link" data-bs-toggle="dropdown">
         <Icon class="fs-2" icon="account_circle" />
     </button>
     <div class="dropdown-menu hidden dropdown-menu-end">
-        <div class="flex flex-column gap-3 px-3 pt-1">
+        <div class="flex flex-column gap-4 px-4 pt-1">
             {#if $currentUser?.displayName}
                 <h5 class="m-0">
                     {$currentUser?.displayName}
@@ -53,8 +53,8 @@
             {/if}
         </div>
         {#if !$isUserAnyRegulusOrAdmin && $loyaltyProgramDataStore}
-            <hr class="my-3" />
-            <div class="flex flex-column gap-1 px-3 align-items-start">
+            <hr class="my-4" />
+            <div class="flex flex-column gap-1 px-4 align-items-start">
                 <h6 class="m-0">{ta.loyaltyProgram}</h6>
                 <span>{ta.currentPointBalance}: {$loyaltyProgramDataStore.points}</span>
                 <a class="btn btn-secondary" href={relUrl('/rewards')}>
@@ -63,8 +63,8 @@
                 </a>
             </div>
         {/if}
-        <hr class="my-3" />
-        <div class="flex flex-column gap-1 px-3 align-items-start">
+        <hr class="my-4" />
+        <div class="flex flex-column gap-1 px-4 align-items-start">
             <button class="btn btn-warning" onclick={changePassword}>
                 <Icon icon="password" />
                 {ta.changePassword}
@@ -78,8 +78,8 @@
             </button>
         </div>
         {#if $isUserAdmin}
-            <hr class="my-3" />
-            <div class="px-3 pb-1">
+            <hr class="my-4" />
+            <div class="px-4 pb-1">
                 <a class="btn btn-info" href={relUrl('/admin')}>
                     <Icon icon="admin_panel_settings" />
                     Admin{$aA}

@@ -57,7 +57,7 @@
                     }]}
                 />
             {:else}
-                <div class="flex flex-row gap-3 align-items-center">
+                <div class="flex flex-row gap-4 align-items-center">
                     <Button text={szName(p.zasah)} href={iridUrl(`/SZ/?view=${i}`)} link icon="preview" />
                     {#if !isSP(p)}
                         <SmallDropdown dropdownItems={[{
@@ -74,7 +74,7 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="duplicateModalLabel-{i}">{td.duplicate}</h1>
+                            <h1 class="modal-title fs-12" id="duplicateModalLabel-{i}">{td.duplicate}</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -92,7 +92,7 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="deleteProtocolModal-{i}">
+                            <h1 class="modal-title fs-12" id="deleteProtocolModal-{i}">
                                 <Icon icon="delete_forever" />
                                 {td.delete} {isSP(p) ? spName(p.zasah) : ''}
                             </h1>
@@ -113,7 +113,7 @@
     </div>
 {/if}
 
-<div class="flex align-items-center gap-3 flex-wrap flex-sm-nowrap">
+<div class="flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
     <a class="btn btn-primary" href={iridUrl(r ? '/SP' : '/SZ')} tabindex="0">
         <Icon icon="add" />
         {r ? ir.SPs.length ? td.fillInAnotherProtocol : td.fillInProtocol
