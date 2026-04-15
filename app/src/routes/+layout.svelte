@@ -19,4 +19,6 @@
     <link href={favicon} rel="icon" />
 </svelte:head>
 
-<MainLayout {children} {data} />
+<div class="h-full">
+    <MainLayout {children} {data} />
+</div>

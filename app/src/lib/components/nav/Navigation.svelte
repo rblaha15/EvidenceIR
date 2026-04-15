@@ -79,7 +79,7 @@
             <div class="hidden md:flex lg:hidden flex-row ms-auto ms-md-0">
                 {@render buttons()}
             </div>
-            <div class="hidden md:block lg:hidden w-100"></div> <!-- Row break -->
+            <div class="hidden md:block lg:hidden w-full"></div> <!-- Row break -->
             <div class="hidden md:inline me-auto">
                 <BaseNav {t} />
             </div>

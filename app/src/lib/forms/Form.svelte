@@ -238,7 +238,7 @@
         </div>
         <p class:text-danger={result.red} class="my-auto">{@html result.text}</p>
         {#if result.error}
-            <p class="alert alert-danger w-100">
+            <p class="alert alert-danger w-full">
                 {#each result.error.split('\n') as line, i}
                     {#if i !== 0}<br />{/if}
                     {line}
