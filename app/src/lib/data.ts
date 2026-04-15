@@ -15,6 +15,7 @@ import type { User } from 'firebase/auth';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { FormSZ } from '$lib/forms/SP/formSZ';
+import type { FriendlyCompanies } from '$lib/client/realtime';
 
 export type Year = number;
 
@@ -124,6 +125,7 @@ export const newIR = (
     raw: Raw<FormIN>,
     user: User,
     isDraft: boolean,
+    friendlyCompanies: FriendlyCompanies,
 ): ExistingIR => ({
     isDraft,
     deleted: false,
@@ -135,7 +137,13 @@ export const newIR = (
             uid: user.uid,
             email: user.email!,
         },
-        usersWithAccess: [user.email!, raw.uvedeni.email, raw.montazka.email].distinct().filter(Boolean),
+        usersWithAccess: [
+            user.email!,
+            friendlyCompanies.commissioningCompanies.find(c => c.email == raw.uvedeni.email)
+                ?.representativeUserEmail ?? raw.uvedeni.email,
+            friendlyCompanies.assemblyCompanies.find(c => c.email == raw.montazka.email)
+                ?.representativeUserEmail ?? raw.montazka.email,
+        ].distinct().filter(Boolean),
         flags: {
             grantedCommission: false,
             confirmedRefsite: false,

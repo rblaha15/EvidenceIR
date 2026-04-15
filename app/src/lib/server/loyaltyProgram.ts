@@ -1,4 +1,4 @@
-import { getLoyaltyProgramData, people, setLoyaltyProgramData } from '$lib/server/realtime';
+import { getCompanies, getLoyaltyProgramData, getPeople, setLoyaltyProgramData } from '$lib/server/realtime';
 import type { IRID } from '$lib/helpers/ir';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 import { getIR, setCreatedIRBy, setGrantedCommission } from '$lib/server/firestore';
@@ -13,7 +13,6 @@ import {
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { nowISO } from '$lib/helpers/date';
 import { checkAnyRegulusOrAdmin } from '$lib/server/auth';
-
 
 const isType = <T extends LoyaltyPointTriggerType>(
     data: LoyaltyProgramTrigger, type: T,
@@ -81,8 +80,12 @@ export const processLoyaltyReward = async (
     }
 };
 
-const getCompanyUser = async (email: string) =>
-    (await people()).entries().find(([_, p]) => p.email == email)?.[0] || null;
+const getCompanyUser = async (email: string) => {
+    const allCompanies = await getCompanies();
+    const allPeople = await getPeople();
+    const userEmail = allCompanies.getValues().find(c => c.email == email)?.representativeUserEmail ?? email;
+    return allPeople.entries().find(([_, p]) => p.email == userEmail)?.[0] || null;
+}
 
 const getCompaniesCascadeGrantedAndCommission = async (irid: IRID) => {
     const ir = await getIR(irid);
