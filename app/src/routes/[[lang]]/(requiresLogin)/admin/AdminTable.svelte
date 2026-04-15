@@ -63,7 +63,7 @@
                     .split('\n')
                     .map(row => row.trim().replace(/  +/g, ' '))
                     .filter(row => row != '')
-                    .map(row => row.split(';').map(col => col != '' ? col : undefined))
+                    .map(row => row.split(';').map(col => col ? col : undefined))
                     .map(construct);
             };
             reader.readAsText(file, 'UTF-8');

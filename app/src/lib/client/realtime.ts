@@ -16,6 +16,7 @@ export type Company = {
     email?: string;
     phone?: string;
     representative?: string;
+    representativeUserEmail?: string;
 };
 export type Person = {
     email: string;
