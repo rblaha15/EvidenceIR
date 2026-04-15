@@ -12,7 +12,7 @@
 
 <!--suppress CssUnusedSymbol, CssNoGenericFontName -->
 <style>
-    /*:global.material-icons {
+    /*TODO:global.material-icons {
         font-family: 'Material Icons';
         font-weight: normal;
         font-style: normal;

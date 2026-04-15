@@ -64,11 +64,12 @@
 </script>
 
 {#snippet content()}
-    {#each icons as icon}
-        <Icon {icon} class={'iconClass' in settings ? settings.iconClass : undefined} />
-    {/each}
     {#if settings.text}
         {settings.text}
+    {:else}
+        {#each icons as icon}
+            <Icon {icon} class={'iconClass' in settings ? settings.iconClass : undefined} />
+        {/each}
     {/if}
     {@render children?.()}
 {/snippet}
