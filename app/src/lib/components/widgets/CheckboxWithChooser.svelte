@@ -42,15 +42,15 @@
     const uid = $props.id();
 </script>
 
-<div class="d-flex gap-1 flex-column">
+<div class="flex gap-1 flex-column">
     <div class="input-group">
         <button aria-labelledby="label-{uid}" class="input-group-text input-group-input" onclick={onClick} tabindex="-1">
             <input bind:checked={value.checked} class="form-check-input m-0" role="button" type="checkbox" />
         </button>
-        <label class="form-floating d-block" id="label-{uid}">
+        <label class="form-floating block" id="label-{uid}">
             {#if value.checked}
                 <select class="form-select" value={value.chosen ?? 'notChosen'} onchange={onChange} use:Select>
-                    <option class="d-none" value='notChosen'>{t.widget.notChosen}</option>
+                    <option class="hidden" value='notChosen'>{t.widget.notChosen}</option>
                     {#each widget.options(context) as moznost}
                         <option value={moznost}>{widget.get(t, moznost)}</option>
                     {/each}

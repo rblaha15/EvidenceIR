@@ -162,12 +162,12 @@
     </p>
 {/each}
 
-<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+<div class="flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
     {#if error}
         <span class="text-danger">Něco se nepovedlo</span>
     {/if}
     {#if loading}
-        <div class="d-flex align-items-center gap-3">
+        <div class="flex align-items-center gap-3">
             <span>Odesílání dat</span>
             <div class="spinner-border text-danger"></div>
         </div>
@@ -207,7 +207,7 @@
 <input
     accept=".xls,.xlsx,.xlsm,.xlsb"
     bind:this={input}
-    class="d-none"
+    class="hidden"
     onchange={onFileSelected}
     type="file"
 />

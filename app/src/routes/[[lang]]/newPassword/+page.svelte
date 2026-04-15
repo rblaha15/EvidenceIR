@@ -91,7 +91,7 @@
 {#if mode === 'resetSent'}
     <p>{t.emailSent}</p>
 {:else if mode === 'resetSending'}
-    <div class="d-flex align-items-center">
+    <div class="flex align-items-center">
         <span>{t.sending}</span>
         <div class="spinner-border text-danger ms-2"></div>
     </div>
@@ -110,7 +110,7 @@
         {#if error}
             <p class="text-danger mt-3 mb-0">{@html error}</p>
         {/if}
-        <div class="d-flex align-content-center mt-3">
+        <div class="flex align-content-center mt-3">
             <button type="submit" class="btn btn-primary me-2" onclick={sendCode}>
                 {t.sendConfirmEmail}
             </button>
@@ -143,7 +143,7 @@
         {#if error}
             <p class="text-danger mt-3 mb-0">{@html error}</p>
         {/if}
-        <div class="d-flex align-content-center mt-3">
+        <div class="flex align-content-center mt-3">
             {#if mode === "saving"}
                 <div class="spinner-border text-danger m-2"></div>
             {:else}

@@ -29,10 +29,10 @@
 <h2 class="m-0">{title(data.translations)}</h2>
 <h4 class="m-0">{data.fileName}</h4>
 
-<p class="m-0 d-none print-warning fs-2 text-danger">{t.printWarning}</p>
+<p class="m-0 hidden print-warning fs-2 text-danger">{t.printWarning}</p>
 
 <PdfPreview args={data.fileLang} {t} url={data.url}>
-    <div class="d-flex align-items-center"><span class="me-1">{t.fileLanguage}:</span>
+    <div class="flex align-items-center"><span class="me-1">{t.fileLanguage}:</span>
         <LanguageSelector readonly={supportedLanguages.length < 2} onChange={code =>
             goto(createLink(code), { replaceState: true, invalidateAll: true })
         } options={supportedLanguages} selected={data.fileLang} />

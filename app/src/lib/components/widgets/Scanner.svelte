@@ -70,7 +70,7 @@
                 <Button class="btn-close" dismissModal label={t.widget.cancel} onclick={cancel} />
             </div>
 
-            <div class="modal-body d-flex justify-content-center">
+            <div class="modal-body flex justify-content-center">
                 <div class="w-100" id="reader"></div>
             </div>
 

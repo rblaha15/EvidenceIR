@@ -21,14 +21,14 @@
     {#each options.filter(it => it !== 'sk') as code}
         <li>
             <button
-                class="dropdown-item d-flex align-items-center"
+                class="dropdown-item flex align-items-center"
                 class:active={selected === code}
                 aria-pressed={selected === code}
                 onclick={() => selected !== code ? onChange(code) : null}
             >
                 <span class="fs-6 me-2">{code.toUpperCase()}</span>
                 {languageNames[code]}
-                <Icon icon="check" class={['ms-auto', selected === code ? 'd-inline' : 'd-none']} />
+                <Icon icon="check" class={['ms-auto', selected === code ? 'inline' : 'hidden']} />
             </button>
         </li>
     {/each}
@@ -38,7 +38,7 @@
     {@render value()}
 {:else}
     <div class="dropdown">
-        <button class="btn py-2 px-2 dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+        <button class="btn py-2 px-2 dropdown-toggle flex align-items-center" data-bs-toggle="dropdown">
             {@render value()}
         </button>
         <ul class="dropdown-menu">

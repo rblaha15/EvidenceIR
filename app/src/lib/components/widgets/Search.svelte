@@ -84,9 +84,9 @@
     const wide = browser ? window.matchMedia('(min-width: 768px)').matches : false;
 </script>
 
-<div class={["d-flex gap-1 flex-column", klass]}>
+<div class={["flex gap-1 flex-column", klass]}>
     <div class="position-relative" onfocusin={show} onfocusout={hide}>
-        <label class="form-floating d-block">
+        <label class="form-floating block">
             <input
                 autofocus={widget.inline(context)}
                 class="form-control border ps-3 bi"
@@ -101,7 +101,7 @@
                 <Icon icon="search" />
                 {labelAndStar(widget, context, t)}
             </label>
-            <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" class:d-none={!value} onclick={onClick}>
+            <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" class:hidden={!value} onclick={onClick}>
                 <Icon icon="clear" />
             </button>
         </label>
@@ -112,7 +112,7 @@
                     {@const searchItem = widget.getSearchItem(item, t, context)}
                     <a
                         tabindex="0"
-                        class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
+                        class="list-group-item-action list-group-item flex flex-column flex-md-row flex-row align-items-md-center"
                         class:rt-0={i === 0}
                         href={searchItem.href ?? '#'}
                         class:disabled={searchItem.disabled}
@@ -146,10 +146,10 @@
             {@const searchItem = widget.getSearchItem(value, t, context)}
             <div class="list-group w-100 z-2 selected" class:options={!widget.inline(context)}>
                 <div
-                    class="list-group-item-action list-group-item d-flex flex-column flex-md-row align-items-md-center rt-0"
+                    class="list-group-item-action list-group-item flex flex-column flex-md-row align-items-md-center rt-0"
                 >
                     {#each searchItem.pieces as piece, j}
-                        <p class={['mb-0 me-1 d-md-block', `text-${piece.color}`, piece.class, { 'd-none': j !== 0 }]}
+                        <p class={['mb-0 me-1 md:block', `text-${piece.color}`, piece.class, { 'hidden': j !== 0 }]}
                            style="color: var(--bs-body-color); flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                         >
                             <Icon icon={piece.icon} class="text-{piece.iconColor}" />

@@ -73,7 +73,7 @@
                     </h1>
                     <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
                 </div>
-                <div class="modal-body d-flex flex-column gap-3">
+                <div class="modal-body flex flex-column gap-3">
                     {#each list as item}
                         <Widget widget={item.widget} bind:value={item.value} {t} {context} {showAllErrors} />
                     {/each}
@@ -82,7 +82,7 @@
                     {#if error}
                         <div class="text-danger">{@html t.form.somethingWentWrongContactUsHtml}</div>
                     {/if}
-                    <div class="d-flex gap-1 align-items-center">
+                    <div class="flex gap-1 align-items-center">
                         {#if loading}
                             <div class="spinner-border text-danger"></div>
                         {/if}

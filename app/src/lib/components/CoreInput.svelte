@@ -182,7 +182,7 @@
     {/if}
 {/snippet}
 
-<div class="d-flex gap-1 flex-column">
+<div class="flex gap-1 flex-column">
     <div class="input-group">
         {#if widget.compact?.(context)}
             {#if widget.label(t, context)}
@@ -203,7 +203,7 @@
                 </button>
             {/if}
         {:else}
-            <div class={['d-block', {'form-floating': !widget.placeholder?.(t, context)}, labelClass]}>
+            <div class={['block', {'form-floating': !widget.placeholder?.(t, context)}, labelClass]}>
                 {@render leadingContent?.()}
                 {@render coreContent(field)}
 

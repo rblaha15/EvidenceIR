@@ -44,7 +44,7 @@
 </script>
 
 {#snippet showOptions()}
-    <option class="d-none" value='notChosen'>{t.widget.notChosen}</option>
+    <option class="hidden" value='notChosen'>{t.widget.notChosen}</option>
     {#each options as option}
         <option value={option}>{widget.get(t, option)}</option>
     {/each}
@@ -53,7 +53,7 @@
     {/if}
 {/snippet}
 
-<div class="d-flex gap-1 flex-column">
+<div class="flex gap-1 flex-column">
     {#if widget.compact(context)}
         <label class="input-group">
             <span class="input-group-text">{labelAndStar(widget, context, t)}</span>
@@ -63,7 +63,7 @@
             </select>
         </label>
     {:else}
-        <label class="form-floating d-block">
+        <label class="form-floating block">
             <select class="form-select" value={value ?? 'notChosen'} onchange={onChange}
                     disabled={widget.lock(context)}>
                 {@render showOptions()}

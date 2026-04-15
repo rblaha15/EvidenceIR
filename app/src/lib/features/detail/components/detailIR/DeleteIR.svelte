@@ -10,7 +10,7 @@
     } = $props()
 </script>
 
-<button class="btn btn-secondary d-block" data-bs-target="#deleteModal" data-bs-toggle="modal">
+<button class="btn btn-secondary block" data-bs-target="#deleteModal" data-bs-toggle="modal">
     <Icon icon="delete_forever" />
     {td.deleteThisRecord}
 </button>

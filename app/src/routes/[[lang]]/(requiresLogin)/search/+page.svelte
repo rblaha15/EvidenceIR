@@ -56,8 +56,8 @@
     }
 </script>
 
-<div class="d-flex flex-wrap">
-    <div class="d-flex me-auto align-items-center gap-3">
+<div class="flex flex-wrap">
+    <div class="flex me-auto align-items-center gap-3">
         {#if $statusStore === 'loadingOnline' && $isOnline}
             <div class="spinner-border text-danger"></div>
             <span>{ts.downloadingChanges}</span>

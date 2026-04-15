@@ -63,14 +63,14 @@
     const mf = $derived(sps[0].NSP.montazka.email == unknownCompanyEmail ? '' : sps[0].NSP.montazka.email.trim());
 </script>
 
-<div class="d-flex flex-wrap gap-3 justify-content-between">
-    <div class="d-flex flex-column gap-3">
-        <div class="d-flex flex-column gap-1 align-items-sm-start">
+<div class="flex flex-wrap gap-3 justify-content-between">
+    <div class="flex flex-column gap-3">
+        <div class="flex flex-column gap-1 align-items-sm-start">
             {#each sps as sp}
                 {#if !sp.deleted}
                     <DetailNSP {sp} {lang} {t} />
                 {:else}
-                    <div class="d-flex gap-3 align-items-center flex-wrap">
+                    <div class="flex gap-3 align-items-center flex-wrap">
                         <span>{sp.meta.id.replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}</span>
                         <span>{td.deletedNSP}</span>
                     </div>
@@ -80,7 +80,7 @@
     </div>
 
     {#if !sps[0].deleted}
-        <div class="d-flex flex-column gap-3 align-items-sm-start">
+        <div class="flex flex-column gap-3 align-items-sm-start">
             <a class="btn btn-primary"
                href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].NSP.koncovyUzivatel).join(';')}&assembly=${mf}`)} tabindex="0">
                 <Icon icon="attach_email" />
@@ -98,9 +98,9 @@
                     {td.copyNSPtoInstallation}{$aA}
                 </a>
 
-                <div class="d-flex flex-column gap-1 align-items-sm-start">
+                <div class="flex flex-column gap-1 align-items-sm-start">
                     <Widget {widget} bind:value={newIRID} {t} context={{}} {showAllErrors} />
-                    <button class="btn btn-danger d-block" onclick={transfer}>
+                    <button class="btn btn-danger block" onclick={transfer}>
                         <Icon icon="drive_file_move" />
                         {td.transferProtocols}{$aA}
                     </button>
