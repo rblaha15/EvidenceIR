@@ -33,7 +33,7 @@
 <div class="dropdown">
     <Button label="Toggle theme" icon={selectedIcon}
             class="dropdown-toggle flex align-items-center" toggleDropdown />
-    <ul class="dropdown-menu">
+    <ul class="dropdown-menu hidden">
         {#each themeSettings.zip(icons) as [theme, icon]}
             <li>
                 <button

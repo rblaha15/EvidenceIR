@@ -41,7 +41,7 @@
         <button class="btn py-2 px-2 dropdown-toggle flex align-items-center" data-bs-toggle="dropdown">
             {@render value()}
         </button>
-        <ul class="dropdown-menu">
+        <ul class="dropdown-menu hidden">
             {@render items()}
         </ul>
     </div>
