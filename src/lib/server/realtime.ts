@@ -1,6 +1,6 @@
 import { getDatabase } from "firebase-admin/database"
 import { app } from "./firebase"
-import { batteries, type Company, inverters, type Person, type SparePart, type Technician } from '$lib/client/realtime';
+import { type Company, type Person, type SparePart, type Technician } from '$lib/client/realtime';
 import '$lib/extensions'
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 
@@ -20,8 +20,8 @@ export const setArray = (key: string, items: string[]) => realtime.ref(`/${key}`
 export const setPersonDetails = (userId: string, person: Person) => lidiRef.child(userId).set(defined(person))
 export const removePerson = (userId: string) => lidiRef.child(userId).remove()
 
-export const people = async () => ((await lidiRef.get()).val() as Record<string, Person>) ?? {}
-export const technicians = async () => (await techniciRef.get()).val() as Technician[] ?? []
+export const getCompanies = async () => ((await firmyRef.get()).val() as Record<string, Company>) ?? {}
+export const getPeople = async () => ((await lidiRef.get()).val() as Record<string, Person>) ?? {}
 
 export const getAllLoyaltyProgramData = async () =>
     (await loyaltyProgramRef.get()).val() as Record<string, LoyaltyProgramUserData>

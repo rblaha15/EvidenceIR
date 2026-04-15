@@ -1,7 +1,7 @@
 import type { Company, Person, SparePart, Technician } from '$lib/client/realtime';
 import { checkAdmin, checkToken, createUser, getUserByEmail, getUsersByEmail, removeUsers } from '$lib/server/auth';
 import {
-    people,
+    getPeople,
     removePerson,
     setArray,
     setCompanies,
@@ -27,7 +27,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
     if (typ == 'users') {
         if (!await checkAdmin(token)) error(401, 'Unauthorized');
-        const oldPeople = (await people()).mapTo((_, p) => p.email);
+        const oldPeople = (await getPeople()).mapTo((_, p) => p.email);
         const { array: newPeople }: { array: Person[] } = await request.json();
 
         const toRemove = oldPeople.filter(p => !newPeople.some(p2 => p2.email == p));

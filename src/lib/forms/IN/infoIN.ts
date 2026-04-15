@@ -1,4 +1,5 @@
 import {
+    friendlyCompanies,
     responsiblePerson,
     startAccumulationTanksListening,
     startSolarCollectorsListening,
@@ -160,8 +161,9 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [str
         }
 
         const user = get(currentUser)!;
+        const $friendlyCompanies = get(friendlyCompanies)!;
 
-        const newIr = newIR(raw, user, draft);
+        const newIr = newIR(raw, user, draft, $friendlyCompanies);
         if (edit) {
             if (!changeID) await db.updateIN(newIRID, raw, draft);
             else if (!await changeIRID(
