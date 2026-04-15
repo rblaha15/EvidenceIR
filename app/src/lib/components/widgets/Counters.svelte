@@ -31,7 +31,7 @@
     };
 </script>
 
-<div class="flex gap-1 flex-column">
+<div class="flex gap-1 flex-col">
     <div>{widget.label(t, context)}</div>
     <div class="input-group input-group-grid" style="--grid-cols: 4">
         {#each value.entries() as [option, number]}

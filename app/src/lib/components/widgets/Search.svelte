@@ -84,7 +84,7 @@
     const wide = browser ? window.matchMedia('(min-width: 768px)').matches : false;
 </script>
 
-<div class={["flex gap-1 flex-column", klass]}>
+<div class={["flex gap-1 flex-col", klass]}>
     <div class="position-relative" onfocusin={show} onfocusout={hide}>
         <label class="form-floating block">
             <input
@@ -112,7 +112,7 @@
                     {@const searchItem = widget.getSearchItem(item, t, context)}
                     <a
                         tabindex="0"
-                        class="list-group-item-action list-group-item flex flex-column flex-md-row flex-row align-items-md-center"
+                        class="list-group-item-action list-group-item flex flex-col md:flex-row flex-row align-items-md-center"
                         class:rt-0={i === 0}
                         href={searchItem.href ?? '#'}
                         class:disabled={searchItem.disabled}
@@ -146,7 +146,7 @@
             {@const searchItem = widget.getSearchItem(value, t, context)}
             <div class="list-group w-100 z-2 selected" class:options={!widget.inline(context)}>
                 <div
-                    class="list-group-item-action list-group-item flex flex-column flex-md-row align-items-md-center rt-0"
+                    class="list-group-item-action list-group-item flex flex-col md:flex-row align-items-md-center rt-0"
                 >
                     {#each searchItem.pieces as piece, j}
                         <p class={['mb-0 me-1 md:block', `text-${piece.color}`, piece.class, { 'hidden': j !== 0 }]}

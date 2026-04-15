@@ -27,7 +27,7 @@
     const uid = $props.id();
 </script>
 
-<div class="flex gap-1 flex-column">
+<div class="flex gap-1 flex-col">
     <div class="input-group">
         <button class="input-group-text input-group-input" onclick={onClick}
                 aria-labelledby="label-{uid}" tabindex="-1" disabled={widget.lock(context)}
@@ -36,7 +36,7 @@
                    disabled={widget.lock(context)} checked={value} onclick={onClick} />
         </button>
         <button onclick={onClick} tabindex="-1"
-                id="label-{uid}" class="input-group-text flex-grow-1 flex flex-column align-items-start"
+                id="label-{uid}" class="input-group-text flex-grow-1 flex flex-col align-items-start"
         >
             {#if widget.label(t, context)}
                 <p class="m-0">{labelAndStar(widget, context, t)}</p>

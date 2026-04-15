@@ -30,7 +30,7 @@
     const uid = $props.id();
 </script>
 
-<div class="flex gap-1 flex-column">
+<div class="flex gap-1 flex-col">
     <div class="flex align-items-center">
         {labelAndStar(widget, context, t)}
         {#if !widget.required(context)}

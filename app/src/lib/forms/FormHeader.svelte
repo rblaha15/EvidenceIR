@@ -142,7 +142,7 @@
                 ></button>
             </div>
 
-            <div class="modal-body gap-4 flex flex-column">
+            <div class="modal-body gap-4 flex flex-col">
                 {#if excelImport}
                     <p class="m-0">{tfi.uploadExcel({ sheet: excelImport.sheet })}</p>
                     <input accept=".xls,.xlsx,.xlsm,.xlsb"
@@ -207,7 +207,7 @@
                     {/if}
                 {/if}
                 {#if error}
-                    <div class="alert alert-danger flex flex-column gap-4">
+                    <div class="alert alert-danger flex flex-col gap-4">
                         <div class="flex align-items-center gap-4">
                             <Icon icon="error_outline" />
                             <h4 class="alert-heading m-0">{tfi.somethingWentWrong}</h4>

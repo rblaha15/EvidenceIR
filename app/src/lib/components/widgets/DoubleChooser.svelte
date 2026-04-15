@@ -92,7 +92,7 @@
     {/if}
 {/snippet}
 
-<div class="flex gap-1 flex-column">
+<div class="flex gap-1 flex-col">
     <div class="input-group">
         <label class="form-floating block left">
             <select class="form-select" disabled={widget.lock1(context)}

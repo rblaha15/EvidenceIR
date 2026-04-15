@@ -46,9 +46,9 @@
     };
 </script>
 
-<div class="flex gap-1 flex-column">
+<div class="flex gap-1 flex-col">
     <div>{labelAndStar(widget, context, t)}</div>
-    <div class="flex gap-4 flex-column align-items-start">
+    <div class="flex gap-4 flex-col align-items-start">
         {#if value.length === 0 || (multiple && value.length < max)}
             <div class="flex gap-4">
                 <Button text={multiple ? t.widget.selectPhotos : t.widget.selectPhoto}
@@ -66,7 +66,7 @@
                             <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
                                  src={photo} alt={t.widget.photo}>
                         {/await}
-                        <div class="flex flex-column gap-4 text-center">
+                        <div class="flex flex-col gap-4 text-center">
                             <span style="word-break: break-all">{fileName}</span>
                             <Button text={t.widget.remove_Photo} icon="delete" color="danger"
                                     onclick={remove(uuid)} />

@@ -42,7 +42,7 @@
     const uid = $props.id();
 </script>
 
-<div class="flex gap-1 flex-column">
+<div class="flex gap-1 flex-col">
     <div class="input-group">
         <button aria-labelledby="label-{uid}" class="input-group-text input-group-input" onclick={onClick} tabindex="-1">
             <input bind:checked={value.checked} class="form-check-input m-0" role="button" type="checkbox" />

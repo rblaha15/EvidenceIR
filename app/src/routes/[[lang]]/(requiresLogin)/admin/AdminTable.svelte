@@ -155,7 +155,7 @@
     </p>
 {/each}
 
-<div class="flex flex-column flex-md-row align-items-start align-items-md-center gap-4">
+<div class="flex flex-col md:flex-row align-items-start align-items-md-center gap-4">
     {#if error}
         <span class="text-danger">Něco se nepovedlo</span>
     {/if}

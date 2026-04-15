@@ -31,7 +31,7 @@
     const other = widget.options(context).at(-1)!;
 </script>
 
-<div class="flex gap-1 flex-column">
+<div class="flex gap-1 flex-col">
     <div class="flex align-items-center">
         {labelAndStar(widget, context, t)}
         {#if !widget.required(context)}

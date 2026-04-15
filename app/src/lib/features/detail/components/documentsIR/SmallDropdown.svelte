@@ -14,7 +14,7 @@
 </button>
 
 <div class="dropdown-menu hidden">
-    <div class="flex flex-column gap-1 px-4 py-2 align-items-start">
+    <div class="flex flex-col gap-1 px-4 py-2 align-items-start">
         {#each dropdownItems ?? [] as item}
             {#if !item.hide}
                 {#if 'color' in item}

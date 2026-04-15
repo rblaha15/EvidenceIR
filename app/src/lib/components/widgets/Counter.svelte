@@ -29,7 +29,7 @@
     };
 </script>
 
-<div class="flex gap-1 flex-column">
+<div class="flex gap-1 flex-col">
     <div class="input-group flex flex-nowrap">
         <span class="input-group-text" id="label-{uid}">{widget.label(t, context)}</span>
         {#if !widget.lock(context)}

@@ -110,7 +110,7 @@
 {/snippet}
 
 {#snippet errorAlert(error: E)}
-    <div class="alert alert-danger m-4 flex flex-column gap-4">
+    <div class="alert alert-danger m-4 flex flex-col gap-4">
         <div class="flex align-items-center gap-4">
             <Icon icon="error_outline" />
             <h4 class="alert-heading m-0">{error.name}</h4>
@@ -129,7 +129,7 @@
 {/snippet}
 
 {#snippet content()}
-    <div class="flex flex-column h-100">
+    <div class="flex flex-col h-100">
         <Navigation {t} />
         <div class="flex-grow-1 mb-2 overflow-y-scroll">
             <div class="sticky-top progress rounded-0" role="progressbar"
@@ -142,7 +142,7 @@
                 ></div>
             </div>
             <main class="container flex gap-4">
-                <div class="mt-4 flex flex-column gap-4 w-100">
+                <div class="mt-4 flex flex-col gap-4 w-100">
                     <h1 id="main-title" class="m-0 flex align-items-center gap-4">
                         {#if $backButton}
                             <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}

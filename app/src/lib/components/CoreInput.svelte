@@ -182,7 +182,7 @@
     {/if}
 {/snippet}
 
-<div class="flex gap-1 flex-column">
+<div class="flex gap-1 flex-col">
     <div class="input-group">
         {#if widget.compact?.(context)}
             {#if widget.label(t, context)}
