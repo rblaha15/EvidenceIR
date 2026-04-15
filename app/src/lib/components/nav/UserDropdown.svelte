@@ -31,7 +31,7 @@
     <button aria-label="User" class="btn btn-link nav-link" data-bs-toggle="dropdown">
         <Icon class="fs-2" icon="account_circle" />
     </button>
-    <div class="dropdown-menu dropdown-menu-end">
+    <div class="dropdown-menu hidden dropdown-menu-end">
         <div class="flex flex-column gap-3 px-3 pt-1">
             {#if $currentUser?.displayName}
                 <h5 class="m-0">

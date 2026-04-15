@@ -13,7 +13,7 @@
     <span class="visually-hidden">Toggle dropdown with other options</span>
 </button>
 
-<div class="dropdown-menu">
+<div class="dropdown-menu hidden">
     <div class="flex flex-column gap-1 px-3 py-2 align-items-start">
         {#each dropdownItems ?? [] as item}
             {#if !item.hide}
