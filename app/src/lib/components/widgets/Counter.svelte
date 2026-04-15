@@ -29,8 +29,8 @@
     };
 </script>
 
-<div class="d-flex gap-1 flex-column">
-    <div class="input-group d-flex flex-nowrap">
+<div class="flex gap-1 flex-column">
+    <div class="input-group flex flex-nowrap">
         <span class="input-group-text" id="label-{uid}">{widget.label(t, context)}</span>
         {#if !widget.lock(context)}
             <button class="btn btn-outline-primary" onclick={dec}

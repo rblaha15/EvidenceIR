@@ -30,8 +30,8 @@
     const uid = $props.id();
 </script>
 
-<div class="d-flex gap-1 flex-column">
-    <div class="d-flex align-items-center">
+<div class="flex gap-1 flex-column">
+    <div class="flex align-items-center">
         {labelAndStar(widget, context, t)}
         {#if !widget.required(context)}
             <button class="btn py-1 px-2 m-1" aria-label={t.widget.clearSelection} onclick={onClick(null)}>

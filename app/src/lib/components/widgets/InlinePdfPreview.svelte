@@ -56,7 +56,7 @@
 {:else if error}
     <p class="alert alert-danger m-0">{t.pdf.previewNotSuccessful}</p>
 {:else if !url}
-    <p class="alert alert-secondary m-0 d-flex align-items-center gap-3">
+    <p class="alert alert-secondary m-0 flex align-items-center gap-3">
         <span class="spinner-border text-danger"></span>
         {t.pdf.previewLoading}
     </p>

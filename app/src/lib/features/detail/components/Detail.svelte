@@ -20,7 +20,7 @@
     const td = $derived(t.detail);
 
 </script>
-<div class="d-flex flex-column gap-5">
+<div class="flex flex-column gap-5">
     {#if ir && !ir.deleted}
         <h3 class="m-0">
             {#if ir.isDraft}

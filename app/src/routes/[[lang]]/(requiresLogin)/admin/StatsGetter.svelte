@@ -60,7 +60,7 @@
     };
 </script>
 
-<div class="d-flex gap-1">
+<div class="flex gap-1">
     <div class="flex-grow-1">
         <Widget widget={fromW} bind:value={from} context={{}} t={cs} {showAllErrors} />
     </div>

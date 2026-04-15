@@ -102,7 +102,7 @@
 	{#if error}
 		<p class="text-danger mt-3 mb-0">{@html error}</p>
 	{/if}
-	<div class="d-flex align-content-center mt-3">
+	<div class="flex align-content-center mt-3">
 		<button type="submit" class="btn btn-primary me-2" onclick={signIn}>
 			{t.toLogIn}
 		</button>

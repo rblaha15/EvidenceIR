@@ -31,9 +31,9 @@
     } as unknown as OpenPdfOptions<P>);
 </script>
 
-<div class={["d-flex column-gap-3 row-gap-1", lang === 'de' ? 'flex-column align-items-start' : 'flex-wrap align-items-center']}>
+<div class={["flex column-gap-3 row-gap-1", lang === 'de' ? 'flex-column align-items-start' : 'flex-wrap align-items-center']}>
     {#if !disabled}
-        <div class="d-flex flex-row gap-3 flex-shrink-0">
+        <div class="flex flex-row gap-3 flex-shrink-0">
             <a
                 href={generatePdfPreviewUrl(o).href}
                 class="link-offset-1 btn btn-link text-nowrap"
@@ -58,12 +58,12 @@
                     <button
                         data-bs-toggle="modal"
                         data-bs-target="#{additionalButton.dialogID}"
-                        class={['btn d-block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary' ]}
+                        class={['btn block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary' ]}
                     >{additionalButton.text}</button>
                 {:else}
                     <a
                         tabindex="0"
-                        class={['btn d-block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary' ]}
+                        class={['btn block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary' ]}
                         href={additionalButton.href}
                     >{additionalButton.text}</a>
                 {/if}

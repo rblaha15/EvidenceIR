@@ -33,17 +33,17 @@
 
 <div class="alert alert-primary">
     <h4 class="alert-heading">{ts.userSettings}</h4>
-    <div class="d-flex align-items-center"><span class="me-1">{ts.appTheme}:</span>
+    <div class="flex align-items-center"><span class="me-1">{ts.appTheme}:</span>
         <ThemeSelector {t} />
     </div>
-    <div class="d-flex align-items-center"><span class="me-1">{ts.language}:</span>
+    <div class="flex align-items-center"><span class="me-1">{ts.language}:</span>
         <LanguageSelector onChange={code => {
             setUserPreferredLanguage(code);
             return redirect(code);
         }} selected={page.data.languageCode} />
     </div>
     {#if !$hideNav}
-        <div class="d-flex align-items-center"><span class="me-1">{ts.defaultDocumentLanguage}:</span>
+        <div class="flex align-items-center"><span class="me-1">{ts.defaultDocumentLanguage}:</span>
             <LanguageSelector onChange={code => {
                 setUserPreferredDocumentLanguage(code);
             }} selected={$currentPreferredDocumentLanguage ?? '—'} />

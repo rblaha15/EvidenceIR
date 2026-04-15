@@ -51,14 +51,14 @@
 {#snippet header()}
     {#snippet header()}
         <!--suppress CheckImageSize -->
-        <img src="/ic_r.png" alt="Logo" width="32" height="32" class="d-inline me-2" />
+        <img src="/ic_r.png" alt="Logo" width="32" height="32" class="inline me-2" />
         <span class="fw-semibold">{tn.appName}</span>
     {/snippet}
 
     {#if $hideNav}
         {@render header()}
     {:else}
-        <a class="navbar-brand d-flex align-content-center" href="/">
+        <a class="navbar-brand flex align-content-center" href="/">
             {@render header()}
         </a>
     {/if}
@@ -68,7 +68,7 @@
     <div class="container-fluid">
         {#if isLoggedIn && !$hideNav}
             <Button label="Menu" icon="menu" iconClass="fs-1" link
-                    class="d-md-none me-2 nav-link" offcanvasID="NOC" />
+                    class="md:hidden me-2 nav-link" offcanvasID="NOC" />
         {/if}
         {@render header()}
         {#if !$isOnline && !$hideNav}
@@ -76,17 +76,17 @@
         {/if}
         <div class="me-auto me-lg-3"></div>
         {#if isLoggedIn && !$hideNav}
-            <div class="d-none d-md-flex d-lg-none flex-row ms-auto ms-md-0">
+            <div class="hidden md:flex lg:hidden flex-row ms-auto ms-md-0">
                 {@render buttons()}
             </div>
-            <div class="d-none d-md-block d-lg-none w-100"></div> <!-- Row break -->
-            <div class="d-none d-md-inline me-auto">
+            <div class="hidden md:block lg:hidden w-100"></div> <!-- Row break -->
+            <div class="hidden md:inline me-auto">
                 <BaseNav {t} />
             </div>
-            <div class="d-flex d-md-none d-lg-flex flex-row ms-auto ms-md-0">
+            <div class="flex md:hidden lg:flex flex-row ms-auto ms-md-0">
                 {@render buttons()}
             </div>
-            <div class="d-md-none offcanvas offcanvas-start" tabindex="-1" id="NOC">
+            <div class="md:hidden offcanvas offcanvas-start" tabindex="-1" id="NOC">
                 <div class="offcanvas-header">
                     {@render header()}
                     <button class="btn btn-link nav-link ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -98,7 +98,7 @@
                     {#if page.route.id?.includes('[form=form]')}
                         <hr />
                         {#key page.url.pathname + page.url.search}
-                            <div class="d-md-none toc">
+                            <div class="md:hidden toc">
                                 <TableOfContents {t} />
                             </div>
                         {/key}
@@ -106,10 +106,10 @@
                 </div>
             </div>
         {:else}
-            <div class="d-none d-md-inline me-auto"></div>
+            <div class="hidden md:inline me-auto"></div>
             {@render settings()}
             {#if !$hideNav}
-                <div class="d-flex flex-row">
+                <div class="flex flex-row">
                     <LoggedOutButtons {t} />
                 </div>
             {/if}

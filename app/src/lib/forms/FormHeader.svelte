@@ -99,7 +99,7 @@
 </script>
 
 {#if !readonly}
-    <div class="d-flex w-100 align-items-center text-nowrap flex-wrap gap-2">
+    <div class="flex w-100 align-items-center text-nowrap flex-wrap gap-2">
         <span class="me-auto">{STAR} = {tf.mandatoryFields}</span>
         {#if excelImport || pdfImport}
             <button
@@ -142,15 +142,15 @@
                 ></button>
             </div>
 
-            <div class="modal-body gap-3 d-flex flex-column">
+            <div class="modal-body gap-3 flex flex-column">
                 {#if excelImport}
                     <p class="m-0">{tfi.uploadExcel({ sheet: excelImport.sheet })}</p>
                     <input accept=".xls,.xlsx,.xlsm,.xlsb"
                            bind:this={inputExcel}
-                           class="d-none"
+                           class="hidden"
                            onchange={() => fileExcel = inputExcel?.files?.[0]}
                            type="file">
-                    <div class="d-flex align-items-center gap-3">
+                    <div class="flex align-items-center gap-3">
                         {#if !fileExcel}
                             <button
                                 type="button"
@@ -179,10 +179,10 @@
                     <p class="m-0">{tfi.uploadPdf}</p>
                     <input accept="application/pdf"
                            bind:this={inputPdf}
-                           class="d-none"
+                           class="hidden"
                            onchange={() => filePdf = inputPdf?.files?.[0]}
                            type="file">
-                    <div class="d-flex align-items-center gap-3">
+                    <div class="flex align-items-center gap-3">
                         {#if !filePdf}
                             <button
                                 type="button"
@@ -207,8 +207,8 @@
                     {/if}
                 {/if}
                 {#if error}
-                    <div class="alert alert-danger d-flex flex-column gap-3">
-                        <div class="d-flex align-items-center gap-3">
+                    <div class="alert alert-danger flex flex-column gap-3">
+                        <div class="flex align-items-center gap-3">
                             <Icon icon="error_outline" />
                             <h4 class="alert-heading m-0">{tfi.somethingWentWrong}</h4>
                         </div>

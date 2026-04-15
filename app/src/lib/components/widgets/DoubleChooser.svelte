@@ -83,7 +83,7 @@
 </script>
 
 {#snippet showGroups(other: (Arr<I1> | Arr<I2>), options: (Arr<I1> | Arr<I2>))}
-    <option class="d-none" value='notChosen'>{t.widget.notChosen}</option>
+    <option class="hidden" value='notChosen'>{t.widget.notChosen}</option>
     {#each options as option}
         <option value={option}>{widget.get(t, option)}</option>
     {/each}
@@ -92,9 +92,9 @@
     {/if}
 {/snippet}
 
-<div class="d-flex gap-1 flex-column">
+<div class="flex gap-1 flex-column">
     <div class="input-group">
-        <label class="form-floating d-block left">
+        <label class="form-floating block left">
             <select class="form-select" disabled={widget.lock1(context)}
                     onchange={onChange1} value={value.first ?? 'notChosen'}>
                 {@render showGroups(other1, options1)}
