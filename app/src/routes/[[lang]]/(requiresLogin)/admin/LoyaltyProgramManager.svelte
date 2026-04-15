@@ -12,6 +12,7 @@
     import { getAllIRs } from '$lib/client/incrementalUpdates';
     import { storable } from '$lib/helpers/stores';
     import { newInputWidget, newSearchWidget } from '$lib/forms/Widget';
+    import Button from '$lib/components/Button.svelte';
 
     const userW = newSearchWidget<unknown, Person>({
         label: 'Uživatel', items: usersList, getSearchItem: i => ({
@@ -53,7 +54,7 @@
 
     const cs = getTranslations('cs');
 
-    const results = storable<{ date: string, data: Record<string, LoyaltyProgramUserData> }>('loyalty_data');
+    const results = storable<{ date: string, data: Record<string, { email?: string, data: LoyaltyProgramUserData }> }>('loyalty_data2');
     let status = $state('none' as 'none' | 'loading' | 'fail' | 'success');
     let statusA = $state('none' as 'none' | 'mistake' | 'loading' | 'fail' | 'success');
     let showAllErrors = $state(false);
@@ -142,9 +143,10 @@
     {#if !$results.data.entries().length}
         <p>Žádná data</p>
     {/if}
-    {#each $results.data.entries().toSorted((a, b) => a[0].localeCompare(b[0])) as [email, data]}
+    {#each $results.data.entries().toSorted((a, b) => a[0].localeCompare(b[0])) as [uid, { email, data }]}
         <details>
             <summary><a href="#users-{email}">{email}</a>: {data.points.toLocaleString('cs')}</summary>
+            <Button text="Otevřít v databázi" link icon="cloud_circle" href={`https://console.firebase.google.com/u/0/project/evidence-ir/database/evidence-ir-default-rtdb/data/~2FloyaltyProgram~2F${uid}`} />
             {#each data.history as entry}
                 {#if entry.type === 'other'}
                     <p class="m-0">{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note} {#if entry.irid} (<a href="{detailIrUrl(entry.irid)}">{entry.irid}</a>){/if}</p>

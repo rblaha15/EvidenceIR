@@ -16,7 +16,7 @@ export const GET: RequestHandler = async ({ url }) => {
     const uids = all.keys();
     const users = (await getUsersByID(uids)).flatMap(r => r.users);
     const emails = users.associate(u => [u.uid, u.email!]);
-    const result = all.mapEntries((uid, d) => [emails[uid] || uid, d]);
+    const result = all.mapValues((uid, data) => ({ email: emails[uid], data }));
     return json(result);
 };
 
