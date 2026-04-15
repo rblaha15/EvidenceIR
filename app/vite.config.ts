@@ -9,6 +9,9 @@ export default defineConfig({
         port: 5005,
         strictPort: true,
     },
+    preview: {
+        port: 4005,
+    },
     define: {
         appVersion: JSON.stringify(pkg.version),
     },

@@ -1,0 +1,43 @@
+import { type ContextSZ, type FormSZ } from '$lib/forms/SP/formSZ';
+import type { FormInfo } from '$lib/forms/FormInfo';
+import db from '$lib/Database';
+import { error } from '@sveltejs/kit';
+import { isSP } from '$lib/forms/SP/infoSP.svelte';
+import defaultSZ from '$lib/forms/SP/defaultSZ';
+
+const infoSZ: FormInfo<ContextSZ, FormSZ, [], never, { i: number }> = {
+    type: 'IR',
+    storeName: () => 'stored_sz',
+    form: () => defaultSZ(),
+    getEditData: (ir, url) => {
+        const editIndex = url.searchParams.get('edit') as string | null;
+        if (editIndex) {
+            const i = Number(editIndex);
+            const sp = ir.SPs[i];
+            if (!isSP(sp))
+                return { raw: sp, other: { i } };
+            return error(400, { message: 'Provided index is not a simple intervention' });
+        }
+    },
+    getViewData: (ir, url) => {
+        const viewIndex = url.searchParams.get('view') as string | null;
+        if (viewIndex) {
+            const i = Number(viewIndex);
+            return { raw: ir.SPs[i], other: { i } };
+        } else {
+            return { other: { i: ir.SPs.length } };
+        }
+    },
+    saveData: async ({ irid, raw, edit, other: { i } }) => {
+        const ir = (await db.getIR(irid))!;
+        if (ir.deleted) return false
+
+        if (edit) await db.updateSP(irid, i, raw);
+        else await db.addSPs(irid, raw);
+    },
+    createContext: ({ values: v }) => ({ v }),
+    title: (t, mode) =>
+        mode == 'edit' ? t.sz.editSZ : t.sz.title,
+};
+
+export default infoSZ;

@@ -1,0 +1,21 @@
+import { get, readonly } from 'svelte/store';
+import { storable } from './helpers/stores';
+import languageCodes, { type LanguageCode } from '$lib/languageCodes';
+
+export const isLanguageCode = (code: unknown): code is LanguageCode => (languageCodes as readonly unknown[]).includes(code);
+
+export const asLanguageCodeOrNull = (code: unknown) =>
+    isLanguageCode(code) ? code : null;
+
+export const defaultLanguage: LanguageCode = 'en';
+
+const localLanguage: () => LanguageCode | undefined = () => navigator.languages.find(it => isLanguageCode(it));
+
+const userPreferredLanguage = storable<LanguageCode>('user_preferred_language');
+const userPreferredDocumentLanguage = storable<LanguageCode>('user_preferred_document_language');
+
+export const setUserPreferredLanguage = (code: LanguageCode) => userPreferredLanguage.set(code);
+export const setUserPreferredDocumentLanguage = (code: LanguageCode) => userPreferredDocumentLanguage.set(code);
+export const preferredLanguage: () => LanguageCode = () => get(userPreferredLanguage) ?? localLanguage() ?? defaultLanguage;
+
+export const currentPreferredDocumentLanguage = readonly(userPreferredDocumentLanguage);

@@ -1,0 +1,39 @@
+import { type Year } from '$lib/data';
+import type { FormInfo } from '$lib/forms/FormInfo';
+import type { TC } from '$lib/forms/IN/defaultIN';
+import { error } from '@sveltejs/kit';
+import type { ContextRKTL, FormRKTL } from '$lib/forms/RKT/formRKTL';
+import defaultRKTL from '$lib/forms/RKT/defaultRKTL';
+import type { Raw } from '$lib/forms/Form';
+import db from '$lib/Database';
+
+const infoRKT: FormInfo<ContextRKTL, FormRKTL, [], 'RKTL', { defaultYear: Year, filledYears: Year[], pump: TC }> = {
+    type: 'IR',
+    storeName: ({ pump }) => `stored_check-${pump}`,
+    form: ({ defaultYear, filledYears }) => defaultRKTL(defaultYear, filledYears),
+    openPdf: ({ pump }) => ({
+        link: 'RKTL',
+        pump: pump,
+    }),
+    getEditData: (ir, url, { pump }) => {
+        const edit = (url.searchParams.get('edit-year')?.toNumber()) as Year | undefined;
+        if (edit) return { raw: ir.RK.TC[pump]![edit] as Raw<FormRKTL>, other: { defaultYear: edit } };
+    },
+    getViewData: (ir, url) => {
+        const pump = (url.searchParams.get('pump')?.toNumber() || error(400, 'Argument pump not valid or missing')) as TC;
+        const checks = ir.RK.TC[pump] ?? {};
+        const filledYears = checks.keys().map(y => Number(y) as Year);
+
+        const view = (url.searchParams.get('view-year')?.toNumber()) as Year | undefined;
+        if (view) return { raw: ir.RK.TC[pump]![view] as Raw<FormRKTL>, other: { defaultYear: view, filledYears, pump } };
+        return { other: { defaultYear: -1, filledYears, pump } };
+    },
+    saveData: async ({ irid, raw, values, other: { pump } }) => {
+        const year = values.info.year as Year;
+        await db.addRKT(irid, pump, year, raw);
+    },
+    title: (t, _, { pump }) => t.rkt.formTitle({ n: `${pump}` }),
+    createContext: ({ mode }) => ({ mode }),
+};
+
+export default infoRKT;

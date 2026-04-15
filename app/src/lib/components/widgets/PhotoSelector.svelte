@@ -1,0 +1,101 @@
+<script generics="C" lang="ts">
+    import type { Translations } from '$lib/translations';
+    import type { ChangeEventHandler } from 'svelte/elements';
+    import { addFile, getFile, removeFile } from '$lib/components/widgets/File.svelte';
+    import Button from '$lib/components/Button.svelte';
+    import { type Files, labelAndStar, type PhotoSelectorWidget } from '$lib/forms/Widget';
+
+    interface Props {
+        t: Translations;
+        widget: PhotoSelectorWidget<C>;
+        context: C;
+        value: Files;
+        showAllErrors: boolean;
+    }
+
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
+    let showError = $derived(showAllErrors);
+
+    let inputSelect = $state<HTMLInputElement>();
+    let inputCapture = $state<HTMLInputElement>();
+    const accept = $derived(widget.accept(context));
+    const multiple = $derived(widget.multiple(context));
+    const max = $derived(widget.max(context));
+
+    const onchange: ChangeEventHandler<HTMLInputElement> = async e => {
+        const selectedFiles = e.currentTarget.files;
+        if (selectedFiles) {
+            const photos = await [...selectedFiles].map(file =>
+                addFile(file).then(uuid => ({ fileName: file.name, uuid })),
+            ).awaitAll();
+
+            const newValue = [...value, ...photos].slice(0, max)
+            value = newValue;
+            widget.onValueSet(context, newValue);
+            if (e.currentTarget) e.currentTarget.value = '';
+        }
+        showError = true;
+    };
+
+    const remove = (photoId: string) => async () => {
+        await removeFile(photoId);
+        const newValue = value.toSpliced(value.findIndex(f => f.uuid === photoId), 1)
+        value = newValue;
+        widget.onValueSet(context, newValue);
+        showError = true;
+    };
+</script>
+
+<div class="d-flex gap-1 flex-column">
+    <div>{labelAndStar(widget, context, t)}</div>
+    <div class="d-flex gap-3 flex-column align-items-start">
+        {#if value.length === 0 || (multiple && value.length < max)}
+            <div class="d-flex gap-3">
+                <Button text={multiple ? t.widget.selectPhotos : t.widget.selectPhoto}
+                        color="primary" outline onclick={() => inputSelect?.click()} />
+                <Button text={t.widget.capturePhoto}
+                        color="primary" outline onclick={() => inputCapture?.click()} />
+            </div>
+        {/if}
+
+        {#if value.length}
+            <ul class="list-group">
+                {#each value as { fileName, uuid }}
+                    <li class="d-flex w-100 align-items-center list-group-item gap-3">
+                        {#await getFile(uuid) then photo}
+                            <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
+                                 src={photo} alt={t.widget.photo}>
+                        {/await}
+                        <div class="d-flex flex-column gap-3 text-center">
+                            <span style="word-break: break-all">{fileName}</span>
+                            <Button text={t.widget.remove_Photo} icon="delete" color="danger"
+                                    onclick={remove(uuid)} />
+                        </div>
+                    </li>
+                {/each}
+            </ul>
+        {/if}
+    </div>
+
+    {#if widget.isError(context, value) && showError}
+        <span class="text-danger">{widget.onError(t, context)}</span>
+    {/if}
+
+    <input
+        {accept}
+        bind:this={inputSelect}
+        class="d-none"
+        {multiple}
+        {onchange}
+        type="file"
+    />
+    <input
+        {accept}
+        bind:this={inputCapture}
+        capture="environment"
+        class="d-none"
+        {multiple}
+        {onchange}
+        type="file"
+    />
+</div>

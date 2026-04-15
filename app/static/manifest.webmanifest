@@ -1,0 +1,11 @@
+{
+	"short_name": "SEIR",
+	"name": "SEIR - Evidence regulátorů IR",
+	"start_url": "/",
+	"background_color": "#BB4D00",
+	"display": "standalone",
+	"scope": "/",
+	"theme_color": "#BB4D00",
+	"description": "Aplikace pro evidování regulátorů IR",
+	"prefer_related_applications": true
+}

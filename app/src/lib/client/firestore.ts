@@ -1,0 +1,277 @@
+import {
+    collection,
+    doc,
+    DocumentReference,
+    getDoc,
+    getDocs,
+    query,
+    type QueryDocumentSnapshot,
+    serverTimestamp,
+    setDoc,
+    type Timestamp,
+    updateDoc,
+    where,
+    type WithFieldValue,
+    runTransaction,
+} from 'firebase/firestore';
+import { logEvent } from 'firebase/analytics';
+import { get } from 'svelte/store';
+import { checkAdmin, checkRegulusOrAdmin, currentUser } from './auth';
+import { analytics, firestore } from '../../hooks.client';
+import { type IRID, type SPID } from '$lib/helpers/ir';
+import { offlineDatabase, offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
+import { deleteField, Query } from '@firebase/firestore';
+import type { Database, ReadDatabase, WriteDatabase } from '$lib/Database';
+import {
+    deletedIR,
+    type DeletedIR,
+    deletedNSP,
+    type DeletedNSP,
+    type ExistingIR,
+    type ExistingNSP,
+    type IR,
+    type NSP,
+} from '$lib/data';
+
+const irCollection = collection(firestore, 'ir').withConverter<IR>({
+    toFirestore: (modelObject: WithFieldValue<IR>) => modelObject,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as IR,
+});
+const spCollection = collection(firestore, 'sp').withConverter<NSP>({
+    toFirestore: (modelObject: WithFieldValue<NSP>) => modelObject,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => snapshot.data() as NSP,
+});
+
+const checkCollection = collection(firestore, 'check');
+const irDoc = (irid: IRID) => doc(irCollection, irid);
+const spDoc = (spid: SPID) => doc(spCollection, spid);
+const checkDoc = (irid: IRID) => doc(checkCollection, irid);
+
+const getSnp = async <T>(reference: DocumentReference<T>) => {
+    try {
+        const snp = await getDoc(reference);
+        return snp.exists() ? snp.data() : undefined;
+    } catch (e) {
+        console.error(e);
+        return undefined;
+    }
+};
+const getSnps = async <T>(reference: Query<T>) => {
+    try {
+        const snp = await getDocs(reference);
+        return snp.docs
+            .mapNotUndefined(snp => snp.exists() ? snp.data() : undefined);
+    } catch (e) {
+        console.error(e);
+        return [];
+    }
+};
+
+const addStampIR = (field: keyof IR | string, value: unknown) => ({
+    [field]: value,
+    'meta.changedAt': serverTimestamp() as Timestamp,
+});
+
+const readDatabase: ReadDatabase = {
+    getIR: irid => getSnp(irDoc(irid))
+        .thenAlso(v => odm.putOrDelete('IR', irid, v)),
+    getChangedIRs: async lastUpdatedAt => {
+        const user = get(currentUser);
+        const q = await checkRegulusOrAdmin() ? query(
+            irCollection,
+            where('deleted', '!=', true),
+            where('meta.changedAt', '>', lastUpdatedAt),
+        ) : query(
+            irCollection,
+            where('meta.usersWithAccess', 'array-contains', user?.email ?? ''),
+            where('deleted', '!=', true),
+            where('meta.changedAt', '>', lastUpdatedAt),
+        );
+        return await getSnps(q) as ExistingIR[];
+    },
+    getDeletedIRs: async lastUpdatedAt => {
+        const user = get(currentUser);
+        const q = await checkRegulusOrAdmin() ? query(
+            irCollection,
+            where('deleted', '==', true),
+            where('meta.deletedAt', '>', lastUpdatedAt),
+        ) : query(
+            irCollection,
+            where('meta.usersWithAccess', 'array-contains', user?.email ?? ''),
+            where('deleted', '==', true),
+            where('meta.deletedAt', '>', lastUpdatedAt),
+        );
+        return await getSnps(q) as DeletedIR[];
+    },
+    existsIR: async irid => {
+        try {
+            await getDoc(checkDoc(irid));
+            return true;
+        } catch (e) {
+            if ((e as Record<string, string>)?.code == 'permission-denied') return false;
+            else throw e;
+        }
+    },
+
+    getNSP: spid => getSnp(spDoc(spid))
+        .thenAlso(v => odm.putOrDelete('NSP', spid, v)),
+    getChangedNSPs: async lastUpdatedAt => await getSnps(query(
+        spCollection,
+        where('deleted', '!=', true),
+        where('meta.createdAt', '>', lastUpdatedAt),
+    )) as ExistingNSP[],
+    getDeletedNSPs: async lastUpdatedAt => await getSnps(query(
+        spCollection,
+        where('deleted', '==', true),
+        where('meta.deletedAt', '>', lastUpdatedAt),
+    )) as DeletedNSP[],
+};
+
+const writeDatabase: WriteDatabase = {
+    addIR: async ir => {
+        if (await readDatabase.existsIR(ir.meta.id)) throw new Error(`IR ${ir.meta.id} already exists`);
+        await setDoc(irDoc(ir.meta.id), ir);
+    },
+    deleteIR: async irid => {
+        const ir = await readDatabase.getIR(irid);
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        await setDoc(irDoc(irid), deletedIR(ir));
+    },
+    moveIR: async (irid, ir) => {
+        if (await readDatabase.existsIR(ir.meta.id)) throw new Error(`IR ${ir.meta.id} already exists`);
+        await runTransaction(firestore, async tx => {
+            const oldIr = (await tx.get(irDoc(irid))).data();
+            if (!oldIr) throw new Error(`IR ${irid} doesn't exists`);
+            tx.set(irDoc(ir.meta.id), ir);
+            tx.set(irDoc(irid), deletedIR(oldIr, ir.meta.id));
+        });
+    },
+    updateIN: async (irid, rawData, isDraft) => await updateDoc(irDoc(irid), {
+        IN: rawData, isDraft,
+        'meta.changedAt': serverTimestamp() as Timestamp,
+    }),
+    addRKT: (irid, pump, year, check) =>
+        updateDoc(irDoc(irid), addStampIR(`RK.TC.${pump}.${year}`, check)),
+    addRKS: (irid, year, check) =>
+        updateDoc(irDoc(irid), addStampIR(`RK.SOL.${year}`, check)),
+    addSPs: async (irid, ...protocols) => {
+        const ir = await readDatabase.getIR(irid);
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
+        await updateDoc(irDoc(irid), {
+            ...ir,
+            SPs: [...ir.SPs, ...protocols].sort((a, b) => new Date(a.zasah.datum).valueOf() - new Date(b.zasah.datum).valueOf()),
+            meta: {
+                ...ir.meta,
+                changedAt: serverTimestamp() as Timestamp,
+            },
+        });
+    },
+    updateSP: async (irid, index, protocol) => {
+        const ir = await readDatabase.getIR(irid);
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
+        await updateDoc(irDoc(irid), {
+            ...ir,
+            SPs: ir.SPs.with(index, protocol),
+            meta: {
+                ...ir.meta,
+                changedAt: serverTimestamp() as Timestamp,
+            },
+        });
+    },
+    deleteSP: async (irid, index) => {
+        const ir = await readDatabase.getIR(irid);
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
+        await updateDoc(irDoc(irid), {
+            ...ir,
+            SPs: ir.SPs.toSpliced(index, 1),
+            meta: {
+                ...ir.meta,
+                changedAt: serverTimestamp() as Timestamp,
+            },
+        });
+    },
+    updateUPT: (irid, protocol) =>
+        updateDoc(irDoc(irid), addStampIR(`UP.TC`, protocol)),
+    updateDateUPT: (irid, date) =>
+        updateDoc(irDoc(irid), addStampIR(`UP.dateTC`, date)),
+    addUPS: (irid, protocol) =>
+        updateDoc(irDoc(irid), addStampIR(`UP.SOL`, protocol)),
+    updateDateUPS: (irid, date) =>
+        updateDoc(irDoc(irid), addStampIR(`UP.dateSOL`, date)),
+    addUPF: (irid, protocol) =>
+        updateDoc(irDoc(irid), addStampIR(`UP.FVE`, protocol)),
+    addFT: (irid, faceTable) =>
+        updateDoc(irDoc(irid), addStampIR(`FT`, faceTable)),
+    updateUsersWithAccessToIR: (irid, users) =>
+        updateDoc(irDoc(irid), addStampIR(`meta.usersWithAccess`, users)),
+    markRefsiteConfirmed: irid =>
+        updateDoc(irDoc(irid), addStampIR(`meta.flags.confirmedRefsite`, true)),
+    updateDKT: async (irid, enabled, executingCompany) => {
+        const ir = await getSnp(irDoc(irid));
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
+        const dk = enabled ? {
+            state: 'waiting',
+            ...ir.RK.DK.TC ?? {},
+            executingCompany: executingCompany!,
+        } : deleteField();
+        await updateDoc(irDoc(irid), addStampIR(`RK.DK.TC`, dk));
+    },
+    updateDKS: async (irid, enabled, executingCompany) => {
+        const ir = await getSnp(irDoc(irid));
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
+        const dk = enabled ? {
+            state: 'waiting',
+            ...ir.RK.DK.SOL ?? {},
+            executingCompany: executingCompany!,
+        } : deleteField();
+        await updateDoc(irDoc(irid), addStampIR(`RK.DK.SOL`, dk));
+    },
+    addNSP: async (nsp) => {
+        if (await readDatabase.getNSP(nsp.meta.id)) throw new Error(`NSP ${nsp.meta.id} already exists`);
+        await setDoc(spDoc(nsp.meta.id), nsp);
+    },
+    updateNSP: (spid, protocol) => updateDoc(spDoc(spid), {
+        NSP: protocol, 'meta.changedAt': serverTimestamp() as Timestamp, deleted: false,
+    }),
+    deleteNSP: async spid => {
+        const nsp = await readDatabase.getNSP(spid);
+        if (!nsp) throw new Error(`NSP ${spid} doesn't exists`);
+        await setDoc(spDoc(spid), deletedNSP(nsp));
+    },
+};
+
+export const firestoreDatabase: Database = [...readDatabase.keys(), ...writeDatabase.keys()].associateWith(name =>
+    (...args: Parameters<Database[typeof name]>) => {
+        logEvent(analytics(), 'fetch_database', { name, args });
+        if (name in readDatabase) {
+            const func = readDatabase[name as keyof ReadDatabase];
+            // @ts-expect-error TS doesn't know it's a tuple
+            return func(...args);
+        } else {
+            const func = writeDatabase[name as keyof WriteDatabase];
+            // @ts-expect-error TS doesn't know it's a tuple
+            func(...args).then(result => {
+                const func = offlineDatabase[name];
+                // @ts-expect-error TS doesn't know it's a tuple
+                func(...args);
+                return result;
+            });
+        }
+    },
+) as Database;
+
+export const adminDatabase = {
+    getAllIRs: async () => {
+        if (!await checkAdmin()) throw new Error('Unauthorized');
+        return await getSnps(irCollection);
+    },
+    getAllNSPs: async () => {
+        if (!await checkAdmin()) throw new Error('Unauthorized');
+        return await getSnps(spCollection);
+    },
+};
