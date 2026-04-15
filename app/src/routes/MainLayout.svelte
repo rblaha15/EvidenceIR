@@ -123,13 +123,13 @@
         </p>
         {#if error.fileName || error.lineNumber || error.columnNumber}
             <hr class="m-0" />
-            <p class="w-100 text-end m-0">{error.fileName}:{error.lineNumber}:{error.columnNumber}</p>
+            <p class="w-full text-end m-0">{error.fileName}:{error.lineNumber}:{error.columnNumber}</p>
         {/if}
     </div>
 {/snippet}
 
 {#snippet content()}
-    <div class="flex flex-col h-100">
+    <div class="flex flex-col h-full">
         <Navigation {t} />
         <div class="flex-grow-1 mb-2 overflow-y-scroll">
             <div class="sticky-top progress rounded-0" role="progressbar"
@@ -142,7 +142,7 @@
                 ></div>
             </div>
             <main class="container flex gap-4">
-                <div class="mt-4 flex flex-col gap-4 w-100">
+                <div class="mt-4 flex flex-col gap-4 w-full">
                     <h1 id="main-title" class="m-0 flex align-items-center gap-4">
                         {#if $backButton}
                             <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}
@@ -156,7 +156,7 @@
                 </div>
                 {#if page.route.id?.includes('[form=form]') && !page.error}
                     {#key page.url.pathname + page.url.search}
-                        <div class="hidden md:block position-sticky top-0 pt-4 end-0 h-100 toc">
+                        <div class="hidden md:block position-sticky top-0 pt-4 end-0 h-full toc">
                             <TableOfContents {t} />
                         </div>
                     {/key}

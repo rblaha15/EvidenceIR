@@ -87,7 +87,7 @@
         {#if value.length}
             <ul class="list-group">
                 {#each value as { fileName, uuid }}
-                    <li class="flex w-100 align-items-center list-group-item gap-4">
+                    <li class="flex w-full align-items-center list-group-item gap-4">
                         <div class="flex-grow-1 flex-shrink-1" style="word-break: break-all">{fileName}</div>
                         <button class="btn text-danger" onclick={remove(uuid)}>
                             <Icon icon="delete" />

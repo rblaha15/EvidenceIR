@@ -99,7 +99,7 @@
 </script>
 
 {#if !readonly}
-    <div class="flex w-100 align-items-center text-nowrap flex-wrap gap-2">
+    <div class="flex w-full align-items-center text-nowrap flex-wrap gap-2">
         <span class="me-auto">{STAR} = {tf.mandatoryFields}</span>
         {#if excelImport || pdfImport}
             <button

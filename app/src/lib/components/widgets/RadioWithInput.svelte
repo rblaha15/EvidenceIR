@@ -58,14 +58,14 @@
                            onclick={() => chosen.value = other} class="form-control shadow-none input-group-text"
                            role="button" disabled={widget.lock(context)} tabindex="-1" />
                 {:else}
-                    <div class="form-floating w-100">
+                    <div class="form-floating w-full">
                         <input
                             type={widget.type(context)}
                             inputmode={widget.inputmode(context)}
                             enterkeyhint={widget.enterkeyhint(context)}
                             autocapitalize={widget.autocapitalize(context)}
                             placeholder={widget.otherLabel(t, context)}
-                            class="form-control last w-100"
+                            class="form-control last w-full"
                             value={value.text}
                             oninput={e => {
                                 const newValue = { chosen: other, text: e.currentTarget.value ?? value.text };

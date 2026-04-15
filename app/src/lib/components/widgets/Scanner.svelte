@@ -71,7 +71,7 @@
             </div>
 
             <div class="modal-body flex justify-content-center">
-                <div class="w-100" id="reader"></div>
+                <div class="w-full" id="reader"></div>
             </div>
 
             <div class="modal-footer">

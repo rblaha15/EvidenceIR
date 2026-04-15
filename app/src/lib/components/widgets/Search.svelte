@@ -107,7 +107,7 @@
         </label>
 
         {#if !hidden}
-            <div class="list-group z-4 w-100 overflow-y-auto shadow-lg mb-2" class:options={!widget.inline(context)}>
+            <div class="list-group z-4 w-full overflow-y-auto shadow-lg mb-2" class:options={!widget.inline(context)}>
                 {#each $filtered as item, i}
                     {@const searchItem = widget.getSearchItem(item, t, context)}
                     <a
@@ -126,7 +126,7 @@
                         }}
                     >
                         {#each searchItem.pieces as piece}
-                            <p class={['mb-0 w-md-100', `text-${piece.color}`, piece.class]}
+                            <p class={['mb-0 w-md-full', `text-${piece.color}`, piece.class]}
                                style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                             >
                                 <Icon icon={piece.icon} class="text-{piece.iconColor}" />
@@ -144,7 +144,7 @@
 
         {#if value && hidden}
             {@const searchItem = widget.getSearchItem(value, t, context)}
-            <div class="list-group w-100 z-2 selected" class:options={!widget.inline(context)}>
+            <div class="list-group w-full z-2 selected" class:options={!widget.inline(context)}>
                 <div
                     class="list-group-item-action list-group-item flex flex-col md:flex-row align-items-md-center rt-0"
                 >
@@ -188,7 +188,7 @@
     }
 
     .selected {
-        transform: translateY(calc(-100% + 1px));
+        transform: translateY(calc(-full% + 1px));
         pointer-events: none;
 
         div {
