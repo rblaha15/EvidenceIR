@@ -8,7 +8,15 @@ import {
     newMultiCheckboxWidget, newCounterWidget, newCheckboxWidget,
 } from '../Widget';
 import { type ContextIN, type FormIN, unknownCompany, unknownCRN, type UserForm, type UserFormContext } from './formIN';
-import { accumulationTanks, type Company, solarCollectors, type Technician, techniciansList, waterTanks } from '$lib/client/realtime';
+import {
+    accumulationTanks, batteries,
+    type Company,
+    inverters,
+    solarCollectors,
+    type Technician,
+    techniciansList,
+    waterTanks,
+} from '$lib/client/realtime';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 import {
     doesNotHaveIRNumber,
@@ -582,7 +590,7 @@ export default (): FormPlus<FormIN> => ({
                 ...['accumulation', 'waterStorage'] as const,
                 ...irCTC(c) || irOther(c) ? [] : ['ventilation'] as const,
                 ...irCTC(c) ? [] : ['photovoltaicPowerPlant'] as const,
-                ...irCTC(c) || irOther(c) ? [] : ['other'] as const,
+                ...irCTC(c) ? [] : ['other'] as const,
             ],
             required: false, showInXML: false, onValueSet: (c, v) => {
                 if (!v.includes('heatPump')) {
@@ -713,6 +721,7 @@ export default (): FormPlus<FormIN> => ({
         }),
         typStridace: newInputWidget({
             label: t => t.in.inverterType, required: fveReg, show: fveReg,
+            suggestions: inverters,
         }),
         cisloStridace: newInputWidget({
             label: t => t.in.inverterManufactureNumber, required: fveReg, show: fveReg,
@@ -724,6 +733,7 @@ export default (): FormPlus<FormIN> => ({
             label: t => t.in.batteryType,
             required: c => fveReg(c) && c.v.fve.akumulaceDoBaterii,
             show: c => fveReg(c) && c.v.fve.akumulaceDoBaterii,
+            suggestions: batteries,
         }),
         kapacitaBaterii: newInputWidget({
             label: t => t.in.totalBatteryCapacity, type: 'number', suffix: t => t.units.kWh,
