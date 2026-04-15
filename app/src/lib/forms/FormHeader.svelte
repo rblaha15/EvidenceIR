@@ -128,7 +128,7 @@
     </div>
 {/if}
 
-<div class="modal" id="import">
+<div class="modal hidden" id="import">
     <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">

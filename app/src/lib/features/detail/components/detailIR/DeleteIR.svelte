@@ -15,7 +15,7 @@
     {td.deleteThisRecord}
 </button>
 
-<div aria-hidden="true" aria-labelledby="deleteModalLabel" class="modal fade" id="deleteModal" tabindex="-1">
+<div aria-hidden="true" aria-labelledby="deleteModalLabel" class="modal fade hidden" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

@@ -78,7 +78,7 @@
     showAllErrors={true}
 />
 
-<div aria-hidden="true" aria-labelledby="problemsModalLabel" class="modal fade" id="problemsModal" tabindex="-1">
+<div aria-hidden="true" aria-labelledby="problemsModalLabel" class="modal fade hidden" id="problemsModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

@@ -62,7 +62,7 @@
 </script>
 
 {#if show}
-    <div aria-hidden="true" aria-labelledby="recommendations{type}ModalLabel" class="modal fade" id="recommendations{type}Modal"
+    <div aria-hidden="true" aria-labelledby="recommendations{type}ModalLabel" class="modal fade hidden" id="recommendations{type}Modal"
          tabindex="-1" bind:this={modal}>
         <div class="modal-dialog">
             <div class="modal-content">

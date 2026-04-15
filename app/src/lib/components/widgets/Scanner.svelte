@@ -62,7 +62,7 @@
     {trailingContent}
 />
 
-<div class="modal" id="cam">
+<div class="modal hidden" id="cam">
     <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">

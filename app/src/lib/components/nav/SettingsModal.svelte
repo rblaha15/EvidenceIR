@@ -7,7 +7,7 @@
     const ts = $derived(t.nav.settings);
 </script>
 
-<div class="modal fade" id="settings" tabindex="-1" aria-labelledby="settingsLabel" aria-hidden="true">
+<div class="modal fade hidden" id="settings" tabindex="-1" aria-labelledby="settingsLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
