@@ -39,8 +39,6 @@ export type Operation =
     | `commissioningFVE`
     | `yearlyHPCheck`
     | `yearlySOLCheck`
-    | `extendedWarranty`
-    | `installationApproval`
     | 'withoutCode';
 
 export interface GenericContextSP<C extends GenericContextSP<C>> extends GenericContextSZ<C> {
@@ -51,7 +49,7 @@ export interface GenericContextSP<C extends GenericContextSP<C>> extends Generic
 export interface GenericFormSP<C extends GenericContextSP<C>> extends GenericFormSZ<C>, Form<C> {
     system: {
         datumUvedeni: InputWidget<C>;
-        zaruka: RadioWidget<C, `warrantyCommon` | `warrantyExtended`>,
+        zaruka: RadioWidget<C, `warrantyCommon` | `warrantyExtended` | 'komplet10' | 'kompresor7'>,
     },
     zasah: {
         showNameFileds: HiddenValueWidget<C, boolean, true>,

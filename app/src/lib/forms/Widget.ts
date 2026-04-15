@@ -101,6 +101,7 @@ export type SearchItemPiece = {
     readonly width?: number,
     readonly icon?: string,
     readonly color?: Color,
+    readonly class?: ClassValue,
     readonly iconColor?: Color,
 };
 export type SearchItem = {
@@ -158,7 +159,7 @@ type LockArgs<C> = { lock?: GetBOrVal<C>; };
 type CompactArgs<C> = { compact?: GetBOrVal<C>; };
 type DoubleLockArgs<C> = { lock1?: GetBOrVal<C>; lock2?: GetBOrVal<C>; };
 type SearchArgs<C, T> = {
-    getSearchItem: (item: T, t: Translations) => SearchItem;
+    getSearchItem: (item: T, t: Translations, c: C) => SearchItem;
     getXmlEntry?: (v: T | null) => string;
     inline?: GetBOrVal<C>;
     type?: GetOrVal<C, HTMLInputTypeAttribute>;
@@ -222,7 +223,7 @@ type DoubleChooser<C, I1 extends K, I2 extends K> = {
     otherOptions2: Get<C, Arr<I2>>;
 };
 type Search<C, T> = {
-    getSearchItem: (item: T, t: Translations) => SearchItem;
+    getSearchItem: (item: T, t: Translations, c: C) => SearchItem;
     getXmlEntry: (v: T | null) => string;
     inline: GetB<C>;
     items: GetTR<C, T[]>;

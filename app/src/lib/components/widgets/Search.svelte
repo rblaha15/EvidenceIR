@@ -30,7 +30,7 @@
     let search = writable('');
 
     $effect(() => {
-        $search = value ? widget.getSearchItem(value, t).pieces[0].text : '';
+        $search = value ? widget.getSearchItem(value, t, context).pieces[0].text : '';
     });
 
     const original = widget.items(t, context);
@@ -49,7 +49,7 @@
         ? found
         : derived([original, search], ([original, search]) => original?.filter((item) =>
             wordsToFilter(search).every(
-                filter => widget.getSearchItem(item, t).let(i => [
+                filter => widget.getSearchItem(item, t, context).let(i => [
                     ...i.pieces.map(p => p.text),
                     ...i.otherSearchParts ?? [],
                 ]).some(piece =>
@@ -109,7 +109,7 @@
         {#if !hidden}
             <div class="list-group z-3 w-100 overflow-y-auto shadow-lg mb-2" class:options={!widget.inline(context)}>
                 {#each $filtered as item, i}
-                    {@const searchItem = widget.getSearchItem(item, t)}
+                    {@const searchItem = widget.getSearchItem(item, t, context)}
                     <a
                         tabindex="0"
                         class="list-group-item-action list-group-item d-flex flex-column flex-md-row flex-row align-items-md-center"
@@ -126,7 +126,7 @@
                         }}
                     >
                         {#each searchItem.pieces as piece}
-                            <p class={['mb-0 w-md-100', `text-${piece.color}`]}
+                            <p class={['mb-0 w-md-100', `text-${piece.color}`, piece.class]}
                                style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                             >
                                 <Icon icon={piece.icon} class="text-{piece.iconColor}" />
@@ -143,13 +143,13 @@
         {/if}
 
         {#if value && hidden}
-            {@const searchItem = widget.getSearchItem(value, t)}
+            {@const searchItem = widget.getSearchItem(value, t, context)}
             <div class="list-group w-100 z-2 selected" class:options={!widget.inline(context)}>
                 <div
                     class="list-group-item-action list-group-item d-flex flex-column flex-md-row align-items-md-center rt-0"
                 >
                     {#each searchItem.pieces as piece, j}
-                        <p class={['mb-0 me-1 d-md-block', `text-${piece.color}`, { 'd-none': j !== 0 }]}
+                        <p class={['mb-0 me-1 d-md-block', `text-${piece.color}`, piece.class, { 'd-none': j !== 0 }]}
                            style="color: var(--bs-body-color); flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                         >
                             <Icon icon={piece.icon} class="text-{piece.iconColor}" />
