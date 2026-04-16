@@ -23,7 +23,7 @@
 
 <h4 class="m-0">{r ? td.serviceProtocols : td.serviceInterventions}</h4>
 {#if ir.SPs.length}
-    <div class="flex flex-col gap-1 items-sm-start">
+    <div class="flex flex-col gap-1 sm:items-start">
         {#each ir.SPs as p, i}
             {@const showSP = isSP(p) && r}
             {#snippet deleteButton()}
@@ -113,7 +113,7 @@
     </div>
 {/if}
 
-<div class="flex items-center gap-4 flex-wrap flex-sm-nowrap">
+<div class="flex items-center gap-4 flex-wrap sm:flex-nowrap">
     <a class="btn btn-primary" href={iridUrl(r ? '/SP' : '/SZ')} tabindex="0">
         <Icon icon="add" />
         {r ? ir.SPs.length ? td.fillInAnotherProtocol : td.fillInProtocol

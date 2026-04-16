@@ -18,7 +18,7 @@
 </script>
 
 {#if show || commissionDate}
-    <div class="flex flex-col gap-1 items-sm-start">
+    <div class="flex flex-col gap-1 sm:items-start">
         {#if show}
             <Button color="info" icon="alarm" text={tr.settingsTitle(type)}
                     modalID="recommendations{type}Modal" />

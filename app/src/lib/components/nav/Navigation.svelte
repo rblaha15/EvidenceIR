@@ -75,16 +75,16 @@
         {#if !$isOnline && !$hideNav}
             <Icon icon="wifi_off" />
         {/if}
-        <div class="me-auto me-lg-4"></div>
+        <div class="me-auto lg:me-4"></div>
         {#if isLoggedIn && !$hideNav}
-            <div class="hidden md:flex lg:hidden flex-row ms-auto ms-md-0">
+            <div class="hidden md:flex lg:hidden flex-row ms-auto md:ms-0">
                 {@render buttons()}
             </div>
             <div class="hidden md:block lg:hidden w-full"></div> <!-- Row break -->
             <div class="hidden md:inline me-auto">
                 <BaseNav {t} />
             </div>
-            <div class="flex md:hidden lg:flex flex-row ms-auto ms-md-0">
+            <div class="flex md:hidden lg:flex flex-row ms-auto md:ms-0">
                 {@render buttons()}
             </div>
             <div class="md:hidden offcanvas offcanvas-start" tabindex="-1" id="NOC">

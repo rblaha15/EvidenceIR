@@ -112,7 +112,7 @@
                     {@const searchItem = widget.getSearchItem(item, t, context)}
                     <a
                         tabindex="0"
-                        class="list-group-item-action list-group-item flex flex-col md:flex-row flex-row items-md-center"
+                        class="list-group-item-action list-group-item flex flex-col md:flex-row flex-row md:items-center"
                         class:rt-0={i === 0}
                         href={searchItem.href ?? '#'}
                         class:disabled={searchItem.disabled}
@@ -126,7 +126,7 @@
                         }}
                     >
                         {#each searchItem.pieces as piece}
-                            <p class={['mb-0 w-md-full', `text-${piece.color}`, piece.class]}
+                            <p class={['mb-0 md:w-full', `text-${piece.color}`, piece.class]}
                                style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                             >
                                 <Icon icon={piece.icon} class="text-{piece.iconColor}" />
@@ -146,7 +146,7 @@
             {@const searchItem = widget.getSearchItem(value, t, context)}
             <div class="list-group w-full z-2 selected" class:options={!widget.inline(context)}>
                 <div
-                    class="list-group-item-action list-group-item flex flex-col md:flex-row items-md-center rt-0"
+                    class="list-group-item-action list-group-item flex flex-col md:flex-row md:items-center rt-0"
                 >
                     {#each searchItem.pieces as piece, j}
                         <p class={['mb-0 me-1 md:block', `text-${piece.color}`, piece.class, { 'hidden': j !== 0 }]}
@@ -188,7 +188,7 @@
     }
 
     .selected {
-        transform: translateY(calc(-full% + 1px));
+        transform: translateY(calc(-100% + 1px));
         pointer-events: none;
 
         div {

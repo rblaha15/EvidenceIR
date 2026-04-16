@@ -22,7 +22,7 @@
     const mf = $derived(ir.IN.montazka.email == unknownCompanyEmail ? '' : ir.IN.montazka.email.trim())
 </script>
 
-<div class="flex flex-wrap flex-lg-nowrap gap-6 justify-content-between">
+<div class="flex flex-wrap lg:flex-nowrap gap-6 justify-content-between">
     {#if !ir.isDraft}
         <div class="flex flex-col gap-12 grow">
             <div class="flex flex-col gap-4">
@@ -36,9 +36,9 @@
             </div>
         </div>
     {/if}
-    <div class="flex flex-col gap-4 shrink items-sm-start">
+    <div class="flex flex-col gap-4 shrink sm:items-start">
         <h4 class="m-0">{ir.isDraft ? td.draftManagement : td.recordManagement}</h4>
-        <div class="flex flex-col gap-1 items-sm-start">
+        <div class="flex flex-col gap-1 sm:items-start">
             {#if !ir.isDraft}
                 <Button color="primary" icon="attach_email" text={td.sendDocuments}
                         href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.IN.koncovyUzivatel).join(';')}&assembly=${mf}`)} />
@@ -55,7 +55,7 @@
                         target="_blank" />
             {/if}
         </div>
-        <div class="flex flex-col gap-1 items-sm-start">
+        <div class="flex flex-col gap-1 sm:items-start">
             {#if $isUserRegulusOrAdmin}
                 <Button color="info" icon="people" text="{td.usersWithAccess}{$aR}"
                         href={iridUrl('/users')} />

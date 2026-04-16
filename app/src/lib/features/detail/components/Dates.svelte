@@ -11,7 +11,7 @@
 </script>
 
 {#if $isUserAdmin && data}
-    <div class="flex flex-col gap-1 items-sm-start">
+    <div class="flex flex-col gap-1 sm:items-start">
         {#if 'createdBy' in data.meta && data.meta.createdBy && !('IN' in data && data.meta.createdBy.isFake)}
             <span>
                 <Icon icon="add" />
