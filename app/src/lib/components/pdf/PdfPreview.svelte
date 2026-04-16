@@ -43,7 +43,7 @@
                     <h5 class="m-0">{t.page(pageNumber, pageCount)}</h5>
                 {/if}
                 {#if pageNumber === 1 && children}
-                    <div class="flex-grow-1"></div>
+                    <div class="grow"></div>
 
                     <div class="flex gap-4 align-items-center flex-wrap">
                         {@render children()}

@@ -61,10 +61,10 @@
 </script>
 
 <div class="flex gap-1">
-    <div class="flex-grow-1">
+    <div class="grow">
         <Widget widget={fromW} bind:value={from} context={{}} t={cs} {showAllErrors} />
     </div>
-    <div class="flex-grow-1">
+    <div class="grow">
         <Widget widget={toW} bind:value={to} context={{}} t={cs} {showAllErrors} />
     </div>
 </div>

@@ -15,7 +15,7 @@
                 <span class="">{entry.datetime}</span>
                 <div class="flex gap-4 align-items-center">
                     <Icon class="fs-12" icon={entry.type === 'database' ? 'storage' : 'outgoing_mail'} />
-                    <span class="flex-grow-1">{entry.subject(t)}</span>
+                    <span class="grow">{entry.subject(t)}</span>
                 </div>
             </li>
         {/each}

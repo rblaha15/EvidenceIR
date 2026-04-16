@@ -63,7 +63,7 @@
                 {#each value as { fileName, uuid }}
                     <li class="flex w-full align-items-center list-group-item gap-4">
                         {#await getFile(uuid) then photo}
-                            <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
+                            <img class="grow object-fit-contain shrink" style="max-height: 256px; min-width: 0"
                                  src={photo} alt={t.widget.photo}>
                         {/await}
                         <div class="flex flex-col gap-4 text-center">

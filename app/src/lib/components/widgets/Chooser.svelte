@@ -57,7 +57,7 @@
     {#if widget.compact(context)}
         <label class="input-group">
             <span class="input-group-text">{labelAndStar(widget, context, t)}</span>
-            <select class="form-select flex-grow-1" value={value ?? 'notChosen'}
+            <select class="form-select grow" value={value ?? 'notChosen'}
                     onchange={onChange} disabled={widget.lock(context)}>
                 {@render showOptions()}
             </select>
