@@ -1,4 +1,5 @@
 <script lang="ts">
+    import ic_r from '$lib/assets/ic_r.png';
     import { currentUser } from '$lib/client/auth';
     import type { Translations } from '$lib/translations';
     import BaseNav from './BaseNav.svelte';
@@ -51,7 +52,7 @@
 {#snippet header()}
     {#snippet header()}
         <!--suppress CheckImageSize -->
-        <img src="/ic_r.png" alt="Logo" width="32" height="32" class="inline me-2" />
+        <img src={ic_r} alt="Logo" width="32" height="32" class="inline me-2" />
         <span class="fw-semibold">{tn.appName}</span>
     {/snippet}
 
