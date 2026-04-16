@@ -24,7 +24,7 @@
 
 <div class="flex flex-wrap flex-lg-nowrap gap-6 justify-content-between">
     {#if !ir.isDraft}
-        <div class="flex flex-col gap-12 flex-grow-1">
+        <div class="flex flex-col gap-12 grow">
             <div class="flex flex-col gap-4">
                 <h4 class="m-0">{td.documents}</h4>
                 <div class="flex flex-col gap-1">
@@ -36,7 +36,7 @@
             </div>
         </div>
     {/if}
-    <div class="flex flex-col gap-4 flex-shrink-1 align-items-sm-start">
+    <div class="flex flex-col gap-4 shrink align-items-sm-start">
         <h4 class="m-0">{ir.isDraft ? td.draftManagement : td.recordManagement}</h4>
         <div class="flex flex-col gap-1 align-items-sm-start">
             {#if !ir.isDraft}

@@ -33,7 +33,7 @@
 
 <div class={["flex column-gap-4 row-gap-1", lang === 'de' ? 'flex-col align-items-start' : 'flex-wrap align-items-center']}>
     {#if !disabled}
-        <div class="flex flex-row gap-4 flex-shrink-0">
+        <div class="flex flex-row gap-4 shrink-0">
             <a
                 href={generatePdfPreviewUrl(o).href}
                 class="link-offset-1 btn btn-link text-nowrap"
@@ -48,11 +48,11 @@
             {/if}
         </div>
     {:else if name}
-        <span class="my-1 flex-shrink-0">{name}</span>
+        <span class="my-1 shrink-0">{name}</span>
     {/if}
 
     {#if additionalButton}
-        <div class="flex-shrink-0">
+        <div class="shrink-0">
             {#if additionalButton.show ?? disabled}
                 {#if additionalButton.dialogID}
                     <button

@@ -36,7 +36,7 @@
                    disabled={widget.lock(context)} checked={value} onclick={onClick} />
         </button>
         <button onclick={onClick} tabindex="-1"
-                id="label-{uid}" class="input-group-text flex-grow-1 flex flex-col align-items-start"
+                id="label-{uid}" class="input-group-text grow flex flex-col align-items-start"
         >
             {#if widget.label(t, context)}
                 <p class="m-0">{labelAndStar(widget, context, t)}</p>

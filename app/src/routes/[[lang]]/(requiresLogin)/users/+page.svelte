@@ -28,7 +28,7 @@
     <h3 class="m-0">{irWholeName($ir.IN)}</h3>
 
     <div class="flex align-items-center gap-4">
-        <Search bind:value={v} widget={w} context={{}} {t} class="flex-grow-1" showAllErrors={true} />
+        <Search bind:value={v} widget={w} context={{}} {t} class="grow" showAllErrors={true} />
         <button
             class="btn btn-success"
             type="submit"

@@ -131,7 +131,7 @@
 {#snippet content()}
     <div class="flex flex-col h-full">
         <Navigation {t} />
-        <div class="flex-grow-1 mb-2 overflow-y-scroll">
+        <div class="grow mb-2 overflow-y-scroll">
             <div class="sticky-top progress rounded-0" role="progressbar"
                  style:scale="1 {$progress === 'load' ? 1 : 0}"
                  style="transition: scale .5s; transform-origin: top;"
