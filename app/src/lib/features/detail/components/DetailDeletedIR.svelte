@@ -21,7 +21,7 @@
 </div>
 
 {#if $isUserAdmin}
-    <div class="flex flex-col align-items-end gap-1">
+    <div class="flex flex-col items-end gap-1">
         <a class="btn btn-secondary" href={relUrl(`/IN?view-irid=${ir.meta.id}`)}
            tabindex="0">
             <Icon icon="preview" />
@@ -35,6 +35,6 @@
     </div>
 {/if}
 
-<div class="flex flex-col align-items-end">
+<div class="flex flex-col items-end">
     <Dates data={ir} />
 </div>

@@ -38,14 +38,14 @@
 {#if pdf}
     {#each range(1, pageCount + 1) as pageNumber}
         {#if pageNumber === 1 && children || pageCount > 1}
-            <div class="flex gap-4 align-items-center flex-wrap-reverse">
+            <div class="flex gap-4 items-center flex-wrap-reverse">
                 {#if pageCount > 1}
                     <h5 class="m-0">{t.page(pageNumber, pageCount)}</h5>
                 {/if}
                 {#if pageNumber === 1 && children}
                     <div class="grow"></div>
 
-                    <div class="flex gap-4 align-items-center flex-wrap">
+                    <div class="flex gap-4 items-center flex-wrap">
                         {@render children()}
                     </div>
                 {/if}

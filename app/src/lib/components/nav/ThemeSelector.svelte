@@ -32,12 +32,12 @@
 
 <div class="dropdown">
     <Button label="Toggle theme" icon={selectedIcon}
-            class="dropdown-toggle flex align-items-center" toggleDropdown />
+            class="dropdown-toggle flex items-center" toggleDropdown />
     <ul class="dropdown-menu hidden">
         {#each themeSettings.zip(icons) as [theme, icon]}
             <li>
                 <button
-                    type="button" class="dropdown-item flex align-items-center"
+                    type="button" class="dropdown-item flex items-center"
                     class:active={storedTheme.value === theme}
                     aria-pressed={storedTheme.value === theme}
                     onclick={() => {

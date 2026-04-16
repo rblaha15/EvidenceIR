@@ -111,7 +111,7 @@
 
 {#snippet errorAlert(error: E)}
     <div class="alert alert-danger m-4 flex flex-col gap-4">
-        <div class="flex align-items-center gap-4">
+        <div class="flex items-center gap-4">
             <Icon icon="error_outline" />
             <h4 class="alert-heading m-0">{error.name}</h4>
         </div>
@@ -143,7 +143,7 @@
             </div>
             <main class="container flex gap-4">
                 <div class="mt-4 flex flex-col gap-4 w-full">
-                    <h1 id="main-title" class="m-0 flex align-items-center gap-4">
+                    <h1 id="main-title" class="m-0 flex items-center gap-4">
                         {#if $backButton}
                             <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}
                                     style="margin: -2rem 0">

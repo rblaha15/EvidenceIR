@@ -57,7 +57,7 @@
 </script>
 
 <div class="flex flex-wrap">
-    <div class="flex me-auto align-items-center gap-4">
+    <div class="flex me-auto items-center gap-4">
         {#if $statusStore === 'loadingOnline' && $isOnline}
             <div class="spinner-border text-danger"></div>
             <span>{ts.downloadingChanges}</span>

@@ -36,9 +36,9 @@
             </div>
         </div>
     {/if}
-    <div class="flex flex-col gap-4 shrink align-items-sm-start">
+    <div class="flex flex-col gap-4 shrink items-sm-start">
         <h4 class="m-0">{ir.isDraft ? td.draftManagement : td.recordManagement}</h4>
-        <div class="flex flex-col gap-1 align-items-sm-start">
+        <div class="flex flex-col gap-1 items-sm-start">
             {#if !ir.isDraft}
                 <Button color="primary" icon="attach_email" text={td.sendDocuments}
                         href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.IN.koncovyUzivatel).join(';')}&assembly=${mf}`)} />
@@ -55,7 +55,7 @@
                         target="_blank" />
             {/if}
         </div>
-        <div class="flex flex-col gap-1 align-items-sm-start">
+        <div class="flex flex-col gap-1 items-sm-start">
             {#if $isUserRegulusOrAdmin}
                 <Button color="info" icon="people" text="{td.usersWithAccess}{$aR}"
                         href={iridUrl('/users')} />

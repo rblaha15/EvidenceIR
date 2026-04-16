@@ -31,7 +31,7 @@
 </script>
 
 <div class="flex gap-1 flex-col">
-    <div class="flex align-items-center">
+    <div class="flex items-center">
         {labelAndStar(widget, context, t)}
         {#if !widget.required(context)}
             <button class="btn py-1 px-2 m-1" aria-label={t.widget.clearSelection} onclick={onClick(null)}>

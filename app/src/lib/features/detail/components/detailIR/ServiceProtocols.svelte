@@ -23,7 +23,7 @@
 
 <h4 class="m-0">{r ? td.serviceProtocols : td.serviceInterventions}</h4>
 {#if ir.SPs.length}
-    <div class="flex flex-col gap-1 align-items-sm-start">
+    <div class="flex flex-col gap-1 items-sm-start">
         {#each ir.SPs as p, i}
             {@const showSP = isSP(p) && r}
             {#snippet deleteButton()}
@@ -57,7 +57,7 @@
                     }]}
                 />
             {:else}
-                <div class="flex flex-row gap-4 align-items-center">
+                <div class="flex flex-row gap-4 items-center">
                     <Button text={szName(p.zasah)} href={iridUrl(`/SZ/?view=${i}`)} link icon="preview" />
                     {#if !isSP(p)}
                         <SmallDropdown dropdownItems={[{
@@ -113,7 +113,7 @@
     </div>
 {/if}
 
-<div class="flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
+<div class="flex items-center gap-4 flex-wrap flex-sm-nowrap">
     <a class="btn btn-primary" href={iridUrl(r ? '/SP' : '/SZ')} tabindex="0">
         <Icon icon="add" />
         {r ? ir.SPs.length ? td.fillInAnotherProtocol : td.fillInProtocol

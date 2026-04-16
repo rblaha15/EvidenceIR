@@ -21,7 +21,7 @@
     {#each options.filter(it => it !== 'sk') as code}
         <li>
             <button
-                class="dropdown-item flex align-items-center"
+                class="dropdown-item flex items-center"
                 class:active={selected === code}
                 aria-pressed={selected === code}
                 onclick={() => selected !== code ? onChange(code) : null}
@@ -38,7 +38,7 @@
     {@render value()}
 {:else}
     <div class="dropdown">
-        <button class="btn py-2 px-2 dropdown-toggle flex align-items-center" data-bs-toggle="dropdown">
+        <button class="btn py-2 px-2 dropdown-toggle flex items-center" data-bs-toggle="dropdown">
             {@render value()}
         </button>
         <ul class="dropdown-menu hidden">

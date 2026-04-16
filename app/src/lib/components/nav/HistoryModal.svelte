@@ -13,7 +13,7 @@
         {#each list as entry}
             <li class="list-group-item flex flex-col gap-1 px-0">
                 <span class="">{entry.datetime}</span>
-                <div class="flex gap-4 align-items-center">
+                <div class="flex gap-4 items-center">
                     <Icon class="fs-12" icon={entry.type === 'database' ? 'storage' : 'outgoing_mail'} />
                     <span class="grow">{entry.subject(t)}</span>
                 </div>

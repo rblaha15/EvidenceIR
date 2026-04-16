@@ -65,12 +65,12 @@
 
 <div class="flex flex-wrap gap-4 justify-content-between">
     <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-1 align-items-sm-start">
+        <div class="flex flex-col gap-1 items-sm-start">
             {#each sps as sp}
                 {#if !sp.deleted}
                     <DetailNSP {sp} {lang} {t} />
                 {:else}
-                    <div class="flex gap-4 align-items-center flex-wrap">
+                    <div class="flex gap-4 items-center flex-wrap">
                         <span>{sp.meta.id.replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}</span>
                         <span>{td.deletedNSP}</span>
                     </div>
@@ -80,7 +80,7 @@
     </div>
 
     {#if !sps[0].deleted}
-        <div class="flex flex-col gap-4 align-items-sm-start">
+        <div class="flex flex-col gap-4 items-sm-start">
             <a class="btn btn-primary"
                href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].NSP.koncovyUzivatel).join(';')}&assembly=${mf}`)} tabindex="0">
                 <Icon icon="attach_email" />
@@ -98,7 +98,7 @@
                     {td.copyNSPtoInstallation}{$aA}
                 </a>
 
-                <div class="flex flex-col gap-1 align-items-sm-start">
+                <div class="flex flex-col gap-1 items-sm-start">
                     <Widget {widget} bind:value={newIRID} {t} context={{}} {showAllErrors} />
                     <button class="btn btn-danger block" onclick={transfer}>
                         <Icon icon="drive_file_move" />

@@ -155,12 +155,12 @@
     </p>
 {/each}
 
-<div class="flex flex-col md:flex-row align-items-start align-items-md-center gap-4">
+<div class="flex flex-col md:flex-row items-start items-md-center gap-4">
     {#if error}
         <span class="text-danger">Něco se nepovedlo</span>
     {/if}
     {#if loading}
-        <div class="flex align-items-center gap-4">
+        <div class="flex items-center gap-4">
             <span>Odesílání dat</span>
             <div class="spinner-border text-danger"></div>
         </div>
