@@ -32,7 +32,7 @@
 <p class="m-0 hidden print-warning fs-2 text-danger">{t.printWarning}</p>
 
 <PdfPreview args={data.fileLang} {t} url={data.url}>
-    <div class="flex align-items-center"><span class="me-1">{t.fileLanguage}:</span>
+    <div class="flex items-center"><span class="me-1">{t.fileLanguage}:</span>
         <LanguageSelector readonly={supportedLanguages.length < 2} onChange={code =>
             goto(createLink(code), { replaceState: true, invalidateAll: true })
         } options={supportedLanguages} selected={data.fileLang} />

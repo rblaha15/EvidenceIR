@@ -48,7 +48,7 @@
 
 <div class="flex gap-1 flex-col">
     <div>{labelAndStar(widget, context, t)}</div>
-    <div class="flex gap-4 flex-col align-items-start">
+    <div class="flex gap-4 flex-col items-start">
         {#if value.length === 0 || (multiple && value.length < max)}
             <div class="flex gap-4">
                 <Button text={multiple ? t.widget.selectPhotos : t.widget.selectPhoto}
@@ -61,7 +61,7 @@
         {#if value.length}
             <ul class="list-group">
                 {#each value as { fileName, uuid }}
-                    <li class="flex w-full align-items-center list-group-item gap-4">
+                    <li class="flex w-full items-center list-group-item gap-4">
                         {#await getFile(uuid) then photo}
                             <img class="grow object-fit-contain shrink" style="max-height: 256px; min-width: 0"
                                  src={photo} alt={t.widget.photo}>

@@ -54,7 +54,7 @@
         </div>
         {#if !$isUserAnyRegulusOrAdmin && $loyaltyProgramDataStore}
             <hr class="my-4" />
-            <div class="flex flex-col gap-1 px-4 align-items-start">
+            <div class="flex flex-col gap-1 px-4 items-start">
                 <h6 class="m-0">{ta.loyaltyProgram}</h6>
                 <span>{ta.currentPointBalance}: {$loyaltyProgramDataStore.points}</span>
                 <a class="btn btn-secondary" href={relUrl('/rewards')}>
@@ -64,7 +64,7 @@
             </div>
         {/if}
         <hr class="my-4" />
-        <div class="flex flex-col gap-1 px-4 align-items-start">
+        <div class="flex flex-col gap-1 px-4 items-start">
             <button class="btn btn-warning" onclick={changePassword}>
                 <Icon icon="password" />
                 {ta.changePassword}

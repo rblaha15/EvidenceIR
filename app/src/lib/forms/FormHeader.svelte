@@ -99,7 +99,7 @@
 </script>
 
 {#if !readonly}
-    <div class="flex w-full align-items-center text-nowrap flex-wrap gap-2">
+    <div class="flex w-full items-center text-nowrap flex-wrap gap-2">
         <span class="me-auto">{STAR} = {tf.mandatoryFields}</span>
         {#if excelImport || pdfImport}
             <button
@@ -150,7 +150,7 @@
                            class="hidden"
                            onchange={() => fileExcel = inputExcel?.files?.[0]}
                            type="file">
-                    <div class="flex align-items-center gap-4">
+                    <div class="flex items-center gap-4">
                         {#if !fileExcel}
                             <button
                                 type="button"
@@ -182,7 +182,7 @@
                            class="hidden"
                            onchange={() => filePdf = inputPdf?.files?.[0]}
                            type="file">
-                    <div class="flex align-items-center gap-4">
+                    <div class="flex items-center gap-4">
                         {#if !filePdf}
                             <button
                                 type="button"
@@ -208,7 +208,7 @@
                 {/if}
                 {#if error}
                     <div class="alert alert-danger flex flex-col gap-4">
-                        <div class="flex align-items-center gap-4">
+                        <div class="flex items-center gap-4">
                             <Icon icon="error_outline" />
                             <h4 class="alert-heading m-0">{tfi.somethingWentWrong}</h4>
                         </div>

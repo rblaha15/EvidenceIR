@@ -112,7 +112,7 @@
                     {@const searchItem = widget.getSearchItem(item, t, context)}
                     <a
                         tabindex="0"
-                        class="list-group-item-action list-group-item flex flex-col md:flex-row flex-row align-items-md-center"
+                        class="list-group-item-action list-group-item flex flex-col md:flex-row flex-row items-md-center"
                         class:rt-0={i === 0}
                         href={searchItem.href ?? '#'}
                         class:disabled={searchItem.disabled}
@@ -146,7 +146,7 @@
             {@const searchItem = widget.getSearchItem(value, t, context)}
             <div class="list-group w-full z-2 selected" class:options={!widget.inline(context)}>
                 <div
-                    class="list-group-item-action list-group-item flex flex-col md:flex-row align-items-md-center rt-0"
+                    class="list-group-item-action list-group-item flex flex-col md:flex-row items-md-center rt-0"
                 >
                     {#each searchItem.pieces as piece, j}
                         <p class={['mb-0 me-1 md:block', `text-${piece.color}`, piece.class, { 'hidden': j !== 0 }]}

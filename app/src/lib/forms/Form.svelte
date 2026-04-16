@@ -204,7 +204,7 @@
             <WidgetComponent widget={item.widget} bind:value={item.value} {t} {context} {showAllErrors} />
         {/if}
     {/each}
-    <div class="flex flex-col align-items-start gap-4">
+    <div class="flex flex-col items-start gap-4">
         <div class="flex gap-4 flex-wrap">
             {#if mode !== 'view'}
                 {#if !result.load && !$buttonsStore.hideSave}

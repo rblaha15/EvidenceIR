@@ -82,7 +82,7 @@
                     {#if error}
                         <div class="text-danger">{@html t.form.somethingWentWrongContactUsHtml}</div>
                     {/if}
-                    <div class="flex gap-1 align-items-center">
+                    <div class="flex gap-1 items-center">
                         {#if loading}
                             <div class="spinner-border text-danger"></div>
                         {/if}

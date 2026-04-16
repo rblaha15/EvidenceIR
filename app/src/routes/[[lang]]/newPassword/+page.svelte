@@ -91,7 +91,7 @@
 {#if mode === 'resetSent'}
     <p>{t.emailSent}</p>
 {:else if mode === 'resetSending'}
-    <div class="flex align-items-center">
+    <div class="flex items-center">
         <span>{t.sending}</span>
         <div class="spinner-border text-danger ms-2"></div>
     </div>
