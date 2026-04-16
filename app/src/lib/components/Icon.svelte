@@ -7,6 +7,7 @@
 </script>
 
 {#if icon}
+    <Camera />
     <span class={["material-icons", klass]} translate="no">{icon}</span>
 {/if}
 
