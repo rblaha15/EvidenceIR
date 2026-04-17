@@ -65,7 +65,7 @@
 				}
 			});
 	}
-	$effect(() => setTitle(t.logIn))
+	onMount(() => setTitle(t.logIn));
 </script>
 
 {#if done}

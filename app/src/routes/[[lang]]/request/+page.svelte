@@ -1,7 +1,8 @@
 <script lang="ts">
     import type { PageData } from './$types';
     import { onMount } from 'svelte';
-    import Icon from '$lib/components/Icon.svelte';
+    import { Check, OctagonAlert } from "@lucide/svelte";
+    import { setTitle } from "$lib/helpers/globals";
 
     const { data }: {
         data: PageData & {
@@ -17,6 +18,8 @@
     let status = $state<'loading' | 'accepted' | 'error'>('loading');
 
     onMount(async () => {
+        setTitle(t.title, false, true);
+
         const response = await fetch(`/api/recommend-rk`, {
             method: 'POST',
             body: JSON.stringify({ code: data.code, action: 'sendRequest' }),
@@ -39,7 +42,7 @@
 {:else if status === 'accepted'}
     <div class="alert alert-success flex flex-col gap-4">
         <div class="flex items-center gap-4">
-            <Icon icon="done" />
+            <Check />
             <h4 class="alert-heading m-0">{t.requestSent}</h4>
         </div>
         <p class="m-0">{t.youCanCloseThisTab}</p>
@@ -48,7 +51,7 @@
 {#if status === 'error'}
     <div class="alert alert-danger flex flex-col gap-4">
         <div class="flex items-center gap-4">
-            <Icon icon="error_outline" />
+            <OctagonAlert />
             <h4 class="alert-heading m-0">{t.somethingWentWrong}</h4>
         </div>
         <p class="m-0">{@html t.unknownErrorHtml}</p>

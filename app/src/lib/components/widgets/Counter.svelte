@@ -1,7 +1,7 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
-    import Icon from '$lib/components/Icon.svelte';
     import type { CounterWidget } from '$lib/forms/Widget';
+    import { Minus, Plus } from "@lucide/svelte";
 
     interface Props {
         t: Translations;
@@ -37,7 +37,7 @@
                     disabled={value === widget.min(context)}
                     style="--bs-btn-padding-x: var(--bs-btn-padding-y)"
             >
-                <Icon icon="remove" />
+                <Minus />
             </button>
         {/if}
         <span class="input-group-text input-group-input">{value}</span>
@@ -46,7 +46,7 @@
                     onclick={inc}
                     style="--bs-btn-padding-x: var(--bs-btn-padding-y)"
             >
-                <Icon icon="add" />
+                <Plus />
             </button>
         {/if}
     </div>

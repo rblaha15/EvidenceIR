@@ -11,9 +11,9 @@
     } from '$lib/forms/Widget';
     import IMask, { InputMask } from 'imask';
     import { onDestroy, onMount, type Snippet, untrack } from 'svelte';
-    import Icon from '$lib/components/Icon.svelte';
     import { readable } from 'svelte/store';
     import type { ClassValue } from 'svelte/elements';
+    import { Eraser } from '@lucide/svelte';
 
     type GenericInputWidget<C, U> = BaseWidget<C, U> & BaseInput<C> & ({
         textArea?: undefined;
@@ -199,7 +199,7 @@
             {/if}
             {#if value && widget.type(context) === 'date' && !widget.required(context)}
                 <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" onclick={onClick}>
-                    <Icon icon="clear" />
+                    <Eraser />
                 </button>
             {/if}
         {:else}
@@ -219,7 +219,7 @@
                 {/if}
                 {#if value && widget.type(context) === 'date' && !widget.required(context)}
                     <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" onclick={onClick}>
-                        <Icon icon="clear" />
+                        <Eraser />
                     </button>
                 {/if}
             </div>

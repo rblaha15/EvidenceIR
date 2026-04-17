@@ -3,10 +3,10 @@
     import type { IR, NSP } from '$lib/data';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { Translations } from '$lib/translations';
-    import Icon from '$lib/components/Icon.svelte';
     import DetailNSPs from '$lib/features/detail/components/DetailNSPs.svelte';
     import DetailIR from '$lib/features/detail/components/detailIR/DetailIR.svelte';
     import DetailDeletedIR from '$lib/features/detail/components/DetailDeletedIR.svelte';
+    import { PencilRuler, X } from "@lucide/svelte";
 
     let { irid, spids, ir, sps, lang, t, justDeleted }: {
         irid: IRID | null,
@@ -24,7 +24,7 @@
     {#if ir && !ir.deleted}
         <h3 class="m-0">
             {#if ir.isDraft}
-                <Icon icon="design_services" class="text-warning" />
+                <PencilRuler />
             {/if}
             {irWholeName(ir.IN)}
         </h3>
@@ -35,7 +35,7 @@
     {:else}
         <h3 class="m-0">
             {#if ir && ir.deleted || sps.length && sps[0].deleted}
-                <Icon icon="delete" class="text-danger" />
+                <X />
             {/if}
             {#if irid}
                 {irNumberFromIRID(irid)}

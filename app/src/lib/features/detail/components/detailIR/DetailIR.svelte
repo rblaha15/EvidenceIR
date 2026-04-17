@@ -14,6 +14,7 @@
     import DeleteIR from '$lib/features/detail/components/detailIR/DeleteIR.svelte';
     import Button from '$lib/components/Button.svelte';
     import { unknownCompanyEmail } from '$lib/forms/IN/formIN';
+    import { Download, Eye, FilePen, MailOpen, Server, Users } from "@lucide/svelte";
 
     const { t, ir, lang, irid }: {
         t: Translations, ir: ExistingIR, lang: LanguageCode, irid: IRID,
@@ -40,34 +41,34 @@
         <h4 class="m-0">{ir.isDraft ? td.draftManagement : td.recordManagement}</h4>
         <div class="flex flex-col gap-1 sm:items-start">
             {#if !ir.isDraft}
-                <Button color="primary" icon="attach_email" text={td.sendDocuments}
+                <Button icon={MailOpen} text={td.sendDocuments}
                         href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.IN.koncovyUzivatel).join(';')}&assembly=${mf}`)} />
             {/if}
             {#if ir.isDraft}
-                <Button color="primary" icon="edit_document" text={td.editInstallationData}
+                <Button icon={FilePen} text={td.editInstallationData}
                         href={relUrl(`/IN?edit-irid=${irid}`)} />
             {/if}
-            <Button color="primary" icon="preview" text={td.viewFilledData}
+            <Button icon={Eye} text={td.viewFilledData}
                     href={relUrl(`/IN?view-irid=${irid}`)} />
             {#if $isUserAdmin}
-                <Button color="secondary" icon="cloud_circle" text="{td.openInDatabase}{iaA}"
+                <Button variant="secondary" icon={Server} text="{td.openInDatabase}{iaA}"
                         href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fir~2F{irid}"
                         target="_blank" />
             {/if}
         </div>
         <div class="flex flex-col gap-1 sm:items-start">
             {#if $isUserRegulusOrAdmin}
-                <Button color="info" icon="people" text="{td.usersWithAccess}{$aR}"
+                <Button variant="secondary" icon={Users} text="{td.usersWithAccess}{$aR}"
                         href={iridUrl('/users')} />
             {/if}
             {#if !ir.isDraft}
-                <Button color="warning" icon="edit_document" text={td.editInstallationData}
+                <Button variant="secondary" icon={FilePen} text={td.editInstallationData}
                         href={relUrl(`/IN?edit-irid=${irid}`)} />
             {/if}
             <DeleteIR {irid} {td} />
 
             {#if $isUserRegulusOrAdmin && !ir.isDraft}
-                <Button color="secondary" icon="download" text="{td.downloadXML}{$aR}"
+                <Button variant="secondary" icon={Download} text="{td.downloadXML}{$aR}"
                         onclick={downloadXML(ir)} />
             {/if}
         </div>

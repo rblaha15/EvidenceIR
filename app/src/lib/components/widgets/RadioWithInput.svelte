@@ -1,7 +1,7 @@
 <script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
-    import Icon from '$lib/components/Icon.svelte';
     import { labelAndStar, type RadioWithInputWidget, type RaI } from '$lib/forms/Widget';
+    import { Eraser } from '@lucide/svelte';
 
     interface Props {
         t: Translations;
@@ -36,7 +36,7 @@
         {labelAndStar(widget, context, t)}
         {#if !widget.required(context)}
             <button class="btn py-1 px-2 m-1" aria-label={t.widget.clearSelection} onclick={() => chosen.value = null}>
-                <Icon icon="clear" />
+                <Eraser />
             </button>
         {/if}
     </div>

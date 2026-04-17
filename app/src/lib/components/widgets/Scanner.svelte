@@ -5,6 +5,7 @@
     import Button from '$lib/components/Button.svelte';
     import CoreInput from '$lib/components/CoreInput.svelte';
     import type { ScannerWidget } from '$lib/forms/Widget';
+    import { ScanBarcode } from "@lucide/svelte";
 
     let cancelBtn = $state<HTMLButtonElement>();
 
@@ -53,8 +54,8 @@
 </script>
 
 {#snippet trailingContent()}
-    <Button text={t.widget.scanBarcode} color="secondary" outline disabled={widget.lock(context)}
-            class="h-auto" modalID="cam" onclick={onClick} icon="barcode_reader" />
+    <Button text={t.widget.scanBarcode} variant="outline" disabled={widget.lock(context)}
+            class="h-auto" modalID="cam" onclick={onClick} icon={ScanBarcode} />
 {/snippet}
 
 <CoreInput
@@ -75,7 +76,7 @@
             </div>
 
             <div class="modal-footer">
-                <Button bind:element={cancelBtn} color="danger"
+                <Button bind:ref={cancelBtn} variant="destructive"
                         dismissModal onclick={cancel} text={t.widget.cancel} />
             </div>
         </div>

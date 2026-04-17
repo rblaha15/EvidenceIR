@@ -7,12 +7,13 @@
     import { derived } from 'svelte/store';
     import db from '$lib/Database';
     import { newSearchWidget } from '$lib/forms/Widget';
+    import { onMount } from "svelte";
 
     const { data }: PageProps = $props();
 
     const { translations: t, irid, ir } = $derived(data)
 
-    $effect(() => setTitle(t.users.title, true));
+    onMount(() => setTitle(t.users.title, true));
 
     const w = newSearchWidget({
         items: derived(usersList, l => l.map(i => i.email)), getSearchItem: i => ({

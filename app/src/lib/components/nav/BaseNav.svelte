@@ -5,7 +5,8 @@
     import { getForm } from '$lib/forms/forms';
     import type { IRID, SPID } from '$lib/helpers/ir';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
-    import Icon from '$lib/components/Icon.svelte';
+    import type { Component } from "svelte";
+    import { FilePlusCorner, HousePlus, Info, type LucideProps, Search } from "@lucide/svelte";
 
     const { t }: { t: Translations } = $props();
     const tn = $derived(t.nav);
@@ -17,14 +18,14 @@
     const isPdf = $derived(route?.endsWith('[pdf=pdf]') ?? false);
     const form = $derived(page.params.form);
     const search = $derived(page.url.searchParams);
-    const formType = $derived(getForm(form)?.type);
+    const formType = $derived(getForm(form!)?.type);
     const isDetailPage = $derived(isForm && formType === 'IR' || route?.endsWith('/detail') || route?.endsWith('/users') || isPdf);
     const externalIRID = $derived(search.get('view-irid') || search.get('edit-irid')) as IRID | undefined;
     const externalSPID = $derived(search.get('view-spid') || search.get('edit-spid')) as SPID | undefined;
     const spids = $derived(page.data.spids as SPID[] | null);
 </script>
 
-{#snippet item({ url, label, selected, shown = true, icon, noPadding }: { url: s, label: s, selected: BooleanLike, shown?: BooleanLike, icon: s, noPadding?: BooleanLike })}
+{#snippet item({ url, label, selected, shown = true, Icon, noPadding }: { url: s, label: s, selected: BooleanLike, shown?: BooleanLike, Icon: Component<LucideProps>, noPadding?: BooleanLike })}
     {#if shown}
         <li class="link-item text-nowrap" data-bs-dismiss="offcanvas">
             <a
@@ -34,7 +35,7 @@
                 aria-current={selected ? 'page' : null}
                 href={url}
             >
-                <Icon {icon} />
+                <Icon />
                 {label}
             </a>
         </li>
@@ -43,14 +44,14 @@
 
 <ul class="navbar-nav">
     {@render item({
-        url: relUrl('/search'), label: t.nav.search, selected: route?.endsWith('/search'), icon: 'search', noPadding: true,
+        url: relUrl('/search'), label: t.nav.search, selected: route?.endsWith('/search'), Icon: Search, noPadding: true,
     })}
     {@render item({
-        url: relUrl('/IN'), label: tn.newRegistration, icon: 'add_home_work',
+        url: relUrl('/IN'), label: tn.newRegistration, Icon: HousePlus,
         selected: isForm && form === 'IN' && !externalIRID,
     })}
     {@render item({
-        url: relUrl('/NSP'), label: tn.independentServiceProtocol/* + $aR*/, shown: $isUserRegulusOrAdmin, icon: 'format_list_bulleted_add',
+        url: relUrl('/NSP'), label: tn.independentServiceProtocol/* + $aR*/, shown: $isUserRegulusOrAdmin, Icon: FilePlusCorner,
         selected: isForm && form === 'NSP' && !externalSPID,
     })}
     {@render item({
@@ -58,6 +59,6 @@
             ? spids?.length ? detailSpUrl() : detailIrUrl()
                 : externalSPID ? detailSpUrl([externalSPID]) : detailIrUrl(externalIRID),
         label: (spids?.length || externalSPID) ? tn.protocolDetails : tn.installationDetails,
-        selected: true, shown: isDetailPage || externalIRID || externalSPID, icon: 'info',
+        selected: true, shown: isDetailPage || externalIRID || externalSPID, Icon: Info,
     })}
 </ul>

@@ -10,7 +10,7 @@
         type Technician,
         techniciansList, accumulationTanks, waterTanks, solarCollectors, inverters, batteries,
     } from '$lib/client/realtime';
-    import { type Component, untrack } from 'svelte';
+    import { type Component, onMount, untrack } from 'svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import TranslationsTable from './TranslationsTable.svelte';
@@ -259,7 +259,7 @@
         });
     });
 
-    setTitle('Admin');
+    onMount(() => setTitle('Admin'));
 </script>
 
 <ul class="nav nav-tabs" role="tablist">

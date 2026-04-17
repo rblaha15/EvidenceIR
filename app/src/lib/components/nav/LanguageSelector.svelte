@@ -1,7 +1,7 @@
 <script lang="ts">
     import { languageNames } from '$lib/translations';
-    import Icon from '$lib/components/Icon.svelte';
     import languageCodes, { type LanguageCode } from '$lib/languageCodes';
+    import { Check, Languages } from "@lucide/svelte";
 
     const {
         onChange, options = languageCodes, selected, readonly,
@@ -14,7 +14,7 @@
 </script>
 
 {#snippet value()}
-    <Icon icon="language" />
+    <Languages />
     <span class="mx-1">{selected.toUpperCase()}</span>
 {/snippet}
 {#snippet items()}
@@ -28,7 +28,7 @@
             >
                 <span class="fs-6 me-2">{code.toUpperCase()}</span>
                 {languageNames[code]}
-                <Icon icon="check" class={['ms-auto', selected === code ? 'inline' : 'hidden']} />
+                <Check class={['ms-auto', selected === code ? 'inline' : 'hidden']} />
             </button>
         </li>
     {/each}

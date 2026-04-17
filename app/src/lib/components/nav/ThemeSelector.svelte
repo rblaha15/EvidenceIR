@@ -1,8 +1,8 @@
 <script lang="ts">
     import { storableState } from '$lib/helpers/runes.svelte.js';
     import type { Translations } from '$lib/translations';
-    import Icon from '$lib/components/Icon.svelte';
     import Button from '$lib/components/Button.svelte';
+    import { Check, Moon, MoonIcon, Sun, SunMoon } from "@lucide/svelte";
 
     const { t }: { t: Translations } = $props();
 
@@ -10,7 +10,11 @@
     type ThemeSetting = typeof themeSettings[number];
     type Theme = Exclude<ThemeSetting, 'auto'>;
     const media = '(prefers-color-scheme: dark)';
-    const icons = ['dark_mode', 'light_mode', 'contrast'] as const;
+    const icons = [
+        Moon,
+        Sun,
+        SunMoon,
+    ] as const;
 
     const storedTheme = storableState<ThemeSetting>('theme', 'auto');
 
@@ -34,7 +38,7 @@
     <Button label="Toggle theme" icon={selectedIcon}
             class="dropdown-toggle flex items-center" toggleDropdown />
     <ul class="dropdown-menu hidden">
-        {#each themeSettings.zip(icons) as [theme, icon]}
+        {#each themeSettings.zip(icons) as [theme, Icon]}
             <li>
                 <button
                     type="button" class="dropdown-item flex items-center"
@@ -46,9 +50,9 @@
                         document.querySelector<HTMLElement>('#bd-theme')?.focus();
                     }}
                 >
-                    <Icon {icon} class="me-2" />
+                    <Icon class="me-2" />
                     {t.theme[theme]}
-                    <Icon icon="check" class={['ms-auto', storedTheme.value === theme ? 'inline' : 'hidden']} />
+                    <Check class={['ms-auto', storedTheme.value === theme ? 'inline' : 'hidden']} />
                 </button>
             </li>
         {/each}

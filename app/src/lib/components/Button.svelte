@@ -14,17 +14,17 @@
     type AnchorSettings = {
         href: string,
         target?: HTMLAttributeAnchorTarget,
-        // dismissModal?: boolean,
+        dismissModal?: boolean, // TODO
         ref?: HTMLAnchorElement | null,
     };
     type ButtonElementSettings = {
         ref?: HTMLButtonElement | null,
     } & AtLeastOne<{
-        // modalID: string,
-        // offcanvasID: string,
-        onclick: EventHandler<MouseEvent, HTMLButtonElement>,
-        // dismissModal: boolean,
-        // toggleDropdown: boolean,
+        modalID: string, // TODO
+        offcanvasID: string, // TODO
+        onclick: EventHandler<MouseEvent, HTMLButtonElement | HTMLAnchorElement>,
+        dismissModal: boolean, // TODO
+        toggleDropdown: boolean, // TODO
     }>;
     type ActionSettings = AnchorSettings | ButtonElementSettings;
     type LabelSettings = AtLeastOne<{
@@ -63,14 +63,14 @@
     variant={settings.variant}
     size={settings.size}
     class={settings.class}
+    onclick={'onclick' in settings ? settings.onclick : undefined}
     bind:ref
 >
+    {#each icons as Icon}
+        <Icon class={'iconClass' in settings ? settings.iconClass : undefined} />
+    {/each}
     {#if settings.text}
         {settings.text}
-    {:else}
-        {#each icons as Icon}
-            <Icon class={'iconClass' in settings ? settings.iconClass : undefined} />
-        {/each}
     {/if}
     {@render children?.()}
 </Button>

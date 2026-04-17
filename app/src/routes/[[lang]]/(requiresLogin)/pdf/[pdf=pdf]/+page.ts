@@ -2,7 +2,6 @@ import { browser } from '$app/environment';
 import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
-import { setTitle } from '$lib/helpers/globals';
 import { type Pdf, type PdfArgs, pdfInfo, type PdfParameters } from '$lib/pdf/pdf';
 import { generatePdfUrl } from '$lib/pdf/pdfGeneration';
 import { isLanguageCode } from '$lib/languages';
@@ -12,7 +11,7 @@ import { getData } from '$lib/helpers/getData';
 
 export const entries: EntryGenerator = langAndPdfEntryGenerator;
 
-export const load: PageLoad = async ({ parent, params, url, fetch }) => {
+export const load: PageLoad = async ({ params, url, fetch }) => {
     const pdfName = params.pdf as Pdf;
     if (!(pdfName in pdfInfo)) error(404);
 
@@ -52,11 +51,6 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
         data: pdf.type == 'IR' ? data.ir! as IR : data.sps[0]! as NSP,
         fetch,
     });
-
-    const pageData = await parent();
-    const t = pageData.translations;
-
-    setTitle(t.pdf.documentPreview, true);
 
     return { ...d, ...id, args: pdf, fileLang: language };
 };

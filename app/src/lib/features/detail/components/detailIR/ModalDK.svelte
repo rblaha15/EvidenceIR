@@ -3,11 +3,11 @@
     import { type IR } from '$lib/data';
     import { defaultDK, type FormPartDK, saveDK } from '$lib/forms/DK/formDK';
     import Widget from '$lib/components/Widget.svelte';
-    import Icon from '$lib/components/Icon.svelte';
     import { onMount } from 'svelte';
     import { type ContextChangeDK, getDKInfo } from '$lib/features/detail/domain/detailIR/DK';
-    import Button from '$lib/components/Button.svelte';
     import { defaultFormGroupValues, type FormPartValues, widgetListFromGroup } from '$lib/forms/Form';
+    import { Bell, SendHorizontal } from '@lucide/svelte';
+    import Button from "$lib/components/Button.svelte";
 
     const { t, ir, type }: {
         t: Translations, ir: IR, type: 'TČ' | 'SOL'
@@ -68,7 +68,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-12" id="recommendations{type}ModalLabel">
-                        <Icon icon="alarm" />
+                        <Bell />
                         {tr.settingsTitle(type)}
                     </h1>
                     <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
@@ -88,11 +88,11 @@
                         {/if}
                         <button class="btn btn-warning" disabled={loading} onclick={save}>
                             {#if v.enabled !== Boolean(settings) && !f.executingCompany.isError(context, v.executingCompany)}
-                                <Icon icon="send" />
+                                <SendHorizontal />
                             {/if}
                             {tr.save}
                         </button>
-                        <Button color="secondary" text={tr.cancel} dismissModal />
+                        <Button variant="secondary" text={tr.cancel} dismissModal />
                     </div>
                 </div>
             </div>

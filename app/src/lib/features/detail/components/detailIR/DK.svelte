@@ -8,6 +8,7 @@
     import ModalDK from '$lib/features/detail/components/detailIR/ModalDK.svelte';
     import { getDKInfo } from '$lib/features/detail/domain/detailIR/DK';
     import Button from '$lib/components/Button.svelte';
+    import { Bell, Server } from "@lucide/svelte";
 
     const { t, ir, type }: {
         t: Translations, ir: IR, irid: IRID, type: 'TČ' | 'SOL'
@@ -20,10 +21,10 @@
 {#if show || commissionDate}
     <div class="flex flex-col gap-1 sm:items-start">
         {#if show}
-            <Button color="info" icon="alarm" text={tr.settingsTitle(type)}
-                    modalID="recommendations{type}Modal" />
+<!--            <Button variant="outline" icon={Bell} text={tr.settingsTitle(type)}-->
+<!--                    modalID="recommendations{type}Modal" /> TODO-->
             {#if $isUserAdmin && settings?.code}
-                <Button color="secondary" icon="cloud_circle" text="{t.detail.openInDatabase}{iaA}"
+                <Button variant="secondary" icon={Server} text="{t.detail.openInDatabase}{iaA}"
                         href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Frk~2F{settings?.code}"
                         target="_blank" />
             {/if}

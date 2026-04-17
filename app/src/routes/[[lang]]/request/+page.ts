@@ -2,7 +2,6 @@ import type { PageLoad } from './$types';
 import { browser } from '$app/environment';
 import { error } from '@sveltejs/kit';
 import type { Params } from '../../api/recommend-rk/+server';
-import { setTitle } from '$lib/helpers/globals';
 import type { RecommendationData } from '$lib/data';
 
 export const load: PageLoad = async ({ url, parent, fetch }) => {
@@ -12,8 +11,6 @@ export const load: PageLoad = async ({ url, parent, fetch }) => {
     const t = (await parent()).translations.dk.requestPage;
 
     try {
-        setTitle(t.title, false, true);
-
         if (!code) error(403, t.codeMissingError);
 
         const response = await fetch(`/api/recommend-rk`, {

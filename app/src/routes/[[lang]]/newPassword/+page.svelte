@@ -85,7 +85,7 @@
             });
     };
 
-    $effect(() => setTitle(t.newPassword));
+    onMount(() => setTitle(t.newPassword));
 </script>
 
 {#if mode === 'resetSent'}

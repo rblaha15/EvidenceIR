@@ -3,7 +3,6 @@
     import type { Translations } from '$lib/translations';
     import { iridUrl } from '$lib/helpers/runes.svelte.js';
     import PDFLink from '$lib/features/detail/components/documentsIR/PDFLink.svelte';
-    import Icon from '$lib/components/Icon.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { ExistingIR } from '$lib/data';
     import { copySP, deleteSP } from '$lib/features/detail/actions/detailIR/sp';
@@ -11,6 +10,7 @@
     import SmallDropdown from '$lib/features/detail/components/documentsIR/SmallDropdown.svelte';
     import Button from '$lib/components/Button.svelte';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { Copy, Eye, FilePen, Plus, Trash2 } from "@lucide/svelte";
 
     const {
         irid, ir, lang, t,
@@ -28,13 +28,13 @@
             {@const showSP = isSP(p) && r}
             {#snippet deleteButton()}
                 <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#deleteProtocolModal-{i}">
-                    <Icon icon="delete_forever" />
+                    <Trash2 />
                     {td.delete}
                 </button>
             {/snippet}
             {#snippet duplicateButton()}
                 <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#duplicateModal-{i}">
-                    <Icon icon="file_copy" />
+                    <Copy />
                     {td.duplicate}
                 </button>
             {/snippet}
@@ -42,12 +42,12 @@
                 <PDFLink
                     name={spName(p.zasah)} data={ir} {t} {lang} link="SP" index={i} {irid} dropdownItems={[{
                         color: 'primary',
-                        icon: 'preview',
+                        icon: Eye,
                         text: td.viewFilledData,
                         href: iridUrl(`/SP/?view=${i}`),
                     }, {
                         color: 'warning',
-                        icon: 'edit_document',
+                        icon: FilePen,
                         text: td.editProtocol,
                         href: iridUrl(`/SP/?edit=${i}`),
                     }, {
@@ -58,11 +58,11 @@
                 />
             {:else}
                 <div class="flex flex-row gap-4 items-center">
-                    <Button text={szName(p.zasah)} href={iridUrl(`/SZ/?view=${i}`)} link icon="preview" />
+                    <Button text={szName(p.zasah)} href={iridUrl(`/SZ/?view=${i}`)} variant="link" icon={Eye} />
                     {#if !isSP(p)}
                         <SmallDropdown dropdownItems={[{
                             color: 'warning',
-                            icon: 'edit_document',
+                            icon: FilePen,
                             text: td.editIntervention,
                             href: iridUrl(`/SZ/?edit=${i}`),
                         }]} />
@@ -93,7 +93,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h1 class="modal-title fs-12" id="deleteProtocolModal-{i}">
-                                <Icon icon="delete_forever" />
+                                <Trash2 />
                                 {td.delete} {isSP(p) ? spName(p.zasah) : ''}
                             </h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -115,7 +115,7 @@
 
 <div class="flex items-center gap-4 flex-wrap sm:flex-nowrap">
     <a class="btn btn-primary" href={iridUrl(r ? '/SP' : '/SZ')} tabindex="0">
-        <Icon icon="add" />
+        <Plus />
         {r ? ir.SPs.length ? td.fillInAnotherProtocol : td.fillInProtocol
             : ir.SPs.length ? td.fillInAnotherIntervention : td.fillInIntervention}
     </a>
