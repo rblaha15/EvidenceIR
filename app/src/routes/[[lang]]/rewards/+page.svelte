@@ -1,21 +1,25 @@
 <script lang="ts">
     import type { PageProps } from './$types';
     import PdfPreview from '$lib/components/pdf/PdfPreview.svelte';
-    import Icon from '$lib/components/Icon.svelte';
     import { downloadFile } from '$lib/helpers/files';
+    import { FileDown } from "@lucide/svelte";
+    import { onMount } from "svelte";
+    import { setTitle } from "$lib/helpers/globals";
 
     const {
         data,
     }: PageProps = $props();
 
-    const t = $derived(data.translations.pdf);
+    const t = $derived(data.translations);
 
     const download = async () => downloadFile(data.url, data.fileName);
+
+    onMount(() => setTitle(t.auth.rewards, true));
 </script>
 
-<PdfPreview {t} url={data.url}>
+<PdfPreview t={t.pdf} url={data.url}>
     <button class="btn btn-primary" onclick={download}>
-        <Icon icon="file_download" />
-        {t.downloadFile}
+        <FileDown />
+        {t.pdf.downloadFile}
     </button>
 </PdfPreview>

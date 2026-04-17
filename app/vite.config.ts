@@ -6,11 +6,11 @@ import pkg from './package.json';
 export default defineConfig({
     plugins: [tailwindcss(), sveltekit()],
     server: {
-        port: 5005,
+        port: 5006,
         strictPort: true,
     },
     preview: {
-        port: 4005,
+        port: 4006,
     },
     define: {
         appVersion: JSON.stringify(pkg.version),

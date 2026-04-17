@@ -9,6 +9,7 @@
     import { logEvent } from 'firebase/analytics';
     import { analytics } from '../../../hooks.client';
     import { grantPoints } from '$lib/client/loyaltyProgram';
+	import { onMount } from "svelte";
 
 	const { data }: PageProps = $props();
 	const t = $derived(data.translations.auth);
@@ -52,7 +53,7 @@
 		await goto(link);
 	};
 
-	$effect(() => setTitle(t.signUp))
+	onMount(() => setTitle(t.signUp));
 </script>
 
 <form>

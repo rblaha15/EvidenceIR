@@ -4,9 +4,11 @@
     import { goto } from '$app/navigation';
     import LanguageSelector from '$lib/components/nav/LanguageSelector.svelte';
     import PdfPreview from '$lib/components/pdf/PdfPreview.svelte';
-    import Icon from '$lib/components/Icon.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
     import { downloadFile, printFile } from '$lib/helpers/files';
+    import { FileDown, Printer } from '@lucide/svelte';
+    import { onMount } from "svelte";
+    import { setTitle } from "$lib/helpers/globals";
 
     const {
         data,
@@ -24,12 +26,14 @@
         url.searchParams.set('lang', code);
         return url.toString();
     };
+
+    onMount(() => setTitle(t.documentPreview, true));
 </script>
 
 <h2 class="m-0">{title(data.translations)}</h2>
 <h4 class="m-0">{data.fileName}</h4>
 
-<p class="m-0 hidden print-warning fs-2 text-danger">{t.printWarning}</p>
+<p class="m-0 hidden print-warning text-xl text-danger">{t.printWarning}</p>
 
 <PdfPreview args={data.fileLang} {t} url={data.url}>
     <div class="flex items-center"><span class="me-1">{t.fileLanguage}:</span>
@@ -38,12 +42,12 @@
         } options={supportedLanguages} selected={data.fileLang} />
     </div>
     <button class="btn btn-primary" onclick={download}>
-        <Icon icon="file_download" />
+        <FileDown />
         {t.downloadFile}
     </button>
     {#if !phone}
         <button class="btn btn-primary" onclick={print}>
-            <Icon icon="print" />
+            <Printer />
             {t.printFile}
         </button>
     {/if}

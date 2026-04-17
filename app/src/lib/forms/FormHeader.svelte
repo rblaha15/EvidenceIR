@@ -11,8 +11,9 @@
     import { type PdfImport, processPdf } from '$lib/forms/PdfImport';
     import { PDFDocument } from 'pdf-lib';
     import type { US } from '$lib/translations/untranslatables';
-    import Icon from '$lib/components/Icon.svelte';
     import { newChooserWidget, STAR } from '$lib/forms/Widget';
+    import { Eraser, OctagonAlert, Upload } from '@lucide/svelte';
+    import { onMount } from "svelte";
 
     interface Props {
         title: string;
@@ -44,7 +45,7 @@
     const tf = $derived(t.form)
     const tfi = $derived(tf.import)
 
-    $effect(() => setTitle(title, showBackButton));
+    onMount(() => setTitle(title, showBackButton));
 
     let inputExcel = $state() as HTMLInputElement;
     let inputPdf = $state() as HTMLInputElement;
@@ -107,7 +108,7 @@
                 data-bs-toggle="modal"
                 data-bs-target="#import"
             >
-                <Icon icon="upload" />
+                <Upload />
                 {tfi.importData}
             </button>
         {/if}
@@ -121,7 +122,7 @@
                     endLoading();
                 }}
             >
-                <Icon icon="delete_forever" />
+                <Eraser />
                 {tf.clearForm}
             </button>
         {/if}
@@ -144,7 +145,7 @@
 
             <div class="modal-body gap-4 flex flex-col">
                 {#if excelImport}
-                    <p class="m-0">{tfi.uploadExcel({ sheet: excelImport.sheet })}</p>
+                    <p class="m-0">{tfi.uploadExcel({sheet: excelImport.sheet})}</p>
                     <input accept=".xls,.xlsx,.xlsm,.xlsb"
                            bind:this={inputExcel}
                            class="hidden"
@@ -209,7 +210,7 @@
                 {#if error}
                     <div class="alert alert-danger flex flex-col gap-4">
                         <div class="flex items-center gap-4">
-                            <Icon icon="error_outline" />
+                            <OctagonAlert />
                             <h4 class="alert-heading m-0">{tfi.somethingWentWrong}</h4>
                         </div>
                         <p class="m-0">{error}</p>

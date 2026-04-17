@@ -1,5 +1,5 @@
 import type { Pdf, PdfParameters } from '$lib/pdf/pdf';
-import type { Snippet } from 'svelte';
+import type { Component, Snippet } from 'svelte';
 import type { Color } from '$lib/forms/Widget';
 import type { ExistingIR } from '$lib/data';
 import * as rules from './documentLinkRules';
@@ -8,13 +8,14 @@ import { iridUrl } from '$lib/helpers/runes.svelte.js';
 import { iaA, iaR } from '$lib/helpers/stores';
 import { cascadePumps, type PumpInfo } from '$lib/forms/IN/infoIN';
 import { isRKTL } from '$lib/forms/RKT/infoRKT';
+import { FilePen, type LucideProps } from "@lucide/svelte";
 
 export type DropdownItems = ({
     hide?: boolean,
     text: string,
 } | {
     color: Color,
-    icon: string,
+    icon: Component<LucideProps>,
     hide?: boolean,
     text: string,
     href: string,
@@ -51,10 +52,10 @@ const getDropdownItemUPT = (
     user: { isAdmin: boolean; isRegulusOrAdmin: boolean },
 ) => ({
     color: 'warning',
-    icon: 'edit_document',
+    icon: FilePen,
     text: t.detail.editProtocol + iaR(user.isAdmin),
     href: iridUrl(`/UPT/?edit`),
-});
+}) satisfies DropdownItems[number];
 
 const getButtonRKT = (
     ir: ExistingIR,
@@ -83,10 +84,10 @@ const getDropdownItemsRKT = (
         text: `${t.rkt.year} ${check.year}`,
     }, {
         color: 'warning',
-        icon: 'edit_document',
+        icon: FilePen,
         text: t.detail.editCheck + iaA,
         href: iridUrl(`/${check.useRKTL ? 'RKTL' : 'RKT'}?pump=${tc.N}&edit-year=${check.year}`),
-    }]);
+    }] satisfies DropdownItems);
 };
 
 const getButtonUPS = (
@@ -101,10 +102,10 @@ const getDropdownItemUPS = (
     user: { isAdmin: boolean; isRegulusOrAdmin: boolean },
 ) => ({
     color: 'warning',
-    icon: 'edit_document',
+    icon: FilePen,
     text: t.detail.editProtocol + iaR(user.isAdmin),
     href: iridUrl(`/UPS?edit`),
-});
+}) satisfies DropdownItems[number];
 
 const getButtonRKS = (
     ir: ExistingIR,
@@ -127,10 +128,10 @@ const getDropdownItemsRKS = (
         text: `${t.rkt.year} ${check.year}`,
     }, {
         color: 'warning',
-        icon: 'edit_document',
+        icon: FilePen,
         text: t.detail.editCheck + iaA,
         href: iridUrl(`/RKS?edit-year=${check.year}`),
-    }]);
+    }] satisfies DropdownItems);
 };
 
 const getButtonUPF = (

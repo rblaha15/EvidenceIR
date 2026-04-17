@@ -7,9 +7,9 @@
     import { goto } from '$app/navigation';
     import { aA } from '$lib/helpers/stores';
     import { relUrl } from '$lib/helpers/runes.svelte';
-    import Icon from '$lib/components/Icon.svelte';
     import { logEvent } from 'firebase/analytics';
     import { analytics } from '../../../hooks.client';
+    import { CircleUser, Gift, LogOut, RectangleEllipsis, ShieldCogCorner } from "@lucide/svelte";
 
     const { t }: { t: Translations } = $props();
     const ta = $derived(t.auth);
@@ -29,7 +29,7 @@
 
 <div class="dropdown ms-4">
     <button aria-label="User" class="btn btn-link nav-link" data-bs-toggle="dropdown">
-        <Icon class="fs-2" icon="account_circle" />
+        <CircleUser class="size-8" />
     </button>
     <div class="dropdown-menu hidden dropdown-menu-end">
         <div class="flex flex-col gap-4 px-4 pt-1">
@@ -58,7 +58,7 @@
                 <h6 class="m-0">{ta.loyaltyProgram}</h6>
                 <span>{ta.currentPointBalance}: {$loyaltyProgramDataStore.points}</span>
                 <a class="btn btn-secondary" href={relUrl('/rewards')}>
-                    <Icon icon="loyalty" />
+                    <Gift />
                     {ta.rewards}
                 </a>
             </div>
@@ -66,14 +66,14 @@
         <hr class="my-4" />
         <div class="flex flex-col gap-1 px-4 items-start">
             <button class="btn btn-warning" onclick={changePassword}>
-                <Icon icon="password" />
+                <RectangleEllipsis />
                 {ta.changePassword}
             </button>
             <button class="btn btn-danger" onclick={() => {
                 logEvent(analytics(), 'logout', { email: loggedInEmail });
                 logOut();
             }}>
-                <Icon icon="logout" />
+                <LogOut />
                 {ta.toLogOut}
             </button>
         </div>
@@ -81,7 +81,7 @@
             <hr class="my-4" />
             <div class="px-4 pb-1">
                 <a class="btn btn-info" href={relUrl('/admin')}>
-                    <Icon icon="admin_panel_settings" />
+                    <ShieldCogCorner />
                     Admin{$aA}
                 </a>
             </div>

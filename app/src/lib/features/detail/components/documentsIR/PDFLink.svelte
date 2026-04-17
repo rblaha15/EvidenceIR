@@ -2,11 +2,11 @@
     import type { Translations } from '$lib/translations';
     import { type DataOfPdf, type OpenPdfOptions, type Pdf, type PdfID } from '$lib/pdf/pdf';
     import { currentPreferredDocumentLanguage } from '$lib/languages';
-    import Icon from '$lib/components/Icon.svelte';
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { DocumentLinkDefinition } from '$lib/features/detail/domain/documentsIR/createDocumentLinks.js';
     import SmallDropdown from '$lib/features/detail/components/documentsIR/SmallDropdown.svelte';
+    import { FileInput } from '@lucide/svelte';
 
     type Props<P extends Pdf> = DocumentLinkDefinition<P> & PdfID<P> & {
         data: DataOfPdf<P>,
@@ -40,7 +40,7 @@
                 tabindex="0"
                 style="--bs-btn-padding-x: 0rem"
             >
-                <Icon icon="file_open" />
+                <FileInput />
                 {#if name}<span>{name}</span>{/if}
             </a>
             {#if dropdownItems}

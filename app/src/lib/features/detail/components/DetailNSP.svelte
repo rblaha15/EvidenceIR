@@ -6,10 +6,10 @@
     import { type Translations } from '$lib/translations';
     import { extractSPIDFromRawData, spName } from '$lib/helpers/ir';
     import { aA } from '$lib/helpers/stores';
-    import Icon from '$lib/components/Icon.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { ExistingNSP } from '$lib/data';
     import db from '$lib/Database';
+    import { Eye, FilePen, Server, Trash2 } from "@lucide/svelte";
 
     const { t, lang, sp }: {
         t: Translations, sp: ExistingNSP, lang: LanguageCode,
@@ -23,7 +23,7 @@
         db.deleteNSP(spid);
         goto(spidUrl(`/detail?deleted`), { replaceState: true });
     }}>
-        <Icon icon="delete_forever" />
+        <Trash2 />
         {td.deleteProtocol}{$aA}
     </button>
 {/snippet}
@@ -31,12 +31,12 @@
 <PDFLink
     data={sp} link="NSP" name={spName(sp.NSP.zasah)} {spid} {t} {lang} dropdownItems={[{
         color: 'primary',
-        icon: 'preview',
+        icon: Eye,
         text: td.viewFilledData,
         href: relUrl(`/NSP?view-spid=${spid}`),
     }, {
         color: 'warning',
-        icon: 'edit_document',
+        icon: FilePen,
         text: td.editProtocol,
         href: relUrl(`/NSP?edit-spid=${spid}`),
     }, {
@@ -44,7 +44,7 @@
         hide: !$isUserAdmin,
     }, {
         color: 'secondary',
-        icon: 'cloud_circle',
+        icon: Server,
         text: td.openInDatabase + $aA,
         href: `https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fsp~2F${spid}`,
         hide: !$isUserAdmin,

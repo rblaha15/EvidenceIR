@@ -11,10 +11,10 @@
     import { page } from '$app/state';
     import TableOfContents from '$lib/components/TableOfContents.svelte';
     import { hideNav } from '$lib/helpers/globals';
-    import Icon from '$lib/components/Icon.svelte';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { isOnline } from '$lib/client/realtimeOnline';
     import Button from '$lib/components/Button.svelte';
+    import { CircleQuestionMark, CloudAlert, Menu, Settings, WifiOff, X } from "@lucide/svelte";
 
     const { t }: { t: Translations } = $props();
     const tn = $derived(t.nav);
@@ -23,23 +23,23 @@
 </script>
 
 {#snippet help()}
-    <Button icon="help" iconClass="fs-2" label={t.nn.title}
-            link class="nav-link ms-4" href={relUrl('/help')} />
+    <Button icon={CircleQuestionMark} iconClass="size-8" label={t.nn.title}
+            variant="link" size="icon-lg" class="nav-link ms-4" href={relUrl('/help')} />
 {/snippet}
 {#snippet settings()}
-    <Button icon="settings" iconClass="fs-2" label="Settings"
-            link class="nav-link ms-4" modalID="settings" />
+    <Button icon={Settings} iconClass="size-8" label="Settings"
+            variant="link" size="icon-lg" class="nav-link ms-4" modalID="settings" />
 {/snippet}
 {#snippet history()}
     {#if $readableHistory.incompleted.length}
         <div class="ms-4">
-            <Button icon="sync_problem" iconClass="fs-2" label="History"
-                    link class="nav-link text-warning-emphasis" modalID="history" />
+            <Button icon={CloudAlert} iconClass="size-8" label="History"
+                    variant="link" class="nav-link text-warning-emphasis" modalID="history" />
         </div>
     {:else if $readableHistory.completed.length}
         <div class="ms-4">
-            <Button icon="history" iconClass="fs-2" label="History"
-                    link class="nav-link" modalID="history" />
+            <Button icon={CloudAlert} iconClass="size-8" label="History"
+                    variant="link" class="nav-link" modalID="history" />
         </div>
     {/if}
 {/snippet}
@@ -68,12 +68,12 @@
 <nav class="navbar navbar-expand-md gray flex-wrap">
     <div class="container-fluid">
         {#if isLoggedIn && !$hideNav}
-            <Button label="Menu" icon="menu" iconClass="fs-1" link
+            <Button label="Menu" icon={Menu} iconClass="fs-1" variant="link"
                     class="md:hidden me-2 nav-link" offcanvasID="NOC" />
         {/if}
         {@render header()}
         {#if !$isOnline && !$hideNav}
-            <Icon icon="wifi_off" />
+            <WifiOff />
         {/if}
         <div class="me-auto lg:me-4"></div>
         {#if isLoggedIn && !$hideNav}
@@ -91,7 +91,7 @@
                 <div class="offcanvas-header">
                     {@render header()}
                     <button class="btn btn-link nav-link ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
-                        <Icon icon="close" />
+                        <X />
                     </button>
                 </div>
                 <div class="offcanvas-body">

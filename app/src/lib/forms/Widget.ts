@@ -4,6 +4,8 @@ import type { Untranslatable } from '$lib/translations/untranslatables';
 import { readable, type Readable } from 'svelte/store';
 import type { DataOfPdf, Pdf as PdfType, PdfParameters } from '$lib/pdf/pdf';
 import type { Form, Values } from '$lib/forms/Form';
+import type { Component } from "svelte";
+import type { LucideProps } from "@lucide/svelte";
 
 export type GetB<C> = Get<C, boolean>;
 export type GetBOrVal<C> = GetOrVal<C, boolean>;
@@ -99,7 +101,7 @@ type T<I extends K> = (t: Translations) => Record<Exclude<I, Untranslatable>, st
 export type SearchItemPiece = {
     readonly text: string,
     readonly width?: number,
-    readonly icon?: string,
+    readonly icon?: Component<LucideProps>,
     readonly color?: Color,
     readonly class?: ClassValue,
     readonly iconColor?: Color,
@@ -134,7 +136,7 @@ type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H 
 type ShowArgs<C> = { show?: GetBOrVal<C>; showInXML?: GetBOrVal<C> };
 type InfoArgs<C> = { text: GetTPOrVal<C>; class?: GetOrVal<C, ClassValue | undefined>; } & ShowArgs<C>;
 type BtnArgs<C> =
-    { text: GetTOrVal<C>; color: GetOrVal<C, BtnColor>; icon?: GetOrVal<C, string | undefined>; onClick: Get<C, void> }
+    { text: GetTOrVal<C>; color: GetOrVal<C, BtnColor>; icon?: GetOrVal<C, Component<LucideProps> | undefined>; onClick: Get<C, void> }
     & ShowArgs<C>;
 type TitleArgs = { level: HeadingLevel };
 type PdfArgs<C, P extends PdfType> = { pdfData: GetT<C, InlinePdfPreviewData<C, P>> } & Omit<ShowArgs<C>, 'showInXML'>;
@@ -205,7 +207,7 @@ type OnlyInputArgs = {
 };
 
 type Info<C> = { text: GetTP<C>; class: Get<C, ClassValue | undefined>; };
-type Btn<C> = { text: GetT<C>; color: Get<C, BtnColor>; icon: Get<C, string | undefined>; onClick: Get<C, void> };
+type Btn<C> = { text: GetT<C>; color: Get<C, BtnColor>; icon: Get<C, Component<LucideProps> | undefined>; onClick: Get<C, void> };
 type Title = { level: HeadingLevel; };
 type Pdf<C, P extends PdfType> = { pdfData: GetT<C, InlinePdfPreviewData<C, P>> };
 export type Required<C, U, T extends WidgetType, H extends boolean> = BaseWidget<C, U, T, H> & { required: GetB<C>; };

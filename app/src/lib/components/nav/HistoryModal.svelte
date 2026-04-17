@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { Translations } from '$lib/translations';
     import { type DisplayableHistoryEntry, readableHistory } from '$lib/client/history.svelte';
-    import Icon from '$lib/components/Icon.svelte';
     import Button from '$lib/components/Button.svelte';
+    import { Database, Mail } from '@lucide/svelte';
 
     const { t }: { t: Translations } = $props();
     const th = $derived(t.nav.history)
@@ -14,7 +14,11 @@
             <li class="list-group-item flex flex-col gap-1 px-0">
                 <span class="">{entry.datetime}</span>
                 <div class="flex gap-4 items-center">
-                    <Icon class="fs-12" icon={entry.type === 'database' ? 'storage' : 'outgoing_mail'} />
+                    {#if entry.type === 'database'}
+                        <Database size={48} />
+                    {:else}
+                        <Mail size={48} />
+                    {/if}
                     <span class="grow">{entry.subject(t)}</span>
                 </div>
             </li>

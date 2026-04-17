@@ -28,8 +28,8 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
     import type { ChangeEventHandler } from 'svelte/elements';
-    import Icon from '$lib/components/Icon.svelte';
     import { type Files, type FileWidget, labelAndStar } from '$lib/forms/Widget';
+    import { FileX } from '@lucide/svelte';
 
     interface Props {
         t: Translations;
@@ -90,7 +90,7 @@
                     <li class="flex w-full items-center list-group-item gap-4">
                         <div class="grow shrink" style="word-break: break-all">{fileName}</div>
                         <button class="btn text-danger" onclick={remove(uuid)}>
-                            <Icon icon="delete" />
+                            <FileX />
                             {t.widget.remove_File}
                         </button>
                     </li>

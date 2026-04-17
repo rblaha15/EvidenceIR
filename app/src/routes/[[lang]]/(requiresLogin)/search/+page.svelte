@@ -11,6 +11,8 @@
     import { analytics } from '../../../../hooks.client';
     import { logEvent } from 'firebase/analytics';
     import { newSearchWidget } from '$lib/forms/Widget';
+    import { PencilRuler, X } from "@lucide/svelte";
+    import { onMount } from "svelte";
 
     const { data }: PageProps = $props()
 
@@ -30,7 +32,7 @@
             pieces: [
                 {
                     text: i.name, width: .4,
-                    icon: i.deleted ? 'delete' : i.draft ? 'design_services' : undefined,
+                    icon: i.deleted ? X : i.draft ? PencilRuler : undefined,
                     iconColor: i.deleted ? 'danger' : i.draft ? 'warning' : undefined,
                 },
                 { text: i.label, width: .6 },
@@ -47,7 +49,7 @@
     });
     let v = $state(w.defaultValue);
 
-    $effect(() => setTitle($isUserRegulusOrAdmin ? t.search.titleControllersAndProtocols : t.search.titleControllers))
+    onMount(() => setTitle($isUserRegulusOrAdmin ? t.search.titleControllersAndProtocols : t.search.titleControllers))
 
     const clear = () => {
         logEvent(analytics(), 'clearSearchCaches');

@@ -1,8 +1,8 @@
 <script lang="ts">
-    import Icon from '$lib/components/Icon.svelte';
     import { removeIR } from '$lib/features/detail/actions/detailIR/ir';
     import type { Translations } from '$lib/translations';
     import type { IRID } from '$lib/helpers/ir';
+    import { Trash2 } from '@lucide/svelte';
 
     const { td, irid }: {
         td: Translations['detail'],
@@ -11,7 +11,7 @@
 </script>
 
 <button class="btn btn-secondary block" data-bs-target="#deleteModal" data-bs-toggle="modal">
-    <Icon icon="delete_forever" />
+    <Trash2 />
     {td.deleteThisRecord}
 </button>
 
@@ -20,7 +20,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-12" id="deleteModalLabel">
-                    <Icon icon="delete_forever" />
+                    <Trash2 />
                     {td.delete}
                 </h1>
                 <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>

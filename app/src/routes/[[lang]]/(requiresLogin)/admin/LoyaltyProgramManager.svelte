@@ -13,6 +13,7 @@
     import { storable } from '$lib/helpers/stores';
     import { newInputWidget, newSearchWidget } from '$lib/forms/Widget';
     import Button from '$lib/components/Button.svelte';
+    import { PencilRuler, Server, X } from "@lucide/svelte";
 
     const userW = newSearchWidget<unknown, Person>({
         label: 'Uživatel', items: usersList, getSearchItem: i => ({
@@ -40,7 +41,7 @@
             pieces: [
                 {
                     text: irName(i.IN.ir), width: .4,
-                    icon: i.deleted ? 'delete' : i.isDraft ? 'design_services' : undefined,
+                    icon: i.deleted ? X : i.isDraft ? PencilRuler : undefined,
                     iconColor: i.deleted ? 'danger' : i.isDraft ? 'warning' : undefined,
                 },
                 { text: irLabel(i.IN), width: .6 },
@@ -146,7 +147,7 @@
     {#each $results.data.entries().toSorted((a, b) => a[0].localeCompare(b[0])) as [uid, { email, data }]}
         <details>
             <summary><a href="#users-{email}">{email}</a>: {data.points.toLocaleString('cs')}</summary>
-            <Button text="Otevřít v databázi" link icon="cloud_circle" href={`https://console.firebase.google.com/u/0/project/evidence-ir/database/evidence-ir-default-rtdb/data/~2FloyaltyProgram~2F${uid}`} />
+            <Button text="Otevřít v databázi" variant="link" icon={Server} href={`https://console.firebase.google.com/u/0/project/evidence-ir/database/evidence-ir-default-rtdb/data/~2FloyaltyProgram~2F${uid}`} />
             {#each data.history as entry}
                 {#if entry.type === 'other'}
                     <p class="m-0">{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note} {#if entry.irid} (<a href="{detailIrUrl(entry.irid)}">{entry.irid}</a>){/if}</p>

@@ -2,9 +2,9 @@
     import type { Translations } from '$lib/translations';
     import { browser } from '$app/environment';
     import type { ClassValue } from 'svelte/elements';
-    import Icon from '$lib/components/Icon.svelte';
     import { derived, writable } from 'svelte/store';
     import { labelAndStar, type SearchWidget } from '$lib/forms/Widget';
+    import { Eraser, Search } from "@lucide/svelte";
 
     export const textToFilter = (s: string) => s
         .normalize('NFD')
@@ -98,11 +98,11 @@
                 value={hidden ? value ? ' ' : '' : $search}
             />
             <label for="">
-                <Icon icon="search" />
+                <Search />
                 {labelAndStar(widget, context, t)}
             </label>
             <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" class:hidden={!value} onclick={onClick}>
-                <Icon icon="clear" />
+                <Eraser />
             </button>
         </label>
 
@@ -129,7 +129,7 @@
                             <p class={['mb-0 md:w-full', `text-${piece.color}`, piece.class]}
                                style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                             >
-                                <Icon icon={piece.icon} class="text-{piece.iconColor}" />
+                                <piece.icon class="text-{piece.iconColor}" />
                                 {piece.text}
                             </p>
                         {/each}
@@ -152,7 +152,7 @@
                         <p class={['mb-0 me-1 md:block', `text-${piece.color}`, piece.class, { 'hidden': j !== 0 }]}
                            style="color: var(--bs-body-color); flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                         >
-                            <Icon icon={piece.icon} class="text-{piece.iconColor}" />
+                            <piece.icon class="text-{piece.iconColor}" />
                             {piece.text}
                         </p>
                     {/each}

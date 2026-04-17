@@ -13,13 +13,13 @@
     import { aA, storable } from '$lib/helpers/stores';
     import infoNSP from '$lib/forms/NSP/infoNSP';
     import IN from '$lib/forms/IN/infoIN';
-    import Icon from '$lib/components/Icon.svelte';
     import { type FormIN, unknownCompanyEmail } from '$lib/forms/IN/formIN';
     import defaultIN from '$lib/forms/IN/defaultIN';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { ExistingNSP, NSP } from '$lib/data';
     import db from '$lib/Database';
     import { newInputWidget } from '$lib/forms/Widget';
+    import { Copy, FileSymlink, HousePlus, MailOpen } from '@lucide/svelte';
 
     const { t, sps, lang }: {
         t: Translations, sps: NSP[], lang: LanguageCode,
@@ -83,25 +83,25 @@
         <div class="flex flex-col gap-4 sm:items-start">
             <a class="btn btn-primary"
                href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].NSP.koncovyUzivatel).join(';')}&assembly=${mf}`)} tabindex="0">
-                <Icon icon="attach_email" />
+                <MailOpen />
                 {td.sendDocuments}
             </a>
 
             <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>
-                <Icon icon="file_copy" />
+                <Copy />
                 {td.copyNSP}
             </a>
 
             {#if $isUserAdmin}
                 <a class="btn btn-warning" href={relUrl('/IN')} onclick={createCopyIN}>
-                    <Icon icon="add_home_work" />
+                    <HousePlus />
                     {td.copyNSPtoInstallation}{$aA}
                 </a>
 
                 <div class="flex flex-col gap-1 sm:items-start">
                     <Widget {widget} bind:value={newIRID} {t} context={{}} {showAllErrors} />
                     <button class="btn btn-danger block" onclick={transfer}>
-                        <Icon icon="drive_file_move" />
+                        <FileSymlink />
                         {td.transferProtocols}{$aA}
                     </button>
                 </div>

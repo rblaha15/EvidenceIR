@@ -32,6 +32,7 @@
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
     import Button from '$lib/components/Button.svelte';
+    import { PencilRuler, Save, SendHorizonal } from "@lucide/svelte";
 
     const { t, formInfo, editData, viewData, other }: {
         t: Translations,
@@ -208,30 +209,30 @@
         <div class="flex gap-4 flex-wrap">
             {#if mode !== 'view'}
                 {#if !result.load && !$buttonsStore.hideSave}
-                    <Button text={t.form.save} icon="save" color="success"
+                    <Button text={t.form.save} icon={Save}
                             class="mb-auto" onclick={save(false, false)} />
                 {/if}
                 {#if !result.load && $buttonsStore.saveAndSendAgain}
-                    <Button text={t.form.saveAndSendAgain} icons={["save", "send"]} color="success"
+                    <Button text={t.form.saveAndSendAgain} icons={[Save, SendHorizonal]}
                             class="mb-auto" onclick={save(true, false)} />
                 {/if}
                 {#if !result.load && $buttonsStore.saveAndSend}
-                    <Button text={t.form.saveAndSend} icons={["save", "send"]} color="success"
+                    <Button text={t.form.saveAndSend} icons={[Save, SendHorizonal]}
                             class="mb-auto" onclick={save(true, false)} />
                 {/if}
                 {#if !result.load && $buttonsStore.send}
-                    <Button text={t.form.send} icon="send" color="success"
+                    <Button text={t.form.send} icon={SendHorizonal}
                             class="mb-auto" onclick={save(true, false)} />
                 {/if}
                 {#if !result.load && $buttonsStore.saveAsDraft}
-                    <Button text={t.form.saveAsDraft} icon="design_services" color="secondary"
+                    <Button text={t.form.saveAsDraft} icon={PencilRuler} variant="secondary"
                             class="mb-auto" onclick={save(false, true)} />
                 {/if}
                 {#if result.load}
                     <div class="spinner-border text-danger" aria-label="loading"></div>
                 {/if}
                 {#if !result.load && !$buttonsStore.hideBack}
-                    <Button text={t.form.back} color="secondary"
+                    <Button text={t.form.back} variant="secondary"
                             class="mb-auto" onclick={() => history.back()} />
                 {/if}
             {/if}

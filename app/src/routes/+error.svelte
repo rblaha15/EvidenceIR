@@ -3,11 +3,12 @@
     import { hideNav, setTitle } from '$lib/helpers/globals';
     import type { LayoutData } from './$types';
     import { getReasonPhrase } from 'http-status-codes';
+    import { onMount } from "svelte";
 
     const { data }: { data: LayoutData } = $props();
     const t = $derived(data.translations);
 
-    $effect(() => setTitle(t.auth.somethingWentWrong, true, $hideNav));
+    onMount(() => setTitle(t.auth.somethingWentWrong, true, $hideNav));
 </script>
 
 <h3>

@@ -19,9 +19,10 @@
     import { relUrl } from '$lib/helpers/runes.svelte';
     import type { EventHandler } from 'svelte/elements';
     import TableOfContents from '$lib/components/TableOfContents.svelte';
-    import Icon from '$lib/components/Icon.svelte';
     import { analytics } from '../hooks.client';
     import { setUserId } from '@firebase/analytics';
+    import { ArrowLeft, OctagonAlert } from "@lucide/svelte";
+    import Button from "$lib/components/Button.svelte";
 
     interface Props {
         data: LayoutData;
@@ -112,7 +113,7 @@
 {#snippet errorAlert(error: E)}
     <div class="alert alert-danger m-4 flex flex-col gap-4">
         <div class="flex items-center gap-4">
-            <Icon icon="error_outline" />
+            <OctagonAlert />
             <h4 class="alert-heading m-0">{error.name}</h4>
         </div>
         <p class="m-0">
@@ -145,10 +146,7 @@
                 <div class="mt-4 flex flex-col gap-4 w-full">
                     <h1 id="main-title" class="m-0 flex items-center gap-4">
                         {#if $backButton}
-                            <button type="button" class="btn btn-link text-body p-0" aria-label={t.nav.back} onclick={() => history.back()}
-                                    style="margin: -2rem 0">
-                                <Icon icon="arrow_back" class="fs-1" />
-                            </button>
+                            <Button icon={ArrowLeft} iconClass="size-8" variant="ghost" label={t.nav.back} onclick={() => history.back()} />
                         {/if}
                         {$title}
                     </h1>
@@ -156,7 +154,7 @@
                 </div>
                 {#if page.route.id?.includes('[form=form]') && !page.error}
                     {#key page.url.pathname + page.url.search}
-                        <div class="hidden md:block position-sticky top-0 pt-4 end-0 h-full toc">
+                        <div class="hidden md:block position-sticky top-0 pt-4 inset-e-0 h-full toc">
                             <TableOfContents {t} />
                         </div>
                     {/key}

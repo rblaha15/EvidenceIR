@@ -2,6 +2,7 @@
     import type { Translations } from '$lib/translations';
     import Button from '$lib/components/Button.svelte';
     import type { CountersWidget, Rec } from '$lib/forms/Widget';
+    import { Minus, Plus } from "@lucide/svelte";
 
     interface Props {
         t: Translations;
@@ -35,10 +36,10 @@
     <div>{widget.label(t, context)}</div>
     <div class="input-group input-group-grid" style="--grid-cols: 4">
         {#each value.entries() as [option, number]}
-            <Button label="subtract" color="primary" outline square icon="remove"
+            <Button label="subtract" variant="outline" icon={Minus}
                     onclick={dec(option)} disabled={number === 0} class="first" />
             <span class="input-group-text input-group-input">{number}</span>
-            <Button label="add" color="primary" outline square icon="add"
+            <Button label="add" variant="outline" icon={Plus}
                     onclick={inc(option)} disabled={sum === widget.max(context)} />
             <div class="input-group-text last" id="label-{uid}">{widget.get(t, option)}</div>
         {/each}
