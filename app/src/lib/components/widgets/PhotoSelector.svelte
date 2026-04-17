@@ -63,8 +63,10 @@
                 {#each value as { fileName, uuid }}
                     <li class="d-flex w-100 align-items-center list-group-item gap-3">
                         {#await getFile(uuid) then photo}
-                            <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
-                                 src={photo} alt={t.widget.photo}>
+                            {#if photo}
+                                <img class="flex-grow-1 object-fit-contain flex-shrink-1" style="max-height: 256px; min-width: 0"
+                                     src={URL.createObjectURL(photo)} alt={t.widget.photo}>
+                            {/if}
                         {/await}
                         <div class="d-flex flex-column gap-3 text-center">
                             <span style="word-break: break-all">{fileName}</span>
