@@ -46,7 +46,7 @@ const sparePart = <C extends GenericContextSP<C>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 |
 
     return ({
         _label: newTextWidget({
-            show, text: t => t.sp.sparePart(n), class: 'fs-5',
+            show, text: t => t.sp.sparePart(n), class: 'text-lg',
         }),
         dil: newSearchWidget({
             items: derived(sparePartsList, $sparePartsList =>
@@ -217,7 +217,7 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
             label: t => t.sp.discountReason, required: false,
             show: c => Boolean(c.v.fakturace.discount),
         }),
-        _price: newTextWidget<C>({ text: (t, c) => t.sp.price(calculate(hpCount, c)), class: 'fs-5' }),
+        _price: newTextWidget<C>({ text: (t, c) => t.sp.price(calculate(hpCount, c)), class: 'text-lg' }),
         hotove: newChooserWidget({
             label: t => t.sp.paidInCash, options: ['yes', 'no'] as ('yes' | 'no' | 'doNotInvoice')[], labels, chosen: 'no',
             required: notFree(hpCount), show: notFree(hpCount),

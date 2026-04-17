@@ -26,7 +26,7 @@
                 aria-pressed={selected === code}
                 onclick={() => selected !== code ? onChange(code) : null}
             >
-                <span class="fs-6 me-2">{code.toUpperCase()}</span>
+                <span class="text-xl me-2">{code.toUpperCase()}</span>
                 {languageNames[code]}
                 <Check class={['ms-auto', selected === code ? 'inline' : 'hidden']} />
             </button>

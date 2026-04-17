@@ -68,7 +68,7 @@
 <nav class="navbar navbar-expand-md gray flex-wrap">
     <div class="container-fluid">
         {#if isLoggedIn && !$hideNav}
-            <Button label="Menu" icon={Menu} iconClass="fs-1" variant="link"
+            <Button label="Menu" icon={Menu} iconClass="size-8" variant="link"
                     class="md:hidden me-2 nav-link" offcanvasID="NOC" />
         {/if}
         {@render header()}

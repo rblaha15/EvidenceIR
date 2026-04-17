@@ -67,7 +67,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-12" id="recommendations{type}ModalLabel">
+                    <h1 class="modal-title" id="recommendations{type}ModalLabel">
                         <Bell />
                         {tr.settingsTitle(type)}
                     </h1>
