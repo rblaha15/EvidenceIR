@@ -6,7 +6,7 @@ const photovoltaicField = (n: number): PhotovoltaicFieldGroup => {
 
     return {
         label: newTextWidget({
-            show, class: 'fs-5', text: t => t.fve.field(n),
+            show, class: 'text-lg', text: t => t.fve.field(n),
         }),
         panelCount: newInputWidget({
             show, required: show, label: t => t.fve.panelCount, type: 'number',

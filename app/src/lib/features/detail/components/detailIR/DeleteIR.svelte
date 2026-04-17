@@ -19,7 +19,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-12" id="deleteModalLabel">
+                <h1 class="modal-title" id="deleteModalLabel">
                     <Trash2 />
                     {td.delete}
                 </h1>

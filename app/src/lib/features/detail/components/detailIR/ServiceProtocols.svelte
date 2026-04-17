@@ -74,7 +74,7 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-12" id="duplicateModalLabel-{i}">{td.duplicate}</h1>
+                            <h1 class="modal-title" id="duplicateModalLabel-{i}">{td.duplicate}</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -92,7 +92,7 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-12" id="deleteProtocolModal-{i}">
+                            <h1 class="modal-title" id="deleteProtocolModal-{i}">
                                 <Trash2 />
                                 {td.delete} {isSP(p) ? spName(p.zasah) : ''}
                             </h1>
