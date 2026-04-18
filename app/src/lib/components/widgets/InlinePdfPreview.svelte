@@ -6,6 +6,9 @@
     import { currentPreferredDocumentLanguage } from '$lib/languages';
     import type { InlinePdfPreviewWidget } from '$lib/forms/Widget';
     import { type Form, widgetList } from '$lib/forms/Form';
+    import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
+    import { OctagonAlert } from '@lucide/svelte';
+    import { Spinner } from "$lib/components/ui/spinner";
 
     interface Props<P extends Pdf> {
         t: Translations;
@@ -52,14 +55,21 @@
 </script>
 
 {#if errors.length}
-    <p class="alert alert-warning m-0">{t.pdf.previewNotAvailable({ fields: errors.join(', ') })}</p>
+    <Alert>
+        <OctagonAlert />
+        <AlertTitle>{t.pdf.previewNotAvailable}</AlertTitle>
+        <AlertDescription>{t.pdf.wrongFields({ fields: errors.join(', ') })}</AlertDescription>
+    </Alert>
 {:else if error}
-    <p class="alert alert-danger m-0">{t.pdf.previewNotSuccessful}</p>
+    <Alert variant="destructive">
+        <OctagonAlert />
+        <AlertTitle>{t.pdf.previewNotSuccessful}</AlertTitle>
+    </Alert>
 {:else if !url}
-    <p class="alert alert-secondary m-0 flex items-center gap-4">
-        <span class="spinner-border text-danger"></span>
-        {t.pdf.previewLoading}
-    </p>
+    <Alert>
+        <Spinner />
+        <AlertTitle>{t.pdf.previewLoading}</AlertTitle>
+    </Alert>
 {:else}
     <PdfPreview t={t.pdf} {url} />
 {/if}

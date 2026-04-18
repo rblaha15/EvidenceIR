@@ -12,6 +12,7 @@
     import { OctagonAlert, Upload } from '@lucide/svelte';
     import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "$lib/components/ui/dialog";
     import { Button, buttonVariants } from '$lib/components/ui/button';
+    import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
 
     interface Props {
         excelImport?: ExcelImport<R> & {
@@ -125,7 +126,10 @@
                 </div>
                 <Widget context={undefined} bind:value {t} widget={sheetWidget} showAllErrors={false} />
                 {#if fileExcel && excelImport.isDangerous && value}
-                    <p class="alert alert-danger">{ti.warningDataLoss}</p>
+                    <Alert variant="destructive">
+                        <OctagonAlert />
+                        <AlertTitle>{ti.warningDataLoss}</AlertTitle>
+                    </Alert>
                 {/if}
             {/if}
             {#if pdfImport}
@@ -156,17 +160,18 @@
                     {/if}
                 </div>
                 {#if filePdf && pdfImport.isDangerous}
-                    <p class="alert alert-danger">{ti.warningDataLoss}</p>
+                    <Alert variant="destructive">
+                        <OctagonAlert />
+                        <AlertTitle>{ti.warningDataLoss}</AlertTitle>
+                    </Alert>
                 {/if}
             {/if}
             {#if error}
-                <div class="alert alert-danger flex flex-col gap-4">
-                    <div class="flex items-center gap-4">
-                        <OctagonAlert />
-                        <h4 class="alert-heading m-0">{ti.somethingWentWrong}</h4>
-                    </div>
-                    <p class="m-0">{error}</p>
-                </div>
+                <Alert variant="destructive">
+                    <OctagonAlert />
+                    <AlertTitle>{ti.somethingWentWrong}</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
             {/if}
         </div>
         <DialogFooter>

@@ -12,6 +12,8 @@
     import { clearLocalDatabase } from '$lib/client/offline.svelte';
     import { clearHistory } from '$lib/client/history.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
+    import { Separator } from "$lib/components/ui/separator";
+    import { Button } from "$lib/components/ui/button";
 
     const { t }: { t: Translations } = $props();
     const ts = $derived(t.nav.settings);
@@ -31,40 +33,49 @@
     );
 </script>
 
-<div class="alert alert-primary">
-    <h4 class="alert-heading">{ts.userSettings}</h4>
-    <div class="flex items-center"><span class="me-1">{ts.appTheme}:</span>
+<div class="flex flex-col items-start gap-1">
+    <h3>{ts.userSettings}</h3>
+    <div class="flex items-center gap-1">
+        <p>{ts.appTheme}:</p>
         <ThemeSelector {t} />
     </div>
-    <div class="flex items-center"><span class="me-1">{ts.language}:</span>
+    <div class="flex items-center gap-1">
+        <p>{ts.language}:</p>
         <LanguageSelector onChange={code => {
-            setUserPreferredLanguage(code);
-            return redirect(code);
-        }} selected={page.data.languageCode} />
+        setUserPreferredLanguage(code);
+        return redirect(code);
+    }} selected={page.data.languageCode} />
     </div>
     {#if !$hideNav}
-        <div class="flex items-center"><span class="me-1">{ts.defaultDocumentLanguage}:</span>
+        <div class="flex items-center gap-1">
+            <p>{ts.defaultDocumentLanguage}:</p>
             <LanguageSelector onChange={code => {
-                setUserPreferredDocumentLanguage(code);
-            }} selected={$currentPreferredDocumentLanguage ?? '—'} />
+            setUserPreferredDocumentLanguage(code);
+        }} selected={$currentPreferredDocumentLanguage ?? '—'} />
         </div>
     {/if}
-    <div>{@html ts.didYouFindMistakesInTranslationsHtml}</div>
+    <p>{@html ts.didYouFindMistakesInTranslationsHtml}</p>
 </div>
 
-<div class="alert alert-info">
-    <h4 class="alert-heading">{ts.appInfo}</h4>
-    <p class="mb-0">{ts.appVersion({
+<Separator />
+
+<div class="flex flex-col items-start gap-1">
+    <h3>{ts.appInfo}</h3>
+    <p>{ts.appVersion({
         version: appVersion,
         build: version.slice(0, 7),
         type: dev ? 'DEV' : browser ? page.url.hostname.includes('dev') ? 'PREVIEW' : 'BROWSER' : 'UNKNOWN'
     })}</p>
 </div>
 
+<Separator />
+
 {#if !$hideNav}
-    <div class="alert alert-warning">
-        <h4 class="alert-heading">{ts.clearBrowserData}</h4>
+    <div class="flex flex-col items-start gap-1">
+        <h3>{ts.clearBrowserData}</h3>
         <p>{ts.clearDataInfo}</p>
-        <button class="btn btn-warning btn-sm" onclick={clearAll}>{ts.clearBrowserData}</button>
+        <Button variant="warning" size="sm" onclick={clearAll}>{ts.clearBrowserData}</Button>
     </div>
+
+    <Separator />
 {/if}

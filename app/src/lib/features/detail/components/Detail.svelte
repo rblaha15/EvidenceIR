@@ -6,7 +6,8 @@
     import DetailNSPs from '$lib/features/detail/components/DetailNSPs.svelte';
     import DetailIR from '$lib/features/detail/components/detailIR/DetailIR.svelte';
     import DetailDeletedIR from '$lib/features/detail/components/DetailDeletedIR.svelte';
-    import { PencilRuler, X } from "@lucide/svelte";
+    import { PencilRuler, Trash2, X } from "@lucide/svelte";
+    import { Alert, AlertTitle } from "$lib/components/ui/alert";
 
     let { irid, spids, ir, sps, lang, t, justDeleted }: {
         irid: IRID | null,
@@ -45,9 +46,10 @@
         </h2>
     {/if}
     {#if justDeleted}
-        <div class="alert alert-success" role="alert">
-            {td.successfullyDeleted}
-        </div>
+        <Alert>
+            <Trash2 />
+            <AlertTitle>{td.successfullyDeleted}</AlertTitle>
+        </Alert>
     {/if}
     {#if !ir && !sps.length}
         <div>{td.sorrySomethingWentWrong}</div>

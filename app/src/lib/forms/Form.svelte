@@ -6,16 +6,7 @@
     O extends Record<string, unknown> = Record<never, unknown>,
 " lang="ts">
     // noinspection ES6UnusedImports
-    import {
-        compareValues,
-        defaultValues,
-        type Form,
-        type Raw,
-        rawDataToValues,
-        type Values,
-        valuesToRawData,
-        widgetList,
-    } from '$lib/forms/Form';
+    import { compareValues, defaultValues, type Form, type Raw, rawDataToValues, type Values, valuesToRawData, widgetList, } from '$lib/forms/Form';
     // noinspection ES6UnusedImports
     import { type Pdf } from '$lib/pdf/pdf';
     import type { Translations } from '$lib/translations';
@@ -32,7 +23,8 @@
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
     import Button from '$lib/components/Button.svelte';
-    import { PencilRuler, Save, SendHorizonal } from "@lucide/svelte";
+    import { OctagonAlert, PencilRuler, Save, SendHorizonal } from "@lucide/svelte";
+    import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
 
     const { t, formInfo, editData, viewData, other }: {
         t: Translations,
@@ -128,7 +120,9 @@
             result = { load: true, red: false, text: t.form.saving };
             const success = await saveData({
                 form, raw, other, draft, edit: mode == 'edit', send, t,
-                resetForm() { values = defaultValues(form) },
+                resetForm() {
+                    values = defaultValues(form)
+                },
                 editResult: r => result = r, context, values,
             });
 
@@ -237,14 +231,18 @@
                 {/if}
             {/if}
         </div>
-        <p class:text-danger={result.red} class="my-auto">{@html result.text}</p>
-        {#if result.error}
-            <p class="alert alert-danger w-full">
-                {#each result.error.split('\n') as line, i}
-                    {#if i !== 0}<br />{/if}
-                    {line}
-                {/each}
-            </p>
+        {#if result.text}
+            <Alert variant={result.red ? 'destructive' : 'default'}>
+                <OctagonAlert />
+                <AlertTitle>{@html result.text}</AlertTitle>
+                {#if result.error}
+                    <AlertDescription>
+                        {#each result.error.split('\n').splice(1) as line}
+                            <span class="block">{line}</span>
+                        {/each}
+                    </AlertDescription>
+                {/if}
+            </Alert>
         {/if}
     </div>
 {/if}

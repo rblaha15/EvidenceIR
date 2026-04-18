@@ -65,7 +65,8 @@ export default {
         page: (page: number, total: number) => `Strana ${page}/${total}`,
         previewLoading: `Načítání náhledu dokumentu…`,
         previewNotSuccessful: `Náhled dokumentu se nepodařilo zobrazit.`,
-        previewNotAvailable: t`Náhled dokumentu nyní není možné zobrazit. Prosím, opravte všechny chyby ve formuláři. Chybná pole: ${'fields'}`,
+        previewNotAvailable: `Náhled dokumentu nyní není možné zobrazit. Prosím, opravte všechny chyby ve formuláři`,
+        wrongFields: t`Chybná pole: ${'fields'}`,
         printWarning: `Pokud chcete vytisknout samotný dokument, použijte tlačitko "Vytisknout dokument" níže!`,
     },
     search: {

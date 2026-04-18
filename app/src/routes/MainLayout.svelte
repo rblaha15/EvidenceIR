@@ -23,6 +23,8 @@
     import { setUserId } from '@firebase/analytics';
     import { ArrowLeft, OctagonAlert } from "@lucide/svelte";
     import Button from "$lib/components/Button.svelte";
+    import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
+    import { Separator } from "$lib/components/ui/separator";
 
     interface Props {
         data: LayoutData;
@@ -111,22 +113,19 @@
 {/snippet}
 
 {#snippet errorAlert(error: E)}
-    <div class="alert alert-danger m-4 flex flex-col gap-4">
-        <div class="flex items-center gap-4">
-            <OctagonAlert />
-            <h4 class="alert-heading m-0">{error.name}</h4>
-        </div>
-        <p class="m-0">
-            {#each error.message.split('\n') as line, i}
-                {#if i !== 0}<br />{/if}
-                {line}
+    <Alert variant="destructive" class="m-4">
+        <OctagonAlert />
+        <AlertTitle>{error.name}</AlertTitle>
+        <AlertDescription>
+            {#each error.message.split('\n') as line}
+                <span class="block">{line}</span>
             {/each}
-        </p>
-        {#if error.fileName || error.lineNumber || error.columnNumber}
-            <hr class="m-0" />
-            <p class="w-full text-end m-0">{error.fileName}:{error.lineNumber}:{error.columnNumber}</p>
-        {/if}
-    </div>
+            {#if error.fileName || error.lineNumber || error.columnNumber}
+                <Separator />
+                <p class="text-end">{error.fileName}:{error.lineNumber}:{error.columnNumber}</p>
+            {/if}
+        </AlertDescription>
+    </Alert>
 {/snippet}
 
 {#snippet content()}
