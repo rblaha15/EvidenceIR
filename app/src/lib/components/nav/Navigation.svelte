@@ -5,7 +5,6 @@
     import BaseNav from './BaseNav.svelte';
     import UserDropdown from '$lib/components/nav/UserDropdown.svelte';
     import LoggedOutButtons from '$lib/components/nav/LoggedOutButtons.svelte';
-    import { readableHistory } from '$lib/client/history.svelte';
     import HistoryModal from '$lib/components/nav/HistoryModal.svelte';
     import SettingsModal from '$lib/components/nav/SettingsModal.svelte';
     import { page } from '$app/state';
@@ -14,7 +13,7 @@
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { isOnline } from '$lib/client/realtimeOnline';
     import Button from '$lib/components/Button.svelte';
-    import { CircleQuestionMark, CloudAlert, Menu, WifiOff, X } from "@lucide/svelte";
+    import { CircleQuestionMark, Menu, WifiOff, X } from "@lucide/svelte";
 
     const { t }: { t: Translations } = $props();
     const tn = $derived(t.nav);

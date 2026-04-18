@@ -13,7 +13,7 @@
     import { storable } from '$lib/helpers/stores';
     import { newInputWidget, newSearchWidget } from '$lib/forms/Widget';
     import Button from '$lib/components/Button.svelte';
-    import { PencilRuler, Server, X } from "@lucide/svelte";
+    import { PencilRuler, Server, Trash2 } from "@lucide/svelte";
 
     const userW = newSearchWidget<unknown, Person>({
         label: 'Uživatel', items: usersList, getSearchItem: i => ({
@@ -41,7 +41,7 @@
             pieces: [
                 {
                     text: irName(i.IN.ir), width: .4,
-                    icon: i.deleted ? X : i.isDraft ? PencilRuler : undefined,
+                    icon: i.deleted ? Trash2 : i.isDraft ? PencilRuler : undefined,
                     iconColor: i.deleted ? 'danger' : i.isDraft ? 'warning' : undefined,
                 },
                 { text: irLabel(i.IN), width: .6 },

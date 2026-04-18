@@ -6,7 +6,7 @@
     import DetailNSPs from '$lib/features/detail/components/DetailNSPs.svelte';
     import DetailIR from '$lib/features/detail/components/detailIR/DetailIR.svelte';
     import DetailDeletedIR from '$lib/features/detail/components/DetailDeletedIR.svelte';
-    import { PencilRuler, Trash2, X } from "@lucide/svelte";
+    import { PencilRuler, Trash2 } from "@lucide/svelte";
     import { Alert, AlertTitle } from "$lib/components/ui/alert";
 
     let { irid, spids, ir, sps, lang, t, justDeleted }: {
@@ -22,29 +22,25 @@
 
 </script>
 <div class="flex flex-col gap-12">
-    {#if ir && !ir.deleted}
-        <h2>
+    <h2 class="flex items-center gap-2">
+        {#if ir && !ir.deleted}
             {#if ir.isDraft}
                 <PencilRuler />
             {/if}
             {irWholeName(ir.IN)}
-        </h2>
-    {:else if sps.length && !sps[0].deleted}
-        <h2>
+        {:else if sps.length && !sps[0].deleted}
             {irLabel(sps[0].NSP)}
-        </h2>
-    {:else}
-        <h2>
+        {:else}
             {#if ir && ir.deleted || sps.length && sps[0].deleted}
-                <X />
+                <Trash2 />
             {/if}
             {#if irid}
                 {irNumberFromIRID(irid)}
             {:else if spids.length === 1}
                 {spids[0].replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}
             {/if}
-        </h2>
-    {/if}
+        {/if}
+    </h2>
     {#if justDeleted}
         <Alert>
             <Trash2 />
