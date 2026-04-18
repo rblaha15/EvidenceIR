@@ -5,7 +5,7 @@
     import { page } from '$app/state';
     import { replaceState } from '$app/navigation';
 
-    const { t }: { t: Translations } = $props();
+    const { t, onclick }: { t: Translations, onclick?: () => void } = $props();
 
     type T = { id: string, text: string, level: number, element: HTMLHeadingElement }
     type A = (T | A)[];
@@ -95,6 +95,7 @@
             data-sveltekit-replacestate="true"
             onclick={e => {
                 e.preventDefault()
+                onclick?.();
                 replaceState(new URL(page.url).also(u => u.hash = `#${item.id}`).toString(), {})
                 const anchor = document.getElementById(item.id)
                 if (anchor) main.scrollTo({

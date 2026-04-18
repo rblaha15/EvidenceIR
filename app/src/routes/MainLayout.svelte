@@ -1,17 +1,9 @@
 <script lang="ts">
     import type { LayoutData } from './$types';
-    import { checkAuth, userInfo } from '$lib/client/auth';
+    import { checkAuth, currentUser, userInfo } from '$lib/client/auth';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import { onMount, type Snippet } from 'svelte';
-    import {
-        backButton,
-        endLoading,
-        initialRouteLoggedIn,
-        initialRouteLoggedOut,
-        progress,
-        startLoading,
-        title,
-    } from '$lib/helpers/globals';
+    import { backButton, endLoading, hideNav, initialRouteLoggedIn, initialRouteLoggedOut, progress, startLoading, title, } from '$lib/helpers/globals';
     import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { dev } from '$app/environment';
     import { page } from '$app/state';
@@ -129,19 +121,19 @@
 {/snippet}
 
 {#snippet content()}
-    <div class="flex flex-col h-full">
-        <Navigation {t} />
-        <div class="grow mb-2 overflow-auto pt-14">
-            <div class="sticky top-0 progress rounded-0" role="progressbar"
-                 style:scale="1 {$progress === 'load' ? 1 : 0}"
-                 style="transition: scale .5s; transform-origin: top;"
-            >
-                <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger rounded-0"
-                     style:width="{$progress === 'load' ? 90 : $progress === 'done' ? 100 : 0}%"
-                     style="transition: width 5s;"
-                ></div>
-            </div>
-            <main class="container mx-auto flex gap-4">
+    <Navigation {t} />
+    <div class={['mb-2 flex flex-col h-full', $currentUser != null && !$hideNav ? 'pt-13 md:pt-24 lg:pt-13' : 'pt-13']}>
+        <div class="sticky top-0 progress rounded-0" role="progressbar"
+             style:scale="1 {$progress === 'load' ? 1 : 0}"
+             style="transition: scale .5s; transform-origin: top;"
+        >
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger rounded-0"
+                 style:width="{$progress === 'load' ? 90 : $progress === 'done' ? 100 : 0}%"
+                 style="transition: width 5s;"
+            ></div>
+        </div>
+        <div class="overflow-auto [scrollbar-gutter:stable]">
+            <main class="container mx-auto px-4 flex gap-4">
                 <div class="mt-4 flex flex-col gap-4 w-full">
                     <h1 id="main-title" class="m-0 flex items-center gap-4">
                         {#if $backButton}
