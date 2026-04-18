@@ -9,11 +9,9 @@
 
     let canvas = $state() as HTMLCanvasElement;
     let task = $state<RenderTask>();
-    const ctx = $derived(canvas?.getContext('2d'));
 
     const render = async (p: number) => {
         if (!pdf) return;
-        if (!ctx) return;
 
         const page = await pdf.getPage(p);
 
@@ -23,7 +21,7 @@
 
         if (task) task.cancel();
         task = page.render({
-            canvasContext: ctx,
+            canvas,
             viewport: viewport,
         });
         await task.promise;
@@ -36,5 +34,5 @@
 </script>
 
 <div class="flex flex-col">
-    <canvas bind:this={canvas} style="max-width: min(1024px, 100%)"></canvas>
+    <canvas bind:this={canvas} class="max-w-5xl border-2"></canvas>
 </div>

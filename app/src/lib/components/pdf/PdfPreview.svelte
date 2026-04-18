@@ -41,7 +41,7 @@
         {#if pageNumber === 1 && children || pageCount > 1}
             <div class="flex gap-4 items-center flex-wrap-reverse">
                 {#if pageCount > 1}
-                    <h5 class="m-0">{t.page(pageNumber, pageCount)}</h5>
+                    <h4>{t.page(pageNumber, pageCount)}</h4>
                 {/if}
                 {#if pageNumber === 1 && children}
                     <div class="grow"></div>
