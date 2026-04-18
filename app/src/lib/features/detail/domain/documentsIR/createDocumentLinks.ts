@@ -8,6 +8,7 @@ import { iaA, iaR } from '$lib/helpers/stores';
 import { cascadePumps, type PumpInfo } from '$lib/forms/IN/infoIN';
 import { isRKTL } from '$lib/forms/RKT/infoRKT';
 import { FilePen, type LucideProps } from "@lucide/svelte";
+import type { TC } from "$lib/forms/IN/defaultIN";
 
 export type DropdownItems = ({
     hide?: boolean,
@@ -30,9 +31,9 @@ export type DocumentLinkDefinition<P extends Pdf> = PdfParameters<P> & {
         text: string,
         show?: boolean,
     } & ({
-        href: string, dialogID?: undefined,
+        href: string, onclick?: undefined,
     } | {
-        dialogID: string, href?: undefined,
+        onclick: () => void, href?: undefined,
     }),
     dropdownItems?: DropdownItems
 }
@@ -55,13 +56,12 @@ const getDropdownItemUPT = (
 }) satisfies DropdownItems[number];
 
 const getButtonRKT = (
-    ir: ExistingIR,
-    tc: PumpInfo,
-    t: Translations,
+    ir: ExistingIR, tc: PumpInfo, t: Translations,
+    openRefsiteModal: (tc: TC) => void,
 ) => ({
     show: true,
     ...rules.showRefsiteDialog(ir)
-        ? { dialogID: `refsiteModal-${tc.N}` }
+        ? { onclick: () => openRefsiteModal(tc.N) }
         : { href: iridUrl(`/RKT?pump=${tc.N}`) },
     text: t.rkt.fillOut(tc),
     important: rules.isImportantRKT(ir),
@@ -151,7 +151,7 @@ export const createDocumentLinks = (
         isAdmin: boolean,
         isRegulusOrAdmin: boolean,
         allowUPT: boolean,
-    },
+    }, openRefsiteModal: (tc: TC) => void,
 ) => {
     const links: DocumentLinkDefinition<Pdf<'IR' | ''>>[] = [];
     const add = <P extends Pdf<'IR' | ''>>(link: DocumentLinkDefinition<P>) => links.push(link);
@@ -181,7 +181,7 @@ export const createDocumentLinks = (
                 link: rules.useRKTL(ir, tc) ? 'RKTL' : 'RKT', pump: tc.N,
                 name: t.rkt.name(tc),
                 disabled: rules.disableRKT(ir, tc),
-                additionalButton: getButtonRKT(ir, tc, t),
+                additionalButton: getButtonRKT(ir, tc, t, openRefsiteModal),
                 dropdownItems: user.isAdmin ? getDropdownItemsRKT(ir, tc, t) : undefined,
             });
         }

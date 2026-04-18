@@ -9,9 +9,9 @@ import { createFileUrl, downloadFile } from '$lib/helpers/files';
 import type { IRID } from '$lib/helpers/ir';
 import type { ExistingIR } from '$lib/data';
 
-export const removeIR = (irid: IRID) => async () => {
+export const removeIR = async (irid: IRID) => {
     await db.deleteIR(irid!);
-    await goto(iridUrl(`/detail?deleted`), { replaceState: true });
+    await goto(iridUrl(`/detail?deleted`), { replaceState: true, invalidateAll: true });
 };
 
 export const downloadXML = (ir: ExistingIR) => async () => {

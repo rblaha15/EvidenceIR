@@ -39,8 +39,9 @@
 </script>
 
 <DropdownMenu>
-    <DropdownMenuTrigger aria-label="user" class={buttonVariants({ variant: "ghost" })}>
+    <DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
         <CircleUser class="size-8" />
+        <span class="sr-only">User</span>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="start">
         <DropdownMenuGroup aria-label="User info">

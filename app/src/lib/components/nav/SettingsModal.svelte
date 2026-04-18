@@ -1,27 +1,28 @@
 <script lang="ts">
     import Settings from '$lib/components/nav/Settings.svelte';
     import type { Translations } from '$lib/translations';
-    import Button from '$lib/components/Button.svelte';
+    import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "$lib/components/ui/dialog";
+    import { SettingsIcon } from '@lucide/svelte';
+    import { buttonVariants } from "$lib/components/ui/button";
 
     const { t }: { t: Translations } = $props();
     const ts = $derived(t.nav.settings);
 </script>
 
-<div class="modal fade hidden" id="settings" tabindex="-1" aria-labelledby="settingsLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="settingsLabel">{ts.title}</h4>
-                <Button label={ts.close} class="btn-close" dismissModal />
-            </div>
-
-            <div class="modal-body">
-                <Settings {t} />
-            </div>
-
-            <div class="modal-footer">
-                <Button text={ts.close} variant="default" dismissModal />
-            </div>
+<Dialog>
+    <DialogTrigger class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
+        <SettingsIcon class="size-8" />
+        <span class="sr-only">{ts.title}</span>
+    </DialogTrigger>
+    <DialogContent>
+        <DialogHeader>
+            <DialogTitle>{ts.title}</DialogTitle>
+        </DialogHeader>
+        <div class="flex flex-col gap-4">
+            <Settings {t} />
         </div>
-    </div>
-</div>
+        <DialogFooter>
+            <DialogClose class={buttonVariants({ variant: 'default' })}>{ts.close}</DialogClose>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>

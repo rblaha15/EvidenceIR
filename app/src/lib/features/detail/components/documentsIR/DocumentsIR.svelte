@@ -5,18 +5,25 @@
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import PDFLink from './PDFLink.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
-    import RefsiteModals from '$lib/features/detail/components/documentsIR/RefsiteModals.svelte';
     import { createDocumentLinks } from '$lib/features/detail/domain/documentsIR/createDocumentLinks';
     import { pdfInfo } from '$lib/pdf/pdf';
     import { allowUPT } from '$lib/client/realtime';
+    import type { TC } from "$lib/forms/IN/defaultIN";
+    import RefsiteModal from "$lib/features/detail/components/documentsIR/RefsiteModal.svelte";
 
     const { t, ir, irid, lang }: {
         t: Translations, ir: ExistingIR, irid: IRID, lang: LanguageCode
     } = $props();
     const td = $derived(t.detail);
 
+    let openedRefsiteModal = $state<TC>();
+
     const links = $derived(
-        createDocumentLinks(ir, t, { isAdmin: $isUserAdmin, isRegulusOrAdmin: $isUserRegulusOrAdmin, allowUPT: $allowUPT })
+        createDocumentLinks(
+            ir, t,
+            { isAdmin: $isUserAdmin, isRegulusOrAdmin: $isUserRegulusOrAdmin, allowUPT: $allowUPT },
+            tc => openedRefsiteModal = tc,
+        )
     )
 </script>
 
@@ -28,4 +35,4 @@
     {/if}
 {/each}
 
-<RefsiteModals {ir} {irid} {td} />
+<RefsiteModal {ir} {td} bind:openedRefsiteModal />

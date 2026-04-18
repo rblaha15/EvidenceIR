@@ -14,16 +14,13 @@
     type AnchorSettings = {
         href: string,
         target?: HTMLAttributeAnchorTarget,
-        dismissModal?: boolean, // TODO
         ref?: HTMLAnchorElement | null,
     };
     type ButtonElementSettings = {
         ref?: HTMLButtonElement | null,
     } & AtLeastOne<{
-        modalID: string, // TODO
         offcanvasID: string, // TODO
         onclick: EventHandler<MouseEvent, HTMLButtonElement | HTMLAnchorElement>,
-        dismissModal: boolean, // TODO
     }>;
     type ActionSettings = AnchorSettings | ButtonElementSettings;
     type LabelSettings = AtLeastOne<{

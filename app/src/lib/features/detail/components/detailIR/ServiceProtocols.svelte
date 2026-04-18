@@ -11,6 +11,17 @@
     import Button from '$lib/components/Button.svelte';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
     import { Copy, Eye, FilePen, Plus, Trash2 } from "@lucide/svelte";
+    import {
+        AlertDialog,
+        AlertDialogAction,
+        AlertDialogCancel,
+        AlertDialogContent,
+        AlertDialogDescription,
+        AlertDialogFooter,
+        AlertDialogHeader,
+        AlertDialogTitle,
+    } from "$lib/components/ui/alert-dialog";
+    import { Spinner } from "$lib/components/ui/spinner";
 
     const {
         irid, ir, lang, t,
@@ -19,6 +30,14 @@
     } = $props();
     const td = $derived(t.detail);
     const r = $derived($isUserRegulusOrAdmin);
+
+    let openedDuplicateModal = $state<number>();
+    let openedDeleteModal = $state<number>();
+    const protocolToDuplicateIndex = $derived(openedDuplicateModal!);
+    const protocolToDeleteIndex = $derived(openedDeleteModal!);
+    const protocolToDelete = $derived(openedDeleteModal ? ir.SPs[openedDeleteModal] : undefined!);
+
+    let processing = $state(false);
 </script>
 
 <h4 class="m-0">{r ? td.serviceProtocols : td.serviceInterventions}</h4>
@@ -42,12 +61,12 @@
                         variant: 'default',
                         icon: Trash2,
                         text: td.delete,
-                        onSelect: () => {},
+                        onSelect: () => openedDeleteModal = i,
                     }, {
                         variant: 'default',
                         icon: Copy,
                         text: td.duplicate,
-                        onSelect: () => {},
+                        onSelect: () => openedDuplicateModal = i,
                     }]}
                 />
             {:else}
@@ -63,46 +82,6 @@
                     {/if}
                 </div>
             {/if}
-
-            <div class="modal fade hidden" id="duplicateModal-{i}" tabindex="-1" aria-labelledby="duplicateModalLabel-{i}" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title" id="duplicateModalLabel-{i}">{td.duplicate}</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            {td.copySP}
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{td.no}</button>
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick={copySP(i, ir)}>{td.yes}</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal fade" id="deleteProtocolModal-{i}" tabindex="-1" aria-labelledby="deleteProtocolModal-{i}" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title" id="deleteProtocolModal-{i}">
-                                <Trash2 />
-                                {td.delete} {isSP(p) ? spName(p.zasah) : ''}
-                            </h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            {td.deleteSP}
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">{td.no}</button>
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
-                                    onclick={deleteSP(i, irid)}>{td.yes}</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         {/each}
     </div>
 {/if}
@@ -114,3 +93,62 @@
             : ir.SPs.length ? td.fillInAnotherIntervention : td.fillInIntervention}
     </a>
 </div>
+
+<AlertDialog onOpenChange={() => openedDuplicateModal = undefined} open={!!openedDuplicateModal}>
+    <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogTitle>{td.duplicate}</AlertDialogTitle>
+            <AlertDialogDescription>{td.copySP}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel disabled={processing}>
+                {#if processing}
+                    <Spinner />
+                {/if}
+                {td.no}
+            </AlertDialogCancel>
+            <AlertDialogAction disabled={processing} onclick={async () => {
+                processing = true;
+                await copySP(protocolToDuplicateIndex, ir);
+                processing = false;
+                openedDuplicateModal = undefined;
+            }}>
+                {#if processing}
+                    <Spinner />
+                {/if}
+                {td.yes}
+            </AlertDialogAction>
+        </AlertDialogFooter>
+    </AlertDialogContent>
+</AlertDialog>
+
+<AlertDialog onOpenChange={() => openedDeleteModal = undefined} open={!!openedDeleteModal}>
+    <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogTitle class="flex gap-2">
+                <Trash2 />
+                {td.delete} {isSP(protocolToDelete) ? spName(protocolToDelete.zasah) : ''}
+            </AlertDialogTitle>
+            <AlertDialogDescription>{td.deleteSP}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel variant="default" disabled={processing}>
+                {#if processing}
+                    <Spinner />
+                {/if}
+                {td.no}
+            </AlertDialogCancel>
+            <AlertDialogAction variant="destructive" disabled={processing} onclick={async () => {
+                processing = true;
+                await deleteSP(irid, protocolToDeleteIndex);
+                processing = false;
+                openedDeleteModal = undefined;
+            }}>
+                {#if processing}
+                    <Spinner />
+                {/if}
+                {td.yes}
+            </AlertDialogAction>
+        </AlertDialogFooter>
+    </AlertDialogContent>
+</AlertDialog>
