@@ -5,6 +5,7 @@
     import { FileDown } from "@lucide/svelte";
     import { onMount } from "svelte";
     import { setTitle } from "$lib/helpers/globals";
+    import { Button } from "$lib/components/ui/button";
 
     const {
         data,
@@ -18,8 +19,8 @@
 </script>
 
 <PdfPreview t={t.pdf} url={data.url}>
-    <button class="btn btn-primary" onclick={download}>
+    <Button onclick={download}>
         <FileDown />
         {t.pdf.downloadFile}
-    </button>
+    </Button>
 </PdfPreview>

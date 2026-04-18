@@ -9,6 +9,7 @@
     import { FileDown, Printer } from '@lucide/svelte';
     import { onMount } from "svelte";
     import { setTitle } from "$lib/helpers/globals";
+    import { Button } from "$lib/components/ui/button";
 
     const {
         data,
@@ -30,33 +31,26 @@
     onMount(() => setTitle(t.documentPreview, true));
 </script>
 
-<h2 class="m-0">{title(data.translations)}</h2>
-<h4 class="m-0">{data.fileName}</h4>
+<h2>{title(data.translations)}</h2>
+<h3>{data.fileName}</h3>
 
-<p class="m-0 hidden print-warning text-xl text-danger">{t.printWarning}</p>
+<p class="hidden print:block text-xl text-destructive">{t.printWarning}</p>
 
 <PdfPreview args={data.fileLang} {t} url={data.url}>
-    <div class="flex items-center"><span class="me-1">{t.fileLanguage}:</span>
+    <div class="flex items-center gap-1">
+        <p>{t.fileLanguage}:</p>
         <LanguageSelector readonly={supportedLanguages.length < 2} onChange={code =>
             goto(createLink(code), { replaceState: true, invalidateAll: true })
         } options={supportedLanguages} selected={data.fileLang} />
     </div>
-    <button class="btn btn-primary" onclick={download}>
+    <Button onclick={download}>
         <FileDown />
         {t.downloadFile}
-    </button>
+    </Button>
     {#if !phone}
-        <button class="btn btn-primary" onclick={print}>
+        <Button onclick={print}>
             <Printer />
             {t.printFile}
-        </button>
+        </Button>
     {/if}
 </PdfPreview>
-
-<style>
-    @media print {
-        .print-warning {
-            display: block !important;
-        }
-    }
-</style>
