@@ -20,7 +20,7 @@
             </div>
 
             <div class="modal-footer">
-                <Button text={ts.close} color="primary" dismissModal />
+                <Button text={ts.close} variant="default" dismissModal />
             </div>
         </div>
     </div>

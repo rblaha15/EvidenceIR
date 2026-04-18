@@ -54,6 +54,7 @@
 		"jszip": "^3.10.1",
 		"lodash.isstring": "^4.0.1",
 		"lodash.merge": "^4.6.2",
+		"mode-watcher": "^1.1.0",
 		"nodemailer": "^8.0.5",
 		"pdf-lib": "^1.17.1",
 		"pdfjs-dist": "^5.3.93",

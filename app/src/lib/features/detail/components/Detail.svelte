@@ -22,18 +22,18 @@
 </script>
 <div class="flex flex-col gap-12">
     {#if ir && !ir.deleted}
-        <h3 class="m-0">
+        <h2>
             {#if ir.isDraft}
                 <PencilRuler />
             {/if}
             {irWholeName(ir.IN)}
-        </h3>
+        </h2>
     {:else if sps.length && !sps[0].deleted}
-        <h3 class="m-0">
+        <h2>
             {irLabel(sps[0].NSP)}
-        </h3>
+        </h2>
     {:else}
-        <h3 class="m-0">
+        <h2>
             {#if ir && ir.deleted || sps.length && sps[0].deleted}
                 <X />
             {/if}
@@ -42,7 +42,7 @@
             {:else if spids.length === 1}
                 {spids[0].replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}
             {/if}
-        </h3>
+        </h2>
     {/if}
     {#if justDeleted}
         <div class="alert alert-success" role="alert">

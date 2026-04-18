@@ -30,7 +30,7 @@
         <li class="link-item text-nowrap" data-bs-dismiss="offcanvas">
             <a
                 tabindex="0"
-                class="nav-link"
+                class="nav-link flex"
                 class:active={selected}
                 aria-current={selected ? 'page' : null}
                 href={url}
@@ -42,7 +42,7 @@
     {/if}
 {/snippet}
 
-<ul class="navbar-nav">
+<ul class="navbar-nav flex">
     {@render item({
         url: relUrl('/search'), label: t.nav.search, selected: route?.endsWith('/search'), Icon: Search, noPadding: true,
     })}

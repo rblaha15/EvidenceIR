@@ -136,7 +136,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         }),
     },
     bydliste: {
-        _title: newTitleWidget<C>({ text: (t, c) => jeFO(c) ? t.in.residence : t.in.headquarters, level: 3, class: 'text-lg' }),
+        _title: newTitleWidget<C>({ text: (t, c) => jeFO(c) ? t.in.residence : t.in.headquarters, level: 3 }),
         search: newSearchWidget({
             label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
                 pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }],
@@ -162,7 +162,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         }),
     },
     mistoRealizace: {
-        _title: newTitleWidget({ text: t => t.in.realizationLocation, level: 3, class: 'text-lg' }),
+        _title: newTitleWidget({ text: t => t.in.realizationLocation, level: 3 }),
         _setAsResidence: newButtonWidget<C>({
             text: (t, c) => jeFO(c) ? t.in.copyResidence : t.in.copyHeadquarters,
             color: 'secondary', onClick: c => {
@@ -201,7 +201,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
     },
     montazka: {
         _titleCompanies: newTitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
-        _title: newTitleWidget({ text: t => t.in.assemblyCompany, level: 3, class: 'text-lg' }),
+        _title: newTitleWidget({ text: t => t.in.assemblyCompany, level: 3 }),
         company: newSearchWidget<C, Company, true>({
             items: t => derived(assemblyCompanies, c => [unknownCompany(t), ...c]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
@@ -262,7 +262,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         }),
     },
     uvedeni: {
-        _title: newTitleWidget({ text: t => t.in.commissioning, level: 3, class: 'text-lg' }),
+        _title: newTitleWidget({ text: t => t.in.commissioning, level: 3 }),
         _setAsAssembly: newButtonWidget<C>({
             text: t => t.in.copyAssemblyCompany, color: 'secondary',
             onClick: c => {
@@ -441,7 +441,7 @@ const heatPump = <const I extends TC>(i: I) => ({
 export default (): FormPlus<FormIN> => ({
     ir: {
         nadpisSystem: newTitleWidget({ text: t => t.in.system, level: 2 }),
-        nadpis: newTitleWidget({ text: t => t.in.controller, level: 3, class: 'text-lg' }),
+        nadpis: newTitleWidget({ text: t => t.in.controller, level: 3 }),
         regulus: newHiddenValueWidget(false, true),
         typ: newDoubleChooserWidget({
             label: t => t.in.controllerType,
@@ -632,7 +632,7 @@ export default (): FormPlus<FormIN> => ({
     tc: {
         nadpis: newTitleWidget({
             text: (t, c) => c.v.tc.pocet > 1 ? t.in.heatPumps : t.in.device.heatPump,
-            show: tc, level: 3, class: 'text-lg',
+            show: tc, level: 3,
         }),
         poznamka: newTextWidget({
             text: t => t.in.pleaseFillInIrType, showInXML: false,
@@ -675,7 +675,7 @@ export default (): FormPlus<FormIN> => ({
     },
     sol: {
         title: newTitleWidget({
-            text: t => t.in.device.solarCollector, show: sol, level: 3, class: 'text-lg',
+            text: t => t.in.device.solarCollector, show: sol, level: 3,
         }),
         typ: newInputWidget({
             label: t => t.in.solarCollectorType, required: sol, show: sol, suggestions: solarCollectors,
@@ -686,7 +686,7 @@ export default (): FormPlus<FormIN> => ({
     },
     tanks: {
         title: newTitleWidget({
-            text: t => t.tc.tanks, level: 3, class: 'text-lg', show: c => aku(c) || zas(c),
+            text: t => t.tc.tanks, level: 3, show: c => aku(c) || zas(c),
         }),
         accumulation: newInputWidget({
             label: t => t.tc.typeOfAccumulationTank, show: aku, required: aku, suggestions: accumulationTanks,
@@ -700,7 +700,7 @@ export default (): FormPlus<FormIN> => ({
         }),
     },
     rek: {
-        title: newTitleWidget({ text: t => t.in.device.ventilation, show: rek, level: 3, class: 'text-lg' }),
+        title: newTitleWidget({ text: t => t.in.device.ventilation, show: rek, level: 3 }),
         typ: newInputWidget({
             label: t => t.in.recoveryVentilationUnitType,
             required: rek, show: rek,
@@ -709,7 +709,7 @@ export default (): FormPlus<FormIN> => ({
     fve: {
         title: newTitleWidget({
             text: t => t.in.photovoltaicSystem,
-            show: fve, level: 3, class: 'text-lg',
+            show: fve, level: 3,
         }),
         typ: newChooserWidget({
             label: t => t.in.panelType, chosen: 'DG-450-B',
@@ -751,7 +751,7 @@ export default (): FormPlus<FormIN> => ({
     jine: {
         title: newTitleWidget({
             text: t => t.in.device.other,
-            show: other, level: 3, class: 'text-lg',
+            show: other, level: 3,
         }),
         popis: newInputWidget({
             label: t => t.in.description, required: other, show: other,

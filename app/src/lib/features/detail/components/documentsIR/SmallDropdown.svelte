@@ -1,33 +1,41 @@
 <script lang="ts">
     import type { DropdownItems } from '$lib/features/detail/domain/documentsIR/createDocumentLinks';
     import { EllipsisVertical } from '@lucide/svelte';
+    import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "$lib/components/ui/dropdown-menu";
+    import { buttonVariants } from "$lib/components/ui/button";
+    import { goto } from "$app/navigation";
 
     const { dropdownItems }: {
         dropdownItems: DropdownItems
     } = $props();
 </script>
 
-<button aria-expanded="false" class="btn btn-outline-secondary" data-bs-toggle="dropdown"
-        style="--bs-btn-padding-x: 0" type="button">
-    <EllipsisVertical />
-    <span class="visually-hidden">Toggle dropdown with other options</span>
-</button>
-
-<div class="dropdown-menu hidden">
-    <div class="flex flex-col gap-1 px-4 py-2 items-start">
+<DropdownMenu>
+    <DropdownMenuTrigger
+        class={buttonVariants({ variant: 'secondary', size: 'icon' })}
+        aria-label="Další možnosti"
+    >
+        <EllipsisVertical />
+    </DropdownMenuTrigger>
+    <DropdownMenuContent>
         {#each dropdownItems ?? [] as item}
             {#if !item.hide}
-                {#if 'color' in item}
-                    <a class="btn btn-{item.color}" href={item.href} tabindex="0">
+                {#if 'href' in item}
+                    <DropdownMenuItem variant={item.variant} onSelect={() => goto(item.href)}>
                         <item.icon />
                         {item.text}
-                    </a>
-                {:else if 'item' in item}
-                    {@render item.item()}
+                    </DropdownMenuItem>
+                {:else if 'onSelect' in item}
+                    <DropdownMenuItem variant={item.variant} onSelect={item.onSelect}>
+                        <item.icon />
+                        {item.text}
+                    </DropdownMenuItem>
                 {:else}
-                    <h6 class="m-0">{item.text}</h6>
+                    <DropdownMenuLabel>
+                        {item.text}
+                    </DropdownMenuLabel>
                 {/if}
             {/if}
         {/each}
-    </div>
-</div>
+    </DropdownMenuContent>
+</DropdownMenu>

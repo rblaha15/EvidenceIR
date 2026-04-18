@@ -220,7 +220,7 @@ export default {
     theme: {
         dark: 'Tmavý',
         light: 'Světlý',
-        auto: 'Podle prohlížeče',
+        system: 'Podle prohlížeče',
     },
     sz: {
         title: `Servisní zásah`,

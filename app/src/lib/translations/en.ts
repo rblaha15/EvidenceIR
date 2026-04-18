@@ -66,7 +66,7 @@ const en: PlainTranslations = {
     theme: {
         dark: 'Dark',
         light: 'Light',
-        auto: 'Auto',
+        system: 'Auto',
     },
     units: {
         ...cs.units,

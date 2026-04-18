@@ -27,7 +27,7 @@
     {#if !ir.isDraft}
         <div class="flex flex-col gap-12 grow">
             <div class="flex flex-col gap-4">
-                <h4 class="m-0">{td.documents}</h4>
+                <h3>{td.documents}</h3>
                 <div class="flex flex-col gap-1">
                     <DocumentsIR {ir} {t} {lang} {irid} />
                 </div>
@@ -38,7 +38,7 @@
         </div>
     {/if}
     <div class="flex flex-col gap-4 shrink sm:items-start">
-        <h4 class="m-0">{ir.isDraft ? td.draftManagement : td.recordManagement}</h4>
+        <h3>{ir.isDraft ? td.draftManagement : td.recordManagement}</h3>
         <div class="flex flex-col gap-1 sm:items-start">
             {#if !ir.isDraft}
                 <Button icon={MailOpen} text={td.sendDocuments}
@@ -58,11 +58,11 @@
         </div>
         <div class="flex flex-col gap-1 sm:items-start">
             {#if $isUserRegulusOrAdmin}
-                <Button variant="secondary" icon={Users} text="{td.usersWithAccess}{$aR}"
+                <Button variant="outline" icon={Users} text="{td.usersWithAccess}{$aR}"
                         href={iridUrl('/users')} />
             {/if}
             {#if !ir.isDraft}
-                <Button variant="secondary" icon={FilePen} text={td.editInstallationData}
+                <Button variant="warning" icon={FilePen} text={td.editInstallationData}
                         href={relUrl(`/IN?edit-irid=${irid}`)} />
             {/if}
             <DeleteIR {irid} {td} />

@@ -10,6 +10,17 @@
     import { logEvent } from 'firebase/analytics';
     import { analytics } from '../../../hooks.client';
     import { CircleUser, Gift, LogOut, RectangleEllipsis, ShieldCogCorner } from "@lucide/svelte";
+    import {
+        DropdownMenu,
+        DropdownMenuContent,
+        DropdownMenuGroup,
+        DropdownMenuGroupHeading,
+        DropdownMenuItem,
+        DropdownMenuLabel,
+        DropdownMenuSeparator,
+        DropdownMenuTrigger
+    } from "$lib/components/ui/dropdown-menu";
+    import { buttonVariants } from "$lib/components/ui/button";
 
     const { t }: { t: Translations } = $props();
     const ta = $derived(t.auth);
@@ -27,64 +38,58 @@
     };
 </script>
 
-<div class="dropdown ms-4">
-    <button aria-label="User" class="btn btn-link nav-link" data-bs-toggle="dropdown">
+<DropdownMenu>
+    <DropdownMenuTrigger aria-label="user" class={buttonVariants({ variant: "ghost" })}>
         <CircleUser class="size-8" />
-    </button>
-    <div class="dropdown-menu hidden dropdown-menu-end">
-        <div class="flex flex-col gap-4 px-4 pt-1">
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="start">
+        <DropdownMenuGroup aria-label="User info">
             {#if $currentUser?.displayName}
-                <h5 class="m-0">
-                    {$currentUser?.displayName}
-                </h5>
+                <DropdownMenuLabel>{$currentUser?.displayName}</DropdownMenuLabel>
             {/if}
-            <span>
-                {ta.email}:<br />{loggedInEmail}
-            </span>
+            <DropdownMenuLabel>{ta.email}: {loggedInEmail}</DropdownMenuLabel>
             {#if $responsiblePerson}
-                <span>
-                    {ta.responsiblePerson}:<br />{$responsiblePerson}
-                </span>
+                <DropdownMenuLabel>{ta.responsiblePerson}: {$responsiblePerson}</DropdownMenuLabel>
             {/if}
             {#if $currentUser?.uid && $isUserAdmin}
-                <span>
-                    UID:{$aA}<br />{$currentUser?.uid}
-                </span>
+                <DropdownMenuLabel>UID:{$aA}<br />{$currentUser?.uid}</DropdownMenuLabel>
             {/if}
-        </div>
+        </DropdownMenuGroup>
         {#if !$isUserAnyRegulusOrAdmin && $loyaltyProgramDataStore}
-            <hr class="my-4" />
-            <div class="flex flex-col gap-1 px-4 items-start">
-                <h6 class="m-0">{ta.loyaltyProgram}</h6>
-                <span>{ta.currentPointBalance}: {$loyaltyProgramDataStore.points}</span>
-                <a class="btn btn-secondary" href={relUrl('/rewards')}>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+                <DropdownMenuGroupHeading>{ta.loyaltyProgram}</DropdownMenuGroupHeading>
+                <DropdownMenuLabel>
+                    {ta.currentPointBalance}: {$loyaltyProgramDataStore.points}
+                </DropdownMenuLabel>
+                <DropdownMenuItem onSelect={() => goto(relUrl('/rewards'))}>
                     <Gift />
                     {ta.rewards}
-                </a>
-            </div>
+                </DropdownMenuItem>
+            </DropdownMenuGroup>
         {/if}
-        <hr class="my-4" />
-        <div class="flex flex-col gap-1 px-4 items-start">
-            <button class="btn btn-warning" onclick={changePassword}>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup aria-label="User login actions">
+            <DropdownMenuItem onSelect={changePassword}>
                 <RectangleEllipsis />
                 {ta.changePassword}
-            </button>
-            <button class="btn btn-danger" onclick={() => {
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => {
                 logEvent(analytics(), 'logout', { email: loggedInEmail });
                 logOut();
-            }}>
+            }} variant="destructive">
                 <LogOut />
                 {ta.toLogOut}
-            </button>
-        </div>
+            </DropdownMenuItem>
+        </DropdownMenuGroup>
         {#if $isUserAdmin}
-            <hr class="my-4" />
-            <div class="px-4 pb-1">
-                <a class="btn btn-info" href={relUrl('/admin')}>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup aria-label="User login actions">
+                <DropdownMenuItem onSelect={() => goto(relUrl('/admin'))}>
                     <ShieldCogCorner />
                     Admin{$aA}
-                </a>
-            </div>
+                </DropdownMenuItem>
+            </DropdownMenuGroup>
         {/if}
-    </div>
-</div>
+    </DropdownMenuContent>
+</DropdownMenu>

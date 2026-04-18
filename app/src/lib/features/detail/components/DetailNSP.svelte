@@ -18,35 +18,31 @@
     const spid = $derived(extractSPIDFromRawData(sp.NSP.zasah));
 </script>
 
-{#snippet deleteButton()}
-    <button class="btn btn-danger" onclick={() => {
-        db.deleteNSP(spid);
-        goto(spidUrl(`/detail?deleted`), { replaceState: true });
-    }}>
-        <Trash2 />
-        {td.deleteProtocol}{$aA}
-    </button>
-{/snippet}
-
 <PDFLink
-    data={sp} link="NSP" name={spName(sp.NSP.zasah)} {spid} {t} {lang} dropdownItems={[{
-        color: 'primary',
+    data={sp} dropdownItems={[{
+        variant: 'default',
         icon: Eye,
         text: td.viewFilledData,
         href: relUrl(`/NSP?view-spid=${spid}`),
     }, {
-        color: 'warning',
+        variant: 'warning',
         icon: FilePen,
         text: td.editProtocol,
         href: relUrl(`/NSP?edit-spid=${spid}`),
     }, {
-        item: deleteButton,
+        variant: 'destructive',
+        icon: Trash2,
+        text: td.deleteProtocol + $aA,
+        onSelect: () => {
+            db.deleteNSP(spid);
+            goto(spidUrl(`/detail?deleted`), { replaceState: true });
+        },
         hide: !$isUserAdmin,
     }, {
-        color: 'secondary',
+        variant: 'default',
         icon: Server,
         text: td.openInDatabase + $aA,
         href: `https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fsp~2F${spid}`,
         hide: !$isUserAdmin,
-    }]}>
+    }]} {lang} link="NSP" name={spName(sp.NSP.zasah)} {spid} {t}>
 </PDFLink>

@@ -440,7 +440,7 @@ const de: PlainTranslations = {
     theme: {
         dark: 'Dunkel',
         light: 'Hell',
-        auto: 'Nach Browser',
+        system: 'Nach Browser',
     },
     search: {
         titleControllers: 'Suche nach Installationen',
