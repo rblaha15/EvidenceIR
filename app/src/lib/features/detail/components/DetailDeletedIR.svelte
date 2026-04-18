@@ -6,6 +6,7 @@
     import { iaA } from '$lib/helpers/stores';
     import Dates from '$lib/features/detail/components/Dates.svelte';
     import { Eye, Server } from "@lucide/svelte";
+    import Button from "$lib/components/Button.svelte";
 
     let { ir, td }: {
         ir: DeletedIR,
@@ -22,16 +23,13 @@
 
 {#if $isUserAdmin}
     <div class="flex flex-col items-end gap-1">
-        <a class="btn btn-secondary" href={relUrl(`/IN?view-irid=${ir.meta.id}`)}
-           tabindex="0">
-            <Eye />
-            {td.viewFilledData}{iaA}
-        </a>
-        <a tabindex="0" class="btn btn-secondary" target="_blank"
-           href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fir~2F{ir.meta.id}">
-            <Server />
-            {td.openInDatabase}{iaA}
-        </a>
+        <Button variant="secondary" href={relUrl(`/IN?view-irid=${ir.meta.id}`)} icon={Eye}
+                text={td.viewFilledData} />
+        {#if $isUserAdmin}
+            <Button variant="secondary" icon={Server} text="{td.openInDatabase}{iaA}"
+                    href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fir~2F{ir.meta.id}"
+                    target="_blank" />
+        {/if}
     </div>
 {/if}
 

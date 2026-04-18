@@ -11,7 +11,7 @@
     import { analytics } from '../../../../hooks.client';
     import { logEvent } from 'firebase/analytics';
     import { newSearchWidget } from '$lib/forms/Widget';
-    import { PencilRuler, X } from "@lucide/svelte";
+    import { PencilRuler, Trash2 } from "@lucide/svelte";
     import { onMount } from "svelte";
     import {
         AlertDialog,
@@ -45,7 +45,7 @@
             pieces: [
                 {
                     text: i.name, width: .4,
-                    icon: i.deleted ? X : i.draft ? PencilRuler : undefined,
+                    icon: i.deleted ? Trash2 : i.draft ? PencilRuler : undefined,
                     iconColor: i.deleted ? 'danger' : i.draft ? 'warning' : undefined,
                 },
                 { text: i.label, width: .6 },

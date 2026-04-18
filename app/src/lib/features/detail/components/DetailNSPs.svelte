@@ -5,7 +5,7 @@
     import { goto } from '$app/navigation';
     import { type Translations } from '$lib/translations';
     import { defaultNSP } from '$lib/forms/NSP/formNSP';
-    import { type Raw, valuesToRawData, defaultValues } from '$lib/forms/Form';
+    import { defaultValues, type Raw, valuesToRawData } from '$lib/forms/Form';
     import { endUserEmails, type IRID } from '$lib/helpers/ir';
     import defaultSP from '$lib/forms/SP/defaultSP';
     import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
@@ -20,6 +20,7 @@
     import db from '$lib/Database';
     import { newInputWidget } from '$lib/forms/Widget';
     import { Copy, FileSymlink, HousePlus, MailOpen } from '@lucide/svelte';
+    import { Button } from "$lib/components/ui/button";
 
     const { t, sps, lang }: {
         t: Translations, sps: NSP[], lang: LanguageCode,
@@ -55,7 +56,7 @@
     const createCopyIN = () => {
         const sp = sps[0] as ExistingNSP;
         const newIN = {
-                ...valuesToRawData(defaultIN(), defaultValues(defaultIN())),
+            ...valuesToRawData(defaultIN(), defaultValues(defaultIN())),
             ...sp.NSP.omit(...protocolGroups),
         };
         storable<Raw<FormIN>>(IN.storeName({ draft: false })).set(newIN);
@@ -63,7 +64,7 @@
     const mf = $derived(sps[0].NSP.montazka.email == unknownCompanyEmail ? '' : sps[0].NSP.montazka.email.trim());
 </script>
 
-<div class="flex flex-wrap gap-4 justify-content-between">
+<div class="flex flex-wrap gap-4 justify-between">
     <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1 sm:items-start">
             {#each sps as sp}
@@ -81,29 +82,28 @@
 
     {#if !sps[0].deleted}
         <div class="flex flex-col gap-4 sm:items-start">
-            <a class="btn btn-primary"
-               href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].NSP.koncovyUzivatel).join(';')}&assembly=${mf}`)} tabindex="0">
+            <Button href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].NSP.koncovyUzivatel).join(';')}&assembly=${mf}`)}>
                 <MailOpen />
                 {td.sendDocuments}
-            </a>
+            </Button>
 
-            <a class="btn btn-warning" href={relUrl('/NSP')} onclick={createCopy}>
+            <Button variant="warning" href={relUrl('/NSP')} onclick={createCopy}>
                 <Copy />
                 {td.copyNSP}
-            </a>
+            </Button>
 
             {#if $isUserAdmin}
-                <a class="btn btn-warning" href={relUrl('/IN')} onclick={createCopyIN}>
+                <Button variant="warning" href={relUrl('/IN')} onclick={createCopyIN}>
                     <HousePlus />
                     {td.copyNSPtoInstallation}{$aA}
-                </a>
+                </Button>
 
                 <div class="flex flex-col gap-1 sm:items-start">
                     <Widget {widget} bind:value={newIRID} {t} context={{}} {showAllErrors} />
-                    <button class="btn btn-danger block" onclick={transfer}>
+                    <Button variant="destructive" onclick={transfer}>
                         <FileSymlink />
                         {td.transferProtocols}{$aA}
-                    </button>
+                    </Button>
                 </div>
             {/if}
         </div>
