@@ -1,6 +1,5 @@
 import type { Pdf, PdfParameters } from '$lib/pdf/pdf';
-import type { Component, Snippet } from 'svelte';
-import type { Color } from '$lib/forms/Widget';
+import type { Component } from 'svelte';
 import type { ExistingIR } from '$lib/data';
 import * as rules from './documentLinkRules';
 import type { Translations } from '$lib/translations';
@@ -13,16 +12,14 @@ import { FilePen, type LucideProps } from "@lucide/svelte";
 export type DropdownItems = ({
     hide?: boolean,
     text: string,
-} | {
-    color: Color,
+} & ({} | {
+    variant: 'default' | 'destructive' | 'warning',
     icon: Component<LucideProps>,
-    hide?: boolean,
-    text: string,
+} & ({
     href: string,
 } | {
-    hide?: boolean,
-    item: Snippet,
-})[];
+    onSelect: () => void,
+})))[];
 
 export type DocumentLinkDefinition<P extends Pdf> = PdfParameters<P> & {
     link: P,
@@ -51,7 +48,7 @@ const getDropdownItemUPT = (
     t: Translations,
     user: { isAdmin: boolean; isRegulusOrAdmin: boolean },
 ) => ({
-    color: 'warning',
+    variant: 'warning',
     icon: FilePen,
     text: t.detail.editProtocol + iaR(user.isAdmin),
     href: iridUrl(`/UPT/?edit`),
@@ -83,7 +80,7 @@ const getDropdownItemsRKT = (
     return entries.flatMap(check => [{
         text: `${t.rkt.year} ${check.year}`,
     }, {
-        color: 'warning',
+        variant: 'warning',
         icon: FilePen,
         text: t.detail.editCheck + iaA,
         href: iridUrl(`/${check.useRKTL ? 'RKTL' : 'RKT'}?pump=${tc.N}&edit-year=${check.year}`),
@@ -101,7 +98,7 @@ const getDropdownItemUPS = (
     t: Translations,
     user: { isAdmin: boolean; isRegulusOrAdmin: boolean },
 ) => ({
-    color: 'warning',
+    variant: 'warning',
     icon: FilePen,
     text: t.detail.editProtocol + iaR(user.isAdmin),
     href: iridUrl(`/UPS?edit`),
@@ -127,7 +124,7 @@ const getDropdownItemsRKS = (
     return entries.flatMap(check => [{
         text: `${t.rkt.year} ${check.year}`,
     }, {
-        color: 'warning',
+        variant: 'warning',
         icon: FilePen,
         text: t.detail.editCheck + iaA,
         href: iridUrl(`/RKS?edit-year=${check.year}`),

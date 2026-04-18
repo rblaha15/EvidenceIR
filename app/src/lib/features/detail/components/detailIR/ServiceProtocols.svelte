@@ -26,34 +26,28 @@
     <div class="flex flex-col gap-1 sm:items-start">
         {#each ir.SPs as p, i}
             {@const showSP = isSP(p) && r}
-            {#snippet deleteButton()}
-                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#deleteProtocolModal-{i}">
-                    <Trash2 />
-                    {td.delete}
-                </button>
-            {/snippet}
-            {#snippet duplicateButton()}
-                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#duplicateModal-{i}">
-                    <Copy />
-                    {td.duplicate}
-                </button>
-            {/snippet}
             {#if showSP}
                 <PDFLink
                     name={spName(p.zasah)} data={ir} {t} {lang} link="SP" index={i} {irid} dropdownItems={[{
-                        color: 'primary',
+                        variant: 'default',
                         icon: Eye,
                         text: td.viewFilledData,
                         href: iridUrl(`/SP/?view=${i}`),
                     }, {
-                        color: 'warning',
+                        variant: 'warning',
                         icon: FilePen,
                         text: td.editProtocol,
                         href: iridUrl(`/SP/?edit=${i}`),
                     }, {
-                        item: deleteButton,
+                        variant: 'default',
+                        icon: Trash2,
+                        text: td.delete,
+                        onSelect: () => {},
                     }, {
-                        item: duplicateButton,
+                        variant: 'default',
+                        icon: Copy,
+                        text: td.duplicate,
+                        onSelect: () => {},
                     }]}
                 />
             {:else}
@@ -61,7 +55,7 @@
                     <Button text={szName(p.zasah)} href={iridUrl(`/SZ/?view=${i}`)} variant="link" icon={Eye} />
                     {#if !isSP(p)}
                         <SmallDropdown dropdownItems={[{
-                            color: 'warning',
+                            variant: 'warning',
                             icon: FilePen,
                             text: td.editIntervention,
                             href: iridUrl(`/SZ/?edit=${i}`),

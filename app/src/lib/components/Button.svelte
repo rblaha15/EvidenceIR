@@ -24,7 +24,6 @@
         offcanvasID: string, // TODO
         onclick: EventHandler<MouseEvent, HTMLButtonElement | HTMLAnchorElement>,
         dismissModal: boolean, // TODO
-        toggleDropdown: boolean, // TODO
     }>;
     type ActionSettings = AnchorSettings | ButtonElementSettings;
     type LabelSettings = AtLeastOne<{

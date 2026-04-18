@@ -1,7 +1,8 @@
 <script lang="ts">
     import { languageNames } from '$lib/translations';
     import languageCodes, { type LanguageCode } from '$lib/languageCodes';
-    import { Check, Languages } from "@lucide/svelte";
+    import { Languages } from "@lucide/svelte";
+    import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from "$lib/components/ui/select";
 
     const {
         onChange, options = languageCodes, selected, readonly,
@@ -11,38 +12,28 @@
         selected: LanguageCode | string;
         readonly?: boolean;
     } = $props();
+
+    const onValueChange = (code: string) => {
+        onChange(code as LanguageCode);
+    };
 </script>
 
-{#snippet value()}
-    <Languages />
-    <span class="mx-1">{selected.toUpperCase()}</span>
-{/snippet}
-{#snippet items()}
-    {#each options.filter(it => it !== 'sk') as code}
-        <li>
-            <button
-                class="dropdown-item flex items-center"
-                class:active={selected === code}
-                aria-pressed={selected === code}
-                onclick={() => selected !== code ? onChange(code) : null}
-            >
-                <span class="text-xl me-2">{code.toUpperCase()}</span>
-                {languageNames[code]}
-                <Check class={['ms-auto', selected === code ? 'inline' : 'hidden']} />
-            </button>
-        </li>
-    {/each}
-{/snippet}
-
-{#if readonly}
-    {@render value()}
-{:else}
-    <div class="dropdown">
-        <button class="btn py-2 px-2 dropdown-toggle flex items-center" data-bs-toggle="dropdown">
-            {@render value()}
-        </button>
-        <ul class="dropdown-menu hidden">
-            {@render items()}
-        </ul>
-    </div>
-{/if}
+<Select {onValueChange} type="single" value={selected} disabled={readonly}>
+    <SelectTrigger hideChevron={readonly}>
+        <Languages />
+        {selected.toUpperCase()}
+    </SelectTrigger>
+    <SelectContent>
+        <SelectGroup>
+            {#each options.filter(it => it !== 'sk') as code}
+                <SelectItem
+                    value={code}
+                    label={code.toUpperCase()}
+                >
+                    <span class="text-lg">{code.toUpperCase()}</span>
+                    {languageNames[code]}
+                </SelectItem>
+            {/each}
+        </SelectGroup>
+    </SelectContent>
+</Select>

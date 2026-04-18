@@ -13,31 +13,31 @@
 {#if $isUserAdmin && data}
     <div class="flex flex-col gap-1 sm:items-start">
         {#if 'createdBy' in data.meta && data.meta.createdBy && !('IN' in data && data.meta.createdBy.isFake)}
-            <span>
+            <p class="flex gap-1">
                 <Plus />
                 Vytvořil: {data.meta.createdBy.email}{$aA}
-            </span>
+            </p>
         {/if}
         {#if 'createdAt' in data.meta && data.meta.createdAt && !('_seconds' in data.meta.createdAt)}
             {@const date = dateFromTimestamp(data.meta.createdAt)}
-            <span>
+            <p class="flex gap-1">
                 <Plus />
                 Vytvořeno: {datetimeFromISO(date.toISOString())} UTC{$aA}
-            </span>
+            </p>
         {/if}
         {#if 'changedAt' in data.meta && data.meta.changedAt && !('_seconds' in data.meta.changedAt)}
             {@const date = dateFromTimestamp(data.meta.changedAt)}
-            <span>
+            <p class="flex gap-1">
                 <Pencil />
                 Změněno: {datetimeFromISO(date.toISOString())} UTC{$aA}
-            </span>
+            </p>
         {/if}
         {#if data.deleted && 'deletedAt' in data.meta && data.meta.deletedAt && !('_seconds' in data.meta.deletedAt)}
             {@const date = dateFromTimestamp(data.meta.deletedAt)}
-            <span>
+            <p class="flex gap-1">
                 <Trash2 />
                 Odstraněno: {datetimeFromISO(date.toISOString())} UTC{$aA}
-            </span>
+            </p>
         {/if}
     </div>
 {/if}

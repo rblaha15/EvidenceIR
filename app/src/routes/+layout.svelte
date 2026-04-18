@@ -6,6 +6,7 @@
     import type { Snippet } from "svelte";
     import type { LayoutData } from "./$types";
     import MainLayout from "./MainLayout.svelte";
+    import { ModeWatcher } from "mode-watcher";
 
     interface Props {
         data: LayoutData;
@@ -14,6 +15,8 @@
 
     let { children, data }: Props = $props();
 </script>
+
+<ModeWatcher />
 
 <svelte:head>
     <link href={favicon} rel="icon" />

@@ -132,8 +132,8 @@
 {#snippet content()}
     <div class="flex flex-col h-full">
         <Navigation {t} />
-        <div class="grow mb-2 overflow-y-scroll">
-            <div class="sticky-top progress rounded-0" role="progressbar"
+        <div class="grow mb-2 overflow-auto pt-14">
+            <div class="sticky top-0 progress rounded-0" role="progressbar"
                  style:scale="1 {$progress === 'load' ? 1 : 0}"
                  style="transition: scale .5s; transform-origin: top;"
             >
@@ -142,7 +142,7 @@
                      style="transition: width 5s;"
                 ></div>
             </div>
-            <main class="container flex gap-4">
+            <main class="container mx-auto flex gap-4">
                 <div class="mt-4 flex flex-col gap-4 w-full">
                     <h1 id="main-title" class="m-0 flex items-center gap-4">
                         {#if $backButton}

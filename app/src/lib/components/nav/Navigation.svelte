@@ -65,57 +65,55 @@
     {/if}
 {/snippet}
 
-<nav class="navbar navbar-expand-md gray flex-wrap">
-    <div class="container-fluid">
-        {#if isLoggedIn && !$hideNav}
-            <Button label="Menu" icon={Menu} iconClass="size-8" variant="link"
-                    class="md:hidden me-2 nav-link" offcanvasID="NOC" />
-        {/if}
-        {@render header()}
-        {#if !$isOnline && !$hideNav}
-            <WifiOff />
-        {/if}
-        <div class="me-auto lg:me-4"></div>
-        {#if isLoggedIn && !$hideNav}
-            <div class="hidden md:flex lg:hidden flex-row ms-auto md:ms-0">
-                {@render buttons()}
+<nav class="navbar navbar-expand-md gray fixed top-0 inset-x-0 h-14 flex">
+    {#if isLoggedIn && !$hideNav}
+        <Button label="Menu" icon={Menu} iconClass="size-8" variant="link"
+                class="md:hidden me-2 nav-link" offcanvasID="NOC" />
+    {/if}
+    {@render header()}
+    {#if !$isOnline && !$hideNav}
+        <WifiOff />
+    {/if}
+    <div class="me-auto lg:me-4"></div>
+    {#if isLoggedIn && !$hideNav}
+        <div class="hidden md:flex lg:hidden flex-row ms-auto md:ms-0">
+            {@render buttons()}
+        </div>
+        <div class="hidden md:block lg:hidden w-full"></div> <!-- Row break -->
+        <div class="hidden md:inline me-auto">
+            <BaseNav {t} />
+        </div>
+        <div class="flex md:hidden lg:flex flex-row ms-auto md:ms-0">
+            {@render buttons()}
+        </div>
+        <div class="md:hidden offcanvas offcanvas-start" tabindex="-1" id="NOC">
+            <div class="offcanvas-header">
+                {@render header()}
+                <button class="btn btn-link nav-link ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
+                    <X />
+                </button>
             </div>
-            <div class="hidden md:block lg:hidden w-full"></div> <!-- Row break -->
-            <div class="hidden md:inline me-auto">
+            <div class="offcanvas-body">
                 <BaseNav {t} />
+                {#if page.route.id?.includes('[form=form]')}
+                    <hr />
+                    {#key page.url.pathname + page.url.search}
+                        <div class="md:hidden toc">
+                            <TableOfContents {t} />
+                        </div>
+                    {/key}
+                {/if}
             </div>
-            <div class="flex md:hidden lg:flex flex-row ms-auto md:ms-0">
-                {@render buttons()}
+        </div>
+    {:else}
+        <div class="hidden md:inline me-auto"></div>
+        {@render settings()}
+        {#if !$hideNav}
+            <div class="flex flex-row">
+                <LoggedOutButtons {t} />
             </div>
-            <div class="md:hidden offcanvas offcanvas-start" tabindex="-1" id="NOC">
-                <div class="offcanvas-header">
-                    {@render header()}
-                    <button class="btn btn-link nav-link ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
-                        <X />
-                    </button>
-                </div>
-                <div class="offcanvas-body">
-                    <BaseNav {t} />
-                    {#if page.route.id?.includes('[form=form]')}
-                        <hr />
-                        {#key page.url.pathname + page.url.search}
-                            <div class="md:hidden toc">
-                                <TableOfContents {t} />
-                            </div>
-                        {/key}
-                    {/if}
-                </div>
-            </div>
-        {:else}
-            <div class="hidden md:inline me-auto"></div>
-            {@render settings()}
-            {#if !$hideNav}
-                <div class="flex flex-row">
-                    <LoggedOutButtons {t} />
-                </div>
-            {/if}
         {/if}
-    </div>
+    {/if}
 </nav>
 
 <HistoryModal {t} />

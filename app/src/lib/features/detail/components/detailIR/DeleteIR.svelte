@@ -3,6 +3,7 @@
     import type { Translations } from '$lib/translations';
     import type { IRID } from '$lib/helpers/ir';
     import { Trash2 } from '@lucide/svelte';
+    import Button from "$lib/components/Button.svelte";
 
     const { td, irid }: {
         td: Translations['detail'],
@@ -10,10 +11,7 @@
     } = $props()
 </script>
 
-<button class="btn btn-secondary block" data-bs-target="#deleteModal" data-bs-toggle="modal">
-    <Trash2 />
-    {td.deleteThisRecord}
-</button>
+<Button variant="secondary" text={td.deleteThisRecord} icon={Trash2} onclick={() => {}} />
 
 <div aria-hidden="true" aria-labelledby="deleteModalLabel" class="modal fade hidden" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
