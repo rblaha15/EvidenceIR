@@ -13,6 +13,7 @@
     import { logEvent } from 'firebase/analytics';
     import { analytics } from '../../../hooks.client';
     import { grantPoints } from '$lib/client/loyaltyProgram';
+	import { Alert, AlertTitle } from "$lib/components/ui/alert";
 
 	const { data }: PageProps = $props();
 	const t = $derived(data.translations.auth);
@@ -69,16 +70,19 @@
 </script>
 
 {#if done}
-	<div class="alert alert-success" role="alert">
-		{#if done === 'edit'}
-			{t.passwordEdited}
-		{:else if done === 'register'}
-			{t.registered}
-		{:else if done === 'reset'}
-			{t.passwordHasBeenReset}
-		{/if}
-	</div>
+	<Alert>
+		<AlertTitle>
+			{#if done === 'edit'}
+				{t.passwordEdited}
+			{:else if done === 'register'}
+				{t.registered}
+			{:else if done === 'reset'}
+				{t.passwordHasBeenReset}
+			{/if}
+		</AlertTitle>
+	</Alert>
 {/if}
+
 <form>
 	<FormDefaults />
 	<div class="mt-4">

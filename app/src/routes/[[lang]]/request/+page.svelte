@@ -3,6 +3,8 @@
     import { onMount } from 'svelte';
     import { Check, OctagonAlert } from "@lucide/svelte";
     import { setTitle } from "$lib/helpers/globals";
+    import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
+    import { Spinner } from "$lib/components/ui/spinner";
 
     const { data }: {
         data: PageData & {
@@ -35,25 +37,21 @@
 </script>
 
 {#if status === 'loading'}
-    <div class="alert alert-secondary flex items-center gap-4">
-        <span class="spinner-border text-danger"></span>
-        <p class="m-0">{t.sending}</p>
-    </div>
+    <Alert>
+        <Spinner />
+        <AlertTitle>{t.sending}</AlertTitle>
+    </Alert>
 {:else if status === 'accepted'}
-    <div class="alert alert-success flex flex-col gap-4">
-        <div class="flex items-center gap-4">
-            <Check />
-            <h4 class="alert-heading m-0">{t.requestSent}</h4>
-        </div>
-        <p class="m-0">{t.youCanCloseThisTab}</p>
-    </div>
+    <Alert>
+        <Check />
+        <AlertTitle>{t.requestSent}</AlertTitle>
+        <AlertDescription>{t.youCanCloseThisTab}</AlertDescription>
+    </Alert>
 {/if}
 {#if status === 'error'}
-    <div class="alert alert-danger flex flex-col gap-4">
-        <div class="flex items-center gap-4">
-            <OctagonAlert />
-            <h4 class="alert-heading m-0">{t.somethingWentWrong}</h4>
-        </div>
-        <p class="m-0">{@html t.unknownErrorHtml}</p>
-    </div>
+    <Alert variant="destructive">
+        <OctagonAlert />
+        <AlertTitle>{t.somethingWentWrong}</AlertTitle>
+        <AlertDescription>{@html t.unknownErrorHtml}</AlertDescription>
+    </Alert>
 {/if}
