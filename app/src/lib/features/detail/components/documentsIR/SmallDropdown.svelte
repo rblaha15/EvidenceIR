@@ -12,7 +12,7 @@
 
 <DropdownMenu>
     <DropdownMenuTrigger
-        class={buttonVariants({ variant: 'secondary', size: 'icon' })}
+        class={buttonVariants({ variant: 'outline', size: 'icon' })}
         aria-label="Další možnosti"
     >
         <EllipsisVertical />

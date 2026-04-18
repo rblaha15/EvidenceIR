@@ -7,6 +7,8 @@
     import type { DocumentLinkDefinition } from '$lib/features/detail/domain/documentsIR/createDocumentLinks.js';
     import SmallDropdown from '$lib/features/detail/components/documentsIR/SmallDropdown.svelte';
     import { FileInput } from '@lucide/svelte';
+    import { ButtonGroup } from "$lib/components/ui/button-group";
+    import { Button } from "$lib/components/ui/button";
 
     type Props<P extends Pdf> = DocumentLinkDefinition<P> & PdfID<P> & {
         data: DataOfPdf<P>,
@@ -31,42 +33,23 @@
     } as unknown as OpenPdfOptions<P>);
 </script>
 
-<div class={["flex gap-x-4 gap-y-1", lang === 'de' ? 'flex-col items-start' : 'flex-wrap items-center']}>
-    {#if !disabled}
-        <div class="flex flex-row gap-4 shrink-0">
-            <a
-                href={generatePdfPreviewUrl(o).href}
-                class="link-offset-1 btn btn-link text-nowrap"
-                tabindex="0"
-                style="--bs-btn-padding-x: 0rem"
-            >
-                <FileInput />
-                {#if name}<span>{name}</span>{/if}
-            </a>
-            {#if dropdownItems}
-                <SmallDropdown {dropdownItems} />
-            {/if}
-        </div>
-    {:else if name}
-        <span class="my-1 shrink-0">{name}</span>
+<ButtonGroup class={["gap-x-4 gap-y-1", lang === 'de' ? 'flex-col items-start' : 'flex-wrap items-center']}>
+    <ButtonGroup>
+        <Button {disabled} href={generatePdfPreviewUrl(o).href} variant="outline">
+            <FileInput />
+            {#if name}<span>{name}</span>{/if}
+        </Button>
+        {#if dropdownItems && !disabled}
+            <SmallDropdown {dropdownItems} />
+        {/if}
+    </ButtonGroup>
+    {#if additionalButton && (additionalButton.show ?? disabled)}
+        <ButtonGroup>
+            <Button
+                variant={additionalButton.important ? 'default' : 'outline'}
+                href={additionalButton.href}
+                onclick={additionalButton.onclick}
+            >{additionalButton.text}</Button>
+        </ButtonGroup>
     {/if}
-
-    {#if additionalButton}
-        <div class="shrink-0">
-            {#if additionalButton.show ?? disabled}
-                {#if additionalButton.onclick}
-                    <button
-                        onclick={additionalButton.onclick}
-                        class={['btn block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary' ]}
-                    >{additionalButton.text}</button>
-                {:else}
-                    <a
-                        tabindex="0"
-                        class={['btn block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary' ]}
-                        href={additionalButton.href}
-                    >{additionalButton.text}</a>
-                {/if}
-            {/if}
-        </div>
-    {/if}
-</div>
+</ButtonGroup>
