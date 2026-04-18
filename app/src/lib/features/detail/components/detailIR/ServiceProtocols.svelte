@@ -8,7 +8,7 @@
     import { copySP, deleteSP } from '$lib/features/detail/actions/detailIR/sp';
     import { isSP } from '$lib/forms/SP/infoSP.svelte';
     import SmallDropdown from '$lib/features/detail/components/documentsIR/SmallDropdown.svelte';
-    import Button from '$lib/components/Button.svelte';
+    import { Button } from '$lib/components/ui/button';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
     import { Copy, Eye, FilePen, Plus, Trash2 } from "@lucide/svelte";
     import {
@@ -22,6 +22,7 @@
         AlertDialogTitle,
     } from "$lib/components/ui/alert-dialog";
     import { Spinner } from "$lib/components/ui/spinner";
+    import { ButtonGroup } from "$lib/components/ui/button-group";
 
     const {
         irid, ir, lang, t,
@@ -70,8 +71,11 @@
                     }]}
                 />
             {:else}
-                <div class="flex flex-row gap-4 items-center">
-                    <Button text={szName(p.zasah)} href={iridUrl(`/SZ/?view=${i}`)} variant="link" icon={Eye} />
+                <ButtonGroup>
+                    <Button href={iridUrl(`/SZ/?view=${i}`)} variant="outline">
+                        <Eye />
+                        {szName(p.zasah)}
+                    </Button>
                     {#if !isSP(p)}
                         <SmallDropdown dropdownItems={[{
                             variant: 'warning',
@@ -80,18 +84,18 @@
                             href: iridUrl(`/SZ/?edit=${i}`),
                         }]} />
                     {/if}
-                </div>
+                </ButtonGroup>
             {/if}
         {/each}
     </div>
 {/if}
 
-<div class="flex items-center gap-4 flex-wrap sm:flex-nowrap">
-    <a class="btn btn-primary" href={iridUrl(r ? '/SP' : '/SZ')} tabindex="0">
+<div class="flex items-start">
+    <Button href={iridUrl(r ? '/SP' : '/SZ')}>
         <Plus />
         {r ? ir.SPs.length ? td.fillInAnotherProtocol : td.fillInProtocol
             : ir.SPs.length ? td.fillInAnotherIntervention : td.fillInIntervention}
-    </a>
+    </Button>
 </div>
 
 <AlertDialog onOpenChange={() => openedDuplicateModal = undefined} open={!!openedDuplicateModal}>
