@@ -20,24 +20,30 @@
         {/if}
         {#if 'createdAt' in data.meta && data.meta.createdAt && !('_seconds' in data.meta.createdAt)}
             {@const date = dateFromTimestamp(data.meta.createdAt)}
-            <p class="flex gap-1">
-                <Plus />
-                Vytvořeno: {datetimeFromISO(date.toISOString())} UTC{$aA}
-            </p>
+            {#if !Number.isNaN(date.valueOf())}
+                <p class="flex gap-1">
+                    <Plus />
+                    Vytvořeno: {datetimeFromISO(date.toISOString())} UTC{$aA}
+                </p>
+            {/if}
         {/if}
         {#if 'changedAt' in data.meta && data.meta.changedAt && !('_seconds' in data.meta.changedAt)}
             {@const date = dateFromTimestamp(data.meta.changedAt)}
-            <p class="flex gap-1">
-                <Pencil />
-                Změněno: {datetimeFromISO(date.toISOString())} UTC{$aA}
-            </p>
+            {#if !Number.isNaN(date.valueOf())}
+                <p class="flex gap-1">
+                    <Pencil />
+                    Změněno: {datetimeFromISO(date.toISOString())} UTC{$aA}
+                </p>
+            {/if}
         {/if}
         {#if data.deleted && 'deletedAt' in data.meta && data.meta.deletedAt && !('_seconds' in data.meta.deletedAt)}
             {@const date = dateFromTimestamp(data.meta.deletedAt)}
-            <p class="flex gap-1">
-                <Trash2 />
-                Odstraněno: {datetimeFromISO(date.toISOString())} UTC{$aA}
-            </p>
+            {#if !Number.isNaN(date.valueOf())}
+                <p class="flex gap-1">
+                    <Trash2 />
+                    Odstraněno: {datetimeFromISO(date.toISOString())} UTC{$aA}
+                </p>
+            {/if}
         {/if}
     </div>
 {/if}

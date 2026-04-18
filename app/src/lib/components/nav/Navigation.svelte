@@ -14,7 +14,7 @@
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { isOnline } from '$lib/client/realtimeOnline';
     import Button from '$lib/components/Button.svelte';
-    import { CircleQuestionMark, CloudAlert, Menu, Settings, WifiOff, X } from "@lucide/svelte";
+    import { CircleQuestionMark, CloudAlert, Menu, WifiOff, X } from "@lucide/svelte";
 
     const { t }: { t: Translations } = $props();
     const tn = $derived(t.nav);
@@ -22,33 +22,14 @@
     const isLoggedIn = $derived($currentUser != null);
 </script>
 
-{#snippet help()}
-    <Button icon={CircleQuestionMark} iconClass="size-8" label={t.nn.title}
-            variant="link" size="icon-lg" class="nav-link ms-4" href={relUrl('/help')} />
-{/snippet}
-{#snippet settings()}
-    <Button icon={Settings} iconClass="size-8" label="Settings"
-            variant="link" size="icon-lg" class="nav-link ms-4" modalID="settings" />
-{/snippet}
-{#snippet history()}
-    {#if $readableHistory.incompleted.length}
-        <div class="ms-4">
-            <Button icon={CloudAlert} iconClass="size-8" label="History"
-                    variant="link" class="nav-link text-warning-emphasis" modalID="history" />
-        </div>
-    {:else if $readableHistory.completed.length}
-        <div class="ms-4">
-            <Button icon={CloudAlert} iconClass="size-8" label="History"
-                    variant="link" class="nav-link" modalID="history" />
-        </div>
-    {/if}
-{/snippet}
 {#snippet buttons()}
-    {@render history()}
-    {@render help()}
-    {@render settings()}
+    <HistoryModal {t} />
+    <Button icon={CircleQuestionMark} size="icon" iconClass="size-8" label={t.nn.title}
+            variant="ghost" href={relUrl('/help')} />
+    <SettingsModal {t} />
     <UserDropdown {t} />
 {/snippet}
+
 {#snippet header()}
     {#snippet header()}
         <!--suppress CheckImageSize -->
@@ -65,7 +46,7 @@
     {/if}
 {/snippet}
 
-<nav class="navbar navbar-expand-md gray fixed top-0 inset-x-0 h-14 flex">
+<nav class="navbar navbar-expand-md fixed top-0 inset-x-0 h-14 flex bg-background items-center gap-4">
     {#if isLoggedIn && !$hideNav}
         <Button label="Menu" icon={Menu} iconClass="size-8" variant="link"
                 class="md:hidden me-2 nav-link" offcanvasID="NOC" />
@@ -76,14 +57,14 @@
     {/if}
     <div class="me-auto lg:me-4"></div>
     {#if isLoggedIn && !$hideNav}
-        <div class="hidden md:flex lg:hidden flex-row ms-auto md:ms-0">
+        <div class="hidden md:flex lg:hidden flex-row ms-auto md:ms-0 gap-2">
             {@render buttons()}
         </div>
         <div class="hidden md:block lg:hidden w-full"></div> <!-- Row break -->
         <div class="hidden md:inline me-auto">
             <BaseNav {t} />
         </div>
-        <div class="flex md:hidden lg:flex flex-row ms-auto md:ms-0">
+        <div class="flex md:hidden lg:flex flex-row ms-auto md:ms-0 gap-2">
             {@render buttons()}
         </div>
         <div class="md:hidden offcanvas offcanvas-start" tabindex="-1" id="NOC">
@@ -107,7 +88,7 @@
         </div>
     {:else}
         <div class="hidden md:inline me-auto"></div>
-        {@render settings()}
+        <SettingsModal {t} />
         {#if !$hideNav}
             <div class="flex flex-row">
                 <LoggedOutButtons {t} />
@@ -115,22 +96,3 @@
         {/if}
     {/if}
 </nav>
-
-<HistoryModal {t} />
-<SettingsModal {t} />
-
-<style global>
-    .navbar {
-        background-color: lightgray;
-    }
-
-    :root[data-bs-theme="dark"] {
-        .navbar {
-            background-color: dimgray;
-        }
-    }
-
-    .nav-link {
-        --bs-nav-link-hover-color: var(--bs-link-color);
-    }
-</style>

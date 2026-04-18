@@ -20,9 +20,8 @@
 
 {#if show || commissionDate}
     <div class="flex flex-col gap-1 sm:items-start">
-        {#if show}
-<!--            <Button variant="outline" icon={Bell} text={tr.settingsTitle(type)}-->
-<!--                    modalID="recommendations{type}Modal" /> TODO-->
+        {#if show && ir}
+            <ModalDK {t} {ir} {type} />
             {#if $isUserAdmin && settings?.code}
                 <Button variant="secondary" icon={Server} text="{t.detail.openInDatabase}{iaA}"
                         href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Frk~2F{settings?.code}"
@@ -33,7 +32,4 @@
             <span>{tr.commissionedAt(type)}: {dateFromISO(commissionDate)}</span>
         {/if}
     </div>
-{/if}
-{#if show && ir}
-    <ModalDK {t} {ir} {type} />
 {/if}

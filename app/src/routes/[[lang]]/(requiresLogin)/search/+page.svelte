@@ -13,6 +13,19 @@
     import { newSearchWidget } from '$lib/forms/Widget';
     import { PencilRuler, X } from "@lucide/svelte";
     import { onMount } from "svelte";
+    import {
+        AlertDialog,
+        AlertDialogAction,
+        AlertDialogCancel,
+        AlertDialogContent,
+        AlertDialogDescription,
+        AlertDialogFooter,
+        AlertDialogHeader,
+        AlertDialogTitle,
+        AlertDialogTrigger
+    } from "$lib/components/ui/alert-dialog";
+    import { buttonVariants } from "$lib/components/ui/button";
+    import { Spinner } from "$lib/components/ui/spinner";
 
     const { data }: PageProps = $props()
 
@@ -58,42 +71,34 @@
     }
 </script>
 
-<div class="flex flex-wrap">
-    <div class="flex me-auto items-center gap-4">
+<div class="flex flex-wrap justify-between">
+    <div class="flex items-center gap-2">
         {#if $statusStore === 'loadingOnline' && $isOnline}
-            <div class="spinner-border text-danger"></div>
-            <span>{ts.downloadingChanges}</span>
+            <Spinner class="size-6" />
+            {ts.downloadingChanges}
         {/if}
     </div>
-    <div class="ms-auto">
-        <button class="btn btn-link" data-bs-toggle="modal" data-bs-target="#problemsModal">
+    <AlertDialog>
+        <AlertDialogTrigger class={buttonVariants({ variant: 'ghost' })}>
             {ts.searchProblems}
-        </button>
-    </div>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>{ts.searchProblemsTitle}</AlertDialogTitle>
+                <AlertDialogDescription>{ts.searchProblemsAdvice}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel variant="default">{ts.cancel}</AlertDialogCancel>
+                <AlertDialogAction onclick={clear} variant="warning">{ts.clear}</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
 </div>
 
 <Search
     bind:value={v}
-    widget={w}
     context={{}}
-    {t}
     showAllErrors={true}
+    {t}
+    widget={w}
 />
-
-<div aria-hidden="true" aria-labelledby="problemsModalLabel" class="modal fade hidden" id="problemsModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title" id="problemsModalLabel">{ts.searchProblemsTitle}</h1>
-                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
-            </div>
-            <div class="modal-body">
-                {ts.searchProblemsAdvice}
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" data-bs-dismiss="modal" type="button">{ts.cancel}</button>
-                <button class="btn btn-warning" data-bs-dismiss="modal" onclick={clear} type="button">{ts.clear}</button>
-            </div>
-        </div>
-    </div>
-</div>

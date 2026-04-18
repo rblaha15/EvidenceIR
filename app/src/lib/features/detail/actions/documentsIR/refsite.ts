@@ -10,11 +10,11 @@ import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
 import type { ExistingIR } from '$lib/data';
 
-export const confirmRefsite = (
+export const confirmRefsite = async (
     ir: ExistingIR,
     tc: TC,
     send: boolean = false,
-) => async () => {
+) => {
     const user = get(currentUser)!;
     const response = send ? await sendEmail({
         ...defaultAddresses(blahova),
@@ -23,5 +23,6 @@ export const confirmRefsite = (
         props: { name: user.displayName || user.email!, url: page.url.origin + detailIrUrl(ir.meta.id), e: ir.IN },
     }) : undefined;
     if (response?.ok) await db.markRefsiteConfirmed(ir.meta.id);
+    await new Promise(r => setTimeout(r, 1000));
     await goto(iridUrl(`/RKT?pump=${tc}`));
 };

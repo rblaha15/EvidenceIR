@@ -54,10 +54,9 @@
     {#if additionalButton}
         <div class="shrink-0">
             {#if additionalButton.show ?? disabled}
-                {#if additionalButton.dialogID}
+                {#if additionalButton.onclick}
                     <button
-                        data-bs-toggle="modal"
-                        data-bs-target="#{additionalButton.dialogID}"
+                        onclick={additionalButton.onclick}
                         class={['btn block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary' ]}
                     >{additionalButton.text}</button>
                 {:else}

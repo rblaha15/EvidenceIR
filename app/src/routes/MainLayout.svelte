@@ -146,7 +146,7 @@
                 <div class="mt-4 flex flex-col gap-4 w-full">
                     <h1 id="main-title" class="m-0 flex items-center gap-4">
                         {#if $backButton}
-                            <Button icon={ArrowLeft} iconClass="size-8" variant="ghost" label={t.nav.back} onclick={() => history.back()} />
+                            <Button icon={ArrowLeft} size="icon" iconClass="size-8" variant="ghost" label={t.nav.back} onclick={() => history.back()} />
                         {/if}
                         {$title}
                     </h1>

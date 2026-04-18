@@ -3,33 +3,60 @@
     import type { Translations } from '$lib/translations';
     import type { IRID } from '$lib/helpers/ir';
     import { Trash2 } from '@lucide/svelte';
-    import Button from "$lib/components/Button.svelte";
+    import {
+        AlertDialog,
+        AlertDialogAction,
+        AlertDialogCancel,
+        AlertDialogContent,
+        AlertDialogDescription,
+        AlertDialogFooter,
+        AlertDialogHeader,
+        AlertDialogTitle,
+        AlertDialogTrigger
+    } from "$lib/components/ui/alert-dialog";
+    import { buttonVariants } from "$lib/components/ui/button";
+    import { Spinner } from "$lib/components/ui/spinner";
 
     const { td, irid }: {
         td: Translations['detail'],
         irid: IRID,
     } = $props()
+
+    let processing = $state(false);
 </script>
 
-<Button variant="secondary" text={td.deleteThisRecord} icon={Trash2} onclick={() => {}} />
-
-<div aria-hidden="true" aria-labelledby="deleteModalLabel" class="modal fade hidden" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title" id="deleteModalLabel">
-                    <Trash2 />
-                    {td.delete}
-                </h1>
-                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
-            </div>
-            <div class="modal-body">
+<AlertDialog>
+    <AlertDialogTrigger class={buttonVariants({ variant: 'secondary' })}>
+        <Trash2 />
+        {td.deleteThisRecord}
+    </AlertDialogTrigger>
+    <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogTitle>
+                <Trash2 />
+                {td.delete}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
                 {td.confirmDeletion}
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" data-bs-dismiss="modal" type="button">{td.cancel}</button>
-                <button class="btn btn-danger" onclick={removeIR(irid)} type="button">{td.delete}</button>
-            </div>
-        </div>
-    </div>
-</div>
+            </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel variant="default" disabled={processing}>
+                {#if processing}
+                    <Spinner />
+                {/if}
+                {td.cancel}
+            </AlertDialogCancel>
+            <AlertDialogAction onclick={async () => {
+                processing = true;
+                await removeIR(irid);
+                processing = false;
+            }} variant="destructive" disabled={processing}>
+                {#if processing}
+                    <Spinner />
+                {/if}
+                {td.delete}
+            </AlertDialogAction>
+        </AlertDialogFooter>
+    </AlertDialogContent>
+</AlertDialog>

@@ -1,8 +1,9 @@
 <script lang="ts">
     import type { Translations } from '$lib/translations';
     import { type DisplayableHistoryEntry, readableHistory } from '$lib/client/history.svelte';
-    import Button from '$lib/components/Button.svelte';
-    import { Database, Mail } from '@lucide/svelte';
+    import { CloudAlert, Database, History, Mail } from '@lucide/svelte';
+    import { buttonVariants } from "$lib/components/ui/button";
+    import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "$lib/components/ui/dialog";
 
     const { t }: { t: Translations } = $props();
     const th = $derived(t.nav.history)
@@ -26,30 +27,35 @@
     </ul>
 {/snippet}
 
-<div class="modal fade hidden" id="history" tabindex="-1" aria-labelledby="historyLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="historyLabel">{th.title}</h4>
-                <Button label={th.close} class="btn-close" dismissModal />
-            </div>
-
-            <div class="modal-body flex flex-col gap-4">
-                {#if $readableHistory.incompleted.length}
-                    <p class="m-0">{th.description}</p>
-                    <h5 class="m-0">{th.incompletedChanges}</h5>
-                    {@render changes($readableHistory.incompleted)}
-                {/if}
-                <h5 class="m-0">{th.changes}</h5>
-                {@render changes($readableHistory.completed)}
-            </div>
-
-            <div class="modal-footer">
-                <button
-                    class="btn btn-primary"
-                    data-bs-dismiss="modal"
-                >{th.close}</button>
-            </div>
+<Dialog>
+    {#if $readableHistory.incompleted.length}
+        <DialogTrigger class={buttonVariants({ variant: 'warning', size: 'icon' })}>
+            <CloudAlert class="size-8" />
+            <span class="sr-only">{th.title}</span>
+        </DialogTrigger>
+    {:else if $readableHistory.completed.length}
+        <DialogTrigger class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
+            <History class="size-8" />
+            <span class="sr-only">{th.title}</span>
+        </DialogTrigger>
+    {/if}
+    <DialogContent class="max-h-[80vh] flex flex-col">
+        <DialogHeader>
+            <DialogTitle>{th.title}</DialogTitle>
+            {#if $readableHistory.incompleted.length}
+                <DialogDescription>{th.description}</DialogDescription>
+            {/if}
+        </DialogHeader>
+        <div class="flex flex-col gap-4 overflow-y-auto">
+            {#if $readableHistory.incompleted.length}
+                <h3 class="text-lg">{th.incompletedChanges}</h3>
+                {@render changes($readableHistory.incompleted)}
+            {/if}
+            <h3 class="text-lg">{th.changes}</h3>
+            {@render changes($readableHistory.completed)}
         </div>
-    </div>
-</div>
+        <DialogFooter>
+            <DialogClose class={buttonVariants({ variant: 'default' })}>{th.close}</DialogClose>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>
