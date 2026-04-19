@@ -27,7 +27,7 @@
     const invalid = $derived(widget.isError(context, value) && showError);
 </script>
 
-<FieldLabel for={id}>
+<FieldLabel for={id} class="min-w-field">
     <Field data-invalid={invalid} orientation="horizontal">
         <Checkbox aria-invalid={invalid} checked={value} disabled={widget.lock(context)} {id} {onCheckedChange} />
         <FieldContent>
@@ -47,40 +47,3 @@
         </FieldContent>
     </Field>
 </FieldLabel>
-
-<!--<Card class="py-4">
-    <CardContent class="px-4">
-        <Field orientation="horizontal" data-slot="input-group-control">
-            <Checkbox id="finder-pref-9k4-sync-folders-nep" checked />
-            <FieldContent>
-                <FieldLabel for="finder-pref-9k4-sync-folders-nep">
-                    Sync Desktop & Documents folders
-                </FieldLabel>
-                <FieldDescription>
-                    Your Desktop & Documents folders are being synced with iCloud Drive
-                    You can access them from other devices
-                </FieldDescription>
-            </FieldContent>
-        </Field>
-    </CardContent>
-</Card>
-
-<InputGroup class="">
-    <Checkbox data-slot="input-group-control" class="mx-2" {id} />
-    <Label for={id}>AAAA</Label>
-</InputGroup>
-
-<InputGroup class="">
-    <Field orientation="horizontal" data-slot="input-group-control">
-        <Checkbox id="finder-pref-9k2-sync-folders-nep" checked />
-        <FieldContent>
-            <FieldLabel for="finder-pref-9k2-sync-folders-nep">
-                Sync Desktop & Documents folders
-            </FieldLabel>
-            <FieldDescription>
-                Your Desktop & Documents folders are being synced with iCloud Drive
-                You can access them from other devices
-            </FieldDescription>
-        </FieldContent>
-    </Field>
-</InputGroup>-->

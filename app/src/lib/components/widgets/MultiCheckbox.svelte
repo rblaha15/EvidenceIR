@@ -40,8 +40,8 @@
     const id = $props.id();
 </script>
 
-<Card class="py-4">
-    <CardContent class="px-4">
+<Card size="sm" class="min-w-field">
+    <CardContent>
         <FieldSet>
             <FieldLegend data-invalid={invalid} variant="label">{labelAndStar(widget, context, t)}</FieldLegend>
             <FieldGroup data-slot="checkbox-group">

@@ -1,7 +1,9 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
-    import type { SwitchWidget } from '$lib/forms/Widget';
-
+    import { type SwitchWidget } from '$lib/forms/Widget';
+    import { Toggle } from "$lib/components/ui/toggle";
+    import { Field, FieldError, FieldTitle } from "$lib/components/ui/field";
+    import { Card, CardContent } from "$lib/components/ui/card";
 
     interface Props {
         t: Translations;
@@ -13,40 +15,28 @@
 
     let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
     let showError = $derived(showAllErrors);
-    const checked = {
-        get value() {
-            return value;
-        },
-        set value(checked) {
-            value = checked;
-            widget.onValueSet(context, checked);
-            showError = true;
-        },
+    const onPressedChange = (option: boolean) => (checked2: boolean) => {
+        const newValue = option == checked2;
+        value = newValue;
+        widget.onValueSet(context, newValue);
+        showError = true;
     };
+    const invalid = $derived(widget.isError(context, value) && showError);
 </script>
 
-<div class="flex gap-1 flex-col items-start">
-    <div class="input-group flex flex-nowrap">
-        <span class="input-group-text">{widget.label(t, context)}</span>
-        {#each widget.options(t) as option, i}
-            <input
-                type="radio"
-                class="btn-check"
-                bind:group={checked.value}
-                value={Boolean(i)}
-                id={widget.label(t, context) + Boolean(i)}
-                autocomplete="off"
-            />
-            <label class={["btn text-nowrap flex items-center",
-                checked.value !== Boolean(i) ? 'btn-outline-secondary'
-                    : !widget.hasPositivity(context) ? 'btn-secondary'
-                    : i === 1 ? 'btn-success' : 'btn-danger'
-            ]} for={widget.label(t, context) + Boolean(i)}
-            >{option}</label>
-        {/each}
-    </div>
-
-    {#if widget.isError(context, value) && showError}
-        <span class="text-danger">{widget.onError(t, context)}</span>
-    {/if}
-</div>
+<Card class="min-w-field" size="sm">
+    <CardContent>
+        <Field data-invalid={invalid} orientation="horizontal">
+            <FieldTitle>{widget.label(t, context)}</FieldTitle>
+            <Toggle aria-invalid={invalid} onPressedChange={onPressedChange(false)} pressed={!value}>
+                {widget.options(t)[0]}
+            </Toggle>
+            <Toggle aria-invalid={invalid} onPressedChange={onPressedChange(true)} pressed={value}>
+                {widget.options(t)[1]}
+            </Toggle>
+        </Field>
+        {#if invalid}
+            <FieldError>{widget.onError(t, context)}</FieldError>
+        {/if}
+    </CardContent>
+</Card>
