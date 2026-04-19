@@ -1,6 +1,9 @@
 <script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
     import { type Arr, labelAndStar, type MultiCheckboxWidget } from '$lib/forms/Widget';
+    import { Field, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "$lib/components/ui/field";
+    import { Card, CardContent } from "$lib/components/ui/card";
+    import { Checkbox } from "$lib/components/ui/checkbox";
 
     interface Props {
         t: Translations;
@@ -27,33 +30,33 @@
         },
     };
 
-    const checked = (item: I) => value.includes(item).let(c => widget.inverseSelection ? !c : c)
-    const onClick = (item: I) => () => {
-        chosen.value = value.toggle(item);
+    const checked = (item: I) => value.includes(item);
+    const disabled = (item: I) => widget.lock(context) || !checked(item) && count + weights(item) > widget.max(context);
+    const onCheckedChange = (item: I) => (checked: boolean) => {
+        chosen.value = value.toggle(item, checked);
     };
+    const invalid = $derived(widget.isError(context, value) && showError);
 
-    const uid = $props.id();
+    const id = $props.id();
 </script>
 
-<div class="flex gap-1 flex-col">
-    <div>{labelAndStar(widget, context, t)}</div>
-    <div class="input-group input-group-grid">
-        {#each options as item}
-            <button class="input-group-text input-group-input first" onclick={onClick(item)}
-                    disabled={widget.lock(context) || !checked(item) && count + weights(item) > widget.max(context)}
-                    aria-labelledby="label-{uid}-{item}" tabindex="-1"
-            >
-                <input class="form-check-input m-0" type="checkbox" role="button" bind:group={chosen.value}
-                       disabled={widget.lock(context) || !checked(item) && count + weights(item) > widget.max(context)} value={item} />
-            </button>
-            <button onclick={onClick(item)} class="input-group-text last"
-                    tabindex="-1" id="label-{uid}-{item}"
-                    disabled={widget.lock(context) || !checked(item) && count + weights(item) > widget.max(context)}
-            >{widget.get(t, item)}</button>
-        {/each}
-    </div>
+<Card class="py-4">
+    <CardContent class="px-4">
+        <FieldSet>
+            <FieldLegend data-invalid={invalid} variant="label">{labelAndStar(widget, context, t)}</FieldLegend>
+            <FieldGroup data-slot="checkbox-group">
+                {#each options as item}
+                    <Field data-invalid={invalid} orientation="horizontal">
+                        <Checkbox checked={checked(item)} disabled={disabled(item)} onCheckedChange={onCheckedChange(item)}
+                                  aria-invalid={invalid} id="{id}-{item}" />
 
-    {#if widget.isError(context, value) && showError}
-        <span class="text-danger">{widget.onError(t, context)}</span>
-    {/if}
-</div>
+                        <FieldLabel class="font-normal" for="{id}-{item}">{widget.get(t, item)}</FieldLabel>
+                    </Field>
+                {/each}
+            </FieldGroup>
+            {#if invalid}
+                <FieldError>{widget.onError(t, context)}</FieldError>
+            {/if}
+        </FieldSet>
+    </CardContent>
+</Card>

@@ -187,7 +187,6 @@ type MultiChooserArgs<C, I extends K> = {
     chosen?: Arr<I>;
     weights?: (c: C, i: I) => number;
     max?: GetOrVal<C, number>;
-    inverseSelection?: boolean;
 } & LabelsArgs<I>;
 type BaseInputArgs<C> = {
     regex?: GetOrVal<C, RegExp>;
@@ -249,7 +248,6 @@ type SingleCheckbox<C> = { descriptionItems: GetTA<C>; };
 type MultiChooser<C, I extends K> = {
     options: Get<C, Arr<I>>;
     max: Get<C, number>;
-    inverseSelection: boolean;
     weights: (c: C, i: I) => number;
 };
 export type BaseInput<C> = {
@@ -371,7 +369,6 @@ const initMultiChooser = <C, I extends K>(args: MultiChooserArgs<C, I>) => ({
     defaultValue: args.chosen ?? [],
     max: toGetA(args.max ?? Number.MAX_VALUE),
     options: toGetA(args.options),
-    inverseSelection: Boolean(args.inverseSelection),
     weights: args.weights ?? (() => 1),
 });
 const initBaseInput = <C>(args: BaseInputArgs<C>) => ({
