@@ -3,6 +3,10 @@
     import type { ChangeEventHandler } from 'svelte/elements';
     import { untrack } from 'svelte';
     import { type Arr, type ChooserWidget, labelAndStar } from '$lib/forms/Widget';
+    import { Label } from "$lib/components/ui/label";
+    import { NativeSelect, NativeSelectOption } from "$lib/components/ui/native-select";
+    import { Field, FieldError, FieldGroup, FieldLabel } from "$lib/components/ui/field";
+    import { Card, CardContent } from "$lib/components/ui/card";
 
     interface Props {
         t: Translations;
@@ -24,7 +28,10 @@
             e.preventDefault();
             options = [...options, ...other];
             other = [];
-            setTimeout(() => target.showPicker());
+            setTimeout(() => {
+                target.value = value || 'notChosen';
+                target.showPicker();
+            });
         } else {
             value = option as I;
             widget.onValueSet(context, option as I);
@@ -41,38 +48,32 @@
             }
         });
     });
+
+    const invalid = $derived(widget.isError(context, value) && showError);
+
+    const id = $props.id();
 </script>
 
-{#snippet showOptions()}
-    <option class="hidden" value='notChosen'>{t.widget.notChosen}</option>
-    {#each options as option}
-        <option value={option}>{widget.get(t, option)}</option>
-    {/each}
-    {#if other.length}
-        <option value='otherOptions'>{t.widget.otherOptions}…</option>
-    {/if}
-{/snippet}
+<Card class="min-w-field" size="sm">
+    <CardContent>
+        <FieldGroup>
+            <Field data-invalid={invalid} orientation={widget.compact(context) ? 'horizontal' : 'responsive'}>
+                <FieldLabel for={id}>{labelAndStar(widget, context, t)}</FieldLabel>
+                <NativeSelect aria-invalid={invalid} disabled={widget.lock(context)} {id}
+                              onchange={onChange} value={value ?? 'notChosen'}>
 
-<div class="flex gap-1 flex-col">
-    {#if widget.compact(context)}
-        <label class="input-group">
-            <span class="input-group-text">{labelAndStar(widget, context, t)}</span>
-            <select class="form-select grow" value={value ?? 'notChosen'}
-                    onchange={onChange} disabled={widget.lock(context)}>
-                {@render showOptions()}
-            </select>
-        </label>
-    {:else}
-        <label class="form-floating block">
-            <select class="form-select" value={value ?? 'notChosen'} onchange={onChange}
-                    disabled={widget.lock(context)}>
-                {@render showOptions()}
-            </select>
-            <label for="">{labelAndStar(widget, context, t)}</label>
-        </label>
-    {/if}
-
-    {#if widget.isError(context, value) && showError}
-        <span class="text-danger">{widget.onError(t, context)}</span>
-    {/if}
-</div>
+                    <NativeSelectOption class="hidden" value='notChosen'>{t.widget.notChosen}</NativeSelectOption>
+                    {#each options as option}
+                        <NativeSelectOption value={option}>{widget.get(t, option)}</NativeSelectOption>
+                    {/each}
+                    {#if other.length}
+                        <NativeSelectOption value='otherOptions'>{t.widget.otherOptions}…</NativeSelectOption>
+                    {/if}
+                </NativeSelect>
+            </Field>
+        </FieldGroup>
+        {#if invalid}
+            <FieldError>{widget.onError(t, context)}</FieldError>
+        {/if}
+    </CardContent>
+</Card>

@@ -1,9 +1,12 @@
 <script generics="C, I1 extends string, I2 extends string" lang="ts">
     import { onMount, untrack } from 'svelte';
-    import type { Action } from 'svelte/action';
     import type { Translations } from '$lib/translations';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { type Arr, type DoubleChooserWidget, labelAndStar, type Pair } from '$lib/forms/Widget';
+    import { Field, FieldError, FieldGroup, FieldLabel } from "$lib/components/ui/field";
+    import { NativeSelect } from "$lib/components/ui/native-select";
+    import { Card, CardContent } from "$lib/components/ui/card";
+    import type { Attachment } from "svelte/attachments";
 
     interface Props {
         t: Translations;
@@ -74,12 +77,16 @@
 
     let mounted = false;
     onMount(() => mounted = true);
-    const Select: Action<HTMLSelectElement> = target => {
+    const select: Attachment<HTMLSelectElement> = target => {
         if (mounted && !target.disabled) {
             showError = false;
             target.showPicker();
         }
     };
+
+    const invalid = $derived(widget.isError(context, value) && showError);
+
+    const id = $props.id();
 </script>
 
 {#snippet showGroups(other: (Arr<I1> | Arr<I2>), options: (Arr<I1> | Arr<I2>))}
@@ -92,40 +99,25 @@
     {/if}
 {/snippet}
 
-<div class="flex gap-1 flex-col">
-    <div class="input-group">
-        <label class="form-floating block left">
-            <select class="form-select" disabled={widget.lock1(context)}
-                    onchange={onChange1} value={value.first ?? 'notChosen'}>
-                {@render showGroups(other1, options1)}
-            </select>
-            <label for="">{labelAndStar(widget, context, t)}</label>
-        </label>
-        {#if value.first != null && widget.options2(context).length > 0}
-            <select
-                class="form-select right"
-                id={labelAndStar(widget, context, t)}
-                value={value.second ?? 'notChosen'}
-                disabled={widget.options2(context).length < 2 || widget.lock2(context)}
-                onchange={onChange2}
-                use:Select
-            >
-                {@render showGroups(other2, options2)}
-            </select>
+<Card class="w-full" size="sm">
+    <CardContent>
+        <FieldGroup>
+            <Field data-invalid={invalid} orientation={'responsive'}>
+                <FieldLabel for="{id}-1">{labelAndStar(widget, context, t)}</FieldLabel>
+                <NativeSelect aria-invalid={invalid} disabled={widget.lock1(context)} id="{id}-1"
+                              onchange={onChange1} value={value.first ?? 'notChosen'}>
+                    {@render showGroups(other1, options1)}
+                </NativeSelect>
+                {#if value.first != null && widget.options2(context).length > 0}
+                    <NativeSelect aria-invalid={invalid} disabled={widget.options2(context).length < 2 || widget.lock2(context)}
+                                  id="{id}-2" {@attach select} onchange={onChange2} value={value.second ?? 'notChosen'}>
+                        {@render showGroups(other2, options2)}
+                    </NativeSelect>
+                {/if}
+            </Field>
+        </FieldGroup>
+        {#if invalid}
+            <FieldError>{widget.onError(t, context)}</FieldError>
         {/if}
-    </div>
-    {#if widget.isError(context, value) && showError}
-        <span class="text-danger">{widget.onError(t, context)}</span>
-    {/if}
-</div>
-
-<style>
-    .left {
-        width: 70%;
-        max-width: 70%;
-    }
-
-    .right {
-        width: 30%;
-    }
-</style>
+    </CardContent>
+</Card>

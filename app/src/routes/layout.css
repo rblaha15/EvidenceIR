@@ -130,6 +130,7 @@
 	}
 	html {
 		@apply font-sans;
+		overflow: hidden;
 	}
 	html, body, body > div:first-child {
 		height: 100%;

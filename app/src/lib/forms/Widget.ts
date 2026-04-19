@@ -50,7 +50,7 @@ export const labelAndStar = <C, U>(
     getLabel: GetT<C> = widget.label,
 ) => {
     const label = getLabel(t, context);
-    return label == '' ? '' : label + (!widget.required(context) ? '' : ` ${STAR}`);
+    return label == '' ? '' : label + (!widget.required(context) ? '' : ` ${STAR}`);
 };
 
 const required = <C>(args: RequiredArgs<C>, context: C) =>
