@@ -1,6 +1,7 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
     import type { ButtonWidget } from '$lib/forms/Widget';
+    import { Button } from "$lib/components/ui/button";
 
     interface Props {
         t: Translations;
@@ -13,10 +14,12 @@
     const Icon = $derived(widget.icon(context));
 </script>
 
-<button
-    class="btn btn-{widget.color(context)} align-self-start"
+<Button
+    class="self-start"
+    variant={widget.variant(context)}
+    size={widget.size(context)}
     onclick={() => widget.onClick(context)}
 >
     <Icon />
     {widget.text(t, context)}
-</button>
+</Button>

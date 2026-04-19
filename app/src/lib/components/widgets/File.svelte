@@ -30,6 +30,7 @@
     import type { ChangeEventHandler } from 'svelte/elements';
     import { type Files, type FileWidget, labelAndStar } from '$lib/forms/Widget';
     import { FileX } from '@lucide/svelte';
+    import { Button } from "$lib/components/ui/button";
 
     interface Props {
         t: Translations;
@@ -75,13 +76,9 @@
     <div>{labelAndStar(widget, context, t)}</div>
     <div class="flex gap-4 flex-col items-start">
         {#if value.length === 0 || (multiple && value.length < max)}
-            <button
-                type="button"
-                class="btn btn-outline-primary"
-                onclick={() => inputSelect?.click()}
-            >
+            <Button variant="outline" onclick={() => inputSelect?.click()}>
                 {multiple ? t.widget.selectFiles : t.widget.selectFile}
-            </button>
+            </Button>
         {/if}
 
         {#if value.length}
@@ -89,10 +86,9 @@
                 {#each value as { fileName, uuid }}
                     <li class="flex w-full items-center list-group-item gap-4">
                         <div class="grow shrink" style="word-break: break-all">{fileName}</div>
-                        <button class="btn text-danger" onclick={remove(uuid)}>
-                            <FileX />
-                            {t.widget.remove_File}
-                        </button>
+                        <Button variant="destructive" onclick={remove(uuid)}>
+                            <FileX /> {t.widget.remove_File}
+                        </Button>
                     </li>
                 {/each}
             </ul>

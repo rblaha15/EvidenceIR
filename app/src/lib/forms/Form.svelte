@@ -6,7 +6,17 @@
     O extends Record<string, unknown> = Record<never, unknown>,
 " lang="ts">
     // noinspection ES6UnusedImports
-    import { compareValues, defaultValues, type Form, type Raw, rawDataToValues, type Values, valuesToRawData, widgetList, } from '$lib/forms/Form';
+    import {
+        compareValues,
+        defaultValues,
+        type Form,
+        type Raw,
+        rawDataToValues,
+        type Values,
+        valuesToRawData,
+        widgetList,
+        type WidgetWithValue,
+    } from '$lib/forms/Form';
     // noinspection ES6UnusedImports
     import { type Pdf } from '$lib/pdf/pdf';
     import type { Translations } from '$lib/translations';
@@ -22,8 +32,8 @@
     import { goto } from '$app/navigation';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
-    import Button from '$lib/components/Button.svelte';
-    import { OctagonAlert, PencilRuler, Save, SendHorizonal } from "@lucide/svelte";
+    import { Button } from '$lib/components/ui/button';
+    import { OctagonAlert, PencilRuler, Save, SendHorizontal } from "@lucide/svelte";
     import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
 
     const { t, formInfo, editData, viewData, other }: {
@@ -57,7 +67,7 @@
     const form: F = formDefinition(other);
     let values: Values<F> = $state(defaultValues(form));
     let showAllErrors = $state(false);
-    const list = $derived(widgetList<C, F>(form, values));
+    const list: WidgetWithValue<C>[] = $derived(widgetList<C, F>(form, values));
     const context = $derived(createContext({ form, other, values, mode })) as C;
 
     onMount(async () => {
@@ -203,31 +213,39 @@
         <div class="flex gap-4 flex-wrap">
             {#if mode !== 'view'}
                 {#if !result.load && !$buttonsStore.hideSave}
-                    <Button text={t.form.save} icon={Save}
-                            class="mb-auto" onclick={save(false, false)} />
+                    <Button class="mb-auto" onclick={save(false, false)}>
+                        <Save /> {t.form.save}
+                    </Button>
                 {/if}
                 {#if !result.load && $buttonsStore.saveAndSendAgain}
-                    <Button text={t.form.saveAndSendAgain} icons={[Save, SendHorizonal]}
-                            class="mb-auto" onclick={save(true, false)} />
+                    <Button class="mb-auto" onclick={save(true, false)}>
+                        <Save />
+                        <SendHorizontal /> {t.form.saveAndSendAgain}
+                    </Button>
                 {/if}
                 {#if !result.load && $buttonsStore.saveAndSend}
-                    <Button text={t.form.saveAndSend} icons={[Save, SendHorizonal]}
-                            class="mb-auto" onclick={save(true, false)} />
+                    <Button class="mb-auto" onclick={save(true, false)}>
+                        <Save />
+                        <SendHorizontal /> {t.form.saveAndSend}
+                    </Button>
                 {/if}
                 {#if !result.load && $buttonsStore.send}
-                    <Button text={t.form.send} icon={SendHorizonal}
-                            class="mb-auto" onclick={save(true, false)} />
+                    <Button class="mb-auto" onclick={save(true, false)}>
+                        <SendHorizontal /> {t.form.send}
+                    </Button>
                 {/if}
                 {#if !result.load && $buttonsStore.saveAsDraft}
-                    <Button text={t.form.saveAsDraft} icon={PencilRuler} variant="secondary"
-                            class="mb-auto" onclick={save(false, true)} />
+                    <Button variant="secondary" class="mb-auto" onclick={save(false, true)}>
+                        <PencilRuler /> {t.form.saveAsDraft}
+                    </Button>
                 {/if}
                 {#if result.load}
                     <div class="spinner-border text-danger" aria-label="loading"></div>
                 {/if}
                 {#if !result.load && !$buttonsStore.hideBack}
-                    <Button text={t.form.back} variant="secondary"
-                            class="mb-auto" onclick={() => history.back()} />
+                    <Button variant="secondary" onclick={() => history.back()}>
+                        {t.form.back}
+                    </Button>
                 {/if}
             {/if}
         </div>
