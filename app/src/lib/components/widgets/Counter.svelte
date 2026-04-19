@@ -2,6 +2,10 @@
     import type { Translations } from '$lib/translations';
     import type { CounterWidget } from '$lib/forms/Widget';
     import { Minus, Plus } from "@lucide/svelte";
+    import { Card, CardContent } from "$lib/components/ui/card";
+    import { Field, FieldError, FieldTitle } from "$lib/components/ui/field";
+    import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "$lib/components/ui/button-group";
+    import { Button } from "$lib/components/ui/button";
 
     interface Props {
         t: Translations;
@@ -27,31 +31,33 @@
         widget.onValueSet(context, newValue);
         showError = true;
     };
+    const invalid = $derived(widget.isError(context, value) && showError);
 </script>
 
-<div class="flex gap-1 flex-col">
-    <div class="input-group flex flex-nowrap">
-        <span class="input-group-text" id="label-{uid}">{widget.label(t, context)}</span>
-        {#if !widget.lock(context)}
-            <button class="btn btn-outline-primary" onclick={dec}
-                    disabled={value === widget.min(context)}
-                    style="--bs-btn-padding-x: var(--bs-btn-padding-y)"
-            >
-                <Minus />
-            </button>
+<Card class="min-w-field" size="sm">
+    <CardContent>
+        <Field data-invalid={invalid} orientation="horizontal">
+            <FieldTitle>{widget.label(t, context)}</FieldTitle>
+            <ButtonGroup>
+                {#if !widget.lock(context)}
+                    <Button size="icon-lg" onclick={dec} disabled={value === widget.min(context)}>
+                        <Minus />
+                        <span class="sr-only">Decrement</span>
+                    </Button>
+                    <ButtonGroupSeparator />
+                {/if}
+                <ButtonGroupText class="border-0 min-w-10 h-10 justify-around">{value}</ButtonGroupText>
+                {#if !widget.lock(context)}
+                    <ButtonGroupSeparator />
+                    <Button size="icon-lg" onclick={inc} disabled={value === widget.max(context)}>
+                        <Plus />
+                        <span class="sr-only">Increment</span>
+                    </Button>
+                {/if}
+            </ButtonGroup>
+        </Field>
+        {#if invalid}
+            <FieldError>{widget.onError(t, context)}</FieldError>
         {/if}
-        <span class="input-group-text input-group-input">{value}</span>
-        {#if !widget.lock(context)}
-            <button class="btn btn-outline-primary" disabled={value === widget.max(context)}
-                    onclick={inc}
-                    style="--bs-btn-padding-x: var(--bs-btn-padding-y)"
-            >
-                <Plus />
-            </button>
-        {/if}
-    </div>
-
-    {#if widget.isError(context, value) && showError}
-        <span class="text-danger">{widget.onError(t, context)}</span>
-    {/if}
-</div>
+    </CardContent>
+</Card>
