@@ -7,8 +7,8 @@
     import { dateFromISO } from '$lib/helpers/date';
     import ModalDK from '$lib/features/detail/components/detailIR/ModalDK.svelte';
     import { getDKInfo } from '$lib/features/detail/domain/detailIR/DK';
-    import Button from '$lib/components/Button.svelte';
-    import { Bell, Server } from "@lucide/svelte";
+    import { Button } from '$lib/components/ui/button';
+    import { Server } from "@lucide/svelte";
 
     const { t, ir, type }: {
         t: Translations, ir: IR, irid: IRID, type: 'TČ' | 'SOL'
@@ -23,9 +23,11 @@
         {#if show && ir}
             <ModalDK {t} {ir} {type} />
             {#if $isUserAdmin && settings?.code}
-                <Button variant="secondary" icon={Server} text="{t.detail.openInDatabase}{iaA}"
+                <Button variant="secondary"
                         href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Frk~2F{settings?.code}"
-                        target="_blank" />
+                        target="_blank">
+                    <Server /> {t.detail.openInDatabase}{iaA}
+                </Button>
             {/if}
         {/if}
         {#if commissionDate}

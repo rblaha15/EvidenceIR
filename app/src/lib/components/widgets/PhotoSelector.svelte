@@ -2,7 +2,7 @@
     import type { Translations } from '$lib/translations';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { addFile, getFile, removeFile } from '$lib/components/widgets/File.svelte';
-    import Button from '$lib/components/Button.svelte';
+    import { Button } from '$lib/components/ui/button';
     import { type Files, labelAndStar, type PhotoSelectorWidget } from '$lib/forms/Widget';
     import { ImageMinus } from "@lucide/svelte";
 
@@ -52,10 +52,12 @@
     <div class="flex gap-4 flex-col items-start">
         {#if value.length === 0 || (multiple && value.length < max)}
             <div class="flex gap-4">
-                <Button text={multiple ? t.widget.selectPhotos : t.widget.selectPhoto}
-                        variant="outline" onclick={() => inputSelect?.click()} />
-                <Button text={t.widget.capturePhoto}
-                        variant="outline" onclick={() => inputCapture?.click()} />
+                <Button variant="outline" onclick={() => inputSelect?.click()}>
+                    {multiple ? t.widget.selectPhotos : t.widget.selectPhoto}
+                </Button>
+                <Button variant="outline" onclick={() => inputCapture?.click()}>
+                    {t.widget.capturePhoto}
+                </Button>
             </div>
         {/if}
 
@@ -71,8 +73,9 @@
                         {/await}
                         <div class="flex flex-col gap-4 text-center">
                             <span style="word-break: break-all">{fileName}</span>
-                            <Button text={t.widget.remove_Photo} icon={ImageMinus} variant="destructive"
-                                    onclick={remove(uuid)} />
+                            <Button variant="destructive" onclick={remove(uuid)}>
+                                <ImageMinus /> {t.widget.remove_Photo}
+                            </Button>
                         </div>
                     </li>
                 {/each}

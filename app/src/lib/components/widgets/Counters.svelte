@@ -1,6 +1,6 @@
 <script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
-    import Button from '$lib/components/Button.svelte';
+    import { Button } from '$lib/components/ui/button';
     import type { CountersWidget, Rec } from '$lib/forms/Widget';
     import { Minus, Plus } from "@lucide/svelte";
 
@@ -36,11 +36,13 @@
     <div>{widget.label(t, context)}</div>
     <div class="input-group input-group-grid" style="--grid-cols: 4">
         {#each value.entries() as [option, number]}
-            <Button label="subtract" variant="outline" icon={Minus}
-                    onclick={dec(option)} disabled={number === 0} class="first" />
+            <Button variant="outline" onclick={dec(option)} disabled={number === 0} class="first">
+                <Minus /> <span class="sr-only">subtract</span>
+            </Button>
             <span class="input-group-text input-group-input">{number}</span>
-            <Button label="add" variant="outline" icon={Plus}
-                    onclick={inc(option)} disabled={sum === widget.max(context)} />
+            <Button variant="outline" onclick={inc(option)} disabled={sum === widget.max(context)}>
+                <Plus /> <span class="sr-only">add</span>
+            </Button>
             <div class="input-group-text last" id="label-{uid}">{widget.get(t, option)}</div>
         {/each}
     </div>

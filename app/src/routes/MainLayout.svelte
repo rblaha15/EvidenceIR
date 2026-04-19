@@ -14,7 +14,7 @@
     import { analytics } from '../hooks.client';
     import { setUserId } from '@firebase/analytics';
     import { ArrowLeft, OctagonAlert } from "@lucide/svelte";
-    import Button from "$lib/components/Button.svelte";
+    import { Button } from '$lib/components/ui/button';
     import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
     import { Separator } from "$lib/components/ui/separator";
 
@@ -137,7 +137,9 @@
                 <div class="mt-4 flex flex-col gap-4 w-full">
                     <h1 id="main-title" class="m-0 flex items-center gap-4">
                         {#if $backButton}
-                            <Button icon={ArrowLeft} size="icon" iconClass="size-8" variant="ghost" label={t.nav.back} onclick={() => history.back()} />
+                            <Button size="icon" variant="ghost" onclick={() => history.back()}>
+                                <ArrowLeft class="size-8" /> <span class="sr-only">{t.nav.back}</span>
+                            </Button>
                         {/if}
                         {$title}
                     </h1>

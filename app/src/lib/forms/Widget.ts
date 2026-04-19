@@ -6,6 +6,7 @@ import type { DataOfPdf, Pdf as PdfType, PdfParameters } from '$lib/pdf/pdf';
 import type { Form, Values } from '$lib/forms/Form';
 import type { Component } from "svelte";
 import type { LucideProps } from "@lucide/svelte";
+import type { ButtonSize, ButtonVariant } from "$lib/components/ui/button";
 
 export type GetB<C> = Get<C, boolean>;
 export type GetBOrVal<C> = GetOrVal<C, boolean>;
@@ -130,14 +131,17 @@ export type InlinePdfPreviewData<C, P extends PdfType> = {
 } & PdfParameters<P>;
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
 export type Color = 'warning' | 'danger' | 'primary' | 'info' | 'secondary' | 'success'
-export type BtnColor = Color | `outline-${Color}`
 
 type HideArgs<H> = H extends false ? { hideInRawData?: H } : { hideInRawData: H };
 type ShowArgs<C> = { show?: GetBOrVal<C>; showInXML?: GetBOrVal<C> };
 type InfoArgs<C> = { text: GetTPOrVal<C>; class?: GetOrVal<C, ClassValue | undefined>; } & ShowArgs<C>;
-type BtnArgs<C> =
-    { text: GetTOrVal<C>; color: GetOrVal<C, BtnColor>; icon?: GetOrVal<C, Component<LucideProps> | undefined>; onClick: Get<C, void> }
-    & ShowArgs<C>;
+type BtnArgs<C> = {
+    text: GetTOrVal<C>;
+    variant: GetOrVal<C, ButtonVariant>;
+    size?: GetOrVal<C, ButtonSize>;
+    icon?: GetOrVal<C, Component<LucideProps> | undefined>;
+    onClick: Get<C, void>,
+} & ShowArgs<C>;
 type TitleArgs = { level: HeadingLevel };
 type PdfArgs<C, P extends PdfType> = { pdfData: GetT<C, InlinePdfPreviewData<C, P>> } & Omit<ShowArgs<C>, 'showInXML'>;
 type RequiredArgs<C> = { required?: GetBOrVal<C> };
@@ -207,7 +211,13 @@ type OnlyInputArgs = {
 };
 
 type Info<C> = { text: GetTP<C>; class: Get<C, ClassValue | undefined>; };
-type Btn<C> = { text: GetT<C>; color: Get<C, BtnColor>; icon: Get<C, Component<LucideProps> | undefined>; onClick: Get<C, void> };
+type Btn<C> = {
+    text: GetT<C>;
+    variant: Get<C, ButtonVariant>;
+    size: Get<C, ButtonSize>;
+    icon: Get<C, Component<LucideProps> | undefined>;
+    onClick: Get<C, void>
+};
 type Title = { level: HeadingLevel; };
 type Pdf<C, P extends PdfType> = { pdfData: GetT<C, InlinePdfPreviewData<C, P>> };
 export type Required<C, U, T extends WidgetType, H extends boolean> = BaseWidget<C, U, T, H> & { required: GetB<C>; };
@@ -272,7 +282,8 @@ const initInfo = <C>(args: InfoArgs<C>) => ({
 const initBtn = <C>(args: BtnArgs<C>) => ({
     text: toGetT(args.text),
     show: toGetA(args.show ?? true),
-    color: toGetA(args.color),
+    variant: toGetA(args.variant),
+    size: toGetA(args.size ?? 'default'),
     icon: toGetA(args.icon),
     onClick: toGetA(args.onClick),
 });
