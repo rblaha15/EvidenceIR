@@ -31,6 +31,9 @@
     import { type Files, type FileWidget, labelAndStar } from '$lib/forms/Widget';
     import { FileX } from '@lucide/svelte';
     import { Button } from "$lib/components/ui/button";
+    import { Card, CardContent } from "$lib/components/ui/card";
+    import { Field, FieldError, FieldGroup, FieldTitle } from "$lib/components/ui/field";
+    import { Item, ItemActions, ItemContent, ItemTitle } from "$lib/components/ui/item";
 
     interface Props {
         t: Translations;
@@ -70,41 +73,45 @@
         widget.onValueSet(context, newValue);
         showError = true;
     };
+
+    const invalid = $derived(widget.isError(context, value) && showError);
 </script>
 
-<div class="flex gap-1 flex-col">
-    <div>{labelAndStar(widget, context, t)}</div>
-    <div class="flex gap-4 flex-col items-start">
-        {#if value.length === 0 || (multiple && value.length < max)}
-            <Button variant="outline" onclick={() => inputSelect?.click()}>
-                {multiple ? t.widget.selectFiles : t.widget.selectFile}
-            </Button>
+<Card class="w-full" size="sm">
+    <CardContent class="gap-1">
+        <FieldGroup>
+            <Field orientation="responsive" data-invalid={invalid}>
+                <FieldTitle>{labelAndStar(widget, context, t)}</FieldTitle>
+                {#if value.length === 0 || (multiple && value.length < max)}
+                    <Button onclick={() => inputSelect?.click()}>
+                        {multiple ? t.widget.selectFiles : t.widget.selectFile}
+                    </Button>
+                {/if}
+            </Field>
+        </FieldGroup>
+        {#each value as {fileName, uuid}}
+            <Item size="2xs" class="w-fit gap-4">
+                <ItemContent>
+                    <ItemTitle class="break-all">{fileName}</ItemTitle>
+                </ItemContent>
+                <ItemActions>
+                    <Button variant="destructive" onclick={remove(uuid)}>
+                        <FileX /> {t.widget.remove_File}
+                    </Button>
+                </ItemActions>
+            </Item>
+        {/each}
+        {#if invalid}
+            <FieldError>{widget.onError(t, context)}</FieldError>
         {/if}
+    </CardContent>
+</Card>
 
-        {#if value.length}
-            <ul class="list-group">
-                {#each value as { fileName, uuid }}
-                    <li class="flex w-full items-center list-group-item gap-4">
-                        <div class="grow shrink" style="word-break: break-all">{fileName}</div>
-                        <Button variant="destructive" onclick={remove(uuid)}>
-                            <FileX /> {t.widget.remove_File}
-                        </Button>
-                    </li>
-                {/each}
-            </ul>
-        {/if}
-    </div>
-
-    {#if widget.isError(context, value) && showError}
-        <span class="text-danger">{widget.onError(t, context)}</span>
-    {/if}
-
-    <input
-        {accept}
-        bind:this={inputSelect}
-        class="hidden"
-        {multiple}
-        {onchange}
-        type="file"
-    />
-</div>
+<input
+    {accept}
+    bind:this={inputSelect}
+    class="hidden"
+    {multiple}
+    {onchange}
+    type="file"
+/>

@@ -5,6 +5,9 @@
     import { Button } from '$lib/components/ui/button';
     import { type Files, labelAndStar, type PhotoSelectorWidget } from '$lib/forms/Widget';
     import { ImageMinus } from "@lucide/svelte";
+    import { Field, FieldError, FieldGroup, FieldTitle } from "$lib/components/ui/field";
+    import { Card, CardContent } from "$lib/components/ui/card";
+    import { Item, ItemActions, ItemContent, ItemHeader, ItemTitle } from "$lib/components/ui/item";
 
     interface Props {
         t: Translations;
@@ -45,63 +48,73 @@
         widget.onValueSet(context, newValue);
         showError = true;
     };
+
+    const invalid = $derived(widget.isError(context, value) && showError);
 </script>
 
-<div class="flex gap-1 flex-col">
-    <div>{labelAndStar(widget, context, t)}</div>
-    <div class="flex gap-4 flex-col items-start">
-        {#if value.length === 0 || (multiple && value.length < max)}
-            <div class="flex gap-4">
-                <Button variant="outline" onclick={() => inputSelect?.click()}>
-                    {multiple ? t.widget.selectPhotos : t.widget.selectPhoto}
-                </Button>
-                <Button variant="outline" onclick={() => inputCapture?.click()}>
-                    {t.widget.capturePhoto}
-                </Button>
-            </div>
-        {/if}
-
+<Card class="w-full" size="sm">
+    <CardContent class="gap-1">
+        <FieldGroup>
+            <Field data-invalid={invalid} orientation="responsive">
+                <FieldTitle>{labelAndStar(widget, context, t)}</FieldTitle>
+                {#if value.length === 0 || (multiple && value.length < max)}
+                    <Button onclick={() => inputSelect?.click()}>
+                        {multiple ? t.widget.selectPhotos : t.widget.selectPhoto}
+                    </Button>
+                    <Button onclick={() => inputCapture?.click()}>
+                        {t.widget.capturePhoto}
+                    </Button>
+                {/if}
+            </Field>
+        </FieldGroup>
         {#if value.length}
-            <ul class="list-group">
-                {#each value as { fileName, uuid }}
-                    <li class="flex w-full items-center list-group-item gap-4">
+            <div class="flex gap-1 overflow-x-auto w-full">
+                {#each value as {fileName, uuid}}
+                    <Item class="shrink w-fit">
                         {#await getFile(uuid) then photo}
                             {#if photo}
-                                <img class="grow object-fit-contain shrink" style="max-height: 256px; min-width: 0"
-                                     src={URL.createObjectURL(photo)} alt={t.widget.photo}>
+                                <ItemHeader class="inline">
+                                    <img
+                                        src={URL.createObjectURL(photo)}
+                                        alt={t.widget.photo}
+                                        width="128" height="128"
+                                        class="aspect-square rounded-sm object-cover"
+                                    />
+                                </ItemHeader>
                             {/if}
                         {/await}
-                        <div class="flex flex-col gap-4 text-center">
-                            <span style="word-break: break-all">{fileName}</span>
-                            <Button variant="destructive" onclick={remove(uuid)}>
-                                <ImageMinus /> {t.widget.remove_Photo}
-                            </Button>
-                        </div>
-                    </li>
+                        <ItemContent>
+                            <ItemTitle class="break-all">{fileName}</ItemTitle>
+                            <ItemActions>
+                                <Button variant="destructive" onclick={remove(uuid)}>
+                                    <ImageMinus /> {t.widget.remove_Photo}
+                                </Button>
+                            </ItemActions>
+                        </ItemContent>
+                    </Item>
                 {/each}
-            </ul>
+            </div>
         {/if}
-    </div>
+        {#if invalid}
+            <FieldError>{widget.onError(t, context)}</FieldError>
+        {/if}
+    </CardContent>
+</Card>
 
-    {#if widget.isError(context, value) && showError}
-        <span class="text-danger">{widget.onError(t, context)}</span>
-    {/if}
-
-    <input
-        {accept}
-        bind:this={inputSelect}
-        class="hidden"
-        {multiple}
-        {onchange}
-        type="file"
-    />
-    <input
-        {accept}
-        bind:this={inputCapture}
-        capture="environment"
-        class="hidden"
-        {multiple}
-        {onchange}
-        type="file"
-    />
-</div>
+<input
+    {accept}
+    bind:this={inputSelect}
+    class="hidden"
+    {multiple}
+    {onchange}
+    type="file"
+/>
+<input
+    {accept}
+    bind:this={inputCapture}
+    capture="environment"
+    class="hidden"
+    {multiple}
+    {onchange}
+    type="file"
+/>
