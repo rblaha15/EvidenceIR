@@ -36,7 +36,7 @@
     {/if}
 {/snippet}
 
-<nav class="fixed top-0 inset-x-0 bg-muted p-2 gap-2 flex flex-col">
+<nav class="fixed top-0 inset-x-0 bg-secondary text-secondary-foreground p-2 gap-2 flex flex-col">
     <div class="flex items-center gap-2 justify-between">
         <div class="flex items-center gap-2">
             {#if isLoggedIn && showSecrets}

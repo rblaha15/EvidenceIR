@@ -34,5 +34,5 @@
 </script>
 
 <div class="flex flex-col">
-    <canvas bind:this={canvas} class="max-w-5xl border-2"></canvas>
+    <canvas bind:this={canvas} class="max-w-[min(var(--container-5xl),100%)] border-2"></canvas>
 </div>
