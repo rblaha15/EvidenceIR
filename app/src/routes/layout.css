@@ -117,6 +117,8 @@
 	--radius-2xl: calc(var(--radius) * 1.8);
 	--radius-3xl: calc(var(--radius) * 2.2);
 	--radius-4xl: calc(var(--radius) * 2.6);
+
+	--container-field: min(var(--container-xl), 100%);
 }
 
 @layer base {

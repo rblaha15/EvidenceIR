@@ -34,7 +34,7 @@
     const id = $props.id();
 </script>
 
-<Card class="py-4 relative">
+<Card size="sm" class="relative min-w-field">
     {#if !widget.required(context)}
         <Button variant="ghost" size="icon" onclick={() => chosen.value = ''}
                 class="absolute right-2 top-2">
@@ -42,7 +42,7 @@
             <span class="sr-only">{t.widget.clearSelection}</span>
         </Button>
     {/if}
-    <CardContent class="px-4">
+    <CardContent>
         <FieldSet>
             {#if labelAndStar(widget, context, t)}
                 <FieldLabel data-invalid={invalid}>{labelAndStar(widget, context, t)}</FieldLabel>
