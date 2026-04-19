@@ -2,6 +2,10 @@
     import type { Translations } from '$lib/translations';
     import { labelAndStar, type RadioWidget } from '$lib/forms/Widget';
     import { Eraser } from '@lucide/svelte';
+    import { Field, FieldError, FieldLabel, FieldSet } from "$lib/components/ui/field";
+    import { Card, CardContent } from "$lib/components/ui/card";
+    import { RadioGroup, RadioGroupItem } from "$lib/components/ui/radio-group";
+    import { Button } from "$lib/components/ui/button";
 
     interface Props {
         t: Translations;
@@ -16,44 +20,44 @@
 
     const chosen = {
         get value() {
-            return value;
+            return value as string | null ?? '';
         },
         set value(chosen) {
-            value = chosen;
-            widget.onValueSet(context, chosen);
+            const newValue = chosen as I || null
+            value = newValue;
+            widget.onValueSet(context, newValue);
             showError = true;
         },
     };
+    const invalid = $derived(widget.isError(context, value) && showError);
 
-    const onClick = (item: I | null) => () => chosen.value = item;
-
-    const uid = $props.id();
+    const id = $props.id();
 </script>
 
-<div class="flex gap-1 flex-col">
-    <div class="flex items-center">
-        {labelAndStar(widget, context, t)}
-        {#if !widget.required(context)}
-            <button class="btn py-1 px-2 m-1" aria-label={t.widget.clearSelection} onclick={onClick(null)}>
-                <Eraser />
-            </button>
-        {/if}
-    </div>
-    <div class="input-group input-group-grid">
-        {#each widget.options(context) as item}
-            <button class="input-group-text input-group-input first" onclick={onClick(item)}
-                    aria-labelledby="label-{uid}-{item}" tabindex="-1" disabled={widget.lock(context)}
-            >
-                <input class="form-check-input m-0" type="radio" role="button" disabled={widget.lock(context)}
-                       bind:group={chosen.value} value={item} />
-            </button>
-            <button onclick={onClick(item)} tabindex="-1" disabled={widget.lock(context)}
-                    id="label-{uid}-{item}" class="input-group-text last"
-            >{widget.get(t, item)}</button>
-        {/each}
-    </div>
-
-    {#if widget.isError(context, value) && showError}
-        <span class="text-danger">{widget.onError(t, context)}</span>
+<Card class="py-4 relative">
+    {#if !widget.required(context)}
+        <Button variant="ghost" size="icon" onclick={() => chosen.value = ''}
+                class="absolute right-2 top-2">
+            <Eraser />
+            <span class="sr-only">{t.widget.clearSelection}</span>
+        </Button>
     {/if}
-</div>
+    <CardContent class="px-4">
+        <FieldSet>
+            {#if labelAndStar(widget, context, t)}
+                <FieldLabel data-invalid={invalid}>{labelAndStar(widget, context, t)}</FieldLabel>
+            {/if}
+            <RadioGroup bind:value={chosen.value}>
+                {#each widget.options(context) as item}
+                    <Field data-invalid={invalid} orientation="horizontal">
+                        <RadioGroupItem value={item} aria-invalid={invalid} id="{id}-{item}" />
+                        <FieldLabel class="font-normal" for="{id}-{item}">{widget.get(t, item)}</FieldLabel>
+                    </Field>
+                {/each}
+            </RadioGroup>
+            {#if invalid}
+                <FieldError>{widget.onError(t, context)}</FieldError>
+            {/if}
+        </FieldSet>
+    </CardContent>
+</Card>
