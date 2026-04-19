@@ -132,7 +132,7 @@
                  style="transition: width 5s;"
             ></div>
         </div>
-        <div class="overflow-auto [scrollbar-gutter:stable]">
+        <div class="overflow-y-auto [scrollbar-gutter:stable]">
             <main class="container mx-auto px-4 flex gap-4">
                 <div class="mt-4 flex flex-col gap-4 w-full">
                     <h1 id="main-title" class="m-0 flex items-center gap-4">
