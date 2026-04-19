@@ -1,8 +1,11 @@
 <script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
     import { Button } from '$lib/components/ui/button';
-    import type { CountersWidget, Rec } from '$lib/forms/Widget';
+    import { type CountersWidget, type Rec } from '$lib/forms/Widget';
     import { Minus, Plus } from "@lucide/svelte";
+    import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "$lib/components/ui/button-group";
+    import { Field, FieldError, FieldGroup, FieldLegend, FieldSet, FieldTitle } from "$lib/components/ui/field";
+    import { Card, CardContent } from "$lib/components/ui/card";
 
     interface Props {
         t: Translations;
@@ -30,24 +33,36 @@
         widget.onValueSet(context, newValue);
         showError = true;
     };
+    const invalid = $derived(widget.isError(context, value) && showError);
 </script>
 
-<div class="flex gap-1 flex-col">
-    <div>{widget.label(t, context)}</div>
-    <div class="input-group input-group-grid" style="--grid-cols: 4">
-        {#each value.entries() as [option, number]}
-            <Button variant="outline" onclick={dec(option)} disabled={number === 0} class="first">
-                <Minus /> <span class="sr-only">subtract</span>
-            </Button>
-            <span class="input-group-text input-group-input">{number}</span>
-            <Button variant="outline" onclick={inc(option)} disabled={sum === widget.max(context)}>
-                <Plus /> <span class="sr-only">add</span>
-            </Button>
-            <div class="input-group-text last" id="label-{uid}">{widget.get(t, option)}</div>
-        {/each}
-    </div>
-
-    {#if widget.isError(context, value) && showError}
-        <span class="text-danger">{widget.onError(t, context)}</span>
-    {/if}
-</div>
+<Card class="min-w-field" size="sm">
+    <CardContent>
+        <FieldSet>
+            <FieldLegend data-invalid={invalid}>{widget.label(t, context)}</FieldLegend>
+            <FieldGroup class="gap-4">
+                {#each value.entries() as [option, number]}
+                    <Field data-invalid={invalid} orientation="horizontal">
+                        <ButtonGroup>
+                            <Button size="icon" onclick={dec(option)} disabled={number === 0}>
+                                <Minus />
+                                <span class="sr-only">Decrement</span>
+                            </Button>
+                            <ButtonGroupSeparator />
+                            <ButtonGroupText class="border-0 min-w-9 h-9 justify-around">{number}</ButtonGroupText>
+                            <ButtonGroupSeparator />
+                            <Button size="icon" onclick={inc(option)} disabled={sum === widget.max(context)}>
+                                <Plus />
+                                <span class="sr-only">Increment</span>
+                            </Button>
+                        </ButtonGroup>
+                        <FieldTitle>{widget.get(t, option)}</FieldTitle>
+                    </Field>
+                {/each}
+            </FieldGroup>
+            {#if invalid}
+                <FieldError>{widget.onError(t, context)}</FieldError>
+            {/if}
+        </FieldSet>
+    </CardContent>
+</Card>
