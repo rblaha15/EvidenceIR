@@ -319,6 +319,12 @@ declare global {
             value: T,
         ): T[];
 
+        toggle<T>(
+            this: T[],
+            value: T,
+            include: boolean,
+        ): T[];
+
         sumBy<T>(
             this: T[] | readonly T[],
             callback: (value: T, index: number, array: T[]) => number,
@@ -449,6 +455,12 @@ declare global {
             this: T[] | readonly T[],
             value: T,
         ): T[];
+
+        toggle<T>(
+            this: T[] | readonly T[],
+            value: T,
+            include: boolean,
+        ): T[];
     }
 }
 
@@ -568,8 +580,11 @@ Array.prototype.with = function <T extends unknown[]>(
 Array.prototype.toggle = function <T>(
     this: T[],
     value: T,
+    include?: boolean
 ): T[] {
-    return this.includes(value) ? this.toSpliced(this.indexOf(value), 1) : [...this, value];
+    return (include != undefined && !include || this.includes(value))
+        ? this.toSpliced(this.indexOf(value), 1)
+        : [...this, value];
 };
 
 Array.prototype.sumBy = function(callback) {
