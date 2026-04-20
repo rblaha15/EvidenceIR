@@ -36,42 +36,40 @@
     {/if}
 {/snippet}
 
-<nav class="fixed top-0 inset-x-0 bg-secondary text-secondary-foreground p-2 gap-2 flex flex-col">
-    <div class="flex items-center gap-2 justify-between">
-        <div class="flex items-center gap-2">
-            {#if isLoggedIn && showSecrets}
-                <NavSheet {t} {header} />
-            {/if}
-            {@render header()}
-            {#if !$isOnline && showSecrets}
-                <WifiOff />
-            {/if}
-            {#if isLoggedIn && showSecrets}
-                <ul class="hidden lg:flex gap-1">
-                    <NavItems {t} />
-                </ul>
-            {/if}
-        </div>
-        <div class="flex items-center gap-2">
-            {#if isLoggedIn && showSecrets}
-                <HistoryModal {t} />
-                <Button size="icon" variant="ghost" href={relUrl('/help')}>
-                    <CircleQuestionMark class="size-8" />
-                    <span class="sr-only">{t.nn.title}</span>
-                </Button>
-            {/if}
-            <SettingsModal {t} />
-            {#if isLoggedIn && showSecrets}
-                <UserDropdown {t} />
-            {/if}
-            {#if !isLoggedIn && showSecrets}
-                <LoggedOutButtons {t} />
-            {/if}
-        </div>
+<nav class="
+    fixed top-0 inset-x-0 bg-secondary text-secondary-foreground p-2 gap-2 w-full grid grid-cols-[auto_1fr_auto]
+    [grid-template-areas:'logo_._buttons']
+    md:[grid-template-areas:'logo_._buttons''items_items_items']
+    lg:[grid-template-areas:'logo_items_buttons']
+">
+    <div class="flex items-center gap-2 [grid-area:logo]">
+        {#if isLoggedIn && showSecrets}
+            <NavSheet {t} {header} />
+        {/if}
+        {@render header()}
+        {#if !$isOnline && showSecrets}
+            <WifiOff />
+        {/if}
     </div>
     {#if isLoggedIn && showSecrets}
-        <ul class="hidden md:flex lg:hidden items-center gap-1">
+        <ul class="hidden md:flex items-center gap-1 [grid-area:items]">
             <NavItems {t} />
         </ul>
     {/if}
+    <div class="flex items-center gap-2 [grid-area:buttons]">
+        {#if isLoggedIn && showSecrets}
+            <HistoryModal {t} />
+            <Button size="icon" variant="ghost" href={relUrl('/help')}>
+                <CircleQuestionMark class="size-8" />
+                <span class="sr-only">{t.nn.title}</span>
+            </Button>
+        {/if}
+        <SettingsModal {t} />
+        {#if isLoggedIn && showSecrets}
+            <UserDropdown {t} />
+        {/if}
+        {#if !isLoggedIn && showSecrets}
+            <LoggedOutButtons {t} />
+        {/if}
+    </div>
 </nav>
