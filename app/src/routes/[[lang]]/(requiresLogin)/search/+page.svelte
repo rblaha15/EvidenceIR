@@ -46,7 +46,8 @@
                 {
                     text: i.name, width: .4,
                     icon: i.deleted ? Trash2 : i.draft ? PencilRuler : undefined,
-                    iconColor: i.deleted ? 'danger' : i.draft ? 'warning' : undefined,
+                    destructive: i.deleted,
+                    warning: i.draft,
                 },
                 { text: i.label, width: .6 },
             ] as const,
