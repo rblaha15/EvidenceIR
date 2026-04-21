@@ -1,8 +1,11 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
-    import { type Snippet } from 'svelte';
-    import CoreInput from '$lib/components/CoreInput.svelte';
     import { type CheckboxWithInputWidget, type ChI, labelAndStar } from '$lib/forms/Widget';
+    import { Field, FieldError, FieldGroup, FieldLabel } from "$lib/components/ui/field";
+    import { Checkbox } from "$lib/components/ui/checkbox";
+    import { Card, CardContent } from "$lib/components/ui/card";
+    import { Input } from "$lib/components/ui/input";
+    import type { FormEventHandler } from "svelte/elements";
 
     interface Props {
         t: Translations;
@@ -21,27 +24,47 @@
         widget.onValueSet(context, newValue);
         showError = true;
     };
+    const oninput: FormEventHandler<HTMLInputElement> = e => {
+        const newValue = { ...value, text: e.currentTarget.value ?? value.text };
+        value = newValue;
+        widget.onValueSet(context, newValue);
+    }
+
+    const invalid = $derived(widget.isError(context, value) && showError);
 
     const id = $props.id();
 </script>
 
-{#snippet leadingContent()}
-    <button class="input-group-text input-group-input" onclick={onClick} aria-labelledby="label-{id}" tabindex="-1">
-        <input class="form-check-input m-0" type="checkbox" role="button" disabled={widget.lock(context)} checked={value.checked} onclick={onClick} />
-    </button>
-{/snippet}
+<Card class="w-full" size="sm">
+    <CardContent>
+        <FieldGroup>
+            <Field data-invalid={invalid} orientation="horizontal">
+                <Checkbox aria-invalid={invalid} checked={value.checked} disabled={widget.lock(context)}
+                          id={id} onCheckedChange={onClick} />
 
-{#snippet coreContent(field: Snippet)}
-    {#if !value.checked}
-        <input type="text" placeholder={labelAndStar(widget, context, t)} readonly
-               onclick={onClick} class="form-control shadow-none input-group-text"
-               role="button" disabled={widget.lock(context)} tabindex="-1" />
-    {:else}
-        {@render field()}
-    {/if}
-{/snippet}
-
-<CoreInput
-    bind:value {widget} {context} setTextValue={text => ({ ...value, text })} {t} textValue={value.text} {id} bind:showError
-    {leadingContent} {coreContent}
-/>
+                <FieldLabel for={id}>{labelAndStar(widget, context, t)}</FieldLabel>
+            </Field>
+            {#if value.checked}
+                <Field class="w-auto" data-invalid={invalid} orientation="responsive">
+                    <FieldLabel class="grow-0!" for="input-{id}">{widget.otherLabel(t, context)}</FieldLabel>
+                    <Input
+                        aria-invalid={invalid}
+                        autocapitalize={widget.autocapitalize(context)}
+                        class="grow"
+                        disabled={widget.lock(context)}
+                        enterkeyhint={widget.enterkeyhint(context)}
+                        id="input-{id}"
+                        inputmode={widget.inputmode(context)}
+                        {oninput}
+                        onblur={() => showError = true}
+                        type={widget.type(context)}
+                        value={value.text}
+                    />
+                </Field>
+            {/if}
+        </FieldGroup>
+        {#if invalid}
+            <FieldError>{widget.onError(t, context)}</FieldError>
+        {/if}
+    </CardContent>
+</Card>

@@ -914,7 +914,7 @@ export default {
             batteryCapacity: 'Kapacita baterií',
             water: 'Akumulace do vody',
             network: 'Přetoky do sítě',
-            networkPower: 'Přetoky do sítě – rezervovaný výkon',
+            networkPower: 'Rezervovaný výkon',
             charging: 'Dobíjecí stanice – wallbox',
         },
         system: {

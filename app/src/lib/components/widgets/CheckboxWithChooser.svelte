@@ -1,8 +1,13 @@
 <script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
-    import type { Action } from 'svelte/action';
     import { onMount } from 'svelte';
     import { type CheckboxWithChooserWidget, labelAndStar, type SeCh } from '$lib/forms/Widget';
+    import { Field, FieldError, FieldGroup, FieldLabel } from "$lib/components/ui/field";
+    import { Checkbox } from "$lib/components/ui/checkbox";
+    import { Card, CardContent } from "$lib/components/ui/card";
+    import { NativeSelect, NativeSelectOption } from "$lib/components/ui/native-select";
+    import type { Attachment } from "svelte/attachments";
+    import type { ChangeEventHandler } from "svelte/elements";
 
     interface Props {
         t: Translations;
@@ -15,11 +20,7 @@
     let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
     let showError = $derived(showAllErrors);
 
-    const onChange = (
-        e: Event & {
-            currentTarget: HTMLSelectElement;
-        },
-    ) => {
+    const onChange: ChangeEventHandler<HTMLSelectElement> = e => {
         const newValue = { checked: true, chosen: e.currentTarget.value as I };
         value = newValue;
         widget.onValueSet(context, newValue);
@@ -27,9 +28,12 @@
     };
 
     let mounted = false;
-    onMount(() => (mounted = true));
-    const Select: Action<HTMLSelectElement> = (e) => {
-        if (mounted) e.showPicker();
+    onMount(() => mounted = true);
+    const select: Attachment<HTMLSelectElement> = target => {
+        if (mounted && !target.disabled) {
+            showError = false;
+            target.showPicker();
+        }
     };
 
     const onClick = () => {
@@ -39,32 +43,30 @@
         showError = true;
     };
 
-    const uid = $props.id();
+    const invalid = $derived(widget.isError(context, value) && showError);
+
+    const id = $props.id();
 </script>
 
-<div class="flex gap-1 flex-col">
-    <div class="input-group">
-        <button aria-labelledby="label-{uid}" class="input-group-text input-group-input" onclick={onClick} tabindex="-1">
-            <input bind:checked={value.checked} class="form-check-input m-0" role="button" type="checkbox" />
-        </button>
-        <label class="form-floating block" id="label-{uid}">
-            {#if value.checked}
-                <select class="form-select" value={value.chosen ?? 'notChosen'} onchange={onChange} use:Select>
-                    <option class="hidden" value='notChosen'>{t.widget.notChosen}</option>
-                    {#each widget.options(context) as moznost}
-                        <option value={moznost}>{widget.get(t, moznost)}</option>
-                    {/each}
-                </select>
-            {:else}
-                <input type="text" placeholder={labelAndStar(widget, context, t)} readonly onclick={onClick}
-                       class="form-control shadow-none input-group-text" role="button"
-                       tabindex="-1" />
-            {/if}
-            <label for="">{labelAndStar(widget, context, t)}</label>
-        </label>
-    </div>
+<Card class="w-full" size="sm">
+    <CardContent>
+        <FieldGroup>
+            <Field data-invalid={invalid} orientation="horizontal">
+                <Checkbox aria-invalid={invalid} checked={value.checked} id={id} onCheckedChange={onClick} />
 
-    {#if widget.isError(context, value) && showError}
-        <span class="text-danger">{widget.onError(t, context)}</span>
-    {/if}
-</div>
+                <FieldLabel for={id}>{labelAndStar(widget, context, t)}</FieldLabel>
+
+                {#if value.checked}
+                    <NativeSelect aria-invalid={invalid} onchange={onChange} value={value.chosen} {@attach select}>
+                        {#each widget.options(context) as option}
+                            <NativeSelectOption value={option}>{widget.get(t, option)}</NativeSelectOption>
+                        {/each}
+                    </NativeSelect>
+                {/if}
+            </Field>
+        </FieldGroup>
+        {#if invalid}
+            <FieldError>{widget.onError(t, context)}</FieldError>
+        {/if}
+    </CardContent>
+</Card>
