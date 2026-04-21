@@ -81,7 +81,7 @@ const sk: PlainTranslations = {
             batteryCapacity: `Kapacita batérií`,
             water: `Akumulácia do vody`,
             network: `Pretoky do siete`,
-            networkPower: `Pretoky do siete – rezervovaný výkon`,
+            networkPower: `Rezervovaný výkon`,
             charging: `Dobíjacia stanica – wallbox`,
         },
         system: {

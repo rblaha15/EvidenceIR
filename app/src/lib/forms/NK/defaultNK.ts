@@ -116,12 +116,12 @@ export default (): FormPlus<FormNK> => ({
         slope4: newInputWidget({ show: fve, required: false, label: t => t.nk.fve.slope(4) }),
         battery: newCheckboxWithInputWidget({
             required: false,
-            label: (t, c) => c.v.photovoltaicPowerPlant.battery.checked ? t.nk.fve.batteryCapacity : t.nk.fve.battery,
+            label: t => t.nk.fve.battery, otherLabel: t => t.nk.fve.batteryCapacity,
             show: fve,
         }),
         water: newCheckboxWidget({ show: fve, required: false, label: t => t.nk.fve.water }),
         network: newCheckboxWithInputWidget({
-            label: (t, c) => c.v.photovoltaicPowerPlant.network.checked ? t.nk.fve.networkPower : t.nk.fve.network,
+            label: t => t.nk.fve.network, otherLabel: t => t.nk.fve.networkPower,
             required: false,
             show: fve,
         }),
@@ -349,6 +349,7 @@ export default (): FormPlus<FormNK> => ({
         heatingCable: newCheckboxWithChooserWidget({
             required: false,
             label: t => t.nk.accessories.heatingCable,
+            chosen: '2,5 m',
             options: ['2,5 m', '3,5 m', '5 m'],
         }),
         wallSupportBracket: newCheckboxWithChooserWidget({
