@@ -1,6 +1,5 @@
 <script generics="C" lang="ts">
     import { Html5Qrcode } from 'html5-qrcode';
-    import { onMount } from 'svelte';
     import type { Translations } from '$lib/translations';
     import CoreInput from '$lib/components/CoreInput.svelte';
     import type { ScannerWidget } from '$lib/forms/Widget';
@@ -8,6 +7,7 @@
     import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "$lib/components/ui/dialog";
     import { buttonVariants } from '../ui/button';
     import type { Attachment } from "svelte/attachments";
+    import { InputGroupButton } from "$lib/components/ui/input-group";
 
     interface Props {
         t: Translations;
@@ -53,17 +53,19 @@
 
 {#snippet trailingContent()}
     <Dialog bind:open={showDialog}>
-        <DialogTrigger class={buttonVariants({ variant: 'outline' })} disabled={widget.lock(context)}>
-            <ScanBarcode />
-            {t.widget.scanBarcode}
+        <DialogTrigger>
+            {#snippet child({ props })}
+                <InputGroupButton {...props} disabled={widget.lock(context)}>
+                    <ScanBarcode />
+                    {t.widget.scanBarcode}
+                </InputGroupButton>
+            {/snippet}
         </DialogTrigger>
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>{t.widget.scanCode}</DialogTitle>
             </DialogHeader>
-            <div class="flex justify-content-center">
-                <div class="w-full" id="reader" {@attach reader}></div>
-            </div>
+            <div class="*:[video]:rounded-2xl" id="reader" {@attach reader}></div>
             <DialogFooter>
                 <DialogClose class={buttonVariants({ variant: 'destructive' })}>{t.widget.cancel}</DialogClose>
             </DialogFooter>

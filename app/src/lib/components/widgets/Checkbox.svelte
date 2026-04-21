@@ -27,7 +27,7 @@
     const invalid = $derived(widget.isError(context, value) && showError);
 </script>
 
-<FieldLabel for={id} class="min-w-field">
+<FieldLabel for={id}>
     <Field data-invalid={invalid} orientation="horizontal">
         <Checkbox aria-invalid={invalid} checked={value} disabled={widget.lock(context)} {id} {onCheckedChange} />
         <FieldContent>

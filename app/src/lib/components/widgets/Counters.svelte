@@ -36,7 +36,7 @@
     const invalid = $derived(widget.isError(context, value) && showError);
 </script>
 
-<Card class="min-w-field" size="sm">
+<Card class="w-full" size="sm">
     <CardContent>
         <FieldSet>
             <FieldLegend data-invalid={invalid}>{widget.label(t, context)}</FieldLegend>

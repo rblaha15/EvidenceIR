@@ -7,8 +7,11 @@
 		ref = $bindable(null),
 		value = $bindable(),
 		class: className,
+		onInput,
 		...props
-	}: ComponentProps<typeof Input> = $props();
+	}: ComponentProps<typeof Input> & {
+		onInput?: (text: string) => void;
+	} = $props();
 </script>
 
 <Input
@@ -16,5 +19,6 @@
 	data-slot="input-group-control"
 	class={cn("rounded-none border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 aria-invalid:ring-0 dark:bg-transparent flex-1", className)}
 	bind:value
+	oninput={e => onInput?.(e.currentTarget.value)}
 	{...props}
 />

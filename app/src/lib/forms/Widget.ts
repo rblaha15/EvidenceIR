@@ -7,6 +7,7 @@ import type { Form, Values } from '$lib/forms/Form';
 import type { Component } from "svelte";
 import type { LucideProps } from "@lucide/svelte";
 import type { ButtonSize, ButtonVariant } from "$lib/components/ui/button";
+import type { MaskOptions } from "$lib/components/ui/input-group";
 
 export type GetB<C> = Get<C, boolean>;
 export type GetBOrVal<C> = GetOrVal<C, boolean>;
@@ -33,13 +34,6 @@ const toGetA = <C, U>(getAOrValue: GetOrVal<C, U>) =>
     getAOrValue instanceof Function ? getAOrValue : () => getAOrValue;
 const toGetT = <C, U>(getTOrValue: GetTOrVal<C, U>) =>
     getTOrValue instanceof Function ? getTOrValue : () => getTOrValue;
-
-type Opts = {
-    mask: string;
-    definitions?: {
-        [key: string]: RegExp;
-    };
-} | undefined;
 
 export const STAR = '∗';
 
@@ -198,7 +192,7 @@ type BaseInputArgs<C> = {
 type AdvancedInputArgs<C> = {
     textArea?: GetBOrVal<C>;
     compact?: GetBOrVal<C>;
-    maskOptions?: GetOrVal<C, Opts>;
+    maskOptions?: GetOrVal<C, MaskOptions | undefined>;
     autocomplete?: GetOrVal<C, FullAutoFill>;
     capitalize?: GetBOrVal<C>;
     placeholder?: GetTOrVal<C>;
@@ -261,7 +255,7 @@ export type AdvancedInput<C> = {
     textArea: GetB<C>;
     compact: GetB<C>;
     autocomplete: Get<C, FullAutoFill>;
-    maskOptions: Get<C, Opts>;
+    maskOptions: Get<C, MaskOptions | undefined>;
     capitalize: GetB<C>;
     placeholder: GetT<C>;
     suffix: GetTU<C>;

@@ -3,7 +3,6 @@
     import type { ChangeEventHandler } from 'svelte/elements';
     import { untrack } from 'svelte';
     import { type Arr, type ChooserWidget, labelAndStar } from '$lib/forms/Widget';
-    import { Label } from "$lib/components/ui/label";
     import { NativeSelect, NativeSelectOption } from "$lib/components/ui/native-select";
     import { Field, FieldError, FieldGroup, FieldLabel } from "$lib/components/ui/field";
     import { Card, CardContent } from "$lib/components/ui/card";
@@ -54,7 +53,7 @@
     const id = $props.id();
 </script>
 
-<Card class="min-w-field" size="sm">
+<Card class="w-full" size="sm">
     <CardContent>
         <FieldGroup>
             <Field data-invalid={invalid} orientation={widget.compact(context) ? 'horizontal' : 'responsive'}>

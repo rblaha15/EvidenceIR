@@ -40,7 +40,7 @@
     const id = $props.id();
 </script>
 
-<Card size="sm" class="min-w-field">
+<Card class="w-full" size="sm">
     <CardContent>
         <FieldSet>
             <FieldLegend data-invalid={invalid} variant="label">{labelAndStar(widget, context, t)}</FieldLegend>

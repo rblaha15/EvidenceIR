@@ -2,6 +2,7 @@ import Root from "./input-group.svelte";
 import Addon from "./input-group-addon.svelte";
 import Button from "./input-group-button.svelte";
 import Input from "./input-group-input.svelte";
+import InputMasked, { type MaskOptions } from "./input-group-input-masked.svelte";
 import Text from "./input-group-text.svelte";
 import Textarea from "./input-group-textarea.svelte";
 
@@ -10,6 +11,7 @@ export {
 	Addon,
 	Button,
 	Input,
+	InputMasked,
 	Text,
 	Textarea,
 	//
@@ -17,6 +19,11 @@ export {
 	Addon as InputGroupAddon,
 	Button as InputGroupButton,
 	Input as InputGroupInput,
+	InputMasked as InputGroupInputMasked,
 	Text as InputGroupText,
 	Textarea as InputGroupTextarea,
+};
+
+export type {
+	MaskOptions,
 };
