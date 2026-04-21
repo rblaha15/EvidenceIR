@@ -5,6 +5,8 @@
     import { derived, writable } from 'svelte/store';
     import { labelAndStar, type SearchWidget } from '$lib/forms/Widget';
     import { Eraser, Search } from "@lucide/svelte";
+    import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "$lib/components/ui/input-group";
+    import { Field, FieldError, FieldLabel } from "$lib/components/ui/field";
 
     export const textToFilter = (s: string) => s
         .normalize('NFD')
@@ -30,7 +32,7 @@
     let search = writable('');
 
     $effect(() => {
-        $search = value ? widget.getSearchItem(value, t, context).pieces[0].text : '';
+        $search = value ? widget.getSearchItem(value, t, context).pieces.filter(p => !p.notForSearchText).map(p => p.text).join(' ') : '';
     });
 
     const original = widget.items(t, context);
@@ -59,61 +61,97 @@
             ),
         ) ?? []);
 
-    let hidden = $state(true);
+    let focused = $state(false);
     let hideRequest = $state(false);
     const hide = () => {
         hideRequest = true;
         setTimeout(() => {
             if (!hideRequest) return;
             hideRequest = false;
-            hidden = true;
+            focused = false;
         }, 100);
     };
     const show = () => {
         hideRequest = false;
-        hidden = false;
+        focused = true;
     };
     const onClick = () => {
         value = null;
         widget.onValueSet(context, null);
         showError = true;
         hideRequest = false;
-        hidden = true;
+        focused = false;
     };
 
     const wide = browser ? window.matchMedia('(min-width: 768px)').matches : false;
+
+    const invalid = $derived(widget.isError(context, value) && showError);
+
+    const showAbove = $derived(!widget.inline(context));
+
+    const id = $props.id();
 </script>
 
-<div class={["flex gap-1 flex-col", klass]}>
-    <div class="position-relative" onfocusin={show} onfocusout={hide}>
-        <label class="form-floating block">
-            <input
-                autofocus={widget.inline(context)}
-                class="form-control border ps-4 bi"
-                class:border-bottom-0={(!hidden && $filtered != null) || value}
-                class:rb-0={(!hidden && $filtered != null)}
-                oninput={e => $search = e.currentTarget.value}
-                placeholder=" "
-                type={widget.type(context)}
-                value={hidden ? value ? ' ' : '' : $search}
-            />
-            <label for="">
-                <Search />
-                {labelAndStar(widget, context, t)}
-            </label>
-            <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" class:hidden={!value} onclick={onClick}>
-                <Eraser />
-            </button>
-        </label>
+<div class="flex flex-col gap-1 w-full">
+    <div class="relative" onfocusin={show} onfocusout={hide}>
+        <Field class="w-auto" data-invalid={invalid} orientation="vertical">
+            {#if widget.label(t, context)}
+                <FieldLabel class="grow-0!" for="input-{id}">
+                    <Search /> {labelAndStar(widget, context, t)}
+                </FieldLabel>
+            {/if}
+            <InputGroup class={["grow border-input! ring-0! rounded-2xl relative", {
+                'rounded-b-none': focused && $filtered != null,
+            }]}>
+                <InputGroupAddon align="inline-start">
+                    <Search />
+                </InputGroupAddon>
+                <InputGroupInput
+                    autofocus={widget.inline(context)}
+                    oninput={e => $search = e.currentTarget.value}
+                    type={widget.type(context)}
+                    value={focused ? $search : value ? ' ' : ''}
+                />
+                {#if value}
+                    <InputGroupAddon align="inline-end">
+                        <InputGroupButton size="icon-sm" onclick={onClick}>
+                            <Eraser />
+                            <span class="sr-only">{t.widget.clearSelection}</span>
+                        </InputGroupButton>
+                    </InputGroupAddon>
+                {/if}
 
-        {#if !hidden}
-            <div class="list-group z-4 w-full overflow-y-auto shadow-lg mb-2" class:options={!widget.inline(context)}>
-                {#each $filtered as item, i}
+                {#if value && !focused}
+                    {@const searchItem = widget.getSearchItem(value, t, context)}
+                    <div class="w-full text-base md:text-sm
+                        absolute selected z-2 py-1.25 md:py-1.75 pointer-events-none top-0 h-9 pl-8.5 pr-14">
+                        <div
+                            class="flex flex-col md:flex-row md:items-center"
+                        >
+                            {#each searchItem.pieces as piece, j}
+                                <p class={['hidden first:flex md:flex items-center gap-1 whitespace-nowrap overflow-hidden first:text-ellipsis', piece.class]}
+                                   style="width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
+                                >
+                                    <piece.icon class={[{ 'text-destructive': piece.destructive, 'text-warning': piece.warning }, 'size-4']} />
+                                    {piece.text}
+                                </p>
+                            {/each}
+                        </div>
+                    </div>
+                {/if}
+            </InputGroup>
+        </Field>
+
+        {#if focused && $filtered != null}
+            <div class="w-full text-base md:text-sm
+                z-4 overflow-y-auto shadow-lg mb-2 border-t-0 bg-searchbox border-input rounded-2xl border rounded-t-none
+                data-[above=true]:max-h-[90vh] data-[above=true]:absolute
+            " data-above={showAbove}>
+                {#each $filtered as item}
                     {@const searchItem = widget.getSearchItem(item, t, context)}
                     <a
                         tabindex="0"
-                        class="list-group-item-action list-group-item flex flex-col md:flex-row flex-row md:items-center"
-                        class:rt-0={i === 0}
+                        class="flex flex-col md:flex-row md:items-center py-2 min-h-5 border-b border-input pl-8.5 pr-3 md:pr-14"
                         href={searchItem.href ?? '#'}
                         class:disabled={searchItem.disabled}
                         aria-disabled={searchItem.disabled}
@@ -122,79 +160,33 @@
                             value = item;
                             widget.onValueSet(context, item);
                             showError = true;
-                            hidden = true;
+                            focused = false;
                         }}
                     >
                         {#each searchItem.pieces as piece}
-                            <p class={['mb-0 md:w-full', `text-${piece.color}`, piece.class]}
-                               style="flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
+                            <p class={['flex gap-1 items-center', piece.class]}
+                               style="width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
                             >
-                                <piece.icon class="text-{piece.iconColor}" />
+                                <piece.icon class={[{ 'text-destructive': piece.destructive, 'text-warning': piece.warning }, 'size-4']} />
                                 {piece.text}
                             </p>
                         {/each}
                     </a>
                 {:else}
-                    {#if $filtered != null}
-                        <p class="rt-0 list-group-item-action list-group-item mb-0 disabled">Nenalezeno</p>
-                    {/if}
+                    <div class="h-9 pl-8.5 pr-3 md:pr-14 flex flex-row items-center">Nenalezeno</div>
                 {/each}
-            </div>
-        {/if}
-
-        {#if value && hidden}
-            {@const searchItem = widget.getSearchItem(value, t, context)}
-            <div class="list-group w-full z-2 selected" class:options={!widget.inline(context)}>
-                <div
-                    class="list-group-item-action list-group-item flex flex-col md:flex-row md:items-center rt-0"
-                >
-                    {#each searchItem.pieces as piece, j}
-                        <p class={['mb-0 me-1 md:block', `text-${piece.color}`, piece.class, { 'hidden': j !== 0 }]}
-                           style="color: var(--bs-body-color); flex: none; width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
-                        >
-                            <piece.icon class="text-{piece.iconColor}" />
-                            {piece.text}
-                        </p>
-                    {/each}
-                </div>
             </div>
         {/if}
     </div>
 
-    {#if widget.isError(context, value) && showError}
-        <span class="text-danger">{widget.onError(t, context)}</span>
+    {#if invalid}
+        <FieldError>{widget.onError(t, context)}</FieldError>
     {/if}
 </div>
 
 <style>
-    .form-floating > button {
-        position: absolute;
-        right: var(--bs-border-width);
-        top: calc(50% - var(--bs-body-font-size));
-    }
-
-    .rb-0 {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-
-    .rt-0 {
-        border-top-left-radius: 0 !important;
-        border-top-right-radius: 0 !important;
-    }
-
-    .form-control:focus {
-        box-shadow: none;
-    }
-
     .selected {
-        transform: translateY(calc(-100% + 1px));
-        pointer-events: none;
-
         div {
-            background: none;
-            border-top: none;
-
             p {
                 white-space: nowrap;
                 overflow: hidden;
@@ -204,10 +196,5 @@
                 text-overflow: ellipsis;
             }
         }
-    }
-
-    .options {
-        max-height: 90vh;
-        position: absolute;
     }
 </style>

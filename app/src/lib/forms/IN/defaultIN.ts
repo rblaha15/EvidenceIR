@@ -139,7 +139,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         _title: newTitleWidget<C>({ text: (t, c) => jeFO(c) ? t.in.residence : t.in.headquarters, level: 3 }),
         search: newSearchWidget({
             label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
-                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }],
+                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1, notForSearchText: true }, { text: i.city, width: .4 }],
             }), search: ruian.suggest, onValueSet: (c, a) => {
                 c.v.bydliste.ulice = a?.house ?? '';
                 c.v.bydliste.psc = a?.postalCode ?? '';
@@ -174,7 +174,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         }),
         search: newSearchWidget({
             label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
-                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1 }, { text: i.city, width: .4 }],
+                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1, notForSearchText: true }, { text: i.city, width: .4 }],
             }), search: ruian.suggest, onValueSet: (c, a) => {
                 c.v.mistoRealizace.ulice = a?.house ?? '';
                 c.v.mistoRealizace.psc = a?.postalCode ?? '';

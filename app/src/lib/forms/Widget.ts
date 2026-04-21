@@ -97,9 +97,10 @@ export type SearchItemPiece = {
     readonly text: string,
     readonly width?: number,
     readonly icon?: Component<LucideProps>,
-    readonly color?: Color,
     readonly class?: ClassValue,
-    readonly iconColor?: Color,
+    readonly destructive?: boolean,
+    readonly warning?: boolean,
+    readonly notForSearchText?: boolean;
 };
 export type SearchItem = {
     readonly pieces: SearchItemPiece[],
