@@ -91,7 +91,9 @@
 
     $effect(() => {
         setUserId(analytics(), $userInfo?.uid || null);
-    })
+    });
+
+    const showTOC = $derived(page.route.id?.includes('[form=form]') && !page.error);
 </script>
 
 <svelte:window onunhandledrejection={handleError} />
@@ -133,8 +135,8 @@
             ></div>
         </div>
         <div class="overflow-y-auto [scrollbar-gutter:stable]">
-            <main class="container mx-auto px-4 flex gap-4">
-                <div class="mt-4 flex flex-col gap-4 w-full">
+            <main class="px-4 md:px-8 flex gap-4 w-full">
+                <div class="mt-4 flex flex-col gap-4 w-full has-[+.toc]:max-w-2xl">
                     <h1 id="main-title" class="m-0 flex items-center gap-4">
                         {#if $backButton}
                             <Button size="icon" variant="ghost" onclick={() => history.back()}>
@@ -145,9 +147,9 @@
                     </h1>
                     {@render children?.()}
                 </div>
-                {#if page.route.id?.includes('[form=form]') && !page.error}
+                {#if showTOC}
                     {#key page.url.pathname + page.url.search}
-                        <div class="hidden md:block position-sticky top-0 pt-4 inset-e-0 h-full toc">
+                        <div class="hidden md:block sticky top-0 pt-4 inset-e-0 h-full toc">
                             <TableOfContents {t} />
                         </div>
                     {/key}

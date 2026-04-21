@@ -22,11 +22,11 @@
         showError = true;
     };
 
-    const uid = $props.id();
+    const id = $props.id();
 </script>
 
 {#snippet leadingContent()}
-    <button class="input-group-text input-group-input" onclick={onClick} aria-labelledby="label-{uid}" tabindex="-1">
+    <button class="input-group-text input-group-input" onclick={onClick} aria-labelledby="label-{id}" tabindex="-1">
         <input class="form-check-input m-0" type="checkbox" role="button" disabled={widget.lock(context)} checked={value.checked} onclick={onClick} />
     </button>
 {/snippet}
@@ -42,6 +42,6 @@
 {/snippet}
 
 <CoreInput
-    bind:value {widget} {context} setTextValue={text => ({ ...value, text })} {t} textValue={value.text} {uid} bind:showError
+    bind:value {widget} {context} setTextValue={text => ({ ...value, text })} {t} textValue={value.text} {id} bind:showError
     {leadingContent} {coreContent}
 />

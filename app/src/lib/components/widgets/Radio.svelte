@@ -34,7 +34,7 @@
     const id = $props.id();
 </script>
 
-<Card size="sm" class="relative min-w-field">
+<Card class="w-full relative" size="sm">
     {#if !widget.required(context)}
         <Button variant="ghost" size="icon" onclick={() => chosen.value = ''}
                 class="absolute right-2 top-2">

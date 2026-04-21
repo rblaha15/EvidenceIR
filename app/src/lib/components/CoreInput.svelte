@@ -1,19 +1,19 @@
 <script generics="C, U" lang="ts">
     import type { Translations } from '$lib/translations';
-    import {
-        type AdvancedInput,
-        type BaseInput,
-        type BaseWidget,
-        labelAndStar,
-        type Lock,
-        type Required,
-        type WidgetType,
-    } from '$lib/forms/Widget';
-    import IMask, { InputMask } from 'imask';
-    import { onDestroy, onMount, type Snippet, untrack } from 'svelte';
+    import { type AdvancedInput, type BaseInput, type BaseWidget, labelAndStar, type Lock, type Required, type WidgetType, } from '$lib/forms/Widget';
+    import { type ComponentProps, type Snippet } from 'svelte';
     import { readable } from 'svelte/store';
-    import type { ClassValue } from 'svelte/elements';
     import { Eraser } from '@lucide/svelte';
+    import {
+        InputGroup,
+        InputGroupAddon,
+        InputGroupButton,
+        InputGroupInput,
+        InputGroupInputMasked,
+        InputGroupText,
+        InputGroupTextarea
+    } from "$lib/components/ui/input-group";
+    import { Field, FieldError, FieldGroup, FieldLabel } from "$lib/components/ui/field";
 
     type GenericInputWidget<C, U> = BaseWidget<C, U> & BaseInput<C> & ({
         textArea?: undefined;
@@ -37,89 +37,53 @@
         leadingContent?: Snippet;
         coreContent?: Snippet<[Snippet]>;
         trailingContent?: Snippet;
-        uid?: string;
-        labelClass?: ClassValue;
+        id?: string;
     }
 
     const defaultId = $props.id();
 
     let {
         t, widget, value: widgetValue = $bindable(), context, textValue: value, setTextValue, showError = $bindable(),
-        leadingContent, coreContent = defaultCore, trailingContent, uid = defaultId, labelClass,
+        leadingContent, coreContent = defaultCore, trailingContent, id = defaultId,
     }: Props = $props();
-
-    type MyOpts = {
-        lazy: boolean;
-        overwrite: boolean;
-        mask: string;
-        definitions: {
-            [key: string]: RegExp;
-        };
-        value?: string;
-    };
 
     const suggestions = $derived(widget.suggestions?.(t, context) ?? readable([]));
 
     const maybeCapitalized = (value: string, widget: GenericInputWidget<C, U>): string =>
         widget.capitalize?.(context) ? value.toUpperCase() : value;
 
-    let input = $state<HTMLInputElement>();
-    let textarea = $state<HTMLTextAreaElement>();
-    let mask = $state<InputMask<MyOpts>>();
-
-    let opts = $derived(widget.maskOptions?.(context));
-
-    let options = $derived(
-        !opts
-            ? undefined
-            : ({
-                lazy: true,
-                overwrite: true,
-                ...opts,
-            } as MyOpts),
-    );
-
-    const setValueAndUpdate = (text: string) => {
+    const onInput = (text: string) => {
         const newValue = setTextValue(maybeCapitalized(text, widget));
         widgetValue = newValue;
         widget.onValueSet(context, newValue);
     };
 
-    onMount(() => {
-        if (options != undefined && input != undefined) {
-            mask = IMask(input, options);
-            mask.value = value;
-            mask.on('accept', () => setValueAndUpdate(mask!.value));
-        }
-    });
+    const options = $derived(widget.maskOptions?.(context));
 
-    onDestroy(() => {
-        mask = undefined;
-    });
-
-    $effect.pre(() => {
-        mask?.updateValue();
-    });
-
-    $effect(() => {
-        if (opts != undefined) mask?.updateOptions(opts);
-    });
-
-    $effect(() => {
-        value;
-        untrack(() => {
-            if (mask) mask.value = value;
-        });
-    });
-    const onClick = () => {
-        setValueAndUpdate('');
+    const clear = () => {
+        onInput('');
         showError = true;
     };
-    const placeholder = $derived(
-        widget.compact?.(context)
-            ? widget.placeholder?.(t, context)
-            : widget.placeholder?.(t, context) || labelAndStar(widget, context, t),
-    );
+
+    const invalid = $derived(widget.isError(context, widgetValue) && showError);
+
+    const commonProps = $derived({
+        autocomplete: widget.autocomplete?.(context),
+        inputmode: widget.inputmode(context),
+        enterkeyhint: widget.enterkeyhint(context),
+        autocapitalize: widget.autocapitalize(context),
+        placeholder: widget.placeholder?.(t, context),
+        id: `input-${id}`,
+        value,
+        onInput,
+        onblur: () => showError = true,
+        disabled: widget.lock(context),
+        'aria-invalid': invalid,
+    } satisfies Partial<ComponentProps<typeof InputGroupTextarea & typeof InputGroupInput & typeof InputGroupInputMasked>>);
+    const commonInputProps = $derived({
+        list: `suggestions-${id}`,
+        type: widget.type(context),
+    } satisfies Partial<ComponentProps<typeof InputGroupInput & typeof InputGroupInputMasked>>);
 </script>
 
 {#snippet defaultCore(field: Snippet)}
@@ -128,121 +92,65 @@
 
 {#snippet field()}
     {#if widget.textArea?.(context)}
-        <textarea
-            id="input-{uid}"
-            autocomplete={widget.autocomplete(context)}
-            inputmode={widget.inputmode(context)}
-            enterkeyhint={widget.enterkeyhint(context)}
-            autocapitalize={widget.autocapitalize(context)}
-            placeholder={placeholder}
-            class={['form-control', "lh-base"]}
-            bind:this={textarea}
-            {value}
-            oninput={() => {
-                if (textarea) setValueAndUpdate(textarea.value);
-            }}
-            onblur={() => showError = true}
-            disabled={widget.lock(context)}
-            style="height: 150px"
-        ></textarea>
+        <InputGroupTextarea
+            class="resize-y min-h-36 grow"
+            {...commonProps}
+        />
     {:else if options !== undefined}
-        <input
-            id="input-{uid}"
-            list="suggestions-{uid}"
-            type={widget.type(context)}
-            inputmode={widget.inputmode(context)}
-            enterkeyhint={widget.enterkeyhint(context)}
-            autocapitalize={widget.autocapitalize(context)}
-            autocomplete={widget.autocomplete?.(context)}
-            placeholder={placeholder}
-            class="form-control"
-            bind:this={input}
-            onblur={() => showError = true}
-            disabled={widget.lock(context)}
+        <InputGroupInputMasked
+            class="grow"
+            {options}
+            {...commonProps}
+            {...commonInputProps}
         />
     {:else}
-        <input
-            id="input-{uid}"
-            list="suggestions-{uid}"
-            type={widget.type(context)}
-            inputmode={widget.inputmode(context)}
-            enterkeyhint={widget.enterkeyhint(context)}
-            autocapitalize={widget.autocapitalize(context)}
-            autocomplete={widget.autocomplete?.(context)}
-            placeholder={placeholder}
-            class="form-control"
-            bind:this={input}
-            value={value}
-            oninput={() => {
-                if (input) setValueAndUpdate(input.value);
-            }}
-            onblur={() => showError = true}
-            disabled={widget.lock(context)}
+        <InputGroupInput
+            class="grow"
+            {...commonProps}
+            {...commonInputProps}
         />
+    {/if}
+    {#if $suggestions.length}
+        <datalist id="suggestions-{id}">
+            {#each $suggestions as suggestion}
+                <option value={suggestion}>{suggestion}</option>
+            {/each}
+        </datalist>
     {/if}
 {/snippet}
 
-<div class="flex gap-1 flex-col">
-    <div class="input-group">
-        {#if widget.compact?.(context)}
+<div class="flex flex-col gap-1 w-full">
+    <FieldGroup>
+        <Field class="w-auto" data-invalid={invalid} orientation="responsive">
             {#if widget.label(t, context)}
-                <label for="input-{uid}" id="label-{uid}" class="input-group-text">{labelAndStar(widget, context, t)}</label>
+                <FieldLabel class="grow-0!" for="input-{id}">{labelAndStar(widget, context, t)}</FieldLabel>
             {/if}
-            {@render leadingContent?.()}
-            {@render coreContent(field)}
-            {#if $suggestions.length}
-                <datalist id="suggestions-{uid}">
-                    {#each $suggestions as suggestion}
-                        <option value={suggestion}>{suggestion}</option>
-                    {/each}
-                </datalist>
-            {/if}
-            {#if value && widget.type(context) === 'date' && !widget.required(context)}
-                <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" onclick={onClick}>
-                    <Eraser />
-                </button>
-            {/if}
-        {:else}
-            <div class={['block', {'form-floating': !widget.placeholder?.(t, context)}, labelClass]}>
-                {@render leadingContent?.()}
+            <InputGroup class="grow">
+                {#if leadingContent}
+                    <InputGroupAddon align="inline-start">
+                        {@render leadingContent()}
+                    </InputGroupAddon>
+                {/if}
                 {@render coreContent(field)}
+                {#if widget.suffix?.(t, context) || trailingContent || value && widget.type(context) === 'date' && !widget.required(context)}
+                    <InputGroupAddon align="inline-end">
+                        {#if widget.suffix?.(t, context)}
+                            <InputGroupText class="text-foreground">{widget.suffix(t, context) ?? ''}</InputGroupText>
+                        {/if}
+                        {#if value && widget.type(context) === 'date' && !widget.required(context)}
+                            <InputGroupButton size="icon-sm" onclick={clear}>
+                                <Eraser />
+                                <span class="sr-only">{t.widget.clearSelection}</span>
+                            </InputGroupButton>
+                        {/if}
+                        {@render trailingContent?.()}
+                    </InputGroupAddon>
+                {/if}
+            </InputGroup>
+        </Field>
+    </FieldGroup>
 
-                {#if widget.label(t, context)}
-                    <label for="input-{uid}" id="label-{uid}">{labelAndStar(widget, context, t)}</label>
-                {/if}
-                {#if $suggestions.length}
-                    <datalist id="suggestions-{uid}">
-                        {#each $suggestions as suggestion}
-                            <option value={suggestion}>{suggestion}</option>
-                        {/each}
-                    </datalist>
-                {/if}
-                {#if value && widget.type(context) === 'date' && !widget.required(context)}
-                    <button aria-label={t.widget.clearSelection} class="btn py-1 px-2 m-1" onclick={onClick}>
-                        <Eraser />
-                    </button>
-                {/if}
-            </div>
-        {/if}
-        {#if widget.suffix?.(t, context)}
-            <span class="input-group-text text-nowrap">{widget.suffix(t, context) ?? ''}</span>
-        {/if}
-        {@render trailingContent?.()}
-    </div>
-
-    {#if widget.isError(context, widgetValue) && showError}
-        <span class="text-danger">{widget.onError(t, context)}</span>
+    {#if invalid}
+        <FieldError>{widget.onError(t, context)}</FieldError>
     {/if}
 </div>
-
-<style>
-    .form-floating > button {
-        position: absolute;
-        right: calc(var(--bs-border-width) + 2rem);
-        top: calc(50% - var(--bs-body-font-size));
-    }
-
-    textarea.form-control, input.form-control {
-        min-width: 5em;
-    }
-</style>

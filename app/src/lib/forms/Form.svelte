@@ -202,7 +202,7 @@
         ...pdfImport, onImport: onImportPdf, isDangerous, defaultData: () => valuesToRawData(form, defaultValues(form))
     } : undefined} store={storedData} {t} title={title(t, mode, other)}
                 showBackButton={mode === 'view' || !$buttonsStore.hideBack} />
-    <div class="flex flex-col gap-4 items-start">
+    <div class="flex flex-col gap-4 items-start w-full">
         {#each list as item}
             {#if mode === 'view'}
                 <ReadonlyWidget widget={item.widget} value={item.value} {t} {context} />
