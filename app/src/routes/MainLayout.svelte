@@ -141,7 +141,8 @@
                     <h1 id="main-title" class="m-0 flex items-center gap-4">
                         {#if $backButton}
                             <Button size="icon" variant="ghost" onclick={() => history.back()}>
-                                <ArrowLeft class="size-8" /> <span class="sr-only">{t.nav.back}</span>
+                                <ArrowLeft class="size-8" />
+                                <span class="sr-only">{t.nav.back}</span>
                             </Button>
                         {/if}
                         {$title}
@@ -150,7 +151,7 @@
                 </div>
                 {#if showTOC}
                     {#key page.url.pathname + page.url.search}
-                        <div class="hidden md:block sticky top-0 pt-4 inset-e-0 h-full toc">
+                        <div class="hidden md:block sticky top-0 pt-4 h-full toc w-96">
                             <TableOfContents {t} />
                         </div>
                     {/key}

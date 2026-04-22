@@ -7,7 +7,7 @@
 
     const { t, onclick }: { t: Translations, onclick?: () => void } = $props();
 
-    type T = { id: string, text: string, level: number, element: HTMLHeadingElement }
+    type T = { id: string, text: string, level: number, elementTop: number, elementBottom: number }
     type A = (T | A)[];
 
     function groupNested(list: T[]): A {
@@ -47,42 +47,59 @@
     }
 
     let headerElements = $state<HTMLHeadingElement[]>([]);
-    let currentSection = $state<string>();
-    let main: HTMLElement;
+    let main = $state<HTMLElement>();
+    let nav = $state<HTMLElement>();
 
     const sections = $derived(headerElements.map(element => {
         const text = element.childNodes.values().toArray().filter(n => n.nodeType === Node.TEXT_NODE).map(n => n.textContent).join(' ').trim();
         const level = Number(element.tagName.slice(1));
         const id = parseTitleId(text);
 
-        return { id, text, level, element };
+        return {
+            id, text, level,
+            elementTop: element.offsetTop, elementBottom: element.offsetTop + element.offsetHeight,
+        };
     }));
-    const sectionOffset = $derived(headerElements[0]?.offsetTop ?? 0);
+
+    let scrollOffset = $state<number>(0);
+    const top = $derived(scrollOffset + (nav?.offsetHeight ?? 0));
+    const bottom = $derived(scrollOffset + (main?.offsetHeight ?? 0));
+    const first = $derived(
+        sections.findIndex(({ elementTop }) => top <= elementTop)
+    );
+    const last = $derived(
+        sections.findLastIndex(({ elementBottom }) => elementBottom <= bottom)
+    );
+    const currentSections = $derived(
+        sections.slice(Math.max(0, first - 1), last + 1).map(({ id }) => id)
+    );
 
     onMount(() => {
         main = document.querySelector('main')!.parentNode! as HTMLElement;
+        nav = document.querySelector('nav')!;
 
-        const calculateCurrent = () => {
-            currentSection = sections.findLast(
-                ({ element }) => main.scrollTop >= element.offsetTop - sectionOffset,
-            )?.id;
-        };
+        scrollOffset = main!.scrollTop;
 
         registerTOC(() => {
             headerElements = [...main!.querySelectorAll<HTMLHeadingElement>('h1, h2, h3, h4, h5, h6').values()]
                 .filter(e =>
                     e.checkVisibility() &&
-                    !e.classList.contains('toc-title') &&
-                    !e.classList.contains('modal-title') &&
+                    e.id !== 'toc-title' &&
                     e.id !== 'main-title' &&
                     e.id !== 'form-subtitle',
                 );
-            calculateCurrent();
         });
         refreshTOC();
 
+        let ready = true;
         main.addEventListener('scroll', () => {
-            calculateCurrent();
+            if (ready) {
+                ready = false;
+                setTimeout(() => {
+                    scrollOffset = main!.scrollTop;
+                    ready = true;
+                }, 100);
+            }
         });
     });
 </script>
@@ -91,27 +108,31 @@
     <li>
         <a
             href="#{item.id}"
-            class={{active: item.id === currentSection}}
             data-sveltekit-replacestate="true"
+            data-active={currentSections.includes(item.id)}
+            class="block py-0.5 pl-3 border-l-2 border-l-transparent
+                hover:border-l-toc data-[active=true]:border-l-toc
+                hover:text-toc data-[active=true]:text-toc
+                data-[active=true]:font-medium"
             onclick={e => {
-                e.preventDefault()
+                e.preventDefault();
                 onclick?.();
-                replaceState(new URL(page.url).also(u => u.hash = `#${item.id}`).toString(), {})
-                const anchor = document.getElementById(item.id)
-                if (anchor) main.scrollTo({
-                    top: anchor.offsetTop - sectionOffset,
+                replaceState(new URL(page.url).also(u => u.hash = `#${item.id}`).toString(), {});
+                const anchor = document.getElementById(item.id);
+                if (anchor) main?.scrollTo({
+                    top: anchor.offsetTop - (nav?.offsetHeight ?? 0) + 1,
                     behavior: 'smooth',
-                })
+                });
             }}
         >{item.text}</a>
     </li>
 {/snippet}
 
-{#snippet nav(items: A)}
-    <ul>
+{#snippet links(items: A)}
+    <ul class="in-[ul]:pl-4">
         {#each items as item}
             {#if Array.isArray(item)}
-                {@render nav(item)}
+                {@render links(item)}
             {:else}
                 {@render header(item)}
             {/if}
@@ -120,8 +141,8 @@
 {/snippet}
 
 {#if sections.length}
-    <h4 class="toc-title">{t.form.toc.title}</h4>
+    <h4 id="toc-title">{t.form.toc.title}</h4>
     <nav>
-        {@render nav(groupNested(sections))}
+        {@render links(groupNested(sections))}
     </nav>
 {/if}
