@@ -4,27 +4,30 @@
     import { CloudAlert, Database, History, Mail } from '@lucide/svelte';
     import { buttonVariants } from "$lib/components/ui/button";
     import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "$lib/components/ui/dialog";
+    import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "$lib/components/ui/item";
 
     const { t }: { t: Translations } = $props();
     const th = $derived(t.nav.history)
 </script>
 
 {#snippet changes(list: DisplayableHistoryEntry[])}
-    <ul class="list-group list-group-flush list-group">
+    <div class="flex flex-col">
         {#each list as entry}
-            <li class="list-group-item flex flex-col gap-1 px-0">
-                <span class="">{entry.datetime}</span>
-                <div class="flex gap-4 items-center">
+            <Item>
+                <ItemMedia variant="icon">
                     {#if entry.type === 'database'}
-                        <Database size={48} />
+                        <Database />
                     {:else}
-                        <Mail size={48} />
+                        <Mail />
                     {/if}
-                    <span class="grow">{entry.subject(t)}</span>
-                </div>
-            </li>
+                </ItemMedia>
+                <ItemContent>
+                    <ItemTitle>{entry.subject(t)}</ItemTitle>
+                    <ItemDescription>{entry.datetime}</ItemDescription>
+                </ItemContent>
+            </Item>
         {/each}
-    </ul>
+    </div>
 {/snippet}
 
 <Dialog>
