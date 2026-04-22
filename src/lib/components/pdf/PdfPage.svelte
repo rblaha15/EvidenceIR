@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { RenderTask } from 'pdfjs-dist';
+    import '@ungap/with-resolvers';
 
     const {
         pdf, pageNumber,
