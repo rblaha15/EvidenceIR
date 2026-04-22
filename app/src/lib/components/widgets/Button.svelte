@@ -20,6 +20,8 @@
     size={widget.size(context)}
     onclick={() => widget.onClick(context)}
 >
-    <Icon />
+    {#if Icon}
+        <Icon />
+    {/if}
     {widget.text(t, context)}
 </Button>
