@@ -17,6 +17,7 @@
     import { Button } from '$lib/components/ui/button';
     import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
     import { Separator } from "$lib/components/ui/separator";
+    import { Spinner } from "$lib/components/ui/spinner";
 
     interface Props {
         data: LayoutData;
@@ -103,7 +104,7 @@
 </svelte:head>
 
 {#snippet loading()}
-    <div class="spinner-border text-danger m-4"></div>
+    <Spinner class="text-destructive m-4 size-8" />
 {/snippet}
 
 {#snippet errorAlert(error: E)}

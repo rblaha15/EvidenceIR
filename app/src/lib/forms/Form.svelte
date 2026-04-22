@@ -35,6 +35,7 @@
     import { Button } from '$lib/components/ui/button';
     import { OctagonAlert, PencilRuler, Save, SendHorizontal } from "@lucide/svelte";
     import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
+    import { Spinner } from "$lib/components/ui/spinner";
 
     const { t, formInfo, editData, viewData, other }: {
         t: Translations,
@@ -212,45 +213,6 @@
         {/each}
     </div>
     <div class="flex flex-col items-start gap-4">
-        <div class="flex gap-4 flex-wrap">
-            {#if mode !== 'view'}
-                {#if !result.load && !$buttonsStore.hideSave}
-                    <Button class="mb-auto" onclick={save(false, false)}>
-                        <Save /> {t.form.save}
-                    </Button>
-                {/if}
-                {#if !result.load && $buttonsStore.saveAndSendAgain}
-                    <Button class="mb-auto" onclick={save(true, false)}>
-                        <Save />
-                        <SendHorizontal /> {t.form.saveAndSendAgain}
-                    </Button>
-                {/if}
-                {#if !result.load && $buttonsStore.saveAndSend}
-                    <Button class="mb-auto" onclick={save(true, false)}>
-                        <Save />
-                        <SendHorizontal /> {t.form.saveAndSend}
-                    </Button>
-                {/if}
-                {#if !result.load && $buttonsStore.send}
-                    <Button class="mb-auto" onclick={save(true, false)}>
-                        <SendHorizontal /> {t.form.send}
-                    </Button>
-                {/if}
-                {#if !result.load && $buttonsStore.saveAsDraft}
-                    <Button variant="secondary" class="mb-auto" onclick={save(false, true)}>
-                        <PencilRuler /> {t.form.saveAsDraft}
-                    </Button>
-                {/if}
-                {#if result.load}
-                    <div class="spinner-border text-danger" aria-label="loading"></div>
-                {/if}
-                {#if !result.load && !$buttonsStore.hideBack}
-                    <Button variant="secondary" onclick={() => history.back()}>
-                        {t.form.back}
-                    </Button>
-                {/if}
-            {/if}
-        </div>
         {#if result.text}
             <Alert variant={result.red ? 'destructive' : 'default'}>
                 <OctagonAlert />
@@ -264,5 +226,44 @@
                 {/if}
             </Alert>
         {/if}
+        <div class="flex gap-4 flex-wrap">
+            {#if mode !== 'view'}
+                {#if result.load}
+                    <Spinner />
+                {/if}
+                {#if !$buttonsStore.hideSave}
+                    <Button onclick={save(false, false)} disabled={result.load}>
+                        <Save /> {t.form.save}
+                    </Button>
+                {/if}
+                {#if $buttonsStore.saveAndSendAgain}
+                    <Button onclick={save(true, false)} disabled={result.load}>
+                        <Save />
+                        <SendHorizontal /> {t.form.saveAndSendAgain}
+                    </Button>
+                {/if}
+                {#if $buttonsStore.saveAndSend}
+                    <Button onclick={save(true, false)} disabled={result.load}>
+                        <Save />
+                        <SendHorizontal /> {t.form.saveAndSend}
+                    </Button>
+                {/if}
+                {#if $buttonsStore.send}
+                    <Button onclick={save(true, false)} disabled={result.load}>
+                        <SendHorizontal /> {t.form.send}
+                    </Button>
+                {/if}
+                {#if $buttonsStore.saveAsDraft}
+                    <Button variant="secondary" onclick={save(false, true)} disabled={result.load}>
+                        <PencilRuler /> {t.form.saveAsDraft}
+                    </Button>
+                {/if}
+                {#if !$buttonsStore.hideBack}
+                    <Button variant="secondary" onclick={() => history.back()} disabled={result.load}>
+                        {t.form.back}
+                    </Button>
+                {/if}
+            {/if}
+        </div>
     </div>
 {/if}
