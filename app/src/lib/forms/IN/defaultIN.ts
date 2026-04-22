@@ -97,8 +97,8 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
             regex: /^\d{8}(\d{2})?$/, required: po, show: po,
             maskOptions: { mask: `00000000[00]` },
         }),
-        searchButton: newButtonWidget({
-            text: t => t.in.searchInARES, color: 'secondary', icon: Search, show: po, showInXML: false,
+        searchButton: newButtonWidget<C>({
+            text: t => t.in.searchInARES, variant: 'secondary', icon: () => Search, show: po, showInXML: false,
             onClick: (c: C) => {
                 c.v.koncovyUzivatel.searchFail = false;
                 ares.getNameAndAddress(c.v.koncovyUzivatel.ico).then(ares => {
@@ -165,7 +165,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         _title: newTitleWidget({ text: t => t.in.realizationLocation, level: 3 }),
         _setAsResidence: newButtonWidget<C>({
             text: (t, c) => jeFO(c) ? t.in.copyResidence : t.in.copyHeadquarters,
-            color: 'secondary', onClick: c => {
+            variant: 'secondary', onClick: c => {
                 c.v.mistoRealizace.search = c.v.bydliste.search;
                 c.v.mistoRealizace.obec = c.v.bydliste.obec;
                 c.v.mistoRealizace.psc = c.v.bydliste.psc;
@@ -264,7 +264,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
     uvedeni: {
         _title: newTitleWidget({ text: t => t.in.commissioning, level: 3 }),
         _setAsAssembly: newButtonWidget<C>({
-            text: t => t.in.copyAssemblyCompany, color: 'secondary',
+            text: t => t.in.copyAssemblyCompany, variant: 'secondary',
             onClick: c => {
                 c.v.uvedeni.company = c.v.montazka.company;
                 c.v.uvedeni.ico = c.v.montazka.ico;

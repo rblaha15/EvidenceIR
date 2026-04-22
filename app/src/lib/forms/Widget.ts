@@ -134,7 +134,7 @@ type BtnArgs<C> = {
     text: GetTOrVal<C>;
     variant: GetOrVal<C, ButtonVariant>;
     size?: GetOrVal<C, ButtonSize>;
-    icon?: GetOrVal<C, Component<LucideProps> | undefined>;
+    icon?: Get<C, Component<LucideProps> | undefined>;
     onClick: Get<C, void>,
 } & ShowArgs<C>;
 type TitleArgs = { level: HeadingLevel };
@@ -279,7 +279,7 @@ const initBtn = <C>(args: BtnArgs<C>) => ({
     show: toGetA(args.show ?? true),
     variant: toGetA(args.variant),
     size: toGetA(args.size ?? 'default'),
-    icon: toGetA(args.icon),
+    icon: args.icon ?? (() => undefined),
     onClick: toGetA(args.onClick),
 });
 const initTitle = (args: TitleArgs) => ({

@@ -1,9 +1,9 @@
 <script generics="C, T" lang="ts">
     import type { Translations } from '$lib/translations';
     import { browser } from '$app/environment';
-    import type { ClassValue } from 'svelte/elements';
+    import type { ClassValue, MouseEventHandler } from 'svelte/elements';
     import { derived, writable } from 'svelte/store';
-    import { labelAndStar, type SearchWidget } from '$lib/forms/Widget';
+    import { labelAndStar, type SearchItem, type SearchWidget } from '$lib/forms/Widget';
     import { Eraser, Search } from "@lucide/svelte";
     import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "$lib/components/ui/input-group";
     import { Field, FieldError, FieldLabel } from "$lib/components/ui/field";
@@ -75,13 +75,20 @@
         hideRequest = false;
         focused = true;
     };
-    const onClick = () => {
+    const clear = () => {
         value = null;
         widget.onValueSet(context, null);
         showError = true;
         hideRequest = false;
         focused = false;
     };
+    const onItemClick = (item: T): MouseEventHandler<HTMLButtonElement | HTMLAnchorElement> => e => {
+        e.preventDefault();
+        value = item;
+        widget.onValueSet(context, item);
+        showError = true;
+        focused = false;
+    }
 
     const wide = browser ? window.matchMedia('(min-width: 768px)').matches : false;
 
@@ -91,6 +98,70 @@
 
     const id = $props.id();
 </script>
+
+{#snippet itemPieces(searchItem: SearchItem, klass: ClassValue)}
+    {#each searchItem.pieces as piece}
+        <p class={['items-center gap-1', klass, piece.class]}
+           style="width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
+        >
+            <piece.icon class={[{ 'text-destructive': piece.destructive, 'text-warning': piece.warning }, 'size-4']} />
+            {piece.text}
+        </p>
+    {/each}
+{/snippet}
+
+{#snippet eraser()}
+    {#if value}
+        <InputGroupAddon align="inline-end">
+            <InputGroupButton size="icon-sm" onclick={clear}>
+                <Eraser />
+                <span class="sr-only">{t.widget.clearSelection}</span>
+            </InputGroupButton>
+        </InputGroupAddon>
+    {/if}
+{/snippet}
+
+{#snippet selectedItem()}
+    {#if value && !focused}
+        <div class="w-full text-base md:text-sm absolute z-2 py-1.25 md:py-1.75 pointer-events-none top-0 h-9 pl-8.5 pr-14">
+            <div
+                class="flex flex-col md:flex-row md:items-center"
+            >
+                {@render itemPieces(
+                    widget.getSearchItem(value, t, context),
+                    'hidden first:flex md:flex items-center gap-1 whitespace-nowrap overflow-hidden first:text-ellipsis',
+                )}
+            </div>
+        </div>
+    {/if}
+{/snippet}
+
+{#snippet items(filtered: T[])}
+    <div class="w-full text-base md:text-sm
+        z-4 overflow-y-auto shadow-lg mb-2 border-t-0 bg-searchbox border-input rounded-2xl border rounded-t-none
+        data-[above=true]:max-h-[90vh] data-[above=true]:absolute
+    " data-above={showAbove}>
+        {#each filtered as item}
+            {@const searchItem = widget.getSearchItem(item, t, context)}
+            {@const props = {
+                class: 'flex flex-col md:flex-row md:items-center py-2 min-h-5 border-b border-input pl-8.5 pr-3 md:pr-14 w-full cursor-pointer',
+                'aria-disabled': searchItem.disabled,
+                onclick: onItemClick(item),
+            }}
+            {#if searchItem.href}
+                <a href={searchItem.href ?? '#'} {...props}>
+                    {@render itemPieces(searchItem, 'flex')}
+                </a>
+            {:else}
+                <button {...props}>
+                    {@render itemPieces(searchItem, 'flex')}
+                </button>
+            {/if}
+        {:else}
+            <div class="h-9 pl-8.5 pr-3 md:pr-14 flex flex-row items-center text-muted-foreground">Nenalezeno</div>
+        {/each}
+    </div>
+{/snippet}
 
 <div class="flex flex-col gap-1 w-full">
     <div class="relative" onfocusin={show} onfocusout={hide}>
@@ -112,70 +183,13 @@
                     type={widget.type(context)}
                     value={focused ? $search : value ? ' ' : ''}
                 />
-                {#if value}
-                    <InputGroupAddon align="inline-end">
-                        <InputGroupButton size="icon-sm" onclick={onClick}>
-                            <Eraser />
-                            <span class="sr-only">{t.widget.clearSelection}</span>
-                        </InputGroupButton>
-                    </InputGroupAddon>
-                {/if}
-
-                {#if value && !focused}
-                    {@const searchItem = widget.getSearchItem(value, t, context)}
-                    <div class="w-full text-base md:text-sm
-                        absolute selected z-2 py-1.25 md:py-1.75 pointer-events-none top-0 h-9 pl-8.5 pr-14">
-                        <div
-                            class="flex flex-col md:flex-row md:items-center"
-                        >
-                            {#each searchItem.pieces as piece, j}
-                                <p class={['hidden first:flex md:flex items-center gap-1 whitespace-nowrap overflow-hidden first:text-ellipsis', piece.class]}
-                                   style="width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
-                                >
-                                    <piece.icon class={[{ 'text-destructive': piece.destructive, 'text-warning': piece.warning }, 'size-4']} />
-                                    {piece.text}
-                                </p>
-                            {/each}
-                        </div>
-                    </div>
-                {/if}
+                {@render eraser()}
+                {@render selectedItem()}
             </InputGroup>
         </Field>
 
         {#if focused && $filtered != null}
-            <div class="w-full text-base md:text-sm
-                z-4 overflow-y-auto shadow-lg mb-2 border-t-0 bg-searchbox border-input rounded-2xl border rounded-t-none
-                data-[above=true]:max-h-[90vh] data-[above=true]:absolute
-            " data-above={showAbove}>
-                {#each $filtered as item}
-                    {@const searchItem = widget.getSearchItem(item, t, context)}
-                    <a
-                        tabindex="0"
-                        class="flex flex-col md:flex-row md:items-center py-2 min-h-5 border-b border-input pl-8.5 pr-3 md:pr-14"
-                        href={searchItem.href ?? '#'}
-                        class:disabled={searchItem.disabled}
-                        aria-disabled={searchItem.disabled}
-                        onclick={(e) => {
-                            e.preventDefault();
-                            value = item;
-                            widget.onValueSet(context, item);
-                            showError = true;
-                            focused = false;
-                        }}
-                    >
-                        {#each searchItem.pieces as piece}
-                            <p class={['flex gap-1 items-center', piece.class]}
-                               style="width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
-                            >
-                                <piece.icon class={[{ 'text-destructive': piece.destructive, 'text-warning': piece.warning }, 'size-4']} />
-                                {piece.text}
-                            </p>
-                        {/each}
-                    </a>
-                {:else}
-                    <div class="h-9 pl-8.5 pr-3 md:pr-14 flex flex-row items-center">Nenalezeno</div>
-                {/each}
-            </div>
+            {@render items($filtered)}
         {/if}
     </div>
 
@@ -183,18 +197,3 @@
         <FieldError>{widget.onError(t, context)}</FieldError>
     {/if}
 </div>
-
-<style>
-    .selected {
-        div {
-            p {
-                white-space: nowrap;
-                overflow: hidden;
-            }
-
-            p:first-child {
-                text-overflow: ellipsis;
-            }
-        }
-    }
-</style>
