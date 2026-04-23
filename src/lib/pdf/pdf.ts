@@ -24,7 +24,7 @@ import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 type AllPdf = {
     /** Zastaralá roční kontrola TČ */
     RKTL: 'IR'
-    /** Roční kontrola TČ */
+    /** Servisní prohlídka TČ */
     RKT: 'IR'
     /** Roční kontrola SOL */
     RKS: 'IR'
