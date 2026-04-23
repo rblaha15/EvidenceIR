@@ -108,8 +108,8 @@ const infoRKT: FormInfo<ContextRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: 
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit
-                ? `Vyplněna nová roční kontrola TČ${pump} k ${irName(ir.IN.ir)}`
-                : `Upravena roční kontrola TČ${pump} k ${irName(ir.IN.ir)}`,
+                ? `Vyplněna nová servisní prohlídka TČ${pump} k ${irName(ir.IN.ir)}`
+                : `Upravena servisní prohlídka TČ${pump} k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
             props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.IN },
         });
