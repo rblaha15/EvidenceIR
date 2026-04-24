@@ -418,7 +418,7 @@ const en: PlainTranslations = {
         warranties: {
             warrantyCommon: `Base 2year – whole intervention free`,
             komplet10: `KOMPLET 10 – whole intervention free`,
-            kompresor7: `KOMPRESOR 7 – spare parts free`,
+            kompresor7: `KOMPRESOR 7 – compressor and drivers free`,
             warrantyExtended: `Extended (SOL, AKU, ZAS, TČ commissioned before 1/4/2026) – spare parts free`,
         },
         yearlyHPCheck: `Heat pump service inspection`,

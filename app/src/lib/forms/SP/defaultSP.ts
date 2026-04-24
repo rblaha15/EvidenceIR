@@ -60,7 +60,7 @@ const sparePart = <C extends GenericContextSP<C>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 |
                 const nd = dil(c);
                 nd.code = part?.code?.let(String) ?? '';
                 nd.name = part?.name ?? '';
-                if (c.v.system.zaruka) nd.unitPrice = '0';
+                if (c.v.system.zaruka && c.v.system.zaruka != 'kompresor7') nd.unitPrice = '0';
                 else nd.unitPrice = part?.unitPrice?.let(String) ?? '';
                 nd.dil = null;
             }, getSearchItem: (i: SparePart, t, c) => ({

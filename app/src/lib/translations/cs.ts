@@ -233,7 +233,7 @@ export default {
         warranties: {
             warrantyCommon: `Základní 2letá – zdarma celý zásah`,
             komplet10: `KOMPLET 10 – zdarma celý zásah`,
-            kompresor7: `KOMPRESOR 7 – zdarma náhradní díly`,
+            kompresor7: `KOMPRESOR 7 – zdarma kompresor a drivery`,
             warrantyExtended: `Prodloužená (SOL, AKU, ZAS, TČ uvedené do 1. 4. 2026) – zdarma náhradní díly`,
         },
         yearlyHPCheck: `Servisní prohlídka TČ`,
