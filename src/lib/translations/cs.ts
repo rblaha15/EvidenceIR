@@ -743,7 +743,7 @@ export default {
         street: `Číslo popisné nebo ulice a číslo orientační`,
         town: `Obec`,
         zip: `Poštovní směrovací číslo`,
-        copyHeadquarters: `Zkopírovat sído`,
+        copyHeadquarters: `Zkopírovat sídlo`,
         copyResidence: `Zkopírovat bydliště`,
         searchCompanyInList: `Vyhledat firmu v seznamu`,
         or_CRN: `nebo`,
