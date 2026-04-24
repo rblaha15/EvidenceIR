@@ -4,6 +4,7 @@
     import PdfPage from '$lib/components/pdf/PdfPage.svelte';
     import type { Translations } from '$lib/translations';
     import type { Snippet } from 'svelte';
+    import '@ungap/with-resolvers';
 
     const {
         url, args, t, children,
