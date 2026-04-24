@@ -91,6 +91,8 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t }) => {
         .map(tu.pumpDetails).chunk(3)
         .map(g => g.join('; ')).join('\n');
     const noteText = UP.uvadeni.note ? `${t.in.note}: ${UP.uvadeni.note}` : '';
+    const warrantyText = UP.uvadeni.fullPaidWarranty == 'no' && UP.uvadeni.compressorWarranty == 'no'
+        ? tu.remoteAccessWarning : ''
     const pripojeni = get(tu, UP.reg.pripojeniKInternetu!);
     return ({
         Text1: endUserName(IN.koncovyUzivatel),
@@ -145,7 +147,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t }) => {
         Text45: UP.reg.souhlasSPristupem && UP.uvadeni.fullPaidWarranty ? get(tu, UP.uvadeni.fullPaidWarranty) : '',
         Text53: UP.reg.souhlasSPristupem && UP.uvadeni.compressorWarranty ? tu.isCompressorWarrantyDesired : '',
         Text46: UP.reg.souhlasSPristupem && UP.uvadeni.compressorWarranty ? get(tu, UP.uvadeni.compressorWarranty!) : '',
-        Text47: [cascadeText, noteText].filter(Boolean).join('\n'),
+        Text47: [warrantyText, cascadeText, noteText].filter(Boolean).join('\n'),
         Text54: dateFromISO(dateTC || dayISO()),
     });
 };
