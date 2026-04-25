@@ -14,7 +14,7 @@
 
     const route = $derived(page.route.id);
     const isForm = $derived(route?.endsWith('[form=form]') ?? false);
-    const isPdf = $derived(route?.endsWith('[pdf=pdf]') ?? false);
+    const isPdf = $derived((route?.endsWith('[pdf=pdf]') ?? false) || (route?.endsWith('sign') ?? false));
     const form = $derived(page.params.form);
     const search = $derived(page.url.searchParams);
     const formType = $derived(getForm(form)?.type);

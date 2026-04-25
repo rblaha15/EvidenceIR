@@ -33,7 +33,7 @@
 
     const result = $derived(errors.length ? null : generatePdfUrl({
         ...(parameters as unknown as PdfParameters<P>),
-        args, lang, data, pages,
+        lang, data, pages, link: type,
     }));
 
     let url = $state<string>();

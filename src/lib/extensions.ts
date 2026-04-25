@@ -382,7 +382,7 @@ declare global {
 
         last<T>(
             this: T[] | readonly T[],
-        ): T;
+        ): T | undefined;
 
         transpose<T>(
             this: T[][],

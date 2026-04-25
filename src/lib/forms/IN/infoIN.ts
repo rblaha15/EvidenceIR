@@ -14,7 +14,6 @@ import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { getTranslations, type Translations } from '$lib/translations';
 import ares from '$lib/helpers/ares';
 import { generatePdf } from '$lib/pdf/pdfGeneration';
-import { pdfInfo } from '$lib/pdf/pdf';
 import { blahova, cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
 import { xmlIN } from '$lib/forms/IN/xmlIN';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
@@ -46,7 +45,7 @@ const sendEmails = async (
     const montazka = (await ares.getName(raw.montazka.ico)) ?? null;
     const uvadec = (await ares.getName(raw.uvedeni.ico)) ?? null;
 
-    const pdf = await generatePdf({ args: pdfInfo.RR, lang: 'cs', data: newIr });
+    const pdf = await generatePdf({ lang: 'cs', data: newIr, link: 'RR' });
 
     const response1 = raw.vzdalenyPristup.chce ? await sendEmail({
         ...defaultAddresses(cervenka),

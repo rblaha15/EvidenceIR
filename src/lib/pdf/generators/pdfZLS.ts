@@ -2,7 +2,7 @@ import ares from '$lib/helpers/ares';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import { today } from '$lib/helpers/date';
 
-const pdfZLS: GetPdfData<'ZLS'> = async ({ data: { IN, UP: { SOL: UP } }, t }) => {
+const pdfZLS: GetPdfData<'ZLS'> = async ({ data: { IN, UP: { SOL: UP } } }) => {
     const uvedeni = await ares.getNameAndAddress(IN.uvedeni.ico, fetch);
     const montazka = await ares.getNameAndAddress(IN.montazka.ico, fetch);
     return {
@@ -20,6 +20,12 @@ const pdfZLS: GetPdfData<'ZLS'> = async ({ data: { IN, UP: { SOL: UP } }, t }) =
         Text12: null,
         Text13: null,
         Text14: today(),
+        signature: {
+            page: 1,
+            x: 58,
+            y: 405,
+            maxWidth: 500,
+        },
     };
 };
 

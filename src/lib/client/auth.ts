@@ -21,6 +21,11 @@ export const checkAuth = async () => {
     return auth.currentUser != null
 }
 
+export const getCurrentUser = async () => {
+    await auth.authStateReady()
+    return auth.currentUser
+}
+
 export const getToken = async () => {
     await auth.authStateReady()
     return auth.currentUser!.getIdToken()

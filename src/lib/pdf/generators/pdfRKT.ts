@@ -1,6 +1,6 @@
 import { endUserName } from '$lib/helpers/ir';
 import { type Raw, rawDataToValues, valuesToRawData } from '$lib/forms/Form';
-import { type GetPdfData, type PdfArgs, pdfInfo } from '$lib/pdf/pdf';
+import { type GetPdfData } from '$lib/pdf/pdf';
 import defaultRKTL from '$lib/forms/RKT/defaultRKTL';
 import defaultRKT from '$lib/forms/RKT/defaultRKT';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
@@ -40,12 +40,12 @@ export const pdfRKTL: GetPdfData<'RKTL'> = async ({ data, t, pump, lastYear, add
     const yearsLeft = nextStartYear <= maxYear ? range(nextStartYear, maxYear + 1) : [];
     const checks = years.associateWith(y => originalChecks[y]) as Record<Year, Raw<FormRKTL>>;
     if (yearsLeft.length) await addDoc({
-        args: (nextStartYear > maxLegacyYear ? pdfInfo.RKT : pdfInfo.RKTL) as PdfArgs<'RKTL' | 'RKT'>,
+        link: nextStartYear > maxLegacyYear ? 'RKT' : 'RKTL',
         data, lang, pump, lastYear: nextStartYear - 1 as Year,
     });
     else if (lang == 'cs') await addDoc({
         lang: 'cs',
-        args: pdfInfo.RS,
+        link: 'RS',
         data: {},
         fetch,
     });
@@ -146,11 +146,11 @@ const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang
     const yearsLeft = nextStartYear <= maxYear ? range(nextStartYear, maxYear + 1) : [];
     const checks = years.associateWith(y => originalChecks[y]) as Record<Year, Raw<FormRKT>>;
     if (yearsLeft.length) await addDoc({
-        data, lang, args: pdfInfo.RKT, pump, lastYear: nextStartYear - 1 as Year,
+        data, lang, link: 'RKT', pump, lastYear: nextStartYear - 1 as Year,
     });
     else if (lang == 'cs') await addDoc({
         lang: 'cs',
-        args: pdfInfo.RS,
+        link: 'RS',
         data: {},
     });
 

@@ -16,6 +16,7 @@ import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { FormSZ } from '$lib/forms/SP/formSZ';
 import type { FriendlyCompanies } from '$lib/client/realtime';
+import type { PdfToSign, PdfWithDefiningParameter } from '$lib/pdf/pdf';
 
 export type Year = number;
 
@@ -25,6 +26,32 @@ export type RecommendationSettings = {
     state: RecommendationState,
     code?: string,
 };
+
+export type OTP = string
+
+export type SignatureState = {
+    state: 'sentCodes';
+    initiatingUser: {
+        uid: string;
+        email: string;
+        name?: string;
+    };
+} | {
+    state: 'signed';
+    initiatingUser: {
+        uid: string;
+        email: string;
+        name?: string;
+    };
+    signedBy: {
+        phone: string;
+        email: string;
+        name: string;
+    };
+    signedAt: number;
+    code: OTP;
+    timezone: string;
+}
 
 export type IR = ExistingIR | DeletedIR;
 
@@ -56,6 +83,10 @@ interface BaseIR {
             grantedCommission?: boolean;
             confirmedRefsite?: boolean;
         };
+    };
+    signatures?: {
+        [P in PdfToSign<'IR'>]?: P extends PdfWithDefiningParameter
+            ? Record<number, SignatureState> : SignatureState;
     };
     IN: Raw<FormIN>;
     UP: {
@@ -99,6 +130,10 @@ interface BaseNSP {
             uid: string;
             email: string;
         };
+    };
+    signatures?: {
+        [P in PdfToSign<'SP'>]?: P extends PdfWithDefiningParameter
+            ? Record<number, SignatureState> : SignatureState;
     };
     NSP: Raw<FormNSP>;
 }

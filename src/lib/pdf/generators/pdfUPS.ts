@@ -44,6 +44,12 @@ const pdfUPS: GetPdfData<'UPS'> = async ({ data: { IN, UP: { SOL: UP, dateSOL } 
 /*                */ Text33: UP.uvadeni.podminky ? tu.yes : tu.no,
 /*                */ Text34: UP.uvadeni.regulator ? tu.yes : tu.no,
 /*                */ Text35: UP.uvadeni.vlastnik ? tu.yes : tu.no,
+        signature: {
+            page: 1,
+            x: 330,
+            y: 391,
+            maxWidth: 215,
+        },
     };
 };
 export default pdfUPS

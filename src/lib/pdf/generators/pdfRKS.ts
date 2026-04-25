@@ -1,5 +1,5 @@
 import { endUserName } from '$lib/helpers/ir';
-import { type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
+import { type GetPdfData } from '$lib/pdf/pdf';
 import defaultRKS from '$lib/forms/RKS/defaultRKS';
 import ares from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
@@ -19,7 +19,7 @@ const pdfRKS: GetPdfData<'RKS'> = async ({ data, t, lastYear, addDoc, lang }) =>
     const yearsLeft = nextStartYear <= maxYear ? range(nextStartYear, maxYear + 1) : [];
     const checks = years.associateWith(y => originalChecks[y]);
     if (yearsLeft.length) await addDoc({
-        data, lang, args: pdfInfo.RKS, lastYear: nextStartYear - 1 as Year,
+        data, lang, link: 'RKS', lastYear: nextStartYear - 1 as Year,
     });
 
     const montazka = await ares.getName(IN.montazka.ico);

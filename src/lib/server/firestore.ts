@@ -1,7 +1,8 @@
-import type { IR, NSP, RecommendationData, RecommendationState } from '$lib/data';
+import type { IR, NSP, RecommendationData, RecommendationState, SignatureState } from '$lib/data';
 import { app } from '$lib/server/firebase';
 import { getFirestore, QueryDocumentSnapshot, type WithFieldValue } from 'firebase-admin/firestore';
-import type { IRID } from '$lib/helpers/ir';
+import type { IRID, SPID } from '$lib/helpers/ir';
+import type { PdfToSign } from '$lib/pdf/pdf';
 
 const firestore = app ? getFirestore(app) : getFirestore();
 
@@ -55,3 +56,15 @@ export const setCreatedIRBy = (irid: IRID, createdBy: IR['meta']['createdBy']) =
     irCollection.doc(irid).update('meta.createdBy', createdBy);
 export const setGrantedCommission = (irid: IRID) =>
     irCollection.doc(irid).update('meta.flags.grantedCommission', true);
+
+export const setSignature = async (
+    type: 'IR' | 'SP',
+    id: IRID | SPID,
+    pdf: PdfToSign,
+    parameter: number | undefined,
+    signature: SignatureState,
+) => {
+    const collection = type == 'IR' ? irCollection : spCollection;
+    const path = parameter ? `signatures.${pdf}.${parameter}` : `signatures.${pdf}`;
+    await collection.doc(id).update(path, signature);
+};
