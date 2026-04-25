@@ -35,5 +35,10 @@ const pdfRR: GetPdfData<'RR'> = async ({ data: { IN }, t }) => ({
         .join(', '),
     Text20: today(),
     Text22: IN.vzdalenyPristup.plati == 'endCustomer' ? t.rr.agreeWIthRRPrice : '',
+    signature: {
+        x: 340,
+        y: 122,
+        maxWidth: 220,
+    },
 });
 export default pdfRR;

@@ -3,7 +3,7 @@
 import { dateFromISO } from '$lib/helpers/date';
 import '$lib/extensions';
 import { endUserName, endUserName2, spName } from '$lib/helpers/ir';
-import { generalizeServiceProtocol, type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
+import { generalizeServiceProtocol, type GetPdfData } from '$lib/pdf/pdf';
 import { get } from '$lib/translations';
 import { unknownCRN } from '$lib/forms/IN/formIN';
 import { inlineTooLong, invoiceableParts, multilineTooLong } from '$lib/forms/SP/defaultSP';
@@ -106,9 +106,9 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
     const zavada = NSP.zasah.nahlasenaZavada;
     const zasah = NSP.zasah.popis;
     if (multilineTooLong(system) || inlineTooLong(zavada) || multilineTooLong(zasah))
-        await addDoc({ args: pdfInfo.PS, data, lang: 'cs' });
+        await addDoc({ link: 'PS', data, lang: 'cs' });
 
-    if (tax == 1.12) await addDoc({ args: pdfInfo.CP, data, lang: 'cs' });
+    if (tax == 1.12) await addDoc({ link: 'CP', data, lang: 'cs' });
 
     const isUnknown = NSP.montazka.ico == unknownCRN;
     const fo = NSP.ukony.doba ? fieldsOperations.slice(1) : fieldsOperations;
@@ -189,6 +189,11 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
             otherCompany: detectCRN(NSP.fakturace.komu.text),
         }[NSP.fakturace.komu.chosen ?? 'investor'],
         images: signature ? [{ x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 }] : [],
+        signature: {
+            x: 358,
+            y: 134,
+            maxWidth: 225,
+        },
     } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };
 
