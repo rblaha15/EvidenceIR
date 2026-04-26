@@ -3,7 +3,15 @@ import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
 import { setTitle } from '$lib/helpers/globals';
-import { type Pdf, type PdfArgs, pdfInfo, type PdfParameters } from '$lib/pdf/pdf';
+import {
+    type Pdf,
+    type PdfArgs,
+    pdfInfo,
+    type PdfParameters,
+    type PdfToSign,
+    type PdfWithDefiningParameter,
+    pdfWithDefiningParameter,
+} from '$lib/pdf/pdf';
 import { generatePdfUrl } from '$lib/pdf/pdfGeneration';
 import { isLanguageCode } from '$lib/languages';
 import type { IR, NSP } from '$lib/data';
@@ -16,7 +24,7 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
     const pdfName = params.pdf as Pdf;
     if (!(pdfName in pdfInfo)) error(404);
 
-    if (!browser) return { url: '', fileName: '', irid: '', spids: [], fileLang: '', args: null, objectUrl: '' };
+    if (!browser) return { url: '', fileName: '', irid: '', spids: [], fileLang: '', args: null, objectUrl: '', signatureState: undefined };
 
     if (!await checkAuth()) error(401);
 
@@ -38,7 +46,7 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
 
     const parameters = [...url.searchParams.entries()].toRecord().mapValues((_, v) => Number(v));
 
-    const lang = url.searchParams.get('lang')
+    const lang = url.searchParams.get('lang');
     const langProvided = isLanguageCode(lang);
 
     const language = langProvided && pdf.supportedLanguages.includes(lang)
@@ -53,12 +61,23 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
         link: pdfName,
     });
 
+    const parameterName = pdfName in pdfWithDefiningParameter
+        ? pdfWithDefiningParameter[pdfName as PdfWithDefiningParameter] : undefined;
+
+    const parameter = parameterName
+        ? url.searchParams.get(parameterName)?.toNumber() : undefined;
+
+    const signatureState = pdf.type == 'IR' ? parameter
+            ? data.ir?.signatures?.[pdfName as PdfWithDefiningParameter]?.[parameter]
+            : data.ir?.signatures?.[pdfName as Exclude<PdfToSign<'IR'>, PdfWithDefiningParameter>]
+        : data.sps[0]?.signatures?.[pdfName as PdfToSign<'SP'>];
+
     const pageData = await parent();
     const t = pageData.translations;
 
     setTitle(t.pdf.documentPreview, true);
 
-    return { ...d, ...id, args: pdf, fileLang: language };
+    return { ...d, ...id, args: pdf, fileLang: language, signatureState };
 };
 
 export const prerender = true;
