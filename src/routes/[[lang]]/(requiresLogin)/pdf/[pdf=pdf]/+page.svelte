@@ -24,6 +24,12 @@
         url.searchParams.set('lang', code);
         return url.toString();
     };
+
+    const signUrl = $derived.by(() => {
+        const url = page.url;
+        url.pathname += '/sign';
+        return url.href;
+    });
 </script>
 
 <h2 class="m-0">{title(data.translations)}</h2>
@@ -37,6 +43,15 @@
             goto(createLink(code), { replaceState: true, invalidateAll: true })
         } options={supportedLanguages} selected={data.fileLang} />
     </div>
+    {#if !data.signatureState}
+        <a class="btn btn-primary" href={signUrl}>
+            <Icon icon="file_download" />
+            Podepsat dokument
+        </a>
+    {/if}
+    {#if data.signatureState?.state == 'signed'}
+        <div class="text-success">Dokument podepsán</div>
+    {/if}
     <button class="btn btn-primary" onclick={download}>
         <Icon icon="file_download" />
         {t.downloadFile}
