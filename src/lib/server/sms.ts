@@ -21,7 +21,7 @@ const send = (
     token: string,
     fetch: typeof window.fetch,
 ) => fetch(
-    api + 'api/v1/messages/test',
+    api + 'api/v1/messages',
     {
         method: 'POST',
         body: JSON.stringify({
