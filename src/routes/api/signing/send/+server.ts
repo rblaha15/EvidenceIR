@@ -39,7 +39,7 @@ export const POST: RequestHandler = async ({ request, url, fetch }) => {
     await sendSMS(smsBody(otp), signingBy.phone, fetch);
 
     await putSentMessage(def, {
-        sentAt: now, sentBy: user.uid, code: otp,
+        sentAt: now, sentBy: user.uid, code: otp, sentTo: signingBy,
     });
     await setSignature(pdf.type, def.id, def.pdf, def.parameter, {
         state: 'sentCodes', initiatingUser: {

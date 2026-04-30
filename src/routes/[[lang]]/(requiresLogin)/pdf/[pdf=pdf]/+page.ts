@@ -24,7 +24,7 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
     const pdfName = params.pdf as Pdf;
     if (!(pdfName in pdfInfo)) error(404);
 
-    if (!browser) return { url: '', fileName: '', irid: '', spids: [], fileLang: '', args: null, objectUrl: '', signatureState: undefined };
+    if (!browser) return { url: '', fileName: '', irid: '', spids: [], fileLang: '', args: null, objectUrl: '', signatureState: undefined, signatureKey: '' };
 
     if (!await checkAuth()) error(401);
 
@@ -72,12 +72,14 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
             : data.ir?.signatures?.[pdfName as Exclude<PdfToSign<'IR'>, PdfWithDefiningParameter>]
         : data.sps[0]?.signatures?.[pdfName as PdfToSign<'SP'>];
 
+    const signatureKey = parameter ? `${pdfName}-${parameter}` : pdfName;
+
     const pageData = await parent();
     const t = pageData.translations;
 
     setTitle(t.pdf.documentPreview, true);
 
-    return { ...d, ...id, args: pdf, fileLang: language, signatureState };
+    return { ...d, ...id, args: pdf, fileLang: language, signatureState, signatureKey };
 };
 
 export const prerender = true;

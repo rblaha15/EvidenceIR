@@ -22,6 +22,7 @@
         dropdownItems,
         additionalButton,
         data,
+        signed,
         ...options
     }: Props<P> = $props();
 
@@ -43,7 +44,7 @@
                 <Icon icon="file_open" />
                 {#if name}<span>{name}</span>{/if}
             </a>
-            {#if dropdownItems}
+            {#if dropdownItems && !signed}
                 <SmallDropdown {dropdownItems} />
             {/if}
         </div>
@@ -51,7 +52,7 @@
         <span class="my-1 flex-shrink-0">{name}</span>
     {/if}
 
-    {#if additionalButton}
+    {#if additionalButton && !signed}
         <div class="flex-shrink-0">
             {#if additionalButton.show ?? disabled}
                 {#if additionalButton.dialogID}
@@ -69,5 +70,9 @@
                 {/if}
             {/if}
         </div>
+    {/if}
+
+    {#if signed}
+        <div class="text-success">Podepsáno</div>
     {/if}
 </div>

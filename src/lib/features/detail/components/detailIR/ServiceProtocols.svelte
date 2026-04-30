@@ -54,7 +54,7 @@
                         item: deleteButton,
                     }, {
                         item: duplicateButton,
-                    }]}
+                    }]} signed={ir.signatures?.SP?.[i]?.state == 'signed'}
                 />
             {:else}
                 <div class="d-flex flex-row gap-3 align-items-center">
