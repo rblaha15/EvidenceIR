@@ -1,5 +1,5 @@
 <script lang="ts" module>
-    export type SigningStatus = 'none' | 'sendingSMS' | 'sent' | 'sentAgain' | 'confirming' | 'sendingEmail';
+    export type SigningStatus = 'none' | 'sendingSMS' | 'sent' | 'sentAgain' | 'confirming' | 'sendingEmail' | 'end';
 </script>
 
 <script lang="ts">
@@ -16,6 +16,7 @@
     import type { SendCodeParams } from '$lib/features/signing/domain/sms';
     import { onMount } from 'svelte';
     import { setTitle } from '$lib/helpers/globals';
+    import { type GeneratePdfOptions, type PdfToSign, type PdfWithDefiningParameter, pdfWithDefiningParameter } from '$lib/pdf/pdf';
 
     const {
         args, def, ir, sp, translations: t, settings,
@@ -28,6 +29,10 @@
         name: endUserName(endUser), phone: addCzechCountryCode(endUser.telefon), email: endUserEmails(endUser)[0],
     });
     const params: SendCodeParams = $derived({ def, signingBy, initiatingUserName: $currentUser?.displayName || undefined });
+    const o: GeneratePdfOptions<PdfToSign> = $derived({
+        data: $ir || $sp!, link: def.pdf, lang: 'cs',
+        ...def.parameter ? { [pdfWithDefiningParameter[def.pdf as PdfWithDefiningParameter]]: def.parameter } : {},
+    });
 
     let status = $state<SigningStatus>('none');
     $effect(() => {
@@ -115,7 +120,7 @@
     <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
         <Widget widget={codeWidget} bind:value={code} {t} showAllErrors={false} context={undefined} />
         <button class="btn btn-primary" disabled={codeWidget.isError(undefined, code)}
-                onclick={confirmCode({ def, signingBy, code, timezone }, setStatus)}>
+                onclick={confirmCode(o, { def, signingBy, code, timezone }, setStatus)}>
             Odeslat kód
         </button>
     </div>

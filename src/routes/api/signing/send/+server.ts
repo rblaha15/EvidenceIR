@@ -6,6 +6,7 @@ import { setSignature } from '$lib/server/firestore';
 import { generate } from 'otp-generator';
 import { getSigning, putSentMessage } from '$lib/server/signing';
 import { validateRequest } from '../validateSigningRequest';
+import { getTranslations } from '$lib/translations';
 
 const generateOTP = () => {
     const undivided = generate(8, {
@@ -14,7 +15,7 @@ const generateOTP = () => {
     return undivided.slice(0, 4) + '-' + undivided.slice(4, 8);
 };
 
-const smsBody = (otp: string) => `Regulus SEIR: Váš kód pro potvrzení dokumentu je: ${otp}`;
+const smsBody = (document: string, otp: string) => `Váš kód pro potvrzení dokumentu "${document}" je: ${otp}`;
 
 export const POST: RequestHandler = async ({ request, url, fetch }) => {
     const token = url.searchParams.get('token')!;
@@ -34,9 +35,10 @@ export const POST: RequestHandler = async ({ request, url, fetch }) => {
     const last = livingMessages.last();
     if (last && (now - last.sentAt) < SMS_SEND_MINIMUM_WAIT_TIME) error(429);
 
+    const doc = pdf.title(getTranslations('cs'));
     const otp = generateOTP();
 
-    await sendSMS(smsBody(otp), signingBy.phone, fetch);
+    await sendSMS(smsBody(doc, otp), signingBy.phone, fetch);
 
     await putSentMessage(def, {
         sentAt: now, sentBy: user.uid, code: otp, sentTo: signingBy,

@@ -2,6 +2,9 @@ import type { SigningStatus } from '../components/Signing.svelte';
 import { getToken } from '$lib/client/auth';
 import type { SendCodeParams } from '$lib/features/signing/domain/sms';
 import { getReasonPhrase } from 'http-status-codes';
+import db from '$lib/Database';
+import { pdfInfo } from '$lib/pdf/pdf';
+import type { IRID, SPID } from '$lib/helpers/ir';
 
 export const sendSMS = (
     params: SendCodeParams,
@@ -18,6 +21,11 @@ export const sendSMS = (
             'content-type': 'application/json',
         },
     });
+
+    if (pdfInfo[params.def.pdf].type == 'IR')
+        db.getIR(params.def.id as IRID).then();
+    else
+        db.getNSP(params.def.id as SPID).then();
 
     if (response.ok)
         setStatus(again ? 'sentAgain' : 'sent');

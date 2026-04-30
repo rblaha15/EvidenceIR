@@ -226,3 +226,5 @@ export const generatePdf = async <P extends Pdf>(
 
     return { fileName, pdfBytes };
 };
+
+export type Document<P extends Pdf = Pdf> = Awaited<ReturnType<typeof generatePdf<P>>>;
