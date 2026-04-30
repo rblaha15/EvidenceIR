@@ -14,6 +14,11 @@ export interface SentMessage {
     code: OTP;
     sentAt: number;
     sentBy: string;
+    sentTo: {
+        name: string,
+        email: string,
+        phone: string,
+    };
 }
 
 export interface CodeAttempt {
