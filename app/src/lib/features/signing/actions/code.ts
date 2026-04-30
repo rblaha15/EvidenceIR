@@ -1,13 +1,56 @@
 import type { SigningStatus } from '../components/Signing.svelte';
-import { getToken } from '$lib/client/auth';
+import { currentUser, getToken } from '$lib/client/auth';
 import type { CodeAttemptParams } from '$lib/features/signing/domain/sms';
 import { getReasonPhrase } from 'http-status-codes';
+import { cervenka, defaultAddresses, sendHtmlEmail, userAddress } from '$lib/client/email';
+import { dev } from '$app/environment';
+import { get } from 'svelte/store';
+import { type GeneratePdfOptions, pdfInfo, type PdfToSign } from '$lib/pdf/pdf';
+import { getTranslations } from '$lib/translations';
+import {  generatePdf } from '$lib/pdf/pdfGeneration';
+import db from '$lib/Database';
+import type { IRID, SPID } from '$lib/helpers/ir';
 
-const sendEmails = (setStatus: (s: SigningStatus, e?: string) => SigningStatus) => {
+const emailBody = (title: string) => `Dobrý den,\nv příloze naleznete Vámi podepsaný dokument "${title}".`;
+
+const sendEmails = async (
+    o: GeneratePdfOptions<PdfToSign>,
+    params: CodeAttemptParams,
+    setStatus: (s: SigningStatus, e?: string) => SigningStatus,
+) => {
     setStatus('sendingEmail');
+
+    const user = userAddress(get(currentUser)!);
+    const pdf = pdfInfo[params.def.pdf];
+    const title = pdf.title(getTranslations('cs'));
+
+    const doc = await generatePdf(o);
+
+    const response = await sendHtmlEmail({
+        ...defaultAddresses(cervenka, false, user.name || undefined),
+        cc: dev ? undefined : [
+            user,
+            params.signingBy.email,
+        ],
+        subject: `Podepsaný dokument ${title}`,
+        attachments: [new File(
+            [doc.pdfBytes],
+            doc.fileName,
+            { type: 'application/pdf' },
+        )],
+        text: emailBody(title),
+    });
+
+    if (response!.ok) {
+        setStatus('end');
+        history.back();
+    } else {
+        setStatus('end', 'Email se nepodařilo odeslat, dokument byl ale úspěšně podepsán!');
+    }
 };
 
 export const confirmCode = (
+    o: GeneratePdfOptions<PdfToSign>,
     params: CodeAttemptParams,
     setStatus: (s: SigningStatus, e?: string) => SigningStatus,
 ) => async () => {
@@ -22,8 +65,13 @@ export const confirmCode = (
         },
     });
 
+    if (pdfInfo[params.def.pdf].type == 'IR')
+        db.getIR(params.def.id as IRID).then();
+    else
+        db.getNSP(params.def.id as SPID).then();
+
     if (response.ok)
-        sendEmails(setStatus);
+        await sendEmails(o, params, setStatus);
     else if (response.status == 400)
         setStatus(old, 'Nesprávné údaje.');
     else if (response.status == 401)
