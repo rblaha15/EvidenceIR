@@ -27,11 +27,11 @@ const sendEmails = async (
     const doc = await generatePdf(o);
 
     const response = await sendHtmlEmail({
-        ...defaultAddresses(cervenka, false, user.name || undefined),
-        cc: dev ? undefined : [
+        ...defaultAddresses(/*cervenka*/user, false, user.name || undefined),
+        cc: /*dev ?*/ undefined /*: [
             user,
             params.signingBy.email,
-        ],
+        ]*/,
         subject: `Podepsaný dokument ${title}`,
         attachments: [new File(
             [doc.pdfBytes],
