@@ -449,7 +449,7 @@ export default (): FormPlus<FormIN> => ({
                 'IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc',
                 ...c.v.ir.regulus ? ['Thermona'] as const : [], 'other',
             ] as const, options2: ({ v: { ir: { typ: { first: f } } } }) => (
-                f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K', 'DeltaSol BS, ES', 'DeltaSol M, MX']
+                f == 'SOREL' ? ['SRS1 T', 'SRS2 TE', 'SRS3 E', 'SRS5', 'SRS6 EP', 'STDC E', 'TRS3', 'TRS4', 'TRS5', 'TRS6 K', 'DeltaSol BS, ES', 'DeltaSol M, MX']
                     : f == 'ctc' ? ['EcoEl', 'EcoZenith', 'EcoHeat', 'EcoLogic EXT']
                         : f == 'Thermona' ? ['inTHERM 10']
                             : supportsOnlyCTC(f) ? ['CTC']
