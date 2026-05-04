@@ -66,6 +66,7 @@ type ControllersSOREL =
     | 'SRS1 T'
     | 'SRS2 TE'
     | 'SRS3 E'
+    | 'SRS5'
     | 'SRS6 EP'
     | 'STDC E'
     | 'TRS3'
