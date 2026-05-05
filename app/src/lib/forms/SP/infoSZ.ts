@@ -4,38 +4,34 @@ import db from '$lib/Database';
 import { error } from '@sveltejs/kit';
 import { isSP } from '$lib/forms/SP/infoSP.svelte';
 import defaultSZ from '$lib/forms/SP/defaultSZ';
+import type { SPID, SZID } from '$lib/helpers/ir';
 
-const infoSZ: FormInfo<ContextSZ, FormSZ, [], never, { i: number }> = {
+const infoSZ: FormInfo<ContextSZ, FormSZ> = {
     type: 'IR',
     storeName: () => 'stored_sz',
     form: () => defaultSZ(),
     getEditData: (ir, url) => {
-        const editIndex = url.searchParams.get('edit') as string | null;
-        if (editIndex) {
-            const i = Number(editIndex);
-            const sp = ir.SPs[i];
+        const editID = url.searchParams.get('edit') as SPID | SZID | null;
+        if (editID) {
+            const sp = ir.SPs[editID];
             if (!isSP(sp))
-                return { raw: sp, other: { i } };
-            return error(400, { message: 'Provided index is not a simple intervention' });
+                return { raw: sp };
+            return error(400, { message: 'Provided id is not a simple intervention' });
         }
     },
     getViewData: (ir, url) => {
-        const viewIndex = url.searchParams.get('view') as string | null;
-        if (viewIndex) {
-            const i = Number(viewIndex);
-            return { raw: ir.SPs[i], other: { i } };
-        } else {
-            return { other: { i: ir.SPs.length } };
-        }
+        const viewID = url.searchParams.get('view') as SPID | SZID | null;
+        if (viewID)
+            return { raw: ir.SPs[viewID] };
     },
-    saveData: async ({ irid, raw, edit, other: { i } }) => {
+    saveData: async ({ irid, raw, edit }) => {
         const ir = (await db.getIR(irid))!;
         if (ir.deleted) return false
 
-        if (edit) await db.updateSP(irid, i, raw);
+        if (edit) await db.updateSP(irid, raw);
         else await db.addSPs(irid, raw);
     },
-    createContext: ({ values: v }) => ({ v }),
+    createContext: ({ values: v, mode }) => ({ v, edit: mode == 'edit' }),
     title: (t, mode) =>
         mode == 'edit' ? t.sz.editSZ : t.sz.title,
 };

@@ -90,5 +90,5 @@ export const adminDescriptions: Record<LoyaltyPointRewardType, string> = {
     heatPumpInCascadeAssembly: 'Montáž TČ v kaskádě',
     heatPumpCommission: 'Uvedení TČ do provozu',
     heatPumpInCascadeCommission: 'Uvedení TČ v kaskádě do provozu',
-    heatPumpYearlyCheck: 'Roční kontrola TČ',
+    heatPumpYearlyCheck: 'Servisní prohlídka TČ',
 }

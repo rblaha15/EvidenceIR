@@ -67,7 +67,7 @@ export type FormInfo<
 > = {
     type: 'IR';
     form: (other: O, ir: IR) => F;
-    openPdf?: (other: O) => Omit<OpenPdfOptions<P>, 'irid'>;
+    openPdf?: (raw: Raw<F>, other: O) => Omit<OpenPdfOptions<P>, 'irid'>;
     saveData: (_: { irid: IRID, raw: Raw<F>, edit: boolean, values: Values<F>, context: C, form: F, editResult(r: Result): void, t: Translations, send: boolean, ir: IR, other: O }) => Promise<boolean | void>;
     createContext: (_: { IN: Raw<FormIN>, form: F, values: Values<F>, ir: IR, other: O, mode: ModeL }) => keyof Form extends keyof C ? Omit<C, keyof Form> : C;
     /**

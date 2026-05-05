@@ -18,7 +18,7 @@ import { logEvent } from 'firebase/analytics';
 import { get } from 'svelte/store';
 import { checkAdmin, checkRegulusOrAdmin, currentUser } from './auth';
 import { analytics, firestore } from '../../hooks.client';
-import { type IRID, type SPID } from '$lib/helpers/ir';
+import { extractIDFromSPOrSZ, type IRID, type SPID } from '$lib/helpers/ir';
 import { offlineDatabase, offlineDatabaseManager as odm } from '$lib/client/offline.svelte';
 import { deleteField, Query } from '@firebase/firestore';
 import type { Database, ReadDatabase, WriteDatabase } from '$lib/Database';
@@ -160,33 +160,34 @@ const writeDatabase: WriteDatabase = {
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
         await updateDoc(irDoc(irid), {
             ...ir,
-            SPs: [...ir.SPs, ...protocols].sort((a, b) => new Date(a.zasah.datum).valueOf() - new Date(b.zasah.datum).valueOf()),
+            SPs: { ...protocols.associateBy(extractIDFromSPOrSZ), ...ir.SPs }
+                .entries().sortedBy(([_, p]) => new Date(p.zasah.datum)).toRecord(),
             meta: {
                 ...ir.meta,
                 changedAt: serverTimestamp() as Timestamp,
             },
         });
     },
-    updateSP: async (irid, index, protocol) => {
+    updateSP: async (irid, protocol) => {
         const ir = await readDatabase.getIR(irid);
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
         await updateDoc(irDoc(irid), {
             ...ir,
-            SPs: ir.SPs.with(index, protocol),
+            SPs: { ...ir.SPs, [extractIDFromSPOrSZ(protocol)]: protocol },
             meta: {
                 ...ir.meta,
                 changedAt: serverTimestamp() as Timestamp,
             },
         });
     },
-    deleteSP: async (irid, index) => {
+    deleteSP: async (irid, id) => {
         const ir = await readDatabase.getIR(irid);
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
         await updateDoc(irDoc(irid), {
             ...ir,
-            SPs: ir.SPs.toSpliced(index, 1),
+            SPs: ir.SPs.omit(id),
             meta: {
                 ...ir.meta,
                 changedAt: serverTimestamp() as Timestamp,
@@ -273,5 +274,15 @@ export const adminDatabase = {
     getAllNSPs: async () => {
         if (!await checkAdmin()) throw new Error('Unauthorized');
         return await getSnps(spCollection);
+    },
+    restoreIR: async (irid: IRID) => {
+        if (!await checkAdmin()) throw new Error('Unauthorized');
+        const ir = await readDatabase.getIR(irid);
+        if (ir) await updateDoc(irDoc(irid), {
+            deleted: false,
+            'meta.deletedAt': deleteField(),
+            'meta.movedTo': deleteField(),
+            'meta.changedAt': serverTimestamp() as Timestamp,
+        });
     },
 };

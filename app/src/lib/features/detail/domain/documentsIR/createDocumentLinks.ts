@@ -35,7 +35,8 @@ export type DocumentLinkDefinition<P extends Pdf> = PdfParameters<P> & {
     } | {
         onclick: () => void, href?: undefined,
     }),
-    dropdownItems?: DropdownItems
+    dropdownItems?: DropdownItems;
+    signed?: boolean;
 }
 
 const getButtonUPT = (
@@ -158,6 +159,7 @@ export const createDocumentLinks = (
 
     if (rules.showRR(ir)) add({
         link: 'RR', name: t.rr.name,
+        signed: ir.signatures?.RR?.state == 'signed',
     });
 
     if (rules.showNNR(ir)) add({
@@ -174,6 +176,7 @@ export const createDocumentLinks = (
             disabled: rules.disableUPT(ir), name: t.tc.name,
             additionalButton: user.isRegulusOrAdmin || user.allowUPT ? getButtonUPT(t) : undefined,
             dropdownItems: user.isRegulusOrAdmin ? [getDropdownItemUPT(t, user)] : undefined,
+            signed: ir.signatures?.UPT?.state == 'signed',
         });
 
         for (const tc of cascadePumps(ir.IN)) {
@@ -193,10 +196,12 @@ export const createDocumentLinks = (
             disabled: rules.disableUPS(ir), name: t.sol.name,
             additionalButton: getButtonUPS(t),
             dropdownItems: user.isRegulusOrAdmin ? [getDropdownItemUPS(t, user)] : undefined,
+            signed: ir.signatures?.UPS?.state == 'signed',
         });
 
         add({
             link: 'ZLS', name: t.zls.name,
+            signed: ir.signatures?.ZLS?.state == 'signed',
         });
 
         add({
@@ -209,6 +214,7 @@ export const createDocumentLinks = (
     if (rules.showFVE(ir)) add({
         link: 'UPF', disabled: rules.disableUPF(ir), name: t.fve.name,
         additionalButton: user.isRegulusOrAdmin ? getButtonUPF(t) : undefined,
+        signed: ir.signatures?.UPF?.state == 'signed',
     });
 
     if (rules.showFT(ir)) add({

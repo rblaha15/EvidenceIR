@@ -3,7 +3,7 @@
 import { dateFromISO } from '$lib/helpers/date';
 import '$lib/extensions';
 import { endUserName, endUserName2, spName } from '$lib/helpers/ir';
-import { generalizeServiceProtocol, type GetPdfData, pdfInfo } from '$lib/pdf/pdf';
+import { generalizeServiceProtocol, type GetPdfData } from '$lib/pdf/pdf';
 import { get } from '$lib/translations';
 import { unknownCRN } from '$lib/forms/IN/formIN';
 import { inlineTooLong, invoiceableParts, multilineTooLong } from '$lib/forms/SP/defaultSP';
@@ -106,14 +106,14 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
     const zavada = NSP.zasah.nahlasenaZavada;
     const zasah = NSP.zasah.popis;
     if (multilineTooLong(system) || inlineTooLong(zavada) || multilineTooLong(zasah))
-        await addDoc({ args: pdfInfo.PS, data, lang: 'cs' });
+        await addDoc({ link: 'PS', data, lang: 'cs' });
 
-    if (tax == 1.12) await addDoc({ args: pdfInfo.CP, data, lang: 'cs' });
+    if (tax == 1.12) await addDoc({ link: 'CP', data, lang: 'cs' });
 
     const isUnknown = NSP.montazka.ico == unknownCRN;
     const fo = NSP.ukony.doba ? fieldsOperations.slice(1) : fieldsOperations;
     return {
-        fileNameSuffix: spName(NSP.zasah).replaceAll(/\/:/g, '_'),
+        fileNameSuffix: spName(NSP.zasah).replaceAll('/', '_'),
         Text1: spName(NSP.zasah),
         Text29: NSP.koncovyUzivatel.typ == 'company' ? `${t.in.companyName}:` : `Jméno a příjmení:`,
         Text2: endUserName(NSP.koncovyUzivatel),
@@ -136,8 +136,8 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
         Text15: '     ' + dateFromISO(NSP.zasah.datum),
         Text16: NSP.system.datumUvedeni ? dateFromISO(NSP.system.datumUvedeni) : null,
         Text17: NSP.zasah.clovek,
-        'Zaškrtávací pole28': NSP.system.zaruka == `warrantyCommon` || NSP.system.zaruka == `komplet10`,
-        'Zaškrtávací pole29': NSP.system.zaruka == `warrantyExtended` || NSP.system.zaruka == `kompresor7`,
+        'Zaškrtávací pole28': !!NSP.system.zaruka,
+        Text40: get(ts.warranties, NSP.system.zaruka),
         Text19: inlineTooLong(zavada) ? ts.seeSecondPage : zavada,
         Text20: multilineTooLong(zasah) ? ts.seeSecondPage : zasah,
         Text21: NSP.ukony.doprava.toNumber().roundTo(2).toLocaleString('cs') + ' km',
@@ -189,15 +189,20 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
             otherCompany: detectCRN(NSP.fakturace.komu.text),
         }[NSP.fakturace.komu.chosen ?? 'investor'],
         images: signature ? [{ x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 }] : [],
+        signature: {
+            x: 358,
+            y: 134,
+            maxWidth: 225,
+        },
     } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };
 
 const detectCRN = (text: string) => /^[0-9]{8}$/.test(text) ? `IČO: ${text}` : text
 
-export const pdfSP: GetPdfData<'SP'> = async ({ data, t, addDoc, index, lang }) => {
+export const pdfSP: GetPdfData<'SP'> = async ({ data, t, addDoc, id, lang }) => {
     const { ensureSP } = await import('$lib/forms/SP/infoSP.svelte');
     return pdfNSP({
-        data: generalizeServiceProtocol(data.meta, data.IN, ensureSP(data.SPs[index]), t), t, addDoc, lang,
+        data: generalizeServiceProtocol(data.meta, data.IN, ensureSP(data.SPs[id]), t), t, addDoc, lang,
         pumpCount: cascadePumps(data.IN).length,
     });
 };

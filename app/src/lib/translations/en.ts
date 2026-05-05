@@ -271,6 +271,7 @@ const en: PlainTranslations = {
             unsentEmail: t`Unsent email: ${'subject'}`,
             f: {
                 addIR: t`Registered a new controller (${'ir'})`,
+                moveIR: t`Moved a controller from ${'old'} to ${'new'}`,
                 deleteIR: t`Removed the record of the ${'ir'} controller`,
                 updateIN: t`Changed the information of the ${'ir'} controller`,
                 addRKS: t`Created a yearly solar system check for year ${'year'} at the ${'ir'} controller`,
@@ -421,7 +422,7 @@ const en: PlainTranslations = {
         warranties: {
             warrantyCommon: `Base 2year – whole intervention free`,
             komplet10: `KOMPLET 10 – whole intervention free`,
-            kompresor7: `KOMPRESOR 7 – spare parts free`,
+            kompresor7: `KOMPRESOR 7 – compressor and drivers free`,
             warrantyExtended: `Extended (SOL, AKU, ZAS, TČ commissioned before 1/4/2026) – spare parts free`,
         },
         yearlyHPCheck: `Heat pump service inspection`,
@@ -550,7 +551,7 @@ const en: PlainTranslations = {
         characteristicsAndSizeOfHeatPumpBreaker: `Heat pump breaker characteristics and size`,
         characteristicsAndSizeOfIndoorUnitBreaker: `Indoor unit breaker characteristics and size`,
         distanceFromWall: `Distance of the heat pump from the wall`,
-        isCompensatorInstalled: `Compensator to increase protection of the heat pump exchanger installed`,
+        isCompensatorInstalled: `Is a compensator or TSV D valve installed?`,
         isCirculationPumpFilterInstalled: `Circulation pump filter installed on the return line to the heat pump`,
         tanks: `Tanks`,
         typeOfAccumulationTank: `Accumulation tank type`,

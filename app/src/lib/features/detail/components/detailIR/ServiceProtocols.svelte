@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type IRID, spName, szName } from '$lib/helpers/ir';
+    import { type IRID, type SPID, spName, szName } from '$lib/helpers/ir';
     import type { Translations } from '$lib/translations';
     import { iridUrl } from '$lib/helpers/runes.svelte.js';
     import PDFLink from '$lib/features/detail/components/documentsIR/PDFLink.svelte';
@@ -31,48 +31,50 @@
     } = $props();
     const td = $derived(t.detail);
     const r = $derived($isUserRegulusOrAdmin);
+    const any = $derived(!!ir.SPs.keys().length);
+    const sorted = $derived(ir.SPs.entries().sortedBy(([_, p]) => new Date(p.zasah.datum)));
 
-    let openedDuplicateModal = $state<number>();
-    let openedDeleteModal = $state<number>();
-    const protocolToDuplicateIndex = $derived(openedDuplicateModal!);
-    const protocolToDeleteIndex = $derived(openedDeleteModal!);
+    let openedDuplicateModal = $state<SPID>();
+    let openedDeleteModal = $state<SPID>();
+    const protocolToDuplicateID = $derived(openedDuplicateModal!);
+    const protocolToDeleteID = $derived(openedDeleteModal!);
     const protocolToDelete = $derived(openedDeleteModal ? ir.SPs[openedDeleteModal] : undefined!);
 
     let processing = $state(false);
 </script>
 
 <h4 class="m-0">{r ? td.serviceProtocols : td.serviceInterventions}</h4>
-{#if ir.SPs.length}
+{#if any}
     <div class="flex flex-col gap-1 sm:items-start">
-        {#each ir.SPs as p, i}
+        {#each sorted as [id, p]}
             {@const showSP = isSP(p) && r}
             {#if showSP}
                 <PDFLink
-                    name={spName(p.zasah)} data={ir} {t} {lang} link="SP" index={i} {irid} dropdownItems={[{
+                    name={spName(p.zasah)} data={ir} {t} {lang} link="SP" {id} {irid} dropdownItems={[{
                         variant: 'primary',
                         icon: Eye,
                         text: td.viewFilledData,
-                        href: iridUrl(`/SP/?view=${i}`),
+                        href: iridUrl(`/SP/?view=${id}`),
                     }, {
                         variant: 'warning',
                         icon: FilePen,
                         text: td.editProtocol,
-                        href: iridUrl(`/SP/?edit=${i}`),
+                        href: iridUrl(`/SP/?edit=${id}`),
                     }, {
                         variant: 'primary',
                         icon: Trash2,
                         text: td.delete,
-                        onSelect: () => openedDeleteModal = i,
+                        onSelect: () => openedDeleteModal = id,
                     }, {
                         variant: 'primary',
                         icon: Copy,
                         text: td.duplicate,
-                        onSelect: () => openedDuplicateModal = i,
-                    }]}
+                        onSelect: () => openedDuplicateModal = id,
+                    }]} signed={ir.signatures?.SP?.[id]?.state == 'signed'}
                 />
             {:else}
                 <ButtonGroup>
-                    <Button href={iridUrl(`/SZ/?view=${i}`)} variant="outline">
+                    <Button href={iridUrl(`/SZ/?view=${id}`)} variant="outline">
                         <Eye />
                         {szName(p.zasah)}
                     </Button>
@@ -81,7 +83,7 @@
                             variant: 'warning',
                             icon: FilePen,
                             text: td.editIntervention,
-                            href: iridUrl(`/SZ/?edit=${i}`),
+                            href: iridUrl(`/SZ/?edit=${id}`),
                         }]} />
                     {/if}
                 </ButtonGroup>
@@ -93,8 +95,8 @@
 <div class="flex items-start">
     <Button href={iridUrl(r ? '/SP' : '/SZ')}>
         <Plus />
-        {r ? ir.SPs.length ? td.fillInAnotherProtocol : td.fillInProtocol
-            : ir.SPs.length ? td.fillInAnotherIntervention : td.fillInIntervention}
+        {r ? any ? td.fillInAnotherProtocol : td.fillInProtocol
+            : any ? td.fillInAnotherIntervention : td.fillInIntervention}
     </Button>
 </div>
 
@@ -113,7 +115,7 @@
             </AlertDialogCancel>
             <AlertDialogAction disabled={processing} onclick={async () => {
                 processing = true;
-                await copySP(protocolToDuplicateIndex, ir);
+                await copySP(protocolToDuplicateID, ir);
                 processing = false;
                 openedDuplicateModal = undefined;
             }}>
@@ -144,7 +146,7 @@
             </AlertDialogCancel>
             <AlertDialogAction variant="danger" disabled={processing} onclick={async () => {
                 processing = true;
-                await deleteSP(irid, protocolToDeleteIndex);
+                await deleteSP(irid, protocolToDeleteID);
                 processing = false;
                 openedDeleteModal = undefined;
             }}>

@@ -1,7 +1,8 @@
-import type { IR, NSP, RecommendationData, RecommendationState } from '$lib/data';
+import type { IR, NSP, RecommendationData, RecommendationState, SignatureState } from '$lib/data';
 import { app } from '$lib/server/firebase';
 import { getFirestore, QueryDocumentSnapshot, type WithFieldValue } from 'firebase-admin/firestore';
-import type { IRID } from '$lib/helpers/ir';
+import type { IRID, SPID } from '$lib/helpers/ir';
+import type { PdfDefiningParameter, PdfToSign } from '$lib/pdf/pdf';
 
 const firestore = app ? getFirestore(app) : getFirestore();
 
@@ -33,12 +34,12 @@ export const getIRs = () =>
     irCollection.get().then(s => s.docs.map(d => d.data()));
 
 export const changeState = (irid: IRID, value: RecommendationState, type: 'TČ' | 'SOL') => {
-    const field = type == 'TČ' ? 'yearlyHeatPumpCheckRecommendation' : 'yearlySolarSystemCheckRecommendation';
+    const field = type == 'TČ' ? 'RK.DK.TC' : 'RK.DK.SOL';
     return irCollection.doc(irid).update(field + '.state', value);
 };
 
 export const changeCode = (irid: IRID, code: string, type: 'TČ' | 'SOL') => {
-    const field = type == 'TČ' ? 'yearlyHeatPumpCheckRecommendation' : 'yearlySolarSystemCheckRecommendation';
+    const field = type == 'TČ' ? 'RK.DK.TC' : 'RK.DK.SOL';
     return irCollection.doc(irid).update(field + '.code', code);
 };
 
@@ -52,6 +53,18 @@ export const getAllSPs = () => spCollection.get().then(
 
 export const getIR = (irid: IRID) => irCollection.doc(irid).get().then(s => s.data());
 export const setCreatedIRBy = (irid: IRID, createdBy: IR['meta']['createdBy']) =>
-    irCollection.doc(irid).update('createdBy', createdBy);
+    irCollection.doc(irid).update('meta.createdBy', createdBy);
 export const setGrantedCommission = (irid: IRID) =>
-    irCollection.doc(irid).update('loyaltyProgram.grantedCommission', true);
+    irCollection.doc(irid).update('meta.flags.grantedCommission', true);
+
+export const setSignature = async (
+    type: 'IR' | 'SP',
+    id: IRID | SPID,
+    pdf: PdfToSign,
+    parameter: PdfDefiningParameter | undefined,
+    signature: SignatureState,
+) => {
+    const collection = type == 'IR' ? irCollection : spCollection;
+    const path = parameter ? `signatures.${pdf}.${parameter}` : `signatures.${pdf}`;
+    await collection.doc(id).update(path, signature);
+};

@@ -95,7 +95,7 @@ export default (ir: IR): FormPlus<FormUPT> => ({
             label: t => t.tc.pressureOfHeatingSystem, type: 'number', suffix: t => t.units.bar, compact: true,
         }),
         tlakEnTv: newInputWidget({
-            label: t => t.tc.pressureOfExpansionTankForWater, type: 'number', suffix: t => t.units.bar, compact: true,
+            label: t => t.tc.pressureOfExpansionTankForWater, type: 'number', suffix: t => t.units.bar, compact: true, required: false,
         }),
         prutokTcTopeni: newInputWidget({ // only new
             label: t => t.tc.heatPumpFlowRateHeating, compact: true,

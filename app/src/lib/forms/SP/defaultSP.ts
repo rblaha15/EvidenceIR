@@ -60,7 +60,7 @@ const sparePart = <C extends GenericContextSP<C>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 |
                 const nd = dil(c);
                 nd.code = part?.code?.let(String) ?? '';
                 nd.name = part?.name ?? '';
-                if (c.v.system.zaruka) nd.unitPrice = '0';
+                if (c.v.system.zaruka && c.v.system.zaruka != 'kompresor7') nd.unitPrice = '0';
                 else nd.unitPrice = part?.unitPrice?.let(String) ?? '';
                 nd.dil = null;
             }, getSearchItem: (i: SparePart, t, c) => ({
@@ -134,7 +134,7 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
             label: t => t.sp.technicianInitials,
             show: c => c.v.zasah.showNameFileds,
             showInXML: false,
-            lock: c => !!c.v.lockNameFields,
+            lock: c => !!c.edit
         }),
         nahlasenaZavada: newInputWidget({ label: t => t.sp.reportedFault, required: false }),
         _overflowFault: newTextWidget<C>({ text: (t, c) => inlineTooLong(c.v.zasah.nahlasenaZavada) ? t.sp.textTooLong : '' }),

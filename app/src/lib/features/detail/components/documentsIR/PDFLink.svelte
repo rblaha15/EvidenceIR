@@ -24,6 +24,7 @@
         dropdownItems,
         additionalButton,
         data,
+        signed,
         ...options
     }: Props<P> = $props();
 
@@ -39,11 +40,11 @@
             <FileInput />
             {#if name}<span>{name}</span>{/if}
         </Button>
-        {#if dropdownItems && !disabled}
+        {#if dropdownItems && !disabled && !signed}
             <SmallDropdown {dropdownItems} />
         {/if}
     </ButtonGroup>
-    {#if additionalButton && (additionalButton.show ?? disabled)}
+    {#if additionalButton && (additionalButton.show ?? disabled) && !signed}
         <ButtonGroup>
             <Button
                 variant={additionalButton.important ? 'primary' : 'outline'}
@@ -51,5 +52,9 @@
                 onclick={additionalButton.onclick}
             >{additionalButton.text}</Button>
         </ButtonGroup>
+    {/if}
+
+    {#if signed}
+        <div class="text-success">Podepsáno</div>
     {/if}
 </ButtonGroup>

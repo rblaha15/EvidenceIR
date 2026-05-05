@@ -6,7 +6,7 @@
     import PdfPreview from '$lib/components/pdf/PdfPreview.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
     import { downloadFile, printFile } from '$lib/helpers/files';
-    import { FileDown, Printer } from '@lucide/svelte';
+    import { FileDown, Printer, Signature, Server } from '@lucide/svelte';
     import { onMount } from "svelte";
     import { setTitle } from "$lib/helpers/globals";
     import { Button } from "$lib/components/ui/button";
@@ -28,6 +28,12 @@
         return url.toString();
     };
 
+    const signUrl = $derived.by(() => {
+        const url = page.url;
+        url.pathname += '/sign';
+        return url.href;
+    });
+
     onMount(() => setTitle(t.documentPreview, true));
 </script>
 
@@ -43,6 +49,20 @@
             goto(createLink(code), { replaceState: true, invalidateAll: true })
         } options={supportedLanguages} selected={data.fileLang} />
     </div>
+    {#if !data.signatureState && data.allowSigning}
+        <Button href={signUrl}>
+            <Signature />
+            Podepsat dokument
+        </Button>
+    {/if}
+    {#if data.signatureState?.state == 'signed'}
+        <div class="text-success">Dokument podepsán</div>
+        <Button variant="secondary" target="_blank"
+           href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fsigning~2F{data.irid || data.spids[0]}~2Fdocuments~2F{data.signatureKey}"
+        >
+            <Server />
+        </Button>
+    {/if}
     <Button onclick={download}>
         <FileDown />
         {t.downloadFile}

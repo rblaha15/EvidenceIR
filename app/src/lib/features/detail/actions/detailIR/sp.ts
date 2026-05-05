@@ -1,6 +1,6 @@
 import db from '$lib/Database';
 import { invalidateAll } from '$app/navigation';
-import type { IRID } from '$lib/helpers/ir';
+import type { IRID, SPID } from '$lib/helpers/ir';
 import type { ExistingIR } from '$lib/data';
 import { techniciansList } from '$lib/client/realtime';
 import { get } from 'svelte/store';
@@ -9,9 +9,9 @@ import { ensureSP } from '$lib/forms/SP/infoSP.svelte';
 
 export const deleteSP = db.deleteSP;
 
-export const copySP = async (i: number, ir: ExistingIR) => {
+export const copySP = async (id: SPID, ir: ExistingIR) => {
     const ja = get(techniciansList).find(t => get(currentUser)?.email == t.email);
-    const p = ensureSP(ir.SPs[i]);
+    const p = ensureSP(ir.SPs[id]);
     await db.addSPs(ir.meta.id!, {
         ...p,
         fakturace: {

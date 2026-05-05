@@ -4,8 +4,9 @@
     import { detailIrUrl, relUrl } from '$lib/helpers/runes.svelte';
     import { isUserAdmin } from '$lib/client/auth';
     import { iaA } from '$lib/helpers/stores';
+    import { restoreIR } from '$lib/features/detail/actions/restore';
     import Dates from '$lib/features/detail/components/Dates.svelte';
-    import { Eye, Server } from "@lucide/svelte";
+    import { Eye, Server, ArchiveRestore } from "@lucide/svelte";
     import { Button } from '$lib/components/ui/button';
 
     let { ir, td }: {
@@ -26,13 +27,15 @@
         <Button variant="secondary" href={relUrl(`/IN?view-irid=${ir.meta.id}`)}>
             <Eye /> {td.viewFilledData}
         </Button>
-        {#if $isUserAdmin}
-            <Button variant="secondary"
-                    href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fir~2F{ir.meta.id}"
-                    target="_blank">
-                <Server /> {td.openInDatabase}{iaA}
-            </Button>
-        {/if}
+        <Button variant="danger" onclick={restoreIR(ir.meta.id)}>
+            <ArchiveRestore />
+            Obnovit evidenci instalace{iaA}
+        </Button>
+        <Button variant="secondary"
+                href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fir~2F{ir.meta.id}"
+                target="_blank">
+            <Server /> {td.openInDatabase}{iaA}
+        </Button>
     </div>
 {/if}
 

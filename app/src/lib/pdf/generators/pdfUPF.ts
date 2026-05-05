@@ -56,6 +56,11 @@ const pdfUPF: GetPdfData<'UPF'> = async ({ data: { IN, UP: { FVE: UP }, }, t, la
         'Kombinované pole8': IN.fve.spolupraceIR ? tu.yes : tu.no,
         Text29: UP.connection.otherSmartControl,
         'Kombinované pole9': UP.connection.energySharing ? tu.yes : tu.no,
+        signature: {
+            x: 415,
+            y: 249,
+            maxWidth: 150,
+        },
     });
 };
 export default pdfUPF

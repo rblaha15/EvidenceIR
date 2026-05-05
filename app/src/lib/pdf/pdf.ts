@@ -24,7 +24,7 @@ import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 type AllPdf = {
     /** Zastaralá roční kontrola TČ */
     RKTL: 'IR'
-    /** Roční kontrola TČ */
+    /** Servisní prohlídka TČ */
     RKT: 'IR'
     /** Roční kontrola SOL */
     RKS: 'IR'
@@ -65,6 +65,22 @@ type AllPdf = {
     /** FaceTable */
     FT: 'IR'
 }
+
+export const pdfToSign = [
+    'ZLT', 'ZLS', 'RR', 'UPT', 'UPS', 'UPF', 'SP', 'NSP',
+] as const satisfies Pdf[];
+export type PdfToSign<T extends 'IR' | 'SP' = 'IR' | 'SP'> =
+    Extract<typeof pdfToSign[number], Pdf<T>>;
+
+export type PdfDefiningParameter<P extends PdfWithDefiningParameter = PdfWithDefiningParameter> = {
+    ZLT: number,
+    SP: SPID,
+}[P];
+export const pdfWithDefiningParameter = {
+    ZLT: 'pump',
+    SP: 'id',
+} as const satisfies Partial<Record<PdfToSign, string>>;
+export type PdfWithDefiningParameter = keyof typeof pdfWithDefiningParameter;
 
 export const pdfInfo: PdfInfo = {
     RKTL: {
@@ -107,6 +123,7 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'RR',
         supportedLanguages: ['cs', 'de'],
         title: t => t.rr.title,
+        shortTitle: t => t.rr.name,
         getPdfData: RR,
         doNotFlatten: true,
     },
@@ -140,6 +157,7 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'UPTL',
         supportedLanguages: ['cs', 'de'],
         title: t => t.tc.title,
+        shortTitle: t => t.tc.shortTitle,
         getPdfData: UPTL,
         doNotFlatten: true,
     },
@@ -148,6 +166,7 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'UPT',
         supportedLanguages: ['cs', 'de'],
         title: t => t.tc.title,
+        shortTitle: t => t.tc.shortTitle,
         getPdfData: UPT,
         doNotFlatten: true,
     },
@@ -156,6 +175,7 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'UPS',
         supportedLanguages: ['cs'],
         title: t => t.sol.title,
+        shortTitle: t => t.sol.shortTitle,
         getPdfData: UPS,
         doNotFlatten: true,
     },
@@ -197,6 +217,7 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'UPF',
         supportedLanguages: ['cs'],
         title: t => t.fve.title,
+        shortTitle: t => t.fve.shortTitle,
         getPdfData: UPF,
     },
     TCI: {
@@ -231,7 +252,11 @@ export type Pdf<T extends 'IR' | 'SP' | '' = 'IR' | 'SP' | ''> = {
 
 type TypeOfPdf<P extends Pdf> = AllPdf[P];
 export type DataOfPdf<P extends Pdf> = { IR: ExistingIR, SP: ExistingNSP, '': Record<never, never> }[TypeOfPdf<P>];
-export type PdfID<P extends Pdf> = { IR: { irid: IRID; spid?: undefined }, SP: { spid: SPID; irid?: undefined }, '': { spid?: undefined; irid?: undefined } }[TypeOfPdf<P>];
+export type PdfID<P extends Pdf> = {
+    IR: { irid: IRID; spid?: undefined },
+    SP: { spid: SPID; irid?: undefined },
+    '': { spid?: undefined; irid?: undefined }
+}[TypeOfPdf<P>];
 
 export type OpenPdfOptions<P extends Pdf> = {
     link: P,
@@ -239,11 +264,11 @@ export type OpenPdfOptions<P extends Pdf> = {
 } & PdfID<P> & PdfParameters<P>;
 
 export type GeneratePdfOptions<P extends Pdf> = {
-    args: PdfArgs<P>,
     lang: LanguageCode,
     data: DataOfPdf<P>,
     fetch?: typeof window.fetch,
     pages?: number[],
+    link: P,
 } & PdfParameters<P>;
 
 export type GetPdfData<P extends Pdf> = (o: {
@@ -259,6 +284,7 @@ export type PdfArgs<P extends Pdf> = {
     pdfName: string;
     supportedLanguages: LanguageCode[];
     title: (t: Translations) => string;
+    shortTitle?: (t: Translations) => string;
     saveOptions?: SaveOptions;
     requiredAdmin?: boolean;
     requiredRegulus?: boolean;
@@ -282,7 +308,7 @@ type PdfParams = {
         pump: TC,
     },
     SP: {
-        index: number,
+        id: SPID,
     },
     NSP: {
         pumpCount?: number,
@@ -318,5 +344,5 @@ export const generalizeServiceProtocol = (
                 (IN.jine?.popis ? `\nJiné zařízení: ${IN.jine.popis}` : '') +
                 (IN.tc.model ? '\n' + cascadePumps(IN).map(t.sp.pumpDetails).join('; ') : ''),
         },
-    }
+    },
 }) satisfies ExistingNSP;
