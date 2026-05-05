@@ -6,6 +6,7 @@ import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import { separatorsRegExp } from '$lib/forms/IN/defaultIN';
 import type { IR } from '$lib/data';
 import { datetimeFromISO, timeFromISO } from '$lib/helpers/date';
+import { isSP } from '$lib/forms/SP/infoSP.svelte';
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno
@@ -176,6 +177,10 @@ export type IRID = `${IRType}${string}`;
  * SP ID: RB-2024-12-31-23-59;
  */
 export type SPID = `${string}-${string}-${string}`;
+/**
+ * SZ ID: SZ-2024-12-31-23-59;
+ */
+export type SZID = `SZ-${string}-${string}`;
 
 const type = (irid: IRID) => irid[0] as IRType;
 
@@ -208,6 +213,14 @@ export const extractSPIDFromRawData = (zasah: Raw<GenericFormSP<never>['zasah']>
     const hodina = zasah.datum.split('T')[1]?.split(':')?.[0] || '';
     const minuta = zasah.datum.split('T')[1]?.split(':')?.[1] || '';
     const technik = zasah.inicialy.trim();
+    return `${technik}-${datum}-${hodina}-${minuta}`;
+};
+
+export const extractIDFromSPOrSZ = (p: Raw<GenericFormSZ<never>>): SPID | SZID => {
+    const datum = p.zasah.datum.split('T')[0] || '';
+    const hodina = p.zasah.datum.split('T')[1]?.split(':')?.[0] || '';
+    const minuta = p.zasah.datum.split('T')[1]?.split(':')?.[1] || '';
+    const technik = isSP(p) ? p.zasah.inicialy.trim() : 'SZ';
     return `${technik}-${datum}-${hodina}-${minuta}`;
 };
 

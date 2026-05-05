@@ -1,7 +1,7 @@
 import { startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
 import type { User } from 'firebase/auth';
 import { page } from '$app/state';
-import { spName } from '$lib/helpers/ir';
+import { extractSPIDFromRawData, type SPID, spName, type SZID } from '$lib/helpers/ir';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailIrUrl } from '$lib/helpers/runes.svelte';
@@ -20,43 +20,39 @@ import type { FormSZ } from '$lib/forms/SP/formSZ';
 export const isSP = (raw: Raw<FormSP | FormSZ> | undefined): raw is Raw<FormSP> => !!raw && ('ukony' in raw)
 export const ensureSP = (raw: Raw<FormSP | FormSZ> | undefined) => isSP(raw) ? raw : error(400, { message: 'Provided data is not a protocol' });
 
-const infoSP: FormInfo<ContextSP, FormSP, [[Technician[], User | null]], 'SP', { i: number }> = {
+const infoSP: FormInfo<ContextSP, FormSP, [[Technician[], User | null]], 'SP'> = {
     type: 'IR',
     storeName: () => 'stored_sp',
     form: () => defaultSP(),
-    openPdf: ({ i }) => ({
+    openPdf: raw => ({
         link: 'SP',
-        index: i,
+        id: extractSPIDFromRawData(raw.zasah),
     }),
     getEditData: (ir, url) => {
-        const editIndex = url.searchParams.get('edit') as string | null;
-        if (editIndex) {
-            const i = Number(editIndex);
-            const sp = ir.SPs[i];
-            return { raw: ensureSP(sp), other: { i } };
+        const editID = url.searchParams.get('edit') as SPID | SZID | null;
+        if (editID) {
+            const sp = ir.SPs[editID];
+            return { raw: ensureSP(sp) };
         }
     },
     getViewData: (ir, url) => {
-        const viewIndex = url.searchParams.get('view') as string | null;
-        if (viewIndex) {
-            const i = Number(viewIndex);
-            const sp = ir.SPs[i];
-            return { raw: ensureSP(sp), other: { i } };
-        } else {
-            return { other: { i: ir.SPs.length } };
+        const viewID = url.searchParams.get('view') as SPID | SZID | null;
+        if (viewID) {
+            const sp = ir.SPs[viewID];
+            return { raw: ensureSP(sp) };
         }
     },
-    saveData: async ({ irid, raw, edit, editResult, t, send, other: { i } }) => {
+    saveData: async ({ irid, raw, edit, editResult, t, send }) => {
         const name = spName(raw.zasah);
         const ir = (await db.getIR(irid))!;
-        if (ir.deleted) return false
+        if (ir.deleted) return false;
 
-        if (!edit && getIsOnline() && ir.SPs.some(p => isSP(p) && spName(p.zasah) == name)) {
+        if (!edit && getIsOnline() && ir.SPs.keys().includes(extractSPIDFromRawData(raw.zasah))) {
             editResult({ text: 'SP již existuje.', red: true, load: false });
             return false;
         }
 
-        if (edit) await db.updateSP(irid, i, raw);
+        if (edit) await db.updateSP(irid, raw);
         else await db.addSPs(irid, raw);
 
         if (!ir.UP.dateTC) await db.updateDateUPT(irid, raw.system.datumUvedeni);
@@ -84,7 +80,7 @@ const infoSP: FormInfo<ContextSP, FormSP, [[Technician[], User | null]], 'SP', {
         saveAndSendAgain: edit,
         saveAndSend: !edit,
     }),
-    createContext: ({ values: v, form: f, ir }) => ({ ir, f, v, raw: valuesToRawData(f, v) }),
+    createContext: ({ values: v, form: f, ir, mode }) => ({ ir, f, v, raw: valuesToRawData(f, v), edit: mode == 'edit' }),
     title: (t, mode) =>
         mode == 'edit' ? t.sp.editSP : t.sp.title,
     onMount: async ({ values, ir }) => {
