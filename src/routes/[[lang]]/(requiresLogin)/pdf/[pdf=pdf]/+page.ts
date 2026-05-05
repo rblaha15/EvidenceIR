@@ -36,7 +36,7 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
     if (pdf.type == 'IR' && (!data.ir || data.ir.deleted) || pdf.type == 'SP' && (data.sps.length != 1 || data.sps[0].deleted))
         error(500, { message: 'Data not loaded' });
 
-    const parameters = [...url.searchParams.entries()].toRecord().mapValues((_, v) => Number(v));
+    const parameters = [...url.searchParams.entries()].toRecord().mapValues((_, v) => isNaN(Number(v)) ? v : Number(v));
 
     const lang = url.searchParams.get('lang')
     const langProvided = isLanguageCode(lang);

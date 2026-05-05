@@ -47,13 +47,13 @@ export const load: PageLoad = async ({ parent }) => {
 
     const irs = derived([getAllIRs(), userInfo], ([$irs, usr]) => ({
         status: $irs.status, data: $irs.data
-            .filter(ir => Array.isArray(ir.SPs) && (usr.isUserAdmin || !ir.deleted))
+            .filter(ir => (usr.isUserAdmin || !ir.deleted))
             .map(ir => ({
                 t: 'IR',
                 id: ir.meta.id,
                 name: irName(ir.IN.ir),
                 label: irLabel(ir.IN),
-                sps: ir.SPs.filter(isSP).map(p => spName(p.zasah)),
+                sps: ir.SPs.getValues().filter(isSP).map(p => spName(p.zasah)),
                 draft: ir.isDraft,
                 deleted: ir.deleted,
                 modified: dateFromTimestamp(ir.meta.changedAt) || new Date(0),

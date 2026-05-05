@@ -134,7 +134,7 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
             label: t => t.sp.technicianInitials,
             show: c => c.v.zasah.showNameFileds,
             showInXML: false,
-            lock: c => !!c.v.lockNameFields,
+            lock: c => !!c.edit
         }),
         nahlasenaZavada: newInputWidget({ label: t => t.sp.reportedFault, required: false }),
         _overflowFault: newTextWidget<C>({ text: (t, c) => inlineTooLong(c.v.zasah.nahlasenaZavada) ? t.sp.textTooLong : '' }),

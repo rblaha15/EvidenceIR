@@ -11,7 +11,7 @@ const infoRKT: FormInfo<ContextRKTL, FormRKTL, [], 'RKTL', { defaultYear: Year, 
     type: 'IR',
     storeName: ({ pump }) => `stored_check-${pump}`,
     form: ({ defaultYear, filledYears }) => defaultRKTL(defaultYear, filledYears),
-    openPdf: ({ pump }) => ({
+    openPdf: (_, { pump }) => ({
         link: 'RKTL',
         pump: pump,
     }),

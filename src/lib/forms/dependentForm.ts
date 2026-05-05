@@ -38,8 +38,8 @@ export const removeDependency = async <
             return result != false;
         },
         redirectLink: async () => detailIrUrl(),
-        openPdf: openPdf ? async (_raw, other) => ({
-            ...openPdf(other), irid,
+        openPdf: openPdf ? async (raw, other) => ({
+            ...openPdf(raw, other), irid,
         } as OpenPdfOptions<P>) : undefined,
         createContext: args => createContext({ ...args, ir, IN: ir.IN }),
         onMount: args => onMount?.({ ...args, ir }),

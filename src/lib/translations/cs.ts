@@ -194,6 +194,7 @@ export default {
             sentEmail: t`Odeslaný email: ${'subject'}`,
             f: {
                 addIR: t`Zaevidován nový regulátor (${'ir'})`,
+                moveIR: t`Přesunut regulátor z ${'old'} na ${'new'}`,
                 deleteIR: t`Odstraněna evidence IR ${'ir'}`,
                 updateIN: t`Upravena data u IR ${'ir'}`,
                 addRKT: t`Vytvořena servisní prohlídka TČ ${'pump'} pro rok ${'year'} u IR ${'ir'}`,

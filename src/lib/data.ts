@@ -73,7 +73,7 @@ interface BaseIR {
             SOL?: RecommendationSettings;
         };
     };
-    SPs: Raw<FormSP | FormSZ>[];
+    SPs: Record<SPID, Raw<FormSP | FormSZ>>;
     FT?: Raw<FormFT>;
 }
 
@@ -157,7 +157,7 @@ export const newIR = (
         TC: {},
         DK: {},
     },
-    SPs: [],
+    SPs: {},
 });
 
 export const newNSP = (
