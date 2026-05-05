@@ -5,7 +5,7 @@ import { getReasonPhrase } from 'http-status-codes';
 import { cervenka, defaultAddresses, sendHtmlEmail, userAddress } from '$lib/client/email';
 import { dev } from '$app/environment';
 import { get } from 'svelte/store';
-import { type GeneratePdfOptions, pdfInfo, type PdfToSign } from '$lib/pdf/pdf';
+import { type DataOfPdf, type GeneratePdfOptions, pdfInfo, type PdfToSign } from '$lib/pdf/pdf';
 import { getTranslations } from '$lib/translations';
 import {  generatePdf } from '$lib/pdf/pdfGeneration';
 import db from '$lib/Database';
@@ -50,7 +50,7 @@ const sendEmails = async (
 };
 
 export const confirmCode = (
-    o: GeneratePdfOptions<PdfToSign>,
+    o: Omit<GeneratePdfOptions<PdfToSign>, 'data'>,
     params: CodeAttemptParams,
     setStatus: (s: SigningStatus, e?: string) => SigningStatus,
 ) => async () => {
@@ -65,13 +65,12 @@ export const confirmCode = (
         },
     });
 
-    if (pdfInfo[params.def.pdf].type == 'IR')
-        db.getIR(params.def.id as IRID).then();
-    else
-        db.getNSP(params.def.id as SPID).then();
+    const data = pdfInfo[params.def.pdf].type == 'IR'
+        ? await db.getIR(params.def.id as IRID)
+        : await db.getNSP(params.def.id as SPID);
 
     if (response.ok)
-        await sendEmails(o, params, setStatus);
+        await sendEmails({ ...o, data: data as DataOfPdf<PdfToSign> }, params, setStatus);
     else if (response.status == 400)
         setStatus(old, 'Nesprávné údaje.');
     else if (response.status == 401)

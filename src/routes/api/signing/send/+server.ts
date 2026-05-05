@@ -11,11 +11,12 @@ import { getTranslations } from '$lib/translations';
 const generateOTP = () => {
     const undivided = generate(8, {
         specialChars: false, lowerCaseAlphabets: false,
-    });
+    }).replaceAll('0', 'O');
     return undivided.slice(0, 4) + '-' + undivided.slice(4, 8);
 };
 
-const smsBody = (document: string, otp: string) => `Váš kód pro potvrzení dokumentu "${document}" je: ${otp}`;
+// limit 70 characters, 27 in the message, 9 in the otp, max. 34 in the doc name
+const smsBody = (document: string, otp: string) => `Autorizační kód pro "${document}" je: ${otp}`;
 
 export const POST: RequestHandler = async ({ request, url, fetch }) => {
     const token = url.searchParams.get('token')!;
@@ -35,7 +36,7 @@ export const POST: RequestHandler = async ({ request, url, fetch }) => {
     const last = livingMessages.last();
     if (last && (now - last.sentAt) < SMS_SEND_MINIMUM_WAIT_TIME) error(429);
 
-    const doc = pdf.title(getTranslations('cs'));
+    const doc = (pdf.shortTitle ?? pdf.title)(getTranslations('cs'));
     const otp = generateOTP();
 
     await sendSMS(smsBody(doc, otp), signingBy.phone, fetch);

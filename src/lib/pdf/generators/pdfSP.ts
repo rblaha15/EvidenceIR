@@ -113,7 +113,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
     const isUnknown = NSP.montazka.ico == unknownCRN;
     const fo = NSP.ukony.doba ? fieldsOperations.slice(1) : fieldsOperations;
     return {
-        fileNameSuffix: spName(NSP.zasah).replaceAll(/\/:/g, '_'),
+        fileNameSuffix: spName(NSP.zasah).replaceAll('/', '_'),
         Text1: spName(NSP.zasah),
         Text29: NSP.koncovyUzivatel.typ == 'company' ? `${t.in.companyName}:` : `Jméno a příjmení:`,
         Text2: endUserName(NSP.koncovyUzivatel),
