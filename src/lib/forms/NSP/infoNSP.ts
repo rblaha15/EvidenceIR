@@ -52,7 +52,7 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[], User | n
         spid: extractSPIDFromRawData(raw.zasah),
         lang: 'cs',
     }),
-    createContext: ({ values: v, form: f, mode }) => ({ v, f, lockNameFields: mode == 'edit' }),
+    createContext: ({ values: v, form: f, mode }) => ({ v, f, edit: mode == 'edit' }),
     title: (t, m) => m == 'edit' ? t.sp.editSP : t.sp.title,
     onMount: async () => {
         await startTechniciansListening();

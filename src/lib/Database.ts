@@ -1,4 +1,4 @@
-import type { IRID, SPID } from '$lib/helpers/ir';
+import type { IRID, SPID, SZID } from '$lib/helpers/ir';
 import type { Raw } from '$lib/forms/Form';
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { TC } from '$lib/forms/IN/defaultIN';
@@ -66,9 +66,9 @@ export interface WriteDatabase {
 
     addSPs(irid: IRID, ...protocols: Raw<FormSP | FormSZ>[]): Promise<void>;
 
-    updateSP(irid: IRID, index: number, protocol: Raw<FormSP | FormSZ>): Promise<void>;
+    updateSP(irid: IRID, protocol: Raw<FormSP | FormSZ>): Promise<void>;
 
-    deleteSP(irid: IRID, index: number): Promise<void>;
+    deleteSP(irid: IRID, id: SPID | SZID): Promise<void>;
 
     updateUPT(irid: IRID, protocol: Raw<FormUPT>): Promise<void>;
 

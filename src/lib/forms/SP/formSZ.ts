@@ -9,7 +9,7 @@ export interface FormSZ extends GenericFormSZ<ContextSZ>, Form<ContextSZ> {
 
 export interface GenericContextSZ<C extends GenericContextSZ<C>> {
     v: Values<GenericFormSZ<C>>;
-    lockNameFields?: boolean;
+    edit?: boolean;
 }
 
 export interface GenericFormSZ<C extends GenericContextSZ<C>> extends Form<C> {

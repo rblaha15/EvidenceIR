@@ -60,7 +60,7 @@ const infoRKT: FormInfo<ContextRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: 
     type: 'IR',
     storeName: ({ pump }) => `stored_check-${pump}`,
     form: ({ defaultYear, filledYears }) => defaultRKT(defaultYear, filledYears),
-    openPdf: ({ pump, hasLegacy }) => ({
+    openPdf: (_, { pump, hasLegacy }) => ({
         link: hasLegacy ? 'RKTL' : 'RKT',
         pump: pump,
     }),
