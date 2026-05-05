@@ -43,7 +43,7 @@
             goto(createLink(code), { replaceState: true, invalidateAll: true })
         } options={supportedLanguages} selected={data.fileLang} />
     </div>
-    {#if !data.signatureState}
+    {#if !data.signatureState && data.allowSigning}
         <a class="btn btn-primary" href={signUrl}>
             <Icon icon="border_color" />
             Podepsat dokument
