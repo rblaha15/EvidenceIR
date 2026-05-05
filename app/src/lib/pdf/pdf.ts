@@ -282,7 +282,7 @@ type PdfParams = {
         pump: TC,
     },
     SP: {
-        index: number,
+        id: SPID,
     },
     NSP: {
         pumpCount?: number,

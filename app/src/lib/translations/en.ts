@@ -269,6 +269,7 @@ const en: PlainTranslations = {
             unsentEmail: t`Unsent email: ${'subject'}`,
             f: {
                 addIR: t`Registered a new controller (${'ir'})`,
+                moveIR: t`Moved a controller from ${'old'} to ${'new'}`,
                 deleteIR: t`Removed the record of the ${'ir'} controller`,
                 updateIN: t`Changed the information of the ${'ir'} controller`,
                 addRKS: t`Created a yearly solar system check for year ${'year'} at the ${'ir'} controller`,

@@ -1,6 +1,6 @@
 import { derived, get, writable } from 'svelte/store';
 import { type IDBPDatabase, openDB } from 'idb';
-import { type IRID, type SPID } from '$lib/helpers/ir';
+import { extractIDFromSPOrSZ, type IRID, type SPID } from '$lib/helpers/ir';
 import { currentUser } from '$lib/client/auth';
 import type { Database, ReadDatabase, WriteDatabase } from '$lib/Database';
 import { serverTimestamp, type Timestamp } from 'firebase/firestore';
@@ -143,18 +143,18 @@ const writeDatabase: WriteDatabase = {
     }),
     addSPs: (irid, ...protocols) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.SPs.push(...protocols);
-        ir.SPs.sort((a, b) => new Date(a.zasah.datum).valueOf() - new Date(b.zasah.datum).valueOf());
+        ir.SPs = { ...protocols.associateBy(extractIDFromSPOrSZ), ...ir.SPs }
+            .entries().toRecord();
         return ir;
     }),
-    updateSP: async (irid, index, protocol) => odm.update('IR', irid, ir => {
+    updateSP: async (irid, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.SPs[index] = protocol;
+        ir.SPs[extractIDFromSPOrSZ(protocol)] = protocol;
         return ir;
     }),
-    deleteSP: async (irid, index) => odm.update('IR', irid, ir => {
+    deleteSP: async (irid, id) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
-        ir.SPs.splice(index, 1);
+        ir.SPs = ir.SPs.omit(id);
         return ir;
     }),
     updateUPT: async (irid, protocol) => odm.update('IR', irid, ir => {

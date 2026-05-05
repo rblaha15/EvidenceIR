@@ -9,8 +9,8 @@ export const defaultGenericSZ = <C extends GenericContextSZ<C>>(
     label: (t: Translations) => string = t => t.sz.interventionDescription,
 ): FormPlus<GenericFormSZ<C>> => ({
     zasah: {
-        datum: newInputWidget({ label: t => t.sp.interventionDate, type: 'datetime-local', text: nowISO() }),
-        clovek: newInputWidget({ label: t => t.sp.technicianName, show: showName, lock: c => !!c.lockNameFields }),
+        datum: newInputWidget({ label: t => t.sp.interventionDate, type: 'datetime-local', text: nowISO(), lock: c => !!c.edit }),
+        clovek: newInputWidget({ label: t => t.sp.technicianName, show: showName }),
         popis: newInputWidget({ label, required: descriptionRequired, textArea: true }),
     },
 });

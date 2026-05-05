@@ -143,12 +143,13 @@ const functions: {
     [F in WriteFunction]: (...args: Parameters<Database[F]>) => Parameters<Translations['nav']['history']['f'][F]>[0]
 } = {
     addIR: ir => ({ ir: irWholeName(ir.IN) }),
+    moveIR: (irid, ir) => ({ old: irNumberFromIRID(irid), new: irWholeName(ir.IN) }),
     deleteIR: irid => ({ ir: irNumberFromIRID(irid) }),
     updateIN: (_, e) => ({ ir: irName(e.ir) }),
     addRKT: (irid, pump, year) => ({ ir: irNumberFromIRID(irid), pump: `${pump}`, year: `${year}` }),
     addRKS: (irid, year) => ({ ir: irNumberFromIRID(irid), year: `${year}` }),
     addSPs: (irid, p) => ({ ir: irNumberFromIRID(irid), sp: isSP(p) ? spName(p.zasah) : szName(p.zasah) }),
-    updateSP: (irid, _, p) => ({ ir: irNumberFromIRID(irid), sp: isSP(p) ? spName(p.zasah) : szName(p.zasah) }),
+    updateSP: (irid, p) => ({ ir: irNumberFromIRID(irid), sp: isSP(p) ? spName(p.zasah) : szName(p.zasah) }),
     deleteSP: irid => ({ ir: irNumberFromIRID(irid) }),
     addFT: irid => ({ ir: irNumberFromIRID(irid) }),
     updateUPT: irid => ({ ir: irNumberFromIRID(irid) }),
