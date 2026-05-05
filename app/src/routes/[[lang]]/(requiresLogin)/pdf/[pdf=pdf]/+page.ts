@@ -8,6 +8,8 @@ import {
     type PdfArgs,
     pdfInfo,
     type PdfParameters,
+    type PdfToSign,
+    pdfToSign,
     type PdfWithDefiningParameter,
     pdfWithDefiningParameter,
 } from '$lib/pdf/pdf';
@@ -17,6 +19,9 @@ import type { IR, NSP } from '$lib/data';
 import { extractIDs, langAndPdfEntryGenerator } from '$lib/helpers/paths';
 import { getData } from '$lib/helpers/getData';
 import { getDefiningParameter, getSignatureState } from '$lib/helpers/signing';
+import type { SPID } from '$lib/helpers/ir';
+import type { Raw } from '$lib/forms/Form';
+import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 
 export const entries: EntryGenerator = langAndPdfEntryGenerator;
 
@@ -24,7 +29,18 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
     const pdfName = params.pdf as Pdf;
     if (!(pdfName in pdfInfo)) error(404);
 
-    if (!browser) return { url: '', fileName: '', irid: '', spids: [], fileLang: '', args: null, objectUrl: '', signatureState: undefined, signatureKey: '' };
+    if (!browser) return {
+        url: '',
+        fileName: '',
+        irid: '',
+        spids: [],
+        fileLang: '',
+        args: null,
+        objectUrl: '',
+        signatureState: undefined,
+        signatureKey: '',
+        allowSigning: false,
+    };
 
     if (!await checkAuth()) error(401);
 
@@ -72,12 +88,17 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
 
     const signatureKey = parameter ? `${pdfName}-${parameter}` : pdfName;
 
+    const allowSigning = pdfName != 'NSP' && pdfName != 'SP' ? pdfToSign.includes(pdfName as PdfToSign)
+        : pdfName == 'SP' ? (data.ir!.SPs[parameter as SPID] as Raw<FormSP>).fakturace.komu.chosen == 'investor'
+            : pdfName == 'NSP' ? data.sps[0].NSP.fakturace.komu.chosen == 'investor'
+                : false;
+
     const pageData = await parent();
     const t = pageData.translations;
 
     setTitle(t.pdf.documentPreview, true);
 
-    return { ...d, ...id, args: pdf, fileLang: language, signatureState, signatureKey };
+    return { ...d, ...id, args: pdf, fileLang: language, signatureState, signatureKey, allowSigning };
 };
 
 export const prerender = true;
