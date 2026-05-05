@@ -2,7 +2,7 @@ import type { IR, NSP, RecommendationData, RecommendationState, SignatureState }
 import { app } from '$lib/server/firebase';
 import { getFirestore, QueryDocumentSnapshot, type WithFieldValue } from 'firebase-admin/firestore';
 import type { IRID, SPID } from '$lib/helpers/ir';
-import type { PdfToSign } from '$lib/pdf/pdf';
+import type { PdfDefiningParameter, PdfToSign } from '$lib/pdf/pdf';
 
 const firestore = app ? getFirestore(app) : getFirestore();
 
@@ -61,7 +61,7 @@ export const setSignature = async (
     type: 'IR' | 'SP',
     id: IRID | SPID,
     pdf: PdfToSign,
-    parameter: number | undefined,
+    parameter: PdfDefiningParameter | undefined,
     signature: SignatureState,
 ) => {
     const collection = type == 'IR' ? irCollection : spCollection;

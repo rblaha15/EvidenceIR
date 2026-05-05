@@ -16,7 +16,7 @@ import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { FormSZ } from '$lib/forms/SP/formSZ';
 import type { FriendlyCompanies } from '$lib/client/realtime';
-import type { PdfToSign, PdfWithDefiningParameter } from '$lib/pdf/pdf';
+import type { PdfDefiningParameter, PdfToSign, PdfWithDefiningParameter } from '$lib/pdf/pdf';
 
 export type Year = number;
 
@@ -67,6 +67,11 @@ export interface ExistingIR extends BaseIR {
     deleted: false;
 }
 
+export type Signatures<T extends 'IR' | 'SP'> = {
+    [P in PdfToSign<T>]?: P extends PdfWithDefiningParameter
+        ? Record<PdfDefiningParameter<P>, SignatureState> : SignatureState;
+};
+
 interface BaseIR {
     isDraft: boolean;
     meta: {
@@ -84,10 +89,7 @@ interface BaseIR {
             confirmedRefsite?: boolean;
         };
     };
-    signatures?: {
-        [P in PdfToSign<'IR'>]?: P extends PdfWithDefiningParameter
-            ? Record<number, SignatureState> : SignatureState;
-    };
+    signatures?: Signatures<'IR'>;
     IN: Raw<FormIN>;
     UP: {
         TC?: Raw<FormUPT>;
@@ -131,10 +133,7 @@ interface BaseNSP {
             email: string;
         };
     };
-    signatures?: {
-        [P in PdfToSign<'SP'>]?: P extends PdfWithDefiningParameter
-            ? Record<number, SignatureState> : SignatureState;
-    };
+    signatures?: Signatures<'SP'>;
     NSP: Raw<FormNSP>;
 }
 

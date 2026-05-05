@@ -71,7 +71,7 @@
         </div>
     </div>
 {/if}
-{#if $settings && $settings.state == 'signed'}
+{#if $settings && $settings.state == 'signed' && status != 'sendingEmail' && status != 'end'}
     <div class="alert alert-danger d-flex flex-column gap-3">
         Tento dokument byl již podepsán!
     </div>

@@ -15,6 +15,7 @@ import type { DocumentDefinition } from '$lib/features/signing/domain/sms';
 import { waitUntil } from '$lib/helpers/stores';
 import { getDataAsStore } from '$lib/helpers/getData';
 import { derived, type Readable } from 'svelte/store';
+import { getDefiningParameter, getSignatureState } from '$lib/helpers/signing';
 
 export const loadSigning = async (
     pdfName: PdfToSign,
@@ -30,8 +31,7 @@ export const loadSigning = async (
     const parameterName = pdfName in pdfWithDefiningParameter
         ? pdfWithDefiningParameter[pdfName as PdfWithDefiningParameter] : undefined;
 
-    const parameter = parameterName
-        ? url.searchParams.get(parameterName)?.toNumber() : undefined;
+    const parameter = getDefiningParameter(parameterName, url);
 
     if (parameterName && !parameter) error(400, { message: `Parameter ${parameterName} not provided!` });
 
@@ -58,14 +58,13 @@ export const loadSigning = async (
     if (pdf.type == 'IR') {
         if (!id.irid) error(400, { message: 'irid must be provided to access this document!' });
 
-        settings = derived(data.ir, $ir => parameter
-            ? $ir?.signatures?.[pdfName as PdfWithDefiningParameter]?.[parameter]
-            : $ir?.signatures?.[pdfName as Exclude<PdfToSign<'IR'>, PdfWithDefiningParameter>]);
+        settings = derived(data.ir, $ir =>
+            getSignatureState($ir, pdfName, parameter));
     } else {
         if (!id.spids || id.spids.length != 1) error(400, { message: 'spids must be provided to access this document!' });
 
         settings = derived(data.sp, $sp =>
-            $sp?.signatures?.[pdfName as PdfToSign<'SP'>]);
+            getSignatureState($sp, pdfName, parameter));
     }
 
     const def: DocumentDefinition = {
