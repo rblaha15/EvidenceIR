@@ -1,11 +1,19 @@
 import { PDFDocument } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { getTranslations } from '$lib/translations';
-import { type GeneratePdfOptions, type Pdf, pdfInfo, type PdfWithDefiningParameter, pdfWithDefiningParameter } from '$lib/pdf/pdf';
+import {
+    type GeneratePdfOptions,
+    type Pdf,
+    type PdfDefiningParameter,
+    pdfInfo,
+    type PdfWithDefiningParameter,
+    pdfWithDefiningParameter,
+} from '$lib/pdf/pdf';
 import { irLabel, spName } from '$lib/helpers/ir';
-import { type ExistingIR, type ExistingNSP, type IR, type NSP, type SignatureState } from '../data';
+import { type ExistingIR, type ExistingNSP, type IR, type NSP } from '../data';
 import { createFileUrl } from '$lib/helpers/files';
 import { ColorTypes } from 'pdf-lib/cjs/api/colors';
+import { getSignatureState } from '$lib/helpers/signing';
 
 type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Dropdown' | '_'
 
@@ -179,12 +187,8 @@ export const generatePdf = async <P extends Pdf>(
 
     if (formData.signature) {
         const parameterName = o.link in pdfWithDefiningParameter ? pdfWithDefiningParameter[o.link as PdfWithDefiningParameter] : undefined;
-        const parameter = parameterName ? o[parameterName as keyof typeof o] as number : undefined;
-        const signatures = (data as ExistingIR | ExistingNSP).signatures ?? {};
-        const settings = parameter
-            ? signatures?.[o.link as keyof typeof signatures]?.[parameter]
-            : signatures?.[o.link as keyof typeof signatures] as SignatureState | undefined;
-        // const settings = signatures?.['RR' as keyof typeof signatures] as SignatureState | undefined;
+        const parameter = parameterName ? o[parameterName as keyof typeof o] as PdfDefiningParameter : undefined;
+        const settings = getSignatureState(data as ExistingIR | ExistingNSP, o.link, parameter);
         if (settings?.state == 'signed') {
             const { x, y, maxWidth: mw, page: p } = formData.signature;
 

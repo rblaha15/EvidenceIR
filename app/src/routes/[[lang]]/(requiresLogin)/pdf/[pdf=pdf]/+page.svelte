@@ -45,7 +45,7 @@
     </div>
     {#if !data.signatureState}
         <a class="btn btn-primary" href={signUrl}>
-            <Icon icon="file_download" />
+            <Icon icon="border_color" />
             Podepsat dokument
         </a>
     {/if}

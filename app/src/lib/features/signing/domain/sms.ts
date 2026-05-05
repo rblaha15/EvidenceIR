@@ -1,5 +1,5 @@
 import type { IRID, SPID } from '$lib/helpers/ir';
-import type { PdfToSign } from '$lib/pdf/pdf';
+import type { PdfDefiningParameter, PdfToSign } from '$lib/pdf/pdf';
 import type { OTP } from '$lib/data';
 
 /** 2 min */
@@ -12,7 +12,7 @@ export const SMS_ATTEMPT_MINIMUM_WAIT_TIME = 1000 * 30;
 export interface DocumentDefinition {
     id: IRID | SPID;
     pdf: PdfToSign;
-    parameter?: number;
+    parameter?: PdfDefiningParameter;
 }
 
 export interface CodeAttemptParams extends SendCodeParams {

@@ -72,9 +72,13 @@ export const pdfToSign = [
 export type PdfToSign<T extends 'IR' | 'SP' = 'IR' | 'SP'> =
     Extract<typeof pdfToSign[number], Pdf<T>>;
 
+export type PdfDefiningParameter<P extends PdfWithDefiningParameter = PdfWithDefiningParameter> = {
+    ZLT: number,
+    SP: SPID,
+}[P];
 export const pdfWithDefiningParameter = {
     ZLT: 'pump',
-    SP: 'index',
+    SP: 'id',
 } as const satisfies Partial<Record<PdfToSign, string>>;
 export type PdfWithDefiningParameter = keyof typeof pdfWithDefiningParameter;
 

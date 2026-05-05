@@ -8,7 +8,6 @@ import {
     type PdfArgs,
     pdfInfo,
     type PdfParameters,
-    type PdfToSign,
     type PdfWithDefiningParameter,
     pdfWithDefiningParameter,
 } from '$lib/pdf/pdf';
@@ -17,6 +16,7 @@ import { isLanguageCode } from '$lib/languages';
 import type { IR, NSP } from '$lib/data';
 import { extractIDs, langAndPdfEntryGenerator } from '$lib/helpers/paths';
 import { getData } from '$lib/helpers/getData';
+import { getDefiningParameter, getSignatureState } from '$lib/helpers/signing';
 
 export const entries: EntryGenerator = langAndPdfEntryGenerator;
 
@@ -64,13 +64,11 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
     const parameterName = pdfName in pdfWithDefiningParameter
         ? pdfWithDefiningParameter[pdfName as PdfWithDefiningParameter] : undefined;
 
-    const parameter = parameterName
-        ? url.searchParams.get(parameterName)?.toNumber() : undefined;
+    const parameter = getDefiningParameter(parameterName, url);
 
-    const signatureState = pdf.type == 'IR' ? parameter
-            ? data.ir?.signatures?.[pdfName as PdfWithDefiningParameter]?.[parameter]
-            : data.ir?.signatures?.[pdfName as Exclude<PdfToSign<'IR'>, PdfWithDefiningParameter>]
-        : data.sps[0]?.signatures?.[pdfName as PdfToSign<'SP'>];
+    const signatureState = getSignatureState(
+        pdf.type == 'IR' ? data.ir : data.sps[0], pdfName, parameter,
+    );
 
     const signatureKey = parameter ? `${pdfName}-${parameter}` : pdfName;
 
