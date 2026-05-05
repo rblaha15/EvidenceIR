@@ -123,6 +123,7 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'RR',
         supportedLanguages: ['cs', 'de'],
         title: t => t.rr.title,
+        shortTitle: t => t.rr.name,
         getPdfData: RR,
         doNotFlatten: true,
     },
@@ -156,6 +157,7 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'UPTL',
         supportedLanguages: ['cs', 'de'],
         title: t => t.tc.title,
+        shortTitle: t => t.tc.shortTitle,
         getPdfData: UPTL,
         doNotFlatten: true,
     },
@@ -164,6 +166,7 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'UPT',
         supportedLanguages: ['cs', 'de'],
         title: t => t.tc.title,
+        shortTitle: t => t.tc.shortTitle,
         getPdfData: UPT,
         doNotFlatten: true,
     },
@@ -172,6 +175,7 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'UPS',
         supportedLanguages: ['cs'],
         title: t => t.sol.title,
+        shortTitle: t => t.sol.shortTitle,
         getPdfData: UPS,
         doNotFlatten: true,
     },
@@ -213,6 +217,7 @@ export const pdfInfo: PdfInfo = {
         pdfName: 'UPF',
         supportedLanguages: ['cs'],
         title: t => t.fve.title,
+        shortTitle: t => t.fve.shortTitle,
         getPdfData: UPF,
     },
     TCI: {
@@ -279,6 +284,7 @@ export type PdfArgs<P extends Pdf> = {
     pdfName: string;
     supportedLanguages: LanguageCode[];
     title: (t: Translations) => string;
+    shortTitle?: (t: Translations) => string;
     saveOptions?: SaveOptions;
     requiredAdmin?: boolean;
     requiredRegulus?: boolean;

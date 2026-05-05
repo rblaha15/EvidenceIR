@@ -29,8 +29,8 @@
         name: endUserName(endUser), phone: addCzechCountryCode(endUser.telefon), email: endUserEmails(endUser)[0],
     });
     const params: SendCodeParams = $derived({ def, signingBy, initiatingUserName: $currentUser?.displayName || undefined });
-    const o: GeneratePdfOptions<PdfToSign> = $derived({
-        data: $ir || $sp!, link: def.pdf, lang: 'cs',
+    const o: Omit<GeneratePdfOptions<PdfToSign>, 'data'> = $derived({
+        link: def.pdf, lang: 'cs',
         ...def.parameter ? { [pdfWithDefiningParameter[def.pdf as PdfWithDefiningParameter]]: def.parameter } : {},
     });
 
@@ -47,11 +47,11 @@
     };
 
     const codeWidget = newInputWidget({
-        label: 'OTP',
-        maskOptions: { mask: 'AAAA-AAAA', definitions: { 'A': /[0-9a-zA-Z]/ } },
+        label: 'Kód z SMS',
+        maskOptions: { mask: 'AAAA-AAAA', definitions: { 'A': /[1-9a-zA-Z]/ } },
         capitalize: true,
         autocapitalize: 'characters',
-        regex: /^[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}$/,
+        regex: /^[1-9a-zA-Z]{4}-[1-9a-zA-Z]{4}$/,
     });
     let code = $state('');
 
@@ -104,7 +104,7 @@
         <div class="alert alert-success d-flex flex-column gap-3">
             <p class="m-0">Zpráva byla odeslána</p>
             <div class="d-flex flex-column align-items-end">
-                <button class="btn btn-success" onclick={() => error = undefined}>Skrýt</button>
+                <button class="btn btn-success" onclick={() => status = 'sent'}>Skrýt</button>
             </div>
         </div>
     {/if}
