@@ -174,7 +174,7 @@ const writeDatabase: WriteDatabase = {
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
         await updateDoc(irDoc(irid), {
             ...ir,
-            SPs: { [extractIDFromSPOrSZ(protocol)]: protocol, ...ir.SPs },
+            SPs: { ...ir.SPs, [extractIDFromSPOrSZ(protocol)]: protocol },
             meta: {
                 ...ir.meta,
                 changedAt: serverTimestamp() as Timestamp,
