@@ -23,7 +23,7 @@
                 warning: 'bg-warning text-warning-foreground hover:bg-warning/80',
                 outline: 'bg-secondary/30 border-secondary-foreground/40 hover:bg-secondary/80',
                 ghost: 'hover:bg-secondary/80',
-                link: 'text-tertiary underline-offset-4 hover:underline',
+                link: 'text-primary underline-offset-4 hover:underline',
             },
             size: {
                 default: 'h-9 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5',

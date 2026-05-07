@@ -3,7 +3,7 @@
     import { checkAuth, currentUser, userInfo } from '$lib/client/auth';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import { onMount, type Snippet } from 'svelte';
-    import { backButton, endLoading, hideNav, initialRouteLoggedIn, initialRouteLoggedOut, progress, startLoading, title } from '$lib/helpers/globals';
+    import { backButton, endLoading, hideNav, hideTitle, initialRouteLoggedIn, initialRouteLoggedOut, progress, startLoading, title } from '$lib/helpers/globals';
     import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { dev } from '$app/environment';
     import { page } from '$app/state';
@@ -135,15 +135,17 @@
         <div class="grow overflow-y-auto [scrollbar-gutter:stable]">
             <main class="flex min-h-full w-full justify-center gap-4 px-4 pb-2 md:px-8">
                 <div class="flex w-full flex-col gap-4 pt-4 has-[+.toc]:max-w-2xl">
-                    <h1 id="main-title" class="flex items-center gap-4">
-                        {#if $backButton}
-                            <Button size="icon" variant="ghost" onclick={() => history.back()}>
-                                <ArrowLeft class="size-8" />
-                                <span class="sr-only">{t.nav.back}</span>
-                            </Button>
-                        {/if}
-                        {$title}
-                    </h1>
+                    {#if !$hideTitle}
+                        <h1 id="main-title" class="flex items-center gap-4">
+                            {#if $backButton}
+                                <Button size="icon" variant="ghost" onclick={() => history.back()}>
+                                    <ArrowLeft class="size-8" />
+                                    <span class="sr-only">{t.nav.back}</span>
+                                </Button>
+                            {/if}
+                            {$title}
+                        </h1>
+                    {/if}
                     {@render children?.()}
                 </div>
                 {#if showTOC}

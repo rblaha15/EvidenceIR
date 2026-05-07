@@ -15,11 +15,11 @@
 
 {#if !page.route.id?.endsWith('login')}
     <Button href={relUrl(`/login?redirect=${redirect}`)}>
-        {ta.toLogIn}
+        {ta.logIn}
     </Button>
 {/if}
 {#if !page.route.id?.endsWith('signup')}
     <Button href={relUrl(`/signup?redirect=${redirect}`)} variant="outline">
-        {ta.toSignUp}
+        {ta.signUp}
     </Button>
 {/if}

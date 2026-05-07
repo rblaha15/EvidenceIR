@@ -11,6 +11,13 @@
     import { goto } from '$app/navigation';
     import { logEvent } from 'firebase/analytics';
     import { analytics } from '../../../hooks.client';
+    import { Spinner } from "$lib/components/ui/spinner";
+    import { Alert, AlertTitle } from '$lib/components/ui/alert';
+    import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '$lib/components/ui/card';
+    import { Button } from '$lib/components/ui/button';
+    import { Input } from '$lib/components/ui/input';
+    import { Field, FieldError, FieldGroup, FieldLabel } from '$lib/components/ui/field';
+    import { Check } from "@lucide/svelte";
 
     const { data }: PageProps = $props();
     const t = $derived(data.translations.auth);
@@ -36,10 +43,10 @@
 
     const redirect = $derived(browser ? page.url.searchParams.get('redirect') ?? initialRouteLoggedIn : initialRouteLoggedIn);
     $effect(() => {
-        mode = page.url.searchParams.get('mode') as typeof mode;
+        mode = page.url.searchParams.get('mode') as typeof mode || 'loading';
     });
 
-    let error: string | null = $state(null);
+    let error = $state('');
 
     const sendCode = async () => {
         mode = 'resetSending';
@@ -85,75 +92,76 @@
             });
     };
 
-    onMount(() => setTitle(t.newPassword));
+    onMount(() => setTitle(t.newPassword, false, false, true));
 </script>
 
-{#if mode === 'resetSent'}
-    <p>{t.emailSent}</p>
+{#if mode === 'loading'}
+    <Spinner class="m-4 size-8 text-danger" />
+{:else if mode === 'resetSent'}
+    <Alert variant="success">
+        <Check />
+        <AlertTitle>{t.emailSent}</AlertTitle>
+    </Alert>
 {:else if mode === 'resetSending'}
-    <div class="flex items-center">
-        <span>{t.sending}</span>
-        <div class="spinner-border text-danger ms-2"></div>
-    </div>
+    <Alert>
+        <Spinner />
+        <AlertTitle>{t.sending}</AlertTitle>
+    </Alert>
 {:else if mode === 'resetEmail' || !oobCode}
-    <form>
-        <FormDefaults />
-        <div class="mt-4">
-            <input
-                autocomplete="email"
-                type="email"
-                class="form-control"
-                placeholder={t.email}
-                bind:value={email}
-            />
-        </div>
-        {#if error}
-            <p class="text-danger mt-4 mb-0">{@html error}</p>
-        {/if}
-        <div class="flex align-content-center mt-4">
-            <button type="submit" class="btn btn-primary me-2" onclick={sendCode}>
-                {t.sendConfirmEmail}
-            </button>
-            <button type="button" class="btn btn-secondary" onclick={() => history.back()}>
-                {t.back}
-            </button>
-        </div>
-    </form>
+    <Card class="mx-auto mt-8 w-full max-w-sm">
+        <CardHeader>
+            <CardTitle class="text-xl">{t.newPassword}</CardTitle>
+        </CardHeader>
+        <CardContent class="grid gap-4">
+            <form>
+                <FormDefaults />
+                <FieldGroup>
+                    <Field>
+                        <FieldLabel for="email">{t.email}</FieldLabel>
+                        <Input id="email" autocomplete="email" type="email" bind:value={email} />
+                    </Field>
+                    {#if error}
+                        <FieldError>{error}</FieldError>
+                    {/if}
+                </FieldGroup>
+            </form>
+        </CardContent>
+        <CardFooter class="gap-2">
+            <Button type="submit" class="grow" onclick={sendCode}>{t.sendConfirmEmail}</Button>
+            <Button variant="secondary" onclick={() => history.back()}>{t.back}</Button>
+        </CardFooter>
+    </Card>
 {:else}
-    <form>
-        <FormDefaults />
-        <div class="mt-4">
-            <input
-                autocomplete="new-password"
-                type="password"
-                class="form-control"
-                placeholder={t.password}
-                bind:value={password}
-            />
-        </div>
-        <div class="mt-4">
-            <input
-                autocomplete="new-password"
-                type="password"
-                class="form-control"
-                placeholder={t.confirmPassword}
-                bind:value={confirmPassword}
-            />
-        </div>
-        {#if error}
-            <p class="text-danger mt-4 mb-0">{@html error}</p>
-        {/if}
-        <div class="flex align-content-center mt-4">
-            {#if mode === "saving"}
-                <div class="spinner-border text-danger m-2"></div>
-            {:else}
-                <button type="submit" class="btn btn-primary me-2" onclick={resetPassword}>
-                    {t.save}
-                </button>
-            {/if}
-            <button type="button" class="btn btn-secondary" onclick={() => history.back()}>
-                {t.back}
-            </button>
-        </div>
-    </form>
+    <Card class="mx-auto mt-8 w-full max-w-sm">
+        <CardHeader>
+            <CardTitle class="text-xl">{t.newPassword}</CardTitle>
+        </CardHeader>
+        <CardContent class="grid gap-4">
+            <form>
+                <FormDefaults />
+                <FieldGroup>
+                    <Field>
+                        <FieldLabel for="password">{t.password}</FieldLabel>
+                        <Input id="password" autocomplete="new-password" type="password" bind:value={password} />
+                    </Field>
+                    <Field>
+                        <FieldLabel for="password">{t.confirmPassword}</FieldLabel>
+                        <Input id="password" autocomplete="new-password" type="password" bind:value={confirmPassword} />
+                    </Field>
+                    {#if error}
+                        <FieldError>{error}</FieldError>
+                    {/if}
+                </FieldGroup>
+            </form>
+        </CardContent>
+        <CardFooter class="gap-2">
+            <Button type="submit" class="grow" onclick={resetPassword} disabled={mode === 'saving'}>
+                {#if mode === 'saving'}
+                    <Spinner />
+                {/if}
+                {t.save}
+            </Button>
+            <Button variant="secondary" onclick={() => history.back()}>{t.back}</Button>
+        </CardFooter>
+    </Card>
 {/if}
