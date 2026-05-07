@@ -20,7 +20,7 @@
 
 <PDFLink
     data={sp} dropdownItems={[{
-        variant: 'default',
+        variant: 'primary',
         icon: Eye,
         text: td.viewFilledData,
         href: relUrl(`/NSP?view-spid=${spid}`),
@@ -30,7 +30,7 @@
         text: td.editProtocol,
         href: relUrl(`/NSP?edit-spid=${spid}`),
     }, {
-        variant: 'destructive',
+        variant: 'danger',
         icon: Trash2,
         text: td.deleteProtocol + $aA,
         onSelect: () => {
@@ -39,7 +39,7 @@
         },
         hide: !$isUserAdmin,
     }, {
-        variant: 'default',
+        variant: 'primary',
         icon: Server,
         text: td.openInDatabase + $aA,
         onSelect: () => { window.open(`https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fsp~2F${spid}`) },

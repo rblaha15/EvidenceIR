@@ -7,20 +7,25 @@
     import { derived } from 'svelte/store';
     import db from '$lib/Database';
     import { newSearchWidget } from '$lib/forms/Widget';
-    import { onMount } from "svelte";
+    import { onMount } from 'svelte';
+    import { Button } from '$lib/components/ui/button';
+    import { Trash } from '@lucide/svelte';
+    import { Item, ItemContent, ItemSeparator, ItemTitle, ItemActions } from '$lib/components/ui/item';
 
     const { data }: PageProps = $props();
 
-    const { translations: t, irid, ir } = $derived(data)
+    const { translations: t, irid, ir } = $derived(data);
 
     onMount(() => setTitle(t.users.title, true));
 
     const w = newSearchWidget({
-        items: derived(usersList, l => l.map(i => i.email)), getSearchItem: i => ({
-            pieces: [
-                { text: i },
-            ],
-        }), required: false, label: t => t.users.email, type: 'email',
+        items: derived(usersList, l => l.map(i => i.email)),
+        getSearchItem: i => ({
+            pieces: [{ text: i }],
+        }),
+        required: false,
+        label: t => t.users.email,
+        type: 'email',
     });
     let v = $state(w.defaultValue);
 </script>
@@ -28,42 +33,38 @@
 {#if $ir && irid}
     <h3 class="m-0">{irWholeName($ir.IN)}</h3>
 
-    <div class="flex items-center gap-4">
+    <div class="flex items-end gap-4">
         <Search bind:value={v} widget={w} context={{}} {t} class="grow" showAllErrors={true} />
-        <button
-            class="btn btn-success"
-            type="submit"
+        <Button
             onclick={() => {
                 if (!v) return;
-				db.updateUsersWithAccessToIR(irid, [...new Set([...$ir.meta.usersWithAccess, v])]);
-				v = null;
-			}}
-        >{t.users.addUser}</button>
+                db.updateUsersWithAccessToIR(irid, [...new Set([...$ir.meta.usersWithAccess, v])]);
+                v = null;
+            }}
+        >
+            {t.users.addUser}
+        </Button>
     </div>
-    <div class="list-group list-group-flush">
+    <div>
         {#each $ir.meta.usersWithAccess as user}
-            <div class="list-group-item flex items-center gap-4">
-                {user}
-                <button
-                    class="btn text-danger"
-                    onclick={() => {
-						db.updateUsersWithAccessToIR(irid, $ir.meta.usersWithAccess.toSpliced($ir.meta.usersWithAccess.indexOf(user), 1));
-					}}
-                    aria-label={t.users.remove}
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        fill="currentColor"
-                        viewBox="0 0 16 16"
+            <Item>
+                <ItemContent>
+                    <ItemTitle>{user}</ItemTitle>
+                </ItemContent>
+                <ItemActions>
+                    <Button
+                        class="text-danger"
+                        variant="ghost"
+                        onclick={() => {
+                            db.updateUsersWithAccessToIR(irid, $ir.meta.usersWithAccess.toSpliced($ir.meta.usersWithAccess.indexOf(user), 1));
+                        }}
+                        aria-label={t.users.remove}
                     >
-                        <path
-                            d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-12.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-12.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"
-                        />
-                    </svg>
-                </button>
-            </div>
+                        <Trash />
+                    </Button>
+                </ItemActions>
+            </Item>
+            <ItemSeparator />
         {/each}
     </div>
 {/if}

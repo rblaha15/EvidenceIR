@@ -70,7 +70,7 @@
 </script>
 
 {#if done}
-	<Alert>
+	<Alert variant="success">
 		<AlertTitle>
 			{#if done === 'edit'}
 				{t.passwordEdited}

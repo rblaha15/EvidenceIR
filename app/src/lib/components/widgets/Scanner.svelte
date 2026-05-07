@@ -67,7 +67,7 @@
             </DialogHeader>
             <div class="*:[video]:rounded-2xl" id="reader" {@attach reader}></div>
             <DialogFooter>
-                <DialogClose class={buttonVariants({ variant: 'destructive' })}>{t.widget.cancel}</DialogClose>
+                <DialogClose class={buttonVariants({ variant: 'danger' })}>{t.widget.cancel}</DialogClose>
             </DialogFooter>
         </DialogContent>
     </Dialog>

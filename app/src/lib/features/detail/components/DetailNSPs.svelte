@@ -100,7 +100,7 @@
 
                 <div class="flex flex-col gap-1 sm:items-start">
                     <Widget {widget} bind:value={newIRID} {t} context={{}} {showAllErrors} />
-                    <Button variant="destructive" onclick={transfer}>
+                    <Button variant="danger" onclick={transfer}>
                         <FileSymlink />
                         {td.transferProtocols}{$aA}
                     </Button>

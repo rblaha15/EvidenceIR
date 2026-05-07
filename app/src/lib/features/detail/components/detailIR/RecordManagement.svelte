@@ -43,7 +43,7 @@
 </div>
 <div class="flex flex-col gap-1 sm:items-start">
     {#if $isUserRegulusOrAdmin}
-        <Button variant="outline" href={iridUrl('/users')}>
+        <Button variant="tertiary" href={iridUrl('/users')}>
             <Users /> {td.usersWithAccess}{$aR}
         </Button>
     {/if}

@@ -38,7 +38,7 @@
     const w = newSearchWidget({
         type: 'search',
         required: false,
-        label: t => t.search.search,
+        label: '',
         items: () => itemsStore,
         getSearchItem: i => ({
             href: i.t == 'NSP' ? detailSpUrl(i.id) : detailIrUrl(i.id),
@@ -46,7 +46,7 @@
                 {
                     text: i.name, width: .4,
                     icon: i.deleted ? Trash2 : i.draft ? PencilRuler : undefined,
-                    destructive: i.deleted,
+                    danger: i.deleted,
                     warning: i.draft,
                 },
                 { text: i.label, width: .6 },
@@ -89,7 +89,7 @@
                 <AlertDialogDescription>{ts.searchProblemsAdvice}</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel variant="default">{ts.cancel}</AlertDialogCancel>
+                <AlertDialogCancel variant="primary">{ts.cancel}</AlertDialogCancel>
                 <AlertDialogAction onclick={clear} variant="warning">{ts.clear}</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>

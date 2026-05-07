@@ -62,7 +62,7 @@
 </script>
 
 <Dialog bind:open={showDialog} {onOpenChange}>
-    <DialogTrigger class={buttonVariants({ variant: 'outline' })}>
+    <DialogTrigger class={buttonVariants({ variant: 'secondary' })}>
         <Bell />
         {tr.settingsTitle(type)}
     </DialogTrigger>
