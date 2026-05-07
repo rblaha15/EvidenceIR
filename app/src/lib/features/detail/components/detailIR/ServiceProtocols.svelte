@@ -49,7 +49,7 @@
             {#if showSP}
                 <PDFLink
                     name={spName(p.zasah)} data={ir} {t} {lang} link="SP" index={i} {irid} dropdownItems={[{
-                        variant: 'default',
+                        variant: 'primary',
                         icon: Eye,
                         text: td.viewFilledData,
                         href: iridUrl(`/SP/?view=${i}`),
@@ -59,12 +59,12 @@
                         text: td.editProtocol,
                         href: iridUrl(`/SP/?edit=${i}`),
                     }, {
-                        variant: 'default',
+                        variant: 'primary',
                         icon: Trash2,
                         text: td.delete,
                         onSelect: () => openedDeleteModal = i,
                     }, {
-                        variant: 'default',
+                        variant: 'primary',
                         icon: Copy,
                         text: td.duplicate,
                         onSelect: () => openedDuplicateModal = i,
@@ -136,13 +136,13 @@
             <AlertDialogDescription>{td.deleteSP}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-            <AlertDialogCancel variant="default" disabled={processing}>
+            <AlertDialogCancel variant="primary" disabled={processing}>
                 {#if processing}
                     <Spinner />
                 {/if}
                 {td.no}
             </AlertDialogCancel>
-            <AlertDialogAction variant="destructive" disabled={processing} onclick={async () => {
+            <AlertDialogAction variant="danger" disabled={processing} onclick={async () => {
                 processing = true;
                 await deleteSP(irid, protocolToDeleteIndex);
                 processing = false;

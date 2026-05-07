@@ -3,7 +3,7 @@
     import { checkAuth, currentUser, userInfo } from '$lib/client/auth';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import { onMount, type Snippet } from 'svelte';
-    import { backButton, endLoading, hideNav, initialRouteLoggedIn, initialRouteLoggedOut, progress, startLoading, title, } from '$lib/helpers/globals';
+    import { backButton, endLoading, hideNav, initialRouteLoggedIn, initialRouteLoggedOut, progress, startLoading, title } from '$lib/helpers/globals';
     import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { dev } from '$app/environment';
     import { page } from '$app/state';
@@ -13,11 +13,11 @@
     import TableOfContents from '$lib/components/TableOfContents.svelte';
     import { analytics } from '../hooks.client';
     import { setUserId } from '@firebase/analytics';
-    import { ArrowLeft, OctagonAlert } from "@lucide/svelte";
+    import { ArrowLeft, OctagonAlert } from '@lucide/svelte';
     import { Button } from '$lib/components/ui/button';
-    import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
-    import { Separator } from "$lib/components/ui/separator";
-    import { Spinner } from "$lib/components/ui/spinner";
+    import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
+    import { Separator } from '$lib/components/ui/separator';
+    import { Spinner } from '$lib/components/ui/spinner';
 
     interface Props {
         data: LayoutData;
@@ -49,7 +49,7 @@
         processGoto(page.url);
     });
 
-    const currentLangLength = $derived(data.isLanguageFromUrl ? data.languageCode?.length ?? -1 : -1);
+    const currentLangLength = $derived(data.isLanguageFromUrl ? (data.languageCode?.length ?? -1) : -1);
     const path = $derived(page.url.pathname.slice(currentLangLength + 1) || '/');
 
     const fixUrl = async () => {
@@ -59,16 +59,10 @@
             const lang = data.isLanguageFromUrl ? data.languageCode : '?';
             return await goto(relUrl(route, lang));
         }
-        if (!data.isLanguageFromUrl) return await goto(
-            '/' +
-            preferredLanguage() +
-            path +
-            page.url.search +
-            page.url.hash,
-            { replaceState: true, invalidateAll: true },
-        );
-        setUserPreferredLanguage(data.languageCode)
-        document.documentElement.lang = data.languageCode
+        if (!data.isLanguageFromUrl)
+            return await goto('/' + preferredLanguage() + path + page.url.search + page.url.hash, { replaceState: true, invalidateAll: true });
+        setUserPreferredLanguage(data.languageCode);
+        document.documentElement.lang = data.languageCode;
     };
     $effect(() => {
         page.url;
@@ -104,11 +98,11 @@
 </svelte:head>
 
 {#snippet loading()}
-    <Spinner class="text-destructive m-4 size-8" />
+    <Spinner class="m-4 size-8 text-danger" />
 {/snippet}
 
 {#snippet errorAlert(error: E)}
-    <Alert variant="destructive" class="m-4">
+    <Alert variant="danger" class="m-4">
         <OctagonAlert />
         <AlertTitle>{error.name}</AlertTitle>
         <AlertDescription>
@@ -125,20 +119,23 @@
 
 {#snippet content()}
     <Navigation {t} />
-    <div class={['mb-2 flex flex-col h-full', $currentUser != null && !$hideNav ? 'pt-13 md:pt-24 lg:pt-13' : 'pt-13']}>
-        <div class="sticky top-0 progress rounded-0" role="progressbar"
-             style:scale="1 {$progress === 'load' ? 1 : 0}"
-             style="transition: scale .5s; transform-origin: top;"
+    <div class={['flex h-full flex-col', $currentUser != null && !$hideNav ? 'pt-13 md:pt-24 lg:pt-13' : 'pt-13']}>
+        <div
+            class="rounded-0 sticky top-0"
+            role="progressbar"
+            style:scale="1 {$progress === 'load' ? 1 : 0}"
+            style="transition: scale .5s; transform-origin: top;"
         >
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger rounded-0"
-                 style:width="{$progress === 'load' ? 90 : $progress === 'done' ? 100 : 0}%"
-                 style="transition: width 5s;"
+            <div
+                class="progress-bar progress-bar-striped progress-bar-animated rounded-0 bg-danger"
+                style:width="{$progress === 'load' ? 90 : $progress === 'done' ? 100 : 0}%"
+                style="transition: width 5s;"
             ></div>
         </div>
-        <div class="overflow-y-auto [scrollbar-gutter:stable]">
-            <main class="px-4 md:px-8 flex gap-4 w-full">
-                <div class="mt-4 flex flex-col gap-4 w-full has-[+.toc]:max-w-2xl">
-                    <h1 id="main-title" class="m-0 flex items-center gap-4">
+        <div class="grow overflow-y-auto [scrollbar-gutter:stable]">
+            <main class="flex min-h-full w-full justify-center gap-4 px-4 pb-2 md:px-8">
+                <div class="flex w-full flex-col gap-4 pt-4 has-[+.toc]:max-w-2xl">
+                    <h1 id="main-title" class="flex items-center gap-4">
                         {#if $backButton}
                             <Button size="icon" variant="ghost" onclick={() => history.back()}>
                                 <ArrowLeft class="size-8" />
@@ -151,7 +148,7 @@
                 </div>
                 {#if showTOC}
                     {#key page.url.pathname + page.url.search}
-                        <div class="hidden md:block sticky top-0 pt-4 h-full toc w-96">
+                        <div class="toc sticky top-0 hidden h-full w-96 pt-4 md:block">
                             <TableOfContents {t} />
                         </div>
                     {/key}

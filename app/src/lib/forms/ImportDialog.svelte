@@ -126,7 +126,7 @@
                 </div>
                 <Widget context={undefined} bind:value {t} widget={sheetWidget} showAllErrors={false} />
                 {#if fileExcel && excelImport.isDangerous && value}
-                    <Alert variant="destructive">
+                    <Alert variant="danger">
                         <OctagonAlert />
                         <AlertTitle>{ti.warningDataLoss}</AlertTitle>
                     </Alert>
@@ -160,14 +160,14 @@
                     {/if}
                 </div>
                 {#if filePdf && pdfImport.isDangerous}
-                    <Alert variant="destructive">
+                    <Alert variant="danger">
                         <OctagonAlert />
                         <AlertTitle>{ti.warningDataLoss}</AlertTitle>
                     </Alert>
                 {/if}
             {/if}
             {#if error}
-                <Alert variant="destructive">
+                <Alert variant="danger">
                     <OctagonAlert />
                     <AlertTitle>{ti.somethingWentWrong}</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
@@ -180,13 +180,13 @@
             </DialogClose>
             {#if excelImport && fileExcel && value}
                 <Button
-                    variant={excelImport.isDangerous ? 'destructive' : 'default'}
+                    variant={excelImport.isDangerous ? 'danger' : 'primary'}
                     onclick={confirmExcel}
                 >{ti.confirm}</Button>
             {/if}
             {#if pdfImport && filePdf}
                 <Button
-                    variant={pdfImport.isDangerous ? 'destructive' : 'default'}
+                    variant={pdfImport.isDangerous ? 'danger' : 'primary'}
                     onclick={confirmPdf}
                 >{ti.confirm}</Button>
             {/if}

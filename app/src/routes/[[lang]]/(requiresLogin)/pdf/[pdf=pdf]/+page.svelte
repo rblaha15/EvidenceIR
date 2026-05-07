@@ -34,7 +34,7 @@
 <h2>{title(data.translations)}</h2>
 <h3>{data.fileName}</h3>
 
-<p class="hidden print:block text-xl text-destructive">{t.printWarning}</p>
+<p class="hidden print:block text-xl text-danger">{t.printWarning}</p>
 
 <PdfPreview args={data.fileLang} {t} url={data.url}>
     <div class="flex items-center gap-1">

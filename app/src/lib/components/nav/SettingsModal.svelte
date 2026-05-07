@@ -22,7 +22,7 @@
             <Settings {t} />
         </div>
         <DialogFooter>
-            <DialogClose class={buttonVariants({ variant: 'default' })}>{ts.close}</DialogClose>
+            <DialogClose class={buttonVariants({ variant: 'primary' })}>{ts.close}</DialogClose>
         </DialogFooter>
     </DialogContent>
 </Dialog>

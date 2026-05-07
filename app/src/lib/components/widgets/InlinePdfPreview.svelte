@@ -61,7 +61,7 @@
         <AlertDescription>{t.pdf.wrongFields({ fields: errors.join(', ') })}</AlertDescription>
     </Alert>
 {:else if error}
-    <Alert variant="destructive">
+    <Alert variant="danger">
         <OctagonAlert />
         <AlertTitle>{t.pdf.previewNotSuccessful}</AlertTitle>
     </Alert>

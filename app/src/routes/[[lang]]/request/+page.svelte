@@ -42,14 +42,14 @@
         <AlertTitle>{t.sending}</AlertTitle>
     </Alert>
 {:else if status === 'accepted'}
-    <Alert>
+    <Alert variant="success">
         <Check />
         <AlertTitle>{t.requestSent}</AlertTitle>
         <AlertDescription>{t.youCanCloseThisTab}</AlertDescription>
     </Alert>
 {/if}
 {#if status === 'error'}
-    <Alert variant="destructive">
+    <Alert variant="danger">
         <OctagonAlert />
         <AlertTitle>{t.somethingWentWrong}</AlertTitle>
         <AlertDescription>{@html t.unknownErrorHtml}</AlertDescription>

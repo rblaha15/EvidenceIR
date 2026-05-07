@@ -14,7 +14,7 @@ export type DropdownItems = ({
     hide?: boolean,
     text: string,
 } & ({} | {
-    variant: 'default' | 'destructive' | 'warning',
+    color: 'default' | 'danger' | 'warning',
     icon: Component<LucideProps>,
 } & ({
     href: string,

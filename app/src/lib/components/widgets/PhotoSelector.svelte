@@ -86,7 +86,7 @@
                         <ItemContent>
                             <ItemTitle class="break-all">{fileName}</ItemTitle>
                             <ItemActions>
-                                <Button variant="destructive" onclick={remove(uuid)}>
+                                <Button variant="danger" onclick={remove(uuid)}>
                                     <ImageMinus /> {t.widget.remove_Photo}
                                 </Button>
                             </ItemActions>

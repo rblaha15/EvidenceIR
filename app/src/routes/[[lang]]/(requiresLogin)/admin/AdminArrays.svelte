@@ -142,7 +142,7 @@
         removals
             .mapTo((key, row) =>
                 row.length
-                    ? row.map(col => ({ key, value: col, color: 'danger' as Color | undefined }))
+                    ? row.map(col => ({ key, value: col, variant: 'danger' as Color | undefined }))
                     : [{ key, value: '', color: undefined }],
             ),
     );

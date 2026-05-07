@@ -214,7 +214,7 @@
     </div>
     <div class="flex flex-col items-start gap-4">
         {#if result.text}
-            <Alert variant={result.red ? 'destructive' : 'default'}>
+            <Alert variant={result.red ? 'danger' : 'default'}>
                 <OctagonAlert />
                 <AlertTitle>{@html result.text}</AlertTitle>
                 {#if result.error}

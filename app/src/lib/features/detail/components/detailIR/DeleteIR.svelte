@@ -41,7 +41,7 @@
             </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-            <AlertDialogCancel variant="default" disabled={processing}>
+            <AlertDialogCancel variant="primary" disabled={processing}>
                 {#if processing}
                     <Spinner />
                 {/if}
@@ -51,7 +51,7 @@
                 processing = true;
                 await removeIR(irid);
                 processing = false;
-            }} variant="destructive" disabled={processing}>
+            }} variant="danger" disabled={processing}>
                 {#if processing}
                     <Spinner />
                 {/if}

@@ -40,7 +40,7 @@
 )}
     {#if shown}
         <li class="text-nowrap">
-            <Button variant={selected ? 'outline' : 'ghost'} href={url} {onclick}>
+            <Button variant={selected ? 'outline' : 'secondary'} href={url} {onclick}>
                 <Icon />
                 {label}
             </Button>

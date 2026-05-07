@@ -71,14 +71,14 @@
         {/if}
         <DropdownMenuSeparator />
         <DropdownMenuGroup aria-label="User login actions">
-            <DropdownMenuItem onSelect={changePassword}>
+            <DropdownMenuItem onSelect={changePassword} variant="warning">
                 <RectangleEllipsis />
                 {ta.changePassword}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => {
                 logEvent(analytics(), 'logout', { email: loggedInEmail });
                 logOut();
-            }} variant="destructive">
+            }} variant="danger">
                 <LogOut />
                 {ta.toLogOut}
             </DropdownMenuItem>
@@ -86,7 +86,7 @@
         {#if $isUserAdmin}
             <DropdownMenuSeparator />
             <DropdownMenuGroup aria-label="User login actions">
-                <DropdownMenuItem onSelect={() => goto(relUrl('/admin'))}>
+                <DropdownMenuItem onSelect={() => goto(relUrl('/admin'))} variant="tertiary">
                     <ShieldCogCorner />
                     Admin{$aA}
                 </DropdownMenuItem>

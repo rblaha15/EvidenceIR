@@ -32,7 +32,7 @@
 
 <Dialog>
     {#if $readableHistory.incompleted.length}
-        <DialogTrigger class={buttonVariants({ variant: 'warning', size: 'icon' })}>
+        <DialogTrigger class={[buttonVariants({ variant: 'ghost', size: 'icon' }), 'text-danger']}>
             <CloudAlert class="size-8" />
             <span class="sr-only">{th.title}</span>
         </DialogTrigger>
@@ -42,14 +42,14 @@
             <span class="sr-only">{th.title}</span>
         </DialogTrigger>
     {/if}
-    <DialogContent class="max-h-[80vh] flex flex-col">
-        <DialogHeader>
+    <DialogContent class="max-h-[80vh] flex flex-col px-0">
+        <DialogHeader class="px-6">
             <DialogTitle>{th.title}</DialogTitle>
             {#if $readableHistory.incompleted.length}
                 <DialogDescription>{th.description}</DialogDescription>
             {/if}
         </DialogHeader>
-        <div class="flex flex-col gap-4 overflow-y-auto">
+        <div class="flex flex-col gap-4 overflow-y-auto px-6 [scrollbar-gutter:stable]">
             {#if $readableHistory.incompleted.length}
                 <h3 class="text-lg">{th.incompletedChanges}</h3>
                 {@render changes($readableHistory.incompleted)}
@@ -57,8 +57,8 @@
             <h3 class="text-lg">{th.changes}</h3>
             {@render changes($readableHistory.completed)}
         </div>
-        <DialogFooter>
-            <DialogClose class={buttonVariants({ variant: 'default' })}>{th.close}</DialogClose>
+        <DialogFooter class="px-6">
+            <DialogClose class={buttonVariants({ variant: 'primary' })}>{th.close}</DialogClose>
         </DialogFooter>
     </DialogContent>
 </Dialog>

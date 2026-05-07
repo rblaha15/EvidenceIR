@@ -104,7 +104,7 @@
         <p class={['items-center gap-1', klass, piece.class]}
            style="width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
         >
-            <piece.icon class={[{ 'text-destructive': piece.destructive, 'text-warning': piece.warning }, 'size-4']} />
+            <piece.icon class={[{ 'text-danger': piece.danger, 'text-warning-alt': piece.warning }, 'size-4']} />
             {piece.text}
         </p>
     {/each}
@@ -168,7 +168,7 @@
         <Field class="w-auto" data-invalid={invalid} orientation="vertical">
             {#if widget.label(t, context)}
                 <FieldLabel class="grow-0!" for="input-{id}">
-                    <Search /> {labelAndStar(widget, context, t)}
+                    {labelAndStar(widget, context, t)}
                 </FieldLabel>
             {/if}
             <InputGroup class={["grow border-input! ring-0! rounded-2xl relative", {

@@ -1,9 +1,9 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
     import { type SwitchWidget } from '$lib/forms/Widget';
-    import { Toggle } from "$lib/components/ui/toggle";
-    import { Field, FieldError, FieldTitle } from "$lib/components/ui/field";
-    import { Card, CardContent } from "$lib/components/ui/card";
+    import { Toggle } from '$lib/components/ui/toggle';
+    import { Field, FieldError, FieldTitle } from '$lib/components/ui/field';
+    import { Card, CardContent } from '$lib/components/ui/card';
 
     interface Props {
         t: Translations;
@@ -28,10 +28,20 @@
     <CardContent>
         <Field data-invalid={invalid} orientation="horizontal">
             <FieldTitle>{widget.label(t, context)}</FieldTitle>
-            <Toggle aria-invalid={invalid} onPressedChange={onPressedChange(false)} pressed={!value}>
+            <Toggle
+                aria-invalid={invalid}
+                onPressedChange={onPressedChange(false)}
+                pressed={!value}
+                variant={widget.hasPositivity(context) ? 'negative' : 'default'}
+            >
                 {widget.options(t)[0]}
             </Toggle>
-            <Toggle aria-invalid={invalid} onPressedChange={onPressedChange(true)} pressed={value}>
+            <Toggle
+                aria-invalid={invalid}
+                onPressedChange={onPressedChange(true)}
+                pressed={value}
+                variant={widget.hasPositivity(context) ? 'positive' : 'default'}
+            >
                 {widget.options(t)[1]}
             </Toggle>
         </Field>

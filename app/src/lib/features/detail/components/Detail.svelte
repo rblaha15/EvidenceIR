@@ -25,14 +25,14 @@
     <h2 class="flex items-center gap-2">
         {#if ir && !ir.deleted}
             {#if ir.isDraft}
-                <PencilRuler />
+                <PencilRuler class="text-warning" />
             {/if}
             {irWholeName(ir.IN)}
         {:else if sps.length && !sps[0].deleted}
             {irLabel(sps[0].NSP)}
         {:else}
             {#if ir && ir.deleted || sps.length && sps[0].deleted}
-                <Trash2 />
+                <Trash2 class="text-danger" />
             {/if}
             {#if irid}
                 {irNumberFromIRID(irid)}
@@ -42,7 +42,7 @@
         {/if}
     </h2>
     {#if justDeleted}
-        <Alert>
+        <Alert variant="success">
             <Trash2 />
             <AlertTitle>{td.successfullyDeleted}</AlertTitle>
         </Alert>
