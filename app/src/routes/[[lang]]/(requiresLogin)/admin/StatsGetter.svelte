@@ -6,6 +6,10 @@
     import { adminDatabase } from '$lib/client/firestore';
     import { isSP } from '$lib/forms/SP/infoSP.svelte';
     import { newInputWidget } from '$lib/forms/Widget';
+    import { Alert, AlertTitle } from '$lib/components/ui/alert';
+    import { OctagonAlert, Check } from '@lucide/svelte';
+    import { Spinner } from "$lib/components/ui/spinner";
+    import { Button } from "$lib/components/ui/button";
 
     const fromW = newInputWidget({
         type: 'date', label: 'Od (včetně)', text: dayISO(),
@@ -69,28 +73,40 @@
     </div>
 </div>
 
-<button class="btn btn-primary" onclick={search}>
+<Button onclick={search}>
     Vyhledat
-</button>
+</Button>
 
 {#if status === 'loading'}
-    <div class="spinner-border text-danger"></div>
+    <Alert>
+        <Spinner />
+        <AlertTitle>Odesílání dat</AlertTitle>
+    </Alert>
 {:else if status === 'fail'}
-    <p class="m-0 text-danger">Něco se nepovedlo</p>
+    <Alert variant="danger">
+        <OctagonAlert />
+        <AlertTitle>Něco se nepovedlo</AlertTitle>
+    </Alert>
 {:else if status === 'mistake'}
-    <p class="m-0 text-danger">Špatně zadaná data!</p>
+    <Alert variant="danger">
+        <OctagonAlert />
+        <AlertTitle>Špatně zadaná data!</AlertTitle>
+    </Alert>
 {:else if status === 'success'}
-    <p class="m-0 text-success">Úspěšně nalezeno!</p>
+    <Alert variant="success">
+        <Check />
+        <AlertTitle>Úspěšně nalezeno!</AlertTitle>
+    </Alert>
 {/if}
 
 {#if currentRange[0]}
-    <p class="m-0">Počty vytvořených protokolů od {currentRange[0]} do {currentRange[1]}:</p>
+    <p>Počty vytvořených protokolů od {currentRange[0]} do {currentRange[1]}:</p>
 
     {#if !results.entries().length}
-        <p class="m-0">Žádné protokoly</p>
+        <p>Žádné protokoly</p>
     {/if}
 
-    <ul class="m-0">
+    <ul>
         {#each results.entries() as [technician, count]}
             <li>{technician}: {count}</li>
         {/each}

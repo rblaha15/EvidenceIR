@@ -12,8 +12,10 @@
     import { getAllIRs } from '$lib/client/incrementalUpdates';
     import { storable } from '$lib/helpers/stores';
     import { newInputWidget, newSearchWidget } from '$lib/forms/Widget';
-    import { Button } from '$lib/components/ui/button';
-    import { PencilRuler, Server, Trash2 } from "@lucide/svelte";
+    import { Alert, AlertTitle } from '$lib/components/ui/alert';
+    import { Spinner } from "$lib/components/ui/spinner";
+    import { Button } from "$lib/components/ui/button";
+    import { PencilRuler, Server, Trash2, OctagonAlert, Check } from "@lucide/svelte";
 
     const userW = newSearchWidget<unknown, Person>({
         label: 'Uživatel', items: usersList, getSearchItem: i => ({
@@ -93,50 +95,57 @@
 
 <h3>Přičtení bodů</h3>
 
-<div class="flex flex-col gap-1">
-    <div class="">
-        <Widget widget={userW} bind:value={user} context={{}} t={cs} {showAllErrors} />
-    </div>
-    <div class="">
-        <Widget widget={pointsW} bind:value={points} context={{}} t={cs} {showAllErrors} />
-    </div>
-    <div class="">
-        <Widget widget={noteW} bind:value={note} context={{}} t={cs} {showAllErrors} />
-    </div>
-    <div class="">
-        <Widget widget={dateW} bind:value={date} context={{}} t={cs} {showAllErrors} />
-    </div>
-    <div class="">
-        <Widget widget={installationW} bind:value={installation} context={{}} t={cs} {showAllErrors} />
-    </div>
+<div class="grid gap-1">
+    <Widget widget={userW} bind:value={user} context={{}} t={cs} {showAllErrors} />
+    <Widget widget={pointsW} bind:value={points} context={{}} t={cs} {showAllErrors} />
+    <Widget widget={noteW} bind:value={note} context={{}} t={cs} {showAllErrors} />
+    <Widget widget={dateW} bind:value={date} context={{}} t={cs} {showAllErrors} />
+    <Widget widget={installationW} bind:value={installation} context={{}} t={cs} {showAllErrors} />
 </div>
 
-<button class="btn btn-primary" onclick={add}>
-    Přičíst
-</button>
+<Button onclick={add}>Přičíst</Button>
 
 {#if statusA === 'loading'}
-    <div class="spinner-border text-danger"></div>
+    <Alert>
+        <Spinner />
+        <AlertTitle>Odesílání dat</AlertTitle>
+    </Alert>
 {:else if statusA === 'fail'}
-    <p class="m-0 text-danger">Něco se nepovedlo</p>
+    <Alert variant="danger">
+        <OctagonAlert />
+        <AlertTitle>Něco se nepovedlo</AlertTitle>
+    </Alert>
 {:else if statusA === 'mistake'}
-    <p class="m-0 text-danger">Špatně zadaná data!</p>
+    <Alert variant="danger">
+        <OctagonAlert />
+        <AlertTitle>Špatně zadaná data!</AlertTitle>
+    </Alert>
 {:else if statusA === 'success'}
-    <p class="m-0 text-success">Úspěšně přičteno!</p>
+    <Alert variant="success">
+        <Check />
+        <AlertTitle>Úspěšně přičteno!</AlertTitle>
+    </Alert>
 {/if}
 
 <h3>Statistiky a historie věrnostních bodů uživatelů</h3>
 
-<button class="btn btn-primary" onclick={search}>
-    Vyhledat
-</button>
+<Button onclick={search}>Vyhledat</Button>
 
 {#if status === 'loading'}
-    <div class="spinner-border text-danger"></div>
+    <Alert>
+        <Spinner />
+        <AlertTitle>Odesílání dat</AlertTitle>
+    </Alert>
 {:else if status === 'fail'}
-    <p class="m-0 text-danger">Něco se nepovedlo</p>
+    <Alert variant="danger">
+        <OctagonAlert />
+        <AlertTitle>Něco se nepovedlo</AlertTitle>
+    </Alert>
 {:else if status === 'success'}
-    <p class="m-0 text-success">Úspěšně nalezeno!</p>
+    <Alert variant="success">
+        <Check />
+        <AlertTitle>Úspěšně nalezeno!</AlertTitle>
+    </Alert>
 {/if}
 
 {#if $results}
@@ -145,16 +154,18 @@
         <p>Žádná data</p>
     {/if}
     {#each $results.data.entries().toSorted((a, b) => a[0].localeCompare(b[0])) as [uid, { email, data }]}
-        <details>
-            <summary><a href="#users-{email}">{email}</a>: {data.points.toLocaleString('cs')}</summary>
+        <details class="w-full">
+            <summary class="cursor-pointer">
+                <Button variant="link" class="px-0" href="#users-{email}">{email}</Button>: {data.points.toLocaleString('cs')}
+            </summary>
             <Button variant="link" href={`https://console.firebase.google.com/u/0/project/evidence-ir/database/evidence-ir-default-rtdb/data/~2FloyaltyProgram~2F${uid}`}>
                 <Server /> Otevřít v databázi
             </Button>
             {#each data.history as entry}
                 {#if entry.type === 'other'}
-                    <p class="m-0">{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note} {#if entry.irid} (<a href="{detailIrUrl(entry.irid)}">{entry.irid}</a>){/if}</p>
+                    <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note} {#if entry.irid} (<a href="{detailIrUrl(entry.irid)}">{entry.irid}</a>){/if}</p>
                 {:else}
-                    <p class="m-0">{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {adminDescriptions[entry.type]} {#if entry.irid}u <a href="{detailIrUrl(entry.irid)}">{entry.irid}</a>{/if} {#if entry.note}({entry.note}){/if}</p>
+                    <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {adminDescriptions[entry.type]} {#if entry.irid}u <a href="{detailIrUrl(entry.irid)}">{entry.irid}</a>{/if} {#if entry.note}({entry.note}){/if}</p>
                 {/if}
             {/each}
         </details>
