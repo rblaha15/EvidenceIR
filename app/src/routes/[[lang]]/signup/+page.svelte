@@ -78,7 +78,7 @@
         </form>
     </CardContent>
     <CardFooter class="gap-2">
-        <Button type="submit" class="grow" onclick={signUp} diabled={sending}>
+        <Button type="submit" class="grow" onclick={signUp} disabled={sending}>
             {#if sending}
                 <Spinner />
             {/if}
