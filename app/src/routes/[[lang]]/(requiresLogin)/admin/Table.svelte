@@ -1,19 +1,20 @@
 <script generics="T, K extends string = keyof T & string" lang="ts">
     import { page } from '$app/state';
-    import type { TableOptions } from './AdminTable.svelte';
-    import type { Color } from '$lib/forms/Widget';
+    import type { TableColor, TableOptions } from './AdminTable.svelte';
+    import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
+    import { cn } from "$lib/utils";
 
-    type ItemColors = { [_ in K]: Color | undefined };
+    type ItemColors = { [_ in K]: TableColor | undefined };
     interface Props<T, K extends string = keyof T & string> {
         items?: T[];
-        itemsWithColors?: [T, Color | undefined][];
+        itemsWithColors?: [T, TableColor | undefined][];
         itemsWithItemColors?: [T, ItemColors][];
         options: Pick<TableOptions<T, K>, 'key' | 'columns'>;
         id: string;
     }
 
     let { items, itemsWithColors, itemsWithItemColors, options, id }: Props<T, K> = $props();
-    const { key, columns } = options;
+    const { key, columns } = $derived(options);
 
     let colors = $state() as ItemColors[];
 
@@ -31,34 +32,48 @@
         }
     });
 
-    const itemText = <Key extends K>(key: Key, column: typeof columns[Key], item: T) =>
-        column.getValue?.(item) ?? (column.transformValue ?? (s => `${s}`))(item[key as keyof T & Key])
+    const itemText = <Key extends K>(key: Key, column: (typeof columns)[Key], item: T) =>
+        column.getValue?.(item) ?? (column.transformValue ?? (s => `${s}`))(item[key as keyof T & Key]);
+
+    const colorClasses: Record<TableColor, string> = {
+        warning: cn('bg-warning text-warning-foreground'),
+        danger: cn('bg-danger text-danger-foreground'),
+        success: cn('bg-success text-success-foreground'),
+        tertiary: cn('bg-tertiary text-tertiary-foreground'),
+    };
+    const colorRowClasses: Record<TableColor, string> = {
+        warning: cn('[&>th,&>td]:bg-warning [&>th,&>td]:text-warning-foreground'),
+        danger: cn('[&>th,&>td]:bg-danger [&>th,&>td]:text-danger-foreground'),
+        success: cn('[&>th,&>td]:bg-success [&>th,&>td]:text-success-foreground'),
+        tertiary: cn('[&>th,&>td]:bg-tertiary [&>th,&>td]:text-tertiary-foreground'),
+    };
+
+    const cellClass = (color?: string) => cn(
+        color && (color in colorClasses) ? colorClasses[color as TableColor] : '',
+        '[&>a]:text-primary [&>a]:underline-offset-4 [&>a]:hover:underline',
+    );
+    const rowClass = (color?: string) => color && (color in colorRowClasses) ? colorRowClasses[color as TableColor] : '';
 </script>
 
-<div class="overflow-x-auto">
-    <table class="table text-break table-striped table-hover text-nowrap">
-        <thead>
-        <tr>
+<Table class="whitespace-nowrap">
+    <TableHeader>
+        <TableRow>
             {#each columns.getValues() ?? [] as column}
-                <th>{column.header}</th>
+                <TableHead>{column.header}</TableHead>
             {/each}
-        </tr>
-        </thead>
-        <tbody>
-        {#each (items ?? []) as item, i}
-            <tr id="{id}-{key(item, i)}"
-                style:scroll-margin-top={6 + (document.querySelector('nav')?.getBoundingClientRect()?.height ?? 0) + 'px'}
-                class:table-info={page.url.hash.split("-")[1] === key(item, i)}
-            >
+        </TableRow>
+    </TableHeader>
+    <TableBody>
+        {#each items ?? [] as item, i}
+            <TableRow id="{id}-{key(item, i)}" class={rowClass(page.url.hash.split("-")[1] === key(item, i) ? 'tertiary' : '')}>
                 {#each columns.entries() ?? [] as [key, column]}
                     {#if column.cellType === 'header'}
-                        <th class="table-{colors?.[i]?.[key]}">{@html itemText(key, column, item)}</th>
+                        <TableHead class={cellClass(colors?.[i]?.[key])}>{@html itemText(key, column, item)}</TableHead>
                     {:else}
-                        <td class="table-{colors?.[i]?.[key]}">{@html itemText(key, column, item)}</td>
+                        <TableCell class={cellClass(colors?.[i]?.[key])}>{@html itemText(key, column, item)}</TableCell>
                     {/if}
                 {/each}
-            </tr>
+            </TableRow>
         {/each}
-        </tbody>
-    </table>
-</div>
+    </TableBody>
+</Table>

@@ -11,17 +11,21 @@
         key: (value: T, index: number) => Comparable;
         instructions: string[];
         columns: {
-            [Key in K]: ({
-                header: string;
-                cellType?: 'data' | 'header';
-                transformValue?: Key extends keyof T ? (value: T[Key]) => string : undefined;
-            } & (Key extends keyof T ? {
+            [Key in K]: {
+            header: string;
+            cellType?: 'data' | 'header';
+            transformValue?: Key extends keyof T ? (value: T[Key]) => string : undefined;
+        } & (Key extends keyof T
+            ? {
                 getValue?: (value: T) => string;
-            } : {
+            }
+            : {
                 getValue: (value: T) => string;
-            }));
+            });
         };
     }
+
+    export type TableColor = 'warning' | 'success' | 'danger' | 'tertiary';
 </script>
 
 <script generics="T extends Record<string, unknown>" lang="ts">
@@ -32,9 +36,13 @@
     import Table from './Table.svelte';
     import FileSaver from 'file-saver';
     import writeXlsxFile from 'write-excel-file';
-    import type { Color } from '$lib/forms/Widget';
+    import { Alert, AlertTitle } from '$lib/components/ui/alert';
+    import { OctagonAlert } from '@lucide/svelte';
+    import { Spinner } from '$lib/components/ui/spinner';
+    import { Button } from '$lib/components/ui/button';
+    import { untrack } from 'svelte';
 
-    const { id, options }: { id: string, options: TableOptions<T> } = $props();
+    const { id, options }: { id: string; options: TableOptions<T> } = $props();
     const { fileType, construct, deconstruct, store, fileName, key, instructions, columns } = options;
 
     let input = $state() as HTMLInputElement;
@@ -63,13 +71,16 @@
                     .split('\n')
                     .map(row => row.trim().replace(/  +/g, ' '))
                     .filter(row => row != '')
-                    .map(row => row.split(';').map(col => col ? col : undefined))
+                    .map(row => row.split(';').map(col => (col ? col : undefined)))
                     .map(construct);
             };
             reader.readAsText(file, 'UTF-8');
         } else if (fileType == 'xlsx') {
             const rows = await readXlsxFile(file);
-            newData = rows.slice(1).map(r => r.map(String)).map(construct);
+            newData = rows
+                .slice(1)
+                .map(r => r.map(String))
+                .map(construct);
         }
     };
 
@@ -110,90 +121,70 @@
         else error = true;
     };
 
-    const shallowEquals = (a: T, b: T) =>
-        [...a.keys(), ...b.keys()].every(key => JSON.stringify(a[key]) === JSON.stringify(b[key]));
+    const shallowEquals = (a: T, b: T) => [...a.keys(), ...b.keys()].every(key => JSON.stringify(a[key]) === JSON.stringify(b[key]));
 
     const oldData = $derived($store.sortedBy((it, i) => key(it, i)));
 
     const find = (values: T[], findKey: Comparable) => values.find((value, i) => key(value, i) === findKey);
     const oldKeys = $derived(oldData.map(key));
     const newKeys = $derived(newData.map(key));
-    const changes = $derived(newData.filter(
-        (value, i) => oldKeys.includes(key(value, i)) &&
-            !shallowEquals(value, find(oldData, key(value, i)) ?? value),
-    ));
+    const changes = $derived(newData.filter((value, i) => oldKeys.includes(key(value, i)) && !shallowEquals(value, find(oldData, key(value, i)) ?? value)));
     const removals = $derived(oldData.filter((value, i) => !newKeys.includes(key(value, i))));
     const additions = $derived(newData.filter((value, i) => !oldKeys.includes(key(value, i))));
 
-
     $effect(() => {
         page.url;
-        if (oldData) {
-            (async () => {
-                // const { Tab } = await import('bootstrap'); TODO
-                // if (page.url.hash)
-                //     new Tab(`${page.url.hash.split('-')[0]}-tab`).show();
-                if (page.url.hash.includes(`${id}-`))
-                    document.getElementById(page.url.hash)?.scrollIntoView();
-            })();
-        }
+        if (oldData) untrack(() => {
+            if (page.url.hash.includes(`${id}-`)) document.getElementById(page.url.hash)?.scrollIntoView();
+        });
     });
 
     const selectFile = () => input.click();
 
-    const addColor = <T>(array: T[], color: Color) => array.map(it => [it, color] as [T, Color]);
-    const withColors = $derived([
-        ...addColor(additions, 'success'),
-        ...addColor(changes, 'warning'),
-        ...addColor(removals, 'danger'),
-    ]);
+    const addColor = <T, >(array: T[], color: TableColor) => array.map(it => [it, color] as [T, TableColor]);
+    const withColors = $derived([...addColor(additions, 'success'), ...addColor(changes, 'warning'), ...addColor(removals, 'danger')]);
 </script>
 
 {#each instructions as paragraph}
-    <p class="m-0">
+    <p>
         {@html paragraph}
     </p>
 {/each}
 
-<div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-    {#if error}
-        <span class="text-danger">Něco se nepovedlo</span>
+{#if error}
+    <Alert variant="danger">
+        <OctagonAlert />
+        <AlertTitle>Něco se nepovedlo</AlertTitle>
+    </Alert>
+{/if}
+{#if loading}
+    <Alert>
+        <Spinner />
+        <AlertTitle>Odesílání dat</AlertTitle>
+    </Alert>
+{/if}
+
+<div class="flex flex-col items-start gap-4 md:flex-row md:items-center">
+    {#if !loading && !file}
+        <Button onclick={selectFile}>Vybrat soubor</Button>
+    {:else if !loading}
+        <Button variant="danger" onclick={confirm}>Potvrdit změny</Button>
+        <Button variant="warning" onclick={() => (file = undefined)}>Zrušit změny</Button>
+        <Button variant="warning" onclick={selectFile}>Vybrat jiný soubor</Button>
     {/if}
-    {#if loading}
-        <div class="flex items-center gap-4">
-            <span>Odesílání dat</span>
-            <div class="spinner-border text-danger"></div>
-        </div>
-    {:else if !file}
-        <button class="btn btn-primary" onclick={selectFile}>
-            Vybrat soubor
-        </button>
-    {:else}
-        <button type="button" class="btn btn-danger" onclick={confirm}>
-            Potvrdit změny
-        </button>
-        <button class="btn btn-warning" onclick={() => file = undefined}>
-            Zrušit změny
-        </button>
-        <button class="btn btn-warning" onclick={selectFile}>
-            Vybrat jiný soubor
-        </button>
-    {/if}
-    <button class="btn btn-primary" onclick={downloadData}>
-        Stáhnout aktuální data
-    </button>
+    <Button onclick={downloadData}>Stáhnout aktuální data</Button>
 </div>
 
 {#if file && !loading}
-    <h4 class="m-0">Změny, které se chystáte provést:</h4>
+    <h4>Změny, které se chystáte provést:</h4>
     {#if !additions.length && !removals.length && !changes.length}
-        <p class="m-0">Žádné změny</p>
+        <p>Žádné změny</p>
     {/if}
     <Table itemsWithColors={withColors} {options} {id} />
 {/if}
 
 <div>
-    <h4 class="m-0">Aktuálně uložená data:</h4>
+    <h4>Aktuálně uložená data:</h4>
     <Table {id} items={oldData} {options} />
 </div>
 

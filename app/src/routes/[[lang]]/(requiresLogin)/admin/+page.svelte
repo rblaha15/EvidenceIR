@@ -8,9 +8,14 @@
         type SparePart,
         sparePartsList,
         type Technician,
-        techniciansList, accumulationTanks, waterTanks, solarCollectors, inverters, batteries,
+        techniciansList,
+        accumulationTanks,
+        waterTanks,
+        solarCollectors,
+        inverters,
+        batteries,
     } from '$lib/client/realtime';
-    import { type Component, onMount, untrack } from 'svelte';
+    import { type Component, onMount } from 'svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import TranslationsTable from './TranslationsTable.svelte';
@@ -22,41 +27,46 @@
     import BackupDownloader from './BackupDownloader.svelte';
     import LoyaltyProgramManager from './LoyaltyProgramManager.svelte';
     import AdminArrays, { type ArraysOptions } from './AdminArrays.svelte';
+    import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+    import { Separator } from "$lib/components/ui/separator";
 
     interface BaseTabDefinition {
-        title: string,
-        longerTitle?: string,
+        title: string;
+        longerTitle?: string;
+        separator?: boolean;
     }
 
     interface TableDefinition<T, K extends string = keyof T & string> extends BaseTabDefinition {
-        contentType: 'table',
-        tableOptions: TableOptions<T, K>,
+        contentType: 'table';
+        tableOptions: TableOptions<T, K>;
     }
 
     interface ArraysDefinition<K extends string> extends BaseTabDefinition {
-        contentType: 'arrays',
-        arraysOptions: ArraysOptions<K>,
+        contentType: 'arrays';
+        arraysOptions: ArraysOptions<K>;
     }
 
     interface CustomDefinition extends BaseTabDefinition {
-        contentType: 'custom',
+        contentType: 'custom';
         contentOptions: {
-            component: Component
-        }
+            component: Component;
+        };
     }
 
     type TabDefinition = TableDefinition<any> | CustomDefinition | ArraysDefinition<any>;
 
-    const addCompaniesLinks = (companies: Record<string, string>) => (companies?.keys() ?? [])
-        .map(c => `<a href="#companies-${c}">${c}</a>`)
-        .join(', ');
+    const addCompaniesLinks = (companies: Record<string, string>) =>
+        (companies?.keys() ?? []).map(c => `<a href="#companies-${c}">${c}</a>`).join(', ');
 
-    const addUserLink = (email: string | undefined) =>
-        email ? `<a href="#users-${email}">${email}</a>` : '';
+    const addUserLink = (email: string | undefined) => (email ? `<a href="#users-${email}">${email}</a>` : '');
 
     const emptyUndefined = (v: string | undefined) => v || '';
 
-    const tabs: Record<string, TabDefinition> = {
+    const tabNames = ['arrays', 'users', 'companies', 'technicians', 'translations', 'loyaltyProgram', 'spareParts', 'stats', 'backup'];
+
+    type Tab = typeof tabNames[number];
+
+    const tabs: Record<Tab, TabDefinition> = {
         users: {
             title: 'Uživatelé',
             longerTitle: 'Seznam uživatelů a příslušných firem',
@@ -65,21 +75,30 @@
                 fileType: 'csv',
                 fileName: 'uzivatele',
                 store: usersList,
-                construct: ([email, montazky, uvadeci, allowUPT, responsiblePerson, koNumber]) => ({
-                    email: email ?? '',
-                    assemblyCompanies:
-                        montazky?.split('#')?.filter((vec) => vec != '')?.associateWithSelf() ?? {},
-                    commissioningCompanies:
-                        uvadeci?.split('#')?.filter((vec) => vec != '')?.associateWithSelf() ?? {},
-                    allowUPT: allowUPT == 'true',
-                    responsiblePerson, koNumber,
-                } as Person),
+                construct: ([email, montazky, uvadeci, allowUPT, responsiblePerson, koNumber]) =>
+                    ({
+                        email: email ?? '',
+                        assemblyCompanies:
+                            montazky
+                                ?.split('#')
+                                ?.filter(vec => vec != '')
+                                ?.associateWithSelf() ?? {},
+                        commissioningCompanies:
+                            uvadeci
+                                ?.split('#')
+                                ?.filter(vec => vec != '')
+                                ?.associateWithSelf() ?? {},
+                        allowUPT: allowUPT == 'true',
+                        responsiblePerson,
+                        koNumber,
+                    }) as Person,
                 deconstruct: ({ email, assemblyCompanies, commissioningCompanies, allowUPT, responsiblePerson, koNumber }) => [
                     email,
                     assemblyCompanies.getValues().join('#'),
                     commissioningCompanies.getValues().join('#'),
                     `${allowUPT}`,
-                    responsiblePerson || '', koNumber || '',
+                    responsiblePerson || '',
+                    koNumber || '',
                 ],
                 key: p => p.email,
                 instructions: [
@@ -108,12 +127,21 @@
                 fileName: 'firmy',
                 store: companiesList,
                 construct: ([crn, companyName, email, phone, representative, representativeUserEmail]) => ({
-                    crn: crn!, companyName: companyName!,
-                    email, phone, representative,
+                    crn: crn!,
+                    companyName: companyName!,
+                    email,
+                    phone,
+                    representative,
                     representativeUserEmail,
                 }),
-                deconstruct: ({ crn, companyName, email, phone, representative, representativeUserEmail }) =>
-                    [crn, companyName, email || '', phone || '', representative || '', representativeUserEmail || ''],
+                deconstruct: ({ crn, companyName, email, phone, representative, representativeUserEmail }) => [
+                    crn,
+                    companyName,
+                    email || '',
+                    phone || '',
+                    representative || '',
+                    representativeUserEmail || '',
+                ],
                 key: c => c.crn,
                 instructions: [
                     'Vložte .csv soubor oddělený středníky (;), kde každý řádek popisuje jednu montážní firmu nebo uvaděče.',
@@ -159,16 +187,10 @@
                 },
             },
         } satisfies TableDefinition<Technician>,
-        translations: {
-            title: 'Překlady',
-            contentType: 'custom',
-            contentOptions: {
-                component: TranslationsTable,
-            },
-        },
         spareParts: {
             title: 'Náhradní díly',
             longerTitle: 'Seznam náhradních dílů',
+            separator: true,
             contentType: 'table',
             tableOptions: {
                 fileType: 'xlsx',
@@ -194,6 +216,7 @@
         arrays: {
             title: 'Seznamy',
             contentType: 'arrays',
+            separator: true,
             arraysOptions: {
                 fileType: 'xlsx',
                 fileName: 'seznamy',
@@ -224,6 +247,13 @@
                 },
             },
         },
+        translations: {
+            title: 'Překlady',
+            contentType: 'custom',
+            contentOptions: {
+                component: TranslationsTable,
+            },
+        },
         stats: {
             title: 'Statistiky',
             contentType: 'custom',
@@ -249,48 +279,29 @@
         },
     };
 
-    $effect(() => {
-        tabs.keys().forEach(tab => {
-            const tabEl = document.querySelector(`#${tab}-tab`)!;
-            tabEl.addEventListener('show.bs.tab', () => {
-                if (!page.url.hash.startsWith('#' + tab))
-                    goto(relUrl(`/admin#${tab}`), { replaceState: true });
-            });
-        });
-    });
+    const onTabChange = () => {
+        goto(relUrl(`/admin#${currentTab}`), { replaceState: true });
+    };
 
-    onMount(() => setTitle('Admin'));
+    let currentTab = $derived<Tab>(page.url.hash.split('#')[1].split('-')[0] as Tab);
+
+    onMount(() => setTitle('Admin', false, false, true));
 </script>
 
-<ul class="nav nav-tabs" role="tablist">
-    {#each tabs.entries() as [tab, { title }], i}
-        <li class="nav-item" role="presentation">
-            <button
-                aria-controls="{tab}-tab-pane"
-                aria-selected="false"
-                class="nav-link"
-                class:active={untrack(() => i === 0)}
-                data-bs-target="#{tab}-tab-pane"
-                data-bs-toggle="tab"
-                id="{tab}-tab"
-                role="tab"
-                type="button"
-            >{title}</button>
-        </li>
-    {/each}
-</ul>
-
-<div class="tab-content">
-    {#each tabs.entries() as [tab, t], i}
-        <div
-            aria-labelledby="{tab}-tab"
-            class="tab-pane fade"
-            id="{tab}-tab-pane"
-            class:active={untrack(() => i === 0)}
-            class:show={untrack(() => i === 0)}
-            role="tabpanel"
-            tabindex="0"
-        >
+<Tabs bind:value={currentTab} onValueChange={onTabChange} orientation="vertical" class="flex w-full relative items-start">
+    <div class="sticky top-0 -mt-4 pt-4">
+        <h1 class="pl-2.5">Admin</h1>
+        <TabsList>
+            {#each tabs.entries() as [tab, { title, separator }]}
+                <TabsTrigger value={tab}>{title}</TabsTrigger>
+                {#if separator}
+                    <Separator class="my-2" />
+                {/if}
+            {/each}
+        </TabsList>
+    </div>
+    {#each tabs.entries() as [tab, t]}
+        <TabsContent value={tab} class="min-w-0">
             <div class="flex flex-col gap-4">
                 <h2 class="m-0">{t.longerTitle || t.title}</h2>
                 {#if t.contentType === 'table'}
@@ -301,6 +312,49 @@
                     <t.contentOptions.component />
                 {/if}
             </div>
-        </div>
+        </TabsContent>
     {/each}
-</div>
+</Tabs>
+
+<!--<ul class="nav nav-tabs" role="tablist">-->
+<!--    {#each tabs.entries() as [tab, { title }], i}-->
+<!--        <li class="nav-item" role="presentation">-->
+<!--            <button-->
+<!--                aria-controls="{tab}-tab-pane"-->
+<!--                aria-selected="false"-->
+<!--                class="nav-link"-->
+<!--                class:active={untrack(() => i === 0)}-->
+<!--                data-bs-target="#{tab}-tab-pane"-->
+<!--                data-bs-toggle="tab"-->
+<!--                id="{tab}-tab"-->
+<!--                role="tab"-->
+<!--                type="button">{title}</button-->
+<!--            >-->
+<!--        </li>-->
+<!--    {/each}-->
+<!--</ul>-->
+
+<!--<div class="tab-content">-->
+<!--    {#each tabs.entries() as [tab, t], i}-->
+<!--        <div-->
+<!--            aria-labelledby="{tab}-tab"-->
+<!--            class="tab-pane fade"-->
+<!--            id="{tab}-tab-pane"-->
+<!--            class:active={untrack(() => i === 0)}-->
+<!--            class:show={untrack(() => i === 0)}-->
+<!--            role="tabpanel"-->
+<!--            tabindex="0"-->
+<!--        >-->
+<!--            <div class="flex flex-col gap-4">-->
+<!--                <h2 class="m-0">{t.longerTitle || t.title}</h2>-->
+<!--                {#if t.contentType === 'table'}-->
+<!--                    <AdminTable options={t.tableOptions} id={tab} />-->
+<!--                {:else if t.contentType === 'arrays'}-->
+<!--                    <AdminArrays options={t.arraysOptions} id={tab} />-->
+<!--                {:else if t.contentType === 'custom'}-->
+<!--                    <t.contentOptions.component />-->
+<!--                {/if}-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    {/each}-->
+<!--</div>-->

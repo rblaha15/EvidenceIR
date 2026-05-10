@@ -23,8 +23,12 @@
     import Table from './Table.svelte';
     import writeXlsxFile from 'write-excel-file';
     import { derived } from 'svelte/store';
-    import type { TableOptions } from './AdminTable.svelte';
-    import type { Color } from '$lib/forms/Widget';
+    import type { TableColor, TableOptions } from './AdminTable.svelte';
+    import { untrack } from "svelte";
+    import { Alert, AlertTitle } from "$lib/components/ui/alert";
+    import { Spinner } from "$lib/components/ui/spinner";
+    import { OctagonAlert } from '@lucide/svelte';
+    import { Button } from "$lib/components/ui/button";
 
     const { id, options }: { id: string, options: ArraysOptions<K> } = $props();
     const { fileName, instructions, arrays } = options;
@@ -100,15 +104,10 @@
 
     $effect(() => {
         page.url;
-        if (oldData) {
-            (async () => {
-                // const { Tab } = await import('bootstrap'); TODO
-                // if (page.url.hash)
-                //     new Tab(`${page.url.hash.split('-')[0]}-tab`).show();
-                if (page.url.hash.includes(`${id}-`))
-                    document.getElementById(page.url.hash)?.scrollIntoView();
-            })();
-        }
+        if (oldData) untrack(() => {
+            if (page.url.hash.includes(`${id}-`))
+                document.getElementById(page.url.hash)?.scrollIntoView();
+        });
     });
 
     const selectFile = () => input.click();
@@ -134,7 +133,7 @@
         additions
             .mapTo((key, row) =>
                 row.length
-                    ? row.map(col => ({ key, value: col, color: 'success' as Color | undefined }))
+                    ? row.map(col => ({ key, value: col, color: 'success' as TableColor | undefined }))
                     : [{ key, value: '', color: undefined }],
             ),
     );
@@ -142,7 +141,7 @@
         removals
             .mapTo((key, row) =>
                 row.length
-                    ? row.map(col => ({ key, value: col, variant: 'danger' as Color | undefined }))
+                    ? row.map(col => ({ key, value: col, color: 'danger' as TableColor | undefined }))
                     : [{ key, value: '', color: undefined }],
             ),
     );
@@ -152,55 +151,50 @@
             .map(row => [
                 Object.assign({}, ...row.map(col => ({ [col.key]: col.value }))),
                 Object.assign({}, ...row.map(col => ({ [col.key]: col.color }))),
-            ] as [Record<K, string>, Record<K, Color | undefined>]),
+            ] as [Record<K, string>, Record<K, TableColor | undefined>]),
     );
 </script>
 
 {#each instructions as paragraph}
-    <p class="m-0">
+    <p>
         {@html paragraph}
     </p>
 {/each}
 
-<div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-    {#if error}
-        <span class="text-danger">Něco se nepovedlo</span>
+{#if error}
+    <Alert variant="danger">
+        <OctagonAlert />
+        <AlertTitle>Něco se nepovedlo</AlertTitle>
+    </Alert>
+{/if}
+{#if loading}
+    <Alert>
+        <Spinner />
+        <AlertTitle>Odesílání dat</AlertTitle>
+    </Alert>
+{/if}
+
+<div class="flex flex-col items-start gap-4 md:flex-row md:items-center">
+    {#if !loading && !file}
+        <Button onclick={selectFile}>Vybrat soubor</Button>
+    {:else if !loading}
+        <Button variant="danger" onclick={confirm}>Potvrdit změny</Button>
+        <Button variant="warning" onclick={() => (file = undefined)}>Zrušit změny</Button>
+        <Button variant="warning" onclick={selectFile}>Vybrat jiný soubor</Button>
     {/if}
-    {#if loading}
-        <div class="flex items-center gap-4">
-            <span>Odesílání dat</span>
-            <div class="spinner-border text-danger"></div>
-        </div>
-    {:else if !file}
-        <button class="btn btn-primary" onclick={selectFile}>
-            Vybrat soubor
-        </button>
-    {:else}
-        <button type="button" class="btn btn-danger" onclick={confirm}>
-            Potvrdit změny
-        </button>
-        <button class="btn btn-warning" onclick={() => file = undefined}>
-            Zrušit změny
-        </button>
-        <button class="btn btn-warning" onclick={selectFile}>
-            Vybrat jiný soubor
-        </button>
-    {/if}
-    <button class="btn btn-primary" onclick={downloadData}>
-        Stáhnout aktuální data
-    </button>
+    <Button onclick={downloadData}>Stáhnout aktuální data</Button>
 </div>
 
 {#if file && !loading}
-    <h4 class="m-0">Změny, které se chystáte provést:</h4>
+    <h4>Změny, které se chystáte provést:</h4>
     {#if ![...additions.getValues(), ...removals.getValues()].some(a => a.length)}
-        <p class="m-0">Žádné změny</p>
+        <p>Žádné změny</p>
     {/if}
     <Table itemsWithItemColors={changesTableData} options={tableOptions} {id} />
 {/if}
 
 <div>
-    <h4 class="m-0">Aktuálně uložená data:</h4>
+    <h4>Aktuálně uložená data:</h4>
     <Table {id} items={oldTableData} options={tableOptions} />
 </div>
 
