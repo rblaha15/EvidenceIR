@@ -3,6 +3,7 @@ import { supportsRemoteAccess } from '$lib/helpers/ir';
 import { hasRKTL } from '$lib/forms/RKT/infoRKT';
 import type { PumpInfo } from '$lib/forms/IN/infoIN';
 import { isNewWarranties } from '$lib/helpers/prices';
+import { regulusCRN } from '$lib/helpers/ares';
 
 type Rule = (ir: ExistingIR) => boolean;
 type RuleT = (ir: ExistingIR, tc: PumpInfo) => boolean;
@@ -22,7 +23,8 @@ export const useUPTL: Rule = ir => !!ir.UP.dateTC && !isNewWarranties(ir.UP.date
 export const useRKTL: RuleT = (ir, tc) => hasRKTL(ir.RK.TC[tc.N]);
 export const isImportantRKT: Rule = ir => ir.RK.DK.TC?.state == 'sentRequest';
 export const disableRKT: RuleT = (ir, tc) => !ir.RK.TC[tc.N]?.keys()?.length;
-export const showRefsiteDialog: Rule = ir => !ir.meta.flags?.confirmedRefsite;
+export const showRefsiteDialog: Rule = ir =>
+    ir.IN.montazka.ico.trim() == `${regulusCRN}` && !ir.meta.flags?.confirmedRefsite;
 
 export const showSOL: Rule = ir =>
     ir.IN.ir.chceVyplnitK.includes('solarCollector');
