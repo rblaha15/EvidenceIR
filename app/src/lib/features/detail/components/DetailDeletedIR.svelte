@@ -4,6 +4,7 @@
     import { detailIrUrl, relUrl } from '$lib/helpers/runes.svelte';
     import { isUserAdmin } from '$lib/client/auth';
     import { iaA } from '$lib/helpers/stores';
+    import { restoreIR } from '$lib/features/detail/actions/restore';
     import Icon from '$lib/components/Icon.svelte';
     import Dates from '$lib/features/detail/components/Dates.svelte';
 
@@ -27,6 +28,10 @@
             <Icon icon="preview" />
             {td.viewFilledData}{iaA}
         </a>
+        <button class="btn btn-danger" onclick={restoreIR(ir.meta.id)}>
+            <Icon icon="restore_from_trash" />
+            Obnovit evidenci instalace{iaA}
+        </button>
         <a tabindex="0" class="btn btn-secondary" target="_blank"
            href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fir~2F{ir.meta.id}">
             <Icon icon="cloud_circle" />
