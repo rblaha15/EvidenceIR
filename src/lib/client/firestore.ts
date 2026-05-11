@@ -275,4 +275,14 @@ export const adminDatabase = {
         if (!await checkAdmin()) throw new Error('Unauthorized');
         return await getSnps(spCollection);
     },
+    restoreIR: async (irid: IRID) => {
+        if (!await checkAdmin()) throw new Error('Unauthorized');
+        const ir = await readDatabase.getIR(irid);
+        if (ir) await updateDoc(irDoc(irid), {
+            deleted: false,
+            'meta.deletedAt': deleteField(),
+            'meta.movedTo': deleteField(),
+            'meta.changedAt': serverTimestamp() as Timestamp,
+        });
+    },
 };
