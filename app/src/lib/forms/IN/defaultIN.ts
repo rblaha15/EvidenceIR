@@ -590,7 +590,7 @@ export default (): FormPlus<FormIN> => ({
                 ...['accumulation', 'waterStorage'] as const,
                 ...irCTC(c) || irOther(c) ? [] : ['ventilation'] as const,
                 ...irCTC(c) ? [] : ['photovoltaicPowerPlant'] as const,
-                ...irCTC(c) ? [] : ['other'] as const,
+                ...['other'] as const,
             ],
             required: false, showInXML: false, onValueSet: (c, v) => {
                 if (!v.includes('heatPump')) {
