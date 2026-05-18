@@ -433,7 +433,7 @@ export default {
         characteristicsAndSizeOfHeatPumpBreaker: `Charakteristika a velikost jističe TČ`,
         characteristicsAndSizeOfIndoorUnitBreaker: `Charakteristika a velikost jističe vnitřní jednotky`,
         distanceFromWall: `Vzdálenost TČ od zdi`,
-        isCompensatorInstalled: `Instalován kompenzátor pro zvýšení ochrany výměníku TČ`,
+        isCompensatorInstalled: `Je instalován kompenzátor nebo TSV D ventil?`,
         isCirculationPumpFilterInstalled: `Instalován filtr oběhového čerpadla na zpátečce k TČ`,
         tanks: `Nádrže`,
         typeOfAccumulationTank: `Typ akumulační nádrže`,
