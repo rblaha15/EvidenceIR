@@ -136,6 +136,7 @@ export default {
     fve: {
         name: `Protokol o instalaci FVE`,
         title: `Protokol o uvedení fotovoltaického systému do trvalého provozu`,
+        shortTitle: `Protokol o uvedení FVE do provozu`,
         commission: 'Zaznamenat uvedení do provozu',
         yes: `Ano`,
         no: `Ne`,
@@ -413,6 +414,7 @@ export default {
     tc: {
         name: `Protokol o instalaci TČ`,
         title: `Protokol o uvedení tepelného čerpadla do trvalého provozu`,
+        shortTitle: `Protokol o uvedení TČ do provozu`,
         commission: 'Zaznamenat uvedení do provozu',
         commissioningTitle: 'Uvedení do provozu',
         cascade: `Kaskáda:`,
@@ -431,7 +433,7 @@ export default {
         characteristicsAndSizeOfHeatPumpBreaker: `Charakteristika a velikost jističe TČ`,
         characteristicsAndSizeOfIndoorUnitBreaker: `Charakteristika a velikost jističe vnitřní jednotky`,
         distanceFromWall: `Vzdálenost TČ od zdi`,
-        isCompensatorInstalled: `Instalován kompenzátor pro zvýšení ochrany výměníku TČ`,
+        isCompensatorInstalled: `Je instalován kompenzátor nebo TSV D ventil?`,
         isCirculationPumpFilterInstalled: `Instalován filtr oběhového čerpadla na zpátečce k TČ`,
         tanks: `Nádrže`,
         typeOfAccumulationTank: `Typ akumulační nádrže`,
@@ -495,6 +497,7 @@ export default {
     sol: {
         name: `Protokol o instalaci SOL`,
         title: `Protokol o uvedení solárního systému do trvalého provozu`,
+        shortTitle: `Protokol o uvedení SOL do provozu`,
         commission: 'Zaznamenat uvedení do provozu',
         yes: `Ano`,
         no: `Ne`,

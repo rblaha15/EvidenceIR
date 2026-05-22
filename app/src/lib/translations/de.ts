@@ -326,7 +326,7 @@ const de: PlainTranslations = {
         characteristicsAndSizeOfHeatPumpBreaker: `Charakteristik und Größe des Schutzschalters für die Wärmepumpe`,
         characteristicsAndSizeOfIndoorUnitBreaker: `Charakteristik und Größe des Schutzschalters für die Innengerät`,
         distanceFromWall: `Entfernung der WP von der Rückwand`,
-        isCompensatorInstalled: `Ist ein Kompensator als Frostschutz installiert?`,
+        isCompensatorInstalled: `Ist ein Kompensator oder ein TSV-D-Ventil installiert?`,
         isCirculationPumpFilterInstalled: `Im Rücklauf ist ein Filter vor der Umwälzpumpe installiert?`,
         tanks: `Wärmspeicherung`,
         typeOfAccumulationTank: `Pufferspeicher typ`,

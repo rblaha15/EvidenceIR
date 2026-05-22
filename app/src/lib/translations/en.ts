@@ -548,7 +548,7 @@ const en: PlainTranslations = {
         characteristicsAndSizeOfHeatPumpBreaker: `Heat pump breaker characteristics and size`,
         characteristicsAndSizeOfIndoorUnitBreaker: `Indoor unit breaker characteristics and size`,
         distanceFromWall: `Distance of the heat pump from the wall`,
-        isCompensatorInstalled: `Compensator to increase protection of the heat pump exchanger installed`,
+        isCompensatorInstalled: `Is a compensator or TSV D valve installed?`,
         isCirculationPumpFilterInstalled: `Circulation pump filter installed on the return line to the heat pump`,
         tanks: `Tanks`,
         typeOfAccumulationTank: `Accumulation tank type`,
