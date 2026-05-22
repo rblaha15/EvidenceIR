@@ -1,5 +1,4 @@
 import type { EntryGenerator, PageLoad } from './$types';
-import { pdfInfo } from '$lib/pdf/pdf';
 import { browser } from '$app/environment';
 import { generatePdfUrl } from '$lib/pdf/pdfGeneration';
 import { setTitle } from '$lib/helpers/globals';
@@ -13,10 +12,10 @@ export const load: PageLoad = async ({ parent, fetch }) => {
     if (!browser) return { url: '', fileName: '' };
 
     const d = await generatePdfUrl({
-        args: pdfInfo.NN,
         lang: 'cs',
         data: {},
         fetch,
+        link: 'NN',
     });
 
     const pageData = await parent();

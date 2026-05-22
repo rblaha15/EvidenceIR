@@ -14,7 +14,7 @@ export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t }) => {
 
     // await addDoc({
     //     lang: 'cs',
-    //     args: pdfInfo.TCI,
+    //     link: 'TCI',
     //     data: {},
     // })
 
@@ -83,7 +83,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t }) => {
 
     // await addDoc({
     //     lang: 'cs',
-    //     args: pdfInfo.TCI,
+    //     link: 'TCI',
     //     data: {},
     // })
 
@@ -149,6 +149,12 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t }) => {
         Text46: UP.reg.souhlasSPristupem && UP.uvadeni.compressorWarranty ? get(tu, UP.uvadeni.compressorWarranty!) : '',
         Text47: [warrantyText, cascadeText, noteText].filter(Boolean).join('\n'),
         Text54: dateFromISO(dateTC || dayISO()),
+        signature: {
+            page: 1,
+            x: 280,
+            y: 391,
+            maxWidth: 250,
+        },
     });
 };
 export default pdfUPT;
