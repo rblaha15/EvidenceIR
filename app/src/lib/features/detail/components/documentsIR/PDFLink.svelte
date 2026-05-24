@@ -46,7 +46,7 @@
     {#if additionalButton && (additionalButton.show ?? disabled)}
         <ButtonGroup>
             <Button
-                variant={additionalButton.important ? 'default' : 'outline'}
+                variant={additionalButton.important ? 'primary' : 'outline'}
                 href={additionalButton.href}
                 onclick={additionalButton.onclick}
             >{additionalButton.text}</Button>
