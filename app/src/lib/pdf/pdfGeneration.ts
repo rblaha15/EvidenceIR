@@ -151,8 +151,8 @@ export const generatePdf = async <P extends Pdf>(
         });
     }).awaitAll();
 
-    /*const fields = form.getFields();
-    const { PDFTextField, PDFDropdown } = await import('pdf-lib');
+    const fields = form.getFields();
+    /*const { PDFTextField, PDFDropdown } = await import('pdf-lib');
     fields.forEach(field => {
         const type = field.constructor.name;
         const name = field.getName();
@@ -175,14 +175,15 @@ export const generatePdf = async <P extends Pdf>(
 
     form.updateFieldAppearances(ubuntuFont);
 
-    // fields.forEach(field => {
-    //     if (field instanceof PDFSignature) {
-    //         field.acroField.getWidgets().forEach(w => {
-    //             w.ensureAP().set(PDFName.of('N'), PDFRef.of(0));
-    //         });
-    //         form.removeField(field);
-    //     }
-    // });
+    const { PDFSignature, PDFName, PDFRef } = await import('pdf-lib');
+    fields.forEach(field => {
+        if (field instanceof PDFSignature) {
+            field.acroField.getWidgets().forEach(w => {
+                w.ensureAP().set(PDFName.of('N'), PDFRef.of(0));
+            });
+            form.removeField(field);
+        }
+    });
     if (!args.doNotFlatten) form.flatten();
 
     if (formData.signature) {
