@@ -190,6 +190,8 @@ export const generatePdf = async <P extends Pdf>(
         const parameter = parameterName ? o[parameterName as keyof typeof o] as PdfDefiningParameter : undefined;
         const settings = getSignatureState(data as ExistingIR | ExistingNSP, o.link, parameter);
         if (settings?.state == 'signed') {
+            form.flatten();
+
             const { x, y, maxWidth: mw, page: p } = formData.signature;
 
             const formatter = new Intl.DateTimeFormat(lang, {
