@@ -23,13 +23,13 @@
     const print = async () => printFile(data.objectUrl);
 
     const createLink = (code: LanguageCode) => {
-        const url = page.url;
+        const url = new URL(page.url);
         url.searchParams.set('lang', code);
         return url.toString();
     };
 
     const signUrl = $derived.by(() => {
-        const url = page.url;
+        const url = new URL(page.url);
         url.pathname += '/sign';
         return url.href;
     });

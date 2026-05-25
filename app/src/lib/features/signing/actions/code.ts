@@ -11,7 +11,8 @@ import {  generatePdf } from '$lib/pdf/pdfGeneration';
 import db from '$lib/Database';
 import type { IRID, SPID } from '$lib/helpers/ir';
 
-const emailBody = (title: string) => `Dobrý den,\nv příloze naleznete Vámi podepsaný dokument "${title}".`;
+const emailBody = (title: string, user: string) =>
+    `Dobrý den,\nv příloze naleznete dokument "${title}", který jste podepsali pomocí SMS kódu.\n${user}`;
 
 const sendEmails = async (
     o: GeneratePdfOptions<PdfToSign>,
@@ -38,7 +39,7 @@ const sendEmails = async (
             doc.fileName,
             { type: 'application/pdf' },
         )],
-        text: emailBody(title),
+        text: emailBody(title, user.name || ''),
     });
 
     if (response!.ok) {
