@@ -470,7 +470,8 @@ const de: PlainTranslations = {
     od: {
         title: 'Unterschriebene Dokumente senden',
         signedPdfDocuments: 'PDF-Dateien mit unterschriebenen Dokumenten',
-        photosFromTheInstallation: 'Installationsfotos',
+        photosFromTheInstallation: 'Installationsfotos (max. 20 MiB)',
+        photosTooLarge: 'Die Fotos überschritten die maximale Größe von 20 MiB!',
         emailBody: 'Der Körper der E-Mail',
         customerEmail: 'E-Mail-Adresse des Kunden',
         assemblyEmail: 'E-Mail-Adresse der Montagefirma',

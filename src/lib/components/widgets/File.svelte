@@ -51,7 +51,7 @@
         const selectedFiles = e.currentTarget.files;
         if (selectedFiles) {
             const files = await [...selectedFiles].map(file =>
-                addFile(file).then(uuid => ({ fileName: file.name, uuid }))
+                addFile(file).then(uuid => ({ fileName: file.name, uuid, size: file.size }))
             ).awaitAll();
 
             const newValue = [...value, ...files].slice(0, max)
@@ -86,9 +86,9 @@
 
         {#if value.length}
             <ul class="list-group">
-                {#each value as { fileName, uuid }}
+                {#each value as { fileName, uuid, size }}
                     <li class="d-flex w-100 align-items-center list-group-item gap-3">
-                        <div class="flex-grow-1 flex-shrink-1" style="word-break: break-all">{fileName}</div>
+                        <div class="flex-grow-1 flex-shrink-1" style="word-break: break-all">{fileName} – {((size ?? 0) / (1024 * 1024)).roundTo(2).toLocaleString('cs')} MB</div>
                         <button class="btn text-danger" onclick={remove(uuid)}>
                             <Icon icon="delete" />
                             {t.widget.remove_File}

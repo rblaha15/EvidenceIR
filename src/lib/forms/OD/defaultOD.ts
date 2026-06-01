@@ -31,7 +31,10 @@ export default (): FormPlus<FormOD> => ({
             ].join(''),
         }),
         documents: newFileWidget({ label: t => t.od.signedPdfDocuments, multiple: true, max: 5, accept: 'application/pdf' }),
-        photos: newPhotoSelectorWidget({ label: t => t.od.photosFromTheInstallation, multiple: true, max: 5, required: false }),
+        photos: newPhotoSelectorWidget({
+            label: t => t.od.photosFromTheInstallation, multiple: true, max: 5, required: false,
+            maxSizeMiB: 20, onError: t => t.od.photosTooLarge,
+        }),
         body: newInputWidget({ label: t => t.od.emailBody, required: false, textArea: true }),
         userEmail: newInputWidget({
             label: t => t.od.customerEmail, required: false, type: 'email',
