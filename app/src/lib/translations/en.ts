@@ -656,7 +656,8 @@ const en: PlainTranslations = {
     od: {
         title: 'Send signed documents',
         signedPdfDocuments: 'PDF files with the signed documents',
-        photosFromTheInstallation: 'Photos from the installation',
+        photosFromTheInstallation: 'Photos from the installation (max. 20 MiB)',
+        photosTooLarge: 'The photos exceeded the maximum size of 20 MiB!',
         emailBody: 'Email body',
         otherCopies: 'Other ccs',
         customerEmail: 'Customer email address',

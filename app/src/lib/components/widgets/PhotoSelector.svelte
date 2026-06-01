@@ -26,7 +26,7 @@
         const selectedFiles = e.currentTarget.files;
         if (selectedFiles) {
             const photos = await [...selectedFiles].map(file =>
-                addFile(file).then(uuid => ({ fileName: file.name, uuid })),
+                addFile(file).then(uuid => ({ fileName: file.name, uuid, size: file.size }))
             ).awaitAll();
 
             const newValue = [...value, ...photos].slice(0, max)
@@ -60,7 +60,7 @@
 
         {#if value.length}
             <ul class="list-group">
-                {#each value as { fileName, uuid }}
+                {#each value as { fileName, uuid, size }}
                     <li class="d-flex w-100 align-items-center list-group-item gap-3">
                         {#await getFile(uuid) then photo}
                             {#if photo}
@@ -70,6 +70,7 @@
                         {/await}
                         <div class="d-flex flex-column gap-3 text-center">
                             <span style="word-break: break-all">{fileName}</span>
+                            <span>{((size ?? 0) / (1024 * 1024)).roundTo(2).toLocaleString('cs')} MB</span>
                             <Button text={t.widget.remove_Photo} icon="delete" color="danger"
                                     onclick={remove(uuid)} />
                         </div>
