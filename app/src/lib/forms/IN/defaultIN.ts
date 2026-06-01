@@ -505,6 +505,8 @@ export default (): FormPlus<FormIN> => ({
                 }
                 if (c.v.ir.typ.first) db.existsIR(extractIRIDFromParts(c.v.ir.typ.first, c.v.ir.cislo))
                     .then(e => c.v.ir.alreadyExists = e);
+                const allowed = c.f.ir.chceVyplnitK.options(c);
+                c.v.ir.chceVyplnitK = c.v.ir.chceVyplnitK.filter(i => allowed.includes(i));
             },
             labels: t => t.in.ir,
         }),
