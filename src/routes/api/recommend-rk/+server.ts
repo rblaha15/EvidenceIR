@@ -54,11 +54,13 @@ export const GET: RequestHandler = async ({ request, fetch }) => {
         if (ir.RK.DK.TC) {
             const settings = ir.RK.DK.TC;
             const commission = new Date(ir.UP.dateTC!);
+            if (settings.offset) commission.setDate(commission.getDate() + settings.offset)
             await processRecommendations({ today, commission, ir, irid, settings, type: 'TČ', fetch, appUrl });
         }
         if (ir.RK.DK.SOL) {
             const settings = ir.RK.DK.SOL;
             const commission = new Date(ir.UP.dateSOL!);
+            if (settings.offset) commission.setDate(commission.getDate() + settings.offset)
             await processRecommendations({ today, commission, ir, irid, settings, type: 'SOL', fetch, appUrl });
         }
     }
