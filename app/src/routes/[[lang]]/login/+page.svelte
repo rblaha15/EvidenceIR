@@ -39,13 +39,9 @@
 	async function signIn() {
 		error = '';
 		await logIn(email, password)
-			.then(async c => {
+			.then(async _ => {
                 logEvent(analytics(), 'login', { email });
                 await grantPoints({ type: 'registration' });
-                await setName(
-                    get(techniciansList).find(t => t.email == c.user.email)?.name
-                    ?? get(usersList).find(t => t.email == c.user.email)?.responsiblePerson,
-                )
                 await goto(page.url.origin + relUrl(redirect));
             })
 			.catch(e => {

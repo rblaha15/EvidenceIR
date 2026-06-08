@@ -65,7 +65,8 @@
                 fileType: 'csv',
                 fileName: 'uzivatele',
                 store: usersList,
-                construct: ([email, montazky, uvadeci, allowUPT, responsiblePerson, koNumber]) => ({
+                construct: ([name, email, montazky, uvadeci, allowUPT, responsiblePerson, koNumber]) => ({
+                    name: name ?? '',
                     email: email ?? '',
                     assemblyCompanies:
                         montazky?.split('#')?.filter((vec) => vec != '')?.associateWithSelf() ?? {},
@@ -74,7 +75,8 @@
                     allowUPT: allowUPT == 'true',
                     responsiblePerson, koNumber,
                 } as Person),
-                deconstruct: ({ email, assemblyCompanies, commissioningCompanies, allowUPT, responsiblePerson, koNumber }) => [
+                deconstruct: ({ name, email, assemblyCompanies, commissioningCompanies, allowUPT, responsiblePerson, koNumber }) => [
+                    name,
                     email,
                     assemblyCompanies.getValues().join('#'),
                     commissioningCompanies.getValues().join('#'),
@@ -84,12 +86,13 @@
                 key: p => p.email,
                 instructions: [
                     'Vložte .csv soubor oddělený středníky (;), kde v každém řádku je uveden jeden uživatel aplikace.',
-                    'Zaměstnanec Regulusu: email (se jménem a příjmením*);&lt;prázdno&gt;;&lt;prázdno&gt;;true;jméno;číslo KO<br />Př.: jan.novak@regulus.cz;;;true;Jan Novák;123',
-                    'Externí uživatel: email;iča montážních firem oddělená křížky (#);stejně oddělená iča uvaděčů;smí vytvořit UPT? (true/false);jméno odpovědné osoby;&lt;prázdno&gt;<br />Př.: email@example.com;12345678#87654321;14725836#63852741;true;Jan Novák;',
+                    'Zaměstnanec Regulusu: jméno a příjmení;email (se jménem a příjmením*);&lt;prázdno&gt;;&lt;prázdno&gt;;true;jméno znovu;číslo KO<br />Př.: Jan Novák;jan.novak@regulus.cz;;;true;Jan Novák;123',
+                    'Externí uživatel: jméno a příjmení;email;iča montážních firem oddělená křížky (#);stejně oddělená iča uvaděčů;smí vytvořit UPT? (true/false);jméno odpovědné osoby;&lt;prázdno&gt;<br />Př.: Petr Černý;petr@cerny.cz;12345678#87654321;14725836#63852741;true;Jan Novák;',
                     'Zaměstnance není nutné v této tabulce uvádět, využití jsou jen specifikování čísla KO (potřeba pro odesílání NK) a pro určení jména (není nutné, popř. lze i v tabulce techniků)',
                     '* výjimky: komanek@regulus.cz, cervenka@regulus.cz, kocar@regulus.cz, malucha@regulus.cz, novak@regulus.cz, tereza@regulus.cz, martin@regulus.cz, blaha@regulus.cz, blahova@regulus.cz ',
                 ],
                 columns: {
+                    name: { header: 'Jméno a příjmení' },
                     email: { header: 'Email', cellType: 'header' },
                     assemblyCompanies: { header: 'Montážní firmy', transformValue: addCompaniesLinks },
                     commissioningCompanies: { header: 'Uvaděči', transformValue: addCompaniesLinks },

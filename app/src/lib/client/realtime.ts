@@ -19,6 +19,7 @@ export type Company = {
     representativeUserEmail?: string;
 };
 export type Person = {
+    name: string;
     email: string;
     assemblyCompanies: SelfObject<CRN>;
     commissioningCompanies: SelfObject<CRN>;
