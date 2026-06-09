@@ -16,7 +16,10 @@
 </script>
 <div>
     {#if ir.meta.movedTo}
-        {@html td.movedIRHtml({link: detailIrUrl(ir.meta.movedTo)})}
+        {td.movedIR}
+        <Button variant="link" href={detailIrUrl(ir.meta.movedTo)} class="px-0">
+            {td.newAddress}
+        </Button>{td.movedIRend}
     {:else}
         {td.deletedIR}
     {/if}
