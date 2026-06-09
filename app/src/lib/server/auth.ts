@@ -32,6 +32,7 @@ export const createUser = (props: CreateRequest) => auth.createUser(props);
 export const createUsers = (props: CreateRequest[]) => Promise.all(props.map(props => createUser(props)));
 
 export const enableUser = (uid: string) => auth.updateUser(uid, { disabled: false });
+export const setUserName = (uid: string, displayName: string) => auth.updateUser(uid, { displayName });
 
 export const removeUsers = (uids: string[]) => promiseBy100(uids, uids => auth.deleteUsers(uids));
 

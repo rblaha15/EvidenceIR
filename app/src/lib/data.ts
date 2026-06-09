@@ -25,6 +25,10 @@ export type RecommendationSettings = {
     executingCompany: 'assembly' | 'commissioning' | 'regulus',
     state: RecommendationState,
     code?: string,
+    /**
+     * Count commission anniversaries x days later
+     * */
+    offset?: number,
 };
 
 export type OTP = string

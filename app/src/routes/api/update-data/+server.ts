@@ -1,5 +1,5 @@
 import type { Company, Person, SparePart, Technician } from '$lib/client/realtime';
-import { checkAdmin, checkToken, createUser, getUserByEmail, getUsersByEmail, removeUsers } from '$lib/server/auth';
+import { checkAdmin, checkToken, createUser, getUserByEmail, getUsersByEmail, removeUsers, setUserName } from '$lib/server/auth';
 import {
     getPeople,
     removePerson,
@@ -54,10 +54,11 @@ export const POST: RequestHandler = async ({ request, url }) => {
             ...(await getUsersByEmail(toChange)).flatMap(r => r.users),
         ];
 
-        await Promise.all(usersToChange.map(u => {
+        await Promise.all(usersToChange.map(async u => {
             const d = newPeople.find(p => p.email.toLowerCase() == u.email?.toLowerCase())!;
             console.log(`Editing ${u.email}: ${JSON.stringify(d)}`);
-            return setPersonDetails(u.uid, d);
+            await setUserName(u.uid, d.name);
+            await setPersonDetails(u.uid, d);
         }));
     } else if (typ == 'companies') {
         if (!await checkAdmin(token)) error(401, 'Unauthorized');

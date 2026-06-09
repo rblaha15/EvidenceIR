@@ -7,7 +7,7 @@
     import { ImageMinus } from "@lucide/svelte";
     import { Field, FieldError, FieldGroup, FieldTitle } from "$lib/components/ui/field";
     import { Card, CardContent } from "$lib/components/ui/card";
-    import { Item, ItemActions, ItemContent, ItemHeader, ItemTitle } from "$lib/components/ui/item";
+    import { Item, ItemActions, ItemContent, ItemDescription, ItemHeader, ItemTitle } from "$lib/components/ui/item";
 
     interface Props {
         t: Translations;
@@ -30,7 +30,7 @@
         const selectedFiles = e.currentTarget.files;
         if (selectedFiles) {
             const photos = await [...selectedFiles].map(file =>
-                addFile(file).then(uuid => ({ fileName: file.name, uuid })),
+                addFile(file).then(uuid => ({ fileName: file.name, uuid, size: file.size }))
             ).awaitAll();
 
             const newValue = [...value, ...photos].slice(0, max)
@@ -69,7 +69,7 @@
         </FieldGroup>
         {#if value.length}
             <div class="flex gap-1 overflow-x-auto w-full">
-                {#each value as {fileName, uuid}}
+                {#each value as {fileName, uuid, size }}
                     <Item class="shrink w-fit">
                         {#await getFile(uuid) then photo}
                             {#if photo}
@@ -85,6 +85,7 @@
                         {/await}
                         <ItemContent>
                             <ItemTitle class="break-all">{fileName}</ItemTitle>
+                            <ItemDescription>{((size ?? 0) / (1024 * 1024)).roundTo(2).toLocaleString('cs')} MB</ItemDescription>
                             <ItemActions>
                                 <Button variant="danger" onclick={remove(uuid)}>
                                     <ImageMinus /> {t.widget.remove_Photo}

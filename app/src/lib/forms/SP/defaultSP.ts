@@ -143,10 +143,6 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
         interventionDuration: newInputWidget({
             label: t => t.sp.interventionTime, type: 'number',
             onError: t => t.wrong.number, suffix: t => t.units.h, required: false,
-            onValueSet: (c, v) => {
-                if (!c.v.ukony.doba)
-                    c.v.ukony.doba = v;
-            },
         }),
     },
     ukony: {
@@ -161,10 +157,6 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
                 i == 'yearlyHPCheck' && hpCount(c) > 1
                 || i == 'commissioningTC' && hpCount(c) > 1
                     ? 2 : 1,
-            onValueSet: (c, v) => {
-                if (v.length)
-                    c.v.ukony.doba = '';
-            },
         }),
         typPrace: newRadioWidget({
             label: t => t.sp.workType, required: false, labels, show: c => !areNewPrices(c),

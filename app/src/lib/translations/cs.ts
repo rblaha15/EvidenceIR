@@ -807,7 +807,8 @@ export default {
     od: {
         title: 'Odeslat podepsané dokumenty',
         signedPdfDocuments: 'PDF soubory s podepsanými dokumenty',
-        photosFromTheInstallation: 'Fotografie z instalace',
+        photosFromTheInstallation: 'Fotografie z instalace (max. 20 MB)',
+        photosTooLarge: 'Fotografie přesáhly maximální velikost 20 MB!',
         emailBody: 'Tělo emailu',
         customerEmail: 'Emailová adresa zákazníka',
         assemblyEmail: 'Emailová adresa montážní firmy',

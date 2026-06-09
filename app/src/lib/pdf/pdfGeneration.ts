@@ -17,6 +17,13 @@ import { getSignatureState } from '$lib/helpers/signing';
 
 type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Dropdown' | '_'
 
+export type PdfSignature = {
+    x: number,
+    y: number,
+    maxWidth: number,
+    page?: number,
+    condition?: boolean;
+};
 export type PdfGenerationData = {
     [K in `${PdfFieldType}${string}`]: K extends `Text${string}` ? string | null
         : K extends `Kombinované pole${string}` ? string | null
@@ -42,12 +49,7 @@ export type PdfGenerationData = {
         maxWidth?: number,
     }[],
     fileNameSuffix?: string,
-    signature?: {
-        x: number,
-        y: number,
-        maxWidth: number,
-        page?: number,
-    },
+    signature?: PdfSignature | PdfSignature[],
 }
 
 export const generatePdfUrl = async <P extends Pdf>(
@@ -151,8 +153,8 @@ export const generatePdf = async <P extends Pdf>(
         });
     }).awaitAll();
 
-    /*const fields = form.getFields();
-    const { PDFTextField, PDFDropdown } = await import('pdf-lib');
+    const fields = form.getFields();
+    /*const { PDFTextField, PDFDropdown } = await import('pdf-lib');
     fields.forEach(field => {
         const type = field.constructor.name;
         const name = field.getName();
@@ -175,14 +177,15 @@ export const generatePdf = async <P extends Pdf>(
 
     form.updateFieldAppearances(ubuntuFont);
 
-    // fields.forEach(field => {
-    //     if (field instanceof PDFSignature) {
-    //         field.acroField.getWidgets().forEach(w => {
-    //             w.ensureAP().set(PDFName.of('N'), PDFRef.of(0));
-    //         });
-    //         form.removeField(field);
-    //     }
-    // });
+    const { PDFSignature, PDFName, PDFRef } = await import('pdf-lib');
+    fields.forEach(field => {
+        if (field instanceof PDFSignature) {
+            field.acroField.getWidgets().forEach(w => {
+                w.ensureAP().set(PDFName.of('N'), PDFRef.of(0));
+            });
+            form.removeField(field);
+        }
+    });
     if (!args.doNotFlatten) form.flatten();
 
     if (formData.signature) {
@@ -192,28 +195,38 @@ export const generatePdf = async <P extends Pdf>(
         if (settings?.state == 'signed') {
             form.flatten();
 
-            const { x, y, maxWidth: mw, page: p } = formData.signature;
+            const signatures = Array.isArray(formData.signature) ? formData.signature : [formData.signature];
+            for (const { x, y, maxWidth: mw, page: p, condition } of signatures) {
+                if (condition === false) continue; // undefined and true are okay
 
-            const formatter = new Intl.DateTimeFormat(lang, {
-                year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric',
-                timeZoneName: 'short', timeZone: settings.timezone, hourCycle: 'h24',
-            });
-            const date = formatter.format(settings.signedAt).replaceAll(' ', ' ');
-            const text = `Tento dokument byl podepsán pomocí SMS kódu ${date}.\nPodepisující: ${settings.signedBy.name}`;
+                const formatter = new Intl.DateTimeFormat(lang, {
+                    year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric',
+                    timeZoneName: 'short', timeZone: settings.timezone, hourCycle: 'h24',
+                });
+                const date = formatter.format(settings.signedAt).replaceAll(' ', ' ');
+                const text = `Tento dokument byl podepsán pomocí SMS kódu ${date}.\nPodepisující: ${settings.signedBy.name}`;
 
-            const page = pdfDoc.getPages()[p ?? 0];
-            page.drawText(text, {
-                x, y, maxWidth: mw, font: ubuntuFont, size: 10, lineHeight: 12, color: { type: ColorTypes.RGB, red: 0, green: .6, blue: 0 },
-            });
-            /*page.drawRectangle({
-                x, y, width: mw, height: 12, color: { type: ColorTypes.Grayscale, gray: 0 },
-            });
-            page.drawRectangle({
-                x, y: y - 12, width: mw, height: 12, color: { type: ColorTypes.Grayscale, gray: .4 },
-            });
-            page.drawRectangle({
-                x, y: y - 24, width: mw, height: 12, color: { type: ColorTypes.Grayscale, gray: .8 },
-            });*/
+                const pageCount = pdfDoc.getPageCount();
+                const page = pdfDoc.getPages()[((p ?? 0) + pageCount) % pageCount];
+                page.drawText(text, {
+                    x,
+                    y,
+                    maxWidth: mw,
+                    font: ubuntuFont,
+                    size: 10,
+                    lineHeight: 12,
+                    color: { type: ColorTypes.RGB, red: 0, green: .6, blue: 0 },
+                });
+                /*page.drawRectangle({
+                    x, y, width: mw, height: 12, color: { type: ColorTypes.Grayscale, gray: 0 },
+                });
+                page.drawRectangle({
+                    x, y: y - 12, width: mw, height: 12, color: { type: ColorTypes.Grayscale, gray: .4 },
+                });
+                page.drawRectangle({
+                    x, y: y - 24, width: mw, height: 12, color: { type: ColorTypes.Grayscale, gray: .8 },
+                });*/
+            }
         }
     }
 

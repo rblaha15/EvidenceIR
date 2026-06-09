@@ -116,7 +116,7 @@ export type ChI = { readonly checked: boolean; readonly text: string; };
 export type SeI<I extends K> = { readonly chosen: I; readonly text: string; };
 export type RaI<I extends K> = { readonly chosen: I | null; readonly text: string; };
 export type SeCh<I extends K> = { readonly chosen: I; readonly checked: boolean; };
-export type Files = readonly { fileName: string, uuid: string }[];
+export type Files = readonly { fileName: string, uuid: string, size?: number }[];
 export type InlinePdfPreviewData<C, P extends PdfType> = {
     type: P,
     data: DataOfPdf<P>,
@@ -146,6 +146,7 @@ type ValueArgs<C, U, H> = {
 type LabelsArgs<I extends string> = Exclude<I, Untranslatable> extends never ? { labels?: T<I>; } : { labels: T<I>; };
 type FileArgs<C> = {
     multiple?: GetBOrVal<C>; max?: GetOrVal<C, number>; accept?: GetOrVal<C, string>;
+    maxSizeMiB?: number;
 };
 type ChooserArgs<C, I extends K> = { options: GetOrVal<C, Arr<I>>; otherOptions?: GetOrVal<C, Arr<I>>; chosen?: I | null; };
 type SecondChooserArgs<I extends K> = { options: Arr<I>; chosen?: I; text?: string; };
@@ -217,7 +218,10 @@ type Title = { level: HeadingLevel; };
 type Pdf<C, P extends PdfType> = { pdfData: GetT<C, InlinePdfPreviewData<C, P>> };
 export type Required<C, U, T extends WidgetType, H extends boolean> = BaseWidget<C, U, T, H> & { required: GetB<C>; };
 export type Labels<I extends string> = { labels: T<I>; get: (t: Translations, v: I | null) => string; };
-type File<C> = { multiple: GetB<C>; max: Get<C, number>; accept: Get<C, string>; };
+type File<C> = {
+    multiple: GetB<C>; max: Get<C, number>; accept: Get<C, string>;
+    maxSizeMiB: number | undefined;
+};
 export type Lock<C> = { lock: GetB<C>; };
 type OtherLabel<C> = { otherLabel: GetT<C>; };
 type Compact<C> = { compact: GetB<C>; };
@@ -302,6 +306,7 @@ const initFile = <C>(args: FileArgs<C>, defaultAccept: string = '*') => ({
     multiple: toGetA(args.multiple ?? false),
     max: toGetA(args.max ?? Number.POSITIVE_INFINITY),
     accept: toGetA(args.accept ?? defaultAccept),
+    maxSizeMiB: args.maxSizeMiB,
 });
 const initChooser = <C, I extends K>(args: ChooserArgs<C, I>) => ({
     options: toGetA(args.options),
@@ -648,7 +653,8 @@ export const newFileWidget = <C, H extends boolean = false>(
 ): FileWidget<C, H> => ({
     widgetType: 'file' as const,
     defaultValue: [],
-    isError: (c: C, v: Files) => (v.length == 0) && required(args, c),
+    isError: (c: C, v: Files) => (v.length == 0) && required(args, c)
+        || !!args.maxSizeMiB && (v.sumBy(f => f.size ?? 0) > args.maxSizeMiB * 1024 * 1024),
     ...initValue<C, Files, H>(args),
     ...initFile(args),
     ...initLock(args),
@@ -663,7 +669,8 @@ export const newPhotoSelectorWidget = <C, H extends boolean = false>(
 ): PhotoSelectorWidget<C, H> => ({
     widgetType: 'photoSelector' as const,
     defaultValue: [],
-    isError: (c: C, v: Files) => (v.length == 0) && required(args, c),
+    isError: (c: C, v: Files) => (v.length == 0) && required(args, c)
+        || !!args.maxSizeMiB && (v.sumBy(f => f.size ?? 0) > args.maxSizeMiB * 1024 * 1024),
     ...initValue<C, Files, H>(args),
     ...initFile(args, 'image/*'),
     ...initLock(args),

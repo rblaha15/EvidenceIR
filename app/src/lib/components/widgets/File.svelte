@@ -55,7 +55,7 @@
         const selectedFiles = e.currentTarget.files;
         if (selectedFiles) {
             const files = await [...selectedFiles].map(file =>
-                addFile(file).then(uuid => ({ fileName: file.name, uuid }))
+                addFile(file).then(uuid => ({ fileName: file.name, uuid, size: file.size }))
             ).awaitAll();
 
             const newValue = [...value, ...files].slice(0, max)
@@ -89,10 +89,10 @@
                 {/if}
             </Field>
         </FieldGroup>
-        {#each value as {fileName, uuid}}
+        {#each value as {fileName, uuid, size}}
             <Item size="2xs" class="w-fit gap-4">
                 <ItemContent>
-                    <ItemTitle class="break-all">{fileName}</ItemTitle>
+                    <ItemTitle class="break-all">{fileName}– {((size ?? 0) / (1024 * 1024)).roundTo(2).toLocaleString('cs')} MB</ItemTitle>
                 </ItemContent>
                 <ItemActions>
                     <Button variant="danger" onclick={remove(uuid)}>

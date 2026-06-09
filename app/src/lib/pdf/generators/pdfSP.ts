@@ -71,7 +71,20 @@ export const calculateProtocolPrice = <C extends GenericContextSP<C>>(
     const tax = p.ukony.taxRate == '12' || p.ukony.typPrace == 'assemblyWork12' ? 1.12 : 1.21;
     const sumWithTax = sum * tax;
     const isFree = sumWithTax < 1.0;
-    return { spareParts, ip, priceTransportation, priceWork, operationsWithCascades, discount, priceOther, sum, tax, sumWithTax, isFree, prices };
+    return {
+        spareParts,
+        ip,
+        priceTransportation,
+        priceWork,
+        operationsWithCascades,
+        discount,
+        priceOther,
+        sum,
+        tax,
+        sumWithTax,
+        isFree,
+        prices,
+    };
 };
 
 export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) => {
@@ -189,20 +202,27 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
             otherCompany: detectCRN(NSP.fakturace.komu.text),
         }[NSP.fakturace.komu.chosen ?? 'investor'],
         images: signature ? [{ x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 }] : [],
-        signature: {
+        signature: [{
             x: 358,
             y: 134,
             maxWidth: 225,
-        },
+        }, {
+            x: 350,
+            y: 204,
+            maxWidth: 210,
+            page: -1,
+            condition: tax == 1.12,
+        }],
     } satisfies Awaited<ReturnType<GetPdfData<'SP'>>>;
 };
 
-const detectCRN = (text: string) => /^[0-9]{8}$/.test(text) ? `IČO: ${text}` : text
+const detectCRN = (text: string) => /^[0-9]{8}$/.test(text) ? `IČO: ${text}` : text;
 
 export const pdfSP: GetPdfData<'SP'> = async ({ data, t, addDoc, id, lang }) => {
     const { ensureSP } = await import('$lib/forms/SP/infoSP.svelte');
-    return pdfNSP({
-        data: generalizeServiceProtocol(data.meta, data.IN, ensureSP(data.SPs[id]), t), t, addDoc, lang,
+    const NSP = generalizeServiceProtocol(data.meta, data.IN, ensureSP(data.SPs[id]), t);
+    return await pdfNSP({
+        data: NSP, t, addDoc, lang,
         pumpCount: cascadePumps(data.IN).length,
     });
 };
