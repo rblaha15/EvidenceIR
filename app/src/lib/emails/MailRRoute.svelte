@@ -31,6 +31,7 @@
         'IR 30': 'CP-1054',
         'IR 34': 'CP-2007',
         'IR RegulusBOX': 'CP-2972',
+        'IR RegulusBOX-E': 'CP-2962',
         'IR RegulusHBOX': 'CP-2972',
         'IR RegulusHBOX K': 'CP-2972',
         'SOREL': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess

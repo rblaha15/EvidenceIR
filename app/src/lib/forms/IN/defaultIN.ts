@@ -445,7 +445,7 @@ export default (): FormPlus<FormIN> => ({
         regulus: newHiddenValueWidget(false, true),
         typ: newDoubleChooserWidget({
             label: t => t.in.controllerType,
-            options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
+            options1: ['IR 14', 'IR RegulusBOX', 'IR RegulusBOX-E', 'IR RegulusHBOX', 'IR RegulusHBOX K'],
             otherOptions1: c => [
                 'IR 34', 'IR 30', 'IR 12', 'IR 10', 'SOREL', 'ctc',
                 ...c.v.ir.regulus ? ['Thermona'] as const : [], 'other',
