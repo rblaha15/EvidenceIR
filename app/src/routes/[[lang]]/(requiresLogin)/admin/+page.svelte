@@ -286,7 +286,7 @@
         goto(relUrl(`/admin#${currentTab}`), { replaceState: true });
     };
 
-    let currentTab = $derived<Tab>(page.url.hash.split('#')[1].split('-')[0] as Tab);
+    let currentTab = $derived(page.url.hash.split('#')?.[1]?.split('-')?.[0] ?? tabs.keys()[0] as Tab);
 
     onMount(() => setTitle('Admin', false, false, true));
 </script>
