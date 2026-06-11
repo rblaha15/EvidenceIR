@@ -88,6 +88,7 @@ export const irType = (type: Raw<FormIN>['ir']['typ']) => ({
     'IR 30': 'IR30',
     'IR 34': 'IR34' + type.second!,
     'IR RegulusBOX': `IR RegulusBOX ` + type.second!,
+    'IR RegulusBOX-E': `IR RegulusBOX-E ` + type.second!,
     'IR RegulusHBOX': `IR RegulusHBOX ` + type.second!,
     'IR RegulusHBOX K': `IR RegulusHBOXK ` + type.second!,
     'SOREL': type.second!,
@@ -126,6 +127,10 @@ export const typBOX = (cisloBOX: string) => ({
     '18930': 'BOX 12 RTC 3/1S EN',
     '20025': 'BOX 12 RTC 3/3S EN',
     '19816': 'BOX 12 RTC 3/3S',
+    '22063': 'BOX-E RTC 3/3',
+    '22068': 'BOX-E RTC 3/3PV',
+    '22061': 'BOX-E CTC 3/3',
+    '22066': 'BOX-E CTC 3/3PV',
     '20048': 'HBOX 112 CTC 3/3',
     '20050': 'HBOX 112 CTC 3/3 EN',
     '20049': 'HBOX 112 RTC 3/1S',
@@ -155,7 +160,7 @@ type IRTypeDescriptions = {
     '4': 'IR 14';
     '1': 'IR 30';
     '3': 'IR 34';
-    'B': 'BOX/HBOX/HBOXK';
+    'B': 'BOX/BOX-E/HBOX/HBOXK';
     'S': 'SOREL';
     'C': 'CTC';
     'T': 'Thermona inTHERM';
@@ -196,6 +201,7 @@ const extractIRTypeFromFullIRType = (fullIRType: IRTypes): IRType => ({
     'IR 30': '1',
     'IR 34': '3',
     'IR RegulusBOX': 'B',
+    'IR RegulusBOX-E': 'B',
     'IR RegulusHBOX': 'B',
     'IR RegulusHBOX K': 'B',
     'SOREL': 'S',
@@ -232,5 +238,5 @@ export const isCTC = (t: IRTypes | null) => t == 'ctc';
 export const doesNotSupportHeatPumps = (t: IRTypes | null) => t == 'other';
 export const doesNotHaveIRNumber = (t: IR['IN']['ir']['typ']) => t.first == 'other' || t.first == 'SOREL' || (t.first == 'ctc' && t.second == 'EcoLogic EXT');
 export const supportsRemoteAccess = (t: IRTypes | null) => t != 'other' && t != 'SOREL' && t != 'ctc' && t != 'Thermona';
-export const isBox = (t: IRTypes | null) => t == 'IR RegulusBOX' || t == 'IR RegulusHBOX' || t == 'IR RegulusHBOX K';
+export const isBox = (t: IRTypes | null) => t == 'IR RegulusBOX' || t == 'IR RegulusBOX-E' || t == 'IR RegulusHBOX' || t == 'IR RegulusHBOX K';
 export const hasIndoorUnit = (t: IRTypes | null) => isBox(t) || t == 'Thermona';

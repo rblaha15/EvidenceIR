@@ -60,7 +60,7 @@ export interface UserForm<C extends UserFormContext<C>> extends Form<C> {
     uvedeni: CompanyWidgetGroup<C>;
 }
 
-export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL' | 'Thermona';
+export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusBOX-E' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL' | 'Thermona';
 export type IRTypes = UntranslatableIRTypes | 'ctc' | 'other';
 type ControllersSOREL =
     | 'SRS1 T'
