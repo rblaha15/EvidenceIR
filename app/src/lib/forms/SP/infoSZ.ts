@@ -1,6 +1,6 @@
 import { type ContextSZ, type FormSZ } from '$lib/forms/SP/formSZ';
 import type { FormInfo } from '$lib/forms/FormInfo';
-import db from '$lib/Database';
+import db from '$lib/client/db';
 import { error } from '@sveltejs/kit';
 import { isSP } from '$lib/forms/SP/infoSP.svelte';
 import defaultSZ from '$lib/forms/SP/defaultSZ';

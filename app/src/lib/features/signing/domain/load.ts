@@ -10,7 +10,7 @@ import {
 } from '$lib/pdf/pdf';
 import { error } from '@sveltejs/kit';
 import { checkRegulusOrAdmin, getCurrentUser } from '$lib/client/auth';
-import type { ExistingIR, ExistingNSP, IR, SignatureState } from '$lib/data';
+import type { ExistingIR, ExistingNSP, SignatureState } from '$lib/data';
 import type { DocumentDefinition } from '$lib/features/signing/domain/sms';
 import { waitUntil } from '$lib/helpers/stores';
 import { getDataAsStore } from '$lib/helpers/getData';
@@ -43,14 +43,14 @@ export const loadSigning = async (
     const stores = getDataAsStore(id);
 
     await waitUntil(stores.ir, p => p != 'loading');
-    await waitUntil(stores.sps, p => p != 'loading');
+    await waitUntil(stores.nsps, p => p != 'loading');
 
     const data = {
-        sp: derived(stores.sps, (sps, set: (value: ExistingNSP | undefined) => void) => {
-            if (sps != 'loading') set(!sps.length || sps[0].deleted ? undefined : sps[0]);
+        nsp: derived(stores.nsps, (sps, set: (value: ExistingNSP | null) => void) => {
+            if (sps != 'loading') set(!sps.length || sps[0].deleted ? null : sps[0]);
         }),
-        ir: derived(stores.ir, (ir, set: (value: ExistingIR | undefined) => void) => {
-            if (ir != 'loading') set(!ir || ir.deleted ? undefined : ir);
+        ir: derived(stores.ir, (ir, set: (value: ExistingIR | null) => void) => {
+            if (ir != 'loading') set(!ir || ir.deleted ? null : ir);
         }),
     };
 
@@ -61,14 +61,14 @@ export const loadSigning = async (
         settings = derived(data.ir, $ir =>
             getSignatureState($ir, pdfName, parameter));
     } else {
-        if (!id.spids || id.spids.length != 1) error(400, { message: 'spids must be provided to access this document!' });
+        if (!id.nspids || id.nspids.length != 1) error(400, { message: 'spids must be provided to access this document!' });
 
-        settings = derived(data.sp, $sp =>
-            getSignatureState($sp, pdfName, parameter));
+        settings = derived(data.nsp, $nsp =>
+            getSignatureState($nsp, pdfName, parameter));
     }
 
     const def: DocumentDefinition = {
-        pdf: pdfName, parameter, id: id.irid ?? id.spids[0]!,
+        pdf: pdfName, parameter, id: id.irid ?? id.nspids[0]!,
     };
 
     return { def, ...data, ...id, args: pdf, settings };

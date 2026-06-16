@@ -2,11 +2,10 @@ import { error, type RequestHandler } from '@sveltejs/kit';
 import { checkToken } from '$lib/server/auth';
 import { type SendCodeParams, SMS_CODE_LIFETIME, SMS_SEND_MINIMUM_WAIT_TIME } from '$lib/features/signing/domain/sms';
 import { sendSMS } from '$lib/server/sms';
-import { setSignature } from '$lib/server/firestore';
 import { generate } from 'otp-generator';
-import { getSigning, putSentMessage } from '$lib/server/signing';
 import { validateRequest } from '../validateSigningRequest';
 import { getTranslations } from '$lib/translations';
+import { getSigning, putSentMessage, setSignature } from "$lib/server/db/admin/signing";
 
 const generateOTP = () => {
     const undivided = generate(8, {

@@ -1,4 +1,4 @@
-import db from '$lib/Database';
+import db from '$lib/client/db';
 import { invalidateAll } from '$app/navigation';
 import type { IRID, SPID } from '$lib/helpers/ir';
 import type { ExistingIR } from '$lib/data';

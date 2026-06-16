@@ -182,6 +182,7 @@ export type IRID = `${IRType}${string}`;
  * SP ID: RB-2024-12-31-23-59;
  */
 export type SPID = `${string}-${string}-${string}`;
+export type NSPID = SPID;
 /**
  * SZ ID: SZ-2024-12-31-23-59;
  */
@@ -189,7 +190,7 @@ export type SZID = `SZ-${string}-${string}`;
 
 const type = (irid: IRID) => irid[0] as IRType;
 
-export const spids = (spids: string) => spids.split(' ') as SPID[];
+export const nspids = (nspids: string) => nspids.split(' ') as NSPID[];
 
 export const isMacIRID = (irid: IRID) => irid.startsWith('2000A1409') || irid.startsWith('0000A1406');
 export const isMacAddress = (irNumber: string) => irNumber.startsWith('00:0A:14:0');

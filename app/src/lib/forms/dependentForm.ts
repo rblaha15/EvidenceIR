@@ -1,10 +1,10 @@
 import type { OpenPdfOptions, Pdf } from '$lib/pdf/pdf';
 import type { Form } from '$lib/forms/Form';
 import type { IRID } from '$lib/helpers/ir';
-import { detailIrUrl } from '$lib/helpers/runes.svelte.js';
+import { detailUrlIR } from '$lib/helpers/runes.svelte.js';
 import type { FormInfo, IndependentFormInfo } from '$lib/forms/FormInfo';
 import { error } from '@sveltejs/kit';
-import db from '$lib/Database';
+import db from '$lib/client/db';
 
 export const removeDependency = async <
     D,
@@ -37,7 +37,7 @@ export const removeDependency = async <
             const result = await saveData({ ...args, irid, ir });
             return result != false;
         },
-        redirectLink: async () => detailIrUrl(),
+        redirectLink: async () => detailUrlIR(),
         openPdf: openPdf ? async (raw, other) => ({
             ...openPdf(raw, other), irid,
         } as OpenPdfOptions<P>) : undefined,

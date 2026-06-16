@@ -1,7 +1,7 @@
 <script lang="ts">
     import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
     import { endUserEmails, type IRID } from '$lib/helpers/ir';
-    import { detailIrUrl, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
+    import { detailUrlIR, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { type Translations } from '$lib/translations';
     import { aR, iaA } from '$lib/helpers/stores';
     import DK from './DK.svelte';
@@ -21,7 +21,7 @@
 
 <div class="flex flex-col gap-1 sm:items-start">
     {#if !ir.isDraft}
-        <Button href={relUrl(`/OD?redirect=${detailIrUrl()}&user=${endUserEmails(ir.IN.koncovyUzivatel).join(';')}&assembly=${mf}`)}>
+        <Button href={relUrl(`/OD?redirect=${detailUrlIR()}&user=${endUserEmails(ir.IN.koncovyUzivatel).join(';')}&assembly=${mf}`)}>
             <MailOpen /> {td.sendDocuments}
         </Button>
     {/if}

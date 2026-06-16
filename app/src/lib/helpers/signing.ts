@@ -7,7 +7,7 @@ export const getDefiningParameter = (parameterName: 'pump' | 'id' | undefined, u
     ) as PdfDefiningParameter : undefined;
 
 export const getSignatureState = (
-    data: IR | NSP | undefined,
+    data: IR | NSP | null,
     name: Pdf,
     parameter?: PdfDefiningParameter,
 ) => {

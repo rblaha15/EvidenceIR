@@ -4,7 +4,7 @@ import { page } from '$app/state';
 import { extractSPIDFromRawData, type SPID, spName, type SZID } from '$lib/helpers/ir';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { detailIrUrl } from '$lib/helpers/runes.svelte';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { currentUser } from '$lib/client/auth';
 import { cellsSP } from '$lib/forms/SP/cellsSP';
 import { type ContextSP, type FormSP } from '$lib/forms/SP/formSP.svelte';
@@ -13,7 +13,7 @@ import type { FormInfo } from '$lib/forms/FormInfo';
 import { type Raw, valuesToRawData } from '$lib/forms/Form';
 import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
 import { getIsOnline } from '$lib/client/realtimeOnline';
-import db from '$lib/Database';
+import db from '$lib/client/db';
 import { error } from '@sveltejs/kit';
 import type { FormSZ } from '$lib/forms/SP/formSZ';
 
@@ -65,7 +65,7 @@ const infoSP: FormInfo<ContextSP, FormSP, [[Technician[], User | null]], 'SP'> =
                 ? `Upravený servisní protokol: ${name}`
                 : `Nový servisní protokol: ${name}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, url: page.url.origin + detailIrUrl(irid), discountReason: raw.fakturace.discountReason, e: ir.IN },
+            props: { name: raw.zasah.clovek, url: page.url.origin + detailUrlIR(irid), discountReason: raw.fakturace.discountReason, e: ir.IN },
         });
 
         if (response!.ok) return true;

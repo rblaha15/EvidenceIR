@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { DeletedIR } from '$lib/data';
     import type { Translations } from '$lib/translations';
-    import { detailIrUrl, relUrl } from '$lib/helpers/runes.svelte';
+    import { detailUrlIR, relUrl } from '$lib/helpers/runes.svelte';
     import { isUserAdmin } from '$lib/client/auth';
     import { iaA } from '$lib/helpers/stores';
     import { restoreIR } from '$lib/features/detail/actions/restore';
@@ -17,7 +17,7 @@
 <div>
     {#if ir.meta.movedTo}
         {td.movedIR}
-        <Button variant="link" href={detailIrUrl(ir.meta.movedTo)} class="px-0">
+        <Button variant="link" href={detailUrlIR(ir.meta.movedTo)} class="px-0">
             {td.newAddress}
         </Button>{td.movedIRend}
     {:else}

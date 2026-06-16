@@ -1,15 +1,15 @@
 import { type EmailOptions, sendEmailAndUploadAttachments } from '$lib/client/email';
 import { derived, writable } from 'svelte/store';
-import { firestoreDatabase } from '$lib/client/firestore';
 import { irName, irNumberFromIRID, irWholeName, spName, spWholeName, szName } from '$lib/helpers/ir';
 import type { Translations } from '$lib/translations';
 import type { Template, TemplateArgs } from '$lib/helpers/templates';
 import { browser } from '$app/environment';
 import { openDB } from 'idb';
-import { type Database, isWriteFunction, type WriteFunction } from '$lib/Database';
+import { type Database, isWriteFunction, type WriteFunction } from "$lib/client/db/def";
 import { grantPointsOnline, type LoyaltyProgramTrigger } from '$lib/client/loyaltyProgram';
 import { isOnline } from '$lib/client/realtimeOnline';
 import { isSP } from '$lib/forms/SP/infoSP.svelte';
+import { mongoDatabase } from "$lib/client/db/mongo";
 
 type HistoryDatabase<F extends keyof Database = keyof Database> = {
     type: 'database'
@@ -72,7 +72,8 @@ const getIncompleteAndComplete = async () => {
     await (await db!).transaction('history', 'readwrite').let(async tx => {
         await incompleted.map(entry =>
             isToShow(entry)
-                ? tx.objectStore('history').put({ ...entry, completed: true }, entry.timestamp)?.then?.(_ => {})
+                ? tx.objectStore('history').put({ ...entry, completed: true }, entry.timestamp)
+                    ?.then?.(_ => {})
                 : tx.objectStore('history').delete(entry.timestamp),
         ).awaitAll();
         await tx.done;
@@ -121,7 +122,7 @@ export const processOfflineHistory = async () => {
         } else {
             const { args, functionName } = entry;
             console.log('Executing', functionName, 'with args', ...args, 'from the offline history');
-            const func = firestoreDatabase[functionName];
+            const func = mongoDatabase[functionName];
             try {
                 // @ts-expect-error TS doesn't know it's a tuple
                 await func(...args);
@@ -168,7 +169,7 @@ const functions: {
 
 const readableFunction = <F extends WriteFunction>(t: Translations, entry: HistoryDatabase<F>) =>
     !(entry.functionName in t.nav.history.f) || !(entry.functionName in functions) ? '???' :
-    (t.nav.history.f[entry.functionName as F] as Template<(string | number)[]>)(functions[entry.functionName](...entry.args) as TemplateArgs<(string | number)[]>) as string;
+        (t.nav.history.f[entry.functionName as F] as Template<(string | number)[]>)(functions[entry.functionName](...entry.args) as TemplateArgs<(string | number)[]>) as string;
 
 export type DisplayableHistoryEntry = {
     completed: boolean;

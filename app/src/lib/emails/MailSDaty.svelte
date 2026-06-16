@@ -3,7 +3,7 @@
     import type { Translations } from '$lib/translations';
     import type { User } from 'firebase/auth';
     import { extractIRIDFromParts } from '$lib/helpers/ir';
-    import { detailIrUrl } from '$lib/helpers/runes.svelte';
+    import { detailUrlIR } from '$lib/helpers/runes.svelte';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
     import { widgetList } from '$lib/forms/Form';
 
@@ -26,7 +26,7 @@
     const irid = extractIRIDFromParts(context.v.ir.typ.first!, context.v.ir.cislo);
 </script>
 
-<p>Odkaz na podrobnosti evidence: <a href={origin + detailIrUrl(irid)}>{origin + detailIrUrl(irid)}</a></p>
+<p>Odkaz na podrobnosti evidence: <a href={origin + detailUrlIR(irid)}>{origin + detailUrlIR(irid)}</a></p>
 
 {#each list as { widget, value }}
     <ReadonlyWidget {widget} {value} {t} {context} />

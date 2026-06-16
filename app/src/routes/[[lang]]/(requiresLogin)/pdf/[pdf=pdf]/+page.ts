@@ -32,7 +32,7 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
         url: '',
         fileName: '',
         irid: '',
-        spids: [],
+        nspids: [],
         fileLang: '',
         args: null,
         objectUrl: '',
@@ -51,12 +51,12 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
     const id = extractIDs(url);
     if (pdf.type == 'IR' && !id.irid)
         error(400, { message: 'irid must be provided to access this document!' });
-    if (pdf.type == 'SP' && !id.spids)
-        error(400, { message: 'spids must be provided to access this document!' });
+    if (pdf.type == 'NSP' && !id.nspids)
+        error(400, { message: 'nspids must be provided to access this document!' });
 
     const data = await getData(id);
 
-    if (pdf.type == 'IR' && (!data.ir || data.ir.deleted) || pdf.type == 'SP' && (data.sps.length != 1 || data.sps[0].deleted))
+    if (pdf.type == 'IR' && (!data.ir || data.ir.deleted) || pdf.type == 'NSP' && (data.nsps.length != 1 || data.nsps[0].deleted))
         error(500, { message: 'Data not loaded' });
 
     const parameters = [...url.searchParams.entries()].toRecord().mapValues((_, v) => isNaN(Number(v)) ? v : Number(v));
@@ -71,7 +71,7 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
     const d = await generatePdfUrl({
         ...(parameters as unknown as PdfParameters<Pdf>),
         lang: language,
-        data: pdf.type == 'IR' ? data.ir! as IR : data.sps[0]! as NSP,
+        data: pdf.type == 'IR' ? data.ir! as IR : data.nsps[0]! as NSP,
         fetch,
         link: pdfName,
     });
@@ -82,14 +82,14 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
     const parameter = getDefiningParameter(parameterName, url);
 
     const signatureState = getSignatureState(
-        pdf.type == 'IR' ? data.ir : data.sps[0], pdfName, parameter,
+        pdf.type == 'IR' ? data.ir : data.nsps[0], pdfName, parameter,
     );
 
     const signatureKey = parameter ? `${pdfName}-${parameter}` : pdfName;
 
     const allowSigning = pdfName != 'NSP' && pdfName != 'SP' ? pdfToSign.includes(pdfName as PdfToSign)
         : pdfName == 'SP' ? (data.ir!.SPs[parameter as SPID] as Raw<FormSP>).fakturace.komu.chosen == 'investor'
-            : pdfName == 'NSP' ? data.sps[0].NSP.fakturace.komu.chosen == 'investor'
+            : pdfName == 'NSP' ? data.nsps[0].NSP.fakturace.komu.chosen == 'investor'
                 : false;
 
     return { ...d, ...id, args: pdf, fileLang: language, signatureState, signatureKey, allowSigning };

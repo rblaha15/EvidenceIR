@@ -3,7 +3,7 @@
     import { get, type Translations } from '$lib/translations';
     import { irName, irLabel, extractIRIDFromParts, endUserEmails } from '$lib/helpers/ir';
 	import type { Raw } from '$lib/forms/Form';
-	import { detailIrUrl } from '$lib/helpers/runes.svelte';
+	import { detailUrlIR } from '$lib/helpers/runes.svelte';
     import type { User } from 'firebase/auth';
 
 	interface Props {
@@ -95,6 +95,6 @@
 {/if}
 <p>{e.ostatni.poznamka}</p>
 
-<p>Odkaz na podrobnosti evidence: <a href={origin + detailIrUrl(irid)}>{origin + detailIrUrl(irid)}</a></p>
+<p>Odkaz na podrobnosti evidence: <a href={origin + detailUrlIR(irid)}>{origin + detailUrlIR(irid)}</a></p>
 
 <p><b>Zaevidoval</b>: {user.displayName || user.email}</p>

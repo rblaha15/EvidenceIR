@@ -14,7 +14,7 @@ import SP, { pdfCP as CP, pdfNSP as NSP, pdfPS as PS } from '$lib/pdf/generators
 import UPF from '$lib/pdf/generators/pdfUPF';
 import FT from '$lib/pdf/generators/pdfFT';
 import type { TC } from '$lib/forms/IN/defaultIN';
-import { extractSPIDFromRawData, type IRID, irName, type SPID } from '$lib/helpers/ir';
+import { extractSPIDFromRawData, type IRID, irName, type NSPID, type SPID } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import type { LanguageCode } from '$lib/languageCodes';
 import type { Raw } from '$lib/forms/Form';
@@ -57,11 +57,11 @@ type AllPdf = {
     /** Jste spokojeni s tepelným čerpadlem Regulus? */
     RS: ''
     /** Nezávislý servisní protokol */
-    NSP: 'SP'
+    NSP: 'NSP'
     /** Čestné prohlášení */
-    CP: 'SP'
+    CP: 'NSP'
     /** Prázdná sránka */
-    PS: 'SP'
+    PS: 'NSP'
     /** FaceTable */
     FT: 'IR'
 }
@@ -69,7 +69,7 @@ type AllPdf = {
 export const pdfToSign = [
     'ZLT', 'ZLS', 'RR', 'UPT', 'UPS', 'UPF', 'SP', 'NSP',
 ] as const satisfies Pdf[];
-export type PdfToSign<T extends 'IR' | 'SP' = 'IR' | 'SP'> =
+export type PdfToSign<T extends 'IR' | 'NSP' = 'IR' | 'NSP'> =
     Extract<typeof pdfToSign[number], Pdf<T>>;
 
 export type PdfDefiningParameter<P extends PdfWithDefiningParameter = PdfWithDefiningParameter> = {
@@ -189,7 +189,7 @@ export const pdfInfo: PdfInfo = {
         doNotFlatten: true,
     },
     NSP: {
-        type: 'SP',
+        type: 'NSP',
         pdfName: 'SP',
         supportedLanguages: ['cs'],
         title: t => t.sp.title,
@@ -198,7 +198,7 @@ export const pdfInfo: PdfInfo = {
         doNotFlatten: true,
     },
     CP: {
-        type: 'SP',
+        type: 'NSP',
         pdfName: 'CP',
         supportedLanguages: ['cs'],
         title: _ => '',
@@ -206,7 +206,7 @@ export const pdfInfo: PdfInfo = {
         doNotFlatten: true,
     },
     PS: {
-        type: 'SP',
+        type: 'NSP',
         pdfName: 'PS',
         supportedLanguages: ['cs'],
         title: _ => '',
@@ -246,16 +246,16 @@ type PdfInfo = {
     [P in Pdf]: PdfArgs<P>
 };
 
-export type Pdf<T extends 'IR' | 'SP' | '' = 'IR' | 'SP' | ''> = {
+export type Pdf<T extends 'IR' | 'NSP' | '' = 'IR' | 'NSP' | ''> = {
     [P in keyof AllPdf]: AllPdf[P] extends T ? P : never
 }[keyof AllPdf];
 
 type TypeOfPdf<P extends Pdf> = AllPdf[P];
-export type DataOfPdf<P extends Pdf> = { IR: ExistingIR, SP: ExistingNSP, '': Record<never, never> }[TypeOfPdf<P>];
+export type DataOfPdf<P extends Pdf> = { IR: ExistingIR, NSP: ExistingNSP, '': Record<never, never> }[TypeOfPdf<P>];
 export type PdfID<P extends Pdf> = {
-    IR: { irid: IRID; spid?: undefined },
-    SP: { spid: SPID; irid?: undefined },
-    '': { spid?: undefined; irid?: undefined }
+    IR: { irid: IRID; nspid?: undefined },
+    NSP: { nspid: NSPID; irid?: undefined },
+    '': { nspid?: undefined; irid?: undefined }
 }[TypeOfPdf<P>];
 
 export type OpenPdfOptions<P extends Pdf> = {

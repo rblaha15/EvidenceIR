@@ -22,12 +22,12 @@
     import { Spinner } from '$lib/components/ui/spinner';
 
     const {
-        args, def, ir, sp, translations: t, settings,
+        args, def, ir, nsp, translations: t, settings,
     }: LoadData & {
         translations: Translations;
     } = $props();
 
-    const endUser = $derived(args!.type == 'IR' ? $ir!.IN.koncovyUzivatel : $sp!.NSP.koncovyUzivatel);
+    const endUser = $derived(args!.type == 'IR' ? $ir!.IN.koncovyUzivatel : $nsp!.NSP.koncovyUzivatel);
     const signingBy = $derived({
         name: endUserName(endUser), phone: addCzechCountryCode(endUser.telefon), email: endUserEmails(endUser)[0],
     });

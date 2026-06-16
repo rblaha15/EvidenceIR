@@ -1,16 +1,16 @@
 import { dev } from '$app/environment';
-import { changeCode, changeState, createRK, getIRs, getRK, removeRK } from '$lib/server/firestore';
 import { endUserEmails, endUserName, extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import ares from '$lib/helpers/ares';
 import { sendEmail } from '$lib/server/email';
 import { cervenka, SENDER } from '$lib/client/email';
 import { htmlToText } from 'html-to-text';
 import type { IR, RecommendationData, RecommendationSettings } from '$lib/data';
-import { detailIrUrl } from '$lib/helpers/runes.svelte';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import type { RequestHandler } from './$types';
 import MailCheckReminder from '$lib/emails/MailCheckReminder.svelte';
 import { render } from 'svelte/server';
-
+import { getAllIRs } from "$lib/server/db/admin/general";
+import { changeCode, changeState, createRK, getRK, removeRK } from "$lib/server/db/admin/rk";
 
 const requestEmail = (info: RecommendationData, link: string) =>
     `<p>Dobrý den,</p>
@@ -43,7 +43,7 @@ export const GET: RequestHandler = async ({ request, fetch }) => {
     }
     const appUrl = dev ? 'http://localhost:5001' : 'https://evidenceir.vercel.app';
 
-    const irs = await getIRs();
+    const irs = await getAllIRs();
 
     for (const ir of irs) {
         if (ir.deleted) continue
@@ -166,7 +166,7 @@ const ignoreThisYear = async ({ irid, settings, type }: SystemArgs) => {
 };
 
 const sendReminder = async ({ appUrl, irid, ir }: SystemArgs & AppArgs) => {
-    const link = appUrl + detailIrUrl(irid, '?');
+    const link = appUrl + detailUrlIR(irid, '?');
     const html = reminderEmail(endUserName(ir.IN.koncovyUzivatel), link);
     await sendEmail({
         from: SENDER(),
@@ -196,7 +196,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
     if (data.action == 'getData') {
         return new Response(JSON.stringify(info), { status: 200 });
     } else if (data.action == 'sendRequest') {
-        const link = url.host + detailIrUrl(info.irid, '?');
+        const link = url.host + detailUrlIR(info.irid, '?');
         const html = requestEmail(info, link);
         const email = await sendEmail({
             from: SENDER(),

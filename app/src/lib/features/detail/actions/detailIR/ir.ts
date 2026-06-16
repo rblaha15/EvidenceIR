@@ -1,4 +1,4 @@
-import db from '$lib/Database';
+import db from '$lib/client/db';
 import { goto } from '$app/navigation';
 import { iridUrl } from '$lib/helpers/runes.svelte.js';
 import { xmlIN } from '$lib/forms/IN/xmlIN';

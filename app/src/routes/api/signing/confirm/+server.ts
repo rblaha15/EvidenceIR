@@ -1,9 +1,8 @@
 import { error, type RequestHandler } from '@sveltejs/kit';
 import { checkToken } from '$lib/server/auth';
-import { setSignature } from '$lib/server/firestore';
 import { type CodeAttemptParams, SMS_ATTEMPT_MINIMUM_WAIT_TIME, SMS_CODE_LIFETIME } from '$lib/features/signing/domain/sms';
 import { validateRequest } from '../validateSigningRequest';
-import { getSigning, putCodeAttempt, putSigningResult } from '$lib/server/signing';
+import { getSigning, putCodeAttempt, putSigningResult, setSignature } from "$lib/server/db/admin/signing";
 
 export const POST: RequestHandler = async ({ request, url }) => {
     const token = url.searchParams.get('token')!;

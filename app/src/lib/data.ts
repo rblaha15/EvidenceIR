@@ -3,11 +3,16 @@ import type { FormIN } from '$lib/forms/IN/formIN';
 import type { FormRKT } from '$lib/forms/RKT/formRKT';
 import type { FormUPT } from '$lib/forms/UPT/formUPT';
 import type { FormUPS } from '$lib/forms/UPS/formUPS';
-import { extractIRIDFromRawData, extractSPIDFromRawData, type IRID, type SPID } from '$lib/helpers/ir';
+import {
+    extractIRIDFromRawData,
+    extractSPIDFromRawData,
+    type IRID,
+    type NSPID,
+    type SPID
+} from '$lib/helpers/ir';
 import type { FormUPF } from '$lib/forms/UPF/formUPF';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import type { FormFT } from '$lib/forms/FT/formFT';
-import { serverTimestamp, Timestamp } from 'firebase/firestore';
 import '$lib/extensions';
 import type { FormRKS } from '$lib/forms/RKS/formRKS';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
@@ -17,6 +22,9 @@ import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { FormSZ } from '$lib/forms/SP/formSZ';
 import type { FriendlyCompanies } from '$lib/client/realtime';
 import type { PdfDefiningParameter, PdfToSign, PdfWithDefiningParameter } from '$lib/pdf/pdf';
+import type { MatchKeysAndValues } from "mongodb";
+
+export type Timestamp = number;
 
 export type Year = number;
 
@@ -71,7 +79,7 @@ export interface ExistingIR extends BaseIR {
     deleted: false;
 }
 
-export type Signatures<T extends 'IR' | 'SP'> = {
+export type Signatures<T extends 'IR' | 'NSP'> = {
     [P in PdfToSign<T>]?: P extends PdfWithDefiningParameter
         ? Record<PdfDefiningParameter<P>, SignatureState> : SignatureState;
 };
@@ -129,7 +137,7 @@ export interface ExistingNSP extends BaseNSP {
 
 interface BaseNSP {
     meta: {
-        id: SPID;
+        id: NSPID;
         changedAt?: Timestamp;
         createdAt: Timestamp;
         createdBy?: {
@@ -137,7 +145,7 @@ interface BaseNSP {
             email: string;
         };
     };
-    signatures?: Signatures<'SP'>;
+    signatures?: Signatures<'NSP'>;
     NSP: Raw<FormNSP>;
 }
 
@@ -156,7 +164,7 @@ export type DeletedData<T extends DataType> = {
 }[T]
 export type ID<T extends DataType> = {
     IR: IRID,
-    NSP: SPID,
+    NSP: NSPID,
 }[T]
 
 export const newIR = (
@@ -169,8 +177,8 @@ export const newIR = (
     deleted: false,
     meta: {
         id: extractIRIDFromRawData(raw),
-        changedAt: serverTimestamp() as Timestamp,
-        createdAt: serverTimestamp() as Timestamp,
+        changedAt: new Date().valueOf(),
+        createdAt: new Date().valueOf(),
         createdBy: {
             uid: user.uid,
             email: user.email!,
@@ -205,8 +213,8 @@ export const newNSP = (
     deleted: false,
     meta: {
         id: extractSPIDFromRawData(raw.zasah),
-        changedAt: serverTimestamp() as Timestamp,
-        createdAt: serverTimestamp() as Timestamp,
+        changedAt: new Date().valueOf(),
+        createdAt: new Date().valueOf(),
         createdBy: {
             uid: user.uid,
             email: user.email!,
@@ -224,6 +232,14 @@ export type RecommendationData = {
     type: 'TČ' | 'SOL',
 };
 
+export const deleteIR = (
+    movedTo?: IRID,
+): MatchKeysAndValues<IR> => ({
+    deleted: true,
+    'meta.deletedAt': new Date().valueOf(),
+    'meta.movedTo': movedTo,
+});
+
 export const deletedIR = (
     ir: IR,
     movedTo?: IRID,
@@ -232,9 +248,14 @@ export const deletedIR = (
     deleted: true,
     meta: {
         ...ir.meta,
-        deletedAt: serverTimestamp() as Timestamp,
-        ...movedTo ? { movedTo } : {},
+        deletedAt: new Date().valueOf(),
+        movedTo,
     },
+});
+
+export const deleteNSP = (): MatchKeysAndValues<NSP> => ({
+    deleted: true,
+    'meta.deletedAt': new Date().valueOf(),
 });
 
 export const deletedNSP = (
@@ -244,6 +265,6 @@ export const deletedNSP = (
     deleted: true,
     meta: {
         ...nsp.meta,
-        deletedAt: serverTimestamp() as Timestamp,
+        deletedAt: new Date().valueOf(),
     },
 });

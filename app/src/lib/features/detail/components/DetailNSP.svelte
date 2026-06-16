@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { relUrl, spidUrl } from '$lib/helpers/runes.svelte.js';
+    import { relUrl, nspidUrl } from '$lib/helpers/runes.svelte.js';
     import PDFLink from '$lib/features/detail/components/documentsIR/PDFLink.svelte';
     import { isUserAdmin } from '$lib/client/auth';
     import { goto } from '$app/navigation';
@@ -8,7 +8,7 @@
     import { aA } from '$lib/helpers/stores';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { ExistingNSP } from '$lib/data';
-    import db from '$lib/Database';
+    import db from '$lib/client/db';
     import { Eye, FilePen, Server, Trash2 } from "@lucide/svelte";
 
     const { t, lang, sp }: {
@@ -23,19 +23,19 @@
         variant: 'primary',
         icon: Eye,
         text: td.viewFilledData,
-        href: relUrl(`/NSP?view-spid=${spid}`),
+        href: relUrl(`/NSP?view-nspid=${spid}`),
     }, {
         variant: 'warning',
         icon: FilePen,
         text: td.editProtocol,
-        href: relUrl(`/NSP?edit-spid=${spid}`),
+        href: relUrl(`/NSP?edit-nspid=${spid}`),
     }, {
         variant: 'danger',
         icon: Trash2,
         text: td.deleteProtocol + $aA,
         onSelect: () => {
             db.deleteNSP(spid);
-            goto(spidUrl(`/detail?deleted`), { replaceState: true });
+            goto(nspidUrl(`/detail?deleted`), { replaceState: true });
         },
         hide: !$isUserAdmin,
     }, {

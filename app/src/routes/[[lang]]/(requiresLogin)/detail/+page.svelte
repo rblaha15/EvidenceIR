@@ -6,12 +6,12 @@
     import { onMount } from "svelte";
 
     let { data }: PageProps = $props();
-    const { irid, spids, ir, sps, languageCode: lang, translations: t } = $derived(data);
+    const { irid, nspids, ir, nsps, languageCode: lang, translations: t } = $derived(data);
     const td = $derived(t.detail);
 
     const justDeleted = $derived(page.url.searchParams.has('deleted'));
 
-    onMount(() => setTitle(spids.length ? spids.length > 1 ? td.titleNSPs : td.titleNSP : td.titleIR, true));
+    onMount(() => setTitle(nspids.length ? nspids.length > 1 ? td.titleNSPs : td.titleNSP : td.titleIR, true));
 </script>
 
-<Detail ir={$ir} sps={$sps} {spids} {irid} {lang} {t} {justDeleted} />
+<Detail ir={$ir} nsps={$nsps} {nspids} {irid} {lang} {t} {justDeleted} />

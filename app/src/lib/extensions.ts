@@ -239,8 +239,8 @@ declare global {
         ): U[];
 
         filterNotUndefined<T>(
-            this: (T | undefined)[],
-        ): T[];
+            this: T[],
+        ): NonNullable<T>[];
 
         toRecord<K extends PropertyKey, V>(
             this: (readonly [K, V])[] | readonly (readonly [K, V])[],

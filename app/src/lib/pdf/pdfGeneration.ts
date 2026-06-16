@@ -235,7 +235,7 @@ export const generatePdf = async <P extends Pdf>(
             pdfDoc.removePage(pageI);
     });
 
-    const pdfBytes = await pdfDoc.save(args.saveOptions);
+    const pdfBytes = await pdfDoc.save(args.saveOptions) as Uint8Array<ArrayBuffer>;
 
     const surname = args.type == '' ? ''
         : irLabel(args.type == 'IR' ? (data as IR).IN : (data as NSP).NSP).split(' ')[0];

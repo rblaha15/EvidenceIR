@@ -39,8 +39,8 @@ import type { Translations } from '$lib/translations';
 import { derived } from 'svelte/store';
 import { assemblyCompanies, commissioningCompanies } from '$lib/helpers/companies';
 import type { FormPlus } from '$lib/forms/Form';
-import { detailIrUrl } from '$lib/helpers/runes.svelte';
-import db from '$lib/Database';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
+import db from '$lib/client/db';
 import ruian from '$lib/helpers/ruian';
 import { Search } from "@lucide/svelte";
 
@@ -558,7 +558,7 @@ export default (): FormPlus<FormIN> => ({
         alreadyExists: newHiddenValueWidget(false, true),
         alreadyExistsWarning: newTextWidget({
             text: (t, c) => !c.v.ir.typ.first ? '' : t.in.irExistsHtml({
-                link: detailIrUrl(extractIRIDFromParts(c.v.ir.typ.first, c.v.ir.cislo)),
+                link: detailUrlIR(extractIRIDFromParts(c.v.ir.typ.first, c.v.ir.cislo)),
             }), show: c => c.v.ir.alreadyExists, showInXML: false,
         }),
         cisloBox: newInputWidget({

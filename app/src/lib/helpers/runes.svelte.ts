@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { page } from '$app/state';
-import type { IRID, SPID } from '$lib/helpers/ir';
+import type { IRID, NSPID } from '$lib/helpers/ir';
 import type { LanguageCode as LC } from '$lib/languageCodes';
 
 class Effect<T> {
@@ -45,11 +45,11 @@ export const iridUrl = (url = '', id: IRID = page.data.irid, lang: LC | '?' = pa
     new URL('file://' + relUrl(url, lang))
         .also(u => u.searchParams.append('irid', id))
         .let(u => u.pathname + u.search + u.hash);
-export const spidUrl = (url = '', ids: SPID[] = page.data.spids, lang: LC | '?' = page.data.languageCode) =>
+export const nspidUrl = (url = '', ids: NSPID[] = page.data.nspids, lang: LC | '?' = page.data.languageCode) =>
     new URL('file://' + relUrl(url, lang))
-        .also(u => u.searchParams.append('spid', ids.join(' ')))
+        .also(u => u.searchParams.append('nspid', ids.join(' ')))
         .let(u => u.pathname + u.search + u.hash);
-export const detailIrUrl = (id: IRID = page.data.irid, lang: LC | '?' = page.data.languageCode) =>
+export const detailUrlIR = (id: IRID = page.data.irid, lang: LC | '?' = page.data.languageCode) =>
     iridUrl('/detail', id, lang);
-export const detailSpUrl = (ids: SPID[] = page.data.spids, lang: LC | '?' = page.data.languageCode) =>
-    spidUrl('/detail', ids, lang);
+export const detailUrlNSP = (ids: NSPID[] = page.data.nspids, lang: LC | '?' = page.data.languageCode) =>
+    nspidUrl('/detail', ids, lang);

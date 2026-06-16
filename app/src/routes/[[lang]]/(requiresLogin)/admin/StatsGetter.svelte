@@ -2,14 +2,13 @@
     import Widget from '$lib/components/Widget.svelte';
     import { getTranslations } from '$lib/translations';
     import { dateFromISO, dayISO } from '$lib/helpers/date';
-    import type { ExistingIR, ExistingNSP } from '$lib/data';
-    import { adminDatabase } from '$lib/client/firestore';
     import { isSP } from '$lib/forms/SP/infoSP.svelte';
     import { newInputWidget } from '$lib/forms/Widget';
     import { Alert, AlertTitle } from '$lib/components/ui/alert';
     import { OctagonAlert, Check } from '@lucide/svelte';
     import { Spinner } from "$lib/components/ui/spinner";
     import { Button } from "$lib/components/ui/button";
+    import { backup } from "$lib/client/db/mongo";
 
     const fromW = newInputWidget({
         type: 'date', label: 'Od (včetně)', text: dayISO(),
@@ -35,10 +34,12 @@
             const fromD = new Date(from);
             const toD = new Date(to);
 
-            const irs = (await adminDatabase.getAllIRs()).filter((ir): ir is ExistingIR => !ir.deleted);
-            const nsps = (await adminDatabase.getAllNSPs()).filter((sp): sp is ExistingNSP => !sp.deleted);
+            const { irs, nsps } = await backup();
 
-            const allProtocols = [...irs.flatMap(ir => ir.SPs.getValues()), ...nsps.map(sp => sp.NSP)].filter(isSP);
+            const allProtocols = [
+                ...irs.filter(ir => !ir.deleted).flatMap(ir => ir.SPs.getValues()),
+                ...nsps.filter(sp => !sp.deleted).map(sp => sp.NSP),
+            ].filter(isSP);
 
             const namesAndDates = allProtocols.map(p => ({
                 name: p.zasah.clovek.trim(),

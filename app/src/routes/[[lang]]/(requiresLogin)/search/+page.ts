@@ -1,5 +1,5 @@
 import type { EntryGenerator, PageLoad } from './$types';
-import { type IRID, irLabel, irName, type SPID, spName } from '$lib/helpers/ir';
+import { type IRID, irLabel, irName, type NSPID, spName } from '$lib/helpers/ir';
 import { checkAdmin, checkAuth, userInfo } from '$lib/client/auth';
 import { browser } from '$app/environment';
 import { derived, readable } from 'svelte/store';
@@ -10,7 +10,6 @@ import { flatDerived, waitUntil } from '$lib/helpers/stores';
 import { getAllIRs, getAllNSPs, type Results } from '$lib/client/incrementalUpdates';
 import { langEntryGenerator } from '$lib/helpers/paths';
 import { isSP } from '$lib/forms/SP/infoSP.svelte';
-import { dateFromTimestamp } from '$lib/helpers/date';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
@@ -27,7 +26,7 @@ export type IR_NSP = {
     modified: Date,
 } | {
     t: 'NSP',
-    id: SPID[],
+    id: NSPID[],
     label: string,
     name: string,
     sps: [],
@@ -56,7 +55,7 @@ export const load: PageLoad = async ({ parent }) => {
                 sps: ir.SPs.getValues().filter(isSP).map(p => spName(p.zasah)),
                 draft: ir.isDraft,
                 deleted: ir.deleted,
-                modified: dateFromTimestamp(ir.meta.changedAt) || new Date(0),
+                modified: new Date(ir.meta.changedAt) || new Date(0),
             } satisfies IR_NSP))
             .filter(i => i.id),
     }));
@@ -64,20 +63,20 @@ export const load: PageLoad = async ({ parent }) => {
 
     const nsps = flatDerived(userInfo, usr => derived(
         usr.isUserRegulusOrAdmin ? getAllNSPs() : readable({ status: 'loaded', data: [] } as Results<'NSP'>),
-        $sps => ({
-            status: $sps.status, data: $sps.data
+        $nsps => ({
+            status: $nsps.status, data: $nsps.data
                 .mapNotUndefined(sp => !checkAdmin() && sp.deleted ? undefined : sp)
                 .groupBy(sp => irLabel(sp.NSP))
                 .entries()
-                .map(([label, sps]) => ({
+                .map(([label, nsps]) => ({
                     t: 'NSP',
-                    id: sps.map(sp => sp.meta.id),
-                    name: sps.length == 1 ? spName(sps[0].NSP.zasah) : ts.nProtocols(sps.length, sps.map(sp => sp.NSP.zasah.inicialy.trim()).distinct().join(', ')),
+                    id: nsps.map(sp => sp.meta.id),
+                    name: nsps.length == 1 ? spName(nsps[0].NSP.zasah) : ts.nProtocols(nsps.length, nsps.map(nsp => nsp.NSP.zasah.inicialy.trim()).distinct().join(', ')),
                     label: label,
                     sps: [],
                     draft: false,
-                    deleted: sps.every(sp => sp.deleted),
-                    modified: sps.maxOf(sp => dateFromTimestamp(sp.meta.changedAt || sp.meta.createdAt) || new Date(0)),
+                    deleted: nsps.every(sp => sp.deleted),
+                    modified: nsps.maxOf(sp => new Date(sp.meta.changedAt || sp.meta.createdAt) || new Date(0)),
                 } satisfies IR_NSP)),
         }),
     ));

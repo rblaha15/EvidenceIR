@@ -1,4 +1,4 @@
 import type { IRID } from '$lib/helpers/ir';
-import { adminDatabase } from '$lib/client/firestore';
+import { restore } from "$lib/client/db/mongo";
 
-export const restoreIR = (irid: IRID) => () => adminDatabase.restoreIR(irid);
+export const restoreIR = (irid: IRID) => () => restore(irid)

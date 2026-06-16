@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getToken } from '$lib/client/auth';
     import { adminDescriptions, type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
-    import { detailIrUrl } from '$lib/helpers/runes.svelte';
+    import { detailUrlIR } from '$lib/helpers/runes.svelte';
     import { datetimeFromISO, nowISO } from '$lib/helpers/date';
     import { type Person, usersList } from '$lib/client/realtime';
     import type { IR } from '$lib/data';
@@ -163,9 +163,9 @@
             </Button>
             {#each data.history as entry}
                 {#if entry.type === 'other'}
-                    <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note} {#if entry.irid} (<a href="{detailIrUrl(entry.irid)}">{entry.irid}</a>){/if}</p>
+                    <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note} {#if entry.irid} (<a href="{detailUrlIR(entry.irid)}">{entry.irid}</a>){/if}</p>
                 {:else}
-                    <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {adminDescriptions[entry.type]} {#if entry.irid}u <a href="{detailIrUrl(entry.irid)}">{entry.irid}</a>{/if} {#if entry.note}({entry.note}){/if}</p>
+                    <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {adminDescriptions[entry.type]} {#if entry.irid}u <a href="{detailUrlIR(entry.irid)}">{entry.irid}</a>{/if} {#if entry.note}({entry.note}){/if}</p>
                 {/if}
             {/each}
         </details>

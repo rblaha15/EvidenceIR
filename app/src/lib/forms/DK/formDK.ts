@@ -5,11 +5,11 @@ import { irName, irWholeName } from '$lib/helpers/ir';
 import { type IR, type RecommendationSettings } from '$lib/data';
 import { cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
-import { detailIrUrl } from '$lib/helpers/runes.svelte';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser } from '$lib/client/auth';
 import MailDK from '$lib/emails/MailDK.svelte';
-import db from '$lib/Database';
+import db from '$lib/client/db';
 import {
     type CheckboxWidget,
     type InputWidget,
@@ -116,7 +116,7 @@ export const saveDK = async <D extends ContextDK<D>>(ir: IR, values: Values<Form
             ? `Zapnuto upozorňování na RK ${type} u ${irName(ir.IN.ir)}`
             : `Zrušeno upozorňování na RK ${type} u ${irName(ir.IN.ir)}`,
         component: MailDK,
-        props: { name: user.email!, url: page.url.origin + detailIrUrl(ir.meta.id), company, irWholeName: name },
+        props: { name: user.email!, url: page.url.origin + detailUrlIR(ir.meta.id), company, irWholeName: name },
     });
     console.log(response);
 

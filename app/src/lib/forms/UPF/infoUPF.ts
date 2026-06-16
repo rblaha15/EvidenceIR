@@ -6,9 +6,9 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
-import { detailIrUrl } from '$lib/helpers/runes.svelte';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import type { ContextUPF, FormUPF } from '$lib/forms/UPF/formUPF';
-import db from '$lib/Database';
+import db from '$lib/client/db';
 
 const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
     type: 'IR',
@@ -26,7 +26,7 @@ const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
             ...defaultAddresses(),
             subject: `Vyplněno nové uvedení FVE do provozu k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.IN },
+            props: { name: user.email!, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
         });
 
         if (response!.ok) return;

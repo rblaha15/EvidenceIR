@@ -1,7 +1,7 @@
 <script lang="ts">
     import { isUserAdmin } from '$lib/client/auth';
     import type { IR, NSP } from '$lib/data';
-    import { dateFromTimestamp, datetimeFromISO } from '$lib/helpers/date';
+    import { datetimeFromISO } from '$lib/helpers/date';
     import { aA } from '$lib/helpers/stores';
     import { Pencil, Plus, Trash2 } from "@lucide/svelte";
 
@@ -18,8 +18,8 @@
                 Vytvořil: {data.meta.createdBy.email}{$aA}
             </p>
         {/if}
-        {#if 'createdAt' in data.meta && data.meta.createdAt && !('_seconds' in data.meta.createdAt)}
-            {@const date = dateFromTimestamp(data.meta.createdAt)}
+        {#if data.meta.createdAt}
+            {@const date = new Date(data.meta.createdAt)}
             {#if !Number.isNaN(date.valueOf())}
                 <p class="flex gap-1">
                     <Plus />
@@ -27,8 +27,8 @@
                 </p>
             {/if}
         {/if}
-        {#if 'changedAt' in data.meta && data.meta.changedAt && !('_seconds' in data.meta.changedAt)}
-            {@const date = dateFromTimestamp(data.meta.changedAt)}
+        {#if data.meta.changedAt}
+            {@const date = new Date(data.meta.changedAt)}
             {#if !Number.isNaN(date.valueOf())}
                 <p class="flex gap-1">
                     <Pencil />
@@ -36,8 +36,8 @@
                 </p>
             {/if}
         {/if}
-        {#if data.deleted && 'deletedAt' in data.meta && data.meta.deletedAt && !('_seconds' in data.meta.deletedAt)}
-            {@const date = dateFromTimestamp(data.meta.deletedAt)}
+        {#if data.deleted && data.meta.deletedAt}
+            {@const date = new Date(data.meta.deletedAt)}
             {#if !Number.isNaN(date.valueOf())}
                 <p class="flex gap-1">
                     <Trash2 />

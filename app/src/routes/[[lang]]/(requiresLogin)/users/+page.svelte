@@ -5,7 +5,7 @@
     import Search from '$lib/components/widgets/Search.svelte';
     import { usersList } from '$lib/client/realtime';
     import { derived } from 'svelte/store';
-    import db from '$lib/Database';
+    import db from '$lib/client/db';
     import { newSearchWidget } from '$lib/forms/Widget';
     import { onMount } from 'svelte';
     import { Button } from '$lib/components/ui/button';

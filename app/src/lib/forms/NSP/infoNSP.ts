@@ -6,15 +6,15 @@ import {
 } from '$lib/client/realtime';
 import type { User } from 'firebase/auth';
 import { currentUser } from '$lib/client/auth';
-import { detailSpUrl } from '$lib/helpers/runes.svelte.js';
+import { detailUrlNSP } from '$lib/helpers/runes.svelte.js';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { extractSPIDFromRawData, type SPID, spName } from '$lib/helpers/ir';
+import { extractSPIDFromRawData, type NSPID, spName } from '$lib/helpers/ir';
 import { type ContextNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
-import db from '$lib/Database';
+import db from '$lib/client/db';
 import { newNSP } from '$lib/data';
 import { get } from 'svelte/store';
 
@@ -23,11 +23,11 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[], User | n
     storeName: () => 'stored_new_SP',
     form: defaultNSP,
     saveData: async ({ raw, edit, editResult, t, send }) => {
-        const spid = extractSPIDFromRawData(raw.zasah);
+        const nspid = extractSPIDFromRawData(raw.zasah);
 
         const user = get(currentUser)!;
 
-        if (edit) await db.updateNSP(spid, raw);
+        if (edit) await db.updateNSP(nspid, raw);
         else await db.addNSP(newNSP(raw, user));
 
         if (edit && !send) return true;
@@ -36,7 +36,7 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[], User | n
             ...defaultAddresses(),
             subject: `Nový servisní protokol: ${spName(raw.zasah)}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, url: page.url.origin + detailSpUrl([spid]), discountReason: raw.fakturace.discountReason, e: raw },
+            props: { name: raw.zasah.clovek, url: page.url.origin + detailUrlNSP([nspid]), discountReason: raw.fakturace.discountReason, e: raw },
         });
 
         if (response!.ok) return true;
@@ -46,10 +46,10 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[], User | n
             load: false,
         });
     },
-    redirectLink: async raw => detailSpUrl([extractSPIDFromRawData(raw.zasah)]),
+    redirectLink: async raw => detailUrlNSP([extractSPIDFromRawData(raw.zasah)]),
     openPdf: async raw => ({
         link: 'NSP',
-        spid: extractSPIDFromRawData(raw.zasah),
+        nspid: extractSPIDFromRawData(raw.zasah),
         lang: 'cs',
     }),
     createContext: ({ values: v, form: f, mode }) => ({ v, f, edit: mode == 'edit' }),
@@ -59,17 +59,17 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[], User | n
         await startSparePartsListening();
     },
     getEditData: async url => {
-        const spid = url.searchParams.get('edit-spid') as SPID | null;
-        if (!spid) return undefined;
+        const nspid = url.searchParams.get('edit-nspid') as NSPID | null;
+        if (!nspid) return undefined;
 
-        const sp = await db.getNSP(spid);
+        const sp = await db.getNSP(nspid);
         return !sp || sp.deleted ? undefined : { raw: sp.NSP };
     },
     getViewData: async url => {
-        const spid = url.searchParams.get('view-spid') as SPID | null;
-        if (!spid) return undefined;
+        const nspid = url.searchParams.get('view-nspid') as NSPID | null;
+        if (!nspid) return undefined;
 
-        const sp = await db.getNSP(spid);
+        const sp = await db.getNSP(nspid);
         return !sp ? undefined : { raw: sp.NSP };
     },
     storeEffects: [

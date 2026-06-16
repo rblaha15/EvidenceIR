@@ -6,7 +6,7 @@ import type { Translations } from '$lib/translations';
 import type { Form, WidgetValue } from '$lib/forms/Form';
 import { browser, dev, version } from '$app/environment';
 import { extractIRIDFromParts } from '$lib/helpers/ir';
-import { detailIrUrl } from '$lib/helpers/runes.svelte';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { page } from '$app/state';
 
 const camelToSnakeCase = (str: string) =>
@@ -59,7 +59,7 @@ Verze aplikace: ${appVersion} (${version}) (${dev ? 'DEV' : browser ? 'BROWSER' 
 <evidence>
 ${innerXML(c, t).let(xml => {
     const irid = extractIRIDFromParts(c.v.ir.typ.first!, c.v.ir.cislo);
-    const link = page.url.origin + detailIrUrl(irid, '?');
+    const link = page.url.origin + detailUrlIR(irid, '?');
     const linkLine = `\n        <odkaz>${link}</odkaz>`;
     const lastNewLine = xml.lastIndexOf('\n')
     return xml.slice(0, lastNewLine) + linkLine + xml.slice(lastNewLine)

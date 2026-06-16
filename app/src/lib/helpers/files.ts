@@ -31,14 +31,14 @@ export const printFile = (objectUrl: string) =>
     })
 
 export const generatePdfPreviewUrl = <P extends Pdf>(o: OpenPdfOptions<P>) => {
-    const { link, irid, spid, lang, ...parameters } = o;
+    const { link, irid, nspid, lang, ...parameters } = o;
 
     const url = new URL(relUrl(`/pdf/${link}`), page.url.origin);
     for (const key in parameters) {
         url.searchParams.append(key, String(parameters[key as keyof typeof parameters]));
     }
     if (irid) url.searchParams.append('irid', irid);
-    if (spid) url.searchParams.append('spid', spid);
+    if (nspid) url.searchParams.append('nspid', nspid);
     if (lang) url.searchParams.append('lang', lang);
     return url;
 };

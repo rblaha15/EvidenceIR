@@ -6,12 +6,12 @@ import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { page } from '$app/state';
-import { detailIrUrl } from '$lib/helpers/runes.svelte';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import type { ContextUPT, FormUPT } from '$lib/forms/UPT/formUPT';
 import { saveDK } from '$lib/forms/DK/formDK';
 import type { Raw } from '$lib/forms/Form';
 import { grantPoints } from '$lib/client/loyaltyProgram';
-import db from '$lib/Database';
+import db from '$lib/client/db';
 
 const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
     type: 'IR',
@@ -34,7 +34,7 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
                 ? `Změněno uvedení TČ do provozu k ${irName(ir.IN.ir)}`
                 : `Vyplněno nové uvedení TČ do provozu k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.IN },
+            props: { name: user.email!, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
         });
 
         if (response!.ok) return;

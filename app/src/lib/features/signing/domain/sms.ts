@@ -1,4 +1,4 @@
-import type { IRID, SPID } from '$lib/helpers/ir';
+import type { IRID, NSPID } from '$lib/helpers/ir';
 import type { PdfDefiningParameter, PdfToSign } from '$lib/pdf/pdf';
 import type { OTP } from '$lib/data';
 
@@ -10,7 +10,7 @@ export const SMS_CODE_LIFETIME = 1000 * 60 * 10;
 export const SMS_ATTEMPT_MINIMUM_WAIT_TIME = 1000 * 30;
 
 export interface DocumentDefinition {
-    id: IRID | SPID;
+    id: IRID | NSPID;
     pdf: PdfToSign;
     parameter?: PdfDefiningParameter;
 }

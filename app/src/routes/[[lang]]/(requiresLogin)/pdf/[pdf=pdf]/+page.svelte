@@ -58,7 +58,7 @@
     {#if data.signatureState?.state == 'signed'}
         <div class="text-success">Dokument podepsán</div>
         <Button variant="secondary" target="_blank"
-           href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fsigning~2F{data.irid || data.spids[0]}~2Fdocuments~2F{data.signatureKey}"
+           href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fsigning~2F{data.irid || data.nspids[0]}~2Fdocuments~2F{data.signatureKey}"
         >
             <Server />
         </Button>

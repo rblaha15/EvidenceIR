@@ -8,8 +8,8 @@ import { get } from 'svelte/store';
 import { type DataOfPdf, type GeneratePdfOptions, pdfInfo, type PdfToSign } from '$lib/pdf/pdf';
 import { getTranslations } from '$lib/translations';
 import {  generatePdf } from '$lib/pdf/pdfGeneration';
-import db from '$lib/Database';
-import type { IRID, SPID } from '$lib/helpers/ir';
+import db from '$lib/client/db';
+import type { IRID, NSPID } from '$lib/helpers/ir';
 
 const emailBody = (title: string, user: string) =>
     `Dobrý den,\nv příloze naleznete dokument "${title}", který jste podepsali pomocí SMS kódu.\n${user}`;
@@ -68,7 +68,7 @@ export const confirmCode = (
 
     const data = pdfInfo[params.def.pdf].type == 'IR'
         ? await db.getIR(params.def.id as IRID)
-        : await db.getNSP(params.def.id as SPID);
+        : await db.getNSP(params.def.id as NSPID);
 
     if (response.ok)
         await sendEmails({ ...o, data: data as DataOfPdf<PdfToSign> }, params, setStatus);

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type IRID, irLabel, irNumberFromIRID, irWholeName, type SPID } from '$lib/helpers/ir';
+    import { type IRID, irLabel, irNumberFromIRID, irWholeName, type NSPID } from '$lib/helpers/ir';
     import type { IR, NSP } from '$lib/data';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { Translations } from '$lib/translations';
@@ -9,11 +9,11 @@
     import { PencilRuler, Trash2 } from "@lucide/svelte";
     import { Alert, AlertTitle } from "$lib/components/ui/alert";
 
-    let { irid, spids, ir, sps, lang, t, justDeleted }: {
+    let { irid, nspids, ir, nsps, lang, t, justDeleted }: {
         irid: IRID | null,
-        spids: SPID[],
-        ir?: IR,
-        sps: NSP[],
+        nspids: NSPID[],
+        ir: IR | null,
+        nsps: NSP[],
         lang: LanguageCode,
         t: Translations,
         justDeleted?: boolean,
@@ -28,16 +28,16 @@
                 <PencilRuler class="text-warning" />
             {/if}
             {irWholeName(ir.IN)}
-        {:else if sps.length && !sps[0].deleted}
-            {irLabel(sps[0].NSP)}
+        {:else if nsps.length && !nsps[0].deleted}
+            {irLabel(nsps[0].NSP)}
         {:else}
-            {#if ir && ir.deleted || sps.length && sps[0].deleted}
+            {#if ir && ir.deleted || nsps.length && nsps[0].deleted}
                 <Trash2 class="text-danger" />
             {/if}
             {#if irid}
                 {irNumberFromIRID(irid)}
-            {:else if spids.length === 1}
-                {spids[0].replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}
+            {:else if nspids.length === 1}
+                {nspids[0].replace('-', ' ').replace('-', '/').replace('-', '/').replaceAll('-', ':').replace(':', '-')}
             {/if}
         {/if}
     </h2>
@@ -47,12 +47,12 @@
             <AlertTitle>{td.successfullyDeleted}</AlertTitle>
         </Alert>
     {/if}
-    {#if !ir && !sps.length}
+    {#if !ir && !nsps.length}
         <div>{td.sorrySomethingWentWrong}</div>
         <div>
             {#if irid}
                 {td.linkInvalidIR}
-            {:else if spids.length}
+            {:else if nspids.length}
                 {td.linkInvalidNSP}
             {/if}
         </div>
@@ -60,8 +60,8 @@
     {#if ir && ir.deleted}
         <DetailDeletedIR {td} {ir} />
     {/if}
-    {#if spids && sps.length}
-        <DetailNSPs {t} {lang} {sps} />
+    {#if nspids && nsps.length}
+        <DetailNSPs {t} {lang} {nsps} />
     {/if}
     {#if irid && ir && !ir.deleted}
         <DetailIR {t} {lang} {ir} {irid} />

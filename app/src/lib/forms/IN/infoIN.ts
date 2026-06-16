@@ -8,7 +8,7 @@ import {
 } from '$lib/client/realtime';
 import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
-import { detailIrUrl } from '$lib/helpers/runes.svelte';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
 import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
 import { getTranslations, type Translations } from '$lib/translations';
@@ -26,10 +26,9 @@ import MailXML from '$lib/emails/MailXML.svelte';
 import { type Raw, type Values } from '$lib/forms/Form';
 import { grantPoints } from '$lib/client/loyaltyProgram';
 import { getIsOnline } from '$lib/client/realtimeOnline';
-import db from '$lib/Database';
+import db from '$lib/client/db';
 import { type ExistingIR, type IR, newIR } from '$lib/data';
 import type { User } from 'firebase/auth';
-import { serverTimestamp, Timestamp } from 'firebase/firestore';
 
 const sendEmails = async (
     edit: boolean, send: boolean, draft: boolean,
@@ -117,8 +116,8 @@ const changeIRID = async (
     newIR.IN = raw;
     newIR.deleted = false;
     newIR.meta.id = newIRID;
-    newIR.meta.createdAt = serverTimestamp() as Timestamp;
-    newIR.meta.changedAt = serverTimestamp() as Timestamp;
+    newIR.meta.createdAt = new Date().valueOf();
+    newIR.meta.changedAt = new Date().valueOf();
     newIR.meta.createdBy = { uid: user.uid, email: user.email! };
 
     try {
@@ -154,7 +153,7 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [str
         if ((!edit || changeID) && newIRID && getIsOnline() && await db.existsIR(newIRID)) {
             editResult({
                 red: true, load: false,
-                text: t.in.irExistsHtml({ link: detailIrUrl(newIRID) }),
+                text: t.in.irExistsHtml({ link: detailUrlIR(newIRID) }),
             });
             return;
         }
@@ -179,7 +178,7 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [str
             user, editResult, t,
         );
     },
-    redirectLink: async raw => detailIrUrl(extractIRIDFromRawData(raw)),
+    redirectLink: async raw => detailUrlIR(extractIRIDFromRawData(raw)),
     createContext: ({ form: f, values: v }) => ({ f, v }),
     title: (t, mode) => mode == 'edit' ? t.in.editing : mode == 'view' ? t.detail.titleIR : t.in.title,
     getEditData: async url => {

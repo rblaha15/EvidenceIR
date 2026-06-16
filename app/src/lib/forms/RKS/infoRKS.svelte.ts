@@ -5,11 +5,11 @@ import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { detailIrUrl } from '$lib/helpers/runes.svelte';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import defaultRKS from '$lib/forms/RKS/defaultRKS';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import type { ContextRKS, FormRKS } from '$lib/forms/RKS/formRKS';
-import db from '$lib/Database';
+import db from '$lib/client/db';
 
 const infoRKS: FormInfo<ContextRKS, FormRKS, [], 'RKS', { defaultYear: Year, filledYears: Year[] }> = {
     type: 'IR',
@@ -60,7 +60,7 @@ const infoRKS: FormInfo<ContextRKS, FormRKS, [], 'RKS', { defaultYear: Year, fil
                 ? `Vyplněna nová roční kontrola SOL k ${irName(ir.IN.ir)}`
                 : `Upravena roční kontrola SOL k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.IN },
+            props: { name: user.email!, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
         });
 
         if (response!.ok) return;

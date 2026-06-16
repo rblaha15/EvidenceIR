@@ -5,7 +5,7 @@ import { error } from '@sveltejs/kit';
 import type { ContextRKTL, FormRKTL } from '$lib/forms/RKT/formRKTL';
 import defaultRKTL from '$lib/forms/RKT/defaultRKTL';
 import type { Raw } from '$lib/forms/Form';
-import db from '$lib/Database';
+import db from '$lib/client/db';
 
 const infoRKT: FormInfo<ContextRKTL, FormRKTL, [], 'RKTL', { defaultYear: Year, filledYears: Year[], pump: TC }> = {
     type: 'IR',

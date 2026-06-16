@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { detailIrUrl, detailSpUrl, relUrl } from '$lib/helpers/runes.svelte.js';
+    import { detailUrlIR, detailUrlNSP, relUrl } from '$lib/helpers/runes.svelte.js';
     import { isUserAdmin } from '$lib/client/auth';
     import Widget from '$lib/components/Widget.svelte';
     import { goto } from '$app/navigation';
@@ -17,13 +17,13 @@
     import defaultIN from '$lib/forms/IN/defaultIN';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { ExistingNSP, NSP } from '$lib/data';
-    import db from '$lib/Database';
+    import db from '$lib/client/db';
     import { newInputWidget } from '$lib/forms/Widget';
     import { Copy, FileSymlink, HousePlus, MailOpen } from '@lucide/svelte';
     import { Button } from "$lib/components/ui/button";
 
-    const { t, sps, lang }: {
-        t: Translations, sps: NSP[], lang: LanguageCode,
+    const { t, nsps, lang }: {
+        t: Translations, nsps: NSP[], lang: LanguageCode,
     } = $props();
     const td = $derived(t.detail);
 
@@ -37,37 +37,37 @@
         if (widget.isError({}, newIRID)) return;
         await db.addSPs(
             newIRID as IRID,
-            ...sps
-                .map(sp => sp.deleted ? undefined : sp).filterNotUndefined()
-                .map(sp => sp.NSP.pick(...protocolGroups) as Raw<FormSP>),
+            ...nsps
+                .map(nsp => nsp.deleted ? undefined : nsp).filterNotUndefined()
+                .map(nsp => nsp.NSP.pick(...protocolGroups) as Raw<FormSP>),
         );
-        await goto(detailIrUrl(newIRID as IRID), { replaceState: true });
+        await goto(detailUrlIR(newIRID as IRID), { replaceState: true });
     };
 
     const createCopy = () => {
-        const sp = sps[0] as ExistingNSP;
-        const newSP = {
+        const nsp = nsps[0] as ExistingNSP;
+        const newNSP = {
             ...valuesToRawData(defaultNSP(), defaultValues(defaultNSP())),
-            ...sp.NSP.omit(...protocolGroups),
-            ...sp.NSP.pick('system'),
+            ...nsp.NSP.omit(...protocolGroups),
+            ...nsp.NSP.pick('system'),
         };
-        storable<typeof sps[0]['NSP']>(infoNSP.storeName({})).set(newSP);
+        storable<typeof nsps[0]['NSP']>(infoNSP.storeName({})).set(newNSP);
     };
     const createCopyIN = () => {
-        const sp = sps[0] as ExistingNSP;
+        const nsp = nsps[0] as ExistingNSP;
         const newIN = {
             ...valuesToRawData(defaultIN(), defaultValues(defaultIN())),
-            ...sp.NSP.omit(...protocolGroups),
+            ...nsp.NSP.omit(...protocolGroups),
         };
         storable<Raw<FormIN>>(IN.storeName({ draft: false })).set(newIN);
     };
-    const mf = $derived(sps[0].NSP.montazka.email == unknownCompanyEmail ? '' : sps[0].NSP.montazka.email.trim());
+    const mf = $derived(nsps[0].NSP.montazka.email == unknownCompanyEmail ? '' : nsps[0].NSP.montazka.email.trim());
 </script>
 
 <div class="flex flex-wrap gap-4 justify-between">
     <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1 sm:items-start">
-            {#each sps as sp}
+            {#each nsps as sp}
                 {#if !sp.deleted}
                     <DetailNSP {sp} {lang} {t} />
                 {:else}
@@ -80,9 +80,9 @@
         </div>
     </div>
 
-    {#if !sps[0].deleted}
+    {#if !nsps[0].deleted}
         <div class="flex flex-col gap-4 sm:items-start">
-            <Button href={relUrl(`/OD?redirect=${detailSpUrl()}&user=${endUserEmails(sps[0].NSP.koncovyUzivatel).join(';')}&assembly=${mf}`)}>
+            <Button href={relUrl(`/OD?redirect=${detailUrlNSP()}&user=${endUserEmails(nsps[0].NSP.koncovyUzivatel).join(';')}&assembly=${mf}`)}>
                 <MailOpen />
                 {td.sendDocuments}
             </Button>

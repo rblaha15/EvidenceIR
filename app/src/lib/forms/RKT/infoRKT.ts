@@ -5,7 +5,7 @@ import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { detailIrUrl } from '$lib/helpers/runes.svelte';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { type ContextRKT, type FormRKT } from '$lib/forms/RKT/formRKT.js';
 import defaultRKT from '$lib/forms/RKT/defaultRKT';
 import type { FormInfo } from '$lib/forms/FormInfo';
@@ -14,7 +14,7 @@ import { error } from '@sveltejs/kit';
 import { grantPoints } from '$lib/client/loyaltyProgram';
 import type { Raw, Values } from '$lib/forms/Form';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
-import db from '$lib/Database';
+import db from '$lib/client/db';
 import type { Translations } from '$lib/translations';
 
 export const isRKTL = (raw: Raw<FormRKT | FormRKTL> | undefined): raw is Raw<FormRKTL> => !!raw && !('funkcniTest' in raw)
@@ -111,7 +111,7 @@ const infoRKT: FormInfo<ContextRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: 
                 ? `Vyplněna nová servisní prohlídka TČ${pump} k ${irName(ir.IN.ir)}`
                 : `Upravena servisní prohlídka TČ${pump} k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailIrUrl(irid), e: ir.IN },
+            props: { name: user.email!, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
         });
 
         if (response!.ok) return;

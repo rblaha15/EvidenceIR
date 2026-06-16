@@ -1,10 +1,18 @@
 import { derived, get, writable } from 'svelte/store';
 import { type IDBPDatabase, openDB } from 'idb';
-import { extractIDFromSPOrSZ, type IRID, type SPID } from '$lib/helpers/ir';
+import { extractIDFromSPOrSZ, type IRID, type NSPID } from '$lib/helpers/ir';
 import { currentUser } from '$lib/client/auth';
-import type { Database, ReadDatabase, WriteDatabase } from '$lib/Database';
-import { serverTimestamp, type Timestamp } from 'firebase/firestore';
-import { type Data, type DataType, deletedIR, type DeletedNSP, type ID, type IR, type NSP } from '$lib/data';
+import {
+    type Data,
+    type DataType,
+    deletedIR,
+    deletedNSP,
+    type DeletedNSP,
+    type ID,
+    type IR,
+    type NSP
+} from '$lib/data';
+import type { Database, ReadDatabase, WriteDatabase } from "$lib/client/db/def";
 
 type DBSchema = {
     IR: {
@@ -12,7 +20,7 @@ type DBSchema = {
         value: IR;
     };
     NSP: {
-        key: SPID;
+        key: NSPID;
         value: NSP;
     };
 }
@@ -23,7 +31,7 @@ const storedIR = writable<Record<IRID, IR>>({}, (set) => {
         set((await odm.getAll('IR')).associateBy(ir => ir.meta.id));
     })();
 });
-const storedSP = writable<Record<SPID, NSP>>({}, (set) => {
+const storedSP = writable<Record<NSPID, NSP>>({}, (set) => {
     (async () => {
         set((await odm.getAll('NSP')).associateBy(nsp => nsp.meta.id));
     })();
@@ -96,7 +104,7 @@ const odm = {
 
 export const offlineDatabaseManager = {
     ...odm,
-    putOrDelete: <T extends DataType>(type: T, id: ID<T>, value: Data<T> | undefined) =>
+    putOrDelete: <T extends DataType>(type: T, id: ID<T>, value: Data<T> | null) =>
         value ? odm.put(type, id, value) : odm.delete(type, id),
 };
 
@@ -106,7 +114,7 @@ const readDatabase: ReadDatabase = {
     getDeletedIRs: async () => [],
     existsIR: async irid => Boolean(await odm.get('IR', irid)),
 
-    getNSP: spid => odm.get('NSP', spid),
+    getNSP: nspid => odm.get('NSP', nspid),
     getChangedNSPs: async () => [],
     getDeletedNSPs: async () => [],
 };
@@ -217,19 +225,12 @@ const writeDatabase: WriteDatabase = {
     }),
 
     addNSP: nsp => odm.put('NSP', nsp.meta.id, nsp),
-    updateNSP: (spid, rawData) => odm.update('NSP', spid, nsp => {
+    updateNSP: (nspid, rawData) => odm.update('NSP', nspid, nsp => {
         if (nsp.deleted) return nsp;
         nsp.NSP = rawData;
         return nsp;
     }),
-    deleteNSP: async spid => await odm.update('NSP', spid, sp => ({
-        ...sp,
-        deleted: true,
-        meta: {
-            ...sp.meta,
-            deletedAt: serverTimestamp() as Timestamp,
-        },
-    } satisfies DeletedNSP)),
+    deleteNSP: async nspid => await odm.update('NSP', nspid, sp => deletedNSP(sp)),
 };
 
 export const offlineDatabase: Database = {
@@ -239,5 +240,5 @@ export const offlineDatabase: Database = {
 
 export const getOfflineStoreIR = (irid: IRID) =>
     derived(storedIR, irs => irs[irid]);
-export const getOfflineStoreIndependentProtocol = (spid: SPID) =>
-    derived(storedSP, sps => sps[spid]);
+export const getOfflineStoreIndependentProtocol = (nspid: NSPID) =>
+    derived(storedSP, sps => sps[nspid]);

@@ -1,11 +1,11 @@
-import { type IRID, spids } from '$lib/helpers/ir';
+import { type IRID, nspids } from '$lib/helpers/ir';
 import { forms } from '$lib/forms/forms';
 import languageCodes from '$lib/languageCodes';
 import { pdfInfo } from '$lib/pdf/pdf';
 
 export const extractIDs = (url: URL) => ({
     irid: url.searchParams.get('irid') as IRID | null,
-    spids: url.searchParams.get('spid')?.let(spids) ?? [],
+    nspids: url.searchParams.get('spid')?.let(nspids) ?? [],
 });
 
 const langEntries = [...languageCodes, '', undefined] as const;

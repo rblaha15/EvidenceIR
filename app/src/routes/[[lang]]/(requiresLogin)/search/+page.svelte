@@ -2,7 +2,7 @@
     import { goto } from '$app/navigation';
     import Search from '$lib/components/widgets/Search.svelte';
     import { setTitle } from '$lib/helpers/globals.js';
-    import { detailIrUrl, detailSpUrl } from '$lib/helpers/runes.svelte';
+    import { detailUrlIR, detailUrlNSP } from '$lib/helpers/runes.svelte';
     import { isUserRegulusOrAdmin } from '$lib/client/auth';
     import type { PageProps } from './$types';
     import { isOnline } from '$lib/client/realtimeOnline';
@@ -41,7 +41,7 @@
         label: '',
         items: () => itemsStore,
         getSearchItem: i => ({
-            href: i.t == 'NSP' ? detailSpUrl(i.id) : detailIrUrl(i.id),
+            href: i.t == 'NSP' ? detailUrlNSP(i.id) : detailUrlIR(i.id),
             pieces: [
                 {
                     text: i.name, width: .4,
@@ -57,7 +57,7 @@
             ],
         }),
         onValueSet: (_, i) => {
-            if (i) goto(i.t == 'NSP' ? detailSpUrl(i.id) : detailIrUrl(i.id));
+            if (i) goto(i.t == 'NSP' ? detailUrlNSP(i.id) : detailUrlIR(i.id));
         },
         inline: true,
     });

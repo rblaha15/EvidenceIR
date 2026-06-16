@@ -9,7 +9,7 @@
     import { goto } from '$app/navigation';
     import { setUserPreferredDocumentLanguage } from '$lib/languages.js';
     import { hideNav } from '$lib/helpers/globals';
-    import { clearLocalDatabase } from '$lib/client/offline.svelte';
+    import { clearLocalDatabase } from '$lib/client/db/offline.svelte';
     import { clearHistory } from '$lib/client/history.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
     import { Separator } from "$lib/components/ui/separator";

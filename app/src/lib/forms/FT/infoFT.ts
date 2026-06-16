@@ -2,7 +2,7 @@ import type { FormInfo } from '$lib/forms/FormInfo';
 import type { DataFT, FormFT } from '$lib/forms/FT/formFT';
 import defaultFT from '$lib/forms/FT/defaultFT';
 import { fieldsFT } from '$lib/forms/FT/fieldsFT';
-import db from '$lib/Database';
+import db from '$lib/client/db';
 
 const infoFT: FormInfo<DataFT, FormFT, [], 'FT'> = {
     type: 'IR',

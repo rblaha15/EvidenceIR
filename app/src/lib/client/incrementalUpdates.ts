@@ -1,26 +1,24 @@
 import { storable } from '$lib/helpers/stores';
-import { type IRID, type SPID } from '$lib/helpers/ir';
+import { type IRID, type NSPID } from '$lib/helpers/ir';
 import { get, type Writable, writable } from 'svelte/store';
 import {
     clearLocalDatabase,
     getOfflineStoreIndependentProtocol,
     getOfflineStoreIR,
     offlineDatabaseManager as odm,
-} from '$lib/client/offline.svelte';
-import { firestoreDatabase } from '$lib/client/firestore';
-import { Timestamp } from 'firebase/firestore';
-import type { Data, DeletedData, ExistingData, ID, IR, NSP } from '$lib/data';
+} from '$lib/client/db/offline.svelte';
+import type { Data, DeletedData, ExistingData, ID, IR, NSP, Timestamp } from '$lib/data';
 import { isOnline } from '$lib/client/realtimeOnline';
+import { mongoDatabase } from "$lib/client/db/mongo";
 
-const v = 5
+const v = 6
 
 const defaultValue = 500;
 
-type Millis = number;
-const lastChangedAtIR = storable<Millis>(`lastUpdatedChangedAtIR${v}`, defaultValue);
-const lastDeletedAtIR = storable<Millis>(`lastUpdatedDeletedAtIR${v}`, defaultValue);
-const lastChangedAtSP = storable<Millis>(`lastUpdatedChangedAtSP${v}`, defaultValue);
-const lastDeletedAtSP = storable<Millis>(`lastUpdatedDeletedAtSP${v}`, defaultValue);
+const lastChangedAtIR = storable<Timestamp>(`lastUpdatedChangedAtIR${v}`, defaultValue);
+const lastDeletedAtIR = storable<Timestamp>(`lastUpdatedDeletedAtIR${v}`, defaultValue);
+const lastChangedAtSP = storable<Timestamp>(`lastUpdatedChangedAtSP${v}`, defaultValue);
+const lastDeletedAtSP = storable<Timestamp>(`lastUpdatedDeletedAtSP${v}`, defaultValue);
 
 export const resetStores = () => {
     lastChangedAtIR.set(defaultValue);
@@ -35,15 +33,13 @@ export type Results<T extends 'IR' | 'NSP'> =
 const getData = async <T extends 'IR' | 'NSP'>(type: T, store: Writable<Results<T>>) => {
     const lastChangedAtStore = { IR: lastChangedAtIR, NSP: lastChangedAtSP }[type];
     const lastDeletedAtStore = { IR: lastDeletedAtIR, NSP: lastDeletedAtSP }[type];
-    const lastChangedAtMillis = get(lastChangedAtStore);
-    const lastDeletedAtMillis = get(lastDeletedAtStore);
-    const lastChangedAt = lastChangedAtMillis ? Timestamp.fromMillis(lastChangedAtMillis) : null;
-    const lastDeletedAt = lastDeletedAtMillis ? Timestamp.fromMillis(lastDeletedAtMillis) : null;
-    if (lastDeletedAtMillis == defaultValue && lastChangedAtMillis == defaultValue) await clearLocalDatabase(); // Clean up old data when changing the store
+    const lastChangedAt = get(lastChangedAtStore);
+    const lastDeletedAt = get(lastDeletedAtStore);
+    if (lastDeletedAt == defaultValue && lastChangedAt == defaultValue) await clearLocalDatabase(); // Clean up old data when changing the store
     const currentOffline: Data<T>[] = await odm.getAll(type);
     store.set({ data: currentOffline, status: 'loadingOnline' });
-    const getChanged = { IR: firestoreDatabase.getChangedIRs, NSP: firestoreDatabase.getChangedNSPs }[type];
-    const getDeleted = { IR: firestoreDatabase.getDeletedIRs, NSP: firestoreDatabase.getDeletedNSPs }[type];
+    const getChanged = { IR: mongoDatabase.getChangedIRs, NSP: mongoDatabase.getChangedNSPs }[type];
+    const getDeleted = { IR: mongoDatabase.getDeletedIRs, NSP: mongoDatabase.getDeletedNSPs }[type];
     const changes = await getChanged(lastChangedAt) as ExistingData<T>[];
     const deletes = await getDeleted(lastDeletedAt) as DeletedData<T>[];
     const newList = [...currentOffline, ...changes, ...deletes].distinctBy(it => it.meta.id);
@@ -52,10 +48,10 @@ const getData = async <T extends 'IR' | 'NSP'>(type: T, store: Writable<Results<
     const key = (it: ExistingData<T>) =>
         ({ IR: (it as IR).meta.changedAt, NSP: (it as NSP).meta.createdAt }[type])
     if (changes.length) lastChangedAtStore.set(
-        changes.map(key).maxOf(t => t.toMillis()),
+        changes.map(key).max(),
     );
     if (deletes.length) lastDeletedAtStore.set(
-        deletes.map(ir => ir.meta.deletedAt).maxOf(t => t.toMillis()),
+        deletes.map(ir => ir.meta.deletedAt).max(),
     );
 }
 
@@ -72,21 +68,21 @@ export const getAllNSPs = () => {
 };
 
 export const getStoreIR = (irid: IRID) => {
-    const store = writable<IR | undefined | 'loading'>('loading');
+    const store = writable<IR | null | 'loading'>('loading');
     getOfflineStoreIR(irid).subscribe(store.set);
     isOnline.subscribe($isOnline => {
-        if ($isOnline) firestoreDatabase.getIR(irid).then(store.set);
+        if ($isOnline) mongoDatabase.getIR(irid).then(store.set);
     });
     return store;
 };
 
 
-export const getStoreNSP = (spid: SPID) => {
-    const store = writable<NSP | undefined | 'loading'>('loading');
-    getOfflineStoreIndependentProtocol(spid).subscribe(store.set);
+export const getStoreNSP = (nspid: NSPID) => {
+    const store = writable<NSP | null | 'loading'>('loading');
+    getOfflineStoreIndependentProtocol(nspid).subscribe(store.set);
     isOnline.subscribe($isOnline => {
         if ($isOnline)
-            firestoreDatabase.getNSP(spid).then(store.set);
+            mongoDatabase.getNSP(nspid).then(store.set);
     });
     return store;
 };

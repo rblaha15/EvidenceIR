@@ -1,7 +1,6 @@
 import { getCompanies, getLoyaltyProgramData, getPeople, setLoyaltyProgramData } from '$lib/server/realtime';
 import type { IRID } from '$lib/helpers/ir';
 import type { DecodedIdToken } from 'firebase-admin/auth';
-import { getIR, setCreatedIRBy, setGrantedCommission } from '$lib/server/firestore';
 import {
     loyaltyPointRewards,
     type LoyaltyPointTriggerType,
@@ -13,6 +12,8 @@ import {
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { nowISO } from '$lib/helpers/date';
 import { checkAnyRegulusOrAdmin } from '$lib/server/auth';
+import { setCreatedIRBy, setGrantedCommission } from "$lib/server/db/admin/rk";
+import { mongoReadDatabase } from "$lib/server/db/read";
 
 const isType = <T extends LoyaltyPointTriggerType>(
     data: LoyaltyProgramTrigger, type: T,
@@ -72,7 +73,7 @@ export const processLoyaltyReward = async (
         }
         await setGrantedCommission(data.irid)
     } else if (isType(data, 'heatPumpYearlyCheck')) {
-        const ir = await getIR(data.irid);
+        const ir = await mongoReadDatabase.getIR(data.irid);
         if (!ir?.RK?.TC?.[data.pump]?.[data.year]) return;
         await addPointsTransaction({
             type: data.type, irid: data.irid, note: `TČ: ${data!.pump}, rok: ${data!.year}`, timestamp,
@@ -88,7 +89,7 @@ const getCompanyUser = async (email: string) => {
 }
 
 const getCompaniesCascadeGrantedAndCommission = async (irid: IRID) => {
-    const ir = await getIR(irid);
+    const ir = await mongoReadDatabase.getIR(irid);
     return ir && ir.UP.dateTC && ir.UP.TC ? {
         assembly: await getCompanyUser(ir.IN.montazka.email),
         commissioning: await getCompanyUser(ir.IN.uvedeni.email),
@@ -99,7 +100,7 @@ const getCompaniesCascadeGrantedAndCommission = async (irid: IRID) => {
 };
 
 const getCreatingUserOrNull = async (irid: IRID) => {
-    const ir = await getIR(irid);
+    const ir = await mongoReadDatabase.getIR(irid);
     return ir ? ir.meta.createdBy?.uid : 'unknown';
 };
 
