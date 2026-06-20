@@ -1,7 +1,7 @@
+import { getIsLoggedIn } from '$lib/client/auth';
 import type { EntryGenerator, PageLoad } from './$types';
 import { error } from '@sveltejs/kit';
 import { browser } from '$app/environment';
-import { checkAuth } from '$lib/client/auth';
 import { startTechniciansListening, startUsersListening } from '$lib/client/realtime';
 import { derived, type Readable, readable } from 'svelte/store';
 import { waitUntil } from '$lib/helpers/stores';
@@ -17,7 +17,7 @@ export const load: PageLoad = async ({ url }) => {
     const id = extractIDs(url);
     if (!id.irid && !id.nspids) error(400, { message: 'At least one of irid or spid bust be provided!' });
 
-    await checkAuth();
+    if (!await getIsLoggedIn()) return error(401);
     await startTechniciansListening();
     await startUsersListening();
 

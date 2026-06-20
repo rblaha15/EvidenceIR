@@ -1,13 +1,13 @@
 <script lang="ts">
     import { browser } from '$app/environment';
     import { page } from '$app/state';
-    import { logIn, setName } from '$lib/client/auth';
+    import { signIn } from '$lib/client/auth';
+    import authentication from '$lib/client/authentication';
     import FormDefaults from '$lib/components/FormDefaults.svelte';
     import type { PageProps } from './$types';
     import { onMount } from 'svelte';
     import { initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
-    import { startUsersListening, startTechniciansListening, techniciansList, usersList } from '$lib/client/realtime';
-    import { get } from 'svelte/store';
+    import { startUsersListening, startTechniciansListening } from '$lib/client/realtime';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { goto } from '$app/navigation';
     import { logEvent } from 'firebase/analytics';
@@ -37,16 +37,17 @@
 
     let error = $state('');
 
-    async function signIn() {
+    async function logIn() {
         error = '';
-        await logIn(email, password)
-            .then(async _ => {
+        await signIn(email, password)
+            .then(async a => {
+                console.log(a);
                 logEvent(analytics(), 'login', { email });
                 await grantPoints({ type: 'registration' });
                 await goto(page.url.origin + relUrl(redirect));
             })
             .catch(e => {
-                console.log(e.code);
+                console.log('Login error', e, { ...e });
                 if (e.code == 'auth/network-request-failed') {
                     error = t.checkInternet;
                 } else if (e.code == 'auth/user-not-found' || e.code == 'auth/user-disabled') {
@@ -116,7 +117,7 @@
         </p>
     </CardContent>
     <CardFooter class="gap-2">
-        <Button type="submit" class="grow" onclick={signIn}>{t.toLogIn}</Button>
+        <Button type="submit" class="grow" onclick={logIn}>{t.toLogIn}</Button>
         <Button variant="secondary" onclick={() => history.back()}>{t.back}</Button>
     </CardFooter>
 </Card>

@@ -1,12 +1,12 @@
+import { checkIsRegulusOrAdmin } from '$lib/client/auth';
+import type { User } from '$lib/server/auth';
 import { error } from '@sveltejs/kit';
 import { type DocumentDefinition } from '$lib/features/signing/domain/sms';
 import { pdfInfo, pdfToSign, pdfWithDefiningParameter } from '$lib/pdf/pdf';
-import { checkRegulusOrAdmin } from '$lib/server/auth';
-import type { DecodedIdToken } from 'firebase-admin/auth';
 
 export const validateRequest = async (
     def: DocumentDefinition,
-    user: DecodedIdToken,
+    user: User,
 ) => {
     if (!(def.pdf in pdfInfo)) error(404);
 
@@ -16,7 +16,7 @@ export const validateRequest = async (
 
     const pdf = pdfInfo[def.pdf];
 
-    if (pdf.requiredRegulus && !await checkRegulusOrAdmin(user)) error(403);
+    if (pdf.requiredRegulus && !checkIsRegulusOrAdmin(user)) error(403);
 
     return pdf;
 };

@@ -85,6 +85,11 @@ declare global {
             this: T,
             callback: (self: Awaited<T>) => U,
         ): T;
+
+        catchAlso<T extends Promise<unknown>, U>(
+            this: T,
+            callback: (error: unknown) => U,
+        ): T;
     }
 }
 
@@ -103,6 +108,7 @@ Object.defineProperties(Object.prototype, {
     let: { writable: true },
     also: { writable: true },
     thenAlso: { writable: true },
+    catchAlso: { writable: true },
 });
 
 Object.prototype.entries = function() {
@@ -206,6 +212,14 @@ Object.prototype.thenAlso = function <T extends PromiseLike<any>, U>(
     callback: (self: Awaited<T>) => U,
 ): T {
     this.then(callback);
+    return this;
+};
+
+Object.prototype.catchAlso = function <T extends Promise<any>, U>(
+    this: T,
+    callback: (error: unknown) => U,
+): T {
+    this.catch(callback);
     return this;
 };
 

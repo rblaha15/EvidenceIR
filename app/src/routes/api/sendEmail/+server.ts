@@ -1,4 +1,4 @@
-import { checkToken } from '$lib/server/auth';
+import { getIsLoggedIn } from '$lib/server/auth';
 import { error } from '@sveltejs/kit';
 import { sendEmail } from '$lib/server/email';
 // import { del } from '@vercel/blob';
@@ -6,10 +6,9 @@ import type { EmailMessage } from '$lib/client/email';
 import type { RequestHandler } from './$types';
 // import { EMAIL_BLOB_READ_WRITE_TOKEN } from "$env/static/private";
 
-export const POST: RequestHandler = async ({ url, request }) => {
-    const token = url.searchParams.get('token');
+export const POST: RequestHandler = async ({ url, request, locals }) => {
 
-    if (!(await checkToken(token))) error(401, 'Unauthorized');
+    if (!getIsLoggedIn(locals)) error(401, 'Unauthorized');
 
     const message: EmailMessage = await request.json();
     console.log(message)

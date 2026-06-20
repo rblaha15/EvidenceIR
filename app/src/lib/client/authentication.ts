@@ -1,31 +1,14 @@
 import type { LanguageCode } from '$lib/languageCodes';
 
 export type AuthTypes = {
-    createUser: {
-        params: {
-            email: string,
-        }
-        returns: {
-            uid: string,
-        }
-    },
-    checkEnabled: {
-        params: {
-            email: string,
-        }
-        returns: {
-            enabled: boolean | null,
-        }
-    },
-    getPasswordResetLink: {
+    trySignUp: {
         params: {
             email: string,
             redirect: string,
             lang: LanguageCode,
-            mode: 'edit' | 'register',
         }
         returns: {
-            link: string
+            result: 'emailInUse' | 'useNameSurnameEmail' | 'useBusinessEmail' | 'sent',
         }
     },
     sendPasswordResetEmail: {
@@ -33,12 +16,6 @@ export type AuthTypes = {
             email: string,
             redirect: string,
             lang: LanguageCode,
-        }
-        returns: Record<string, never>
-    },
-    enableUser: {
-        params: {
-            email: string,
         }
         returns: Record<string, never>
     },

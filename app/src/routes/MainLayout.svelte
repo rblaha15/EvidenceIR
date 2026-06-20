@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { LayoutData } from './$types';
-    import { checkAuth, currentUser, userInfo } from '$lib/client/auth';
+    import { getIsLoggedIn, isLoggedIn, user } from '$lib/client/auth';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import { onMount, type Snippet } from 'svelte';
     import { backButton, endLoading, hideNav, hideTitle, initialRouteLoggedIn, initialRouteLoggedOut, progress, startLoading, title } from '$lib/helpers/globals';
@@ -54,7 +54,7 @@
 
     const fixUrl = async () => {
         if (path == '/') {
-            const isLoggedIn = await checkAuth();
+            const isLoggedIn = await getIsLoggedIn();
             const route = isLoggedIn ? initialRouteLoggedIn : initialRouteLoggedOut;
             const lang = data.isLanguageFromUrl ? data.languageCode : '?';
             return await goto(relUrl(route, lang));
@@ -85,7 +85,7 @@
     };
 
     $effect(() => {
-        setUserId(analytics(), $userInfo?.uid || null);
+        setUserId(analytics(), $user?.id || null);
     });
 
     const showTOC = $derived(page.route.id?.includes('[form=form]') && !page.error);
@@ -119,7 +119,7 @@
 
 {#snippet content()}
     <Navigation {t} />
-    <div class={['flex h-full flex-col', $currentUser != null && !$hideNav ? 'pt-13 md:pt-24 lg:pt-13' : 'pt-13']}>
+    <div class={['flex h-full flex-col', $isLoggedIn && !$hideNav ? 'pt-13 md:pt-24 lg:pt-13' : 'pt-13']}>
         <div
             class="rounded-0 sticky top-0"
             role="progressbar"
@@ -163,7 +163,7 @@
 {#if !data.isLanguageFromUrl || path === '/'}
     {@render loading()}
 {:else}
-    {#await checkAuth()}
+    {#await getIsLoggedIn()}
         {#if !error}
             {@render loading()}
         {:else}

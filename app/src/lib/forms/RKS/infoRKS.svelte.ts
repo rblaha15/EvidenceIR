@@ -1,7 +1,7 @@
 import { page } from '$app/state';
+import { getIsRegulusOrAdmin, getUser, isRegulusOrAdmin } from '$lib/client/auth';
 import { type Year } from '$lib/data';
-import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
-import { derived, get } from 'svelte/store';
+import { derived } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
@@ -51,9 +51,9 @@ const infoRKS: FormInfo<ContextRKS, FormRKS, [], 'RKS', { defaultYear: Year, fil
     saveData: async ({ irid, values, raw, edit, editResult, t, ir }) => {
         await db.addRKS(irid, values.info.year as Year, raw);
 
-        if (await checkRegulusOrAdmin()) return;
+        if (await getIsRegulusOrAdmin()) return;
 
-        const user = get(currentUser)!;
+        const user = (await getUser())!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit
@@ -71,7 +71,7 @@ const infoRKS: FormInfo<ContextRKS, FormRKS, [], 'RKS', { defaultYear: Year, fil
         });
         return false;
     },
-    buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
+    buttons: edit => derived(isRegulusOrAdmin, regulus => ({
         hideSave: !regulus,
         saveAndSend: !edit && !regulus,
         saveAndSendAgain: edit && !regulus,

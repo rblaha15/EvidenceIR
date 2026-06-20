@@ -1,7 +1,7 @@
+import { getUser } from '$lib/client/auth';
 import { startUsersListening } from '$lib/client/realtime';
 import defaultNK from '$lib/forms/NK/defaultNK';
 import { get } from 'svelte/store';
-import { currentUser } from '$lib/client/auth';
 import { getTranslations } from '$lib/translations';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
@@ -16,7 +16,7 @@ const infoNK: IndependentFormInfo<ContextNK, FormNK> = {
     storeName: () => 'stored_demand',
     form: defaultNK,
     saveData: async ({ raw, form, editResult, t, resetForm }) => {
-        const user = get(currentUser)!;
+        const user = (await getUser())!;
 
         const name = raw.contacts.name;
         const surname = raw.contacts.surname;
@@ -27,7 +27,7 @@ const infoNK: IndependentFormInfo<ContextNK, FormNK> = {
             .map(photo => photo.uuid);
 
         const response = await sendEmail({
-            ...defaultAddresses(page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz', true, user.displayName || undefined),
+            ...defaultAddresses(page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz', true, user.name),
             subject: `Poptávka z aplikace – OSOBA: ${name} ${surname}`,
             attachments: [new File(
                 [xml(raw, user, cs)],
@@ -39,7 +39,7 @@ const infoNK: IndependentFormInfo<ContextNK, FormNK> = {
                 new File([file], `Fotka ${i + 1}`, { type: file.type }),
             )],
             component: MailDemand,
-            props: { user: user.displayName || user.email!, t: cs, data: form },
+            props: { user: user.name, t: cs, data: form },
         });
 
         if (response!.ok) {

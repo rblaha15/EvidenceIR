@@ -4,7 +4,7 @@
     import { detailUrlIR, detailUrlNSP, relUrl } from '$lib/helpers/runes.svelte.js';
     import { getForm } from '$lib/forms/forms';
     import type { IRID, NSPID } from '$lib/helpers/ir';
-    import { isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { isRegulusOrAdmin } from '$lib/client/auth';
     import type { Component } from "svelte";
     import { FilePlusCorner, HousePlus, Info, type LucideProps, Search } from "@lucide/svelte";
     import { Button } from "$lib/components/ui/button";
@@ -56,7 +56,7 @@
     selected: isForm && form === 'IN' && !externalIRID,
 })}
 {@render item({
-    url: relUrl('/NSP'), label: tn.independentServiceProtocol/* + $aR*/, shown: $isUserRegulusOrAdmin, Icon: FilePlusCorner,
+    url: relUrl('/NSP'), label: tn.independentServiceProtocol/* + $aR*/, shown: $isRegulusOrAdmin, Icon: FilePlusCorner,
     selected: isForm && form === 'NSP' && !externalNSPID,
 })}
 {@render item({

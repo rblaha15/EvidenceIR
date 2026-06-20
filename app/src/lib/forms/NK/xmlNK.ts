@@ -1,7 +1,7 @@
 import type { Raw } from '$lib/forms/Form';
 import { get, type Translations } from '$lib/translations';
 import type { SeCh } from '$lib/forms/Widget';
-import type { User } from 'firebase/auth';
+import type { User } from '$lib/client/auth';
 import { browser, dev, version } from '$app/environment';
 import { type FormNK, origins } from './formNK';
 

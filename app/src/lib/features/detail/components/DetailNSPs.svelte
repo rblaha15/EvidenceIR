@@ -1,6 +1,6 @@
 <script lang="ts">
     import { detailUrlIR, detailUrlNSP, relUrl } from '$lib/helpers/runes.svelte.js';
-    import { isUserAdmin } from '$lib/client/auth';
+    import { isAdmin } from '$lib/client/auth';
     import Widget from '$lib/components/Widget.svelte';
     import { goto } from '$app/navigation';
     import { type Translations } from '$lib/translations';
@@ -37,7 +37,7 @@
         if (widget.isError({}, newIRID)) return;
         await db.addSPs(
             newIRID as IRID,
-            ...nsps
+            nsps
                 .map(nsp => nsp.deleted ? undefined : nsp).filterNotUndefined()
                 .map(nsp => nsp.NSP.pick(...protocolGroups) as Raw<FormSP>),
         );
@@ -92,7 +92,7 @@
                 {td.copyNSP}
             </Button>
 
-            {#if $isUserAdmin}
+            {#if $isAdmin}
                 <Button variant="warning" href={relUrl('/IN')} onclick={createCopyIN}>
                     <HousePlus />
                     {td.copyNSPtoInstallation}{$aA}

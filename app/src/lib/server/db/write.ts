@@ -2,7 +2,7 @@ import { deleteIR, deleteNSP, type IR, type NSP } from "$lib/data";
 import { client, id, irCollection, nspCollection } from "$lib/server/db";
 import { mongoReadDatabase } from "./read";
 import { extractIDFromSPOrSZ, type IRID, type NSPID } from "$lib/helpers/ir";
-import type { WriteDatabase } from "$lib/client/db/def";
+import type { ReadDatabase, WriteDatabase } from '$lib/client/db/def';
 import type { MatchKeysAndValues } from "mongodb";
 
 const addCreationTime = <T extends IR | NSP>(data: T): T => ({
@@ -27,18 +27,22 @@ const updateNSP = async (nspid: NSPID, update: MatchKeysAndValues<NSP>) => {
     await nspCollection.updateOne(id(nspid), { $set: update as NSP });
 }
 
-export const mongoWriteDatabase: WriteDatabase = {
-    addIR: async ir => {
-        if (await mongoReadDatabase.existsIR(ir.meta.id)) throw new Error(`IR ${ir.meta.id} already exists`);
+export type WriteDatabaseWIthLocals = {
+    [F in keyof WriteDatabase]: ((...args: [...Parameters<WriteDatabase[F]>, locals: App.Locals]) => ReturnType<WriteDatabase[F]>)
+}
+
+export const mongoWriteDatabase: WriteDatabaseWIthLocals = {
+    addIR: async (ir, locals) => {
+        if (await mongoReadDatabase.existsIR(ir.meta.id, locals)) throw new Error(`IR ${ir.meta.id} already exists`);
         await irCollection.insertOne(addCreationTime(ir));
     },
-    deleteIR: async irid => {
-        const ir = await mongoReadDatabase.getIR(irid);
+    deleteIR: async (irid, locals) => {
+        const ir = await mongoReadDatabase.getIR(irid, locals);
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         await update(irid, deleteIR());
     },
-    moveIR: async (irid, ir) => {
-        if (await mongoReadDatabase.existsIR(ir.meta.id)) throw new Error(`IR ${ir.meta.id} already exists`);
+    moveIR: async (irid, ir, locals) => {
+        if (await mongoReadDatabase.existsIR(ir.meta.id, locals)) throw new Error(`IR ${ir.meta.id} already exists`);
         const session = client.startSession()
         session.startTransaction()
         await irCollection.insertOne(addCreationTime(ir));
@@ -49,8 +53,8 @@ export const mongoWriteDatabase: WriteDatabase = {
     updateIN: (irid, rawData, isDraft) => update(irid, addChangeTime<IR>({ IN: rawData, isDraft })),
     addRKT: (irid, pump, year, check) => update(irid, addChangeTime<IR>({ [`RK.TC.${pump}.${year}`]: check })),
     addRKS: (irid, year, check) => update(irid, addChangeTime<IR>({ [`RK.SOL.${year}`]: check })),
-    addSPs: async (irid, ...protocols) => {
-        const ir = await mongoReadDatabase.getIR(irid);
+    addSPs: async (irid, protocols, locals) => {
+        const ir = await mongoReadDatabase.getIR(irid, locals);
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
         await update(irid, addChangeTime<IR>({
@@ -58,16 +62,16 @@ export const mongoWriteDatabase: WriteDatabase = {
                 .entries().sortedBy(([_, p]) => new Date(p.zasah.datum)).toRecord(),
         }));
     },
-    updateSP: async (irid, protocol) => {
-        const ir = await mongoReadDatabase.getIR(irid);
+    updateSP: async (irid, protocol, locals) => {
+        const ir = await mongoReadDatabase.getIR(irid, locals);
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
         await update(irid, addChangeTime<IR>({
             SPs: { ...ir.SPs, [extractIDFromSPOrSZ(protocol)]: protocol },
         }));
     },
-    deleteSP: async (irid, spid) => {
-        const ir = await mongoReadDatabase.getIR(irid);
+    deleteSP: async (irid, spid, locals) => {
+        const ir = await mongoReadDatabase.getIR(irid, locals);
         if (!ir) throw new Error(`IR ${irid} doesn't exists`);
         if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
         await update(irid, addChangeTime<IR>({
@@ -104,8 +108,8 @@ export const mongoWriteDatabase: WriteDatabase = {
         } : undefined;
         await update(irid, addChangeTime<IR>({ 'RK.DK.SO': dk }));
     },
-    addNSP: async nsp => {
-        if (await mongoReadDatabase.getNSP(nsp.meta.id)) throw new Error(`NSP ${nsp.meta.id} already exists`);
+    addNSP: async (nsp, locals) => {
+        if (await mongoReadDatabase.getNSP(nsp.meta.id, locals)) throw new Error(`NSP ${nsp.meta.id} already exists`);
         await nspCollection.insertOne(addCreationTime(nsp));
     },
     updateNSP: (nspid, protocol) =>

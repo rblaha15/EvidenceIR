@@ -28,32 +28,12 @@
     const signUp = async () => {
         sending = true;
         error = '';
-        const { enabled } = await authentication('checkEnabled', { email });
-        if (enabled) {
-            sending = false;
-            error = t.emailInUse;
-            return;
-        }
-        if (enabled == null && email.endsWith('@regulus.cz')) {
-            if (email.split('@')[0].includes('.')) await authentication('createUser', { email });
-            else {
-                sending = false;
-                error = t.useNameSurnameEmail;
-                return;
-            }
-        } else if (enabled == null) {
-            sending = false;
-            error = t.pleaseUseBusinessEmail;
-            return;
-        }
-        const { link } = await authentication('getPasswordResetLink', {
+        console.log(await authentication('trySignUp', {
             email,
             lang: page.data.languageCode,
             redirect,
-            mode: 'register',
-        });
+        }));
         logEvent(analytics(), 'sign_up', { email });
-        await goto(link);
     };
 
     onMount(() => setTitle(t.signUp, false, false, true));

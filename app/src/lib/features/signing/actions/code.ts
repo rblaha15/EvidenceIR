@@ -1,10 +1,9 @@
+import { getUser } from '$lib/client/auth';
 import type { SigningStatus } from '../components/Signing.svelte';
-import { currentUser, getToken } from '$lib/client/auth';
 import type { CodeAttemptParams } from '$lib/features/signing/domain/sms';
 import { getReasonPhrase } from 'http-status-codes';
 import { cervenka, defaultAddresses, sendHtmlEmail, userAddress } from '$lib/client/email';
 import { dev } from '$app/environment';
-import { get } from 'svelte/store';
 import { type DataOfPdf, type GeneratePdfOptions, pdfInfo, type PdfToSign } from '$lib/pdf/pdf';
 import { getTranslations } from '$lib/translations';
 import {  generatePdf } from '$lib/pdf/pdfGeneration';
@@ -21,7 +20,7 @@ const sendEmails = async (
 ) => {
     setStatus('sendingEmail');
 
-    const user = userAddress(get(currentUser)!);
+    const user = userAddress((await getUser())!);
     const pdf = pdfInfo[params.def.pdf];
     const title = pdf.title(getTranslations('cs'));
 
@@ -57,8 +56,7 @@ export const confirmCode = (
 ) => async () => {
     const old = setStatus('confirming');
 
-    const token = await getToken();
-    const response = await fetch(`/api/signing/confirm?token=${token}`, {
+    const response = await fetch(`/api/signing/confirm`, {
         method: 'POST',
         body: JSON.stringify(params),
         headers: {

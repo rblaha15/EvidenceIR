@@ -1,6 +1,6 @@
 import type { FormInfo } from '$lib/forms/FormInfo';
 import defaultUPF from '$lib/forms/UPF/defaultUPF';
-import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
+import { getIsRegulusOrAdmin, getUser, isRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
@@ -19,14 +19,14 @@ const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
     }),
     saveData: async ({ irid, raw, editResult, t, ir }) => {
         await db.addUPF(irid, raw);
-        if (await checkRegulusOrAdmin()) return;
+        if (await getIsRegulusOrAdmin()) return;
 
-        const user = get(currentUser)!;
+        const user = (await getUser())!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: `Vyplněno nové uvedení FVE do provozu k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
+            props: { name: user.email, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
         });
 
         if (response!.ok) return;
@@ -37,7 +37,7 @@ const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
         });
         return false;
     },
-    buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
+    buttons: edit => derived(isRegulusOrAdmin, regulus => ({
         hideSave: !regulus,
         saveAndSend: !edit && !regulus,
         saveAndSendAgain: edit && !regulus,

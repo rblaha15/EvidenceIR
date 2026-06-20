@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { checkAuth, checkRegulusOrAdmin } from '$lib/client/auth';
+import { getIsLoggedIn, getIsRegulusOrAdmin } from '$lib/client/auth';
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
 import {
@@ -41,11 +41,11 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
         allowSigning: false,
     };
 
-    if (!await checkAuth()) error(401);
+    if (!await getIsLoggedIn()) error(401);
 
     const pdf = pdfInfo[pdfName] as PdfArgs<Pdf>;
 
-    if (pdf.requiredRegulus && !await checkRegulusOrAdmin())
+    if (pdf.requiredRegulus && !await getIsRegulusOrAdmin())
         error(401);
 
     const id = extractIDs(url);

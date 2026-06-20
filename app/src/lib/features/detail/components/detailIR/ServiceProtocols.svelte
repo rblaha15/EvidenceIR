@@ -9,7 +9,7 @@
     import { isSP } from '$lib/forms/SP/infoSP.svelte';
     import SmallDropdown from '$lib/features/detail/components/documentsIR/SmallDropdown.svelte';
     import { Button } from '$lib/components/ui/button';
-    import { isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { isRegulusOrAdmin } from '$lib/client/auth';
     import { Copy, Eye, FilePen, Plus, Trash2 } from "@lucide/svelte";
     import {
         AlertDialog,
@@ -30,7 +30,7 @@
         irid: IRID, ir: ExistingIR, lang: LanguageCode, t: Translations,
     } = $props();
     const td = $derived(t.detail);
-    const r = $derived($isUserRegulusOrAdmin);
+    const r = $derived($isRegulusOrAdmin);
     const any = $derived(!!ir.SPs.keys().length);
     const sorted = $derived(ir.SPs.entries().sortedBy(([_, p]) => new Date(p.zasah.datum)));
 

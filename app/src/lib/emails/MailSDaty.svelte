@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { ContextIN, FormIN } from '$lib/forms/IN/formIN';
     import type { Translations } from '$lib/translations';
-    import type { User } from 'firebase/auth';
+    import type { User } from '$lib/client/auth';
     import { extractIRIDFromParts } from '$lib/helpers/ir';
     import { detailUrlIR } from '$lib/helpers/runes.svelte';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
@@ -31,4 +31,4 @@
 {#each list as { widget, value }}
     <ReadonlyWidget {widget} {value} {t} {context} />
 {/each}
-<p><b>Zaevidoval</b>: {user.displayName || user.email}</p>
+<p><b>Zaevidoval</b>: {user.name}</p>

@@ -4,7 +4,7 @@
     import { irName, irLabel, extractIRIDFromParts, endUserEmails } from '$lib/helpers/ir';
 	import type { Raw } from '$lib/forms/Form';
 	import { detailUrlIR } from '$lib/helpers/runes.svelte';
-    import type { User } from 'firebase/auth';
+    import type { User } from '$lib/client/auth';
 
 	interface Props {
 		e: Raw<FormIN>;
@@ -97,4 +97,4 @@
 
 <p>Odkaz na podrobnosti evidence: <a href={origin + detailUrlIR(irid)}>{origin + detailUrlIR(irid)}</a></p>
 
-<p><b>Zaevidoval</b>: {user.displayName || user.email}</p>
+<p><b>Zaevidoval</b>: {user.name}</p>

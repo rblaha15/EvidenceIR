@@ -1,6 +1,6 @@
+import { checkIsAnyRegulusOrAdmin } from '$lib/client/auth';
 import { getCompanies, getLoyaltyProgramData, getPeople, setLoyaltyProgramData } from '$lib/server/realtime';
 import type { IRID } from '$lib/helpers/ir';
-import type { DecodedIdToken } from 'firebase-admin/auth';
 import {
     loyaltyPointRewards,
     type LoyaltyPointTriggerType,
@@ -11,7 +11,7 @@ import {
 } from '$lib/client/loyaltyProgram';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { nowISO } from '$lib/helpers/date';
-import { checkAnyRegulusOrAdmin } from '$lib/server/auth';
+import { type User } from '$lib/server/auth';
 import { setCreatedIRBy, setGrantedCommission } from "$lib/server/db/admin/rk";
 import { mongoReadDatabase } from "$lib/server/db/read";
 
@@ -23,22 +23,23 @@ const days = (days: number) => days * 24 /*hours*/ * 60 /*minutes*/ * 60 /*secon
 
 export const processLoyaltyReward = async (
     data: LoyaltyProgramTrigger,
-    user: DecodedIdToken,
+    locals: App.Locals,
 ) => {
-    if (checkAnyRegulusOrAdmin(user)) return;
+    const user = locals.user!;
+    if (checkIsAnyRegulusOrAdmin(user)) return;
     const timestamp = nowISO(true);
     if (isType(data, 'registration')) {
-        const current = await getLoyaltyProgramData(user.uid);
+        const current = await getLoyaltyProgramData(user.id);
         if (current.history.some(t => t.type == 'registration')) return;
-        await addPointsTransaction({ ...data, timestamp }, user.uid);
+        await addPointsTransaction({ ...data, timestamp }, user.id);
     } else if (isType(data, 'connectRegulusRoute')) {
-        const creatingUser = await getOrSetCreatingUser(data.irid, user);
+        const creatingUser = await getOrSetCreatingUser(data.irid, locals);
         if (creatingUser == 'unknown') return;
         const current = await getLoyaltyProgramData(creatingUser);
         if (current.history.some(t => t.type == 'connectRegulusRoute' && t.irid == data.irid)) return;
         await addPointsTransaction({ ...data, timestamp }, creatingUser);
     } else if (isType(data, 'disconnectRegulusRoute')) {
-        const creatingUser = await getCreatingUserOrNull(data.irid);
+        const creatingUser = await getCreatingUserOrNull(data.irid, locals);
         if (!creatingUser || creatingUser == 'unknown') return;
         const current = await getLoyaltyProgramData(creatingUser);
         if (current.history.some(t => t.type == 'connectRegulusRoute' && t.irid == data.irid && t.addition < 0)) return;
@@ -47,7 +48,7 @@ export const processLoyaltyReward = async (
             type: 'connectRegulusRoute', irid: data.irid, multiplier: -1, note: 'Odebrání RegulusRoute z instalace', timestamp,
         }, creatingUser);
     } else if (isType(data, 'heatPumpCommission')) {
-        const d = await getCompaniesCascadeGrantedAndCommission(data.irid);
+        const d = await getCompaniesCascadeGrantedAndCommission(data.irid, locals);
         if (!d) return;
         const { assembly, commissioning, pumpCount, granted, commissionDate } = d;
         if (granted) return;
@@ -73,11 +74,11 @@ export const processLoyaltyReward = async (
         }
         await setGrantedCommission(data.irid)
     } else if (isType(data, 'heatPumpYearlyCheck')) {
-        const ir = await mongoReadDatabase.getIR(data.irid);
+        const ir = await mongoReadDatabase.getIR(data.irid, locals);
         if (!ir?.RK?.TC?.[data.pump]?.[data.year]) return;
         await addPointsTransaction({
             type: data.type, irid: data.irid, note: `TČ: ${data!.pump}, rok: ${data!.year}`, timestamp,
-        }, user.uid);
+        }, user.id);
     }
 };
 
@@ -88,8 +89,8 @@ const getCompanyUser = async (email: string) => {
     return allPeople.entries().find(([_, p]) => p.email == userEmail)?.[0] || null;
 }
 
-const getCompaniesCascadeGrantedAndCommission = async (irid: IRID) => {
-    const ir = await mongoReadDatabase.getIR(irid);
+const getCompaniesCascadeGrantedAndCommission = async (irid: IRID, locals: App.Locals) => {
+    const ir = await mongoReadDatabase.getIR(irid, locals);
     return ir && ir.UP.dateTC && ir.UP.TC ? {
         assembly: await getCompanyUser(ir.IN.montazka.email),
         commissioning: await getCompanyUser(ir.IN.uvedeni.email),
@@ -99,16 +100,17 @@ const getCompaniesCascadeGrantedAndCommission = async (irid: IRID) => {
     } : null;
 };
 
-const getCreatingUserOrNull = async (irid: IRID) => {
-    const ir = await mongoReadDatabase.getIR(irid);
+const getCreatingUserOrNull = async (irid: IRID, locals: App.Locals) => {
+    const ir = await mongoReadDatabase.getIR(irid, locals);
     return ir ? ir.meta.createdBy?.uid : 'unknown';
 };
 
-const getOrSetCreatingUser = async (irid: IRID, user: DecodedIdToken) => {
-    const current = await getCreatingUserOrNull(irid);
+const getOrSetCreatingUser = async (irid: IRID, locals: App.Locals) => {
+    const user = locals.user!;
+    const current = await getCreatingUserOrNull(irid, locals);
     if (current) return current;
-    await setCreatedIRBy(irid, { uid: user.uid, email: user.email!, isFake: true });
-    return user.uid;
+    await setCreatedIRBy(irid, { uid: user.id, email: user.email!, isFake: true });
+    return user.id;
 };
 
 export const addPointsTransaction = async (

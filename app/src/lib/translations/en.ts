@@ -45,13 +45,20 @@ const en: PlainTranslations = {
         fillInPassword: 'Please, enter your password.',
         newPassword: 'New Password',
         sendConfirmEmail: 'Send confirmation email',
-        passwordReset: `Password reset`,
+        signUpEmailSubject: `Registration to Regulus SEIR`,
+        signUpEmailHtml: t`<p>Hello,</p>
+<p>Follow this link to finish registration to Regulus SEIR for your account ${'email'}:</p>
+<p><a href="${'link'}">${'link'}</a></p>
+<p>If you have not asked to sign up, you can ignore this email.</p>
+<p>Thanks,</p>
+<p>Regulus SEIR Team</p>`,
+        passwordReset: `Password reset to Regulus SEIR`,
         passwordResetEmailHtml: t`<p>Hello,</p>
-<p>Follow this link to reset your IR Registration password for your account ${'email'}:</p>
+<p>Follow this link to reset your password to Regulus SEIR for your account ${'email'}:</p>
 <p><a href="${'link'}">${'link'}</a></p>
 <p>If you have not asked to reset your password, you can ignore this email.</p>
-<p>Thanks</p>
-<p>IR Registration</p>`,
+<p>Thanks,</p>
+<p>Regulus SEIR Team</p>`,
         passwordEdited: `Password has been edited, log in please`,
         registered: `Registration was successful, log in please`,
         passwordHasBeenReset: `Password has been reset, log in please`,

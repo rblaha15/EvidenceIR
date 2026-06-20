@@ -16,7 +16,7 @@ import type { FormFT } from '$lib/forms/FT/formFT';
 import '$lib/extensions';
 import type { FormRKS } from '$lib/forms/RKS/formRKS';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
-import type { User } from 'firebase/auth';
+import type { User } from '$lib/client/auth';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { FormSZ } from '$lib/forms/SP/formSZ';

@@ -3,6 +3,7 @@
 </script>
 
 <script lang="ts">
+    import { user } from '$lib/client/auth';
     import { addCzechCountryCode, type LoadData } from '$lib/features/signing/domain/load';
     import { sendSMS } from '$lib/features/signing/actions/sms';
     import { endUserEmails, endUserName } from '$lib/helpers/ir';
@@ -10,7 +11,6 @@
     import Widget from '$lib/components/Widget.svelte';
     import type { Translations } from '$lib/translations';
     import { confirmCode } from '$lib/features/signing/actions/code';
-    import { currentUser } from '$lib/client/auth';
     import { isOnline } from '$lib/client/realtimeOnline';
     import type { SendCodeParams } from '$lib/features/signing/domain/sms';
     import { onMount } from 'svelte';
@@ -31,7 +31,7 @@
     const signingBy = $derived({
         name: endUserName(endUser), phone: addCzechCountryCode(endUser.telefon), email: endUserEmails(endUser)[0],
     });
-    const params: SendCodeParams = $derived({ def, signingBy, initiatingUserName: $currentUser?.displayName || undefined });
+    const params: SendCodeParams = $derived({ def, signingBy, initiatingUserName: $user!.name });
     const o: Omit<GeneratePdfOptions<PdfToSign>, 'data'> = $derived({
         link: def.pdf, lang: 'cs',
         ...def.parameter ? { [pdfWithDefiningParameter[def.pdf as PdfWithDefiningParameter]]: def.parameter } : {},
@@ -76,7 +76,7 @@
     <Alert variant="danger">
         <AlertTitle>Tento dokument byl již podepsán!</AlertTitle>
     </Alert>
-{:else if $settings && $settings.initiatingUser.uid != $currentUser!.uid}
+{:else if $settings && $settings.initiatingUser.uid != $user!.id}
     <Alert variant="danger">
         <AlertTitle>Tento dokument již podepisuje jiný uživatel!</AlertTitle>
     </Alert>

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { LayoutData } from './$types';
-    import { currentUser } from '$lib/client/auth';
+	import { user } from '$lib/client/auth';
+    import type { LayoutData } from './$types';
     import type { Snippet } from 'svelte';
 
 	interface Props {
@@ -11,7 +11,7 @@
 	const { data, children }: Props = $props();
 </script>
 
-{#if $currentUser}
+{#if $user}
 	{@render children?.()}
 {:else}
     <p>{data.translations.auth.requiresLogIn}</p>

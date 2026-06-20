@@ -1,9 +1,8 @@
+import { getUser } from '$lib/client/auth';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import type { ContextOD, FormOD } from '$lib/forms/OD/formOD';
 import defaultOD from './defaultOD';
 import { page } from '$app/state';
-import { get } from 'svelte/store';
-import { currentUser } from '$lib/client/auth';
 import { cervenka, defaultAddresses, sendHtmlEmail, userAddress } from '$lib/client/email';
 import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
 import { dev } from '$app/environment';
@@ -15,14 +14,14 @@ const infoOD: IndependentFormInfo<ContextOD, FormOD> = {
     storeName: () => 'stored_documents_to_send',
     form: defaultOD,
     onMount: async ({ values }) => {
-        const name = userAddress(get(currentUser)!)?.name;
+        const name = userAddress((await getUser())!)?.name;
         values.all.body = !name ? `Dobrý den,\nv příloze naleznete podepsané dokumenty ze servisního zásahu.`
                 : `Dobrý den,\nv příloze naleznete podepsané dokumenty ze servisního zásahu.\nS pozdravem,\n${name}`;
         values.all.userEmail = page.url.searchParams.get('user') ?? '';
         values.all.assemblyEmail = page.url.searchParams.get('assembly') ?? '';
     },
     saveData: async ({ raw, editResult, t }) => {
-        const user = userAddress(get(currentUser)!);
+        const user = userAddress((await getUser())!);
 
         const fileIds = [...raw.all.documents, ...raw.all.photos].map(photo => photo.uuid);
 

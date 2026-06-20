@@ -1,8 +1,9 @@
-import { getAll, id, irCollection, nspCollection } from "$lib/server/db";
-import type { IRID } from "$lib/helpers/ir";
+import type { IRID } from '$lib/helpers/ir';
+import { id, irCollection, nspCollection } from '$lib/server/db';
+import type { FindCursor } from 'mongodb';
 
-export const getAllIRs = () => getAll(irCollection.find());
-export const getAllNSPs = () => getAll(nspCollection.find());
+export const getAllIRs = () => (async <T>(cursor: FindCursor<T>) => cursor.toArray())(irCollection.find());
+export const getAllNSPs = () => (async <T>(cursor: FindCursor<T>) => cursor.toArray())(nspCollection.find());
 export const restoreIR = (irid: IRID) => irCollection.updateOne(id(irid), {
     $set: {
         deleted: false,

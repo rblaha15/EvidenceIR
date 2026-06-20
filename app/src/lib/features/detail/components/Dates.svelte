@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { isUserAdmin } from '$lib/client/auth';
+    import { isAdmin } from '$lib/client/auth';
     import type { IR, NSP } from '$lib/data';
     import { datetimeFromISO } from '$lib/helpers/date';
     import { aA } from '$lib/helpers/stores';
@@ -10,7 +10,7 @@
     } = $props();
 </script>
 
-{#if $isUserAdmin && data}
+{#if $isAdmin && data}
     <div class="flex flex-col gap-1 sm:items-start">
         {#if 'createdBy' in data.meta && data.meta.createdBy && !('IN' in data && data.meta.createdBy.isFake)}
             <p class="flex gap-1">

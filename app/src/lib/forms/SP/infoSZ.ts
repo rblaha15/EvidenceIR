@@ -29,7 +29,7 @@ const infoSZ: FormInfo<ContextSZ, FormSZ> = {
         if (ir.deleted) return false
 
         if (edit) await db.updateSP(irid, raw);
-        else await db.addSPs(irid, raw);
+        else await db.addSPs(irid, [raw]);
     },
     createContext: ({ values: v, mode }) => ({ v, edit: mode == 'edit' }),
     title: (t, mode) =>

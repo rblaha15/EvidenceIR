@@ -2,7 +2,7 @@
     import type { Translations } from '$lib/translations';
     import { type ExistingIR } from '$lib/data';
     import { type IRID } from '$lib/helpers/ir';
-    import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { isAdmin, isRegulusOrAdmin } from '$lib/client/auth';
     import PDFLink from './PDFLink.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
     import { createDocumentLinks } from '$lib/features/detail/domain/documentsIR/createDocumentLinks';
@@ -21,7 +21,7 @@
     const links = $derived(
         createDocumentLinks(
             ir, t,
-            { isAdmin: $isUserAdmin, isRegulusOrAdmin: $isUserRegulusOrAdmin, allowUPT: $allowUPT },
+            { isAdmin: $isAdmin, isRegulusOrAdmin: $isRegulusOrAdmin, allowUPT: $allowUPT },
             tc => openedRefsiteModal = tc,
         )
     )

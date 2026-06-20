@@ -1,7 +1,7 @@
 <script lang="ts">
     import { relUrl, nspidUrl } from '$lib/helpers/runes.svelte.js';
     import PDFLink from '$lib/features/detail/components/documentsIR/PDFLink.svelte';
-    import { isUserAdmin } from '$lib/client/auth';
+    import { isAdmin } from '$lib/client/auth';
     import { goto } from '$app/navigation';
     import { type Translations } from '$lib/translations';
     import { extractSPIDFromRawData, spName } from '$lib/helpers/ir';
@@ -15,7 +15,7 @@
         t: Translations, sp: ExistingNSP, lang: LanguageCode,
     } = $props();
     const td = $derived(t.detail);
-    const spid = $derived(extractSPIDFromRawData(sp.NSP.zasah));
+    const nspid = $derived(extractSPIDFromRawData(sp.NSP.zasah));
 </script>
 
 <PDFLink
@@ -23,26 +23,26 @@
         variant: 'primary',
         icon: Eye,
         text: td.viewFilledData,
-        href: relUrl(`/NSP?view-nspid=${spid}`),
+        href: relUrl(`/NSP?view-nspid=${nspid}`),
     }, {
         variant: 'warning',
         icon: FilePen,
         text: td.editProtocol,
-        href: relUrl(`/NSP?edit-nspid=${spid}`),
+        href: relUrl(`/NSP?edit-nspid=${nspid}`),
     }, {
         variant: 'danger',
         icon: Trash2,
         text: td.deleteProtocol + $aA,
         onSelect: () => {
-            db.deleteNSP(spid);
+            db.deleteNSP(nspid);
             goto(nspidUrl(`/detail?deleted`), { replaceState: true });
         },
-        hide: !$isUserAdmin,
+        hide: !$isAdmin,
     }, {
         variant: 'primary',
         icon: Server,
         text: td.openInDatabase + $aA,
-        onSelect: () => { window.open(`https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fsp~2F${spid}`) },
-        hide: !$isUserAdmin,
-    }]} {lang} link="NSP" name={spName(sp.NSP.zasah)} {spid} {t}>
+        onSelect: () => { window.open(`https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fsp~2F${nspid}`) },
+        hide: !$isAdmin,
+    }]} {lang} link="NSP" name={spName(sp.NSP.zasah)} {nspid} {t}>
 </PDFLink>

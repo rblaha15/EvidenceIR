@@ -1,7 +1,6 @@
 import type { FormInfo } from '$lib/forms/FormInfo';
 import defaultUPT from '$lib/forms/UPT/defaultUPT';
-import { currentUser } from '$lib/client/auth';
-import { get } from 'svelte/store';
+import { getUser } from '$lib/client/auth';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
@@ -27,14 +26,14 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
 
         await grantPoints({ type: 'heatPumpCommission', irid });
 
-        const user = get(currentUser)!;
+        const user = (await getUser())!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit
                 ? `Změněno uvedení TČ do provozu k ${irName(ir.IN.ir)}`
                 : `Vyplněno nové uvedení TČ do provozu k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
+            props: { name: user.email, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
         });
 
         if (response!.ok) return;

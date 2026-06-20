@@ -154,13 +154,20 @@ const de: PlainTranslations = {
         fillInPassword: `Bitte geben Sie das Passwort ein.`,
         newPassword: `Neues Passwort`,
         sendConfirmEmail: `Bestätigungs-E-Mail senden`,
-        passwordReset: `Passwort zurücksetzen`,
+        signUpEmailSubject: `Registrierung bei Regulus SEIR`,
+        signUpEmailHtml: t`<p>Guten Tag,</p>
+<p>über diesen Link können Sie die Registrierung für Ihr Konto ${'email'} bei Regulus SEIR abzuschließen.:</p>
+<p><a href="${'link'}">${'link'}</a></p>
+<p>Wenn Sie nicht angemeldet haben, können Sie diese E-Mail ignorieren.</p>
+<p>Mit freundlichen Grüßen,</p>
+<p>Regulus SEIR-Team</p>`,
+        passwordReset: `Passwort zurücksetzen bei Regulus SEIR`,
         passwordResetEmailHtml: t`<p>Guten Tag,</p>
-<p>über diesen Link können Sie das Passwort für Ihr Konto in der Anwendung Regler IR zurücksetzen: ${'email'}:</p>
+<p>über diesen Link können Sie das Passwort für Ihr Konto ${'email'} bei Regulus SEIR zurücksetzen:</p>
 <p><a href="${`link`}">${`link`}</a></p>
 <p>Wenn Sie nicht um eine Passwortzurücksetzung gebeten haben, können Sie diese E-Mail ignorieren.</p>
-<p>Mit freundlichen Grüßen</p>
-<p>Reglerverwaltung IR</p>`,
+<p>Mit freundlichen Grüßen,</p>
+<p>Regulus SEIR-Team</p>`,
         passwordEdited: `Passwort geändert, bitte melden Sie sich an`,
         registered: `Registrierung erfolgreich, bitte melden Sie sich an`,
         passwordHasBeenReset: `Passwort zurückgesetzt, bitte melden Sie sich an`,

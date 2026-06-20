@@ -1,97 +1,57 @@
-import {
-    confirmPasswordReset,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    signOut,
-    updateProfile,
-    type User,
-    verifyPasswordResetCode
-} from 'firebase/auth';
-import { derived, readonly, writable } from 'svelte/store';
-import { auth } from '../../hooks.client';
+import type { auth } from '$lib/server/auth';
+import { adminClient, inferAdditionalFields } from 'better-auth/client/plugins';
+import { createAuthClient } from 'better-auth/svelte';
+import { derived } from 'svelte/store';
 
-const _currentUser = writable(null as User | null);
-onAuthStateChanged(auth, (usr) => _currentUser.set(usr));
-export const currentUser = readonly(_currentUser)
+export const authClient = createAuthClient({
+    plugins: [
+        inferAdditionalFields<typeof auth>(),
+        adminClient(),
+    ],
+});
 
-export const logOut = () => signOut(auth)
+export type User = typeof authClient['$Infer']['Session']['user'];
+export type Session = typeof authClient['$Infer']['Session']['session'];
 
-export const checkAuth = async () => {
-    await auth.authStateReady()
-    return auth.currentUser != null
-}
+export const sessionData = derived(authClient.useSession(), $session => $session.data);
+export const user = derived(sessionData, $data => $data?.user);
+export const session = derived(sessionData, $data => $data?.session);
 
-export const getCurrentUser = async () => {
-    await auth.authStateReady()
-    return auth.currentUser
-}
+export const getSessionData = () => authClient.getSession().then(session => session.data);
+export const getUser = (): Promise<User | undefined> => getSessionData().then(data => data?.user);
+export const getSession = (): Promise<Session | undefined> => getSessionData().then(data => data?.session);
 
-export const getToken = async () => {
-    await auth.authStateReady()
-    return auth.currentUser!.getIdToken()
-}
+type Check1 = (user: User | undefined) => user is User;
+type Check2 = (user: User | undefined) => boolean;
+export const checkedIsLoggedIn: Check1 = user => user != undefined;
+export const checkIsAdmin: Check2 = user => checkedIsLoggedIn(user) && user.role == 'admin';
+export const checkIsRegulus: Check2 = user => checkedIsLoggedIn(user) && user.email.endsWith('@regulus.cz');
+export const checkIsSlovakRegulus: Check2 = user => checkedIsLoggedIn(user) && user.email.endsWith('@regulus.sk');
+export const checkIsRegulusOrAdmin: Check2 = user => checkIsRegulus(user) || checkIsAdmin(user);
+export const checkIsAnyRegulusOrAdmin: Check2 = user => checkIsSlovakRegulus(user) || checkIsRegulus(user) || checkIsAdmin(user);
 
-const _checkAdmin = async (user: User) =>
-    /*getIsOnline() ? */!!(await user.getIdTokenResult()).claims.admin/* : false*/;
+export const getIsLoggedIn = () => getUser().then(checkedIsLoggedIn);
+export const getIsAdmin = () => getUser().then(checkIsAdmin);
+export const getIsRegulusOrAdmin = () => getUser().then(checkIsRegulusOrAdmin);
+export const getIsAnyRegulusOrAdmin = () => getUser().then(checkIsAnyRegulusOrAdmin);
 
-export const checkAdmin = async () => {
-    await auth.authStateReady()
-    return await checkAuth() && _checkAdmin(auth.currentUser!)
-}
+export const isLoggedIn = derived(user, checkedIsLoggedIn);
+export const isAdmin = derived(user, checkIsAdmin);
+export const isRegulusOrAdmin = derived(user, checkIsRegulusOrAdmin);
+export const isAnyRegulusOrAdmin = derived(user, checkIsAnyRegulusOrAdmin);
 
-const _checkRegulus = (user: User) =>
-    user.email?.endsWith('@regulus.cz');
-
-export const checkRegulusOrAdmin = async () => {
-    await auth.authStateReady()
-    return await checkAuth() && (_checkRegulus(auth.currentUser!) || await _checkAdmin(auth.currentUser!))
-}
-
-const _checkSlovakRegulus = (user: User) =>
-    user.email?.endsWith('@regulus.sk');
-
-export const checkAnyRegulusOrAdmin = async () => {
-    await auth.authStateReady()
-    return await checkAuth() && (_checkSlovakRegulus(auth.currentUser!) || _checkRegulus(auth.currentUser!) || await _checkAdmin(auth.currentUser!))
-}
-
-export const isUserAdmin = derived(
-    currentUser,
-    (user, set) => {
-        (async () => set(user != null ? await _checkAdmin(user) : false))();
-    },
-    false
-);
-
-export const isUserRegulusOrAdmin = derived(
-    currentUser,
-    (user, set) => {
-        (async () => set(user != null ? (_checkRegulus(user) || await checkAdmin()) : false))();
-    },
-    false
-);
-
-export const isUserAnyRegulusOrAdmin = derived(
-    currentUser,
-    (user, set) => {
-        (async () => set(user != null ? (_checkSlovakRegulus(user) || _checkRegulus(user) || await checkAdmin()) : false))();
-    },
-    false
-);
-
-export const userInfo = derived(
-    [currentUser, isUserAdmin, isUserRegulusOrAdmin],
-    ([currentUser, isUserAdmin, isUserRegulusOrAdmin]) =>
-        ({ ...currentUser, isUserAdmin, isUserRegulusOrAdmin })
-);
-
-export const setName = (name: string | null | undefined) => updateProfile(auth.currentUser!, { displayName: name });
-export const logIn = (email: string, password: string) => signInWithEmailAndPassword(auth, email, password)
-
-export const verifyCode = (oobCode: string) => new Promise<string | null>(resolve => {
-    verifyPasswordResetCode(auth, oobCode)
-        .then(e => resolve(e))
-        .catch(() => resolve(null))
-})
-
-export const changePassword = (oobCode: string, newPassword: string) => confirmPasswordReset(auth, oobCode, newPassword)
+export const signOut = async () => {
+    await authClient.signOut().thenAlso(console.log).catchAlso(console.log);
+};
+export const signIn = async (email: string, password: string) => {
+    const result = await authClient.signIn.email({ email, password });
+    if (result.data) return 'success';
+    console.log(result.error.code);
+    return result.error.code! as 'INVALID_EMAIL_OR_PASSWORD';
+};
+export const changePassword = async (token: string, password: string) => {
+    const result = await authClient.resetPassword({ token, newPassword: password });
+    if (result.data) return 'success';
+    console.log(result.error.code);
+    return result.error.code! as 'PASSWORD_TOO_SHORT' | 'INVALID_TOKEN';
+};

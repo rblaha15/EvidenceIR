@@ -1,6 +1,6 @@
 import { page } from '$app/state';
 import { type IR, type Year } from '$lib/data';
-import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
+import { getIsRegulusOrAdmin, getUser, isRegulusOrAdmin } from '$lib/client/auth';
 import { derived, get } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
@@ -102,9 +102,9 @@ const infoRKT: FormInfo<ContextRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: 
 
         await grantPoints({ type: 'heatPumpYearlyCheck', irid, pump, year });
 
-        if (await checkRegulusOrAdmin()) return;
+        if (await getIsRegulusOrAdmin()) return;
 
-        const user = get(currentUser)!;
+        const user = (await getUser())!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit
@@ -122,7 +122,7 @@ const infoRKT: FormInfo<ContextRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: 
         });
         return false;
     },
-    buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
+    buttons: edit => derived(isRegulusOrAdmin, regulus => ({
         hideSave: !regulus,
         saveAndSend: !edit && !regulus,
         saveAndSendAgain: edit && !regulus,

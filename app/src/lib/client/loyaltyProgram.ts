@@ -1,5 +1,5 @@
+import updateDataEndpoints from '$lib/client/updateDataEndpoints';
 import type { IRID } from '$lib/helpers/ir';
-import { getToken } from '$lib/client/auth';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { getIsOnline } from '$lib/client/realtimeOnline';
 import { addLoyaltyProgramTriggerToHistory } from '$lib/client/history.svelte';
@@ -53,14 +53,8 @@ export const grantPoints = async <T extends LoyaltyPointTriggerType>(data: Loyal
     addLoyaltyProgramTriggerToHistory(data, isOnline);
 }
 
-export const grantPointsOnline = async <T extends LoyaltyPointTriggerType>(data: LoyaltyProgramTrigger<T>) =>
-    await fetch(`/api/update-data?type=loyaltyPoints&token=${await getToken()}`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-            'content-type': 'application/json',
-        },
-    })
+export const grantPointsOnline = <T extends LoyaltyPointTriggerType>(data: LoyaltyProgramTrigger<T>) =>
+    updateDataEndpoints('loyaltyPoints', { data });
 
 export type StandardLoyaltyProgramPointsTransaction = {
     addition: Points;

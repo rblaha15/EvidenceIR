@@ -2,7 +2,7 @@
     import type { DeletedIR } from '$lib/data';
     import type { Translations } from '$lib/translations';
     import { detailUrlIR, relUrl } from '$lib/helpers/runes.svelte';
-    import { isUserAdmin } from '$lib/client/auth';
+    import { isAdmin } from '$lib/client/auth';
     import { iaA } from '$lib/helpers/stores';
     import { restoreIR } from '$lib/features/detail/actions/restore';
     import Dates from '$lib/features/detail/components/Dates.svelte';
@@ -25,7 +25,7 @@
     {/if}
 </div>
 
-{#if $isUserAdmin}
+{#if $isAdmin}
     <div class="flex flex-col items-end gap-1">
         <Button variant="secondary" href={relUrl(`/IN?view-irid=${ir.meta.id}`)}>
             <Eye /> {td.viewFilledData}

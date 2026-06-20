@@ -11,12 +11,12 @@
                 header: string;
             };
         };
+        sendData: (data: Record<K, string[]>) => Promise<Response>;
     }
 
 </script>
 
 <script generics="K extends string" lang="ts">
-    import { getToken } from '$lib/client/auth';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { page } from '$app/state';
     import readXlsxFile from 'read-excel-file';
@@ -31,7 +31,7 @@
     import { Button } from "$lib/components/ui/button";
 
     const { id, options }: { id: string, options: ArraysOptions<K> } = $props();
-    const { fileName, instructions, arrays } = options;
+    const { fileName, instructions, arrays, sendData } = options;
 
     const initialValue = arrays.mapValues(() => []);
     type Data = {
@@ -75,13 +75,7 @@
     const confirm = async () => {
         loading = true;
 
-        const token = await getToken();
-        const response = await fetch(`/api/update-data?type=${id}&token=${token}`, {
-            method: 'POST',
-            body: JSON.stringify({
-                arrays: newData,
-            }),
-        });
+        const response = await sendData(newData);
 
         loading = false;
 

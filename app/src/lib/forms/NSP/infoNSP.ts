@@ -1,11 +1,10 @@
+import { getUser, user, type User } from '$lib/client/auth';
 import {
     startSparePartsListening,
     startTechniciansListening,
     type Technician,
     techniciansList,
 } from '$lib/client/realtime';
-import type { User } from 'firebase/auth';
-import { currentUser } from '$lib/client/auth';
 import { detailUrlNSP } from '$lib/helpers/runes.svelte.js';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
@@ -16,16 +15,15 @@ import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
 import db from '$lib/client/db';
 import { newNSP } from '$lib/data';
-import { get } from 'svelte/store';
 
-const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[], User | null]], 'NSP'> = {
+const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[], User | undefined]], 'NSP'> = {
     type: '',
     storeName: () => 'stored_new_SP',
     form: defaultNSP,
     saveData: async ({ raw, edit, editResult, t, send }) => {
         const nspid = extractSPIDFromRawData(raw.zasah);
 
-        const user = get(currentUser)!;
+        const user = (await getUser())!;
 
         if (edit) await db.updateNSP(nspid, raw);
         else await db.addNSP(newNSP(raw, user));
@@ -78,7 +76,7 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[], User | n
             if (!values.zasah.clovek) values.zasah.clovek = ja?.name ?? values.zasah.clovek;
             if (!values.zasah.inicialy) values.zasah.inicialy = ja?.initials ?? values.zasah.inicialy;
             values.zasah.showNameFileds = values.zasah.clovek != ja?.name;
-        }, [techniciansList, currentUser]],
+        }, [techniciansList, user]],
     ],
     pdfImport: {
         onImport: () => {},

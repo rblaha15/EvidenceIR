@@ -1,5 +1,8 @@
-import { redirect, type Handle } from "@sveltejs/kit"
+import { type Handle, redirect } from "@sveltejs/kit"
 import { sequence } from '@sveltejs/kit/hooks';
+import { auth } from "$lib/server/auth";
+import { svelteKitHandler } from "better-auth/svelte-kit";
+import { building } from '$app/environment'
 
 export const redirectOldDetailUrls: Handle = ({ event, resolve }) => {
     const url = event.url
@@ -14,4 +17,17 @@ export const redirectOldDetailUrls: Handle = ({ event, resolve }) => {
     redirect(301, url.pathname + url.search + url.hash)
 }
 
-export const handle = sequence(redirectOldDetailUrls);
+export const handleAuth: Handle = async ({ event, resolve }) => {
+    // Fetch current session from Better Auth
+    const session = await auth.api.getSession({
+        headers: event.request.headers,
+    });
+
+    // Make session and user available on server
+    event.locals.session = session?.session;
+    event.locals.user = session?.user;
+
+    return await svelteKitHandler({ event, resolve, auth, building });
+}
+
+export const handle = sequence(redirectOldDetailUrls, handleAuth);

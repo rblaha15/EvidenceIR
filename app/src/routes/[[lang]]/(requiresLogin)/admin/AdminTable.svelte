@@ -23,13 +23,13 @@
                 getValue: (value: T) => string;
             });
         };
+        sendData: (data: T[]) => Promise<Response>;
     }
 
     export type TableColor = 'warning' | 'success' | 'danger' | 'tertiary';
 </script>
 
 <script generics="T extends Record<string, unknown>" lang="ts">
-    import { getToken } from '$lib/client/auth';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { page } from '$app/state';
     import readXlsxFile from 'read-excel-file';
@@ -43,7 +43,7 @@
     import { untrack } from 'svelte';
 
     const { id, options }: { id: string; options: TableOptions<T> } = $props();
-    const { fileType, construct, deconstruct, store, fileName, key, instructions, columns } = options;
+    const { fileType, construct, deconstruct, store, fileName, key, instructions, columns, sendData } = options;
 
     let input = $state() as HTMLInputElement;
     let file = $state<File>();
@@ -107,13 +107,7 @@
     const confirm = async () => {
         loading = true;
 
-        const token = await getToken();
-        const response = await fetch(`/api/update-data?type=${id}&token=${token}`, {
-            method: 'POST',
-            body: JSON.stringify({
-                array: newData,
-            }),
-        });
+        const response = await sendData(newData);
 
         loading = false;
 

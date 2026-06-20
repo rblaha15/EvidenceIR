@@ -6,7 +6,7 @@ import type { DocumentDefinition } from '$lib/features/signing/domain/sms';
 import type { CodeAttempt, DocumentSigningInfo, SentMessage, SigningResult } from "$lib/server/signing";
 
 export const setSignature = async (
-    type: 'IR' | 'SP',
+    type: 'IR' | 'NSP',
     docId: IRID | NSPID,
     pdf: PdfToSign,
     parameter: PdfDefiningParameter | undefined,

@@ -1,9 +1,8 @@
-import { currentUser, getToken } from './auth';
+import { user as userStore, type User } from '$lib/client/auth';
 import { htmlToText } from 'html-to-text';
 import { type Component, mount } from 'svelte';
 import { dev } from '$app/environment';
 import { get } from 'svelte/store';
-import type { User } from 'firebase/auth';
 import { upload } from "@vercel/blob/client";
 import { getIsOnline } from '$lib/client/realtimeOnline';
 import { addEmailToHistory } from '$lib/client/history.svelte';
@@ -97,8 +96,7 @@ export const sendEmailAndUploadAttachments = async (options: EmailOptions) => {
         }).awaitAll(),
     };
 
-    const token = await getToken();
-    return await fetch(`/api/sendEmail?token=${token}`, {
+    return await fetch(`/api/sendEmail`, {
         method: 'POST',
         body: JSON.stringify(message),
         headers: {
@@ -120,12 +118,12 @@ export const SENDER = (name?: string): Address => ({
 });
 
 export const userAddress = (user: User) => ({
-    address: user.email!,
-    name: user.displayName ?? '',
+    address: user.email,
+    name: user.name,
 }) satisfies AddressLike;
 
 export const defaultAddresses = (recipient: AddressLike = receiver, sendCopy: boolean = false, name?: string) => {
-    const user = userAddress(get(currentUser)!);
+    const user = userAddress(get(userStore)!);
     return ({
         from: SENDER(name),
         replyTo: user,

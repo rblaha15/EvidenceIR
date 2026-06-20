@@ -3,7 +3,7 @@
     import Search from '$lib/components/widgets/Search.svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { detailUrlIR, detailUrlNSP } from '$lib/helpers/runes.svelte';
-    import { isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { isRegulusOrAdmin } from '$lib/client/auth';
     import type { PageProps } from './$types';
     import { isOnline } from '$lib/client/realtimeOnline';
     import { resetStores } from '$lib/client/incrementalUpdates';
@@ -63,7 +63,7 @@
     });
     let v = $state(w.defaultValue);
 
-    onMount(() => setTitle($isUserRegulusOrAdmin ? t.search.titleControllersAndProtocols : t.search.titleControllers))
+    onMount(() => setTitle($isRegulusOrAdmin ? t.search.titleControllersAndProtocols : t.search.titleControllers))
 
     const clear = () => {
         logEvent(analytics(), 'clearSearchCaches');

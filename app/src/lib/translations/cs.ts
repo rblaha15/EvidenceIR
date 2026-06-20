@@ -109,13 +109,20 @@ export default {
         sending: 'Odesílání',
         newPassword: `Nové heslo`,
         sendConfirmEmail: `Odeslat potvrzovací email`,
-        passwordReset: `Obnovení hesla`,
-        passwordResetEmailHtml: t`<p>Dobrý den,</p>
-<p>pomocí tohoto odkazu můžete obnovit heslo pro aplikaci Evidence IR pro váš účet ${'email'}:</p>
+        signUpEmailSubject: `Registrace do aplikace Regulus SEIR`,
+        signUpEmailHtml: t`<p>Dobrý den,</p>
+<p>pomocí tohoto odkazu můžete dokončit registraci do aplikace Regulus SEIR pro účet ${'email'}:</p>
 <p><a href="${'link'}">${'link'}</a></p>
-<p>Pokud jste o obnovení hesla nepožádali, můžete tento e-mail ignorovat.</p>
-<p>S pozdravem</p>
-<p>Evidence IR</p>`,
+<p>Pokud jste o registraci nepožádali, můžete tento e-mail ignorovat.</p>
+<p>S pozdravem,</p>
+<p>tým Regulus SEIR</p>`,
+        passwordReset: `Obnovení hesla v aplikaci Regulus SEIR`,
+        passwordResetEmailHtml: t`<p>Dobrý den,</p>
+<p>pomocí tohoto odkazu můžete obnovit heslo pro aplikaci Regulus SEIR pro účet ${'email'}:</p>
+<p><a href="${'link'}">${'link'}</a></p>
+<p>Pokud jste o obnovení hesla nepožádali, můžete tento e-mail ignorovat.</p>
+<p>S pozdravem,</p>
+<p>tým Regulus SEIR</p>`,
         email: `Email`,
         back: `Zpět`,
         save: `Uložit`,

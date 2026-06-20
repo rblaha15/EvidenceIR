@@ -1,6 +1,6 @@
 <script lang="ts">
     import ic_r from '$lib/assets/ic_r.png';
-    import { currentUser } from '$lib/client/auth';
+    import { isLoggedIn } from '$lib/client/auth';
     import type { Translations } from '$lib/translations';
     import NavItems from './NavItems.svelte';
     import UserDropdown from '$lib/components/nav/UserDropdown.svelte';
@@ -17,7 +17,6 @@
     const { t }: { t: Translations } = $props();
     const tn = $derived(t.nav);
 
-    const isLoggedIn = $derived($currentUser != null);
     const showSecrets = $derived(!$hideNav);
 </script>
 
@@ -43,7 +42,7 @@
     lg:[grid-template-areas:'logo_items_buttons']
 ">
     <div class="flex items-center gap-2 [grid-area:logo]">
-        {#if isLoggedIn && showSecrets}
+        {#if $isLoggedIn && showSecrets}
             <NavSheet {t} {header} />
         {/if}
         {@render header()}
@@ -51,13 +50,13 @@
             <WifiOff />
         {/if}
     </div>
-    {#if isLoggedIn && showSecrets}
+    {#if $isLoggedIn && showSecrets}
         <ul class="hidden md:flex items-center gap-1 [grid-area:items]">
             <NavItems {t} />
         </ul>
     {/if}
     <div class="flex items-center gap-2 [grid-area:buttons]">
-        {#if isLoggedIn && showSecrets}
+        {#if $isLoggedIn && showSecrets}
             <HistoryModal {t} />
             <Button size="icon" variant="ghost" href={relUrl('/help')}>
                 <CircleQuestionMark class="size-8" />
@@ -65,10 +64,10 @@
             </Button>
         {/if}
         <SettingsModal {t} />
-        {#if isLoggedIn && showSecrets}
+        {#if $isLoggedIn && showSecrets}
             <UserDropdown {t} />
         {/if}
-        {#if !isLoggedIn && showSecrets}
+        {#if !$isLoggedIn && showSecrets}
             <LoggedOutButtons {t} />
         {/if}
     </div>

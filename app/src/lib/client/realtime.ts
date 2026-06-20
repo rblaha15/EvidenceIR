@@ -1,11 +1,10 @@
-import { derived, get as getFromStore, readable, type Readable, writable } from 'svelte/store';
-import { checkRegulusOrAdmin, currentUser } from '$lib/client/auth';
-import type { User } from 'firebase/auth';
-import { type Query, ref } from 'firebase/database';
-import { flattenStores, storable } from '$lib/helpers/stores';
-import { realtime } from '../../hooks.client';
+import { user, getIsRegulusOrAdmin, type User } from '$lib/client/auth';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 import { getIsOnline, isOnline } from '$lib/client/realtimeOnline';
+import { flattenStores, storable } from '$lib/helpers/stores';
+import { type Query, ref } from 'firebase/database';
+import { derived, get as getFromStore, readable, type Readable, writable } from 'svelte/store';
+import { realtime } from '../../hooks.client';
 
 type SelfObject<T extends PropertyKey> = { [key in T]: key };
 type CRN = string;
@@ -69,11 +68,11 @@ const _friendlyCompanies = async (user: User | null): Promise<FriendlyCompanies>
         return FriendlyCompanies([]);
     }
     const { child } = await import('firebase/database');
-    if (await checkRegulusOrAdmin()) {
+    if (await getIsRegulusOrAdmin()) {
         const vsechnyFirmy = await getWithCache<{ [crn: CRN]: Company }>(companiesRef);
         return FriendlyCompanies(vsechnyFirmy?.getValues() ?? []);
     }
-    const ja = await getWithCache<Person>(child(usersRef, user.uid));
+    const ja = await getWithCache<Person>(child(usersRef, user.id));
     if (!ja || ja.email !== user.email) {
         return FriendlyCompanies([]);
     }
@@ -94,7 +93,7 @@ const _friendlyCompanies = async (user: User | null): Promise<FriendlyCompanies>
 };
 
 export const friendlyCompanies = derived(
-    currentUser,
+    user,
     (user, set) => {
         setTimeout(async () => {
             set(user ? await _friendlyCompanies(user) : FriendlyCompanies([]));
@@ -106,12 +105,12 @@ export const friendlyCompanies = derived(
 const _responsiblePerson = async (user: User | null) => {
     if (!user) return null;
     const { child } = await import('firebase/database');
-    const ja = await getWithCache<Person>(child(usersRef, user.uid));
+    const ja = await getWithCache<Person>(child(usersRef, user.id));
     return ja?.responsiblePerson ?? null;
 };
 
 export const responsiblePerson = derived(
-    currentUser,
+    user,
     (user, set) => {
         setTimeout(async () => {
             set(user ? await _responsiblePerson(user) : null);
@@ -123,12 +122,12 @@ export const responsiblePerson = derived(
 const _allowUPT = async (user: User | null) => {
     if (!user) return false;
     const { child } = await import('firebase/database');
-    const ja = await getWithCache<Person>(child(usersRef, user.uid));
+    const ja = await getWithCache<Person>(child(usersRef, user.id));
     return ja?.allowUPT ?? false;
 };
 
 export const allowUPT = derived(
-    currentUser,
+    user,
     (user, set) => {
         setTimeout(async () => {
             set(user ? await _allowUPT(user) : false);
@@ -232,10 +231,10 @@ export const startBatteriesListening = async () => {
 const pointsStores: Record<string, Readable<LoyaltyProgramUserData | null>> = {};
 
 const loyaltyProgramRef = ref(realtime, '/loyaltyProgram');
-export const loyaltyProgramDataStore = flattenStores(derived<Readable<User | null>, Readable<LoyaltyProgramUserData | null>>(
-    currentUser, (user, set) => {
+export const loyaltyProgramDataStore = flattenStores(derived<Readable<User | undefined>, Readable<LoyaltyProgramUserData | null>>(
+    user, (user, set) => {
         if (!user) return set(readable(null));
-        const uid = user.uid;
+        const uid = user.id;
         if (!uid) return set(readable(null));
         return isOnline.subscribe(async online => {
             if (!online) return set(readable(null));

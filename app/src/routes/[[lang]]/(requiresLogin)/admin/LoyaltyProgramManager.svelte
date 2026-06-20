@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { getToken } from '$lib/client/auth';
     import { adminDescriptions, type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
     import { detailUrlIR } from '$lib/helpers/runes.svelte';
     import { datetimeFromISO, nowISO } from '$lib/helpers/date';
@@ -64,8 +63,7 @@
 
     const search = async () => {
         status = 'loading';
-        const token = await getToken();
-        const response = await fetch(`/api/loyalty-program?token=${token}`);
+        const response = await fetch(`/api/loyalty-program`);
         if (!response.ok) return status = 'fail';
         status = 'success';
         $results = { date: new Date().toISOString(), data: await response.json() };
@@ -74,8 +72,7 @@
         showAllErrors = true;
         if (dateW.isError({}, date) || pointsW.isError({}, points) || userW.isError({}, user)) return statusA = 'mistake';
         statusA = 'loading';
-        const token = await getToken();
-        const response = await fetch(`/api/loyalty-program?token=${token}`, {
+        const response = await fetch(`/api/loyalty-program`, {
             method: 'POST',
             body: JSON.stringify({
                 userEmail: user!.email,

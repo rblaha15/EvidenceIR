@@ -7,7 +7,6 @@ import { cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
-import { currentUser } from '$lib/client/auth';
 import MailDK from '$lib/emails/MailDK.svelte';
 import db from '$lib/client/db';
 import {
@@ -26,6 +25,7 @@ import {
 } from '$lib/forms/Widget';
 import { isNewWarranties } from '$lib/helpers/prices';
 import { dayISO } from '$lib/helpers/date';
+import { getUser } from '$lib/client/auth';
 
 export type ContextDK<D extends ContextDK<D>> = {
     IN: Raw<FormIN>,
@@ -109,14 +109,14 @@ export const saveDK = async <D extends ContextDK<D>>(ir: IR, values: Values<Form
     };
     const company = companyType ? companyType == 'regulus' ? 'Firma Regulus' : await getCompany() : null;
     const name = irWholeName(ir.IN);
-    const user = get(currentUser)!;
+    const user = (await getUser())!;
     const response = await sendEmail({
         ...defaultAddresses(cervenka),
         subject: enabled
             ? `Zapnuto upozorňování na RK ${type} u ${irName(ir.IN.ir)}`
             : `Zrušeno upozorňování na RK ${type} u ${irName(ir.IN.ir)}`,
         component: MailDK,
-        props: { name: user.email!, url: page.url.origin + detailUrlIR(ir.meta.id), company, irWholeName: name },
+        props: { name: user.email, url: page.url.origin + detailUrlIR(ir.meta.id), company, irWholeName: name },
     });
     console.log(response);
 

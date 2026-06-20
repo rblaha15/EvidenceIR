@@ -1,3 +1,4 @@
+import { getIsLoggedIn, getIsRegulusOrAdmin } from '$lib/client/auth';
 import { extractIDs } from '$lib/helpers/paths';
 import {
     type Pdf,
@@ -9,7 +10,6 @@ import {
     pdfWithDefiningParameter,
 } from '$lib/pdf/pdf';
 import { error } from '@sveltejs/kit';
-import { checkRegulusOrAdmin, getCurrentUser } from '$lib/client/auth';
 import type { ExistingIR, ExistingNSP, SignatureState } from '$lib/data';
 import type { DocumentDefinition } from '$lib/features/signing/domain/sms';
 import { waitUntil } from '$lib/helpers/stores';
@@ -23,8 +23,7 @@ export const loadSigning = async (
 ) => {
     if (!(pdfName in pdfInfo)) error(404);
 
-    const user = await getCurrentUser();
-    if (!user) error(401);
+    if (!await getIsLoggedIn()) error(401);
 
     if (!pdfToSign.includes(pdfName)) error(400, { message: 'This document may not be signed' });
 
@@ -37,7 +36,7 @@ export const loadSigning = async (
 
     const pdf = pdfInfo[pdfName] as PdfArgs<Pdf>;
 
-    if (pdf.requiredRegulus && !await checkRegulusOrAdmin()) error(403);
+    if (pdf.requiredRegulus && !await getIsRegulusOrAdmin()) error(403);
 
     const id = extractIDs(url);
     const stores = getDataAsStore(id);

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { isUserAdmin, isUserRegulusOrAdmin } from '$lib/client/auth';
+    import { isAdmin, isRegulusOrAdmin } from '$lib/client/auth';
     import { endUserEmails, type IRID } from '$lib/helpers/ir';
     import { detailUrlIR, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
     import { type Translations } from '$lib/translations';
@@ -33,7 +33,7 @@
     <Button href={relUrl(`/IN?view-irid=${irid}`)}>
         <Eye /> {td.viewFilledData}
     </Button>
-    {#if $isUserAdmin}
+    {#if $isAdmin}
         <Button variant="secondary"
                 href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fir~2F{irid}"
                 target="_blank">
@@ -42,7 +42,7 @@
     {/if}
 </div>
 <div class="flex flex-col gap-1 sm:items-start">
-    {#if $isUserRegulusOrAdmin}
+    {#if $isRegulusOrAdmin}
         <Button variant="tertiary" href={iridUrl('/users')}>
             <Users /> {td.usersWithAccess}{$aR}
         </Button>
@@ -54,7 +54,7 @@
     {/if}
     <DeleteIR {irid} {td} />
 
-    {#if $isUserRegulusOrAdmin && !ir.isDraft}
+    {#if $isRegulusOrAdmin && !ir.isDraft}
         <Button variant="secondary" onclick={downloadXML(ir)}>
             <Download /> {td.downloadXML}{$aR}
         </Button>

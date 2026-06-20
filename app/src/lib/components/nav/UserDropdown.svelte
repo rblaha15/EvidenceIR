@@ -1,7 +1,7 @@
 <script lang="ts">
     import authentication from '$lib/client/authentication.js';
     import { page } from '$app/state';
-    import { currentUser, isUserAdmin, isUserAnyRegulusOrAdmin, logOut } from '$lib/client/auth.js';
+    import { user, isAdmin, isAnyRegulusOrAdmin, signOut } from '$lib/client/auth.js';
     import { loyaltyProgramDataStore, responsiblePerson } from '$lib/client/realtime';
     import type { Translations } from '$lib/translations';
     import { goto } from '$app/navigation';
@@ -25,11 +25,11 @@
     const { t }: { t: Translations } = $props();
     const ta = $derived(t.auth);
 
-    const loggedInEmail = $derived($currentUser?.email ?? '');
+    const userEmail = $derived($user?.email ?? '');
 
     const changePassword = async () => {
         const { link } = await authentication('getPasswordResetLink', {
-            email: loggedInEmail,
+            email: userEmail,
             lang: page.data.languageCode,
             redirect: page.url.pathname.slice(page.data.languageCode.length + 1) + page.url.search,
             mode: 'edit',
@@ -45,18 +45,18 @@
     </DropdownMenuTrigger>
     <DropdownMenuContent align="start">
         <DropdownMenuGroup aria-label="User info">
-            {#if $currentUser?.displayName}
-                <DropdownMenuLabel>{$currentUser?.displayName}</DropdownMenuLabel>
+            {#if $user?.name}
+                <DropdownMenuLabel>{$user?.name}</DropdownMenuLabel>
             {/if}
-            <DropdownMenuLabel>{ta.email}: {loggedInEmail}</DropdownMenuLabel>
+            <DropdownMenuLabel>{ta.email}: {userEmail}</DropdownMenuLabel>
             {#if $responsiblePerson}
                 <DropdownMenuLabel>{ta.responsiblePerson}: {$responsiblePerson}</DropdownMenuLabel>
             {/if}
-            {#if $currentUser?.uid && $isUserAdmin}
-                <DropdownMenuLabel>UID:{$aA}<br />{$currentUser?.uid}</DropdownMenuLabel>
+            {#if $user?.id && $isAdmin}
+                <DropdownMenuLabel>UID:{$aA}<br />{$user?.id}</DropdownMenuLabel>
             {/if}
         </DropdownMenuGroup>
-        {#if !$isUserAnyRegulusOrAdmin && $loyaltyProgramDataStore}
+        {#if !$isAnyRegulusOrAdmin && $loyaltyProgramDataStore}
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
                 <DropdownMenuGroupHeading>{ta.loyaltyProgram}</DropdownMenuGroupHeading>
@@ -76,14 +76,14 @@
                 {ta.changePassword}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => {
-                logEvent(analytics(), 'logout', { email: loggedInEmail });
-                logOut();
+                logEvent(analytics(), 'logout', { email: userEmail });
+                signOut();
             }} variant="danger">
                 <LogOut />
                 {ta.toLogOut}
             </DropdownMenuItem>
         </DropdownMenuGroup>
-        {#if $isUserAdmin}
+        {#if $isAdmin}
             <DropdownMenuSeparator />
             <DropdownMenuGroup aria-label="User login actions">
                 <DropdownMenuItem onSelect={() => goto(relUrl('/admin'))} variant="tertiary">

@@ -1,53 +1,53 @@
-import { type CreateRequest, type DecodedIdToken, getAuth, type UpdateRequest } from 'firebase-admin/auth';
-import { app } from './firebase';
-import '$lib/extensions';
+import { checkedIsLoggedIn, checkIsAdmin, checkIsAnyRegulusOrAdmin, checkIsRegulusOrAdmin } from '$lib/client/auth';
+import { db } from '$lib/server/db';
+import { enableUser } from '$lib/server/db/admin/auth';
+import { mongodbAdapter } from 'better-auth/adapters/mongodb';
+import { betterAuth } from 'better-auth/minimal';
+import { admin, oneTimeToken } from 'better-auth/plugins';
+import { writable } from 'svelte/store';
 
-import type { LanguageCode } from '$lib/languageCodes';
+const tokens = writable(new Map<string, string>());
 
-const auth = getAuth(app);
-
-export const checkToken = (token: string | undefined | null) =>
-    new Promise<DecodedIdToken | null>((resolve) => {
-        if (!token) resolve(null);
-        else auth.verifyIdToken(token, true)
-            .then(resolve)
-            .catch((e) => {
-                console.log(e);
-                resolve(null);
+export const auth = betterAuth({
+    database: mongodbAdapter(db),
+    emailAndPassword: {
+        enabled: true,
+        disableSignUp: true,
+        revokeSessionsOnPasswordReset: true,
+        sendResetPassword: async ({ user, url, token }, request) => {
+            console.log({ user, url, token, request });
+            tokens.update($tokens => {
+                $tokens.set(user.email, token);
+                return $tokens;
             });
+        },
+        onPasswordReset: ({ user }) => enableUser(user.id),
+        autoSignIn: false,
+    },
+    plugins: [
+        admin(),
+        oneTimeToken({
+            disableClientRequest: true,
+        }),
+    ],
+});
+
+export type User = typeof auth['$Infer']['Session']['user'];
+export type Session = typeof auth['$Infer']['Session']['session'];
+
+export const getIsLoggedIn = (locals: App.Locals) => checkedIsLoggedIn(locals.user);
+export const getIsAdmin = (locals: App.Locals) => checkIsAdmin(locals.user);
+export const getIsRegulusOrAdmin = (locals: App.Locals) => checkIsRegulusOrAdmin(locals.user);
+export const getIsAnyRegulusOrAdmin = (locals: App.Locals) => checkIsAnyRegulusOrAdmin(locals.user);
+
+export const generateToken = (email: string, headers: Headers) => new Promise<string>(async resolve => {
+    await auth.api.requestPasswordReset({
+        body: {
+            email,
+        },
+        headers,
     });
-
-export const checkAdmin = (token: DecodedIdToken) => token.admin;
-export const checkRegulus = (token: DecodedIdToken) => token.email!.endsWith('@regulus.cz');
-export const checkSlovakRegulus = (token: DecodedIdToken) => token.email!.endsWith('@regulus.sk');
-export const checkRegulusOrAdmin = (token: DecodedIdToken) => checkAdmin(token) || checkRegulus(token);
-export const checkAnyRegulusOrAdmin = (token: DecodedIdToken) => checkAdmin(token) || checkRegulus(token) || checkSlovakRegulus(token);
-
-export const getUsersByEmail = (emails: string[]) => promiseBy100(emails.map(email => ({ email })), ids => auth.getUsers(ids));
-export const getUserByEmail = (email: string) => auth.getUserByEmail(email);
-export const getUserByID = (uid: string) => auth.getUser(uid);
-export const getUsersByID = (uids: string[]) => promiseBy100(uids.map(uid => ({ uid })), ids => auth.getUsers(ids));
-
-export const createUser = (props: CreateRequest) => auth.createUser(props);
-export const createUsers = (props: CreateRequest[]) => Promise.all(props.map(props => createUser(props)));
-
-export const enableUser = (uid: string) => auth.updateUser(uid, { disabled: false });
-export const setUserName = (uid: string, displayName: string) => auth.updateUser(uid, { displayName });
-
-export const removeUsers = (uids: string[]) => promiseBy100(uids, uids => auth.deleteUsers(uids));
-
-const promiseBy100 = <T, U>(arr: T[], mapper: (value: T[], index: number, array: T[][]) => Promise<U>): Promise<U[]> =>
-    Promise.all(arr.chunk(100).map(mapper));
-
-export const removeAccounts = async () => {
-    (await auth.deleteUsers((await auth.listUsers()).users.filter(u => u.disabled).map(u => u.uid))).errors.forEach(e => console.error(e));
-};
-
-export const getPasswordResetLink = async (email: string, lang: LanguageCode, redirect: string, mode: string) => {
-    const link = await auth.generatePasswordResetLink(email);
-    const url = new URL(link);
-
-    return `/${lang}/newPassword?mode=${mode}&oobCode=${url.searchParams.get('oobCode')}&redirect=${redirect}`;
-};
-
-export const updateUser = (uid: string, properties: UpdateRequest) => auth.updateUser(uid, properties);
+    tokens.subscribe($tokens => {
+        if ($tokens.has(email)) resolve($tokens.get(email)!);
+    });
+});

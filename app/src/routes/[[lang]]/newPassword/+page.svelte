@@ -1,16 +1,16 @@
 <script lang="ts">
     import { browser } from '$app/environment';
     import { page } from '$app/state';
+    import { changePassword } from '$lib/client/auth';
+    import { logEvent } from 'firebase/analytics';
     import { onMount } from 'svelte';
     import authentication from '$lib/client/authentication';
-    import { changePassword } from '$lib/client/auth';
     import FormDefaults from '$lib/components/FormDefaults.svelte';
+    import { analytics } from '../../../hooks.client';
     import type { PageProps } from './$types';
     import { initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { goto } from '$app/navigation';
-    import { logEvent } from 'firebase/analytics';
-    import { analytics } from '../../../hooks.client';
     import { Spinner } from "$lib/components/ui/spinner";
     import { Alert, AlertTitle } from '$lib/components/ui/alert';
     import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '$lib/components/ui/card';
@@ -22,9 +22,9 @@
     const { data }: PageProps = $props();
     const t = $derived(data.translations.auth);
 
-    let email = $state(browser ? (page.url.searchParams.get('email') ?? data.email ?? '') : '');
+    let email = $state(browser ? (page.url.searchParams.get('email') ?? '') : '');
 
-    const oobCode = browser ? page.url.searchParams.get('oobCode') : null;
+    const token = browser ? page.url.searchParams.get('token') : null;
     let mode:
         // To send an email with a reset link
         | 'resetEmail'
@@ -67,29 +67,19 @@
             mode = originalMode;
             return;
         }
-        if (originalMode == 'register') {
-            await authentication('enableUser', { email });
+        const result = await changePassword(token!, password);
+        if (result == 'success') {
+            logEvent(analytics(), 'change_password', { mode: originalMode, email });
+            await goto(relUrl(`/login?email=${email}&done=${originalMode}&redirect=${redirect}`));
+        } else if (result == 'INVALID_TOKEN') {
+            await goto(relUrl(`/login?email=${email}&redirect=${redirect}`));
+        } else if (result == 'PASSWORD_TOO_SHORT') {
+            error = t.passwordTooWeak;
+            mode = originalMode;
+        } else {
+            error = t.somethingWentWrong;
+            mode = originalMode;
         }
-        await changePassword(oobCode!, password)
-            .then(async () => {
-                logEvent(analytics(), 'change_password', { mode: originalMode, email });
-                await goto(relUrl(`/login?email=${email}&done=${originalMode}&redirect=${redirect}`));
-            })
-            .catch((e) => {
-                console.log(e, e.code);
-                if (e.code == 'auth/network-request-failed') {
-                    error = t.checkInternet;
-                } else if (e.code == 'auth/missing-password') {
-                    error = t.fillInPassword;
-                } else if (e.code == 'auth/weak-password') {
-                    error = t.passwordTooWeak;
-                } else if (e.code == 'auth/too-many-requests') {
-                    error = t.tooManyRequests;
-                } else {
-                    error = t.somethingWentWrong;
-                }
-                mode = originalMode;
-            });
     };
 
     onMount(() => setTitle(t.newPassword, false, false, true));
@@ -107,7 +97,7 @@
         <Spinner />
         <AlertTitle>{t.sending}</AlertTitle>
     </Alert>
-{:else if mode === 'resetEmail' || !oobCode}
+{:else if mode === 'resetEmail' || !token}
     <Card class="mx-auto mt-8 w-full max-w-sm">
         <CardHeader>
             <CardTitle class="text-xl">{t.newPassword}</CardTitle>

@@ -15,6 +15,7 @@
         inverters,
         batteries,
     } from '$lib/client/realtime';
+    import updateDataEndpoints from '$lib/client/updateDataEndpoints';
     import { type Component, onMount } from 'svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
@@ -119,6 +120,7 @@
                     responsiblePerson: { header: 'Zodpovědná osoba' },
                     koNumber: { header: 'Číslo KO', transformValue: emptyUndefined },
                 },
+                sendData: array => updateDataEndpoints('users', { array }),
             },
         } satisfies TableDefinition<Person>,
         companies: {
@@ -161,6 +163,7 @@
                     representative: { header: 'Zástupce', transformValue: emptyUndefined },
                     representativeUserEmail: { header: 'Uživatel', transformValue: addUserLink },
                 },
+                sendData: array => updateDataEndpoints('companies', { array }),
             },
         } satisfies TableDefinition<Company>,
         technicians: {
@@ -188,6 +191,7 @@
                     phone: { header: 'Telefonní číslo' },
                     initials: { header: 'Iniciály do SP' },
                 },
+                sendData: array => updateDataEndpoints('technicians', { array }),
             },
         } satisfies TableDefinition<Technician>,
         spareParts: {
@@ -214,6 +218,7 @@
                     name: { header: 'Název', cellType: 'header' },
                     unitPrice: { header: 'Jednotková cena', transformValue: s => s.roundTo(2).toLocaleString('cs') + ' Kč' },
                 },
+                sendData: array => updateDataEndpoints('spareParts', { array }),
             },
         } satisfies TableDefinition<SparePart>,
         arrays: {
@@ -227,29 +232,30 @@
                     'Vložte .xlsx soubor se seznamy akumulačních nádrží, zásobníků, solárních kolektorů, střídačů a baterií, který obsahuje záhlaví (1. řádek) a sloupce s názvy.',
                 ],
                 arrays: {
-                    nadrze: {
+                    accumulationTanks: {
                         header: 'Nádrže',
                         store: accumulationTanks,
                     },
-                    zasobniky: {
+                    waterTanks: {
                         header: 'Zásobníky',
                         store: waterTanks,
                     },
-                    kolektory: {
+                    solarCollectors: {
                         header: 'Kolektory',
                         store: solarCollectors,
                     },
-                    stridace: {
+                    inverters: {
                         header: 'Střídače',
                         store: inverters,
                     },
-                    baterie: {
+                    batteries: {
                         header: 'Baterie',
                         store: batteries,
                     },
                 },
+                sendData: arrays => updateDataEndpoints('arrays', { arrays }),
             },
-        },
+        } satisfies ArraysDefinition<'accumulationTanks' | 'waterTanks' | 'solarCollectors' | 'inverters' | 'batteries'>,
         translations: {
             title: 'Překlady',
             contentType: 'custom',

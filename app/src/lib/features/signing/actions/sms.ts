@@ -1,5 +1,4 @@
 import type { SigningStatus } from '../components/Signing.svelte';
-import { getToken } from '$lib/client/auth';
 import type { SendCodeParams } from '$lib/features/signing/domain/sms';
 import { getReasonPhrase } from 'http-status-codes';
 import db from '$lib/client/db';
@@ -13,8 +12,7 @@ export const sendSMS = (
 ) => async () => {
     const old = setStatus('sendingSMS');
 
-    const token = await getToken();
-    const response = await fetch(`/api/signing/send?token=${token}`, {
+    const response = await fetch(`/api/signing/send`, {
         method: 'POST',
         body: JSON.stringify(params),
         headers: {

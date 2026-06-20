@@ -1,6 +1,6 @@
+import { user } from '$lib/client/auth';
 import type { ContextOD, FormOD } from './formOD';
 import { cervenka } from '$lib/client/email';
-import { currentUser } from '$lib/client/auth';
 import { get } from 'svelte/store';
 import type { FormPlus } from '$lib/forms/Form';
 import { emailRegExp, multiple, separatorsRegExp } from '$lib/forms/IN/defaultIN';
@@ -24,7 +24,7 @@ export default (): FormPlus<FormOD> => ({
                     !c.v.all.otherCopies ? '' : t.od.info2C({
                         ccs: joinWithLastAnd(c.v.all.otherCopies.split(separatorsRegExp).map(t => t.trim()), t.od.and)
                     }),
-                    t.od.info2D({ user: get(currentUser)!.email! }),
+                    t.od.info2D({ user: get(user)!.email! }),
                 ].filter(Boolean), t.od.and),
                 t.od.info3,
                 c.v.all.userEmail ? t.od.info4 : '',

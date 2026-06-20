@@ -2,7 +2,7 @@
     import type { Translations } from '$lib/translations';
     import { type IR } from '$lib/data';
     import type { IRID } from '$lib/helpers/ir';
-    import { isUserAdmin } from '$lib/client/auth';
+    import { isAdmin } from '$lib/client/auth';
     import { iaA } from '$lib/helpers/stores';
     import { dateFromISO } from '$lib/helpers/date';
     import ModalDK from '$lib/features/detail/components/detailIR/ModalDK.svelte';
@@ -22,7 +22,7 @@
     <div class="flex flex-col gap-1 sm:items-start">
         {#if show && ir}
             <ModalDK {t} {ir} {type} />
-            {#if $isUserAdmin && settings?.code}
+            {#if $isAdmin && settings?.code}
                 <Button variant="secondary"
                         href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Frk~2F{settings?.code}"
                         target="_blank">

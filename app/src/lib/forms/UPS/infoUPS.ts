@@ -1,6 +1,6 @@
+import { getIsRegulusOrAdmin, getUser, isRegulusOrAdmin } from '$lib/client/auth';
 import type { FormInfo } from '$lib/forms/FormInfo';
-import { checkRegulusOrAdmin, currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
-import { derived, get } from 'svelte/store';
+import { derived } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
@@ -22,9 +22,9 @@ const infoUPS: FormInfo<ContextUPS, FormUPS, [], 'UPS'> = ({
         await db.addUPS(irid, raw);
         await db.updateDateUPS(irid, values.uvadeni.date);
         if (!edit) await saveDK(ir, values.checkRecommendations, 'SOL');
-        if (await checkRegulusOrAdmin()) return;
+        if (await getIsRegulusOrAdmin()) return;
 
-        const user = get(currentUser)!;
+        const user = (await getUser())!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit
@@ -42,7 +42,7 @@ const infoUPS: FormInfo<ContextUPS, FormUPS, [], 'UPS'> = ({
         });
         return false;
     },
-    buttons: edit => derived(isUserRegulusOrAdmin, regulus => ({
+    buttons: edit => derived(isRegulusOrAdmin, regulus => ({
         hideSave: !regulus,
         saveAndSend: !edit && !regulus,
         saveAndSendAgain: edit && !regulus,

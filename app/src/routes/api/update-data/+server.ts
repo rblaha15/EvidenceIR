@@ -1,5 +1,12 @@
-import type { Company, Person, SparePart, Technician } from '$lib/client/realtime';
-import { checkAdmin, checkToken, createUser, getUserByEmail, getUsersByEmail, removeUsers, setUserName } from '$lib/server/auth';
+import '$lib/extensions';
+import type { UpdateDataEndpoints } from '$lib/client/updateDataEndpoints';
+import {
+    getIsAdmin,
+    getIsLoggedIn,
+    type User
+} from '$lib/server/auth';
+import { getOrCreateUser, getUserByEmail, getUsersByEmails, removeUsers, setUserName } from '$lib/server/db/admin/auth';
+import { processLoyaltyReward } from '$lib/server/loyaltyProgram';
 import {
     getPeople,
     removePerson,
@@ -9,88 +16,73 @@ import {
     setSpareParts,
     setTechnicians,
 } from '$lib/server/realtime';
-import type { RequestHandler } from './$types';
 import { error } from '@sveltejs/kit';
-import { UserRecord } from 'firebase-admin/auth';
-import { type LoyaltyProgramTrigger } from '$lib/client/loyaltyProgram';
-import '$lib/extensions';
-import { processLoyaltyReward } from '$lib/server/loyaltyProgram';
+import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request, url }) => {
-    const t = url.searchParams.get('token');
-    const typ = url.searchParams.get('type') as 'users' | 'companies' | 'technicians' | 'spareParts' | 'arrays' | 'loyaltyPoints' | null;
+type Params = {
+    [T in keyof UpdateDataEndpoints]: UpdateDataEndpoints[T] & { type: T }
+}[keyof UpdateDataEndpoints];
 
-    if (!typ) error(400, 'Bad Request');
+export const POST: RequestHandler = async ({ request, locals }) => {
+    const args = await request.json() as Params;
+    const { type } = args;
+    if (!getIsLoggedIn(locals)) error(401, 'Unauthorized');
 
-    const token = await checkToken(t);
-    if (!token) error(401, 'Unauthorized');
-
-    if (typ == 'users') {
-        if (!await checkAdmin(token)) error(401, 'Unauthorized');
+    if (type == 'users') {
+        if (!getIsAdmin(locals)) error(401, 'Unauthorized');
         const oldPeople = (await getPeople()).mapTo((_, p) => p.email);
-        const { array: newPeople }: { array: Person[] } = await request.json();
+        const newPeople = args.array;
 
         const toRemove = oldPeople.filter(p => !newPeople.some(p2 => p2.email == p));
-        const toAdd = newPeople.map(p => p.email).filter(p => !oldPeople.some(p2 => p2 == p));
+        const toAdd = newPeople.filter(p => !oldPeople.some(p2 => p2 == p.email));
         const toChange = newPeople.map(p => p.email).filter(p => oldPeople.some(p2 => p2 == p));
 
-        const usersToDelete = (await getUsersByEmail(toRemove)).flatMap(r => r.users);
+        const usersToDelete = await getUsersByEmails(toRemove);
 
-        await Promise.all(usersToDelete.map(u => {
+        await usersToDelete.map(u => {
             console.log(`Removing ${u.email}`);
-            return removePerson(u.uid);
-        }));
-        await removeUsers(usersToDelete.map(u => u.uid));
+            return removePerson(u.id);
+        }).awaitAll();
+        await removeUsers(usersToDelete.map(u => u.id));
 
         const usersToChange = [
-            ...await Promise.all(toAdd.map(email => new Promise<UserRecord>((resolve, reject) => {
-                console.log(`Creating ${email}`);
-                createUser({ email, disabled: true }).then(resolve).catch(e => {
-                    if (typeof e == 'object' && e && 'code' in e && e.code == 'auth/email-already-exists')
-                        getUserByEmail(email).then(resolve).catch(reject);
-                    else reject(e);
-                });
-            }))),
-            ...(await getUsersByEmail(toChange)).flatMap(r => r.users),
+            ...await toAdd.map(async p => {
+                console.log(`Creating ${p.email}`);
+                const result = await getOrCreateUser(p.email, p.name)
+                if (result.error == 'user-exists')
+                    console.log(`Already exists: ${p.email}`);
+                return result.user;
+            }).awaitAll(),
+            ...await getUsersByEmails(toChange),
         ];
 
-        await Promise.all(usersToChange.map(async u => {
+        await usersToChange.map(async u => {
             const d = newPeople.find(p => p.email.toLowerCase() == u.email?.toLowerCase())!;
             console.log(`Editing ${u.email}: ${JSON.stringify(d)}`);
-            await setUserName(u.uid, d.name);
-            await setPersonDetails(u.uid, d);
-        }));
-    } else if (typ == 'companies') {
-        if (!await checkAdmin(token)) error(401, 'Unauthorized');
-        const { array }: { array: Company[] } = await request.json();
-        await setCompanies(array);
-    } else if (typ == 'technicians') {
-        if (!await checkAdmin(token)) error(401, 'Unauthorized');
-        const { array }: { array: Technician[] } = await request.json();
-        await setTechnicians(array);
-    } else if (typ == 'spareParts') {
-        if (!await checkAdmin(token)) error(401, 'Unauthorized');
-        const { array }: { array: SparePart[] } = await request.json();
-        await setSpareParts(array);
-    } else if (typ == 'arrays') {
-        if (!await checkAdmin(token)) error(401, 'Unauthorized');
-        const { arrays }: {
-            arrays: {
-                nadrze: string[],
-                zasobniky: string[],
-                kolektory: string[],
-                stridace: string[],
-                baterie: string[],
-            }
-        } = await request.json();
-        await setArray('accumulationTanks', arrays.nadrze);
-        await setArray('waterTanks', arrays.zasobniky);
-        await setArray('solarCollectors', arrays.kolektory);
-        await setArray('inverters', arrays.stridace);
-        await setArray('batteries', arrays.baterie);
-    } else if (typ == 'loyaltyPoints') {
-        const data: LoyaltyProgramTrigger = await request.json();
-        await processLoyaltyReward(data, token);
+            await setUserName(u.id, d.name);
+            // await setPersonDetails(u.id, d); TODO
+        }).awaitAll();
+    } else if (type == 'companies') {
+        if (!getIsAdmin(locals)) error(401, 'Unauthorized');
+        await setCompanies(args.array);
+    } else if (type == 'technicians') {
+        if (!getIsAdmin(locals)) error(401, 'Unauthorized');
+        await setTechnicians(args.array);
+    } else if (type == 'spareParts') {
+        if (!getIsAdmin(locals)) error(401, 'Unauthorized');
+        await setSpareParts(args.array);
+    } else if (type == 'arrays') {
+        if (!getIsAdmin(locals)) error(401, 'Unauthorized');
+        const { arrays } = args;
+        await setArray('accumulationTanks', arrays.accumulationTanks);
+        await setArray('waterTanks', arrays.waterTanks);
+        await setArray('solarCollectors', arrays.solarCollectors);
+        await setArray('inverters', arrays.inverters);
+        await setArray('batteries', arrays.batteries);
+    } else if (type == 'loyaltyPoints') {
+        await processLoyaltyReward(args.data, locals);
+    } else {
+        error(400, 'Bad Request');
     }
 
     return new Response(null, {

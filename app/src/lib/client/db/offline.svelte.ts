@@ -1,7 +1,7 @@
 import { derived, get, writable } from 'svelte/store';
 import { type IDBPDatabase, openDB } from 'idb';
 import { extractIDFromSPOrSZ, type IRID, type NSPID } from '$lib/helpers/ir';
-import { currentUser } from '$lib/client/auth';
+import { getUser } from '$lib/client/auth';
 import {
     type Data,
     type DataType,
@@ -49,7 +49,7 @@ const newDb = (uid: string) => openDB<DBSchema>(`offlineData2_${uid}`, 2, {
 });
 
 const db = async () => {
-    const uid = get(currentUser)?.uid ?? 'anonymous';
+    const uid = (await getUser())?.id ?? 'anonymous';
     return dbMap[uid] || (dbMap[uid] = await newDb(uid));
 };
 
@@ -149,7 +149,7 @@ const writeDatabase: WriteDatabase = {
         ir.RK.SOL[year] = check;
         return ir;
     }),
-    addSPs: (irid, ...protocols) => odm.update('IR', irid, ir => {
+    addSPs: (irid, protocols) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.SPs = { ...protocols.associateBy(extractIDFromSPOrSZ), ...ir.SPs }
             .entries().toRecord();

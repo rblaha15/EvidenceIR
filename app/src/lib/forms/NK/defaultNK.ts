@@ -4,7 +4,7 @@ import { heatPumps, indoorUnits } from '$lib/helpers/products';
 import { type ContextNK, type FormNK, origins } from './formNK';
 import { assemblyCompanies } from '$lib/helpers/companies';
 import { derived, readable } from 'svelte/store';
-import { currentUser } from '$lib/client/auth';
+import { user } from '$lib/client/auth';
 import ares from '$lib/helpers/ares';
 import type { FormPlus } from '$lib/forms/Form';
 import languageCodes from '$lib/languageCodes';
@@ -382,9 +382,9 @@ export default (): FormPlus<FormNK> => ({
                     { text: t.koNumber!, width: .1 },
                     { text: t.email, width: .5 },
                 ],
-            }), show: false, required: true, items: (_, c) => derived([usersList, currentUser], ([$users, $currentUser]) => {
+            }), show: false, required: true, items: (_, c) => derived([usersList, user], ([$users, $user]) => {
                 const withKO = $users.filter(p => p.koNumber && p.responsiblePerson);
-                const me = withKO.find(t => $currentUser?.email == t.email);
+                const me = withKO.find(t => $user?.email == t.email);
                 if (me) c.v.other.representative = me;
                 return withKO
                     .filter(p => p.email.endsWith('cz'))

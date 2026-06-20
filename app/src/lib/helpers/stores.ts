@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { derived, get, type Readable, writable, type Writable } from 'svelte/store';
-import { currentUser, isUserAdmin } from '$lib/client/auth';
+import { user, isAdmin } from '$lib/client/auth';
 
 export function storable<T>(key: string): Writable<T | undefined>;
 export function storable<T>(key: string, defaultValue: T): Writable<T>;
@@ -8,9 +8,9 @@ export function storable<T>(key: string, defaultValue: T): Writable<T>;
 export function storable<T>(key: string, defaultValue?: T) {
     const store = writable<T | undefined>(defaultValue);
 
-    currentUser.subscribe(user => {
-        const uid = user?.uid ?? 'anonymous';
-        key = `storable_${uid}_${key}`;
+    user.subscribe($user => {
+        const id = $user?.id ?? 'anonymous';
+        key = `storable_${id}_${key}`;
 
         if (browser) {
             const currentValue = localStorage.getItem(key);
@@ -67,8 +67,8 @@ export const waitUntil = <T>(store: Readable<T>, predicate: (value: T) => boolea
         });
     });
 
-export const aA = derived(isUserAdmin, a => a ? ' (A)' : '')
-export const aR = derived(isUserAdmin, a => a ? ' (R)' : '')
+export const aA = derived(isAdmin, a => a ? ' (A)' : '')
+export const aR = derived(isAdmin, a => a ? ' (R)' : '')
 
 export const iaA = ' (A)'
 export const iaR = (a: boolean) => a ? ' (R)' : ''

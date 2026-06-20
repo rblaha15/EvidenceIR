@@ -1,6 +1,6 @@
 import type { EntryGenerator, PageLoad } from './$types';
 import { type IRID, irLabel, irName, type NSPID, spName } from '$lib/helpers/ir';
-import { checkAdmin, checkAuth, userInfo } from '$lib/client/auth';
+import { getIsAdmin, getIsLoggedIn, isAdmin, isRegulusOrAdmin } from '$lib/client/auth';
 import { browser } from '$app/environment';
 import { derived, readable } from 'svelte/store';
 import { error } from '@sveltejs/kit';
@@ -39,14 +39,14 @@ export const load: PageLoad = async ({ parent }) => {
     if (!browser) return {
         data: readable({ items: [] as IR_NSP[], status: 'loaded' as 'loaded' | 'loadingOnline' }),
     };
-    if (!await checkAuth()) error(401);
+    if (!await getIsLoggedIn()) error(401);
 
     const data = await parent();
     const ts = getTranslations(data.languageCode).search;
 
-    const irs = derived([getAllIRs(), userInfo], ([$irs, usr]) => ({
+    const irs = derived([getAllIRs(), isAdmin], ([$irs, $isAdmin]) => ({
         status: $irs.status, data: $irs.data
-            .filter(ir => (usr.isUserAdmin || !ir.deleted))
+            .filter(ir => ($isAdmin || !ir.deleted))
             .map(ir => ({
                 t: 'IR',
                 id: ir.meta.id,
@@ -61,11 +61,11 @@ export const load: PageLoad = async ({ parent }) => {
     }));
 
 
-    const nsps = flatDerived(userInfo, usr => derived(
-        usr.isUserRegulusOrAdmin ? getAllNSPs() : readable({ status: 'loaded', data: [] } as Results<'NSP'>),
+    const nsps = flatDerived(isRegulusOrAdmin, $isRegulusOrAdmin => derived(
+        $isRegulusOrAdmin ? getAllNSPs() : readable({ status: 'loaded', data: [] } as Results<'NSP'>),
         $nsps => ({
             status: $nsps.status, data: $nsps.data
-                .mapNotUndefined(sp => !checkAdmin() && sp.deleted ? undefined : sp)
+                .mapNotUndefined(sp => !getIsAdmin() && sp.deleted ? undefined : sp)
                 .groupBy(sp => irLabel(sp.NSP))
                 .entries()
                 .map(([label, nsps]) => ({

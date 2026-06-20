@@ -1,11 +1,10 @@
+import { user, type User } from '$lib/client/auth';
 import { startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
-import type { User } from 'firebase/auth';
 import { page } from '$app/state';
 import { extractSPIDFromRawData, type SPID, spName, type SZID } from '$lib/helpers/ir';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
-import { currentUser } from '$lib/client/auth';
 import { cellsSP } from '$lib/forms/SP/cellsSP';
 import { type ContextSP, type FormSP } from '$lib/forms/SP/formSP.svelte';
 import defaultSP from '$lib/forms/SP/defaultSP';
@@ -20,7 +19,7 @@ import type { FormSZ } from '$lib/forms/SP/formSZ';
 export const isSP = (raw: Raw<FormSP | FormSZ> | undefined): raw is Raw<FormSP> => !!raw && ('ukony' in raw)
 export const ensureSP = (raw: Raw<FormSP | FormSZ> | undefined) => isSP(raw) ? raw : error(400, { message: 'Provided data is not a protocol' });
 
-const infoSP: FormInfo<ContextSP, FormSP, [[Technician[], User | null]], 'SP'> = {
+const infoSP: FormInfo<ContextSP, FormSP, [[Technician[], User | undefined]], 'SP'> = {
     type: 'IR',
     storeName: () => 'stored_sp',
     form: () => defaultSP(),
@@ -53,7 +52,7 @@ const infoSP: FormInfo<ContextSP, FormSP, [[Technician[], User | null]], 'SP'> =
         }
 
         if (edit) await db.updateSP(irid, raw);
-        else await db.addSPs(irid, raw);
+        else await db.addSPs(irid, [raw]);
 
         if (!ir.UP.dateTC) await db.updateDateUPT(irid, raw.system.datumUvedeni);
 
@@ -90,12 +89,12 @@ const infoSP: FormInfo<ContextSP, FormSP, [[Technician[], User | null]], 'SP'> =
             values.system.datumUvedeni = ir.UP.dateTC;
     },
     storeEffects: [
-        [([$techniciansList, $currentUser], { values, edit }) => { // Also in NSP
-            const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
+        [([$techniciansList, $user], { values, edit }) => { // Also in NSP
+            const ja = edit ? undefined : $techniciansList.find(t => $user?.email == t.email);
             if (!values.zasah.clovek) values.zasah.clovek = ja?.name ?? values.zasah.clovek;
             if (!values.zasah.inicialy) values.zasah.inicialy = ja?.initials ?? values.zasah.inicialy;
             values.zasah.showNameFileds = values.zasah.clovek != ja?.name;
-        }, [techniciansList, currentUser]],
+        }, [techniciansList, user]],
     ],
     excelImport: {
         sheet: 'Protokol',

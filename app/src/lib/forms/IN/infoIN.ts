@@ -10,7 +10,7 @@ import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
-import { currentUser, isUserRegulusOrAdmin } from '$lib/client/auth';
+import { getUser, isRegulusOrAdmin, type User } from '$lib/client/auth';
 import { getTranslations, type Translations } from '$lib/translations';
 import ares from '$lib/helpers/ares';
 import { generatePdf } from '$lib/pdf/pdfGeneration';
@@ -28,7 +28,6 @@ import { grantPoints } from '$lib/client/loyaltyProgram';
 import { getIsOnline } from '$lib/client/realtimeOnline';
 import db from '$lib/client/db';
 import { type ExistingIR, type IR, newIR } from '$lib/data';
-import type { User } from 'firebase/auth';
 
 const sendEmails = async (
     edit: boolean, send: boolean, draft: boolean,
@@ -118,7 +117,7 @@ const changeIRID = async (
     newIR.meta.id = newIRID;
     newIR.meta.createdAt = new Date().valueOf();
     newIR.meta.changedAt = new Date().valueOf();
-    newIR.meta.createdBy = { uid: user.uid, email: user.email! };
+    newIR.meta.createdBy = { uid: user.id, email: user.email! };
 
     try {
         await db.moveIR(oldIRID, newIR);
@@ -158,7 +157,7 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [str
             return;
         }
 
-        const user = get(currentUser)!;
+        const user = (await getUser())!;
         const $friendlyCompanies = get(friendlyCompanies)!;
 
         const newIr = newIR(raw, user, draft, $friendlyCompanies);
@@ -207,13 +206,13 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [str
         values.tc.pocet = count == 0 ? 1 : count;
     },
     storeEffects: [
-        [([$isUserRegulusOrAdmin], { values }) => {
-            values.ir.regulus = $isUserRegulusOrAdmin
-        }, [isUserRegulusOrAdmin]],
-        [([$isUserRegulusOrAdmin], { values }) => {
-            if ($isUserRegulusOrAdmin && !values.vzdalenyPristup.plati)
+        [([$isRegulusOrAdmin], { values }) => {
+            values.ir.regulus = $isRegulusOrAdmin
+        }, [isRegulusOrAdmin]],
+        [([$isRegulusOrAdmin], { values }) => {
+            if ($isRegulusOrAdmin && !values.vzdalenyPristup.plati)
                 values.vzdalenyPristup.plati = 'laterAccordingToTheProtocol';
-        }, [isUserRegulusOrAdmin]],
+        }, [isRegulusOrAdmin]],
         [([$responsiblePerson], { values }) => {
             if ($responsiblePerson != null) values.vzdalenyPristup.zodpovednaOsoba = $responsiblePerson;
             if ($responsiblePerson != null) values.vzdalenyPristup.showResponsiblePerson = false;

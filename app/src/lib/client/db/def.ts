@@ -57,7 +57,7 @@ export interface WriteDatabase {
 
     addRKS(irid: IRID, year: Year, check: Raw<FormRKS>): Promise<void>;
 
-    addSPs(irid: IRID, ...protocols: Raw<FormSP | FormSZ>[]): Promise<void>;
+    addSPs(irid: IRID, protocols: Raw<FormSP | FormSZ>[]): Promise<void>;
 
     updateSP(irid: IRID, protocol: Raw<FormSP | FormSZ>): Promise<void>;
 
