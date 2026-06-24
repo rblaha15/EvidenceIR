@@ -96,8 +96,11 @@
     const download = async () => {
         await search();
         const rows = $results!.data
-            .filterValues((_, { email }) => email != 'radek.blaha@mensa.cz' && email != 'aja.blahova@centrum.cz')
-            .mapTo((_, { email, data, responsiblePerson }) => [email ?? '', data.points, responsiblePerson ?? '']);
+            .getValues()
+            .filter(({ email }) => !!email && !email.split('@')[1].includes('regulus'))
+            .filter(({ email }) => email != 'radek.blaha@mensa.cz' && email != 'aja.blahova@centrum.cz')
+            .sortedByDescending(({ data }) => data.points)
+            .map(({ email, data, responsiblePerson }) => [email, data.points, responsiblePerson ?? '']);
         const headers = ['Email', 'Body', 'Zodpovědná osoba Regulus'];
         await writeXlsxFile([headers, ...rows].map(r => r.map(value => ({ value }))), {
             fileName: `Věrnostní program ${$results!.date.split('T')[0]}.xlsx`,
