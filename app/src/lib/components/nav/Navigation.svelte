@@ -9,7 +9,7 @@
     import SettingsModal from '$lib/components/nav/SettingsModal.svelte';
     import { hideNav } from '$lib/helpers/globals';
     import { relUrl } from '$lib/helpers/runes.svelte';
-    import { isOnline } from '$lib/client/realtimeOnline';
+    import { isOnline } from '$lib/client/online';
     import { Button } from '$lib/components/ui/button';
     import { CircleQuestionMark, WifiOff } from "@lucide/svelte";
     import NavSheet from "$lib/components/nav/NavSheet.svelte";

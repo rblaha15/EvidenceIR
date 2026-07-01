@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { myInfo } from '$lib/client/db/arrays';
     import type { Translations } from '$lib/translations';
     import { type ExistingIR } from '$lib/data';
     import { type IRID } from '$lib/helpers/ir';
@@ -7,7 +8,6 @@
     import type { LanguageCode } from '$lib/languageCodes';
     import { createDocumentLinks } from '$lib/features/detail/domain/documentsIR/createDocumentLinks';
     import { pdfInfo } from '$lib/pdf/pdf';
-    import { allowUPT } from '$lib/client/realtime';
     import type { TC } from "$lib/forms/IN/defaultIN";
     import RefsiteModal from "$lib/features/detail/components/documentsIR/RefsiteModal.svelte";
 
@@ -21,7 +21,7 @@
     const links = $derived(
         createDocumentLinks(
             ir, t,
-            { isAdmin: $isAdmin, isRegulusOrAdmin: $isRegulusOrAdmin, allowUPT: $allowUPT },
+            { isAdmin: $isAdmin, isRegulusOrAdmin: $isRegulusOrAdmin, allowUPT: $myInfo?.allowUPT ?? false },
             tc => openedRefsiteModal = tc,
         )
     )

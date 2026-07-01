@@ -1,8 +1,8 @@
 import { getIsLoggedIn } from '$lib/client/auth';
+import { fetchMyInfo, fetchPeople, fetchTechnicians } from '$lib/client/db/arrays';
 import type { EntryGenerator, PageLoad } from './$types';
 import { error } from '@sveltejs/kit';
 import { browser } from '$app/environment';
-import { startTechniciansListening, startUsersListening } from '$lib/client/realtime';
 import { derived, type Readable, readable } from 'svelte/store';
 import { waitUntil } from '$lib/helpers/stores';
 import type { IRID, NSPID } from '$lib/helpers/ir';
@@ -12,14 +12,14 @@ import { getDataAsStore } from '$lib/helpers/getData';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
-export const load: PageLoad = async ({ url }) => {
+export const load: PageLoad = async ({ url, fetch }) => {
     if (!browser) return { irid: null, nspids: [], ir: readable(null), nsps: readable([]) };
     const id = extractIDs(url);
     if (!id.irid && !id.nspids) error(400, { message: 'At least one of irid or spid bust be provided!' });
 
     if (!await getIsLoggedIn()) return error(401);
-    await startTechniciansListening();
-    await startUsersListening();
+    await fetchTechnicians(fetch);
+    await fetchPeople(fetch);
 
     const data = getDataAsStore(id);
 

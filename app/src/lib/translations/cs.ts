@@ -56,6 +56,8 @@ export default {
         remove_File: 'Odstranit',
         notChosen: `Nevybráno`,
         otherOptions: `Další možnosti`,
+        loading: 'Načítání…',
+        notFound: 'Nenalezeno',
     },
     pdf: {
         fileLanguage: `Jazyk dokumentu`,

@@ -1,6 +1,4 @@
 import { checkIsAnyRegulusOrAdmin } from '$lib/client/auth';
-import { getCompanies, getLoyaltyProgramData, getPeople, setLoyaltyProgramData } from '$lib/server/realtime';
-import type { IRID } from '$lib/helpers/ir';
 import {
     loyaltyPointRewards,
     type LoyaltyPointTriggerType,
@@ -11,9 +9,15 @@ import {
 } from '$lib/client/loyaltyProgram';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { nowISO } from '$lib/helpers/date';
-import { type User } from '$lib/server/auth';
-import { setCreatedIRBy, setGrantedCommission } from "$lib/server/db/admin/rk";
-import { mongoReadDatabase } from "$lib/server/db/read";
+import type { IRID } from '$lib/helpers/ir';
+import { setCreatedIRBy, setGrantedCommission } from '$lib/server/db/admin/rk';
+import {
+    getCompanyByEmail,
+    getLoyaltyProgramData,
+    getPersonByEmail,
+    setLoyaltyProgramData
+} from '$lib/server/db/arrays';
+import { mongoReadDatabase } from '$lib/server/db/read';
 
 const isType = <T extends LoyaltyPointTriggerType>(
     data: LoyaltyProgramTrigger, type: T,
@@ -83,10 +87,10 @@ export const processLoyaltyReward = async (
 };
 
 const getCompanyUser = async (email: string) => {
-    const allCompanies = await getCompanies();
-    const allPeople = await getPeople();
-    const userEmail = allCompanies.getValues().find(c => c.email == email)?.representativeUserEmail ?? email;
-    return allPeople.entries().find(([_, p]) => p.email == userEmail)?.[0] || null;
+    const company = await getCompanyByEmail(email);
+    const userEmail = company?.representativeUserEmail ?? email;
+    const person = await getPersonByEmail(userEmail);
+    return person?.id;
 }
 
 const getCompaniesCascadeGrantedAndCommission = async (irid: IRID, locals: App.Locals) => {
@@ -115,13 +119,13 @@ const getOrSetCreatingUser = async (irid: IRID, locals: App.Locals) => {
 
 export const addPointsTransaction = async (
     data: Omit<StandardLoyaltyProgramPointsTransaction, 'addition'> & { multiplier?: number; } | OtherLoyaltyProgramPointsTransaction,
-    uid: string,
+    userID: string,
 ) => {
-    const current = await getLoyaltyProgramData(uid);
+    const current = await getLoyaltyProgramData(userID);
     const transaction: LoyaltyProgramPointsTransaction = data.type == 'other' ? data : {
         ...data.omit('multiplier'), addition: loyaltyPointRewards[data.type] * (data.multiplier ?? 1),
     };
-    return await setLoyaltyProgramData(uid, {
+    return await setLoyaltyProgramData(userID, {
         points: current.points + transaction.addition,
         history: [...current.history, transaction],
     });

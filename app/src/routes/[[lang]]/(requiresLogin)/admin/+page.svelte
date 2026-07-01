@@ -1,24 +1,10 @@
 <!--suppress HtmlUnknownTag -->
 <script lang="ts">
-    import {
-        type Company,
-        type Person,
-        companiesList,
-        usersList,
-        type SparePart,
-        sparePartsList,
-        type Technician,
-        techniciansList,
-        accumulationTanks,
-        waterTanks,
-        solarCollectors,
-        inverters,
-        batteries,
-    } from '$lib/client/realtime';
-    import updateDataEndpoints from '$lib/client/updateDataEndpoints';
+    import { fetchDB } from '$lib/client/db/endpoints';
     import { type Component, onMount } from 'svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
+    import { derived } from 'svelte/store';
     import TranslationsTable from './TranslationsTable.svelte';
     import AdminTable, { type TableOptions } from './AdminTable.svelte';
     import { regulusCRN } from '$lib/helpers/ares';
@@ -30,6 +16,16 @@
     import AdminArrays, { type ArraysOptions } from './AdminArrays.svelte';
     import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
     import { Separator } from "$lib/components/ui/separator";
+    import {
+        companies,
+        people,
+        type Company,
+        type Person,
+        technicians,
+        type Technician,
+        spareParts, type SparePart, type Arrays, accumulationTanks, waterTanks, solarCollectors, inverters, batteries,
+        fetchArrays, fetchSpareParts, fetchTechnicians, fetchCompanies, fetchPeople
+    } from '$lib/client/db/arrays';
 
     interface BaseTabDefinition {
         title: string;
@@ -56,8 +52,8 @@
 
     type TabDefinition = TableDefinition<any> | CustomDefinition | ArraysDefinition<any>;
 
-    const addCompaniesLinks = (companies: Record<string, string>) =>
-        (companies?.keys() ?? []).map(c => `<a href="#companies-${c}">${c}</a>`).join(', ');
+    const addCompaniesLinks = (companies: string[]) =>
+        companies.map(c => `<a href="#companies-${c}">${c}</a>`).join(', ');
 
     const addUserLink = (email: string | undefined) => (email ? `<a href="#users-${email}">${email}</a>` : '');
 
@@ -75,7 +71,7 @@
             tableOptions: {
                 fileType: 'csv',
                 fileName: 'uzivatele',
-                store: usersList,
+                store: people,
                 construct: ([name, email, montazky, uvadeci, allowUPT, responsiblePerson, koNumber]) =>
                     ({
                         name: name ?? '',
@@ -83,22 +79,20 @@
                         assemblyCompanies:
                             montazky
                                 ?.split('#')
-                                ?.filter(vec => vec != '')
-                                ?.associateWithSelf() ?? {},
+                                ?.filter(vec => vec != '') ?? [],
                         commissioningCompanies:
                             uvadeci
                                 ?.split('#')
-                                ?.filter(vec => vec != '')
-                                ?.associateWithSelf() ?? {},
+                                ?.filter(vec => vec != '') ?? [],
                         allowUPT: allowUPT == 'true',
                         responsiblePerson,
                         koNumber,
-                    }) as Person,
+                    }) as Omit<Person, 'id'>,
                 deconstruct: ({ name, email, assemblyCompanies, commissioningCompanies, allowUPT, responsiblePerson, koNumber }) => [
                     name,
                     email,
-                    assemblyCompanies.getValues().join('#'),
-                    commissioningCompanies.getValues().join('#'),
+                    assemblyCompanies.join('#'),
+                    commissioningCompanies.join('#'),
                     `${allowUPT}`,
                     responsiblePerson || '',
                     koNumber || '',
@@ -120,9 +114,9 @@
                     responsiblePerson: { header: 'Zodpovědná osoba' },
                     koNumber: { header: 'Číslo KO', transformValue: emptyUndefined },
                 },
-                sendData: array => updateDataEndpoints('users', { array }),
+                sendData: array => fetchDB('admin/setUsers', { array }).then(fetchPeople),
             },
-        } satisfies TableDefinition<Person>,
+        } satisfies TableDefinition<Omit<Person, 'id'>>,
         companies: {
             title: 'Firmy',
             longerTitle: 'Seznam firem',
@@ -130,7 +124,7 @@
             tableOptions: {
                 fileType: 'csv',
                 fileName: 'firmy',
-                store: companiesList,
+                store: companies,
                 construct: ([crn, companyName, email, phone, representative, representativeUserEmail]) => ({
                     crn: crn!,
                     companyName: companyName!,
@@ -163,7 +157,7 @@
                     representative: { header: 'Zástupce', transformValue: emptyUndefined },
                     representativeUserEmail: { header: 'Uživatel', transformValue: addUserLink },
                 },
-                sendData: array => updateDataEndpoints('companies', { array }),
+                sendData: array => fetchDB('admin/setCompanies', { array }).then(fetchCompanies),
             },
         } satisfies TableDefinition<Company>,
         technicians: {
@@ -173,7 +167,7 @@
             tableOptions: {
                 fileType: 'csv',
                 fileName: 'technici',
-                store: techniciansList,
+                store: technicians,
                 construct: ([name, email, phone, initials]) => ({
                     name: name ?? '',
                     email: email ?? '',
@@ -191,7 +185,7 @@
                     phone: { header: 'Telefonní číslo' },
                     initials: { header: 'Iniciály do SP' },
                 },
-                sendData: array => updateDataEndpoints('technicians', { array }),
+                sendData: array => fetchDB('admin/setTechnicians', { array }).then(fetchTechnicians),
             },
         } satisfies TableDefinition<Technician>,
         spareParts: {
@@ -202,7 +196,7 @@
             tableOptions: {
                 fileType: 'xlsx',
                 fileName: 'nahradni_dily',
-                store: sparePartsList,
+                store: spareParts,
                 construct: ([code, name, unitPrice]) => ({
                     name: name ?? '',
                     code: Number(code ?? 0),
@@ -218,7 +212,7 @@
                     name: { header: 'Název', cellType: 'header' },
                     unitPrice: { header: 'Jednotková cena', transformValue: s => s.roundTo(2).toLocaleString('cs') + ' Kč' },
                 },
-                sendData: array => updateDataEndpoints('spareParts', { array }),
+                sendData: array => fetchDB('admin/setSpareParts', { array }).then(fetchSpareParts),
             },
         } satisfies TableDefinition<SparePart>,
         arrays: {
@@ -253,9 +247,9 @@
                         store: batteries,
                     },
                 },
-                sendData: arrays => updateDataEndpoints('arrays', { arrays }),
+                sendData: arrays => fetchDB('admin/setArrays', arrays).then(fetchArrays),
             },
-        } satisfies ArraysDefinition<'accumulationTanks' | 'waterTanks' | 'solarCollectors' | 'inverters' | 'batteries'>,
+        } satisfies ArraysDefinition<Arrays>,
         translations: {
             title: 'Překlady',
             contentType: 'custom',

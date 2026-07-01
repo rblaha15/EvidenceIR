@@ -7,7 +7,7 @@ import { browser } from '$app/environment';
 import { openDB } from 'idb';
 import { type Database, isWriteFunction, type WriteFunction } from "$lib/client/db/def";
 import { grantPointsOnline, type LoyaltyProgramTrigger } from '$lib/client/loyaltyProgram';
-import { isOnline } from '$lib/client/realtimeOnline';
+import { isOnline } from '$lib/client/online';
 import { isSP } from '$lib/forms/SP/infoSP.svelte';
 import { mongoDatabase } from "$lib/client/db/mongo";
 

@@ -1,9 +1,9 @@
 <script lang="ts">
+    import { people } from '$lib/client/db/arrays';
     import type { PageProps } from './$types';
     import { setTitle } from '$lib/helpers/globals.js';
     import { irWholeName } from '$lib/helpers/ir';
     import Search from '$lib/components/widgets/Search.svelte';
-    import { usersList } from '$lib/client/realtime';
     import { derived } from 'svelte/store';
     import db from '$lib/client/db';
     import { newSearchWidget } from '$lib/forms/Widget';
@@ -19,7 +19,7 @@
     onMount(() => setTitle(t.users.title, true));
 
     const w = newSearchWidget({
-        items: derived(usersList, l => l.map(i => i.email)),
+        items: derived(people, l => l == 'loading' ? l : l.map(i => i.email)),
         getSearchItem: i => ({
             pieces: [{ text: i }],
         }),

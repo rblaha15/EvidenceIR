@@ -2,12 +2,12 @@ import '$lib/extensions';
 import { getUserByEmail, getUsersByIDs } from '$lib/server/db/admin/auth';
 import { error, json, type RequestHandler, text } from '@sveltejs/kit';
 import { getIsAdmin, getIsLoggedIn } from '$lib/server/auth';
-import { getAllLoyaltyProgramData } from '$lib/server/realtime';
+import { getAllLoyaltyProgramData } from '$lib/server/db/arrays';
 import { dev } from '$app/environment';
 import { type LoyaltyProgramPointsTransaction } from '$lib/client/loyaltyProgram';
 import { addPointsTransaction } from '$lib/server/loyaltyProgram';
 
-export const GET: RequestHandler = async ({ locals, request }) => {
+export const GET: RequestHandler = async ({ locals }) => {
     if (!dev && !getIsLoggedIn(locals)) error(401);
     if (!dev && !getIsAdmin(locals)) error(403);
 

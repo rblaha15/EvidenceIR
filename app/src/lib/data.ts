@@ -20,7 +20,7 @@ import type { User } from '$lib/client/auth';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { FormSZ } from '$lib/forms/SP/formSZ';
-import type { FriendlyCompanies } from '$lib/client/realtime';
+import type { FriendlyCompanies } from '$lib/client/db/arrays';
 import type { PdfDefiningParameter, PdfToSign, PdfWithDefiningParameter } from '$lib/pdf/pdf';
 import type { MatchKeysAndValues } from "mongodb";
 
@@ -180,8 +180,8 @@ export const newIR = (
         changedAt: new Date().valueOf(),
         createdAt: new Date().valueOf(),
         createdBy: {
-            uid: user.uid,
-            email: user.email!,
+            uid: user.id,
+            email: user.email,
         },
         usersWithAccess: [
             user.email!,
@@ -216,7 +216,7 @@ export const newNSP = (
         changedAt: new Date().valueOf(),
         createdAt: new Date().valueOf(),
         createdBy: {
-            uid: user.uid,
+            uid: user.id,
             email: user.email!,
         },
     },

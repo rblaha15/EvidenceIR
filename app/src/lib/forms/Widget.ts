@@ -168,7 +168,7 @@ type SearchArgs<C, T> = {
     type?: GetOrVal<C, HTMLInputTypeAttribute>;
     chosen?: null | T;
 } & ({
-    items: GetTROrVal<C, T[]>;
+    items: GetTROrVal<C, T[] | 'loading'>;
     search?: undefined;
 } | {
     items?: undefined;
@@ -238,7 +238,7 @@ type Search<C, T> = {
     getSearchItem: (item: T, t: Translations, c: C) => SearchItem;
     getXmlEntry: (v: T | null) => string;
     inline: GetB<C>;
-    items: GetTR<C, T[]>;
+    items: GetTR<C, T[] | 'loading'>;
     search?: (search: string) => Promise<T[] | null>;
     type: Get<C, HTMLInputTypeAttribute>;
 };

@@ -5,7 +5,7 @@
     export interface TableOptions<T, K extends string = keyof T & string> {
         fileType: 'xlsx' | 'csv';
         fileName: string;
-        store: Readable<T[]>;
+        store: Readable<T[] | 'loading'>;
         construct: (items: (string | undefined)[]) => T;
         deconstruct: (value: T) => (string | undefined)[];
         key: (value: T, index: number) => Comparable;
@@ -23,7 +23,7 @@
                 getValue: (value: T) => string;
             });
         };
-        sendData: (data: T[]) => Promise<Response>;
+        sendData: (data: T[]) => Promise<void>;
     }
 
     export type TableColor = 'warning' | 'success' | 'danger' | 'tertiary';
@@ -107,17 +107,20 @@
     const confirm = async () => {
         loading = true;
 
-        const response = await sendData(newData);
-
-        loading = false;
-
-        if (response.ok) file = undefined;
-        else error = true;
+        try {
+            await sendData(newData);
+            file = undefined;
+        } catch (e) {
+            console.error(e);
+            error = true;
+        } finally {
+            loading = false;
+        }
     };
 
     const shallowEquals = (a: T, b: T) => [...a.keys(), ...b.keys()].every(key => JSON.stringify(a[key]) === JSON.stringify(b[key]));
 
-    const oldData = $derived($store.sortedBy((it, i) => key(it, i)));
+    const oldData = $derived($store == 'loading' ? [] : $store.sortedBy((it, i) => key(it, i)));
 
     const find = (values: T[], findKey: Comparable) => values.find((value, i) => key(value, i) === findKey);
     const oldKeys = $derived(oldData.map(key));

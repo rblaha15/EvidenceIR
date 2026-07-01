@@ -1,12 +1,12 @@
 <script generics="C, T" lang="ts">
-    import type { Translations } from '$lib/translations';
     import { browser } from '$app/environment';
+    import { Field, FieldError, FieldLabel } from '$lib/components/ui/field';
+    import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '$lib/components/ui/input-group';
+    import { labelAndStar, type SearchItem, type SearchWidget } from '$lib/forms/Widget';
+    import type { Translations } from '$lib/translations';
+    import { Eraser, Search } from '@lucide/svelte';
     import type { ClassValue, MouseEventHandler } from 'svelte/elements';
     import { derived, writable } from 'svelte/store';
-    import { labelAndStar, type SearchItem, type SearchWidget } from '$lib/forms/Widget';
-    import { Eraser, Search } from "@lucide/svelte";
-    import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "$lib/components/ui/input-group";
-    import { Field, FieldError, FieldLabel } from "$lib/components/ui/field";
 
     export const textToFilter = (s: string) => s
         .normalize('NFD')
@@ -49,7 +49,7 @@
     });
     const filtered = widget.search
         ? found
-        : derived([original, search], ([original, search]) => original?.filter((item) =>
+        : derived([original, search], ([original, search]) => original != 'loading' ? original.filter((item) =>
             wordsToFilter(search).every(
                 filter => widget.getSearchItem(item, t, context).let(i => [
                     ...i.pieces.map(p => p.text),
@@ -59,7 +59,7 @@
                     (filter.startsWith('!') ? textToFilter(piece).startsWith(filter.slice(1)) : textToFilter(piece).includes(filter)),
                 ),
             ),
-        ) ?? []);
+        ) : 'loading' as const);
 
     let focused = $state(false);
     let hideRequest = $state(false);
@@ -88,7 +88,7 @@
         widget.onValueSet(context, item);
         showError = true;
         focused = false;
-    }
+    };
 
     const wide = browser ? window.matchMedia('(min-width: 768px)').matches : false;
 
@@ -104,7 +104,7 @@
         <p class={['items-center gap-1', klass, piece.class]}
            style="width: {wide ? (piece.width ?? 1 / searchItem.pieces.length) * 100 : 100}%"
         >
-            <piece.icon class={[{ 'text-danger': piece.danger, 'text-warning-alt': piece.warning }, 'size-4']} />
+            <piece.icon class={[{ 'text-danger': piece.danger, 'text-warning-alt': piece.warning }, 'size-4']}/>
             {piece.text}
         </p>
     {/each}
@@ -114,7 +114,7 @@
     {#if value}
         <InputGroupAddon align="inline-end">
             <InputGroupButton size="icon-sm" onclick={clear}>
-                <Eraser />
+                <Eraser/>
                 <span class="sr-only">{t.widget.clearSelection}</span>
             </InputGroupButton>
         </InputGroupAddon>
@@ -125,7 +125,7 @@
     {#if value && !focused}
         <div class="w-full text-base md:text-sm absolute z-2 py-1.25 md:py-1.75 pointer-events-none top-0 h-9 pl-8.5 pr-14">
             <div
-                class="flex flex-col md:flex-row md:items-center"
+                    class="flex flex-col md:flex-row md:items-center"
             >
                 {@render itemPieces(
                     widget.getSearchItem(value, t, context),
@@ -136,30 +136,34 @@
     {/if}
 {/snippet}
 
-{#snippet items(filtered: T[])}
+{#snippet items(filtered: T[] | 'loading')}
     <div class="w-full text-base md:text-sm
         z-4 overflow-y-auto shadow-lg mb-2 border-t-0 bg-searchbox border-input rounded-2xl border rounded-t-none
         data-[above=true]:max-h-[90vh] data-[above=true]:absolute
     " data-above={showAbove}>
-        {#each filtered as item}
-            {@const searchItem = widget.getSearchItem(item, t, context)}
-            {@const props = {
-                class: 'flex flex-col md:flex-row md:items-center py-2 min-h-5 border-b border-input pl-8.5 pr-3 md:pr-14 w-full cursor-pointer',
-                'aria-disabled': searchItem.disabled,
-                onclick: onItemClick(item),
-            }}
-            {#if searchItem.href}
-                <a href={searchItem.href ?? '#'} {...props}>
-                    {@render itemPieces(searchItem, 'flex')}
-                </a>
-            {:else}
-                <button {...props}>
-                    {@render itemPieces(searchItem, 'flex')}
-                </button>
-            {/if}
+        {#if filtered == 'loading'}
+            <div class="h-9 pl-8.5 pr-3 md:pr-14 flex flex-row items-center text-muted-foreground">{t.widget.loading}</div>
+        {:else if !filtered.length}
+            <div class="h-9 pl-8.5 pr-3 md:pr-14 flex flex-row items-center text-muted-foreground">{t.widget.notFound}</div>
         {:else}
-            <div class="h-9 pl-8.5 pr-3 md:pr-14 flex flex-row items-center text-muted-foreground">Nenalezeno</div>
-        {/each}
+            {#each filtered as item}
+                {@const searchItem = widget.getSearchItem(item, t, context)}
+                {@const props = {
+                    class: 'flex flex-col md:flex-row md:items-center py-2 min-h-5 border-b border-input pl-8.5 pr-3 md:pr-14 w-full cursor-pointer',
+                    'aria-disabled': searchItem.disabled,
+                    onclick: onItemClick(item),
+                }}
+                {#if searchItem.href}
+                    <a href={searchItem.href ?? '#'} {...props}>
+                        {@render itemPieces(searchItem, 'flex')}
+                    </a>
+                {:else}
+                    <button {...props}>
+                        {@render itemPieces(searchItem, 'flex')}
+                    </button>
+                {/if}
+            {/each}
+        {/if}
     </div>
 {/snippet}
 
@@ -175,13 +179,13 @@
                 'rounded-b-none': focused && $filtered != null,
             }]}>
                 <InputGroupAddon align="inline-start">
-                    <Search />
+                    <Search/>
                 </InputGroupAddon>
                 <InputGroupInput
-                    autofocus={widget.inline(context)}
-                    oninput={e => $search = e.currentTarget.value}
-                    type={widget.type(context)}
-                    value={focused ? $search : value ? ' ' : ''}
+                        autofocus={widget.inline(context)}
+                        oninput={e => $search = e.currentTarget.value}
+                        type={widget.type(context)}
+                        value={focused ? $search : value ? ' ' : ''}
                 />
                 {@render eraser()}
                 {@render selectedItem()}

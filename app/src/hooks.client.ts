@@ -16,8 +16,6 @@ const firebaseConfig: FirebaseOptions = {
 
 export const app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig)
 
-export const realtime = getDatabase(app);
-
 export const auth = getAuth(app);
 
 export const analytics = () => getAnalytics(app);

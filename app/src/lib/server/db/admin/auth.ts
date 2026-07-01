@@ -1,40 +1,36 @@
-import { userCollection, type WithAuthID } from '$lib/server/db';
+import type { Person } from '$lib/client/db/arrays';
+import { userCollection, type WithID } from '$lib/server/db';
 import { ObjectId } from 'mongodb';
 
-export const getOrCreateUser = async (
-    email: string,
-    name: string,
-) => {
-    const current = await userCollection.findOne({
-        email,
-    }, {
-        projection: {},
+export const updateUserNamesOrCreateNew = (users: Omit<Person, 'id'>[]) =>
+    userCollection.bulkWrite(users.map(user => ({
+        updateOne: {
+            filter: { email: user.email },
+            update: {
+                $setOnInsert: {
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    emailVerified: false,
+                    role: 'user',
+                    banned: true,
+                },
+                $set: {
+                    name: user.name,
+                },
+            },
+            upsert: true,
+        },
+    }))).then(result => {
+        const upsertedIds = result.upsertedIds as Record<string, ObjectId>;
+        return upsertedIds.mapTo((i, id) =>
+            ({ email: users[i.toNumber()].email, id: id.toString() }),
+        );
     });
-    if (current) return { error: 'user-exists' as const, user: { email, id: current._id!.toString() } };
 
-    const result = await userCollection.insertOne({
-        email,
-        name,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        emailVerified: false,
-        role: 'user',
-        banned: true,
-    });
-
-    return { user: { email, id: result.insertedId.toString() } };
-};
-
-const convertID = <T extends { _id: ObjectId }>({ _id, ...doc }: T): WithAuthID<T> => ({ ...doc, id: _id.toString() });
+const convertID = <T extends { _id: ObjectId }>({ _id, ...doc }: T): WithID<T> => ({ ...doc, id: _id.toString() });
 
 export const getUsersByIDs = (ids: string[]) => userCollection
     .find({ _id: { $in: ids.map(id => new ObjectId(id)) } })
-    .project<{ _id: ObjectId, email: string }>({ email: 1 })
-    .map(convertID)
-    .toArray();
-
-export const getUsersByEmails = (emails: string[]) => userCollection
-    .find({ email: { $in: emails } })
     .project<{ _id: ObjectId, email: string }>({ email: 1 })
     .map(convertID)
     .toArray();
@@ -45,15 +41,18 @@ export const getUserByEmail = (email: string) => userCollection
     })
     .then(u => u ? convertID(u) : u);
 
-export const removeUsers = async (ids: string[]) => userCollection
-    .deleteMany({ _id: { $in: ids.map(id => new ObjectId(id)) } });
+export const getUserIDsByEmails = (emails: string[]) => userCollection
+    .find({ email: { $in: emails } })
+    .project<{ _id: ObjectId, email: string }>({ email: 1 })
+    .map(convertID)
+    .toArray();
 
-export const setUserName = (id: string, name: string) => userCollection
-    .updateOne({ _id: new ObjectId(id) }, { $set: { name } });
+export const removeUsers = async (preserveIDs: string[]) => userCollection
+    .deleteMany({ _id: { $nin: preserveIDs.map(id => new ObjectId(id)) } });
 
 export const enableUser = async (id: string) => {
     console.log('enabling user', id);
     const r = await userCollection
         .updateOne({ _id: new ObjectId(id) }, { $set: { banned: false } });
     console.log('result', r);
-}
+};

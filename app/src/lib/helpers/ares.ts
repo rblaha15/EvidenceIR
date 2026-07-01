@@ -1,4 +1,4 @@
-import { friendlyCompanies, startCompaniesListening } from '$lib/client/realtime';
+import { fetchFriendlyCompanies, friendlyCompanies } from '$lib/client/db/arrays';
 import { get } from 'svelte/store';
 import { unknownCRN } from '$lib/forms/IN/formIN';
 
@@ -31,8 +31,9 @@ export default {
         if (crn == unknownCRN) return undefined;
 
         if (crn.length == 10) {
-            await startCompaniesListening();
+            await fetchFriendlyCompanies();
             const fc = get(friendlyCompanies);
+            if (fc == 'loading') throw new Error('loading');
             const name = [...fc.assemblyCompanies, ...fc.commissioningCompanies]
                 .find(c => c.crn == crn)
                 ?.companyName;
@@ -62,8 +63,9 @@ export default {
         if (crn == unknownCRN) return undefined;
 
         if (crn.length == 10) {
-            await startCompaniesListening();
+            await fetchFriendlyCompanies();
             const fc = get(friendlyCompanies);
+            if (fc == 'loading') throw new Error('loading');
             return [...fc.assemblyCompanies, ...fc.commissioningCompanies]
                 .find(c => c.crn == crn)
                 ?.companyName;

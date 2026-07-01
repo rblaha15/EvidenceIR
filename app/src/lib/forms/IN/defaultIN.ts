@@ -1,22 +1,36 @@
 import {
+    accumulationTanks, batteries,
+    type Company,
+    friendlyCompanies, inverters,
+    solarCollectors,
+    type Technician,
+    technicians, waterTanks
+} from '$lib/client/db/arrays';
+import {
     newRadioWidget,
     newTitleWidget,
     type ChooserWidget,
-    type ScannerWidget, newInputWidget, newButtonWidget, newHiddenValueWidget, newTextWidget, newSearchWidget, newChooserWidget,
+    type ScannerWidget,
+    newInputWidget,
+    newButtonWidget,
+    newHiddenValueWidget,
+    newTextWidget,
+    newSearchWidget,
+    newChooserWidget,
     newScannerWidget,
     newDoubleChooserWidget,
-    newMultiCheckboxWidget, newCounterWidget, newCheckboxWidget,
+    newMultiCheckboxWidget,
+    newCounterWidget,
+    newCheckboxWidget,
 } from '../Widget';
-import { type ContextIN, type FormIN, unknownCompany, unknownCRN, type UserForm, type UserFormContext } from './formIN';
 import {
-    accumulationTanks, batteries,
-    type Company,
-    inverters,
-    solarCollectors,
-    type Technician,
-    techniciansList,
-    waterTanks,
-} from '$lib/client/realtime';
+    type ContextIN,
+    type FormIN,
+    unknownCompany,
+    unknownCRN,
+    type UserForm,
+    type UserFormContext
+} from './formIN';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 import {
     doesNotHaveIRNumber,
@@ -37,12 +51,11 @@ import { dayISO, time } from '$lib/helpers/date';
 import { type HeatPump, heatPumps } from '$lib/helpers/products';
 import type { Translations } from '$lib/translations';
 import { derived } from 'svelte/store';
-import { assemblyCompanies, commissioningCompanies } from '$lib/helpers/companies';
 import type { FormPlus } from '$lib/forms/Form';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import db from '$lib/client/db';
 import ruian from '$lib/helpers/ruian';
-import { Search } from "@lucide/svelte";
+import { Search } from '@lucide/svelte';
 
 const jeFO = (c: UserFormContext<never>) => c.v.koncovyUzivatel.typ == `individual`;
 const fo = (c: UserFormContext<never>) => jeFO(c);
@@ -139,7 +152,11 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         _title: newTitleWidget<C>({ text: (t, c) => jeFO(c) ? t.in.residence : t.in.headquarters, level: 3 }),
         search: newSearchWidget({
             label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
-                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1, notForSearchText: true }, { text: i.city, width: .4 }],
+                pieces: [{ text: i.house, width: .5 }, {
+                    text: i.postalCode,
+                    width: .1,
+                    notForSearchText: true
+                }, { text: i.city, width: .4 }],
             }), search: ruian.suggest, onValueSet: (c, a) => {
                 c.v.bydliste.ulice = a?.house ?? '';
                 c.v.bydliste.psc = a?.postalCode ?? '';
@@ -174,7 +191,11 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         }),
         search: newSearchWidget({
             label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
-                pieces: [{ text: i.house, width: .5 }, { text: i.postalCode, width: .1, notForSearchText: true }, { text: i.city, width: .4 }],
+                pieces: [{ text: i.house, width: .5 }, {
+                    text: i.postalCode,
+                    width: .1,
+                    notForSearchText: true
+                }, { text: i.city, width: .4 }],
             }), search: ruian.suggest, onValueSet: (c, a) => {
                 c.v.mistoRealizace.ulice = a?.house ?? '';
                 c.v.mistoRealizace.psc = a?.postalCode ?? '';
@@ -203,7 +224,8 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         _titleCompanies: newTitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
         _title: newTitleWidget({ text: t => t.in.assemblyCompany, level: 3 }),
         company: newSearchWidget<C, Company, true>({
-            items: t => derived(assemblyCompanies, c => [unknownCompany(t), ...c]),
+            items: t => derived(friendlyCompanies, c =>
+                c == 'loading' ? c : [unknownCompany(t), ...c.assemblyCompanies]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
                 pieces: i.crn == unknownCRN ? [
                     { text: i.companyName },
@@ -221,7 +243,11 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
                 c.v.montazka.zastupce = company?.representative ?? '';
             },
         }),
-        _or: newTextWidget<C>({ text: t => t.in.or_CRN, showInXML: false, show: c => c.v.montazka.company?.crn != unknownCRN }),
+        _or: newTextWidget<C>({
+            text: t => t.in.or_CRN,
+            showInXML: false,
+            show: c => c.v.montazka.company?.crn != unknownCRN
+        }),
         ico: newInputWidget({
             label: t => t.in.crnToARES,
             onError: t => t.wrong.crn,
@@ -274,7 +300,8 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
             },
         }),
         company: newSearchWidget<C, Company, true>({
-            items: t => derived(commissioningCompanies, c => [unknownCompany(t), ...c]),
+            items: t => derived(friendlyCompanies, c =>
+                c == 'loading' ? c : [unknownCompany(t), ...c.commissioningCompanies]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
                 pieces: i.crn == unknownCRN ? [
                     { text: i.companyName },
@@ -292,7 +319,11 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
                 c.v.uvedeni.zastupce = company?.representative ?? '';
             },
         }),
-        _or: newTextWidget<C>({ text: t => t.in.or_CRN, showInXML: false, show: c => c.v.montazka.company?.crn != unknownCRN }),
+        _or: newTextWidget<C>({
+            text: t => t.in.or_CRN,
+            showInXML: false,
+            show: c => c.v.montazka.company?.crn != unknownCRN
+        }),
         ico: newInputWidget({
             label: t => t.in.crnToARES,
             onError: t => t.wrong.crn,
@@ -310,8 +341,8 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
             }, showInXML: false,
         }),
         _regulus: newSearchWidget<C, Technician, true>({
-            items: derived(techniciansList, $technicians =>
-                $technicians.filter(t => t.email.endsWith('cz')),
+            items: derived(technicians, $technicians =>
+                $technicians == 'loading' ? $technicians : $technicians.filter(t => t.email.endsWith('cz')),
             ),
             label: t => t.in.searchRepresentative, showInXML: false, getSearchItem: i => ({
                 pieces: [

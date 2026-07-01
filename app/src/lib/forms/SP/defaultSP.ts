@@ -1,3 +1,4 @@
+import { type SparePart, spareParts } from '$lib/client/db/arrays';
 import {
     type Get,
     type GetT,
@@ -15,11 +16,9 @@ import {
     newTextWidget,
     newTitleWidget,
 } from '$lib/forms/Widget';
-import { type SparePart, sparePartsList } from '$lib/client/realtime';
 import type { FormSP, GenericContextSP, GenericFormSP, Operation, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
 import type { Translations } from '$lib/translations';
 import { browser } from '$app/environment';
-import { derived } from 'svelte/store';
 import { generalizeServiceProtocol } from '$lib/pdf/pdf';
 import { type FormGroupPlus, type FormPlus } from '$lib/forms/Form';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
@@ -49,12 +48,7 @@ const sparePart = <C extends GenericContextSP<C>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 |
             show, text: t => t.sp.sparePart(n), class: 'text-lg',
         }),
         dil: newSearchWidget({
-            items: derived(sparePartsList, $sparePartsList =>
-                $sparePartsList.map(it => ({
-                    ...it,
-                    name: it.name.replace('  ', ' '),
-                }) satisfies SparePart),
-            ),
+            items: spareParts,
             required: false, show, hideInRawData: true, label: t => t.sp.searchItem,
             onValueSet: (c, part) => {
                 const nd = dil(c);

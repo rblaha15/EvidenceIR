@@ -118,6 +118,7 @@ const de: PlainTranslations = {
         note: `Notiz`,
         description: `Beschreibung`,
         contactPerson: 'Ansprechperson',
+        loading: 'Laden…',
         unknownCompany: {
             companyName: 'Unbekannt',
             phone: '+499999999999',
@@ -432,6 +433,8 @@ const de: PlainTranslations = {
         selectFile: 'Datei auswählen',
         selectFiles: 'Dateien auswählen',
         remove_File: 'Löschen',
+        loading: 'Laden…',
+        notFound: 'Nicht gefunden',
     },
     users: {
         title: 'Benutzer mit Zugriff auf das Register',

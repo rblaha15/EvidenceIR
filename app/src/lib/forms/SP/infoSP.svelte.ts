@@ -1,6 +1,6 @@
 import { user, type User } from '$lib/client/auth';
-import { startSparePartsListening, startTechniciansListening, type Technician, techniciansList } from '$lib/client/realtime';
 import { page } from '$app/state';
+import { fetchSpareParts, fetchTechnicians, type Technician, technicians } from '$lib/client/db/arrays';
 import { extractSPIDFromRawData, type SPID, spName, type SZID } from '$lib/helpers/ir';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
@@ -11,7 +11,7 @@ import defaultSP from '$lib/forms/SP/defaultSP';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import { type Raw, valuesToRawData } from '$lib/forms/Form';
 import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
-import { getIsOnline } from '$lib/client/realtimeOnline';
+import { getIsOnline } from '$lib/client/online';
 import db from '$lib/client/db';
 import { error } from '@sveltejs/kit';
 import type { FormSZ } from '$lib/forms/SP/formSZ';
@@ -19,7 +19,7 @@ import type { FormSZ } from '$lib/forms/SP/formSZ';
 export const isSP = (raw: Raw<FormSP | FormSZ> | undefined): raw is Raw<FormSP> => !!raw && ('ukony' in raw)
 export const ensureSP = (raw: Raw<FormSP | FormSZ> | undefined) => isSP(raw) ? raw : error(400, { message: 'Provided data is not a protocol' });
 
-const infoSP: FormInfo<ContextSP, FormSP, [[Technician[], User | undefined]], 'SP'> = {
+const infoSP: FormInfo<ContextSP, FormSP, [[Technician[] | 'loading', User | undefined]], 'SP'> = {
     type: 'IR',
     storeName: () => 'stored_sp',
     form: () => defaultSP(),
@@ -83,18 +83,19 @@ const infoSP: FormInfo<ContextSP, FormSP, [[Technician[], User | undefined]], 'S
     title: (t, mode) =>
         mode == 'edit' ? t.sp.editSP : t.sp.title,
     onMount: async ({ values, ir }) => {
-        await startTechniciansListening();
-        await startSparePartsListening();
+        await fetchTechnicians();
+        await fetchSpareParts();
         if (!values.system.datumUvedeni && ir.UP.dateTC)
             values.system.datumUvedeni = ir.UP.dateTC;
     },
     storeEffects: [
-        [([$techniciansList, $user], { values, edit }) => { // Also in NSP
-            const ja = edit ? undefined : $techniciansList.find(t => $user?.email == t.email);
+        [([$technicians, $user], { values, edit }) => { // Also in NSP
+            const ja = edit ? undefined : $technicians == 'loading' ? undefined
+                : $technicians.find(t => $user?.email == t.email);
             if (!values.zasah.clovek) values.zasah.clovek = ja?.name ?? values.zasah.clovek;
             if (!values.zasah.inicialy) values.zasah.inicialy = ja?.initials ?? values.zasah.inicialy;
             values.zasah.showNameFileds = values.zasah.clovek != ja?.name;
-        }, [techniciansList, user]],
+        }, [technicians, user]],
     ],
     excelImport: {
         sheet: 'Protokol',

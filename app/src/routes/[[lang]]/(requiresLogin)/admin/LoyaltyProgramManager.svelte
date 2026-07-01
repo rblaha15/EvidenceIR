@@ -1,8 +1,8 @@
 <script lang="ts">
+    import { people, type Person } from '$lib/client/db/arrays';
     import { adminDescriptions, type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
     import { detailUrlIR } from '$lib/helpers/runes.svelte';
     import { datetimeFromISO, nowISO } from '$lib/helpers/date';
-    import { type Person, usersList } from '$lib/client/realtime';
     import type { IR } from '$lib/data';
     import { derived } from 'svelte/store';
     import { irLabel, irName } from '$lib/helpers/ir';
@@ -17,7 +17,7 @@
     import { PencilRuler, Server, Trash2, OctagonAlert, Check } from "@lucide/svelte";
 
     const userW = newSearchWidget<unknown, Person>({
-        label: 'Uživatel', items: usersList, getSearchItem: i => ({
+        label: 'Uživatel', items: people, getSearchItem: i => ({
             pieces: [
                 { text: i.email },
             ],

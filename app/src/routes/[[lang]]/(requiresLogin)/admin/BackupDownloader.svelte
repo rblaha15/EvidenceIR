@@ -1,12 +1,12 @@
 <script lang="ts">
+    import { fetchDB } from '$lib/client/db/endpoints';
     import JSZip from 'jszip';
     import { dayISO } from '$lib/helpers/date';
     import { createFileUrl, downloadFile } from '$lib/helpers/files';
     import { Button } from "$lib/components/ui/button";
-    import { backup } from "$lib/client/db/mongo";
 
     const download = async () => {
-        const { irs, nsps } = await backup();
+        const { irs, nsps } = await fetchDB('admin/backup');
         const zip = new JSZip();
 
         zip.file('backupIR.json', JSON.stringify(irs, undefined, 4));

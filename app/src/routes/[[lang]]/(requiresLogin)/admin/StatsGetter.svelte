@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { fetchDB } from '$lib/client/db/endpoints';
     import Widget from '$lib/components/Widget.svelte';
     import { getTranslations } from '$lib/translations';
     import { dateFromISO, dayISO } from '$lib/helpers/date';
@@ -8,7 +9,6 @@
     import { OctagonAlert, Check } from '@lucide/svelte';
     import { Spinner } from "$lib/components/ui/spinner";
     import { Button } from "$lib/components/ui/button";
-    import { backup } from "$lib/client/db/mongo";
 
     const fromW = newInputWidget({
         type: 'date', label: 'Od (včetně)', text: dayISO(),
@@ -34,7 +34,7 @@
             const fromD = new Date(from);
             const toD = new Date(to);
 
-            const { irs, nsps } = await backup();
+            const { irs, nsps } = await fetchDB('admin/backup');
 
             const allProtocols = [
                 ...irs.filter(ir => !ir.deleted).flatMap(ir => ir.SPs.getValues()),

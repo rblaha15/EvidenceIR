@@ -376,6 +376,8 @@ const en: PlainTranslations = {
         selectFile: 'Select a file',
         selectFiles: 'Select files',
         remove_File: 'Remove',
+        loading: 'Loading…',
+        notFound: 'Not found',
     },
     pdf: {
         fileLanguage: `Document language`,

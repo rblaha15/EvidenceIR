@@ -1,5 +1,5 @@
 import type { Readable } from 'svelte/store';
-import { getIsOnline, isOnline } from '$lib/client/realtimeOnline';
+import { getIsOnline, isOnline } from '$lib/client/online';
 import { flatDerived } from '$lib/helpers/stores';
 import { offlineDatabase } from '$lib/client/db/offline.svelte';
 import { addToHistory } from '$lib/client/history.svelte';
@@ -13,9 +13,6 @@ const mergedStore = (name: GetAsStoreFunction, args: Parameters<Database[GetAsSt
         const db = $isOnline ? mongoDatabase : offlineDatabase;
         // @ts-expect-error TS doesn't know it's a tuple
         return db[name](...args) as GetAsStoreFunctionReturnType;
-    },
-    (_, $isOnline) => {
-        // console.log('Got value from the', name, 'store from the', $isOnline ? 'online' : 'offline', 'database')
     },
 );
 

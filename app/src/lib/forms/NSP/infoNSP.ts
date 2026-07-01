@@ -1,10 +1,5 @@
 import { getUser, user, type User } from '$lib/client/auth';
-import {
-    startSparePartsListening,
-    startTechniciansListening,
-    type Technician,
-    techniciansList,
-} from '$lib/client/realtime';
+import { fetchSpareParts, fetchTechnicians, type Technician, technicians } from '$lib/client/db/arrays';
 import { detailUrlNSP } from '$lib/helpers/runes.svelte.js';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
@@ -16,7 +11,7 @@ import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
 import db from '$lib/client/db';
 import { newNSP } from '$lib/data';
 
-const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[], User | undefined]], 'NSP'> = {
+const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loading', User | undefined]], 'NSP'> = {
     type: '',
     storeName: () => 'stored_new_SP',
     form: defaultNSP,
@@ -53,8 +48,8 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[], User | u
     createContext: ({ values: v, form: f, mode }) => ({ v, f, edit: mode == 'edit' }),
     title: (t, m) => m == 'edit' ? t.sp.editSP : t.sp.title,
     onMount: async () => {
-        await startTechniciansListening();
-        await startSparePartsListening();
+        await fetchTechnicians();
+        await fetchSpareParts();
     },
     getEditData: async url => {
         const nspid = url.searchParams.get('edit-nspid') as NSPID | null;
@@ -71,12 +66,13 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[], User | u
         return !sp ? undefined : { raw: sp.NSP };
     },
     storeEffects: [
-        [([$techniciansList, $currentUser], { values, edit }) => { // From SP
-            const ja = edit ? undefined : $techniciansList.find(t => $currentUser?.email == t.email);
+        [([$technicians, $currentUser], { values, edit }) => { // From SP
+            const ja = edit || $technicians == 'loading' ? undefined
+                : $technicians.find(t => $currentUser?.email == t.email);
             if (!values.zasah.clovek) values.zasah.clovek = ja?.name ?? values.zasah.clovek;
             if (!values.zasah.inicialy) values.zasah.inicialy = ja?.initials ?? values.zasah.inicialy;
             values.zasah.showNameFileds = values.zasah.clovek != ja?.name;
-        }, [techniciansList, user]],
+        }, [technicians, user]],
     ],
     pdfImport: {
         onImport: () => {},

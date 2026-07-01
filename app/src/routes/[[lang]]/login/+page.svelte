@@ -2,12 +2,11 @@
     import { browser } from '$app/environment';
     import { page } from '$app/state';
     import { signIn } from '$lib/client/auth';
-    import authentication from '$lib/client/authentication';
+    import { fetchPeople, fetchTechnicians } from '$lib/client/db/arrays';
     import FormDefaults from '$lib/components/FormDefaults.svelte';
     import type { PageProps } from './$types';
     import { onMount } from 'svelte';
     import { initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
-    import { startUsersListening, startTechniciansListening } from '$lib/client/realtime';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { goto } from '$app/navigation';
     import { logEvent } from 'firebase/analytics';
@@ -28,8 +27,8 @@
     let password = $state('');
     const redirect = $derived(browser ? (page.url.searchParams.get('redirect') ?? initialRouteLoggedIn) : initialRouteLoggedIn);
     onMount(() => {
-        startTechniciansListening();
-        startUsersListening();
+        fetchTechnicians();
+        fetchPeople();
     });
 
     let signUpLink = $derived(relUrl(`/signup?email=${email}&redirect=${redirect}`));

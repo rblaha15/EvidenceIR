@@ -1,7 +1,8 @@
-import updateDataEndpoints from '$lib/client/updateDataEndpoints';
+import { fetchLoyaltyProgramData } from '$lib/client/db/arrays';
+import { fetchDB } from '$lib/client/db/endpoints';
 import type { IRID } from '$lib/helpers/ir';
 import type { TC } from '$lib/forms/IN/defaultIN';
-import { getIsOnline } from '$lib/client/realtimeOnline';
+import { getIsOnline } from '$lib/client/online';
 import { addLoyaltyProgramTriggerToHistory } from '$lib/client/history.svelte';
 
 export type Points = number;
@@ -53,8 +54,10 @@ export const grantPoints = async <T extends LoyaltyPointTriggerType>(data: Loyal
     addLoyaltyProgramTriggerToHistory(data, isOnline);
 }
 
-export const grantPointsOnline = <T extends LoyaltyPointTriggerType>(data: LoyaltyProgramTrigger<T>) =>
-    updateDataEndpoints('loyaltyPoints', { data });
+export const grantPointsOnline = async <T extends LoyaltyPointTriggerType>(data: LoyaltyProgramTrigger<T>) => {
+    await fetchDB('loyaltyPoints', { data });
+    await fetchLoyaltyProgramData();
+}
 
 export type StandardLoyaltyProgramPointsTransaction = {
     addition: Points;
@@ -73,6 +76,7 @@ export type OtherLoyaltyProgramPointsTransaction = {
 export type LoyaltyProgramPointsTransaction = StandardLoyaltyProgramPointsTransaction | OtherLoyaltyProgramPointsTransaction;
 
 export type LoyaltyProgramUserData = {
+    userID: string;
     points: Points;
     history: (LoyaltyProgramPointsTransaction)[];
 };

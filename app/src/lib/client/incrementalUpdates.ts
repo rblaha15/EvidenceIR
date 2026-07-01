@@ -8,7 +8,7 @@ import {
     offlineDatabaseManager as odm,
 } from '$lib/client/db/offline.svelte';
 import type { Data, DeletedData, ExistingData, ID, IR, NSP, Timestamp } from '$lib/data';
-import { isOnline } from '$lib/client/realtimeOnline';
+import { isOnline } from '$lib/client/online';
 import { mongoDatabase } from "$lib/client/db/mongo";
 
 const v = 6

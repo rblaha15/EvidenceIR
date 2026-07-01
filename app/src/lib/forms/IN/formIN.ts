@@ -13,7 +13,7 @@ import type {
     TextWidget,
     TitleWidget,
 } from '$lib/forms/Widget';
-import type { Company } from '$lib/client/realtime';
+import type { Company } from '$lib/client/db/arrays';
 import type { Form, Values } from '$lib/forms/Form';
 import type { HeatPump } from '$lib/helpers/products';
 import { getTranslations, type Translations } from '$lib/translations';

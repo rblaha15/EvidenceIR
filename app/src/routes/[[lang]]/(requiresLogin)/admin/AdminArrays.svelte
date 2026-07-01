@@ -11,7 +11,7 @@
                 header: string;
             };
         };
-        sendData: (data: Record<K, string[]>) => Promise<Response>;
+        sendData: (data: Record<K, string[]>) => Promise<void>;
     }
 
 </script>
@@ -75,12 +75,15 @@
     const confirm = async () => {
         loading = true;
 
-        const response = await sendData(newData);
-
-        loading = false;
-
-        if (response.ok) file = undefined;
-        else error = true;
+        try {
+            await sendData(newData);
+            file = undefined;
+        } catch (e) {
+            console.error(e);
+            error = true;
+        } finally {
+            loading = false;
+        }
     };
 
     const oldDataStore = derived(

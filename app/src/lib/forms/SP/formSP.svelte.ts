@@ -1,3 +1,4 @@
+import type { SparePart } from '$lib/client/db/arrays';
 import {
     type ChooserWidget,
     type CounterWidget, type HiddenValueWidget,
@@ -8,7 +9,6 @@ import {
     type RadioWithInputWidget,
     type SearchWidget,
 } from '$lib/forms/Widget';
-import { type SparePart } from '$lib/client/realtime';
 import { type Form, type Raw, type Values } from '$lib/forms/Form';
 import type { IR } from '$lib/data';
 import type { GenericContextSZ, GenericFormSZ } from '$lib/forms/SP/formSZ';

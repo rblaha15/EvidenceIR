@@ -1,7 +1,6 @@
 import { getUser } from '$lib/client/auth';
-import { startUsersListening } from '$lib/client/realtime';
+import { fetchPeople } from '$lib/client/db/arrays';
 import defaultNK from '$lib/forms/NK/defaultNK';
-import { get } from 'svelte/store';
 import { getTranslations } from '$lib/translations';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
@@ -59,7 +58,7 @@ const infoNK: IndependentFormInfo<ContextNK, FormNK> = {
     createContext: ({ form: f, values: v }) => ({ f, v }),
     title: t => t.nk.demandForm,
     onMount: async () => {
-        await startUsersListening();
+        await fetchPeople();
     },
     requiredRegulus: true,
     buttons: _ => ({

@@ -4,7 +4,7 @@ import { type Component, mount } from 'svelte';
 import { dev } from '$app/environment';
 import { get } from 'svelte/store';
 import { upload } from "@vercel/blob/client";
-import { getIsOnline } from '$lib/client/realtimeOnline';
+import { getIsOnline } from '$lib/client/online';
 import { addEmailToHistory } from '$lib/client/history.svelte';
 
 export type Address = {

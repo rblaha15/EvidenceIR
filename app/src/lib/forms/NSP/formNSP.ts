@@ -1,10 +1,10 @@
+import type { User } from '$lib/client/auth';
 import type { UserForm } from '$lib/forms/IN/formIN';
 import { type GenericContextSP, type GenericFormSP } from '$lib/forms/SP/formSP.svelte';
 import { type Form, type FormPlus, type Values, valuesToRawData } from '$lib/forms/Form';
 import { userData } from '$lib/forms/IN/defaultIN';
 import { multilineTooLong, defaultGenericSP } from '$lib/forms/SP/defaultSP';
 import { newNSP } from '$lib/data';
-import type { User } from 'firebase/auth';
 import { type InputWidget, newInputWidget, newTextWidget, newTitleWidget } from '$lib/forms/Widget';
 
 export interface ContextNSP extends GenericContextSP<ContextNSP> {
@@ -20,7 +20,7 @@ export interface FormNSP extends GenericFormSP<ContextNSP>, UserForm<ContextNSP>
 
 export const defaultNSP = (): FormPlus<FormNSP> => {
     const { system, ...otherSP } = defaultGenericSP<ContextNSP>((_, c) => ({
-        data: newNSP(valuesToRawData(c.f, c.v), { email: '', uid: '' } as User),
+        data: newNSP(valuesToRawData(c.f, c.v), { email: '', id: '' } as User),
         form: c.f,
         values: c.v,
         pumpCount: 1,

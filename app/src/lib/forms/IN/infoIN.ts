@@ -1,11 +1,10 @@
 import {
-    friendlyCompanies,
-    responsiblePerson,
-    startAccumulationTanksListening, startBatteriesListening, startInvertersListening,
-    startSolarCollectorsListening,
-    startTechniciansListening,
-    startWaterTanksListening,
-} from '$lib/client/realtime';
+    fetchArrays,
+    fetchFriendlyCompanies, fetchMyInfo,
+    fetchTechnicians,
+    type FriendlyCompanies,
+    friendlyCompanies, myInfo, type Person
+} from '$lib/client/db/arrays';
 import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
@@ -25,7 +24,7 @@ import type { IndependentFormInfo, Result } from '$lib/forms/FormInfo';
 import MailXML from '$lib/emails/MailXML.svelte';
 import { type Raw, type Values } from '$lib/forms/Form';
 import { grantPoints } from '$lib/client/loyaltyProgram';
-import { getIsOnline } from '$lib/client/realtimeOnline';
+import { getIsOnline } from '$lib/client/online';
 import db from '$lib/client/db';
 import { type ExistingIR, type IR, newIR } from '$lib/data';
 
@@ -132,7 +131,7 @@ const changeIRID = async (
     if (!draft) await grantPoints({ type: 'disconnectRegulusRoute', irid: oldIRID });
     return true;
 };
-const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [string | null]], never, {
+const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Person | undefined]], never, {
     draft: boolean,
     editIR?: IR
 }> = {
@@ -158,7 +157,7 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [str
         }
 
         const user = (await getUser())!;
-        const $friendlyCompanies = get(friendlyCompanies)!;
+        const $friendlyCompanies = get(friendlyCompanies) as FriendlyCompanies;
 
         const newIr = newIR(raw, user, draft, $friendlyCompanies);
         if (edit) {
@@ -195,12 +194,10 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [str
         return !ir ? { other: { draft: false } } : { raw: ir.IN, other: { draft: ir.isDraft } };
     },
     onMount: async ({ values }) => {
-        await startTechniciansListening();
-        await startSolarCollectorsListening();
-        await startAccumulationTanksListening();
-        await startWaterTanksListening();
-        await startInvertersListening();
-        await startBatteriesListening();
+        await fetchMyInfo();
+        await fetchFriendlyCompanies();
+        await fetchTechnicians();
+        await fetchArrays();
 
         const count = cascadePumps(values).length;
         values.tc.pocet = count == 0 ? 1 : count;
@@ -213,10 +210,10 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [str
             if ($isRegulusOrAdmin && !values.vzdalenyPristup.plati)
                 values.vzdalenyPristup.plati = 'laterAccordingToTheProtocol';
         }, [isRegulusOrAdmin]],
-        [([$responsiblePerson], { values }) => {
-            if ($responsiblePerson != null) values.vzdalenyPristup.zodpovednaOsoba = $responsiblePerson;
-            if ($responsiblePerson != null) values.vzdalenyPristup.showResponsiblePerson = false;
-        }, [responsiblePerson]],
+        [([$myInfo], { values }) => {
+            if ($myInfo?.responsiblePerson != null) values.vzdalenyPristup.zodpovednaOsoba = $myInfo.responsiblePerson;
+            if ($myInfo?.responsiblePerson != null) values.vzdalenyPristup.showResponsiblePerson = false;
+        }, [myInfo]],
     ],
     excelImport: {
         cells: cellsIN,

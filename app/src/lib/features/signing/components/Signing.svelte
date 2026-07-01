@@ -11,7 +11,7 @@
     import Widget from '$lib/components/Widget.svelte';
     import type { Translations } from '$lib/translations';
     import { confirmCode } from '$lib/features/signing/actions/code';
-    import { isOnline } from '$lib/client/realtimeOnline';
+    import { isOnline } from '$lib/client/online';
     import type { SendCodeParams } from '$lib/features/signing/domain/sms';
     import { onMount } from 'svelte';
     import { setTitle } from '$lib/helpers/globals';

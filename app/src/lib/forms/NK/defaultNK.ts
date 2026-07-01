@@ -1,8 +1,15 @@
+import {
+    accumulationTanks,
+    type Company,
+    friendlyCompanies,
+    people,
+    type Person,
+    waterTanks
+} from '$lib/client/db/arrays';
+import { unknownCompany } from '$lib/forms/IN/formIN';
 import { getTranslations } from '$lib/translations';
-import { accumulationTanks, type Company, type Person, usersList, waterTanks } from '$lib/client/realtime';
 import { heatPumps, indoorUnits } from '$lib/helpers/products';
 import { type ContextNK, type FormNK, origins } from './formNK';
-import { assemblyCompanies } from '$lib/helpers/companies';
 import { derived, readable } from 'svelte/store';
 import { user } from '$lib/client/auth';
 import ares from '$lib/helpers/ares';
@@ -51,7 +58,8 @@ export default (): FormPlus<FormNK> => ({
         phone: newInputWidget({ required: false, label: t => t.nk.contacts.phone, inputmode: 'tel' }),
         email: newInputWidget({ required: false, label: t => t.nk.contacts.email, type: 'email', inputmode: 'email' }),
         assemblyCompanySearch: newSearchWidget<ContextNK, Company, true>({
-            label: t => t.nk.contacts.searchCompanyInList, items: assemblyCompanies, getSearchItem: i => ({
+            label: t => t.nk.contacts.searchCompanyInList, items: derived(friendlyCompanies, c =>
+                c == 'loading' ? c : c.assemblyCompanies), getSearchItem: i => ({
                 pieces: [
                     { text: i.crn, width: .2 },
                     { text: i.companyName, width: .8 },
@@ -382,7 +390,8 @@ export default (): FormPlus<FormNK> => ({
                     { text: t.koNumber!, width: .1 },
                     { text: t.email, width: .5 },
                 ],
-            }), show: false, required: true, items: (_, c) => derived([usersList, user], ([$users, $user]) => {
+            }), show: false, required: true, items: (_, c) => derived([people, user], ([$users, $user]) => {
+                if ($users == 'loading') return [];
                 const withKO = $users.filter(p => p.koNumber && p.responsiblePerson);
                 const me = withKO.find(t => $user?.email == t.email);
                 if (me) c.v.other.representative = me;

@@ -5,7 +5,7 @@
     import { detailUrlIR, detailUrlNSP } from '$lib/helpers/runes.svelte';
     import { isRegulusOrAdmin } from '$lib/client/auth';
     import type { PageProps } from './$types';
-    import { isOnline } from '$lib/client/realtimeOnline';
+    import { isOnline } from '$lib/client/online';
     import { resetStores } from '$lib/client/incrementalUpdates';
     import { derived, readable } from 'svelte/store';
     import { analytics } from '../../../../hooks.client';

@@ -1,13 +1,12 @@
 <script lang="ts">
-    import authentication from '$lib/client/authentication.js';
-    import { page } from '$app/state';
     import { user, isAdmin, isAnyRegulusOrAdmin, signOut } from '$lib/client/auth.js';
-    import { loyaltyProgramDataStore, responsiblePerson } from '$lib/client/realtime';
+    import { fetchLoyaltyProgramData, fetchMyInfo, loyaltyProgramData, myInfo } from '$lib/client/db/arrays';
     import type { Translations } from '$lib/translations';
     import { goto } from '$app/navigation';
     import { aA } from '$lib/helpers/stores';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { logEvent } from 'firebase/analytics';
+    import { onMount } from 'svelte';
     import { analytics } from '../../../hooks.client';
     import { CircleUser, Gift, LogOut, RectangleEllipsis, ShieldCogCorner } from "@lucide/svelte";
     import {
@@ -28,14 +27,11 @@
     const userEmail = $derived($user?.email ?? '');
 
     const changePassword = async () => {
-        const { link } = await authentication('getPasswordResetLink', {
-            email: userEmail,
-            lang: page.data.languageCode,
-            redirect: page.url.pathname.slice(page.data.languageCode.length + 1) + page.url.search,
-            mode: 'edit',
-        });
-        await goto(link, { replaceState: true });
+        // TODO!!!
     };
+
+    onMount(fetchLoyaltyProgramData);
+    onMount(fetchMyInfo);
 </script>
 
 <DropdownMenu>
@@ -49,19 +45,19 @@
                 <DropdownMenuLabel>{$user?.name}</DropdownMenuLabel>
             {/if}
             <DropdownMenuLabel>{ta.email}: {userEmail}</DropdownMenuLabel>
-            {#if $responsiblePerson}
-                <DropdownMenuLabel>{ta.responsiblePerson}: {$responsiblePerson}</DropdownMenuLabel>
+            {#if $myInfo}
+                <DropdownMenuLabel>{ta.responsiblePerson}: {$myInfo.responsiblePerson}</DropdownMenuLabel>
             {/if}
             {#if $user?.id && $isAdmin}
                 <DropdownMenuLabel>UID:{$aA}<br />{$user?.id}</DropdownMenuLabel>
             {/if}
         </DropdownMenuGroup>
-        {#if !$isAnyRegulusOrAdmin && $loyaltyProgramDataStore}
+        {#if !$isAnyRegulusOrAdmin && $loyaltyProgramData}
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
                 <DropdownMenuGroupHeading>{ta.loyaltyProgram}</DropdownMenuGroupHeading>
                 <DropdownMenuLabel>
-                    {ta.currentPointBalance}: {$loyaltyProgramDataStore.points}
+                    {ta.currentPointBalance}: {$loyaltyProgramData.points}
                 </DropdownMenuLabel>
                 <DropdownMenuItem onSelect={() => goto(relUrl('/rewards'))}>
                     <Gift />

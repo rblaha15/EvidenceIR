@@ -1,3 +1,4 @@
+import type { Company, Person } from '$lib/client/db/arrays';
 import { type Form, type Values } from '$lib/forms/Form';
 import type {
     CheckboxWidget,
@@ -14,7 +15,6 @@ import type {
     TextWidget,
     TitleWidget,
 } from '$lib/forms/Widget';
-import { type Company, type Person } from '$lib/client/realtime';
 import { type HeatPump, type IndoorUnit } from '$lib/helpers/products';
 
 export const origins = {

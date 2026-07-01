@@ -48,28 +48,3 @@ export const mongoDatabase: Database = [...readDatabaseMethods, ...writeDatabase
         }
     },
 ) as Database;
-
-export const restore = async (irid: IRID) => {
-    const response = await fetch('/api/db/admin/restore', {
-        method: 'POST',
-        body: JSON.stringify({ irid }),
-        headers: {
-            'content-type': 'application/json',
-        }
-    });
-
-    if (!response.ok) throw new Error(await response.text());
-}
-
-export const backup = async () => {
-    const response = await fetch('/api/db/admin/backup', {
-        method: 'POST',
-        headers: {
-            'content-type': 'application/json',
-        }
-    });
-
-    if (!response.ok) throw new Error(await response.text());
-
-    return await response.json() as { irs: IR[], nsps: NSP[] };
-}
