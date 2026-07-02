@@ -76,7 +76,7 @@ export type OtherLoyaltyProgramPointsTransaction = {
 export type LoyaltyProgramPointsTransaction = StandardLoyaltyProgramPointsTransaction | OtherLoyaltyProgramPointsTransaction;
 
 export type LoyaltyProgramUserData = {
-    userID: string;
+    email: string;
     points: Points;
     history: (LoyaltyProgramPointsTransaction)[];
 };

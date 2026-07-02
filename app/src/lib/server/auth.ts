@@ -1,28 +1,43 @@
 import { checkedIsLoggedIn, checkIsAdmin, checkIsAnyRegulusOrAdmin, checkIsRegulusOrAdmin } from '$lib/client/auth';
-import { db } from '$lib/server/db';
-import { enableUser } from '$lib/server/db/admin/auth';
+import { authDB } from '$lib/server/db';
+import { validateToken } from '$lib/server/db/admin/tokens';
+import { getPersonByEmail } from '$lib/server/db/arrays';
+import { APIError } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
+import { createAuthMiddleware } from 'better-auth/api';
 import { betterAuth } from 'better-auth/minimal';
 import { admin, oneTimeToken } from 'better-auth/plugins';
-import { writable } from 'svelte/store';
-
-const tokens = writable(new Map<string, string>());
 
 export const auth = betterAuth({
-    database: mongodbAdapter(db),
+    database: mongodbAdapter(authDB),
     emailAndPassword: {
         enabled: true,
-        disableSignUp: true,
         revokeSessionsOnPasswordReset: true,
-        sendResetPassword: async ({ user, url, token }, request) => {
-            console.log({ user, url, token, request });
-            tokens.update($tokens => {
-                $tokens.set(user.email, token);
-                return $tokens;
-            });
-        },
-        onPasswordReset: ({ user }) => enableUser(user.id),
         autoSignIn: false,
+    },
+    hooks: {
+        before: createAuthMiddleware(async ctx => {
+            if (ctx.path !== '/sign-up/email') return;
+
+            console.log(ctx, ctx.body);
+            const email = ctx.body.email;
+
+            const tokenVerified = await validateToken(ctx.body.token, email, 'register');
+            if (!tokenVerified) throw new APIError(401);
+
+            const person = await getPersonByEmail(email);
+            if (!person) throw new APIError(400);
+
+            return {
+                context: {
+                    ...ctx,
+                    body: {
+                        ...ctx.body,
+                        name: person.name,
+                    },
+                }
+            };
+        }),
     },
     plugins: [
         admin(),
@@ -39,15 +54,3 @@ export const getIsLoggedIn = (locals: App.Locals) => checkedIsLoggedIn(locals.us
 export const getIsAdmin = (locals: App.Locals) => checkIsAdmin(locals.user);
 export const getIsRegulusOrAdmin = (locals: App.Locals) => checkIsRegulusOrAdmin(locals.user);
 export const getIsAnyRegulusOrAdmin = (locals: App.Locals) => checkIsAnyRegulusOrAdmin(locals.user);
-
-export const generateToken = (email: string, headers: Headers) => new Promise<string>(async resolve => {
-    await auth.api.requestPasswordReset({
-        body: {
-            email,
-        },
-        headers,
-    });
-    tokens.subscribe($tokens => {
-        if ($tokens.has(email)) resolve($tokens.get(email)!);
-    });
-});

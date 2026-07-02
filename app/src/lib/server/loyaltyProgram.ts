@@ -11,12 +11,7 @@ import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { nowISO } from '$lib/helpers/date';
 import type { IRID } from '$lib/helpers/ir';
 import { setCreatedIRBy, setGrantedCommission } from '$lib/server/db/admin/rk';
-import {
-    getCompanyByEmail,
-    getLoyaltyProgramData,
-    getPersonByEmail,
-    setLoyaltyProgramData
-} from '$lib/server/db/arrays';
+import { getCompanyByEmail, getLoyaltyProgramData, setLoyaltyProgramData } from '$lib/server/db/arrays';
 import { mongoReadDatabase } from '$lib/server/db/read';
 
 const isType = <T extends LoyaltyPointTriggerType>(
@@ -35,7 +30,7 @@ export const processLoyaltyReward = async (
     if (isType(data, 'registration')) {
         const current = await getLoyaltyProgramData(user.id);
         if (current.history.some(t => t.type == 'registration')) return;
-        await addPointsTransaction({ ...data, timestamp }, user.id);
+        await addPointsTransaction({ ...data, timestamp }, user.email);
     } else if (isType(data, 'connectRegulusRoute')) {
         const creatingUser = await getOrSetCreatingUser(data.irid, locals);
         if (creatingUser == 'unknown') return;
@@ -82,15 +77,13 @@ export const processLoyaltyReward = async (
         if (!ir?.RK?.TC?.[data.pump]?.[data.year]) return;
         await addPointsTransaction({
             type: data.type, irid: data.irid, note: `TČ: ${data!.pump}, rok: ${data!.year}`, timestamp,
-        }, user.id);
+        }, user.email);
     }
 };
 
 const getCompanyUser = async (email: string) => {
     const company = await getCompanyByEmail(email);
-    const userEmail = company?.representativeUserEmail ?? email;
-    const person = await getPersonByEmail(userEmail);
-    return person?.id;
+    return company?.representativeUserEmail ?? email;
 }
 
 const getCompaniesCascadeGrantedAndCommission = async (irid: IRID, locals: App.Locals) => {
@@ -106,26 +99,27 @@ const getCompaniesCascadeGrantedAndCommission = async (irid: IRID, locals: App.L
 
 const getCreatingUserOrNull = async (irid: IRID, locals: App.Locals) => {
     const ir = await mongoReadDatabase.getIR(irid, locals);
-    return ir ? ir.meta.createdBy?.uid : 'unknown';
+    return ir ? ir.meta.createdBy?.email : 'unknown';
 };
 
 const getOrSetCreatingUser = async (irid: IRID, locals: App.Locals) => {
     const user = locals.user!;
     const current = await getCreatingUserOrNull(irid, locals);
     if (current) return current;
-    await setCreatedIRBy(irid, { uid: user.id, email: user.email!, isFake: true });
-    return user.id;
+    await setCreatedIRBy(irid, { email: user.email!, isFake: true });
+    return user.email;
 };
 
 export const addPointsTransaction = async (
     data: Omit<StandardLoyaltyProgramPointsTransaction, 'addition'> & { multiplier?: number; } | OtherLoyaltyProgramPointsTransaction,
-    userID: string,
+    userEmail: string,
 ) => {
-    const current = await getLoyaltyProgramData(userID);
+    const current = await getLoyaltyProgramData(userEmail);
     const transaction: LoyaltyProgramPointsTransaction = data.type == 'other' ? data : {
         ...data.omit('multiplier'), addition: loyaltyPointRewards[data.type] * (data.multiplier ?? 1),
     };
-    return await setLoyaltyProgramData(userID, {
+    return await setLoyaltyProgramData({
+        email: userEmail,
         points: current.points + transaction.addition,
         history: [...current.history, transaction],
     });

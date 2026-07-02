@@ -19,6 +19,16 @@ export type AuthTypes = {
         }
         returns: Record<string, never>
     },
+    setPassword: {
+        params: {
+            token: string,
+            email: string,
+            password: string,
+        }
+        returns: {
+            result: 'success' | 'fail' | 'tokenInvalid',
+        }
+    },
 }
 
 export default async <T extends keyof AuthTypes>(action: T, params: AuthTypes[T]['params']): Promise<AuthTypes[T]['returns']> => {

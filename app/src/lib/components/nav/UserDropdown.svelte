@@ -5,9 +5,7 @@
     import { goto } from '$app/navigation';
     import { aA } from '$lib/helpers/stores';
     import { relUrl } from '$lib/helpers/runes.svelte';
-    import { logEvent } from 'firebase/analytics';
     import { onMount } from 'svelte';
-    import { analytics } from '../../../hooks.client';
     import { CircleUser, Gift, LogOut, RectangleEllipsis, ShieldCogCorner } from "@lucide/svelte";
     import {
         DropdownMenu,
@@ -25,10 +23,6 @@
     const ta = $derived(t.auth);
 
     const userEmail = $derived($user?.email ?? '');
-
-    const changePassword = async () => {
-        // TODO!!!
-    };
 
     onMount(fetchLoyaltyProgramData);
     onMount(fetchMyInfo);
@@ -67,14 +61,11 @@
         {/if}
         <DropdownMenuSeparator />
         <DropdownMenuGroup aria-label="User login actions">
-            <DropdownMenuItem onSelect={changePassword} variant="warning">
+            <DropdownMenuItem onSelect={() => goto(relUrl(`/new-password?mode=edit`))} variant="warning">
                 <RectangleEllipsis />
                 {ta.changePassword}
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => {
-                logEvent(analytics(), 'logout', { email: userEmail });
-                signOut();
-            }} variant="danger">
+            <DropdownMenuItem onSelect={signOut} variant="danger">
                 <LogOut />
                 {ta.toLogOut}
             </DropdownMenuItem>

@@ -11,7 +11,6 @@ import type { IR, NSP } from "$lib/data";
 
 export const mongoDatabase: Database = [...readDatabaseMethods, ...writeDatabaseMethods].associateWith(name =>
     async (...args: Parameters<Database[typeof name]>) => {
-        // logEvent(analytics(), 'fetch_mongo_database', { name, args });
         if (!isWriteFunction(name)) {
             const response = await fetch('/api/db/read', {
                 method: 'POST',

@@ -1,4 +1,3 @@
-import type { User } from '$lib/client/auth';
 import type { UserForm } from '$lib/forms/IN/formIN';
 import { type GenericContextSP, type GenericFormSP } from '$lib/forms/SP/formSP.svelte';
 import { type Form, type FormPlus, type Values, valuesToRawData } from '$lib/forms/Form';
@@ -20,7 +19,7 @@ export interface FormNSP extends GenericFormSP<ContextNSP>, UserForm<ContextNSP>
 
 export const defaultNSP = (): FormPlus<FormNSP> => {
     const { system, ...otherSP } = defaultGenericSP<ContextNSP>((_, c) => ({
-        data: newNSP(valuesToRawData(c.f, c.v), { email: '', id: '' } as User),
+        data: newNSP(valuesToRawData(c.f, c.v), ''),
         form: c.f,
         values: c.v,
         pumpCount: 1,

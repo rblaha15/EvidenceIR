@@ -1,3 +1,4 @@
+import { browser } from '$app/environment';
 import { user } from '$lib/client/auth';
 import { fetchDB } from '$lib/client/db/endpoints';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
@@ -15,7 +16,6 @@ export type Company = {
     representativeUserEmail?: string;
 };
 export type Person = {
-    id: string;
     name: string;
     email: string;
     assemblyCompanies: CRN[];
@@ -89,8 +89,15 @@ export const loyaltyProgramData = readonly(_loyaltyProgramData);
 export const fetchLoyaltyProgramData = async (fetch: typeof window.fetch = window.fetch) =>
     _loyaltyProgramData.set(await fetchDB('getLoyaltyPoints', fetch));
 
-user.subscribe(async () => {
-    await fetchMyInfo();
-    await fetchFriendlyCompanies();
-    await fetchLoyaltyProgramData();
+user.subscribe(async $user => {
+    if (!browser) return;
+    if (!$user) {
+        _myInfo.set(undefined);
+        _friendlyCompanies.set('loading');
+        _loyaltyProgramData.set(null);
+    } else {
+        await fetchMyInfo();
+        await fetchFriendlyCompanies();
+        await fetchLoyaltyProgramData();
+    }
 });

@@ -1,3 +1,4 @@
+import authentication from '$lib/client/authentication';
 import type { auth } from '$lib/server/auth';
 import { adminClient, inferAdditionalFields } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/svelte';
@@ -45,13 +46,26 @@ export const signOut = async () => {
 };
 export const signIn = async (email: string, password: string) => {
     const result = await authClient.signIn.email({ email, password });
+    console.log(result);
     if (result.data) return 'success';
-    console.log(result.error.code);
-    return result.error.code! as 'INVALID_EMAIL_OR_PASSWORD';
+    else return result.error.code! as 'INVALID_EMAIL_OR_PASSWORD' | 'INVALID_EMAIL';
 };
-export const changePassword = async (token: string, password: string) => {
-    const result = await authClient.resetPassword({ token, newPassword: password });
+export const signUp = async (token: string, email: string, password: string) => {
+    const result = await authClient.signUp.email({
+        token, email, password, name: '',
+    } as Parameters<typeof authClient.signUp.email>[0]);
+    console.log(result);
     if (result.data) return 'success';
-    console.log(result.error.code);
-    return result.error.code! as 'PASSWORD_TOO_SHORT' | 'INVALID_TOKEN';
+    return result.error.code!;
+};
+export const setPassword = async (token: string, email: string, password: string) => {
+    const { result } = await authentication('setPassword', { token, email, password });
+    console.log(result);
+    return result!;
+};
+export const editPassword = async (currentPassword: string, newPassword: string) => {
+    const result = await authClient.changePassword({ currentPassword, newPassword, revokeOtherSessions: true });
+    console.log(result);
+    if (result.data) return 'success';
+    return result.error.code! as 'PASSWORD_TOO_SHORT' | 'INVALID_PASSWORD';
 };

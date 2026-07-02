@@ -1,17 +1,18 @@
 import type { SparePart } from '$lib/client/db/arrays';
 import type { DatabaseEndpoints } from '$lib/client/db/endpoints';
 import { getIsAdmin, getIsLoggedIn, getIsRegulusOrAdmin } from '$lib/server/auth';
-import { getUserIDsByEmails, removeUsers, updateUserNamesOrCreateNew } from '$lib/server/db/admin/auth';
+import { removeUsers, updateUserNames } from '$lib/server/db/admin/auth';
 import { getAllIRs, getAllNSPs, restoreIR } from '$lib/server/db/admin/general';
+import { getTokenData } from '$lib/server/db/admin/tokens';
 import {
     getArrays,
     getCompanies,
-    getCompaniesByCRNs, getLoyaltyProgramData,
+    getCompaniesByCRNs,
+    getLoyaltyProgramData,
     getPeople,
     getPersonByEmail,
     getSpareParts,
     getTechnicians,
-    removePeople,
     setArrays,
     setCompanies,
     setPeople,
@@ -34,10 +35,8 @@ type Result = {
 export default async (
     args: Args,
     locals: App.Locals,
-    headers: Headers,
-    origin: string,
 ): Promise<Result> => {
-    if (!getIsLoggedIn(locals)) return error(401);
+    if (!args.action.startsWith('open/') && !getIsLoggedIn(locals)) return error(401);
     if (args.action.startsWith('admin/') && !getIsAdmin(locals)) return error(401);
     if (args.action.startsWith('regulus/') && !getIsRegulusOrAdmin(locals)) return error(401);
 
@@ -82,18 +81,14 @@ export default async (
     } else if (args.action == 'loyaltyPoints') {
         await processLoyaltyReward(args.data, locals);
     } else if (args.action == 'getLoyaltyPoints') {
-        await getLoyaltyProgramData(locals.user!.id);
+        return await getLoyaltyProgramData(locals.user!.id);
     } else if (args.action == 'admin/setUsers') {
         const people = args.array;
 
-        const currentIDs = await getUserIDsByEmails(people.map(u => u.email));
-        const newIDs = await updateUserNamesOrCreateNew(people);
-        const peopleWithIDs = [...currentIDs, ...newIDs].associate(it => [it.email, it.id]);
-        const peopleIDs = peopleWithIDs.getValues();
-        await removePeople(peopleIDs);
+        await setPeople(people);
 
-        await setPeople(people.map(p => ({ ...p, id: peopleWithIDs[p.email] })));
-        await removeUsers(peopleIDs);
+        await removeUsers(people.map(p => p.email));
+        await updateUserNames(people);
     } else if (args.action == 'admin/setCompanies') {
         await setCompanies(args.array);
     } else if (args.action == 'admin/setTechnicians') {
@@ -103,9 +98,12 @@ export default async (
     } else if (args.action == 'admin/setArrays') {
         const { action, ...arrays } = args;
         await setArrays(arrays);
+    } else if (args.action == 'open/getTokenData') {
+        const { token } = args;
+        return await getTokenData(token);
     } else {
         console.log('Invalid action', args);
     }
 
-    return;
+    return {} as Result;
 }

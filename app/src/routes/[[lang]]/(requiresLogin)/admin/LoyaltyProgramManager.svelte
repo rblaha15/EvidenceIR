@@ -14,7 +14,7 @@
     import { Alert, AlertTitle } from '$lib/components/ui/alert';
     import { Spinner } from "$lib/components/ui/spinner";
     import { Button } from "$lib/components/ui/button";
-    import { PencilRuler, Server, Trash2, OctagonAlert, Check } from "@lucide/svelte";
+    import { PencilRuler, Trash2, OctagonAlert, Check } from "@lucide/svelte";
 
     const userW = newSearchWidget<unknown, Person>({
         label: 'Uživatel', items: people, getSearchItem: i => ({
@@ -56,7 +56,7 @@
 
     const cs = getTranslations('cs');
 
-    const results = storable<{ date: string, data: Record<string, { email?: string, data: LoyaltyProgramUserData }> }>('loyalty_data2');
+    const results = storable<{ date: string, data: Record<string, LoyaltyProgramUserData> }>('loyalty_data2');
     let status = $state('none' as 'none' | 'loading' | 'fail' | 'success');
     let statusA = $state('none' as 'none' | 'mistake' | 'loading' | 'fail' | 'success');
     let showAllErrors = $state(false);
@@ -150,14 +150,11 @@
     {#if !$results.data.entries().length}
         <p>Žádná data</p>
     {/if}
-    {#each $results.data.entries().toSorted((a, b) => a[0].localeCompare(b[0])) as [uid, { email, data }]}
+    {#each $results.data.entries().toSorted((a, b) => a[0].localeCompare(b[0])) as [email, data] (email)}
         <details class="w-full">
             <summary class="cursor-pointer">
                 <Button variant="link" class="px-0" href="#users-{email}">{email}</Button>: {data.points.toLocaleString('cs')}
             </summary>
-            <Button variant="link" href={`https://console.firebase.google.com/u/0/project/evidence-ir/database/evidence-ir-default-rtdb/data/~2FloyaltyProgram~2F${uid}`}>
-                <Server /> Otevřít v databázi
-            </Button>
             {#each data.history as entry}
                 {#if entry.type === 'other'}
                     <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note} {#if entry.irid} (<a href="{detailUrlIR(entry.irid)}">{entry.irid}</a>){/if}</p>

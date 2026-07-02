@@ -7,12 +7,7 @@ import {
     personCollection,
     sparePartCollection,
     technicianCollection,
-    type WithID,
-    type WithMongoID
 } from '$lib/server/db';
-import { ObjectId } from 'mongodb';
-
-const convertID = <T extends { _id: ObjectId }>({ _id, ...doc }: T): WithID<T> => ({ ...doc, id: _id.toString() });
 
 export const getArrays = () =>
     arraysCollection.find().toArray().then(all => all.associate(it => [it.name, it.value]));
@@ -76,13 +71,10 @@ export const setCompanies = async (companies: Company[]) => {
 };
 
 export const getPeople = () =>
-    personCollection.find().map<Person>(convertID).toArray();
+    personCollection.find().project<Person>({ _id: 0 }).toArray();
 
 export const getPersonByEmail = (email: string) =>
-    personCollection.findOne({ email }).then(p => p ? convertID(p) as Person : p);
-
-export const removePeople = (preserveIDs: string[]) => personCollection
-    .deleteMany({ _id: { $nin: preserveIDs.map(id => new ObjectId(id)) } });
+    personCollection.findOne({ email }, { projection: { _id: 0 } });
 
 export const setPeople = async (people: Person[]) => {
     await personCollection.deleteMany({ email: { $nin: people.map(it => it.email) } });
@@ -94,23 +86,23 @@ export const setPeople = async (people: Person[]) => {
         },
     })));
 };
-
-const convertUserID = ({ _id, ...doc }: WithMongoID<LoyaltyProgramUserData>): LoyaltyProgramUserData =>
-    ({ ...doc, userID: _id!.toString() });
+export const addPerson = async (person: Person) => {
+    await personCollection.insertOne(person);
+};
 
 export const getAllLoyaltyProgramData = () => loyaltyProgramCollection
     .find()
-    .map(convertUserID)
+    .project<LoyaltyProgramUserData>({ _id: 0 })
     .toArray()
-    .then(res => res.associateBy(it => it.userID));
+    .then(res => res.associateBy(it => it.email));
 
-export const getLoyaltyProgramData = (userID: string) => loyaltyProgramCollection
-    .findOne({ _id: new ObjectId(userID) })
-    .then(doc => doc ? convertUserID(doc) : { userID, points: 0, history: [] });
+export const getLoyaltyProgramData = (email: string) => loyaltyProgramCollection
+    .findOne<LoyaltyProgramUserData>({ email }, { projection: { _id: 0 } })
+    .then(doc => doc ?? { email, points: 0, history: [] });
 
-export const setLoyaltyProgramData = (userID: string, data: Omit<LoyaltyProgramUserData, 'userID'>) =>
+export const setLoyaltyProgramData = (data: LoyaltyProgramUserData) =>
     loyaltyProgramCollection.updateOne(
-        { _id: new ObjectId(userID) },
-        { $set: { ...data, _id: new ObjectId(userID) } },
+        { email: data.email },
+        { $set: data },
         { upsert: true },
     );

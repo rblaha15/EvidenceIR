@@ -1,5 +1,5 @@
 import '$lib/extensions';
-import { getUserByEmail, getUsersByIDs } from '$lib/server/db/admin/auth';
+import { checkUserByEmail } from '$lib/server/db/admin/auth';
 import { error, json, type RequestHandler, text } from '@sveltejs/kit';
 import { getIsAdmin, getIsLoggedIn } from '$lib/server/auth';
 import { getAllLoyaltyProgramData } from '$lib/server/db/arrays';
@@ -11,12 +11,7 @@ export const GET: RequestHandler = async ({ locals }) => {
     if (!dev && !getIsLoggedIn(locals)) error(401);
     if (!dev && !getIsAdmin(locals)) error(403);
 
-    const all = await getAllLoyaltyProgramData();
-    const ids = all.keys();
-    const users = await getUsersByIDs(ids);
-    const emails = users.associate(u => [u.id, u.email]);
-    const result = all.mapValues((uid, data) => ({ email: emails[uid], data }));
-    return json(result);
+    return json(await getAllLoyaltyProgramData());
 };
 
 export const POST: RequestHandler = async ({ locals, request }) => {
@@ -24,8 +19,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     if (!dev && !getIsAdmin(locals)) error(403);
 
     const { userEmail, transaction }: { userEmail: string, transaction: LoyaltyProgramPointsTransaction } = await request.json();
-    const user = await getUserByEmail(userEmail);
-    if (!user) error(400);
-    await addPointsTransaction(transaction, user.id);
+    const exists = await checkUserByEmail(userEmail);
+    if (!exists) error(400);
+    await addPointsTransaction(transaction, userEmail);
     return text('ok');
 };

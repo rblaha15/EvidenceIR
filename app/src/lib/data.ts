@@ -16,7 +16,6 @@ import type { FormFT } from '$lib/forms/FT/formFT';
 import '$lib/extensions';
 import type { FormRKS } from '$lib/forms/RKS/formRKS';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
-import type { User } from '$lib/client/auth';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { FormSZ } from '$lib/forms/SP/formSZ';
@@ -91,7 +90,6 @@ interface BaseIR {
         changedAt: Timestamp;
         createdAt?: Timestamp;
         createdBy?: {
-            uid: string;
             email: string;
             isFake?: boolean;
         };
@@ -141,7 +139,6 @@ interface BaseNSP {
         changedAt?: Timestamp;
         createdAt: Timestamp;
         createdBy?: {
-            uid: string;
             email: string;
         };
     };
@@ -169,7 +166,7 @@ export type ID<T extends DataType> = {
 
 export const newIR = (
     raw: Raw<FormIN>,
-    user: User,
+    userEmail: string,
     isDraft: boolean,
     friendlyCompanies: FriendlyCompanies,
 ): ExistingIR => ({
@@ -180,11 +177,10 @@ export const newIR = (
         changedAt: new Date().valueOf(),
         createdAt: new Date().valueOf(),
         createdBy: {
-            uid: user.id,
-            email: user.email,
+            email: userEmail,
         },
         usersWithAccess: [
-            user.email!,
+            userEmail,
             friendlyCompanies.commissioningCompanies.find(c => c.email == raw.uvedeni.email)
                 ?.representativeUserEmail,
             raw.uvedeni.email,
@@ -208,7 +204,7 @@ export const newIR = (
 
 export const newNSP = (
     raw: Raw<FormNSP>,
-    user: User,
+    userEmail: string,
 ): ExistingNSP => ({
     deleted: false,
     meta: {
@@ -216,8 +212,7 @@ export const newNSP = (
         changedAt: new Date().valueOf(),
         createdAt: new Date().valueOf(),
         createdBy: {
-            uid: user.id,
-            email: user.email!,
+            email: userEmail,
         },
     },
     NSP: raw,

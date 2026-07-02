@@ -2,6 +2,7 @@ import type { Arrays, Company, FriendlyCompanies, Person, SparePart, Technician 
 import type { LoyaltyProgramTrigger, LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 import type { IR, NSP } from '$lib/data';
 import type { IRID } from '$lib/helpers/ir';
+import type { Token } from '$lib/server/db/admin/tokens';
 
 export type DatabaseEndpoints = {
     'admin/backup': {
@@ -62,10 +63,16 @@ export type DatabaseEndpoints = {
     getLoyaltyPoints: {
         returns: LoyaltyProgramUserData,
     },
+    'open/getTokenData': {
+        params: {
+            token: string,
+        },
+        returns: Token | null,
+    }
 };
 
 export const fetchDB = async <T extends keyof DatabaseEndpoints>(
-    type: T,
+    action: T,
     ...other: DatabaseEndpoints[T] extends { params: Record<string, unknown> } ? [
         args: DatabaseEndpoints[T]['params'],
         fetch?: typeof window.fetch,
@@ -77,8 +84,8 @@ export const fetchDB = async <T extends keyof DatabaseEndpoints>(
 > => {
     const [arg1, arg2] = other;
     const fetch = typeof arg1 == 'function' ? arg1 : arg2 ?? window.fetch;
-    const args = typeof arg1 == 'function' ? undefined : JSON.stringify(arg1);
-    return await fetch(`/api/db?other=${type}`, {
+    const args = typeof arg1 == 'function' ? '{}' : JSON.stringify(arg1);
+    return await fetch(`/api/db?action=${action}`, {
         method: 'POST',
         body: args,
         headers: {

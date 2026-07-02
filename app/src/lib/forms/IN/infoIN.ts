@@ -116,7 +116,7 @@ const changeIRID = async (
     newIR.meta.id = newIRID;
     newIR.meta.createdAt = new Date().valueOf();
     newIR.meta.changedAt = new Date().valueOf();
-    newIR.meta.createdBy = { uid: user.id, email: user.email! };
+    newIR.meta.createdBy = { email: user.email! };
 
     try {
         await db.moveIR(oldIRID, newIR);
@@ -159,7 +159,7 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Per
         const user = (await getUser())!;
         const $friendlyCompanies = get(friendlyCompanies) as FriendlyCompanies;
 
-        const newIr = newIR(raw, user, draft, $friendlyCompanies);
+        const newIr = newIR(raw, user.email, draft, $friendlyCompanies);
         if (edit) {
             if (!changeID) await db.updateIN(newIRID, raw, draft);
             else if (!await changeIRID(

@@ -21,7 +21,7 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loadin
         const user = (await getUser())!;
 
         if (edit) await db.updateNSP(nspid, raw);
-        else await db.addNSP(newNSP(raw, user));
+        else await db.addNSP(newNSP(raw, user.email!));
 
         if (edit && !send) return true;
 

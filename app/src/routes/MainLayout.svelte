@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { LayoutData } from './$types';
-    import { getIsLoggedIn, isLoggedIn, user } from '$lib/client/auth';
+    import { getIsLoggedIn, isLoggedIn } from '$lib/client/auth';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import { onMount, type Snippet } from 'svelte';
     import { backButton, endLoading, hideNav, hideTitle, initialRouteLoggedIn, initialRouteLoggedOut, progress, startLoading, title } from '$lib/helpers/globals';
@@ -11,8 +11,6 @@
     import { relUrl } from '$lib/helpers/runes.svelte';
     import type { EventHandler } from 'svelte/elements';
     import TableOfContents from '$lib/components/TableOfContents.svelte';
-    import { analytics } from '../hooks.client';
-    import { setUserId } from '@firebase/analytics';
     import { ArrowLeft, OctagonAlert } from '@lucide/svelte';
     import { Button } from '$lib/components/ui/button';
     import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
@@ -83,10 +81,6 @@
             columnNumber: 'columnNumber' in r ? r.columnNumber || '' : '',
         };
     };
-
-    $effect(() => {
-        setUserId(analytics(), $user?.id || null);
-    });
 
     const showTOC = $derived(page.route.id?.includes('[form=form]') && !page.error);
 </script>
