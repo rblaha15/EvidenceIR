@@ -1,7 +1,7 @@
 import { page } from '$app/state';
 import { type IR, type Year } from '$lib/data';
 import { getIsRegulusOrAdmin, getUser, isRegulusOrAdmin } from '$lib/client/auth';
-import { derived, get } from 'svelte/store';
+import { derived } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
@@ -111,12 +111,12 @@ const infoRKT: FormInfo<ContextRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: 
                 ? `Vyplněna nová servisní prohlídka TČ${pump} k ${irName(ir.IN.ir)}`
                 : `Upravena servisní prohlídka TČ${pump} k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
+            props: { name: user.email, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
         });
 
         if (response!.ok) return;
         editResult({
-            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent,
             red: true,
             load: false,
         });

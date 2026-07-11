@@ -50,7 +50,7 @@ const infoNK: IndependentFormInfo<ContextNK, FormNK> = {
             });
             resetForm();
         } else editResult({
-            text: t.form.emailNotSent({ status: String(response!.status), statusText: await response!.text() }),
+            text: t.form.emailNotSent,
             red: true,
             load: false,
         });

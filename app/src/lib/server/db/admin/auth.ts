@@ -1,14 +1,12 @@
 import type { Person } from '$lib/client/db/arrays';
 import { userCollection } from '$lib/server/db';
 
-export const updateUserNames = (users: Omit<Person, 'id'>[]) =>
+export const updateUserNames = (users: Person[]) =>
     userCollection.bulkWrite(users.map(user => ({
         updateOne: {
             filter: { email: user.email },
             update: {
-                $set: {
-                    name: user.name,
-                },
+                $set: { name: user.name },
             },
         },
     })));

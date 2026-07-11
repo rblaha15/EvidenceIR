@@ -30,7 +30,6 @@ export const mongoDatabase: Database = [...readDatabaseMethods, ...writeDatabase
 
             return result;
         } else {
-
             const response = await fetch('/api/db/write', {
                 method: 'POST',
                 body: JSON.stringify({ name, args }),

@@ -1,5 +1,5 @@
 import { fetchLoyaltyProgramData } from '$lib/client/db/arrays';
-import { fetchDB } from '$lib/client/db/endpoints';
+import { call } from '$lib/client/db/endpoints';
 import type { IRID } from '$lib/helpers/ir';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { getIsOnline } from '$lib/client/online';
@@ -55,7 +55,7 @@ export const grantPoints = async <T extends LoyaltyPointTriggerType>(data: Loyal
 }
 
 export const grantPointsOnline = async <T extends LoyaltyPointTriggerType>(data: LoyaltyProgramTrigger<T>) => {
-    await fetchDB('loyaltyPoints', { data });
+    await call('db/addLoyaltyPoints', { data });
     await fetchLoyaltyProgramData();
 }
 

@@ -5,9 +5,9 @@ import { langEntryGenerator } from '$lib/helpers/paths';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
-export const prerender = true;
+export const prerender = false;
 
-export const load: PageLoad = async ({ parent, fetch }) => {
+export const load: PageLoad = async ({ fetch }) => {
     if (!browser) return { url: '', fileName: '' };
 
     return await generatePdfUrl({

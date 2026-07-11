@@ -1,7 +1,7 @@
 import type { FormInfo } from '$lib/forms/FormInfo';
 import defaultUPF from '$lib/forms/UPF/defaultUPF';
 import { getIsRegulusOrAdmin, getUser, isRegulusOrAdmin } from '$lib/client/auth';
-import { derived, get } from 'svelte/store';
+import { derived } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
@@ -31,7 +31,7 @@ const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
 
         if (response!.ok) return;
         editResult({
-            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent,
             red: true,
             load: false,
         });

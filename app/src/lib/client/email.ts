@@ -1,4 +1,5 @@
 import { user as userStore, type User } from '$lib/client/auth';
+import { call } from '$lib/client/db/endpoints';
 import { htmlToText } from 'html-to-text';
 import { type Component, mount } from 'svelte';
 import { dev } from '$app/environment';
@@ -68,9 +69,7 @@ export const sendHtmlEmail = async (options: HtmlEmailOptions) => {
 
     const isOnline = getIsOnline();
     addEmailToHistory(newOptions, isOnline);
-    if (!isOnline) return new Response('OK', {
-        status: 200,
-    });
+    if (!isOnline) return { ok: true };
 
     return await sendEmailAndUploadAttachments(newOptions);
 };
@@ -96,13 +95,9 @@ export const sendEmailAndUploadAttachments = async (options: EmailOptions) => {
         }).awaitAll(),
     };
 
-    return await fetch(`/api/sendEmail`, {
-        method: 'POST',
-        body: JSON.stringify(message),
-        headers: {
-            'content-type': 'application/json',
-        },
-    });
+    const response = await call('sendEmail', { message });
+
+    return { ok: response.accepted.length };
 };
 
 export const receiver = 'seir@regulus.cz' as const satisfies AddressLike;

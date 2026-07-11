@@ -1,6 +1,6 @@
 import {
     fetchArrays, fetchCompanies,
-    fetchFriendlyCompanies, fetchLoyaltyProgramData,
+    fetchLoyaltyProgramData,
     fetchMyInfo,
     fetchPeople,
     fetchSpareParts,
@@ -14,16 +14,16 @@ import { langEntryGenerator } from '$lib/helpers/paths';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
-export const load: PageLoad = async () => {
+export const load: PageLoad = async ({ fetch }) => {
     if (browser && (!await getIsLoggedIn() || !await getIsAdmin())) error(401);
 
-    await fetchCompanies();
-    await fetchMyInfo();
-    await fetchPeople();
-    await fetchTechnicians();
-    await fetchSpareParts();
-    await fetchArrays();
-    await fetchLoyaltyProgramData();
+    await fetchCompanies(fetch);
+    await fetchMyInfo(fetch);
+    await fetchPeople(fetch);
+    await fetchTechnicians(fetch);
+    await fetchSpareParts(fetch);
+    await fetchArrays(fetch);
+    await fetchLoyaltyProgramData(fetch);
 };
 
-export const prerender = true;
+export const prerender = false;

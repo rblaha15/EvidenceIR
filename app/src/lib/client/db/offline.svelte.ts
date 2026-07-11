@@ -1,4 +1,4 @@
-import { derived, get, writable } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
 import { type IDBPDatabase, openDB } from 'idb';
 import { extractIDFromSPOrSZ, type IRID, type NSPID } from '$lib/helpers/ir';
 import { getUser } from '$lib/client/auth';
@@ -7,7 +7,6 @@ import {
     type DataType,
     deletedIR,
     deletedNSP,
-    type DeletedNSP,
     type ID,
     type IR,
     type NSP
@@ -39,7 +38,7 @@ const storedSP = writable<Record<NSPID, NSP>>({}, (set) => {
 
 let dbMap: Record<string, IDBPDatabase<DBSchema>> = {};
 
-const newDb = (uid: string) => openDB<DBSchema>(`offlineData2_${uid}`, 2, {
+const newDb = (email: string) => openDB<DBSchema>(`offlineData2_${email}`, 2, {
     upgrade: db => {
         if (!db.objectStoreNames.contains('IR'))
             db.createObjectStore('IR');
@@ -49,8 +48,8 @@ const newDb = (uid: string) => openDB<DBSchema>(`offlineData2_${uid}`, 2, {
 });
 
 const db = async () => {
-    const uid = (await getUser())?.id ?? 'anonymous';
-    return dbMap[uid] || (dbMap[uid] = await newDb(uid));
+    const email = (await getUser())?.email ?? 'anonymous';
+    return dbMap[email] || (dbMap[email] = await newDb(email));
 };
 
 export const clearLocalDatabase = async () => {

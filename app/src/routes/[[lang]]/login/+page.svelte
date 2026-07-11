@@ -4,6 +4,7 @@
     import { page } from '$app/state';
     import { signIn } from '$lib/client/auth';
     import { grantPoints } from '$lib/client/loyaltyProgram';
+    import { isOnline } from '$lib/client/online';
     import FormDefaults from '$lib/components/FormDefaults.svelte';
     import { Alert, AlertTitle } from '$lib/components/ui/alert';
     import { Button } from '$lib/components/ui/button';
@@ -87,7 +88,7 @@
                         <Input id="password" autocomplete="current-password" type="password" bind:value={password}/>
                     </Field>
                     {#if error == 'wrong-password'}
-                        <FieldError>
+                        <FieldError class="flex gap-1">
                             {t.invalidEmailOrPassword}
                             <Button variant="link" href={resetLink}>{t.forgottenPassword}</Button>
                         </FieldError>

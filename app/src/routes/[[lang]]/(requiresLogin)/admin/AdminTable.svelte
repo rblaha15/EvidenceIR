@@ -182,7 +182,11 @@
 
 <div>
     <h4>Aktuálně uložená data:</h4>
-    <Table {id} items={oldData} {options} />
+    {#if $store == 'loading'}
+        <Spinner />
+    {:else}
+        <Table {id} items={oldData} {options} />
+    {/if}
 </div>
 
 <input

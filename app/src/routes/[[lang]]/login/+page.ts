@@ -11,4 +11,4 @@ export const load: PageLoad = async ({ url }) => {
 };
 
 export const entries: EntryGenerator = langEntryGenerator;
-export const prerender = true;
+export const prerender = false;

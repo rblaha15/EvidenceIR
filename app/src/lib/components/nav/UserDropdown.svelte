@@ -42,9 +42,6 @@
             {#if $myInfo}
                 <DropdownMenuLabel>{ta.responsiblePerson}: {$myInfo.responsiblePerson}</DropdownMenuLabel>
             {/if}
-            {#if $user?.id && $isAdmin}
-                <DropdownMenuLabel>UID:{$aA}<br />{$user?.id}</DropdownMenuLabel>
-            {/if}
         </DropdownMenuGroup>
         {#if !$isAnyRegulusOrAdmin && $loyaltyProgramData}
             <DropdownMenuSeparator />

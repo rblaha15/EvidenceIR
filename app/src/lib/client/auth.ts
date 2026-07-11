@@ -1,13 +1,11 @@
-import authentication from '$lib/client/authentication';
 import type { auth } from '$lib/server/auth';
-import { adminClient, inferAdditionalFields } from 'better-auth/client/plugins';
+import { inferAdditionalFields } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/svelte';
 import { derived } from 'svelte/store';
 
 export const authClient = createAuthClient({
     plugins: [
         inferAdditionalFields<typeof auth>(),
-        adminClient(),
     ],
 });
 
@@ -57,11 +55,6 @@ export const signUp = async (token: string, email: string, password: string) => 
     console.log(result);
     if (result.data) return 'success';
     return result.error.code!;
-};
-export const setPassword = async (token: string, email: string, password: string) => {
-    const { result } = await authentication('setPassword', { token, email, password });
-    console.log(result);
-    return result!;
 };
 export const editPassword = async (currentPassword: string, newPassword: string) => {
     const result = await authClient.changePassword({ currentPassword, newPassword, revokeOtherSessions: true });

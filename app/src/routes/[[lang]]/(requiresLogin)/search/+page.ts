@@ -13,7 +13,7 @@ import { isSP } from '$lib/forms/SP/infoSP.svelte';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
-export const prerender = true;
+export const prerender = false;
 
 export type IR_NSP = {
     t: 'IR',

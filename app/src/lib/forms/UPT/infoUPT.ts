@@ -38,7 +38,7 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
 
         if (response!.ok) return;
         editResult({
-            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent,
             red: true,
             load: false,
         });

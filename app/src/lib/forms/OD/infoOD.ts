@@ -44,7 +44,7 @@ const infoOD: IndependentFormInfo<ContextOD, FormOD> = {
             await fileIds.map(removeFile).awaitAll();
             return true;
         } else editResult({
-            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent,
             red: true,
             load: false,
         });

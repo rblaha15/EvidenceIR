@@ -60,12 +60,12 @@ const infoRKS: FormInfo<ContextRKS, FormRKS, [], 'RKS', { defaultYear: Year, fil
                 ? `Vyplněna nová roční kontrola SOL k ${irName(ir.IN.ir)}`
                 : `Upravena roční kontrola SOL k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
+            props: { name: user.email, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
         });
 
         if (response!.ok) return;
         editResult({
-            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent,
             red: true,
             load: false,
         });

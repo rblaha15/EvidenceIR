@@ -1,7 +1,8 @@
 <script lang="ts">
     import { browser } from '$app/environment';
     import { page } from '$app/state';
-    import authentication from '$lib/client/authentication';
+    import { call } from '$lib/client/db/endpoints';
+    import { isOnline } from '$lib/client/online';
     import FormDefaults from '$lib/components/FormDefaults.svelte';
     import { Alert, AlertTitle } from '$lib/components/ui/alert';
     import { Button } from '$lib/components/ui/button';
@@ -27,7 +28,7 @@
     const signUp = async () => {
         sending = true;
         error = '';
-        const { result } = await authentication('trySignUp', {
+        const { result } = await call('auth/trySignUp', {
             email,
             lang: page.data.languageCode,
             redirect,

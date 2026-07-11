@@ -1,8 +1,8 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
-    import { editPassword, setPassword, signUp } from '$lib/client/auth';
-    import authentication from '$lib/client/authentication';
+    import { editPassword, signUp } from '$lib/client/auth';
+    import { call } from '$lib/client/db/endpoints';
     import { isOnline } from '$lib/client/online';
     import FormDefaults from '$lib/components/FormDefaults.svelte';
     import { Alert, AlertTitle } from '$lib/components/ui/alert';
@@ -47,12 +47,13 @@
 
     const sendCode = async () => {
         mode = 'resetSending';
-        await authentication('sendPasswordResetEmail', {
+        await call('auth/sendPasswordResetEmail', {
             email,
             redirect,
             lang: data.languageCode,
         });
         await goto(relUrl('/new-password?mode=resetSent'), { replaceState: true, invalidateAll: true });
+        mode = 'resetSent';
     };
 
     const resetPassword = async () => {
@@ -67,7 +68,7 @@
         const result = originalMode == 'register'
             ? await signUp(data.token, email, password)
             : originalMode == 'reset'
-                ? await setPassword(data.token, email, password)
+                ? await call('auth/setPassword', { token: data.token, email, password }).then(r => r.result)
                 : await editPassword(currentPassword, password);
         console.log(result);
         if (result == 'success') {

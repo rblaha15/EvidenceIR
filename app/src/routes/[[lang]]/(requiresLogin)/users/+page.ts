@@ -29,4 +29,4 @@ export const load: PageLoad = async ({ url }) => {
     return { irid: id.irid, ir: store as Readable<IR | undefined> };
 };
 
-export const prerender = true;
+export const prerender = false;

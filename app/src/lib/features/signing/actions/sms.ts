@@ -1,3 +1,4 @@
+import { call } from '$lib/client/db/endpoints';
 import type { SigningStatus } from '../components/Signing.svelte';
 import type { SendCodeParams } from '$lib/features/signing/domain/sms';
 import { getReasonPhrase } from 'http-status-codes';
@@ -12,13 +13,7 @@ export const sendSMS = (
 ) => async () => {
     const old = setStatus('sendingSMS');
 
-    const response = await fetch(`/api/signing/send`, {
-        method: 'POST',
-        body: JSON.stringify(params),
-        headers: {
-            'content-type': 'application/json',
-        },
-    });
+    const response = await call('signing/sendCode', params, { returnError: true });
 
     if (pdfInfo[params.def.pdf].type == 'IR')
         db.getIR(params.def.id as IRID).then();

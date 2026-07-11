@@ -1,95 +1,64 @@
-import type { Arrays, Company, FriendlyCompanies, Person, SparePart, Technician } from '$lib/client/db/arrays';
-import type { LoyaltyProgramTrigger, LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
-import type { IR, NSP } from '$lib/data';
-import type { IRID } from '$lib/helpers/ir';
-import type { Token } from '$lib/server/db/admin/tokens';
+import type { AllEndpoints } from '$lib/server/endpoints';
 
-export type DatabaseEndpoints = {
-    'admin/backup': {
-        returns: { irs: IR[], nsps: NSP[] },
-    },
-    'admin/restore': {
-        params: { irid: IRID },
-    },
-    getArrays: {
-        returns: Record<Arrays, string[]>,
-    },
-    getSpareParts: {
-        returns: SparePart[],
-    },
-    getTechnicians: {
-        returns: Technician[],
-    },
-    'regulus/getUsers': {
-        returns: Person[],
-    },
-    'getMyInfo': {
-        returns: Person,
-    },
-    'getCompanies': {
-        returns: FriendlyCompanies,
-    },
-    'admin/getCompanies': {
-        returns: Company[],
-    },
-    'admin/setUsers': {
-        params: {
-            array: Omit<Person, 'id'>[],
-        },
-    },
-    'admin/setCompanies': {
-        params: {
-            array: Company[],
-        },
-    },
-    'admin/setTechnicians': {
-        params: {
-            array: Technician[],
-        },
-    },
-    'admin/setSpareParts': {
-        params: {
-            array: SparePart[],
-        },
-    },
-    'admin/setArrays': {
-        params: Record<Arrays, string[]>,
-    },
-    loyaltyPoints: {
-        params: {
-            data: LoyaltyProgramTrigger,
-        },
-    },
-    getLoyaltyPoints: {
-        returns: LoyaltyProgramUserData,
-    },
-    'open/getTokenData': {
-        params: {
-            token: string,
-        },
-        returns: Token | null,
-    }
+type Options<R extends boolean | undefined> = { fetch?: typeof window.fetch, returnError?: R };
+
+type Error = {
+    ok: false,
+    status: number,
+    statusText: string,
+    message: string | undefined,
+    result?: undefined,
 };
+type Success<T extends keyof AllEndpoints> = {
+    ok: true,
+    status: number,
+    statusText: string,
+    message?: undefined,
+    result: AllEndpoints[T]['result'],
+};
+type Response<R extends boolean | undefined, T extends keyof AllEndpoints> =
+    R extends true ? Success<T> | Error : AllEndpoints[T]['result'];
 
-export const fetchDB = async <T extends keyof DatabaseEndpoints>(
+export const call = async <T extends keyof AllEndpoints, R extends boolean | undefined = undefined>(
     action: T,
-    ...other: DatabaseEndpoints[T] extends { params: Record<string, unknown> } ? [
-        args: DatabaseEndpoints[T]['params'],
-        fetch?: typeof window.fetch,
+    ...other: AllEndpoints[T]['params'] extends undefined ? [
+        options?: Options<R>,
     ] : [
-        fetch?: typeof window.fetch,
+        args: AllEndpoints[T]['params'],
+        options?: Options<R>,
     ]
-): Promise<
-    DatabaseEndpoints[T] extends { returns: unknown } ? DatabaseEndpoints[T]['returns'] : undefined
-> => {
-    const [arg1, arg2] = other;
-    const fetch = typeof arg1 == 'function' ? arg1 : arg2 ?? window.fetch;
-    const args = typeof arg1 == 'function' ? '{}' : JSON.stringify(arg1);
-    return await fetch(`/api/db?action=${action}`, {
+): Promise<Response<R, T>> => {
+    const [arg1, arg2] = other as (object | undefined)[];
+    const noArgs = arg1 && ('fetch' in arg1 || 'returnError' in arg1);
+    const {
+        fetch = window.fetch,
+        returnError,
+    } = noArgs ? arg1 as Options<R> : arg2 as Options<R> | undefined ?? {};
+    const args = noArgs ? undefined : arg1 as AllEndpoints[T]['params'];
+    const response = await fetch(`/api/db?action=${action}`, {
         method: 'POST',
-        body: args,
+        body: JSON.stringify(args),
         headers: {
             'content-type': 'application/json'
         }
-    }).then(r => r.json());
+    });
+    const text = await response.text();
+    if (!response.ok) {
+        const error = {
+            ok: false,
+            status: response.status,
+            statusText: response.statusText,
+            message: text ? JSON.parse(text)?.message : undefined,
+        };
+        if (!returnError) throw error; else return error as Response<R, T>;
+    }
+    const result = text ? JSON.parse(text) : undefined;
+    console.log(action, args, response.status, result);
+
+    if (!returnError) return result as Response<R, T>; else return {
+        ok: true,
+        status: response.status,
+        statusText: response.statusText,
+        result,
+    } as Response<R, T>;
 };

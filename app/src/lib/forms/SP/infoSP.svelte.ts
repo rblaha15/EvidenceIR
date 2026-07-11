@@ -69,7 +69,7 @@ const infoSP: FormInfo<ContextSP, FormSP, [[Technician[] | 'loading', User | und
 
         if (response!.ok) return true;
         else editResult({
-            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent,
             red: true,
             load: false,
         });

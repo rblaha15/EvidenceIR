@@ -10,7 +10,7 @@ import {
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { nowISO } from '$lib/helpers/date';
 import type { IRID } from '$lib/helpers/ir';
-import { setCreatedIRBy, setGrantedCommission } from '$lib/server/db/admin/rk';
+import { setCreatedIRBy, setGrantedCommission } from '$lib/server/db/admin/general';
 import { getCompanyByEmail, getLoyaltyProgramData, setLoyaltyProgramData } from '$lib/server/db/arrays';
 import { mongoReadDatabase } from '$lib/server/db/read';
 
@@ -28,7 +28,7 @@ export const processLoyaltyReward = async (
     if (checkIsAnyRegulusOrAdmin(user)) return;
     const timestamp = nowISO(true);
     if (isType(data, 'registration')) {
-        const current = await getLoyaltyProgramData(user.id);
+        const current = await getLoyaltyProgramData(user.email);
         if (current.history.some(t => t.type == 'registration')) return;
         await addPointsTransaction({ ...data, timestamp }, user.email);
     } else if (isType(data, 'connectRegulusRoute')) {
@@ -106,7 +106,7 @@ const getOrSetCreatingUser = async (irid: IRID, locals: App.Locals) => {
     const user = locals.user!;
     const current = await getCreatingUserOrNull(irid, locals);
     if (current) return current;
-    await setCreatedIRBy(irid, { email: user.email!, isFake: true });
+    await setCreatedIRBy(irid, { email: user.email, isFake: true });
     return user.email;
 };
 

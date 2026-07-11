@@ -6,6 +6,7 @@
     import { user } from '$lib/client/auth';
     import { addCzechCountryCode, type LoadData } from '$lib/features/signing/domain/load';
     import { sendSMS } from '$lib/features/signing/actions/sms';
+    import { getData } from '$lib/helpers/getData';
     import { endUserEmails, endUserName } from '$lib/helpers/ir';
     import { newInputWidget } from '$lib/forms/Widget';
     import Widget from '$lib/components/Widget.svelte';
@@ -13,7 +14,7 @@
     import { confirmCode } from '$lib/features/signing/actions/code';
     import { isOnline } from '$lib/client/online';
     import type { SendCodeParams } from '$lib/features/signing/domain/sms';
-    import { onMount } from 'svelte';
+    import { onMount, untrack } from 'svelte';
     import { setTitle } from '$lib/helpers/globals';
     import { type GeneratePdfOptions, type PdfToSign, type PdfWithDefiningParameter, pdfWithDefiningParameter } from '$lib/pdf/pdf';
     import { Alert, AlertAction, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
@@ -22,7 +23,7 @@
     import { Spinner } from '$lib/components/ui/spinner';
 
     const {
-        args, def, ir, nsp, translations: t, settings,
+        args, def, ir, nsp, translations: t, settings, irid, nspids,
     }: LoadData & {
         translations: Translations;
     } = $props();
@@ -31,7 +32,7 @@
     const signingBy = $derived({
         name: endUserName(endUser), phone: addCzechCountryCode(endUser.telefon), email: endUserEmails(endUser)[0],
     });
-    const params: SendCodeParams = $derived({ def, signingBy, initiatingUserName: $user!.name });
+    const params: SendCodeParams = $derived({ def, signingBy });
     const o: Omit<GeneratePdfOptions<PdfToSign>, 'data'> = $derived({
         link: def.pdf, lang: 'cs',
         ...def.parameter ? { [pdfWithDefiningParameter[def.pdf as PdfWithDefiningParameter]]: def.parameter } : {},
@@ -40,6 +41,10 @@
     let status = $state<SigningStatus>('none');
     $effect(() => {
         if ($settings && status == 'none') status = 'sent';
+    });
+    $effect(() => {
+        status;
+        untrack(() => getData({ irid, nspids }));
     });
     let error = $state<string | undefined>(undefined);
     const setStatus = (s: SigningStatus, e?: string) => {
@@ -76,7 +81,7 @@
     <Alert variant="danger">
         <AlertTitle>Tento dokument byl již podepsán!</AlertTitle>
     </Alert>
-{:else if $settings && $settings.initiatingUser.uid != $user!.id}
+{:else if $settings && $settings.initiatingUser.email != $user!.email}
     <Alert variant="danger">
         <AlertTitle>Tento dokument již podepisuje jiný uživatel!</AlertTitle>
     </Alert>
@@ -112,7 +117,7 @@
         zákazníkovi odeslán do emailové schránky.
     </p>
     <p class="flex items-center">
-        Zpráva nedorazila? Můžete ji zkusit
+        Zpráva nedorazila? Můžete ji zkusit 
         <Button variant="link" onclick={sendSMS(params, setStatus, true)} class="px-0">odeslat znovu</Button>
     </p>
     <div class="flex flex-col md:flex-row md:items-center gap-4">

@@ -35,8 +35,7 @@ export interface SigningResult {
     sentAt: number;
     signedAt: number;
     initiatingUser: {
-        uid: string;
         email: string;
-        name?: string;
+        name: string;
     };
 }

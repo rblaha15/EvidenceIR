@@ -95,4 +95,4 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
     return { ...d, ...id, args: pdf, fileLang: language, signatureState, signatureKey, allowSigning };
 };
 
-export const prerender = true;
+export const prerender = false;

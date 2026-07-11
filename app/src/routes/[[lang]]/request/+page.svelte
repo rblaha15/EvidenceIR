@@ -1,10 +1,11 @@
 <script lang="ts">
-    import type { PageData } from './$types';
+    import { call } from '$lib/client/db/endpoints';
+    import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
+    import { Spinner } from '$lib/components/ui/spinner';
+    import { setTitle } from '$lib/helpers/globals';
+    import { Check, OctagonAlert } from '@lucide/svelte';
     import { onMount } from 'svelte';
-    import { Check, OctagonAlert } from "@lucide/svelte";
-    import { setTitle } from "$lib/helpers/globals";
-    import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
-    import { Spinner } from "$lib/components/ui/spinner";
+    import type { PageData } from './$types';
 
     const { data }: {
         data: PageData & {
@@ -22,35 +23,30 @@
     onMount(async () => {
         setTitle(t.title, false, true);
 
-        const response = await fetch(`/api/recommend-rk`, {
-            method: 'POST',
-            body: JSON.stringify({ code: data.code, action: 'sendRequest' }),
-            headers: {
-                'content-type': 'application/json',
-            },
-        });
-        if (response.ok)
+        try {
+            await call('db/open/sendRequest', { code: data.code });
             status = 'accepted';
-        else
+        } catch (e) {
             status = 'error';
+        }
     });
 </script>
 
 {#if status === 'loading'}
     <Alert>
-        <Spinner />
+        <Spinner/>
         <AlertTitle>{t.sending}</AlertTitle>
     </Alert>
 {:else if status === 'accepted'}
     <Alert variant="success">
-        <Check />
+        <Check/>
         <AlertTitle>{t.requestSent}</AlertTitle>
         <AlertDescription>{t.youCanCloseThisTab}</AlertDescription>
     </Alert>
 {/if}
 {#if status === 'error'}
     <Alert variant="danger">
-        <OctagonAlert />
+        <OctagonAlert/>
         <AlertTitle>{t.somethingWentWrong}</AlertTitle>
         <AlertDescription>{@html t.unknownErrorHtml}</AlertDescription>
     </Alert>

@@ -1,8 +1,7 @@
-import type { PageLoad } from './$types';
 import { browser } from '$app/environment';
+import { call } from '$lib/client/db/endpoints';
 import { error } from '@sveltejs/kit';
-import type { Params } from '../../api/recommend-rk/+server';
-import type { RecommendationData } from '$lib/data';
+import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ url, parent, fetch }) => {
     if (!browser) return null;
@@ -13,25 +12,15 @@ export const load: PageLoad = async ({ url, parent, fetch }) => {
     try {
         if (!code) error(403, t.codeMissingError);
 
-        const response = await fetch(`/api/recommend-rk`, {
-            method: 'POST',
-            body: JSON.stringify({ code, action: 'getData' } satisfies Params),
-            headers: {
-                'content-type': 'application/json',
-            },
-        });
+        const userData = await call('db/open/getRecommendationData', { code }, fetch);
 
-        if (!response.ok) error(response.status, await response.text() || t.codeInvalidError);
-
-        const userData: RecommendationData = await response.json();
-
-        if (!userData) error(403, t.codeInvalidError);
+        if (!userData) error(400, t.codeInvalidError);
 
         return {
             code, ...userData,
         };
     } catch (e) {
-        console.error(e)
+        console.error(e);
         const t = (await parent()).translations.dk.requestPage;
 
         error(400, t.codeInvalidError);

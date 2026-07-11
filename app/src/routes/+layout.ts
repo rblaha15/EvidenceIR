@@ -13,4 +13,4 @@ export const load: Load = ({ params, url }) => {
     } as const;
 };
 
-export const prerender = true;
+export const prerender = false;

@@ -19,7 +19,7 @@ export default {
         back: `Zpět`,
         mandatoryFields: `povinná pole`,
         clearForm: `Vymazat data`,
-        emailNotSent: t`Email se nepodařilo odeslat: ${'status'} ${'statusText'}`,
+        emailNotSent: `Email se nepodařilo odeslat`,
         import: {
             importData: `Importovat data`,
             cancel: `Zrušit`,

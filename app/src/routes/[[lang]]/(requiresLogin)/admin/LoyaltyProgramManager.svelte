@@ -1,20 +1,21 @@
 <script lang="ts">
     import { people, type Person } from '$lib/client/db/arrays';
-    import { adminDescriptions, type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
-    import { detailUrlIR } from '$lib/helpers/runes.svelte';
-    import { datetimeFromISO, nowISO } from '$lib/helpers/date';
-    import type { IR } from '$lib/data';
-    import { derived } from 'svelte/store';
-    import { irLabel, irName } from '$lib/helpers/ir';
-    import Widget from '$lib/components/Widget.svelte';
-    import { getTranslations } from '$lib/translations';
+    import { call } from '$lib/client/db/endpoints';
     import { getAllIRs } from '$lib/client/incrementalUpdates';
-    import { storable } from '$lib/helpers/stores';
-    import { newInputWidget, newSearchWidget } from '$lib/forms/Widget';
+    import { adminDescriptions, type LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
     import { Alert, AlertTitle } from '$lib/components/ui/alert';
-    import { Spinner } from "$lib/components/ui/spinner";
-    import { Button } from "$lib/components/ui/button";
-    import { PencilRuler, Trash2, OctagonAlert, Check } from "@lucide/svelte";
+    import { Button } from '$lib/components/ui/button';
+    import { Spinner } from '$lib/components/ui/spinner';
+    import Widget from '$lib/components/Widget.svelte';
+    import type { IR } from '$lib/data';
+    import { newInputWidget, newSearchWidget } from '$lib/forms/Widget';
+    import { datetimeFromISO, nowISO } from '$lib/helpers/date';
+    import { irLabel, irName } from '$lib/helpers/ir';
+    import { detailUrlIR } from '$lib/helpers/runes.svelte';
+    import { storable } from '$lib/helpers/stores';
+    import { getTranslations } from '$lib/translations';
+    import { Check, OctagonAlert, PencilRuler, Trash2 } from '@lucide/svelte';
+    import { derived } from 'svelte/store';
 
     const userW = newSearchWidget<unknown, Person>({
         label: 'Uživatel', items: people, getSearchItem: i => ({
@@ -63,18 +64,22 @@
 
     const search = async () => {
         status = 'loading';
-        const response = await fetch(`/api/loyalty-program`);
-        if (!response.ok) return status = 'fail';
-        status = 'success';
-        $results = { date: new Date().toISOString(), data: await response.json() };
+        try {
+            const data = await call('db/admin/getAllLoyaltyProgramData');
+
+            status = 'success';
+            $results = { date: new Date().toISOString(), data };
+        } catch (e) {
+            console.error(e);
+            return status = 'fail';
+        }
     };
     const add = async () => {
         showAllErrors = true;
         if (dateW.isError({}, date) || pointsW.isError({}, points) || userW.isError({}, user)) return statusA = 'mistake';
         statusA = 'loading';
-        const response = await fetch(`/api/loyalty-program`, {
-            method: 'POST',
-            body: JSON.stringify({
+        try {
+            await call('db/admin/addLoyaltyProgramTransaction', {
                 userEmail: user!.email,
                 transaction: {
                     addition: points.toNumber(),
@@ -83,43 +88,45 @@
                     irid: installation?.meta?.id,
                     timestamp: date,
                 },
-            })
-        });
-        if (!response.ok) statusA = 'fail';
-        else statusA = 'success';
+            });
+            statusA = 'success';
+        } catch (e) {
+            console.error(e);
+            statusA = 'fail';
+        }
     };
 </script>
 
 <h3>Přičtení bodů</h3>
 
 <div class="grid gap-1">
-    <Widget widget={userW} bind:value={user} context={{}} t={cs} {showAllErrors} />
-    <Widget widget={pointsW} bind:value={points} context={{}} t={cs} {showAllErrors} />
-    <Widget widget={noteW} bind:value={note} context={{}} t={cs} {showAllErrors} />
-    <Widget widget={dateW} bind:value={date} context={{}} t={cs} {showAllErrors} />
-    <Widget widget={installationW} bind:value={installation} context={{}} t={cs} {showAllErrors} />
+    <Widget bind:value={user} context={{}} {showAllErrors} t={cs} widget={userW}/>
+    <Widget bind:value={points} context={{}} {showAllErrors} t={cs} widget={pointsW}/>
+    <Widget bind:value={note} context={{}} {showAllErrors} t={cs} widget={noteW}/>
+    <Widget bind:value={date} context={{}} {showAllErrors} t={cs} widget={dateW}/>
+    <Widget bind:value={installation} context={{}} {showAllErrors} t={cs} widget={installationW}/>
 </div>
 
 <Button onclick={add}>Přičíst</Button>
 
 {#if statusA === 'loading'}
     <Alert>
-        <Spinner />
+        <Spinner/>
         <AlertTitle>Odesílání dat</AlertTitle>
     </Alert>
 {:else if statusA === 'fail'}
     <Alert variant="danger">
-        <OctagonAlert />
+        <OctagonAlert/>
         <AlertTitle>Něco se nepovedlo</AlertTitle>
     </Alert>
 {:else if statusA === 'mistake'}
     <Alert variant="danger">
-        <OctagonAlert />
+        <OctagonAlert/>
         <AlertTitle>Špatně zadaná data!</AlertTitle>
     </Alert>
 {:else if statusA === 'success'}
     <Alert variant="success">
-        <Check />
+        <Check/>
         <AlertTitle>Úspěšně přičteno!</AlertTitle>
     </Alert>
 {/if}
@@ -130,17 +137,17 @@
 
 {#if status === 'loading'}
     <Alert>
-        <Spinner />
+        <Spinner/>
         <AlertTitle>Odesílání dat</AlertTitle>
     </Alert>
 {:else if status === 'fail'}
     <Alert variant="danger">
-        <OctagonAlert />
+        <OctagonAlert/>
         <AlertTitle>Něco se nepovedlo</AlertTitle>
     </Alert>
 {:else if status === 'success'}
     <Alert variant="success">
-        <Check />
+        <Check/>
         <AlertTitle>Úspěšně nalezeno!</AlertTitle>
     </Alert>
 {/if}
@@ -153,13 +160,19 @@
     {#each $results.data.entries().toSorted((a, b) => a[0].localeCompare(b[0])) as [email, data] (email)}
         <details class="w-full">
             <summary class="cursor-pointer">
-                <Button variant="link" class="px-0" href="#users-{email}">{email}</Button>: {data.points.toLocaleString('cs')}
+                <Button variant="link" class="px-0" href="#users-{email}">{email}</Button>
+                : {data.points.toLocaleString('cs')}
             </summary>
             {#each data.history as entry}
                 {#if entry.type === 'other'}
-                    <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note} {#if entry.irid} (<a href="{detailUrlIR(entry.irid)}">{entry.irid}</a>){/if}</p>
+                    <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note}
+                        {#if entry.irid} (<a href="{detailUrlIR(entry.irid)}">{entry.irid}</a>){/if}
+                    </p>
                 {:else}
-                    <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {adminDescriptions[entry.type]} {#if entry.irid}u <a href="{detailUrlIR(entry.irid)}">{entry.irid}</a>{/if} {#if entry.note}({entry.note}){/if}</p>
+                    <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {adminDescriptions[entry.type]}
+                        {#if entry.irid}u <a href="{detailUrlIR(entry.irid)}">{entry.irid}</a>{/if}
+                        {#if entry.note}({entry.note}){/if}
+                    </p>
                 {/if}
             {/each}
         </details>

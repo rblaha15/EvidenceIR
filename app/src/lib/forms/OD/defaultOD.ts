@@ -24,7 +24,7 @@ export default (): FormPlus<FormOD> => ({
                     !c.v.all.otherCopies ? '' : t.od.info2C({
                         ccs: joinWithLastAnd(c.v.all.otherCopies.split(separatorsRegExp).map(t => t.trim()), t.od.and)
                     }),
-                    t.od.info2D({ user: get(user)!.email! }),
+                    t.od.info2D({ user: get(user)!.email }),
                 ].filter(Boolean), t.od.and),
                 t.od.info3,
                 c.v.all.userEmail ? t.od.info4 : '',

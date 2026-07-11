@@ -1,4 +1,5 @@
 import { getUser } from '$lib/client/auth';
+import { call } from '$lib/client/db/endpoints';
 import type { SigningStatus } from '../components/Signing.svelte';
 import type { CodeAttemptParams } from '$lib/features/signing/domain/sms';
 import { getReasonPhrase } from 'http-status-codes';
@@ -56,13 +57,7 @@ export const confirmCode = (
 ) => async () => {
     const old = setStatus('confirming');
 
-    const response = await fetch(`/api/signing/confirm`, {
-        method: 'POST',
-        body: JSON.stringify(params),
-        headers: {
-            'content-type': 'application/json',
-        },
-    });
+    const response = await call('signing/confirmCode', params, { returnError: true });
 
     const data = pdfInfo[params.def.pdf].type == 'IR'
         ? await db.getIR(params.def.id as IRID)
@@ -72,8 +67,10 @@ export const confirmCode = (
         await sendEmails({ ...o, data: data as DataOfPdf<PdfToSign> }, params, setStatus);
     else if (response.status == 400)
         setStatus(old, 'Nesprávné údaje.');
-    else if (response.status == 401)
-        setStatus(old, 'Kód je nesprávný! Počkejte prosím 30 sekund a zkuste to zovu.');
+    else if (response.status == 401 && response.message == 'wrong-code')
+        setStatus(old, 'Kód je nesprávný! Počkejte prosím 20 sekund a zkuste to znovu.');
+    else if (response.status == 401 && response.message == 'too-late')
+        setStatus('none', 'Platnost kódu vypršela. Zkuste odestal další kód.');
     else if (response.status == 403)
         setStatus(old, 'K tomuto dokumentu nemáte přístup!');
     else if (response.status == 404)
@@ -81,7 +78,7 @@ export const confirmCode = (
     else if (response.status == 409)
         setStatus(old, 'Tento dokument je již podpsán nebo je podepisován jiným uživatelem!');
     else if (response.status == 429)
-        setStatus(old, 'Moc požadavků. Počkejte prosím 30 sekund a zkuste to zovu.');
+        setStatus(old, 'Moc požadavků. Počkejte prosím 20 sekund a zkuste to znovu.');
     else
         setStatus(old, response.statusText ?? getReasonPhrase(response.status));
 };

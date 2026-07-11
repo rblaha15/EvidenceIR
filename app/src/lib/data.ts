@@ -43,23 +43,21 @@ export type OTP = string
 export type SignatureState = {
     state: 'sentCodes';
     initiatingUser: {
-        uid: string;
         email: string;
-        name?: string;
+        name: string;
     };
 } | {
     state: 'signed';
     initiatingUser: {
-        uid: string;
         email: string;
-        name?: string;
+        name: string;
     };
     signedBy: {
         phone: string;
         email: string;
         name: string;
     };
-    signedAt: number;
+    signedAt: Timestamp;
     code: OTP;
     timezone: string;
 }
@@ -225,6 +223,9 @@ export type RecommendationData = {
     companyEmail: string;
     location: string;
     type: 'TČ' | 'SOL',
+};
+export type RecommendationDataWithCode = RecommendationData & {
+    _id: string;
 };
 
 export const deleteIR = (

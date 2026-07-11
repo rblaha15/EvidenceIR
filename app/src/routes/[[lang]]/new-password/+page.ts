@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { getUser } from '$lib/client/auth';
-import { fetchDB } from '$lib/client/db/endpoints';
+import { call } from '$lib/client/db/endpoints';
 import { langEntryGenerator } from '$lib/helpers/paths';
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
@@ -14,7 +14,7 @@ export const load: PageLoad = async ({ url }) => {
     const redirect = url.searchParams.get('redirect') ?? '';
 
     if (token) {
-        const data = await fetchDB('open/getTokenData', { token });
+        const data = await call('auth/getTokenData', { token });
         if (!data) return error(401, 'Invalid token');
 
         return { email: data.email, mode: data.mode as 'register' | 'reset', redirect: data.redirect, token };
@@ -34,4 +34,4 @@ export const load: PageLoad = async ({ url }) => {
 };
 
 export const entries: EntryGenerator = langEntryGenerator;
-export const prerender = true;
+export const prerender = false;

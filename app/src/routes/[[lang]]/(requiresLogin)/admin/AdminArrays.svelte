@@ -9,6 +9,7 @@
             [Key in K]: {
                 store: Readable<string[]>;
                 header: string;
+                excelHeader: string;
             };
         };
         sendData: (data: Record<K, string[]>) => Promise<void>;
@@ -51,6 +52,8 @@
         if (!file) newData = { ...initialValue };
     });
 
+    const findKey = (excelKey: string): K => arrays.entries().find(([_, { excelHeader }]) => excelHeader == excelKey)?.[0] as K;
+
     const onFileSelected: ChangeEventHandler<HTMLInputElement> = async ev => {
         file = ev.currentTarget.files?.[0];
 
@@ -59,12 +62,12 @@
         const rows = await readXlsxFile(file);
         newData = rows.map(r => r.map(v => v ? String(v) : undefined))
             .transpose()
-            .associate(row => [row[0] as K, row.slice(1).filter(Boolean)] as const) as Data;
+            .associate(row => [findKey(row[0]!), row.slice(1).filter(Boolean)] as const) as Data;
     };
 
     const downloadData = () => {
         const rows = oldData
-            .mapTo((key, row) => [key as string, ...row])
+            .mapTo((key, row) => [arrays[key].excelHeader, ...row])
             .map(row => row.map(col => ({ value: col })))
             .transpose(() => ({ value: '' }));
         writeXlsxFile(rows, {
@@ -92,11 +95,11 @@
     );
     const oldData = $derived($oldDataStore);
 
-    const removals = $derived(oldData.mapValues((key, oldArray) =>
-        oldArray.filter(value => !newData[key].includes(value)),
+    const removals = $derived(newData.mapValues((key, newArray) =>
+        oldData[key]?.filter(value => !newArray || !newArray.includes(value)) ?? [],
     ));
     const additions = $derived(newData.mapValues((key, newArray) =>
-        newArray.filter(value => !oldData[key].includes(value)),
+        newArray.filter(value => !oldData[key] || !oldData[key].includes(value)),
     ));
 
     $effect(() => {

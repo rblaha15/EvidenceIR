@@ -10,11 +10,11 @@ export const setSignature = async (
     docId: IRID | NSPID,
     pdf: PdfToSign,
     parameter: PdfDefiningParameter | undefined,
-    signature: SignatureState,
+    signature: SignatureState | undefined,
 ) => {
     const collection = type == 'IR' ? irCollection : nspCollection;
     const path = parameter ? `signatures.${pdf}.${parameter}` : `signatures.${pdf}`;
-    await collection.updateOne(id(docId), { [path]: signature });
+    await collection.updateOne(id(docId), { $set: { [path]: signature } });
 }
 
 export const getSigning = async (def: DocumentDefinition): Promise<Omit<DocumentSigningInfo, 'def'>> => {

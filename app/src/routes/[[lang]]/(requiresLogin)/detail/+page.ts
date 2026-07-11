@@ -1,5 +1,5 @@
 import { getIsLoggedIn } from '$lib/client/auth';
-import { fetchMyInfo, fetchPeople, fetchTechnicians } from '$lib/client/db/arrays';
+import { fetchPeople, fetchTechnicians } from '$lib/client/db/arrays';
 import type { EntryGenerator, PageLoad } from './$types';
 import { error } from '@sveltejs/kit';
 import { browser } from '$app/environment';
@@ -36,4 +36,4 @@ export const load: PageLoad = async ({ url, fetch }) => {
     };
 };
 
-export const prerender = true;
+export const prerender = false;

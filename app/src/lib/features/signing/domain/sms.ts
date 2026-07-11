@@ -6,8 +6,8 @@ import type { OTP } from '$lib/data';
 export const SMS_SEND_MINIMUM_WAIT_TIME = 1000 * 60 * 2;
 /** 10 min */
 export const SMS_CODE_LIFETIME = 1000 * 60 * 10;
-/** 30 s */
-export const SMS_ATTEMPT_MINIMUM_WAIT_TIME = 1000 * 30;
+/** 20 s */
+export const SMS_ATTEMPT_MINIMUM_WAIT_TIME = 1000 * 20;
 
 export interface DocumentDefinition {
     id: IRID | NSPID;
@@ -27,5 +27,4 @@ export interface SendCodeParams {
         email: string;
         name: string;
     };
-    initiatingUserName?: string;
 }

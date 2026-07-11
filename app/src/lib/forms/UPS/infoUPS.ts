@@ -31,12 +31,12 @@ const infoUPS: FormInfo<ContextUPS, FormUPS, [], 'UPS'> = ({
                 ? `Změněno uvedení SOL do provozu k ${irName(ir.IN.ir)}`
                 : `Vyplněno nové uvedení SOL do provozu k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email!, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
+            props: { name: user.email, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
         });
 
         if (response!.ok) return;
         editResult({
-            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent,
             red: true,
             load: false,
         });

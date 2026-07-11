@@ -1,12 +1,11 @@
 import { checkedIsLoggedIn, checkIsAdmin, checkIsAnyRegulusOrAdmin, checkIsRegulusOrAdmin } from '$lib/client/auth';
 import { authDB } from '$lib/server/db';
-import { validateToken } from '$lib/server/db/admin/tokens';
+import { validateToken } from '$lib/server/db/tokens';
 import { getPersonByEmail } from '$lib/server/db/arrays';
 import { APIError } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { createAuthMiddleware } from 'better-auth/api';
 import { betterAuth } from 'better-auth/minimal';
-import { admin, oneTimeToken } from 'better-auth/plugins';
 
 export const auth = betterAuth({
     database: mongodbAdapter(authDB),
@@ -39,12 +38,14 @@ export const auth = betterAuth({
             };
         }),
     },
-    plugins: [
-        admin(),
-        oneTimeToken({
-            disableClientRequest: true,
-        }),
-    ],
+    user: {
+        additionalFields: {
+            role: {
+                type: ['user', 'admin'],
+                defaultValue: 'user',
+            },
+        },
+    },
 });
 
 export type User = typeof auth['$Infer']['Session']['user'];

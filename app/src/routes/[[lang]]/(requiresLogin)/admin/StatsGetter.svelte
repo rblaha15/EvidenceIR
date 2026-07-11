@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { fetchDB } from '$lib/client/db/endpoints';
+    import { call } from '$lib/client/db/endpoints';
     import Widget from '$lib/components/Widget.svelte';
     import { getTranslations } from '$lib/translations';
     import { dateFromISO, dayISO } from '$lib/helpers/date';
@@ -34,7 +34,7 @@
             const fromD = new Date(from);
             const toD = new Date(to);
 
-            const { irs, nsps } = await fetchDB('admin/backup');
+            const { irs, nsps } = await call('db/admin/backup');
 
             const allProtocols = [
                 ...irs.filter(ir => !ir.deleted).flatMap(ir => ir.SPs.getValues()),

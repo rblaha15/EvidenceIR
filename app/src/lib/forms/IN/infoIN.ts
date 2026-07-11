@@ -82,7 +82,7 @@ const sendEmails = async (
     console.log(response3);
 
     if (!response2.ok) editResult({
-        text: t.form.emailNotSent({ status: String(response1!.status), statusText: response1!.statusText }),
+        text: t.form.emailNotSent,
         red: true,
         load: false,
     });
@@ -116,7 +116,7 @@ const changeIRID = async (
     newIR.meta.id = newIRID;
     newIR.meta.createdAt = new Date().valueOf();
     newIR.meta.changedAt = new Date().valueOf();
-    newIR.meta.createdBy = { email: user.email! };
+    newIR.meta.createdBy = { email: user.email };
 
     try {
         await db.moveIR(oldIRID, newIR);

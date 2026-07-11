@@ -1,10 +1,11 @@
 <!--suppress HtmlUnknownTag -->
 <script lang="ts">
-    import { fetchDB } from '$lib/client/db/endpoints';
+    import { call } from '$lib/client/db/endpoints';
     import { type Component, onMount } from 'svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { derived } from 'svelte/store';
+    import DataImport from './DataImport.svelte';
     import TranslationsTable from './TranslationsTable.svelte';
     import AdminTable, { type TableOptions } from './AdminTable.svelte';
     import { regulusCRN } from '$lib/helpers/ares';
@@ -87,7 +88,7 @@
                         allowUPT: allowUPT == 'true',
                         responsiblePerson,
                         koNumber,
-                    }) as Omit<Person, 'id'>,
+                    }) as Person,
                 deconstruct: ({ name, email, assemblyCompanies, commissioningCompanies, allowUPT, responsiblePerson, koNumber }) => [
                     name,
                     email,
@@ -114,9 +115,9 @@
                     responsiblePerson: { header: 'Zodpovědná osoba' },
                     koNumber: { header: 'Číslo KO', transformValue: emptyUndefined },
                 },
-                sendData: array => fetchDB('admin/setUsers', { array }).then(fetchPeople),
+                sendData: array => call('db/admin/setUsers', { array }).then(fetchPeople),
             },
-        } satisfies TableDefinition<Omit<Person, 'id'>>,
+        } satisfies TableDefinition<Person>,
         companies: {
             title: 'Firmy',
             longerTitle: 'Seznam firem',
@@ -157,7 +158,7 @@
                     representative: { header: 'Zástupce', transformValue: emptyUndefined },
                     representativeUserEmail: { header: 'Uživatel', transformValue: addUserLink },
                 },
-                sendData: array => fetchDB('admin/setCompanies', { array }).then(fetchCompanies),
+                sendData: array => call('db/admin/setCompanies', { array }).then(fetchCompanies),
             },
         } satisfies TableDefinition<Company>,
         technicians: {
@@ -185,7 +186,7 @@
                     phone: { header: 'Telefonní číslo' },
                     initials: { header: 'Iniciály do SP' },
                 },
-                sendData: array => fetchDB('admin/setTechnicians', { array }).then(fetchTechnicians),
+                sendData: array => call('db/admin/setTechnicians', { array }).then(fetchTechnicians),
             },
         } satisfies TableDefinition<Technician>,
         spareParts: {
@@ -212,7 +213,7 @@
                     name: { header: 'Název', cellType: 'header' },
                     unitPrice: { header: 'Jednotková cena', transformValue: s => s.roundTo(2).toLocaleString('cs') + ' Kč' },
                 },
-                sendData: array => fetchDB('admin/setSpareParts', { array }).then(fetchSpareParts),
+                sendData: array => call('db/admin/setSpareParts', { array }).then(fetchSpareParts),
             },
         } satisfies TableDefinition<SparePart>,
         arrays: {
@@ -228,26 +229,31 @@
                 arrays: {
                     accumulationTanks: {
                         header: 'Nádrže',
+                        excelHeader: 'nadrze',
                         store: accumulationTanks,
                     },
                     waterTanks: {
                         header: 'Zásobníky',
+                        excelHeader: 'zasobniky',
                         store: waterTanks,
                     },
                     solarCollectors: {
                         header: 'Kolektory',
+                        excelHeader: 'kolektory',
                         store: solarCollectors,
                     },
                     inverters: {
                         header: 'Střídače',
+                        excelHeader: 'stridace',
                         store: inverters,
                     },
                     batteries: {
                         header: 'Baterie',
+                        excelHeader: 'baterie',
                         store: batteries,
                     },
                 },
-                sendData: arrays => fetchDB('admin/setArrays', arrays).then(fetchArrays),
+                sendData: arrays => call('db/admin/setArrays', arrays).then(fetchArrays),
             },
         } satisfies ArraysDefinition<Arrays>,
         translations: {
@@ -279,6 +285,14 @@
                 component: BackupDownloader,
             },
             longerTitle: 'Stáhnout zálohu databáze',
+        },
+        import: {
+            title: 'Import',
+            contentType: 'custom',
+            contentOptions: {
+                component: DataImport,
+            },
+            longerTitle: 'Import dat',
         },
     };
 
@@ -318,46 +332,3 @@
         </TabsContent>
     {/each}
 </Tabs>
-
-<!--<ul class="nav nav-tabs" role="tablist">-->
-<!--    {#each tabs.entries() as [tab, { title }], i}-->
-<!--        <li class="nav-item" role="presentation">-->
-<!--            <button-->
-<!--                aria-controls="{tab}-tab-pane"-->
-<!--                aria-selected="false"-->
-<!--                class="nav-link"-->
-<!--                class:active={untrack(() => i === 0)}-->
-<!--                data-bs-target="#{tab}-tab-pane"-->
-<!--                data-bs-toggle="tab"-->
-<!--                id="{tab}-tab"-->
-<!--                role="tab"-->
-<!--                type="button">{title}</button-->
-<!--            >-->
-<!--        </li>-->
-<!--    {/each}-->
-<!--</ul>-->
-
-<!--<div class="tab-content">-->
-<!--    {#each tabs.entries() as [tab, t], i}-->
-<!--        <div-->
-<!--            aria-labelledby="{tab}-tab"-->
-<!--            class="tab-pane fade"-->
-<!--            id="{tab}-tab-pane"-->
-<!--            class:active={untrack(() => i === 0)}-->
-<!--            class:show={untrack(() => i === 0)}-->
-<!--            role="tabpanel"-->
-<!--            tabindex="0"-->
-<!--        >-->
-<!--            <div class="flex flex-col gap-4">-->
-<!--                <h2 class="m-0">{t.longerTitle || t.title}</h2>-->
-<!--                {#if t.contentType === 'table'}-->
-<!--                    <AdminTable options={t.tableOptions} id={tab} />-->
-<!--                {:else if t.contentType === 'arrays'}-->
-<!--                    <AdminArrays options={t.arraysOptions} id={tab} />-->
-<!--                {:else if t.contentType === 'custom'}-->
-<!--                    <t.contentOptions.component />-->
-<!--                {/if}-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    {/each}-->
-<!--</div>-->

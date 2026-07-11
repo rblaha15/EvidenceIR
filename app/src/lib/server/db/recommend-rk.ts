@@ -1,16 +1,16 @@
 import { dev } from '$app/environment';
-import { endUserEmails, endUserName, extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
-import ares from '$lib/helpers/ares';
-import { sendEmail } from '$lib/server/email';
 import { cervenka, SENDER } from '$lib/client/email';
-import { htmlToText } from 'html-to-text';
 import type { IR, RecommendationData, RecommendationSettings } from '$lib/data';
-import { detailUrlIR } from '$lib/helpers/runes.svelte';
-import type { RequestHandler } from './$types';
 import MailCheckReminder from '$lib/emails/MailCheckReminder.svelte';
+import ares from '$lib/helpers/ares';
+import { endUserEmails, endUserName, extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
+import { getAllIRs } from '$lib/server/db/admin/general';
+import { changeCode, changeState, createRK, getRK, removeRK } from '$lib/server/db/admin/rk';
+import { sendEmail } from '$lib/server/email';
+import { error } from '@sveltejs/kit';
+import { htmlToText } from 'html-to-text';
 import { render } from 'svelte/server';
-import { getAllIRs } from "$lib/server/db/admin/general";
-import { changeCode, changeState, createRK, getRK, removeRK } from "$lib/server/db/admin/rk";
 
 const requestEmail = (info: RecommendationData, link: string) =>
     `<p>Dobrý den,</p>
@@ -37,16 +37,16 @@ type AppArgs = {
     fetch: typeof window.fetch, appUrl: string,
 };
 
-export const GET: RequestHandler = async ({ request, fetch }) => {
-    if (!dev && request.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
-        return new Response(null, { status: 401 });
-    }
-    const appUrl = dev ? 'http://localhost:5001' : 'https://evidenceir.vercel.app';
+// TODO: CRON job
+export const checkForRecommendations = async (headers: Headers) => {
+    if (!dev && headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`)
+        return error(401);
+    const appUrl = dev ? 'http://localhost:5006' : 'https://evidenceir.vercel.app';
 
     const irs = await getAllIRs();
 
     for (const ir of irs) {
-        if (ir.deleted) continue
+        if (ir.deleted) continue;
         const irid = extractIRIDFromRawData(ir.IN);
         const today = new Date(new Date().toISOString().split('T')[0]);
         // const today = new Date(Date.UTC(2025, 10, 6));
@@ -54,21 +54,21 @@ export const GET: RequestHandler = async ({ request, fetch }) => {
         if (ir.RK.DK.TC) {
             const settings = ir.RK.DK.TC;
             const commission = new Date(ir.UP.dateTC!);
-            if (settings.offset) commission.setDate(commission.getDate() + settings.offset)
+            if (settings.offset) commission.setDate(commission.getDate() + settings.offset);
             await processRecommendations({ today, commission, ir, irid, settings, type: 'TČ', fetch, appUrl });
         }
         if (ir.RK.DK.SOL) {
             const settings = ir.RK.DK.SOL;
             const commission = new Date(ir.UP.dateSOL!);
-            if (settings.offset) commission.setDate(commission.getDate() + settings.offset)
+            if (settings.offset) commission.setDate(commission.getDate() + settings.offset);
             await processRecommendations({ today, commission, ir, irid, settings, type: 'SOL', fetch, appUrl });
         }
     }
-
-    return new Response(null, { status: 200 });
 };
 
-const processRecommendations = async ({ today, commission, ir, irid, settings, type, fetch, appUrl }: DateArgs & SystemArgs & AppArgs) => {
+const processRecommendations = async (
+    { today, commission, ir, irid, settings, type, fetch, appUrl }: DateArgs & SystemArgs & AppArgs
+) => {
     const anniversaryThisYear =
         new Date(today.getFullYear(), commission.getMonth(), commission.getDate());
     const anniversaryLastYear =
@@ -151,7 +151,10 @@ const sendRecommendation = async ({ ir, irid, settings, type, fetch, appUrl }: S
     });
     await sendEmail({
         from: SENDER(),
-        to: dev ? 'radek.blaha.15@gmail.com' : endUserEmails(ir.IN.koncovyUzivatel).map(address => ({ name: user, address  })),
+        to: dev ? 'radek.blaha.15@gmail.com' : endUserEmails(ir.IN.koncovyUzivatel).map(address => ({
+            name: user,
+            address
+        })),
         replyTo: { name: 'David Červenka', address: 'david.cervenka@regulus.cz' },
         subject: `Upozornění na roční kontrolu ${data.type === 'TČ' ? 'tepelného čerpadla' : 'solárního systému'} Regulus`,
         html, text: htmlToText(html),
@@ -179,37 +182,28 @@ const sendReminder = async ({ appUrl, irid, ir }: SystemArgs & AppArgs) => {
 const goToTheNextYear = async (irid: IRID, type: 'TČ' | 'SOL') =>
     await changeState(irid, 'waiting', type);
 
-export type Params = {
-    code: string,
-    action: 'getData' | 'sendRequest',
+export const getRecommendationData = async (code: string) => {
+    if (!code) return error(403);
+    const info = await getRK(code);
+    if (!info) return error(400);
+    return info;
 };
 
-export const POST: RequestHandler = async ({ request, url }) => {
-    const data: Params = await request.json();
+export const sendRequest = async (code: string, origin: string) => {
+    if (!code) return error(403);
+    const info = await getRK(code);
+    if (!info) return error(400);
 
-    if (!data.code) return new Response(null, { status: 403 });
-
-    const info = await getRK(data.code);
-
-    if (!info) return new Response(null, { status: 403 });
-
-    if (data.action == 'getData') {
-        return new Response(JSON.stringify(info), { status: 200 });
-    } else if (data.action == 'sendRequest') {
-        const link = url.host + detailUrlIR(info.irid, '?');
-        const html = requestEmail(info, link);
-        const email = await sendEmail({
-            from: SENDER(),
-            to: { name: info.company, address: dev ? 'radek.blaha.15@gmail.com' : info.companyEmail },
-            replyTo: { name: 'David Červenka', address: 'david.cervenka@regulus.cz' },
-            subject: `Žádost o roční kontrolu ${info.type}`,
-            html, text: htmlToText(html),
-        });
-        await removeRK(data.code);
-        await changeCode(info.irid, '', info.type);
-        await changeState(info.irid, 'sentRequest', info.type);
-        return new Response(email.response, { status: 200 });
-    }
-
-    return new Response('Invalid action', { status: 403 });
+    const link = origin + detailUrlIR(info.irid, '?');
+    const html = requestEmail(info, link);
+    await sendEmail({
+        from: SENDER(),
+        to: { name: info.company, address: dev ? 'radek.blaha.15@gmail.com' : info.companyEmail },
+        replyTo: { name: 'David Červenka', address: 'david.cervenka@regulus.cz' },
+        subject: `Žádost o roční kontrolu ${info.type}`,
+        html, text: htmlToText(html),
+    });
+    await removeRK(code);
+    await changeCode(info.irid, '', info.type);
+    await changeState(info.irid, 'sentRequest', info.type);
 };

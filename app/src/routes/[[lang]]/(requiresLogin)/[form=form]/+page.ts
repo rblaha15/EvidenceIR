@@ -40,4 +40,4 @@ export const load: PageLoad = async ({ params, url }) => {
     } as const;
 };
 
-export const prerender = true;
+export const prerender = false;

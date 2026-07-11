@@ -11,4 +11,4 @@ export const load: PageLoad = async ({ params, url }) => !browser
     ? { def: undefined, ir: readable(undefined), nsp: readable(undefined), args: undefined, settings: readable(undefined) } as const
     : loadSigning(params.pdf as PdfToSign, url);
 
-export const prerender = true;
+export const prerender = false;

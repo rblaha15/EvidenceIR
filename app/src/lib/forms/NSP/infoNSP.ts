@@ -21,7 +21,7 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loadin
         const user = (await getUser())!;
 
         if (edit) await db.updateNSP(nspid, raw);
-        else await db.addNSP(newNSP(raw, user.email!));
+        else await db.addNSP(newNSP(raw, user.email));
 
         if (edit && !send) return true;
 
@@ -34,7 +34,7 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loadin
 
         if (response!.ok) return true;
         else editResult({
-            text: t.form.emailNotSent({ status: String(response!.status), statusText: response!.statusText }),
+            text: t.form.emailNotSent,
             red: true,
             load: false,
         });
