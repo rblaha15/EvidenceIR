@@ -1,5 +1,8 @@
 import type { Arrays, Company, Person, SparePart, Technician } from '$lib/client/db/arrays';
-import type { LoyaltyProgramPointsTransaction, LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
+import type {
+    LoyaltyProgramPointsTransaction,
+    LoyaltyProgramUserDataWithPerson
+} from '$lib/client/loyaltyProgram';
 import type { IR, NSP, RecommendationDataWithCode } from '$lib/data';
 import type { IRID } from '$lib/helpers/ir';
 import { checkUserByEmail, removeUsers, updateUserNames } from '$lib/server/db/admin/auth';
@@ -13,7 +16,7 @@ import {
 } from '$lib/server/db/admin/general';
 import {
     getAllLoyaltyProgramData,
-    getCompanies,
+    getCompanies, getPeople,
     setArrays,
     setCompanies,
     setPeople,
@@ -69,8 +72,13 @@ export const adminEndpoints = {
     setArrays: defineEndpoint<Record<Arrays, string[]> , undefined>(async (arrays) => {
         await setArrays(arrays);
     }),
-    getAllLoyaltyProgramData: defineEndpoint<undefined, Record<string, LoyaltyProgramUserData>>(async () => {
-        return await getAllLoyaltyProgramData();
+    getAllLoyaltyProgramData: defineEndpoint<undefined, Record<string, LoyaltyProgramUserDataWithPerson>>(async () => {
+        const all = await getAllLoyaltyProgramData();
+        const users = await getPeople();
+        return all.mapValues((email, data) => ({
+            responsiblePerson: users.find(p => p.email == email)?.responsiblePerson,
+            ...data,
+        }));
     }),
     addLoyaltyProgramTransaction: defineEndpoint<{ userEmail: string, transaction: LoyaltyProgramPointsTransaction }, undefined>(async ({ userEmail, transaction }) => {
         const exists = await checkUserByEmail(userEmail);

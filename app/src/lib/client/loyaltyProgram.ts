@@ -81,6 +81,10 @@ export type LoyaltyProgramUserData = {
     history: (LoyaltyProgramPointsTransaction)[];
 };
 
+export type LoyaltyProgramUserDataWithPerson = LoyaltyProgramUserData & {
+    responsiblePerson?: string;
+};
+
 export const adminDescriptions: Record<LoyaltyPointRewardType, string> = {
     registration: 'Registrace',
     connectRegulusRoute: 'Připojen RegulusRoute',
