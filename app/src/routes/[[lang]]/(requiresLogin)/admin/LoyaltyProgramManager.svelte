@@ -16,6 +16,7 @@
     import { Spinner } from "$lib/components/ui/spinner";
     import { Button } from "$lib/components/ui/button";
     import { PencilRuler, Server, Trash2, OctagonAlert, Check } from "@lucide/svelte";
+    import writeXlsxFile from 'write-excel-file';
 
     const userW = newSearchWidget<unknown, Person>({
         label: 'Uživatel', items: usersList, getSearchItem: i => ({
@@ -57,7 +58,10 @@
 
     const cs = getTranslations('cs');
 
-    const results = storable<{ date: string, data: Record<string, { email?: string, data: LoyaltyProgramUserData }> }>('loyalty_data2');
+    const results = storable<{
+        date: string,
+        data: Record<string, { email?: string, data: LoyaltyProgramUserData, responsiblePerson?: string }>
+    }>('loyalty_data2');
     let status = $state('none' as 'none' | 'loading' | 'fail' | 'success');
     let statusA = $state('none' as 'none' | 'mistake' | 'loading' | 'fail' | 'success');
     let showAllErrors = $state(false);
@@ -91,6 +95,20 @@
         if (!response.ok) statusA = 'fail';
         else statusA = 'success';
     };
+
+    const download = async () => {
+        await search();
+        const rows = $results!.data
+            .getValues()
+            .filter(({ email }) => !!email && !email.split('@')[1].includes('regulus'))
+            .filter(({ email }) => email != 'radek.blaha@mensa.cz' && email != 'aja.blahova@centrum.cz')
+            .sortedByDescending(({ data }) => data.points)
+            .map(({ email, data, responsiblePerson }) => [email, data.points, responsiblePerson ?? '']);
+        const headers = ['Email', 'Body', 'Zodpovědná osoba Regulus'];
+        await writeXlsxFile([headers, ...rows].map(r => r.map(value => ({ value }))), {
+            fileName: `Věrnostní program ${$results!.date.split('T')[0]}.xlsx`,
+        });
+    }
 </script>
 
 <h3>Přičtení bodů</h3>
@@ -130,6 +148,10 @@
 <h3>Statistiky a historie věrnostních bodů uživatelů</h3>
 
 <Button onclick={search}>Vyhledat</Button>
+
+<button class="btn btn-secondary" onclick={download}>
+    Stáhnout
+</button>
 
 {#if status === 'loading'}
     <Alert>
