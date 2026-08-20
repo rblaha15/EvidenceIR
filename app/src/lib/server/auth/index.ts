@@ -49,7 +49,6 @@ export const auth = betterAuth({
         },
     },
     secret: building ? 'DUMMY' : env.BETTER_AUTH_SECRET,
-    baseURL: env.BETTER_AUTH_URL,
 });
 
 export type User = typeof auth['$Infer']['Session']['user'];
