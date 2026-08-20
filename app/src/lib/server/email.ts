@@ -10,12 +10,12 @@ const getTransporter = () => {
         port: 465,
         secure: true,
         auth: {
-            user: env.EMAIL_USERNAME_G,
-            pass: env.EMAIL_PASSWORD_G,
+            user: env.EMAIL_USERNAME_G.also(console.log),
+            pass: env.EMAIL_PASSWORD_G.also(console.log),
         },
     });
 
     return transporter;
 }
 
-export const sendEmail = (message: EmailMessage) => getTransporter().sendMail(message);
+export const sendEmail = (message: EmailMessage) => getTransporter().sendMail(message).also(console.log);
