@@ -1,6 +1,6 @@
-import { page } from '$app/state';
 import { type IR, type Year } from '$lib/data';
 import { getIsRegulusOrAdmin, getUser, isRegulusOrAdmin } from '$lib/client/auth';
+import { appUrl } from '$lib/helpers/globals';
 import { derived } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
@@ -111,7 +111,7 @@ const infoRKT: FormInfo<ContextRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: 
                 ? `Vyplněna nová servisní prohlídka TČ${pump} k ${irName(ir.IN.ir)}`
                 : `Upravena servisní prohlídka TČ${pump} k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
+            props: { name: user.email, url: appUrl + detailUrlIR(irid), e: ir.IN },
         });
 
         if (response!.ok) return;

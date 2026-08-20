@@ -1,14 +1,18 @@
-import { EMAIL_PASSWORD_G, EMAIL_USERNAME_G } from "$env/static/private";
+import { env } from '$env/dynamic/private';
+import { env as publicENV } from '$env/dynamic/public';
 import nodemailer from 'nodemailer';
 import type { EmailMessage } from '$lib/client/email';
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    host: env.EMAIL_SMTP_HOST,
+    port: Number(env.EMAIL_SMTP_PORT),
+    secure: env.EMAIL_SMTP_SECURE != 'false',
+    ignoreTLS: env.EMAIL_SMTP_SECURE == 'false',
+    logger: true,
+    debug: true,
     auth: {
-        user: EMAIL_USERNAME_G,
-        pass: EMAIL_PASSWORD_G,
+        user: publicENV.PUBLIC_EMAIL_SENDER,
+        pass: env.EMAIL_PASSWORD,
     },
 });
 

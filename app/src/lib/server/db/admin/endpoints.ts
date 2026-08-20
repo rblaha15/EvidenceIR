@@ -1,3 +1,5 @@
+import { env } from '$env/dynamic/private';
+import { env as publicENV } from '$env/dynamic/public';
 import type { Arrays, Company, Person, SparePart, Technician } from '$lib/client/db/arrays';
 import type {
     LoyaltyProgramPointsTransaction,
@@ -12,7 +14,7 @@ import {
     getAllNSPs, getAllRKs, getAllSNs,
     putAllIRs,
     putAllNSPs, putAllRKs, putAllSNs,
-    restoreIR
+    restoreIR, setAllIRs, setAllNSPs, setAllRKs, setAllSNs
 } from '$lib/server/db/admin/general';
 import {
     getAllLoyaltyProgramData,
@@ -38,6 +40,14 @@ export const adminEndpoints = {
         sns: await getAllSNs(),
     })),
     import: defineEndpoint<{
+        irs: IR[], nsps: NSP[], rks: RecommendationDataWithCode[], sns: DocumentSigningInfo[],
+    }, undefined>(async ({ irs, nsps, rks, sns }) => {
+        await setAllIRs(irs);
+        await setAllNSPs(nsps);
+        await setAllRKs(rks);
+        await setAllSNs(sns);
+    }),
+    importRest: defineEndpoint<{
         irs: IR[], nsps: NSP[], rks: RecommendationDataWithCode[], sns: DocumentSigningInfo[],
     }, undefined>(async ({ irs, nsps, rks, sns }) => {
         await putAllIRs(irs);
@@ -84,5 +94,9 @@ export const adminEndpoints = {
         const exists = await checkUserByEmail(userEmail);
         if (!exists) error(400);
         await addPointsTransaction(transaction, userEmail);
+    }),
+    getDatabaseLink: defineEndpoint<undefined, string>(async () => {
+        const [protocol, host] = publicENV.PUBLIC_APP_URL.split('://');
+        return `${protocol}://${env.MONGO_EXPRESS_USERNAME}:${env.MONGO_EXPRESS_PASSWORD}@${host}/db/`;
     }),
 }

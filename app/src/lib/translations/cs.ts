@@ -1,8 +1,9 @@
 // noinspection SpellCheckingInspection
 
+import { env } from '$env/dynamic/public';
+import { pricesNoVAT } from '$lib/helpers/prices';
 import { template as t } from '$lib/helpers/templates';
 import '$lib/extensions';
-import { pricesNoVAT } from '$lib/helpers/prices';
 
 export default {
     form: {
@@ -10,7 +11,7 @@ export default {
         redirecting: `Přesměrování…`,
         saving: `Ukládání...`,
         youHaveAMistake: `Ve formuláři máte chybu. Prosím, zkontrolujte vyplněné informace. Chybná pole:`,
-        somethingWentWrongContactUsHtml: `Omlouváme se, něco se nepovedlo, kontaktujte nás prosím na <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Chyba při ukládání formuláře" target="_blank">aplikace.regulus@gmail.com</a>`,
+        somethingWentWrongContactUsHtml: `Omlouváme se, něco se nepovedlo, kontaktujte nás prosím na <a href="mailto:Regulus SEIR<${env.PUBLIC_EMAIL_SENDER}>?subject=Chyba při ukládání formuláře" target="_blank">${env.PUBLIC_EMAIL_SENDER}</a>`,
         save: `Uložit`,
         saveAsDraft: `Uložit jako koncept`,
         send: `Odeslat emaily`,
@@ -196,7 +197,7 @@ export default {
             clearBrowserData: `Vyčistit data z prohlížeče`,
             clearDataInfo: `Data stránky v prohlížeči obsahují vaše uživatelská nastavení, stránky uložené do offline režimu, offline frontu neodeslaných dat a všechny rozepsané formuláře. Neodstraní se žádná data, která již byla uložena a odeslána na server. Nebudete odhlášeni ze svého účtu.`,
             close: `Zavřít`,
-            didYouFindMistakesInTranslationsHtml: `Našli jste nějaké chyby v překladech? Napište nám to prosím na <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Chyba v překladech" target="_blank">aplikace.regulus@gmail.com</a>.`,
+            didYouFindMistakesInTranslationsHtml: `Našli jste nějaké chyby v překladech? Napište nám to prosím na <a href="mailto:Regulus SEIR<${env.PUBLIC_EMAIL_SENDER}>?subject=Chyba v překladech" target="_blank">${env.PUBLIC_EMAIL_SENDER}</a>.`,
         },
         history: {
             title: `Historie změn a emailů`,
@@ -567,7 +568,7 @@ export default {
             youCanCloseThisTab: `Nyní můžete tuto kartu zavřít`,
             sending: `Odesílání…`,
             somethingWentWrong: `Něco se nepovedlo :\\`,
-            unknownErrorHtml: `Zkuste to prosím znovu, nebo nás kontaktujte na <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Chyba při žádosti o roční kontrolu" target="_blank">aplikace.regulus@gmail.com</a>.`,
+            unknownErrorHtml: `Zkuste to prosím znovu, nebo nás kontaktujte na <a href="mailto:Regulus SEIR<${env.PUBLIC_EMAIL_SENDER}>?subject=Chyba při žádosti o roční kontrolu" target="_blank">${env.PUBLIC_EMAIL_SENDER}</a>.`,
         },
         regulus: `Firma Regulus`,
     },

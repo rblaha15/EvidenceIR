@@ -1,6 +1,6 @@
 import { user, type User } from '$lib/client/auth';
-import { page } from '$app/state';
 import { fetchSpareParts, fetchTechnicians, type Technician, technicians } from '$lib/client/db/arrays';
+import { appUrl } from '$lib/helpers/globals';
 import { extractSPIDFromRawData, type SPID, spName, type SZID } from '$lib/helpers/ir';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
@@ -64,7 +64,7 @@ const infoSP: FormInfo<ContextSP, FormSP, [[Technician[] | 'loading', User | und
                 ? `Upravený servisní protokol: ${name}`
                 : `Nový servisní protokol: ${name}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, url: page.url.origin + detailUrlIR(irid), discountReason: raw.fakturace.discountReason, e: ir.IN },
+            props: { name: raw.zasah.clovek, url: appUrl + detailUrlIR(irid), discountReason: raw.fakturace.discountReason, e: ir.IN },
         });
 
         if (response!.ok) return true;

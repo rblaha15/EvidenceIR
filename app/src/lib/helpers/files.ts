@@ -1,6 +1,6 @@
+import { appUrl } from '$lib/helpers/globals';
 import type { OpenPdfOptions, Pdf } from '$lib/pdf/pdf';
 import { relUrl } from '$lib/helpers/runes.svelte';
-import { page } from '$app/state';
 
 export const createFileUrl = (blob: Blob) => new Promise<string>(resolve => {
     const fr = new FileReader();
@@ -33,7 +33,7 @@ export const printFile = (objectUrl: string) =>
 export const generatePdfPreviewUrl = <P extends Pdf>(o: OpenPdfOptions<P>) => {
     const { link, irid, nspid, lang, ...parameters } = o;
 
-    const url = new URL(relUrl(`/pdf/${link}`), page.url.origin);
+    const url = new URL(relUrl(`/pdf/${link}`), appUrl);
     for (const key in parameters) {
         url.searchParams.append(key, String(parameters[key as keyof typeof parameters]));
     }

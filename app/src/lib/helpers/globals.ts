@@ -1,3 +1,4 @@
+import { env } from '$env/dynamic/public';
 import { get, readonly, writable } from 'svelte/store';
 
 const t = writable('SEIR');
@@ -45,6 +46,7 @@ export const progress = readonly(p);
 export const initialRouteLoggedIn = '/search';
 export const initialRouteLoggedOut = '/login';
 
+export const appUrl = env.PUBLIC_APP_URL;
 
 export const parseTitleId = (text: string) => text
     .trim()

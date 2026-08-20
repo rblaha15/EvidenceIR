@@ -1,20 +1,18 @@
 <script lang="ts">
 	import { type FormIN } from '$lib/forms/IN/formIN';
-	import type { Translations } from '$lib/translations';
-    import { irName, irLabel, extractIRIDFromParts, endUserName, irWholeName } from '$lib/helpers/ir';
+    import { appUrl } from '$lib/helpers/globals';
+    import { extractIRIDFromParts, endUserName, irWholeName } from '$lib/helpers/ir';
 	import type { Raw } from '$lib/forms/Form';
 	import { detailUrlIR } from '$lib/helpers/runes.svelte';
     import type { User } from '$lib/client/auth';
 
 	interface Props {
 		e: Raw<FormIN>;
-        origin: string;
         user: User;
 	}
 
 	const {
 		e,
-        origin,
         user,
 	}: Props = $props();
 
@@ -23,6 +21,6 @@
 
 <p>IR: {irWholeName(e)}</p>
 <p>Uživatel: {endUserName(e.koncovyUzivatel)}</p>
-<p>Odkaz na podrobnosti evidence: <a href={origin + detailUrlIR(irid)}>{origin + detailUrlIR(irid)}</a></p>
+<p>Odkaz na podrobnosti evidence: <a href={appUrl + detailUrlIR(irid)}>{appUrl + detailUrlIR(irid)}</a></p>
 
 <p><b>Zaevidoval</b>: {user.name}</p>

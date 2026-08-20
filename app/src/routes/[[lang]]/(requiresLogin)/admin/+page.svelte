@@ -4,7 +4,7 @@
     import { type Component, onMount } from 'svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
-    import { derived } from 'svelte/store';
+    import DatabaseFrame from './DatabaseFrame.svelte';
     import DataImport from './DataImport.svelte';
     import TranslationsTable from './TranslationsTable.svelte';
     import AdminTable, { type TableOptions } from './AdminTable.svelte';
@@ -51,7 +51,12 @@
         };
     }
 
-    type TabDefinition = TableDefinition<any> | CustomDefinition | ArraysDefinition<any>;
+    interface LinkDefinition extends BaseTabDefinition {
+        contentType: 'link';
+        href: string;
+    }
+
+    type TabDefinition = TableDefinition<any> | CustomDefinition | ArraysDefinition<any> | LinkDefinition;
 
     const addCompaniesLinks = (companies: string[]) =>
         companies.map(c => `<a href="#companies-${c}">${c}</a>`).join(', ');
@@ -65,6 +70,13 @@
     type Tab = typeof tabNames[number];
 
     const tabs: Record<Tab, TabDefinition> = {
+        db: {
+            title: 'Databáze',
+            contentType: 'custom',
+            contentOptions: {
+                component: DatabaseFrame,
+            },
+        } satisfies CustomDefinition,
         users: {
             title: 'Uživatelé',
             longerTitle: 'Seznam uživatelů a příslušných firem',

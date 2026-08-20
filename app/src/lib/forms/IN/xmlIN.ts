@@ -2,12 +2,12 @@
 
 import type { ContextIN } from '$lib/forms/IN/formIN';
 import type { BaseWidget, Widget } from '$lib/forms/Widget';
+import { appUrl } from '$lib/helpers/globals';
 import type { Translations } from '$lib/translations';
 import type { Form, WidgetValue } from '$lib/forms/Form';
 import { browser, dev, version } from '$app/environment';
 import { extractIRIDFromParts } from '$lib/helpers/ir';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
-import { page } from '$app/state';
 
 const camelToSnakeCase = (str: string) =>
     str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
@@ -59,7 +59,7 @@ Verze aplikace: ${appVersion} (${version}) (${dev ? 'DEV' : browser ? 'BROWSER' 
 <evidence>
 ${innerXML(c, t).let(xml => {
     const irid = extractIRIDFromParts(c.v.ir.typ.first!, c.v.ir.cislo);
-    const link = page.url.origin + detailUrlIR(irid, '?');
+    const link = appUrl + detailUrlIR(irid, '?');
     const linkLine = `\n        <odkaz>${link}</odkaz>`;
     const lastNewLine = xml.lastIndexOf('\n')
     return xml.slice(0, lastNewLine) + linkLine + xml.slice(lastNewLine)

@@ -1,0 +1,60 @@
+services:
+  app:
+    build: app
+    restart: unless-stopped
+    environment:
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL}
+      PUBLIC_EMAIL_SENDER: ${PUBLIC_EMAIL_SENDER}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      EMAIL_SMTP_HOST: ${EMAIL_SMTP_HOST}
+      EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT}
+      EMAIL_SMTP_SECURE: ${EMAIL_SMTP_SECURE}
+      EMAIL_BLOB_READ_WRITE_TOKEN: ${EMAIL_BLOB_READ_WRITE_TOKEN}
+      FIREBASE_INFO: ${FIREBASE_INFO}
+      GOSMS_CLIENT_ID: ${GOSMS_CLIENT_ID}
+      GOSMS_CLIENT_SECRET: ${GOSMS_CLIENT_SECRET}
+      GOSMS_CHANNEL_ID: ${GOSMS_CHANNEL_ID}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      MONGO_EXPRESS_USERNAME: ${MONGO_EXPRESS_USERNAME}
+      MONGO_EXPRESS_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
+      BODY_SIZE_LIMIT: 10M
+      MONGO_URI: mongodb://mongo:27017
+    depends_on:
+      - mongo
+    dns:
+      - ${DNS}
+
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - ./backend/mongo_data:/data/db
+
+  nginx:
+    build: ./nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+
+  mongo-express:
+    image: mongo-express:1.0.2
+    restart: unless-stopped
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+
+      ME_CONFIG_BASICAUTH_ENABLED: "true"
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
+
+      ME_CONFIG_SITE_BASEURL: /db/
+      ME_CONFIG_SITE_COOKIESECRET: ${MONGO_EXPRESS_COOKIE_SECRET}
+      ME_CONFIG_SITE_SESSIONSECRET: ${MONGO_EXPRESS_SESSION_SECRET}
+
+      ME_CONFIG_REQUEST_SIZE: 10mb
+
+    depends_on:
+      - mongo

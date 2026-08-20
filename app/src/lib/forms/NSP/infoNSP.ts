@@ -1,8 +1,8 @@
 import { getUser, user, type User } from '$lib/client/auth';
 import { fetchSpareParts, fetchTechnicians, type Technician, technicians } from '$lib/client/db/arrays';
+import { appUrl } from '$lib/helpers/globals';
 import { detailUrlNSP } from '$lib/helpers/runes.svelte.js';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
-import { page } from '$app/state';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { extractSPIDFromRawData, type NSPID, spName } from '$lib/helpers/ir';
 import { type ContextNSP, defaultNSP, type FormNSP } from '$lib/forms/NSP/formNSP';
@@ -29,7 +29,7 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loadin
             ...defaultAddresses(),
             subject: `Nový servisní protokol: ${spName(raw.zasah)}`,
             component: MailProtocol,
-            props: { name: raw.zasah.clovek, url: page.url.origin + detailUrlNSP([nspid]), discountReason: raw.fakturace.discountReason, e: raw },
+            props: { name: raw.zasah.clovek, url: appUrl + detailUrlNSP([nspid]), discountReason: raw.fakturace.discountReason, e: raw },
         });
 
         if (response!.ok) return true;

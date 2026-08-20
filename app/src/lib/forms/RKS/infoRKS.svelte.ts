@@ -1,6 +1,6 @@
-import { page } from '$app/state';
 import { getIsRegulusOrAdmin, getUser, isRegulusOrAdmin } from '$lib/client/auth';
 import { type Year } from '$lib/data';
+import { appUrl } from '$lib/helpers/globals';
 import { derived } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
@@ -60,7 +60,7 @@ const infoRKS: FormInfo<ContextRKS, FormRKS, [], 'RKS', { defaultYear: Year, fil
                 ? `Vyplněna nová roční kontrola SOL k ${irName(ir.IN.ir)}`
                 : `Upravena roční kontrola SOL k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
+            props: { name: user.email, url: appUrl + detailUrlIR(irid), e: ir.IN },
         });
 
         if (response!.ok) return;

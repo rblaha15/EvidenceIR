@@ -1,5 +1,6 @@
 import { user as userStore, type User } from '$lib/client/auth';
 import { call } from '$lib/client/db/endpoints';
+import { env } from '$env/dynamic/public';
 import { htmlToText } from 'html-to-text';
 import { type Component, mount } from 'svelte';
 import { dev } from '$app/environment';
@@ -109,7 +110,7 @@ export const blahova = { name: 'Andrea Bláhová', address: 'blahova@regulus.cz'
 
 export const SENDER = (name?: string): Address => ({
     name: name ? name + ' (Regulus SEIR)' : 'Regulus SEIR',
-    address: 'aplikace.regulus@gmail.com',
+    address: env.PUBLIC_EMAIL_SENDER,
 });
 
 export const userAddress = (user: User) => ({

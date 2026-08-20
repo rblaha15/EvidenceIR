@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { ContextIN, FormIN } from '$lib/forms/IN/formIN';
+    import { appUrl } from '$lib/helpers/globals';
     import type { Translations } from '$lib/translations';
     import type { User } from '$lib/client/auth';
     import { extractIRIDFromParts } from '$lib/helpers/ir';
@@ -11,14 +12,12 @@
         context: ContextIN;
         user: User;
         t: Translations;
-        origin: string;
     }
 
     const {
         context,
         user,
         t,
-        origin
     }: Props = $props();
 
     let list = $derived(widgetList<ContextIN, FormIN>(context.f, context.v));
@@ -26,7 +25,7 @@
     const irid = extractIRIDFromParts(context.v.ir.typ.first!, context.v.ir.cislo);
 </script>
 
-<p>Odkaz na podrobnosti evidence: <a href={origin + detailUrlIR(irid)}>{origin + detailUrlIR(irid)}</a></p>
+<p>Odkaz na podrobnosti evidence: <a href={appUrl + detailUrlIR(irid)}>{appUrl + detailUrlIR(irid)}</a></p>
 
 {#each list as { widget, value }}
     <ReadonlyWidget {widget} {value} {t} {context} />

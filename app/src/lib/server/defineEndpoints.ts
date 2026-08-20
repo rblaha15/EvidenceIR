@@ -3,7 +3,6 @@ import type { User } from '$lib/server/auth';
 export type EndpointContext = {
     locals: App.Locals,
     headers: Headers,
-    origin: string,
     user: User,
     userEmail: string,
     timestamp: Date,
