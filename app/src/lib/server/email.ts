@@ -18,4 +18,4 @@ const getTransporter = () => {
     return transporter;
 }
 
-export const sendEmail = (message: EmailMessage) => getTransporter().sendMail(message).also(console.log);
+export const sendEmail = (message: EmailMessage) => getTransporter().sendMail(message).thenAlso(console.log);
