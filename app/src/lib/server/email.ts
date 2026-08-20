@@ -4,7 +4,7 @@ import type { EmailMessage } from '$lib/client/email';
 
 const transporter = nodemailer.createTransport({
     host: env.EMAIL_SMTP_HOST,
-    port: env.EMAIL_SMTP_PORT.toNumber(),
+    port: Number(env.EMAIL_SMTP_PORT),
     secure: true,
     auth: {
         user: env.EMAIL_USERNAME,
