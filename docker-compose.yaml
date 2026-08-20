@@ -1,0 +1,37 @@
+services:
+  app:
+    build: app
+    restart: unless-stopped
+    environment:
+      EMAIL_USERNAME_G: ${EMAIL_USERNAME_G}
+      EMAIL_PASSWORD_G: ${EMAIL_PASSWORD_G}
+      EMAIL_BLOB_READ_WRITE_TOKEN: ${EMAIL_BLOB_READ_WRITE_TOKEN}
+      FIREBASE_INFO: ${FIREBASE_INFO}
+      GOSMS_CLIENT_ID: ${GOSMS_CLIENT_ID}
+      GOSMS_CLIENT_SECRET: ${GOSMS_CLIENT_SECRET}
+      GOSMS_CHANNEL_ID: ${GOSMS_CHANNEL_ID}
+      MONGO_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - ./backend/mongo_data:/data/db
+
+  nginx:
+    build: ./nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+
+volumes:
+  mongo_data:

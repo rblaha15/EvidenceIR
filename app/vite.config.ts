@@ -15,6 +15,5 @@ export default defineConfig({
     define: {
         appVersion: JSON.stringify(pkg.version),
     },
-    envDir: '../',
     envPrefix: 'PUBLIC_',
 });
