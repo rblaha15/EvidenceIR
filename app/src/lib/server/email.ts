@@ -1,4 +1,4 @@
-import { EMAIL_PASSWORD_G, EMAIL_USERNAME_G } from "$env/static/private";
+import { env } from '$env/dynamic/private';
 import nodemailer from 'nodemailer';
 import type { EmailMessage } from '$lib/client/email';
 
@@ -7,8 +7,8 @@ const transporter = nodemailer.createTransport({
     port: 465,
     secure: true,
     auth: {
-        user: EMAIL_USERNAME_G,
-        pass: EMAIL_PASSWORD_G,
+        user: env.EMAIL_USERNAME_G,
+        pass: env.EMAIL_PASSWORD_G,
     },
 });
 

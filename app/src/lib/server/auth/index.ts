@@ -1,4 +1,4 @@
-import { BETTER_AUTH_SECRET, BETTER_AUTH_URL } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { checkedIsLoggedIn, checkIsAdmin, checkIsAnyRegulusOrAdmin, checkIsRegulusOrAdmin } from '$lib/client/auth';
 import { authDB } from '$lib/server/db';
 import { validateToken } from '$lib/server/db/tokens';
@@ -47,8 +47,8 @@ export const auth = betterAuth({
             },
         },
     },
-    secret: BETTER_AUTH_SECRET,
-    baseURL: BETTER_AUTH_URL,
+    secret: env.BETTER_AUTH_SECRET,
+    baseURL: env.BETTER_AUTH_URL,
 });
 
 export type User = typeof auth['$Infer']['Session']['user'];

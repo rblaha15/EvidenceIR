@@ -32,6 +32,3 @@ services:
       - "8080:80"
     depends_on:
       - app
-
-volumes:
-  mongo_data:

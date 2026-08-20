@@ -1,5 +1,6 @@
 import '$lib/extensions';
-import { MONGO_URI } from '$env/static/private';
+import { building } from '$app/environment';
+import { env } from '$env/dynamic/private';
 import type { StringArray, Company, Person, SparePart, Technician } from '$lib/client/db/arrays';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 import type { IR, NSP, RecommendationDataWithCode } from '$lib/data';
@@ -7,10 +8,10 @@ import type { IRID, NSPID } from '$lib/helpers/ir';
 import type { Session, User } from '$lib/server/auth';
 import type { Token } from '$lib/server/db/tokens';
 import type { DocumentSigningInfo } from '$lib/server/signing';
-import type { Account } from 'better-auth';
+import { type Account } from 'better-auth';
 import { MongoClient, type ObjectId } from 'mongodb';
 
-export const client = new MongoClient(MONGO_URI);
+export const client = new MongoClient(building ? 'mongodb://localhost:27017' : env.MONGO_URI);
 
 export const authDB = client.db('auth');
 export const appDB = client.db('app');
@@ -35,5 +36,7 @@ export const tokenCollection = authDB.collection<Token>('token');
 
 export const id = <ID extends IRID | NSPID>(id: ID) => ({ 'meta.id': id });
 
-await tokenCollection.createIndex('tokenHash', { unique: true });
-await tokenCollection.createIndex('expiresAt', { expireAfterSeconds: 0 });
+if (!building) {
+    await tokenCollection.createIndex('tokenHash', { unique: true });
+    await tokenCollection.createIndex('expiresAt', { expireAfterSeconds: 0 });
+}

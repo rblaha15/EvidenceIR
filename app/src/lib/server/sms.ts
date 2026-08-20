@@ -1,12 +1,12 @@
 import { error } from '@sveltejs/kit';
-import { GOSMS_CHANNEL_ID, GOSMS_CLIENT_ID, GOSMS_CLIENT_SECRET } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 const api = 'https://app.gosms.eu/';
 
 const getToken = (
     fetch: typeof window.fetch,
 ) => fetch(
-    api + `oauth/v2/token?client_id=${GOSMS_CLIENT_ID}&client_secret=${GOSMS_CLIENT_SECRET}&grant_type=client_credentials`,
+    api + `oauth/v2/token?client_id=${env.GOSMS_CLIENT_ID}&client_secret=${env.GOSMS_CLIENT_SECRET}&grant_type=client_credentials`,
     {
         method: 'GET',
         headers: {
@@ -26,7 +26,7 @@ const send = (
         method: 'POST',
         body: JSON.stringify({
             message, recipients,
-            channel: GOSMS_CHANNEL_ID,
+            channel: env.GOSMS_CHANNEL_ID,
         }),
         headers: {
             'content-type': 'application/json',
