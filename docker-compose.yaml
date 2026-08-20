@@ -10,7 +10,7 @@ services:
       GOSMS_CLIENT_ID: ${GOSMS_CLIENT_ID}
       GOSMS_CLIENT_SECRET: ${GOSMS_CLIENT_SECRET}
       GOSMS_CHANNEL_ID: ${GOSMS_CHANNEL_ID}
-      MONGO_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017
+      MONGO_URI: mongodb://mongo:27017
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL}
     depends_on:
@@ -19,9 +19,6 @@ services:
   mongo:
     image: mongo:7
     restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     volumes:
       - ./backend/mongo_data:/data/db
 
