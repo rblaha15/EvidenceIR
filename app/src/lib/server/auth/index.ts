@@ -1,3 +1,4 @@
+import { building } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import { checkedIsLoggedIn, checkIsAdmin, checkIsAnyRegulusOrAdmin, checkIsRegulusOrAdmin } from '$lib/client/auth';
 import { authDB } from '$lib/server/db';
@@ -47,7 +48,7 @@ export const auth = betterAuth({
             },
         },
     },
-    secret: env.BETTER_AUTH_SECRET,
+    secret: building ? 'DUMMY' : env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
 });
 
