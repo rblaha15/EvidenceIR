@@ -17,6 +17,9 @@ services:
       BETTER_AUTH_URL: ${BETTER_AUTH_URL}
     depends_on:
       - mongo
+    dns:
+      - ${DNS}
+
 
   mongo:
     image: mongo:7
