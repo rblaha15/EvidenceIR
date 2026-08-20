@@ -7,20 +7,32 @@ export const getAllIRs = () => irCollection.find().project<IR>({ _id: 0 }).toArr
 export const getAllNSPs = () => nspCollection.find().project<NSP>({ _id: 0 }).toArray();
 export const getAllRKs = () => rkCollection.find().project<RecommendationDataWithCode>({}).toArray();
 export const getAllSNs = () => signingCollection.find().project<DocumentSigningInfo>({ _id: 0 }).toArray();
-export const putAllIRs = async (irs: IR[]) => {
+export const setAllIRs = async (irs: IR[]) => {
     await irCollection.deleteMany();
+    await putAllIRs(irs);
+};
+export const setAllNSPs = async (nsps: NSP[]) => {
+    await nspCollection.deleteMany();
+    await putAllNSPs(nsps);
+};
+export const setAllRKs = async (rks: RecommendationDataWithCode[]) => {
+    await rkCollection.deleteMany();
+    await putAllRKs(rks);
+};
+export const setAllSNs = async (sns: DocumentSigningInfo[]) => {
+    await signingCollection.deleteMany();
+    await putAllSNs(sns);
+};
+export const putAllIRs = async (irs: IR[]) => {
     await irCollection.insertMany(irs);
 };
 export const putAllNSPs = async (nsps: NSP[]) => {
-    await nspCollection.deleteMany();
     await nspCollection.insertMany(nsps);
 };
 export const putAllRKs = async (rks: RecommendationDataWithCode[]) => {
-    await rkCollection.deleteMany();
     await rkCollection.insertMany(rks);
 };
 export const putAllSNs = async (sns: DocumentSigningInfo[]) => {
-    await signingCollection.deleteMany();
     await signingCollection.insertMany(sns);
 };
 

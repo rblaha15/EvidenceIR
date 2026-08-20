@@ -12,7 +12,7 @@ import {
     getAllNSPs, getAllRKs, getAllSNs,
     putAllIRs,
     putAllNSPs, putAllRKs, putAllSNs,
-    restoreIR
+    restoreIR, setAllIRs, setAllNSPs, setAllRKs, setAllSNs
 } from '$lib/server/db/admin/general';
 import {
     getAllLoyaltyProgramData,
@@ -38,6 +38,14 @@ export const adminEndpoints = {
         sns: await getAllSNs(),
     })),
     import: defineEndpoint<{
+        irs: IR[], nsps: NSP[], rks: RecommendationDataWithCode[], sns: DocumentSigningInfo[],
+    }, undefined>(async ({ irs, nsps, rks, sns }) => {
+        await setAllIRs(irs);
+        await setAllNSPs(nsps);
+        await setAllRKs(rks);
+        await setAllSNs(sns);
+    }),
+    importRest: defineEndpoint<{
         irs: IR[], nsps: NSP[], rks: RecommendationDataWithCode[], sns: DocumentSigningInfo[],
     }, undefined>(async ({ irs, nsps, rks, sns }) => {
         await putAllIRs(irs);

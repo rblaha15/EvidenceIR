@@ -56,11 +56,18 @@
     }) as NSP;
 
     const importBackup = async (p: AllEndpoints['db/admin/import']['params'], isFromSEIR1: boolean) => {
-        await call('db/admin/import', p).catch(
-            error => {
-                error = error;
-            },
-        );
+        const chunked = p.mapValues((_, array) => (array as any[]).chunk(1_000))
+        const count = chunked.getValues().maxOf(chunks => chunks.length);
+        for (let i = 0; i < count; i++) {
+            await call(
+                i == 0 ? 'db/admin/import' : 'db/admin/importRest',
+                chunked.mapValues((_, chunks) => chunks[i] || []) as AllEndpoints['db/admin/import']['params'],
+            ).catch(
+                error => {
+                    error = error;
+                },
+            );
+        }
         error = !isFromSEIR1 ? 'Hotovo' : 'Hotovo, ale jen IR a SP';
     };
 
