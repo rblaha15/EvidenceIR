@@ -3,6 +3,7 @@ import { cervenka, SENDER } from '$lib/client/email';
 import type { IR, RecommendationData, RecommendationSettings } from '$lib/data';
 import MailCheckReminder from '$lib/emails/MailCheckReminder.svelte';
 import ares from '$lib/helpers/ares';
+import { appUrl } from '$lib/helpers/globals';
 import { endUserEmails, endUserName, extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { getAllIRs } from '$lib/server/db/admin/general';
@@ -34,14 +35,13 @@ type SystemArgs = {
     ir: IR, irid: IRID, settings: RecommendationSettings, type: 'TČ' | 'SOL'
 };
 type AppArgs = {
-    fetch: typeof window.fetch, appUrl: string,
+    fetch: typeof window.fetch,
 };
 
 // TODO: CRON job
 export const checkForRecommendations = async (headers: Headers) => {
     if (!dev && headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`)
         return error(401);
-    const appUrl = dev ? 'http://localhost:5006' : 'https://evidenceir.vercel.app';
 
     const irs = await getAllIRs();
 
@@ -55,19 +55,19 @@ export const checkForRecommendations = async (headers: Headers) => {
             const settings = ir.RK.DK.TC;
             const commission = new Date(ir.UP.dateTC!);
             if (settings.offset) commission.setDate(commission.getDate() + settings.offset);
-            await processRecommendations({ today, commission, ir, irid, settings, type: 'TČ', fetch, appUrl });
+            await processRecommendations({ today, commission, ir, irid, settings, type: 'TČ', fetch });
         }
         if (ir.RK.DK.SOL) {
             const settings = ir.RK.DK.SOL;
             const commission = new Date(ir.UP.dateSOL!);
             if (settings.offset) commission.setDate(commission.getDate() + settings.offset);
-            await processRecommendations({ today, commission, ir, irid, settings, type: 'SOL', fetch, appUrl });
+            await processRecommendations({ today, commission, ir, irid, settings, type: 'SOL', fetch });
         }
     }
 };
 
 const processRecommendations = async (
-    { today, commission, ir, irid, settings, type, fetch, appUrl }: DateArgs & SystemArgs & AppArgs
+    { today, commission, ir, irid, settings, type, fetch }: DateArgs & SystemArgs & AppArgs
 ) => {
     const anniversaryThisYear =
         new Date(today.getFullYear(), commission.getMonth(), commission.getDate());
@@ -106,7 +106,7 @@ const processRecommendations = async (
         const daysSinceAnniversary = Math.floor(millisSinceAnniversary / millisOfDay);
 
         if (daysSinceAnniversary >= 333 && lastFilledCheck < yearOfNextCheck) {
-            await sendRecommendation({ ir, irid, settings, type, fetch, appUrl });
+            await sendRecommendation({ ir, irid, settings, type, fetch });
         }
     } else if (settings.state == 'sentRecommendation') {
         if (anniversaryThisYear <= today) {
@@ -115,14 +115,14 @@ const processRecommendations = async (
     } else if (settings.state == 'sentRequest') {
         if (anniversaryThisYear <= today) {
             if (lastFilledCheck <= yearOfNextCheck - 2) {
-                await sendReminder({ ir, irid, settings, type, fetch, appUrl });
+                await sendReminder({ ir, irid, settings, type, fetch });
             }
             await goToTheNextYear(irid, type);
         }
     }
 };
 
-const sendRecommendation = async ({ ir, irid, settings, type, fetch, appUrl }: SystemArgs & AppArgs) => {
+const sendRecommendation = async ({ ir, irid, settings, type, fetch }: SystemArgs & AppArgs) => {
     const code = crypto.randomUUID();
     const companyType = settings.executingCompany;
     if (companyType == 'regulus') {
@@ -168,7 +168,7 @@ const ignoreThisYear = async ({ irid, settings, type }: SystemArgs) => {
     await goToTheNextYear(irid, type);
 };
 
-const sendReminder = async ({ appUrl, irid, ir }: SystemArgs & AppArgs) => {
+const sendReminder = async ({ irid, ir }: SystemArgs & AppArgs) => {
     const link = appUrl + detailUrlIR(irid, '?');
     const html = reminderEmail(endUserName(ir.IN.koncovyUzivatel), link);
     await sendEmail({
@@ -189,12 +189,12 @@ export const getRecommendationData = async (code: string) => {
     return info;
 };
 
-export const sendRequest = async (code: string, origin: string) => {
+export const sendRequest = async (code: string) => {
     if (!code) return error(403);
     const info = await getRK(code);
     if (!info) return error(400);
 
-    const link = origin + detailUrlIR(info.irid, '?');
+    const link = appUrl + detailUrlIR(info.irid, '?');
     const html = requestEmail(info, link);
     await sendEmail({
         from: SENDER(),

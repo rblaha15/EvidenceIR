@@ -1,10 +1,10 @@
 import { getIsRegulusOrAdmin, getUser, isRegulusOrAdmin } from '$lib/client/auth';
 import type { FormInfo } from '$lib/forms/FormInfo';
+import { appUrl } from '$lib/helpers/globals';
 import { derived } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { page } from '$app/state';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import type { ContextUPS, FormUPS } from '$lib/forms/UPS/formUPS';
 import defaultUPS from './defaultUPS';
@@ -31,7 +31,7 @@ const infoUPS: FormInfo<ContextUPS, FormUPS, [], 'UPS'> = ({
                 ? `Změněno uvedení SOL do provozu k ${irName(ir.IN.ir)}`
                 : `Vyplněno nové uvedení SOL do provozu k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
-            props: { name: user.email, url: page.url.origin + detailUrlIR(irid), e: ir.IN },
+            props: { name: user.email, url: appUrl + detailUrlIR(irid), e: ir.IN },
         });
 
         if (response!.ok) return;

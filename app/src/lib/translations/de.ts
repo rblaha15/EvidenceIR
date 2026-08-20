@@ -1,7 +1,8 @@
-import type { PlainTranslations } from '$lib/translations';
-import { template as t } from '$lib/helpers/templates';
-import en from './en';
 import { pricesNoVAT } from '$lib/helpers/prices';
+import { template as t } from '$lib/helpers/templates';
+import type { PlainTranslations } from '$lib/translations';
+import { env } from '$env/dynamic/public';
+import en from './en';
 
 const de: PlainTranslations = {
     fve: {
@@ -234,7 +235,7 @@ const de: PlainTranslations = {
         refsiteHtml: 'Ist der Kunde bereit, eine Referenz im <a href="https://refsite.info">refsite.info</a> Portal auszufüllen? Wir senden die Anfrage per E-Mail ab.',
     },
     form: {
-        somethingWentWrongContactUsHtml: `Entschuldigung, etwas ist schiefgelaufen, bitte kontaktieren Sie uns unter <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Fehler beim Speichern eines Formulars" target="_blank">aplikace.regulus@gmail.com</a>`,
+        somethingWentWrongContactUsHtml: `Entschuldigung, etwas ist schiefgelaufen, bitte kontaktieren Sie uns unter <a href="mailto:Regulus SEIR<${env.PUBLIC_EMAIL_SENDER}>?subject=Fehler beim Speichern eines Formulars" target="_blank">${env.PUBLIC_EMAIL_SENDER}</a>`,
         youHaveAMistake: `Im Formular liegt ein Fehler vor. Bitte überprüfen Sie die eingegebenen Informationen. Falsche Felder:`,
         saving: `Speichern...`,
         send: `E-Mails senden`,
@@ -284,7 +285,7 @@ const de: PlainTranslations = {
             clearBrowserData: `Browserdaten löschen`,
             clearDataInfo: `Zu den Browserdaten gehören Ihre Benutzereinstellungen, offline gespeicherte Seiten, die Offline-Warteschlange nicht gesendeter Daten und alle ausgefüllten Formulare. Bereits gespeicherte und an den Server gesendete Daten werden nicht gelöscht. Sie werden nicht von Ihrem Konto abgemeldet.`,
             close: `Schließen`,
-            didYouFindMistakesInTranslationsHtml: `Haben Sie Übersetzungsfehler gefunden? Schreiben Sie uns bitte an <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Übersetzungsfehler" target="_blank">aplikace.regulus@gmail.com</a>.`,
+            didYouFindMistakesInTranslationsHtml: `Haben Sie Übersetzungsfehler gefunden? Schreiben Sie uns bitte an <a href="mailto:Regulus SEIR<${env.PUBLIC_EMAIL_SENDER}>?subject=Übersetzungsfehler" target="_blank">${env.PUBLIC_EMAIL_SENDER}</a>.`,
         },
         history: {
             title: `Änderungs- und E-Mail-Verlauf`,
@@ -410,7 +411,7 @@ const de: PlainTranslations = {
         commissioningTitle: 'Inbetriebnahme',
         yes: `ja`,
         no: `nein`,
-        unsure : `möglich`,
+        unsure: `möglich`,
         pumpDetails: t`WP${'n'}: ${'model'} – ${'cislo'}`,
         prototype: 'Andere – Prototyp',
     },

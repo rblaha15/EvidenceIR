@@ -27,7 +27,7 @@
     import { storable } from '$lib/helpers/stores';
     import { dev } from '$app/environment';
     import { type ButtonKey, buttonKeys, type IndependentFormInfo, type Mode, type ModeL, type Result } from '$lib/forms/FormInfo';
-    import { refreshTOC, runLoading } from '$lib/helpers/globals.js';
+    import { appUrl, refreshTOC, runLoading } from '$lib/helpers/globals.js';
     import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
     import { goto } from '$app/navigation';
     import { relUrl } from '$lib/helpers/runes.svelte';
@@ -147,7 +147,7 @@
                 if (openPdf) {
                     const o = await openPdf(raw, other);
                     const url = generatePdfPreviewUrl(o);
-                    const gotoUrl = new URL(relUrl('/detail'), url.origin);
+                    const gotoUrl = new URL(relUrl('/detail'), appUrl);
                     url.searchParams.get('irid')?.also(u => gotoUrl.searchParams.set('irid', u));
                     url.searchParams.get('spid')?.also(u => gotoUrl.searchParams.set('spid', u));
                     gotoUrl.searchParams.set('goto', url.pathname + url.search);

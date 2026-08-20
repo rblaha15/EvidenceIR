@@ -1,12 +1,11 @@
 import type { FormIN } from '$lib/forms/IN/formIN';
 import type { Raw, Values } from '$lib/forms/Form';
 import ares, { regulusCRN } from '$lib/helpers/ares';
+import { appUrl } from '$lib/helpers/globals';
 import { irName, irWholeName } from '$lib/helpers/ir';
 import { type IR, type RecommendationSettings } from '$lib/data';
 import { cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
-import { page } from '$app/state';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
-import { get } from 'svelte/store';
 import MailDK from '$lib/emails/MailDK.svelte';
 import db from '$lib/client/db';
 import {
@@ -116,7 +115,7 @@ export const saveDK = async <D extends ContextDK<D>>(ir: IR, values: Values<Form
             ? `Zapnuto upozorňování na RK ${type} u ${irName(ir.IN.ir)}`
             : `Zrušeno upozorňování na RK ${type} u ${irName(ir.IN.ir)}`,
         component: MailDK,
-        props: { name: user.email, url: page.url.origin + detailUrlIR(ir.meta.id), company, irWholeName: name },
+        props: { name: user.email, url: appUrl + detailUrlIR(ir.meta.id), company, irWholeName: name },
     });
     console.log(response);
 

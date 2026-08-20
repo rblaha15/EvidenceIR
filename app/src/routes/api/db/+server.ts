@@ -25,7 +25,7 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
         return error(401);
     }
     const context = {
-        locals, headers: request.headers, origin: url.origin,
+        locals, headers: request.headers,
         user: locals.user!, userEmail: locals.user?.email!,
         isLoggedIn: getIsLoggedIn(locals),
         isRegulusOrAdmin: getIsRegulusOrAdmin(locals),

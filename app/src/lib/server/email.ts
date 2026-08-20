@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/private';
+import { env as publicENV } from '$env/dynamic/public';
 import nodemailer from 'nodemailer';
 import type { EmailMessage } from '$lib/client/email';
 
@@ -10,7 +11,7 @@ const transporter = nodemailer.createTransport({
     logger: true,
     debug: true,
     auth: {
-        user: env.EMAIL_USERNAME,
+        user: publicENV.PUBLIC_EMAIL_PASSWORD,
         pass: env.EMAIL_PASSWORD,
     },
 });

@@ -1,6 +1,5 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { page } from '$app/state';
     import { editPassword, signUp } from '$lib/client/auth';
     import { call } from '$lib/client/db/endpoints';
     import { isOnline } from '$lib/client/online';
@@ -11,7 +10,7 @@
     import { Field, FieldError, FieldGroup, FieldLabel } from '$lib/components/ui/field';
     import { Input } from '$lib/components/ui/input';
     import { Spinner } from '$lib/components/ui/spinner';
-    import { initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
+    import { appUrl, initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { Check, WifiOff } from '@lucide/svelte';
     import { onMount } from 'svelte';
@@ -73,7 +72,7 @@
         console.log(result);
         if (result == 'success') {
             if (originalMode == 'edit')
-                await goto(page.url.origin + relUrl(redirect));
+                await goto(appUrl + relUrl(redirect));
             else
                 await goto(relUrl(`/login?email=${email}&done=${originalMode}&redirect=${redirect}`));
         } else if (result == 'PASSWORD_TOO_SHORT') {

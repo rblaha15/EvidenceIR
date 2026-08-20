@@ -1,4 +1,5 @@
 import { SENDER } from '$lib/client/email';
+import { appUrl } from '$lib/helpers/globals';
 import type { LanguageCode } from '$lib/languageCodes';
 import { auth } from '$lib/server/auth';
 import { checkUserByEmail } from '$lib/server/db/admin/auth';
@@ -9,8 +10,7 @@ import { sendEmail } from '$lib/server/email';
 import { getTranslations } from '$lib/translations';
 import { htmlToText } from 'html-to-text';
 
-const sendResetEmail = async ({ origin, email, lang, mode, redirect }: {
-    origin: string,
+const sendResetEmail = async ({ email, lang, mode, redirect }: {
     email: string,
     lang: LanguageCode,
     mode: 'reset' | 'register',
@@ -18,7 +18,7 @@ const sendResetEmail = async ({ origin, email, lang, mode, redirect }: {
 }) => {
     const token = await createToken({ email, mode, redirect });
 
-    const link = `${origin}/${lang}/new-password?token=${token}`;
+    const link = `${appUrl}/${lang}/new-password?token=${token}`;
     const t = getTranslations(lang).auth;
     const html = mode == 'register' ? t.signUpEmailHtml({ link, email }) : t.passwordResetEmailHtml({ link, email });
     const subject = mode == 'register' ? t.signUpEmailSubject : t.passwordReset;
@@ -39,7 +39,7 @@ export const authEndpoints = {
         email: string, redirect: string, lang: LanguageCode,
     }, {
         result: 'emailInUse' | 'useNameSurnameEmail' | 'useBusinessEmail' | 'sent',
-    }>(async ({ email, redirect, lang }, { origin }) => {
+    }>(async ({ email, redirect, lang }) => {
         const userAlreadyExists = await checkUserByEmail(email);
         const person = await getPersonByEmail(email);
         if (person && userAlreadyExists)
@@ -56,12 +56,12 @@ export const authEndpoints = {
             commissioningCompanies: []
         });
 
-        await sendResetEmail({ origin, email: email, lang: lang, redirect: redirect, mode: 'register' });
+        await sendResetEmail({ email: email, lang: lang, redirect: redirect, mode: 'register' });
         return { result: 'sent' };
     }),
     sendPasswordResetEmail: defineEndpoint<{
         email: string, redirect: string, lang: LanguageCode,
-    }, undefined>(async ({ email, redirect, lang }, { origin }) => {
+    }, undefined>(async ({ email, redirect, lang }) => {
         const person = await getPersonByEmail(email);
         if (!person) {
             console.log(`Person ${email} not found, pretending email sent`);
@@ -71,7 +71,6 @@ export const authEndpoints = {
         const user = await checkUserByEmail(email);
 
         await sendResetEmail({
-            origin,
             email: email,
             lang: lang,
             redirect: redirect,

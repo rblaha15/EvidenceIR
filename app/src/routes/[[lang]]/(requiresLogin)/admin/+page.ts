@@ -6,6 +6,7 @@ import {
     fetchSpareParts,
     fetchTechnicians
 } from '$lib/client/db/arrays';
+import { call } from '$lib/client/db/endpoints';
 import type { EntryGenerator, PageLoad } from './$types';
 import { getIsAdmin, getIsLoggedIn } from '$lib/client/auth';
 import { browser } from '$app/environment';
@@ -24,6 +25,10 @@ export const load: PageLoad = async ({ fetch }) => {
     await fetchSpareParts(fetch);
     await fetchArrays(fetch);
     await fetchLoyaltyProgramData(fetch);
+
+    const dbLink = await call('db/admin/getDatabaseLink');
+
+    return { dbLink };
 };
 
 export const prerender = false;

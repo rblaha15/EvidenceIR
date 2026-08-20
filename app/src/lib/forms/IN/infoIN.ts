@@ -16,7 +16,6 @@ import { generatePdf } from '$lib/pdf/pdfGeneration';
 import { blahova, cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
 import { xmlIN } from '$lib/forms/IN/xmlIN';
 import MailRRoute from '$lib/emails/MailRRoute.svelte';
-import { page } from '$app/state';
 import MailSDaty from '$lib/emails/MailSDaty.svelte';
 import { cellsIN } from '$lib/forms/IN/cellsIN';
 import { type ContextIN, type FormIN } from '$lib/forms/IN/formIN';
@@ -53,7 +52,7 @@ const sendEmails = async (
             { type: 'application/pdf' },
         )],
         component: MailRRoute,
-        props: { e: raw, montazka, uvadec, t: cs, origin: page.url.origin, user },
+        props: { e: raw, montazka, uvadec, t: cs, user },
     }) : null;
     console.log(response1);
 
@@ -68,7 +67,7 @@ const sendEmails = async (
             { type: 'application/xml' },
         )],
         component: MailXML,
-        props: { e: raw, origin: page.url.origin, user },
+        props: { e: raw, user },
     });
 
     const response3 = await sendEmail({
@@ -77,7 +76,7 @@ const sendEmails = async (
             ? `Úprava evidence regulátoru ${irName(raw.ir)}`
             : `Nově zaevidovaný regulátor ${irName(raw.ir)}`,
         component: MailSDaty,
-        props: { context, t: cs, user, origin: page.url.origin },
+        props: { context, t: cs, user },
     });
     console.log(response3);
 

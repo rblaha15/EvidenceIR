@@ -12,7 +12,7 @@
     import { Field, FieldError, FieldGroup, FieldLabel } from '$lib/components/ui/field';
     import { Input } from '$lib/components/ui/input';
     import { Spinner } from '$lib/components/ui/spinner';
-    import { initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
+    import { appUrl, initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { WifiOff } from '@lucide/svelte';
     import { onMount } from 'svelte';
@@ -46,7 +46,7 @@
             error = t.invalidEmail;
         } else if (result == 'success') {
             await grantPoints({ type: 'registration' });
-            await goto(page.url.origin + relUrl(redirect));
+            await goto(appUrl + relUrl(redirect));
         }
     }
 

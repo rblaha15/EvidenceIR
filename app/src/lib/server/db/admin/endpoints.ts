@@ -1,3 +1,5 @@
+import { env } from '$env/dynamic/private';
+import { env as publicENV } from '$env/dynamic/public';
 import type { Arrays, Company, Person, SparePart, Technician } from '$lib/client/db/arrays';
 import type {
     LoyaltyProgramPointsTransaction,
@@ -92,5 +94,9 @@ export const adminEndpoints = {
         const exists = await checkUserByEmail(userEmail);
         if (!exists) error(400);
         await addPointsTransaction(transaction, userEmail);
+    }),
+    getDatabaseLink: defineEndpoint<undefined, string>(async () => {
+        const [protocol, host] = publicENV.PUBLIC_APP_URL.split('://');
+        return `${protocol}://${env.MONGO_EXPRESS_USERNAME}:${env.MONGO_EXPRESS_PASSWORD}@${host}/db/`;
     }),
 }

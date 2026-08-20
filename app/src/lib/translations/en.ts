@@ -1,7 +1,8 @@
-import type { PlainTranslations } from "$lib/translations"
-import { template as t } from "$lib/helpers/templates"
-import cs from "./cs"
+import { env } from '$env/dynamic/public';
 import { pricesNoVAT } from '$lib/helpers/prices';
+import { template as t } from '$lib/helpers/templates';
+import type { PlainTranslations } from '$lib/translations';
+import cs from './cs';
 
 const en: PlainTranslations = {
     search: {
@@ -32,7 +33,7 @@ const en: PlainTranslations = {
         passwordTooWeak: 'Password is too weak!',
         pleaseUseBusinessEmail: 'This email is not yet in our database, please contact your sales representative.',
         emailInUse: 'This account already exists',
-        passwordsDoNotMatch: "Passwords don't match!",
+        passwordsDoNotMatch: 'Passwords don\'t match!',
         save: 'Save',
         logInNeeded: 'You must log in to view and fill out the form!',
         signUp: 'Sign up',
@@ -41,7 +42,7 @@ const en: PlainTranslations = {
         logIn: 'Log in',
         toLogIn: 'Log in',
         toLogOut: 'Log out',
-        dontHaveAccount: "Don't have an account?",
+        dontHaveAccount: 'Don\'t have an account?',
         fillInPassword: 'Please, enter your password.',
         newPassword: 'New Password',
         sendConfirmEmail: 'Send confirmation email',
@@ -91,7 +92,7 @@ const en: PlainTranslations = {
         saveAndSendAgain: 'Save & send emails again',
         saving: 'Saving...',
         youHaveAMistake: `You have a mistake in the form. Please, check the filled information. Invalid fields:`,
-        somethingWentWrongContactUsHtml: `Apologize, something went wrong, please contact us at <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Error saving a form" target="_blank">aplikace.regulus@gmail.com</a>`,
+        somethingWentWrongContactUsHtml: `Apologize, something went wrong, please contact us at <a href="mailto:Regulus SEIR<${env.PUBLIC_EMAIL_SENDER}>?subject=Error saving a form" target="_blank">${env.PUBLIC_EMAIL_SENDER}</a>`,
         back: 'Back',
         emailNotSent: t`The email could not be sent: ${'status'} ${'statusText'}`,
         redirecting: `Redirecting…`,
@@ -248,7 +249,7 @@ const en: PlainTranslations = {
         ip: `Invalid IP address format`,
     },
     nav: {
-        appName: "SEIR",
+        appName: 'SEIR',
         settings: {
             title: `Settings`,
             userSettings: `User settings`,
@@ -260,7 +261,7 @@ const en: PlainTranslations = {
             clearBrowserData: `Clear data from the browser`,
             clearDataInfo: `Website data in the browser include your user settings, pages saved for offline use and all unfinished forms. Data already saved and sent to the server will not be deleted. You will not be logged out of your account.`,
             close: `Close`,
-            didYouFindMistakesInTranslationsHtml: `Have you found a mistake in the translations? Please email us at <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=Mistakes in translations" target="_blank">aplikace.regulus@gmail.com</a>.`,
+            didYouFindMistakesInTranslationsHtml: `Have you found a mistake in the translations? Please email us at <a href="mailto:Regulus SEIR<${env.PUBLIC_EMAIL_SENDER}>?subject=Mistakes in translations" target="_blank">${env.PUBLIC_EMAIL_SENDER}</a>.`,
         },
         installationDetails: `Installation details`,
         protocolDetails: `Protocol details`,
@@ -628,7 +629,7 @@ const en: PlainTranslations = {
             youCanCloseThisTab: `You can now close this tab.`,
             sending: `Sending…`,
             somethingWentWrong: `Something went wrong. :\\`,
-            unknownErrorHtml: `Please try again or contact us at <a href="mailto:Regulus SEIR<aplikace.regulus@gmail.com>?subject=An error when requesting an yearly check" target="_blank">aplikace.regulus@gmail.com</a>.`,
+            unknownErrorHtml: `Please try again or contact us at <a href="mailto:Regulus SEIR<${env.PUBLIC_EMAIL_SENDER}>?subject=An error when requesting an yearly check" target="_blank">${env.PUBLIC_EMAIL_SENDER}</a>.`,
         },
         regulus: `Firma Regulus`,
     },
@@ -685,6 +686,6 @@ const en: PlainTranslations = {
         and: `, and `,
         info4: ` If you don't want to send the email to the customer, remove their address from the below filed.`,
     },
-}
+};
 
-export default en
+export default en;

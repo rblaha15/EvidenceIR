@@ -62,7 +62,7 @@ export const dbEndpoints = {
     'open/getRecommendationData': defineEndpoint<{ code: string }, RecommendationData>(async ({ code }) => {
         return await getRecommendationData(code);
     }),
-    'open/sendRequest': defineEndpoint<{ code: string }, undefined>(async ({ code }, { origin }) => {
-        await sendRequest(code, origin);
+    'open/sendRequest': defineEndpoint<{ code: string }, undefined>(async ({ code }) => {
+        await sendRequest(code);
     }),
 };
