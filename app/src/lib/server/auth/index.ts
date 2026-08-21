@@ -50,7 +50,12 @@ export const auth = betterAuth({
         },
     },
     secret: building ? 'DUMMY' : env.BETTER_AUTH_SECRET,
-    baseURL: publicENV.PUBLIC_APP_URL,
+    baseURL: {
+        allowedHosts: [
+		        	"localhost:5006",
+		        	"192.168.100.197:8080",
+		      ],
+    },
 });
 
 export type User = typeof auth['$Infer']['Session']['user'];
