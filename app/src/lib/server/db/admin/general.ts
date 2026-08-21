@@ -24,16 +24,16 @@ export const setAllSNs = async (sns: DocumentSigningInfo[]) => {
     await putAllSNs(sns);
 };
 export const putAllIRs = async (irs: IR[]) => {
-    await irCollection.insertMany(irs);
+    if (irs.length) await irCollection.insertMany(irs);
 };
 export const putAllNSPs = async (nsps: NSP[]) => {
-    await nspCollection.insertMany(nsps);
+    if (nsps.length) await nspCollection.insertMany(nsps);
 };
 export const putAllRKs = async (rks: RecommendationDataWithCode[]) => {
-    await rkCollection.insertMany(rks);
+    if (rks.length) await rkCollection.insertMany(rks);
 };
 export const putAllSNs = async (sns: DocumentSigningInfo[]) => {
-    await signingCollection.insertMany(sns);
+    if (sns.length) await signingCollection.insertMany(sns);
 };
 
 export const restoreIR = (irid: IRID) => irCollection.updateOne(id(irid), {

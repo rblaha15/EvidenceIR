@@ -56,7 +56,7 @@
     }) as NSP;
 
     const importBackup = async (p: AllEndpoints['db/admin/import']['params'], isFromSEIR1: boolean) => {
-        const chunked = p.mapValues((_, array) => (array as any[]).chunk(500))
+        const chunked = p.mapValues((_, array) => (array as any[]).chunk(100))
         const count = chunked.getValues().maxOf(chunks => chunks.length);
         for (let i = 0; i < count; i++) {
             await call(
