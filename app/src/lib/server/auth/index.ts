@@ -1,5 +1,6 @@
 import { building } from '$app/environment';
 import { env } from '$env/dynamic/private';
+import { env as publicENV } from '$env/dynamic/public';
 import { checkedIsLoggedIn, checkIsAdmin, checkIsAnyRegulusOrAdmin, checkIsRegulusOrAdmin } from '$lib/client/auth';
 import { authDB } from '$lib/server/db';
 import { validateToken } from '$lib/server/db/tokens';
@@ -49,6 +50,7 @@ export const auth = betterAuth({
         },
     },
     secret: building ? 'DUMMY' : env.BETTER_AUTH_SECRET,
+    baseURL: publicENV.PUBLIC_APP_URL,
 });
 
 export type User = typeof auth['$Infer']['Session']['user'];
