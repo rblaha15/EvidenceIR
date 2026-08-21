@@ -63,6 +63,9 @@ export const auth = betterAuth({
         'https://localhost:5006',
         'https://192.168.100.197:8080',
     ],
+    advanced: {
+        useSecureCookies: false, // TODO: enable when HTTPS is configured
+    },
 });
 
 export type User = typeof auth['$Infer']['Session']['user'];
