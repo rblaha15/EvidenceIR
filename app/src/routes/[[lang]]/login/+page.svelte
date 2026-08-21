@@ -45,7 +45,7 @@
             loading = false;
             error = t.invalidEmail;
         } else if (result == 'success') {
-            await grantPoints({ type: 'registration' });
+            setTimeout(() => grantPoints({ type: 'registration' }), 500);
             await goto(appUrl + relUrl(redirect));
         } else {
             loading = false;
