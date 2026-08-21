@@ -1,6 +1,5 @@
 import { building } from '$app/environment';
 import { env } from '$env/dynamic/private';
-import { env as publicENV } from '$env/dynamic/public';
 import { checkedIsLoggedIn, checkIsAdmin, checkIsAnyRegulusOrAdmin, checkIsRegulusOrAdmin } from '$lib/client/auth';
 import { authDB } from '$lib/server/db';
 import { validateToken } from '$lib/server/db/tokens';
@@ -52,9 +51,11 @@ export const auth = betterAuth({
     secret: building ? 'DUMMY' : env.BETTER_AUTH_SECRET,
     baseURL: {
         allowedHosts: [
-		        	"localhost:5006",
-		        	"192.168.100.197:8080",
-		      ],
+            "localhost:5006",
+            "localhost",
+            "192.168.100.197:8080",
+            "192.168.100.197",
+        ],
     },
 });
 
