@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
     logger: true,
     debug: true,
     auth: {
-        user: publicENV.PUBLIC_EMAIL_PASSWORD,
+        user: publicENV.PUBLIC_EMAIL_SENDER,
         pass: env.EMAIL_PASSWORD,
     },
 });
