@@ -47,6 +47,9 @@
         } else if (result == 'success') {
             await grantPoints({ type: 'registration' });
             await goto(appUrl + relUrl(redirect));
+        } else {
+            loading = false;
+            error = result;
         }
     }
 
