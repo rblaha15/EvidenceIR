@@ -23,8 +23,8 @@
 
         const { GlobalWorkerOptions, getDocument } = await import('pdfjs-dist');
 
-        // Get latest at https://cdn.jsdelivr.net/npm/pdfjs-dist@5.6.205/build/pdf.worker.min.mjs
-        GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.6.205/build/pdf.worker.min.mjs';
+        // Get latest at https://cdn.jsdelivr.net/npm/pdfjs-dist@5.7.284/build/pdf.worker.min.mjs
+        GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.7.284/build/pdf.worker.min.mjs';
 
         pdf = await getDocument(url).promise;
         pageCount = pdf.numPages;
