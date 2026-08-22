@@ -19,7 +19,7 @@
     let error = $state<string>();
 
     type OldTimestamp = {
-        type: 'firestore/timestamp/1.0',
+        type?: 'firestore/timestamp/1.0',
         seconds: number,
         nanoseconds: number,
     } | {
@@ -31,8 +31,8 @@
     }
 
     const migrateTimestamp = (t: OldTimestamp) =>
-        'type' in t ? t.seconds * 1E3 + t.nanoseconds * 1E-6
-            : t._seconds * 1E3 + t._nanoseconds * 1E-6
+        '_seconds' in t ? t._seconds * 1E3 + t._nanoseconds * 1E-6
+            : t.seconds * 1E3 + t.nanoseconds * 1E-6
 
     const migrateIRFromSEIR1 = (ir: IR) => ({
         ...ir,
