@@ -16,6 +16,7 @@
         user,
 	}: Props = $props();
 
+    // svelte-ignore state_referenced_locally
     const irid = extractIRIDFromParts(e.ir.typ.first!, e.ir.cislo);
 </script>
 

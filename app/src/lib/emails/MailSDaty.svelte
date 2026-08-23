@@ -22,6 +22,7 @@
 
     let list = $derived(widgetList<ContextIN, FormIN>(context.f, context.v));
 
+    // svelte-ignore state_referenced_locally
     const irid = extractIRIDFromParts(context.v.ir.typ.first!, context.v.ir.cislo);
 </script>
 

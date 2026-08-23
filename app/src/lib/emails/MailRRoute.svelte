@@ -23,6 +23,7 @@
         user,
 	}: Props = $props();
 
+	// svelte-ignore state_referenced_locally
     const deviceType = ({
         'IR 10': 'CP-1015',
         'IR 12': 'CP-1054',
@@ -39,6 +40,7 @@
         'ctc': '', // Shouldn't happen - see ir.ts: supportsRemoteAccess
     } as const satisfies Record<IRTypes, string>)[e.ir.typ.first!];
 
+    // svelte-ignore state_referenced_locally
     const irid = extractIRIDFromParts(e.ir.typ.first!, e.ir.cislo);
 </script>
 
