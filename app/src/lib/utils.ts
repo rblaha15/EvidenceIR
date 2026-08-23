@@ -15,3 +15,5 @@ export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & { ref?:
 export type AtLeastOne<T> = {
 	[K in keyof T]: Pick<T, K> & Partial<Omit<T, K>>
 }[keyof T]
+
+export type Extends<A, B> = A extends B ? true : false;

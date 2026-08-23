@@ -9,8 +9,10 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
     const action = allEndpoints[actionName] as EndpointDefinition<any, any>;
     if (!actionName || !action) return error(400, 'Invalid action');
     const options = { ...defaultEndpointOptions, ...action.options };
-    const body = await request.text();
-    const args = body ? JSON.parse(body) : {};
+
+    const args = options.isFileUpload
+        ? (await request.formData()).get('file')
+        : (await request.text()).let(body => body ? JSON.parse(body) : {});
 
     if (options.requireLoggedIn && !getIsLoggedIn(locals)) {
         console.log('requireLoggedIn not met')

@@ -1,6 +1,16 @@
 import type { AllEndpoints } from '$lib/server/endpoints';
 
-type Options<R extends boolean | undefined> = { fetch?: typeof window.fetch, returnError?: R };
+type Options<
+    T extends keyof AllEndpoints,
+    R extends boolean | undefined,
+> = {
+    fetch?: typeof window.fetch,
+    returnError?: R,
+} & (Params<T> extends File ? {
+    isFileUpload: true,
+} : {
+    isFileUpload?: false,
+});
 
 type Error = {
     ok: false,
@@ -19,13 +29,23 @@ type Success<T extends keyof AllEndpoints> = {
 type Response<R extends boolean | undefined, T extends keyof AllEndpoints> =
     R extends true ? Success<T> | Error : AllEndpoints[T]['result'];
 
-export const call = async <T extends keyof AllEndpoints, R extends boolean | undefined = undefined>(
+type Params<T extends keyof AllEndpoints> =
+    AllEndpoints[T]['params'];
+
+export const call = async <
+    T extends keyof AllEndpoints,
+    R extends boolean | undefined = undefined,
+>(
     action: T,
-    ...other: AllEndpoints[T]['params'] extends undefined ? [
-        options?: Options<R>,
+    ...other: Params<T> extends undefined ? [
+        options?: Options<T, R>,
     ] : [
-        args: AllEndpoints[T]['params'],
-        options?: Options<R>,
+        args: Params<T>,
+        ...Params<T> extends File ? [
+            options: Options<T, R>,
+        ] : [
+            options?: Options<T, R>,
+        ],
     ]
 ): Promise<Response<R, T>> => {
     const [arg1, arg2] = other as (object | undefined)[];
@@ -33,14 +53,21 @@ export const call = async <T extends keyof AllEndpoints, R extends boolean | und
     const {
         fetch = window.fetch,
         returnError,
-    } = noArgs ? arg1 as Options<R> : arg2 as Options<R> | undefined ?? {};
+        isFileUpload,
+    } = noArgs ? arg1 as Options<T, R> : arg2 as Options<T, R> | undefined ?? {};
     const args = noArgs ? undefined : arg1 as AllEndpoints[T]['params'];
-    const response = await fetch(`/api/db?action=${action}`, {
-        method: 'POST',
+    const init = isFileUpload ? {
+        body: (new FormData()).also(d => d.set('file', args as File))
+    } : {
         body: JSON.stringify(args),
         headers: {
             'content-type': 'application/json'
-        }
+        },
+    };
+    console.log(init);
+    const response = await fetch(`/api/db?action=${action}`, {
+        method: 'POST',
+        ...init,
     });
     const text = await response.text();
     if (!response.ok) {

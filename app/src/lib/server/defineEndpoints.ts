@@ -1,4 +1,5 @@
 import type { User } from '$lib/server/auth';
+import type { Extends } from '$lib/utils';
 
 export type EndpointContext = {
     locals: App.Locals,
@@ -21,30 +22,40 @@ export type EndpointDefinition<
     R = unknown,
 > = {
     handler: EndpointHandler<P, R>,
-    options?: EndpointOptions,
+    options?: EndpointOptions<Extends<P, File>>,
 };
 
-export type EndpointOptions = {
+export type EndpointOptions<F extends boolean> = {
     requireLoggedIn?: boolean,
     requireRegulusOrAdmin?: boolean,
     requireAdmin?: boolean,
-};
-export const defaultEndpointOptions: EndpointOptions = {
+} & (F extends true ? {
+    isFileUpload: true,
+} : {
+    isFileUpload?: false,
+});
+
+export const defaultEndpointOptions: EndpointOptions<false> = {
     requireLoggedIn: false,
     requireRegulusOrAdmin: false,
     requireAdmin: false,
+    isFileUpload: false,
 };
 
-export const defineEndpoint = <
+type DefineEndpoint = <
     P,
     R,
 >(
     handler: EndpointHandler<P, R>,
-    options?: EndpointOptions,
-): EndpointDefinition<P, R> => ({
-    handler,
-    options,
-});
+    ...options: P extends File ? [
+        options: EndpointOptions<Extends<P, File>>,
+    ] : [
+        options?: EndpointOptions<Extends<P, File>>,
+    ]
+) => EndpointDefinition<P, R>;
+
+export const defineEndpoint: DefineEndpoint =
+    (handler, ...rest) => ({ handler, options: rest[0] });
 
 export type EndpointsDefinition = Record<string, EndpointDefinition<any, any>>;
 
@@ -67,8 +78,9 @@ export const prefixEndpoints = <D extends EndpointsDefinition, P extends string>
         ReturnType<typeof prefixEndpoints<D, P>>;
 
 export const addAuthRulesBasedOnPrefixes = <D extends EndpointsDefinition>(def: D): D =>
-    def.mapValues((k, { handler }) => ({ handler,
+    def.mapValues((k, { handler, options }) => ({ handler,
         options: {
+            ...options,
             requireAdmin: String(k).startsWith('admin/'),
             requireRegulusOrAdmin: String(k).startsWith('regulus/'),
             requireLoggedIn: !String(k).startsWith('open/'),
