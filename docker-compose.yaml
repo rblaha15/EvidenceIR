@@ -19,6 +19,7 @@ services:
       MONGO_EXPRESS_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
 
       MONGO_URI: mongodb://mongo:27017
+      ORIGIN: ${PUBLIC_APP_URL}
     depends_on:
       - mongo
     dns:

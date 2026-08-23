@@ -3,12 +3,8 @@
     import { Alert } from '$lib/components/ui/alert';
     import { Button } from '$lib/components/ui/button';
     import File, { getFile } from '$lib/components/widgets/File.svelte';
-    import type { IR, NSP, RecommendationDataWithCode } from '$lib/data';
     import { type Files, newFileWidget } from '$lib/forms/Widget';
-    import type { AllEndpoints } from '$lib/server/endpoints';
-    import type { DocumentSigningInfo } from '$lib/server/signing';
     import { getTranslations } from '$lib/translations';
-    import JSZip from 'jszip';
 
     const widget = newFileWidget({
         label: '.zip soubor se zálohou',
@@ -18,61 +14,8 @@
     let showAllErrors = $state(false);
     let error = $state<string>();
 
-    type OldTimestamp = {
-        type?: 'firestore/timestamp/1.0',
-        seconds: number,
-        nanoseconds: number,
-    } | {
-        _seconds: number,
-        _nanoseconds: number,
-    }
-    type OldTimestamp2 = OldTimestamp | {
-        _methodName: 'serverTimestamp',
-    }
-
-    const migrateTimestamp = (t: OldTimestamp) =>
-        '_seconds' in t ? t._seconds * 1E3 + t._nanoseconds * 1E-6
-            : t.seconds * 1E3 + t.nanoseconds * 1E-6
-
-    const migrateIRFromSEIR1 = (ir: IR) => ({
-        ...ir,
-        meta: {
-            ...ir.meta,
-            deletedAt: 'deletedAt' in ir.meta ? migrateTimestamp(ir.meta.deletedAt as unknown as OldTimestamp) : undefined,
-            changedAt: migrateTimestamp(ir.meta.changedAt as unknown as OldTimestamp),
-            createdAt: 'createdAt' in ir.meta ? '_methodName' in (ir.meta.createdAt as unknown as OldTimestamp2) ? migrateTimestamp(ir.meta.changedAt as unknown as OldTimestamp) : migrateTimestamp(ir.meta.createdAt as unknown as OldTimestamp) : migrateTimestamp(ir.meta.changedAt as unknown as OldTimestamp),
-            keysChangedAt: undefined,
-        },
-    }) as unknown as IR;
-    const getTimestampFromDate = (nsp: NSP) => new Date(nsp.NSP.zasah.datum).valueOf();
-    const migrateNSPFromSEIR1 = (nsp: NSP) => ({
-        ...nsp,
-        meta: {
-            ...nsp.meta,
-            deletedAt: 'deletedAt' in nsp.meta ? migrateTimestamp(nsp.meta.deletedAt as unknown as OldTimestamp) : undefined,
-            changedAt: 'changedAt' in nsp.meta ?'_methodName' in (nsp.meta.changedAt as unknown as OldTimestamp2) ? getTimestampFromDate(nsp) :  migrateTimestamp(nsp.meta.changedAt as unknown as OldTimestamp) : getTimestampFromDate(nsp),
-            createdAt: '_methodName' in (nsp.meta.createdAt as unknown as OldTimestamp2) ? getTimestampFromDate(nsp) : migrateTimestamp(nsp.meta.createdAt as unknown as OldTimestamp),
-        },
-    }) as NSP;
-
-    const importBackup = async (p: AllEndpoints['db/admin/import']['params'], isFromSEIR1: boolean) => {
-        const chunked = p.mapValues((_, array) => (array as any[]).chunk(100))
-        const count = chunked.getValues().maxOf(chunks => chunks.length);
-        for (let i = 0; i < count; i++) {
-            await call(
-                i == 0 ? 'db/admin/import' : 'db/admin/importRest',
-                chunked.mapValues((_, chunks) => chunks[i] || []) as AllEndpoints['db/admin/import']['params'],
-            ).catch(
-                error => {
-                    error = error;
-                },
-            );
-        }
-        error = !isFromSEIR1 ? 'Hotovo' : 'Hotovo, ale jen IR a SP';
-    };
-
     const importFromSEIR1 = async () => {
-        // TODO!!
+
     };
     const importFromBackup = async () => {
         error = undefined;
@@ -81,27 +24,21 @@
 
         const fileData = value[0];
         const file = await getFile(fileData.uuid);
-        const zip = await JSZip.loadAsync(file!);
 
-        const info: { SEIRVersion: number } | undefined =
-            await zip.file('info.json')?.async('string')?.then(JSON.parse);
-        const isFromSEIR1 = !info || info.SEIRVersion == 1;
+        await call(
+            'db/admin/importBackup',
+            file!,
+            {
+                isFileUpload: true,
+            },
+        ).catch(
+            error => {
+                error = error;
+            },
+        );
 
-        const originalIRs: IR[] = await zip.file('backupIR.json')?.async('string')?.then(JSON.parse);
-        const originalNSPs: NSP[] = await zip.file('backupSP.json')?.async('string')?.then(JSON.parse);
-        const rks: RecommendationDataWithCode[] = await zip.file('backupRK.json')?.async('string')?.then(JSON.parse);
-        const sns: DocumentSigningInfo[] = await zip.file('backupSN.json')?.async('string')?.then(JSON.parse);
-        if (!originalIRs || !originalNSPs) {
-            error = 'Záloha poškozena';
-            return;
-        }
-
-        if (!isFromSEIR1) return await importBackup({ irs: originalIRs, nsps: originalNSPs, rks, sns }, isFromSEIR1);
-
-        const irs = originalIRs.map(migrateIRFromSEIR1);
-        const nsps = originalNSPs.map(migrateNSPFromSEIR1);
-
-        return await importBackup({ irs, nsps, rks: [], sns: [] }, isFromSEIR1);
+        // error = 'Záloha poškozena';
+        // error = !isFromSEIR1 ? 'Hotovo' : 'Hotovo, ale jen IR a SP';
     };
 </script>
 

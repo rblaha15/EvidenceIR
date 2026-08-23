@@ -12,10 +12,9 @@ import {
     deletePermanentlyIR,
     getAllIRs,
     getAllNSPs, getAllRKs, getAllSNs,
-    putAllIRs,
-    putAllNSPs, putAllRKs, putAllSNs,
-    restoreIR, setAllIRs, setAllNSPs, setAllRKs, setAllSNs
+    restoreIR,
 } from '$lib/server/db/admin/general';
+import { importFromBackup, importFromSEIR1 } from '$lib/server/db/admin/import';
 import {
     getAllLoyaltyProgramData,
     getCompanies, getPeople,
@@ -39,22 +38,8 @@ export const adminEndpoints = {
         rks: await getAllRKs(),
         sns: await getAllSNs(),
     })),
-    import: defineEndpoint<{
-        irs: IR[], nsps: NSP[], rks: RecommendationDataWithCode[], sns: DocumentSigningInfo[],
-    }, undefined>(async ({ irs, nsps, rks, sns }) => {
-        await setAllIRs(irs);
-        await setAllNSPs(nsps);
-        await setAllRKs(rks);
-        await setAllSNs(sns);
-    }),
-    importRest: defineEndpoint<{
-        irs: IR[], nsps: NSP[], rks: RecommendationDataWithCode[], sns: DocumentSigningInfo[],
-    }, undefined>(async ({ irs, nsps, rks, sns }) => {
-        await putAllIRs(irs);
-        await putAllNSPs(nsps);
-        await putAllRKs(rks);
-        await putAllSNs(sns);
-    }),
+    importBackup: defineEndpoint<File, boolean>(importFromBackup, { isFileUpload: true }),
+    importFromSEIR1: defineEndpoint<undefined, boolean>(() => importFromSEIR1()),
     restore: defineEndpoint<{ irid: IRID }, undefined>(async ({ irid }) => {
         await restoreIR(irid);
     }),

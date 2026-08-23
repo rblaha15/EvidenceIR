@@ -28,6 +28,7 @@
 		"@types/node": "^22",
 		"@types/nodemailer": "^8.0.1",
 		"@types/otp-generator": "^4.0.2",
+		"@types/yauzl": "^3.4.0",
 		"bits-ui": "^2.17.3",
 		"clsx": "^2.1.1",
 		"eslint": "^10.2.0",
@@ -72,6 +73,7 @@
 		"pdfjs-dist": "^5.7.284",
 		"read-excel-file": "^5.8.7",
 		"uuid": "13.0.1",
-		"write-excel-file": "2.3.2"
+		"write-excel-file": "2.3.2",
+		"yauzl": "^3.4.0"
 	}
 }
