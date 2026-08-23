@@ -5,7 +5,7 @@
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { DocumentLinkDefinition } from '$lib/features/detail/domain/documentsIR/createDocumentLinks.js';
-    import SmallDropdown from '$lib/features/detail/components/documentsIR/SmallDropdown.svelte';
+    import SmallDropdown from '$lib/components/SmallDropdown.svelte';
     import { FileInput } from '@lucide/svelte';
     import { ButtonGroup } from "$lib/components/ui/button-group";
     import { Button } from "$lib/components/ui/button";

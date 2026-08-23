@@ -1,26 +1,14 @@
-import type { Pdf, PdfParameters } from '$lib/pdf/pdf';
-import type { Component } from 'svelte';
+import type { DropdownItems } from '$lib/components/SmallDropdown.svelte';
 import type { ExistingIR } from '$lib/data';
-import * as rules from './documentLinkRules';
-import type { Translations } from '$lib/translations';
-import { iridUrl } from '$lib/helpers/runes.svelte.js';
-import { iaA, iaR } from '$lib/helpers/stores';
+import type { TC } from '$lib/forms/IN/defaultIN';
 import { cascadePumps, type PumpInfo } from '$lib/forms/IN/infoIN';
 import { isRKTL } from '$lib/forms/RKT/infoRKT';
-import { FilePen, type LucideProps } from "@lucide/svelte";
-import type { TC } from "$lib/forms/IN/defaultIN";
-
-export type DropdownItems = ({
-    hide?: boolean,
-    text: string,
-} & ({} | {
-    variant: 'primary' | 'danger' | 'warning',
-    icon: Component<LucideProps>,
-} & ({
-    href: string,
-} | {
-    onSelect: () => void,
-})))[];
+import { iridUrl } from '$lib/helpers/runes.svelte.js';
+import { iaA, iaR } from '$lib/helpers/stores';
+import type { Pdf, PdfParameters } from '$lib/pdf/pdf';
+import type { Translations } from '$lib/translations';
+import { FilePen } from '@lucide/svelte';
+import * as rules from './documentLinkRules';
 
 export type DocumentLinkDefinition<P extends Pdf> = PdfParameters<P> & {
     link: P,

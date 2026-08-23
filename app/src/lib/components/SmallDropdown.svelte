@@ -1,5 +1,21 @@
+<script lang="ts" module>
+    import type { LucideProps } from '@lucide/svelte';
+    import type { Component } from 'svelte';
+
+    export type DropdownItems = ({
+        hide?: boolean,
+        text: string,
+    } & ({} | {
+        variant: 'default' | 'danger' | 'warning' | 'tertiary',
+        icon: Component<LucideProps>,
+    } & ({
+        href: string,
+    } | {
+        onSelect: () => void,
+    })))[];
+</script>
+
 <script lang="ts">
-    import type { DropdownItems } from '$lib/features/detail/domain/documentsIR/createDocumentLinks';
     import { EllipsisVertical } from '@lucide/svelte';
     import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "$lib/components/ui/dropdown-menu";
     import { buttonVariants } from "$lib/components/ui/button";

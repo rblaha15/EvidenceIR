@@ -7,7 +7,7 @@
     import type { ExistingIR } from '$lib/data';
     import { copySP, deleteSP } from '$lib/features/detail/actions/detailIR/sp';
     import { isSP } from '$lib/forms/SP/infoSP.svelte';
-    import SmallDropdown from '$lib/features/detail/components/documentsIR/SmallDropdown.svelte';
+    import SmallDropdown from '$lib/components/SmallDropdown.svelte';
     import { Button } from '$lib/components/ui/button';
     import { isRegulusOrAdmin } from '$lib/client/auth';
     import { Copy, Eye, FilePen, Plus, Trash2 } from "@lucide/svelte";
@@ -51,7 +51,7 @@
             {#if showSP}
                 <PDFLink
                     name={spName(p.zasah)} data={ir} {t} {lang} link="SP" {id} {irid} dropdownItems={[{
-                        variant: 'primary',
+                        variant: 'default',
                         icon: Eye,
                         text: td.viewFilledData,
                         href: iridUrl(`/SP/?view=${id}`),
@@ -61,12 +61,12 @@
                         text: td.editProtocol,
                         href: iridUrl(`/SP/?edit=${id}`),
                     }, {
-                        variant: 'primary',
+                        variant: 'default',
                         icon: Trash2,
                         text: td.delete,
                         onSelect: () => openedDeleteModal = id,
                     }, {
-                        variant: 'primary',
+                        variant: 'default',
                         icon: Copy,
                         text: td.duplicate,
                         onSelect: () => openedDuplicateModal = id,
