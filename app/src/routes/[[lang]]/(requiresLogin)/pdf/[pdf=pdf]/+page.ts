@@ -1,5 +1,6 @@
 import { browser } from '$app/environment';
 import { getIsLoggedIn, getIsRegulusOrAdmin } from '$lib/client/auth';
+import type { DocumentDefinition } from '$lib/features/signing/domain/sms';
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
 import {
@@ -37,7 +38,7 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
         args: null,
         objectUrl: '',
         signatureState: undefined,
-        signatureKey: '',
+        signatureDef: null,
         allowSigning: false,
     };
 
@@ -85,14 +86,16 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
         pdf.type == 'IR' ? data.ir : data.nsps[0], pdfName, parameter,
     );
 
-    const signatureKey = parameter ? `${pdfName}-${parameter}` : pdfName;
+    const signatureDef: DocumentDefinition = {
+        pdf: pdfName as PdfToSign, parameter, id: id.irid ?? id.nspids[0]!,
+    };
 
     const allowSigning = pdfName != 'NSP' && pdfName != 'SP' ? pdfToSign.includes(pdfName as PdfToSign)
         : pdfName == 'SP' ? (data.ir!.SPs[parameter as SPID] as Raw<FormSP>).fakturace.komu.chosen == 'investor'
             : pdfName == 'NSP' ? data.nsps[0].NSP.fakturace.komu.chosen == 'investor'
                 : false;
 
-    return { ...d, ...id, args: pdf, fileLang: language, signatureState, signatureKey, allowSigning };
+    return { ...d, ...id, args: pdf, fileLang: language, signatureState, signatureDef, allowSigning };
 };
 
 export const prerender = false;

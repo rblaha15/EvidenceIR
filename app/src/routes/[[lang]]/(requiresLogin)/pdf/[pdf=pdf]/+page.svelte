@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { relUrl } from '$lib/helpers/runes.svelte';
     import type { PageProps } from './$types';
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
@@ -58,7 +59,7 @@
     {#if data.signatureState?.state == 'signed'}
         <div class="text-success">Dokument podepsán</div>
         <Button variant="secondary" target="_blank"
-           href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fsigning~2F{data.irid || data.nspids[0]}~2Fdocuments~2F{data.signatureKey}"
+            href={relUrl(`/admin#db-app/signing?query={"def":${JSON.stringify(data.signatureDef)}}`)}
         >
             <Server />
         </Button>

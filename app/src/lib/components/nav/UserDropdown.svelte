@@ -25,7 +25,7 @@
     const userEmail = $derived($user?.email ?? '');
 
     onMount(fetchLoyaltyProgramData);
-    onMount(fetchMyInfo);
+    onMount(fetchMyInfo); // TODO
 </script>
 
 <DropdownMenu>

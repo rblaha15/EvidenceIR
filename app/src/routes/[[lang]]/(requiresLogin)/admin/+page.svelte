@@ -70,13 +70,6 @@
     type Tab = typeof tabNames[number];
 
     const tabs: Record<Tab, TabDefinition> = {
-        db: {
-            title: 'Databáze',
-            contentType: 'custom',
-            contentOptions: {
-                component: DatabaseFrame,
-            },
-        } satisfies CustomDefinition,
         users: {
             title: 'Uživatelé',
             longerTitle: 'Seznam uživatelů a příslušných firem',
@@ -268,6 +261,13 @@
                 sendData: arrays => call('db/admin/setArrays', arrays).then(fetchArrays),
             },
         } satisfies ArraysDefinition<Arrays>,
+        db: {
+            title: 'Databáze',
+            contentType: 'custom',
+            contentOptions: {
+                component: DatabaseFrame,
+            },
+        } satisfies CustomDefinition,
         translations: {
             title: 'Překlady',
             contentType: 'custom',

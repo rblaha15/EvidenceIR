@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { relUrl } from '$lib/helpers/runes.svelte';
     import type { Translations } from '$lib/translations';
     import { type IR } from '$lib/data';
     import type { IRID } from '$lib/helpers/ir';
@@ -24,7 +25,7 @@
             <ModalDK {t} {ir} {type} />
             {#if $isAdmin && settings?.code}
                 <Button variant="secondary"
-                        href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Frk~2F{settings?.code}"
+                        href={relUrl(`/admin#db-app/rk?query={"_id":${settings?.code}}`)}
                         target="_blank">
                     <Server /> {t.detail.openInDatabase}{iaA}
                 </Button>

@@ -35,7 +35,7 @@
             Obnovit evidenci instalace{iaA}
         </Button>
         <Button variant="secondary"
-                href="https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fir~2F{ir.meta.id}"
+                href={relUrl(`/admin#db-app/ir?query={"meta.id":"${ir.meta.id}"}`)}
                 target="_blank">
             <Server /> {td.openInDatabase}{iaA}
         </Button>

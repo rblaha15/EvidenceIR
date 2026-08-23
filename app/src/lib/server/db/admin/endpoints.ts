@@ -96,7 +96,7 @@ export const adminEndpoints = {
         await addPointsTransaction(transaction, userEmail);
     }),
     getDatabaseLink: defineEndpoint<undefined, string>(async () => {
-        const [protocol, host] = publicENV.PUBLIC_APP_URL.split('://');
+        const [protocol, host] = (env.MONGO_EXPRESS_URI || publicENV.PUBLIC_APP_URL).split('://');
         return `${protocol}://${env.MONGO_EXPRESS_USERNAME}:${env.MONGO_EXPRESS_PASSWORD}@${host}/db/`;
     }),
 }

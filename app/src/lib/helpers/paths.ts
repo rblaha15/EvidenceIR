@@ -5,7 +5,11 @@ import { pdfInfo } from '$lib/pdf/pdf';
 
 export const extractIDs = (url: URL) => ({
     irid: url.searchParams.get('irid') as IRID | null,
-    nspids: url.searchParams.get('spid')?.let(nspids) ?? [],
+    nspids: [
+        ...url.searchParams.get('spid')?.let(nspids) ?? [],
+        ...url.searchParams.get('nspid')?.let(nspids) ?? [],
+        ...url.searchParams.get('nspids')?.let(nspids) ?? [],
+    ],
 });
 
 const langEntries = [...languageCodes, '', undefined] as const;

@@ -16,7 +16,8 @@ import { langEntryGenerator } from '$lib/helpers/paths';
 export const entries: EntryGenerator = langEntryGenerator;
 
 export const load: PageLoad = async ({ fetch }) => {
-    if (browser && (!await getIsLoggedIn() || !await getIsAdmin())) error(401);
+    if (!browser) return { dbLink: '' }
+    if ((!await getIsLoggedIn() || !await getIsAdmin())) error(401);
 
     await fetchCompanies(fetch);
     await fetchMyInfo(fetch);
@@ -26,7 +27,7 @@ export const load: PageLoad = async ({ fetch }) => {
     await fetchArrays(fetch);
     await fetchLoyaltyProgramData(fetch);
 
-    const dbLink = await call('db/admin/getDatabaseLink');
+    const dbLink = await call('db/admin/getDatabaseLink', { fetch });
 
     return { dbLink };
 };

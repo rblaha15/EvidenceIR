@@ -42,7 +42,7 @@
         variant: 'primary',
         icon: Server,
         text: td.openInDatabase + $aA,
-        onSelect: () => { window.open(`https://console.firebase.google.com/u/0/project/evidence-ir/firestore/databases/-default-/data/~2Fsp~2F${nspid}`) },
+        onSelect: () => { window.open(relUrl(`/admin#db-app/nsp?query={"meta.id":"${nspid}"}`)) },
         hide: !$isAdmin,
     }]} {lang} link="NSP" name={spName(sp.NSP.zasah)} {nspid} {t}>
 </PDFLink>
