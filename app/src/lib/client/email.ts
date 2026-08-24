@@ -78,6 +78,7 @@ export const sendHtmlEmail = async (options: HtmlEmailOptions) => {
 export const sendEmailAndUploadAttachments = async (options: EmailOptions) => {
     const message: EmailMessage = {
         ...options, attachments: await options.attachments?.map(async (a, i) => {
+            // TODO
             const result = await upload(a.name, a, {
                 access: 'public',
                 contentType: a.type,

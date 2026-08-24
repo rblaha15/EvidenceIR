@@ -35,8 +35,7 @@
     </Button>
     {#if $isAdmin}
         <Button variant="secondary"
-                href={relUrl(`/admin#db-app/ir?query={"meta.id":"${irid}"}`)}
-                target="_blank">
+                href={relUrl(`/admin#db-app/ir?query={"meta.id":"${irid}"}`)}>
             <Server /> {td.openInDatabase}{iaA}
         </Button>
     {/if}

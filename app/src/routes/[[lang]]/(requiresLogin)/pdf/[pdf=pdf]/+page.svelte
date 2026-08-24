@@ -58,7 +58,7 @@
     {/if}
     {#if data.signatureState?.state == 'signed'}
         <div class="text-success">Dokument podepsán</div>
-        <Button variant="secondary" target="_blank"
+        <Button variant="secondary"
             href={relUrl(`/admin#db-app/signing?query={"def.id":"${data.signatureDef?.id}","def.pdf":"${data.signatureDef?.pdf}"${data.signatureDef?.parameter ? `,"def.parameter":"${data.signatureDef?.parameter}"` : ''}}`)}
         >
             <Server />

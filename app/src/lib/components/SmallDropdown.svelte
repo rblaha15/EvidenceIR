@@ -19,7 +19,6 @@
     import { EllipsisVertical } from '@lucide/svelte';
     import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "$lib/components/ui/dropdown-menu";
     import { buttonVariants } from "$lib/components/ui/button";
-    import { goto } from "$app/navigation";
 
     const { dropdownItems }: {
         dropdownItems: DropdownItems
@@ -37,9 +36,13 @@
         {#each dropdownItems ?? [] as item}
             {#if !item.hide}
                 {#if 'href' in item}
-                    <DropdownMenuItem variant={item.variant} onSelect={() => goto(item.href)}>
-                        <item.icon />
-                        {item.text}
+                    <DropdownMenuItem variant={item.variant}>
+                        {#snippet child({ props })}
+                            <a {...props} href={item.href}>
+                                <item.icon />
+                                {item.text}
+                            </a>
+                        {/snippet}
                     </DropdownMenuItem>
                 {:else if 'onSelect' in item}
                     <DropdownMenuItem variant={item.variant} onSelect={item.onSelect}>

@@ -25,8 +25,7 @@
             <ModalDK {t} {ir} {type} />
             {#if $isAdmin && settings?.code}
                 <Button variant="secondary"
-                        href={relUrl(`/admin#db-app/rk?query={"_id":${settings?.code}}`)}
-                        target="_blank">
+                        href={relUrl(`/admin#db-app/rk?query={"_id":${settings?.code}}`)}>
                     <Server /> {t.detail.openInDatabase}{iaA}
                 </Button>
             {/if}

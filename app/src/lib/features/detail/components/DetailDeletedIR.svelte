@@ -35,8 +35,7 @@
             Obnovit evidenci instalace{iaA}
         </Button>
         <Button variant="secondary"
-                href={relUrl(`/admin#db-app/ir?query={"meta.id":"${ir.meta.id}"}`)}
-                target="_blank">
+                href={relUrl(`/admin#db-app/ir?query={"meta.id":"${ir.meta.id}"}`)}>
             <Server /> {td.openInDatabase}{iaA}
         </Button>
     </div>

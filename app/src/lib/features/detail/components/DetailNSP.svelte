@@ -20,7 +20,7 @@
 
 <PDFLink
     data={sp} dropdownItems={[{
-        variant: 'primary',
+        variant: 'default',
         icon: Eye,
         text: td.viewFilledData,
         href: relUrl(`/NSP?view-nspid=${nspid}`),
@@ -39,10 +39,10 @@
         },
         hide: !$isAdmin,
     }, {
-        variant: 'primary',
+        variant: 'default',
         icon: Server,
         text: td.openInDatabase + $aA,
-        onSelect: () => { window.open(relUrl(`/admin#db-app/nsp?query={"meta.id":"${nspid}"}`)) },
+        href: relUrl(`/admin#db-app/nsp?query={"meta.id":"${nspid}"}`),
         hide: !$isAdmin,
     }]} {lang} link="NSP" name={spName(sp.NSP.zasah)} {nspid} {t}>
 </PDFLink>
