@@ -20,11 +20,11 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
         link: 'UPT',
     }),
     saveData: async ({ irid, raw, edit, values, editResult, t, ir }) => {
-        await db.updateUPT(irid, raw);
         await db.updateDateUPT(irid, values.tc.date);
+        await db.updateUPT(irid, raw);
         if (!edit) await saveDK(ir, values.checkRecommendations, 'TČ');
 
-        await grantPoints({ type: 'heatPumpCommission', irid });
+        setTimeout(() => grantPoints({ type: 'heatPumpCommission', irid }), 500);
 
         const user = (await getUser())!;
         const response = await sendEmail({

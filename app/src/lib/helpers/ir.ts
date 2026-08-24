@@ -212,7 +212,7 @@ const extractIRTypeFromFullIRType = (fullIRType: IRTypes): IRType => ({
 } as const)[fullIRType];
 
 export const extractIRIDFromParts = (fullIRType: IRTypes, irNumber: string): IRID =>
-    `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replaceAll(/[ :T-]/g, '')}`;
+    `${extractIRTypeFromFullIRType(fullIRType)}${irNumber.replaceAll(/[ :-]/g, '').replaceAll(/(?<=...)T/g, '')}`;
 export const extractIRIDFromRawData = (evidence: Raw<FormIN>): IRID =>
     extractIRIDFromParts(evidence.ir.typ.first!, evidence.ir.cislo);
 export const extractSPIDFromRawData = (zasah: Raw<GenericFormSP<never>['zasah']>): SPID => {
