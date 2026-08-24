@@ -2,7 +2,7 @@
     import { browser } from '$app/environment';
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
-    import { signIn } from '$lib/client/auth';
+    import { signIn, tryFirebase } from '$lib/client/auth';
     import { grantPoints } from '$lib/client/loyaltyProgram';
     import { isOnline } from '$lib/client/online';
     import FormDefaults from '$lib/components/FormDefaults.svelte';
@@ -39,6 +39,9 @@
         const result = await signIn(email, password);
         console.log(result);
         if (result == 'INVALID_EMAIL_OR_PASSWORD') {
+            const resultF = await tryFirebase(email, password);
+            if (resultF) return await goto(appUrl + relUrl(redirect));
+
             loading = false;
             error = 'wrong-password';
         } else if (result == 'INVALID_EMAIL') {

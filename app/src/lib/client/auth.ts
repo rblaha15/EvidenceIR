@@ -1,6 +1,8 @@
 import type { auth } from '$lib/server/auth';
 import { inferAdditionalFields } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/svelte';
+import { type FirebaseOptions, getApps, initializeApp } from 'firebase/app';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { derived } from 'svelte/store';
 
 export const authClient = createAuthClient({
@@ -48,9 +50,11 @@ export const signIn = async (email: string, password: string) => {
     if (result.data) return 'success';
     else return result.error.code! as 'INVALID_EMAIL_OR_PASSWORD' | 'INVALID_EMAIL';
 };
-export const signUp = async (token: string, email: string, password: string) => {
+export const signUp = async (
+    token: string, email: string, password: string, isFromFirebase: boolean = false,
+) => {
     const result = await authClient.signUp.email({
-        token, email, password, name: '',
+        token, source: isFromFirebase ? 'firebase' : 'better-auth', email, password, name: '',
     } as Parameters<typeof authClient.signUp.email>[0]);
     console.log(result);
     if (result.data) return 'success';
@@ -62,3 +66,33 @@ export const editPassword = async (currentPassword: string, newPassword: string)
     if (result.data) return 'success';
     return result.error.code! as 'PASSWORD_TOO_SHORT' | 'INVALID_PASSWORD';
 };
+
+const firebaseConfig: FirebaseOptions = {
+    apiKey: 'AIzaSyCKu8Z4wx55DfrZdYtKvrqvwZ2Y6nQvx24',
+    authDomain: 'evidence-ir.firebaseapp.com',
+    projectId: 'evidence-ir',
+    storageBucket: 'evidence-ir.appspot.com',
+    messagingSenderId: '1021340777991',
+    appId: '1:1021340777991:web:d44750968c2d8dbc8834a2',
+    measurementId: 'G-8KZH7Q0ZLC',
+    databaseURL: 'https://evidence-ir-default-rtdb.europe-west1.firebasedatabase.app/',
+};
+
+export const app = getApps()[0] ?? initializeApp(firebaseConfig);
+export const firebaseAuth = getAuth(app);
+
+export const tryFirebase = async (email: string, password: string) => {
+    try {
+        await signInWithEmailAndPassword(firebaseAuth, email, password);
+
+        const token = await firebaseAuth.currentUser!.getIdToken();
+        await signUp(token, email, password, true);
+
+        await signIn(email, password);
+
+        return true;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}

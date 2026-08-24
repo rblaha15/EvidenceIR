@@ -8,6 +8,8 @@ import { APIError } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { createAuthMiddleware } from 'better-auth/api';
 import { betterAuth } from 'better-auth/minimal';
+import { cert, getApps, initializeApp } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 
 export const auth = betterAuth({
     database: mongodbAdapter(authDB),
@@ -22,9 +24,15 @@ export const auth = betterAuth({
 
             console.log(ctx, ctx.body);
             const email = ctx.body.email;
+            const source = ctx.body.source;
 
-            const tokenVerified = await validateToken(ctx.body.token, email, 'register');
-            if (!tokenVerified) throw new APIError(401);
+            if (source == 'better-auth') {
+                const tokenVerified = await validateToken(ctx.body.token, email, 'register');
+                if (!tokenVerified) throw new APIError(401);
+            } else if (source == 'firebase') {
+                const tokenVerified = await validateFirebaseToken(ctx.body.token, email);
+                if (!tokenVerified) throw new APIError(401);
+            } else throw new APIError(403);
 
             const person = await getPersonByEmail(email);
             if (!person) throw new APIError(400);
@@ -75,3 +83,21 @@ export const getIsLoggedIn = (locals: App.Locals) => checkedIsLoggedIn(locals.us
 export const getIsAdmin = (locals: App.Locals) => checkIsAdmin(locals.user);
 export const getIsRegulusOrAdmin = (locals: App.Locals) => checkIsRegulusOrAdmin(locals.user);
 export const getIsAnyRegulusOrAdmin = (locals: App.Locals) => checkIsAnyRegulusOrAdmin(locals.user);
+
+const validateFirebaseToken = async (token: string, expectedEmail: string) => {
+    const getApp = () => initializeApp({
+        credential: cert(JSON.parse(env.FIREBASE_INFO)),
+        databaseURL: 'https://evidence-ir-default-rtdb.europe-west1.firebasedatabase.app'
+    });
+    const app = getApps()[0] ?? getApp();
+
+    const firebaseAuth = getAuth(app);
+
+    const decoded = await firebaseAuth.verifyIdToken(token, true)
+        .catch(e => {
+            console.log(e);
+            return null
+        })
+
+    return decoded && decoded.email == expectedEmail;
+}
