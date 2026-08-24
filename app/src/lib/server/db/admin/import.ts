@@ -1,6 +1,13 @@
-import type { IR, NSP, RecommendationDataWithCode } from '$lib/data';
+import { env } from '$env/dynamic/private';
+import type { IR, NSP, RecommendationData, RecommendationDataWithCode } from '$lib/data';
+import type { DocumentDefinition } from '$lib/features/signing/domain/sms';
+import type { IRID, NSPID } from '$lib/helpers/ir';
+import type { PdfDefiningParameter, PdfToSign } from '$lib/pdf/pdf';
 import { setAllIRs, setAllNSPs, setAllRKs, setAllSNs } from '$lib/server/db/admin/general';
 import type { DocumentSigningInfo } from '$lib/server/signing';
+import { cert, initializeApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import { getApps } from 'firebase-admin/app';
 import { json } from 'stream/consumers';
 import yauzl from 'yauzl';
 
@@ -42,7 +49,43 @@ const migrateNSPFromSEIR1 = (nsp: NSP) => ({
 }) as NSP;
 
 export const importFromSEIR1 = async () => {
-    return true;
+
+    const getApp = () => initializeApp({
+        credential: cert(JSON.parse(env.FIREBASE_INFO)),
+        databaseURL: 'https://evidence-ir-default-rtdb.europe-west1.firebasedatabase.app'
+    });
+    const app = getApps()[0] ?? getApp();
+
+    const firestore = getFirestore(app);
+
+    const irCollection = firestore.collection('ir');
+    const spCollection = firestore.collection('sp');
+    const rkCollection = firestore.collection('rk');
+    const snCollection = firestore.collection(`signing`);
+    // firestore.collection(`signing/${id}/documents`).withConverter<DocumentSigningInfo>(
+
+    const originalIRs = await irCollection.get().then(s => s.docs.map(doc => doc.data() as IR));
+    const originalNSPs = await spCollection.get().then(s => s.docs.map(doc => doc.data() as NSP));
+    const rks = await rkCollection.get().then(s => s.docs.map(doc => ({
+        _id: doc.id,
+        ...(doc.data() as RecommendationData),
+    })));
+    const sns = await (await snCollection.listDocuments()).map(r =>
+        r.collection('documents').get().then(s => s.docs.map(doc => ({
+            def: {
+                id: r.id as IRID | NSPID,
+                pdf: doc.id.split('-')[0] as PdfToSign,
+                ...(doc.id.includes('-') ? { parameter: doc.id.match(/(?<=-).*/)![0] as PdfDefiningParameter } : {}),
+            } satisfies DocumentDefinition,
+            ...(doc.data() as Omit<DocumentSigningInfo, 'def'>),
+        }))),
+    ).awaitAll().then(a => a.flat());
+
+    const irs = originalIRs.map(migrateIRFromSEIR1);
+    const nsps = originalNSPs.map(migrateNSPFromSEIR1);
+
+    await importBackup({ irs, nsps, rks, sns });
+    return [irs.length, nsps.length, rks.length, sns.length];
 };
 export const importFromBackup = async (file: File) => {
 
@@ -64,18 +107,18 @@ export const importFromBackup = async (file: File) => {
     const rks = await getJSON<RecommendationDataWithCode[]>('backupRK.json');
     const sns = await getJSON<DocumentSigningInfo[]>('backupSN.json');
     if (!originalIRs || !originalNSPs) {
-        return false;
+        return [];
     }
 
     if (!isFromSEIR1) {
         await importBackup({ irs: originalIRs, nsps: originalNSPs, rks: rks!, sns: sns! });
-        return true;
+        return [originalIRs.length, originalNSPs.length, rks!.length, sns!.length];
     } else {
         const irs = originalIRs.map(migrateIRFromSEIR1);
         const nsps = originalNSPs.map(migrateNSPFromSEIR1);
 
         await importBackup({ irs, nsps, rks: [], sns: [] });
-        return true;
+        return [originalIRs.length, originalNSPs.length, 0, 0];
     }
 };
 
@@ -86,4 +129,4 @@ const importBackup = async ({ irs, nsps, rks, sns }: {
     await setAllNSPs(nsps);
     await setAllRKs(rks);
     await setAllSNs(sns);
-}
+};

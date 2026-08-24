@@ -15,7 +15,18 @@
     let error = $state<string>();
 
     const importFromSEIR1 = async () => {
+        error = undefined;
 
+        const c = await call('db/admin/importFromSEIR1').catch(error => {
+            error = error;
+            return [];
+        });
+
+        if (!c.length) error = 'Záloha poškozena';
+        else {
+            const [i, n, r, s] = c;
+            error = `Hotovo: ${i}x IR, ${n}x NSP, ${r}x DK, ${s}x SN`;
+        }
     };
     const importFromBackup = async () => {
         error = undefined;
@@ -25,20 +36,18 @@
         const fileData = value[0];
         const file = await getFile(fileData.uuid);
 
-        await call(
-            'db/admin/importBackup',
-            file!,
-            {
-                isFileUpload: true,
-            },
-        ).catch(
-            error => {
-                error = error;
-            },
-        );
+        const c = await call('db/admin/importBackup', file!, {
+            isFileUpload: true,
+        }).catch(error => {
+            error = error;
+            return [];
+        });
 
-        // error = 'Záloha poškozena';
-        // error = !isFromSEIR1 ? 'Hotovo' : 'Hotovo, ale jen IR a SP';
+        if (!c.length) error = 'Záloha poškozena';
+        else {
+            const [i, n, r, s] = c;
+            error = `Hotovo: ${i}x IR, ${n}x NSP, ${r}x DK, ${s}x SN`;
+        }
     };
 </script>
 

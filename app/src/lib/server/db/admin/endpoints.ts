@@ -38,8 +38,8 @@ export const adminEndpoints = {
         rks: await getAllRKs(),
         sns: await getAllSNs(),
     })),
-    importBackup: defineEndpoint<File, boolean>(importFromBackup, { isFileUpload: true }),
-    importFromSEIR1: defineEndpoint<undefined, boolean>(() => importFromSEIR1()),
+    importBackup: defineEndpoint<File, number[]>(importFromBackup, { isFileUpload: true }),
+    importFromSEIR1: defineEndpoint<undefined, number[]>(() => importFromSEIR1()),
     restore: defineEndpoint<{ irid: IRID }, undefined>(async ({ irid }) => {
         await restoreIR(irid);
     }),
