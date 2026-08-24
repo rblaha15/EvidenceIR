@@ -34,7 +34,7 @@
     <h3 class="m-0">{irWholeName($ir.IN)}</h3>
 
     <div class="flex items-end gap-4">
-        <Search bind:value={v} widget={w} context={{}} {t} class="grow" showAllErrors={true} />
+        <Search bind:value={v} widget={w} context={{}} {t} showAllErrors={true} />
         <Button
             onclick={() => {
                 if (!v) return;

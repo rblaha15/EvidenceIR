@@ -32,6 +32,7 @@
     import { Button } from "$lib/components/ui/button";
 
     const { id, options }: { id: string, options: ArraysOptions<K> } = $props();
+    // svelte-ignore state_referenced_locally
     const { fileName, instructions, arrays, sendData } = options;
 
     const initialValue = arrays.mapValues(() => []);

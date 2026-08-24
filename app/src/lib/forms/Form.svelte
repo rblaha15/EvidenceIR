@@ -45,6 +45,7 @@
         other: O,
     } = $props();
 
+    // svelte-ignore state_referenced_locally
     const {
         storeName,
         form: formDefinition,
@@ -62,9 +63,11 @@
         buttons,
     } = formInfo;
 
+    // svelte-ignore state_referenced_locally
     const storedData = storable<Raw<F>>(storeName(other));
     let mode: ModeL = $state('loading');
 
+    // svelte-ignore state_referenced_locally
     const form: F = formDefinition(other);
     let values: Values<F> = $state(defaultValues(form));
     let showAllErrors = $state(false);

@@ -23,10 +23,9 @@
         context: C;
         value: T | null;
         showAllErrors: boolean;
-        class?: ClassValue;
     }
 
-    let { t, widget, value = $bindable(), context, showAllErrors, class: klass = '' }: Props = $props();
+    let { t, widget, value = $bindable(), context, showAllErrors }: Props = $props();
     let showError = $derived(showAllErrors);
 
     let search = writable('');
@@ -35,6 +34,7 @@
         $search = value ? widget.getSearchItem(value, t, context).pieces.filter(p => !p.notForSearchText).map(p => p.text).join(' ') : '';
     });
 
+    // svelte-ignore state_referenced_locally
     const original = widget.items(t, context);
     const found = writable(null as T[] | null);
     $effect(() => {
@@ -47,6 +47,8 @@
             aborted = true;
         };
     });
+
+    // svelte-ignore state_referenced_locally
     const filtered = widget.search
         ? found
         : derived([original, search], ([original, search]) => original != 'loading' ? original.filter((item) =>

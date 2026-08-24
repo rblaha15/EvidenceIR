@@ -43,6 +43,7 @@
     import { untrack } from 'svelte';
 
     const { id, options }: { id: string; options: TableOptions<T> } = $props();
+    // svelte-ignore state_referenced_locally
     const { fileType, construct, deconstruct, store, fileName, key, instructions, columns, sendData } = options;
 
     let input = $state() as HTMLInputElement;

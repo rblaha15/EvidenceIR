@@ -126,7 +126,7 @@
                 style="transition: width 5s;"
             ></div>
         </div>
-        <div class="grow overflow-y-auto [scrollbar-gutter:stable]">
+        <div class="grow overflow-y-auto scrollbar-gutter-stable">
             <main class="flex min-h-full w-full justify-center gap-4 px-4 pb-2 md:px-8">
                 <div class="flex w-full flex-col gap-4 pt-4 has-[+.toc]:max-w-2xl">
                     {#if !$hideTitle}
