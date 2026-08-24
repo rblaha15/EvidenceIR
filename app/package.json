@@ -52,7 +52,6 @@
 		"@better-auth/mongo-adapter": "^1.6.19",
 		"@pdf-lib/fontkit": "^1.1.1",
 		"@ungap/with-resolvers": "^0.1.0",
-		"@vercel/blob": "^2.0.0",
 		"better-auth": "^1.6.19",
 		"core-js": "^3.46.0",
 		"file-saver": "2.0.5",

@@ -64,8 +64,7 @@ export const call = async <
             'content-type': 'application/json'
         },
     };
-    console.log(init);
-    const response = await fetch(`/api/db?action=${action}`, {
+    const response = await fetch(`/api?action=${action}`, {
         method: 'POST',
         ...init,
     });

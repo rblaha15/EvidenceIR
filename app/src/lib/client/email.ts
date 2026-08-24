@@ -5,7 +5,6 @@ import { htmlToText } from 'html-to-text';
 import { type Component, mount } from 'svelte';
 import { dev } from '$app/environment';
 import { get } from 'svelte/store';
-import { upload } from "@vercel/blob/client";
 import { getIsOnline } from '$lib/client/online';
 import { addEmailToHistory } from '$lib/client/history.svelte';
 
@@ -41,10 +40,17 @@ export type EmailOptions = BaseEmailOptions & {
 
 export type EmailMessage = Omit<EmailOptions, 'attachments'> & {
     attachments?: {
-        path: string;
+        id: string;
         filename: string;
         contentType: string;
-        contentDisposition: 'attachment' | 'inline';
+    }[];
+}
+
+export type ServerEmailMessage = Omit<EmailMessage, 'attachments'> & {
+    attachments?: {
+        content: Buffer;
+        filename: string;
+        contentType: string;
     }[];
 }
 
@@ -77,22 +83,12 @@ export const sendHtmlEmail = async (options: HtmlEmailOptions) => {
 
 export const sendEmailAndUploadAttachments = async (options: EmailOptions) => {
     const message: EmailMessage = {
-        ...options, attachments: await options.attachments?.map(async (a, i) => {
-            // TODO
-            const result = await upload(a.name, a, {
-                access: 'public',
-                contentType: a.type,
-                onUploadProgress: ({ percentage }) => {
-                    console.log('Attachment', i, percentage)
-                },
-                handleUploadUrl: '/api/upload-handler',
-            });
-            console.log(result);
+        ...options, attachments: await options.attachments?.map(async file => {
+            const { id } = await call('uploadAttachment', file, { isFileUpload: true });
             return {
-                path: result.url,
-                filename: a.name,
-                contentType: result.contentType,
-                contentDisposition: result.contentDisposition.split(';')[0] as 'attachment' | 'inline',
+                id,
+                filename: file.name,
+                contentType: file.type,
             };
         }).awaitAll(),
     };
@@ -102,7 +98,7 @@ export const sendEmailAndUploadAttachments = async (options: EmailOptions) => {
     return { ok: response.accepted.length };
 };
 
-export const receiver = 'seir@regulus.cz' as const satisfies AddressLike;
+export const receiver = { name: 'Regulus SEIR', address: 'seir@regulus.cz' } as const satisfies AddressLike;
 export const cervenka = [
     { name: 'David Červenka', address: 'david.cervenka@regulus.cz' },
     { name: 'Jakub Červenka', address: 'jakub.cervenka@regulus.cz' },
