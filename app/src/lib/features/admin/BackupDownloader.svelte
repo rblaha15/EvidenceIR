@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { call } from '$lib/client/db/endpoints';
+    import { call } from '$lib/client/endpoints';
     import JSZip from 'jszip';
     import { dayISO } from '$lib/helpers/date';
     import { createFileUrl, downloadFile } from '$lib/helpers/files';

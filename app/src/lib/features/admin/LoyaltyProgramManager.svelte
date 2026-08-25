@@ -1,6 +1,6 @@
 <script lang="ts">
     import { people, type Person } from '$lib/client/db/arrays';
-    import { call } from '$lib/client/db/endpoints';
+    import { call } from '$lib/client/endpoints';
     import { getAllIRs } from '$lib/client/incrementalUpdates';
     import {
         adminDescriptions,

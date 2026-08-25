@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page } from '$app/state';
-    import { call } from '$lib/client/db/endpoints';
+    import { call } from '$lib/client/endpoints';
     import AuthUI from '$lib/features/auth/components/AuthUI.svelte';
     import { initialRouteLoggedIn, setTitle } from '$lib/helpers/globals';
     import type { Translations } from '$lib/translations';

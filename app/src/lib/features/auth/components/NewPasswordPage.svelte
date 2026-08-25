@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { editPassword, signUp } from '$lib/client/auth';
-    import { call } from '$lib/client/db/endpoints';
+    import { call } from '$lib/client/endpoints';
     import { Alert, AlertTitle } from '$lib/components/ui/alert';
     import { Spinner } from '$lib/components/ui/spinner';
     import AuthUI from '$lib/features/auth/components/AuthUI.svelte';

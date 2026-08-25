@@ -1,6 +1,6 @@
 <!--suppress HtmlUnknownTag -->
 <script lang="ts">
-    import { call } from '$lib/client/db/endpoints';
+    import { call } from '$lib/client/endpoints';
     import { type Component, onMount } from 'svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';

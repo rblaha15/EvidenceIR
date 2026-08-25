@@ -8,7 +8,7 @@ import {
     fetchSpareParts,
     fetchTechnicians
 } from '$lib/client/db/arrays';
-import { call } from '$lib/client/db/endpoints';
+import { call } from '$lib/client/endpoints';
 import { error } from '@sveltejs/kit';
 
 export const loadAdmin = async (fetch: typeof window.fetch) => {

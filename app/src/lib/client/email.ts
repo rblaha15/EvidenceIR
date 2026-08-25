@@ -1,5 +1,5 @@
 import { user as userStore, type User } from '$lib/client/auth';
-import { call } from '$lib/client/db/endpoints';
+import { call } from '$lib/client/endpoints';
 import { env } from '$env/dynamic/public';
 import { htmlToText } from 'html-to-text';
 import { type Component, mount } from 'svelte';

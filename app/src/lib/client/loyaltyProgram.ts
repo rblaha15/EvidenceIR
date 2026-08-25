@@ -1,5 +1,5 @@
 import { fetchLoyaltyProgramData } from '$lib/client/db/arrays';
-import { call } from '$lib/client/db/endpoints';
+import { call } from '$lib/client/endpoints';
 import type { IRID } from '$lib/helpers/ir';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { getIsOnline } from '$lib/client/online';

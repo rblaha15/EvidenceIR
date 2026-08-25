@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { call } from '$lib/client/db/endpoints';
+import { call } from '$lib/client/endpoints';
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 

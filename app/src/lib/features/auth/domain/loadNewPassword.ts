@@ -1,5 +1,5 @@
 import { getUser } from '$lib/client/auth';
-import { call } from '$lib/client/db/endpoints';
+import { call } from '$lib/client/endpoints';
 import { error } from '@sveltejs/kit';
 
 export const loadNewPassword = async (

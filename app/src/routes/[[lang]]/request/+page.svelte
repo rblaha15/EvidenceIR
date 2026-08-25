@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { call } from '$lib/client/db/endpoints';
+    import { call } from '$lib/client/endpoints';
     import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
     import { Spinner } from '$lib/components/ui/spinner';
     import { setTitle } from '$lib/helpers/globals';

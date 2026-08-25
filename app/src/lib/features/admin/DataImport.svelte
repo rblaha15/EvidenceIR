@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { call } from '$lib/client/db/endpoints';
+    import { call } from '$lib/client/endpoints';
     import { Alert } from '$lib/components/ui/alert';
     import { Button } from '$lib/components/ui/button';
     import File, { getFile } from '$lib/components/widgets/File.svelte';

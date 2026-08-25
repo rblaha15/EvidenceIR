@@ -1,5 +1,5 @@
 import { getUser } from '$lib/client/auth';
-import { call } from '$lib/client/db/endpoints';
+import { call } from '$lib/client/endpoints';
 import type { SigningStatus } from '../components/Signing.svelte';
 import type { CodeAttemptParams } from '$lib/features/signing/domain/sms';
 import { getReasonPhrase } from 'http-status-codes';
