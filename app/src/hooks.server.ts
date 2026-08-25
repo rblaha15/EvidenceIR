@@ -1,8 +1,11 @@
+import { environment } from '$lib/helpers/globals';
+import { checkForRecommendations } from '$lib/server/db/recommend-rk';
 import { type Handle, redirect } from "@sveltejs/kit"
 import { sequence } from '@sveltejs/kit/hooks';
 import { auth } from "$lib/server/auth";
 import { svelteKitHandler } from "better-auth/svelte-kit";
 import { building } from '$app/environment'
+import cron from 'node-cron';
 
 export const redirectOldDetailUrls: Handle = ({ event, resolve }) => {
     const url = event.url
@@ -31,3 +34,11 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
 }
 
 export const handle = sequence(redirectOldDetailUrls, handleAuth);
+
+if (environment === 'production') cron.schedule('0 8 * * *', async () => {
+    try {
+        await checkForRecommendations();
+    } catch (err) {
+        console.error('DK error:', err);
+    }
+});

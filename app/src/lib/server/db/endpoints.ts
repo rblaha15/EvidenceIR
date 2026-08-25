@@ -12,7 +12,7 @@ import {
     getSpareParts,
     getTechnicians
 } from '$lib/server/db/arrays';
-import { checkForRecommendations, getRecommendationData, sendRequest } from '$lib/server/db/recommend-rk';
+import { getRecommendationData, sendRequest } from '$lib/server/db/recommend-rk';
 import { defineEndpoint, prefixEndpoints } from '$lib/server/defineEndpoints';
 import { processLoyaltyReward } from '$lib/server/loyaltyProgram';
 
@@ -55,9 +55,6 @@ export const dbEndpoints = {
     }),
     getLoyaltyPoints: defineEndpoint<undefined, LoyaltyProgramUserData>(async (_, { userEmail }) => {
         return await getLoyaltyProgramData(userEmail);
-    }),
-    'open/checkForRecommendations': defineEndpoint(async (_, { headers }) => {
-        await checkForRecommendations(headers);
     }),
     'open/getRecommendationData': defineEndpoint<{ code: string }, RecommendationData>(async ({ code }) => {
         return await getRecommendationData(code);

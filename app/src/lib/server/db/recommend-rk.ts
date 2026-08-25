@@ -38,11 +38,7 @@ type AppArgs = {
     fetch: typeof window.fetch,
 };
 
-// TODO: CRON job
-export const checkForRecommendations = async (headers: Headers) => {
-    if (!dev && headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`)
-        return error(401);
-
+export const checkForRecommendations = async () => {
     const irs = await getAllIRs();
 
     for (const ir of irs) {
