@@ -47,6 +47,7 @@ export const initialRouteLoggedIn = '/search';
 export const initialRouteLoggedOut = '/login';
 
 export const appUrl = env.PUBLIC_APP_URL;
+export const environment = env.PUBLIC_ENV as 'development' | 'preview' | 'production';
 
 export const parseTitleId = (text: string) => text
     .trim()

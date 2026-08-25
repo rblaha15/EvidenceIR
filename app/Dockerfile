@@ -23,7 +23,6 @@ COPY --from=builder /app/package.json /app/package-lock.json ./
 RUN npm ci --omit=dev
 
 ENV BODY_SIZE_LIMIT=30M
-ENV NODE_ENV=production
 EXPOSE 3000
 
 CMD ["node", "build"]

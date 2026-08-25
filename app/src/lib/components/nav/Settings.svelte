@@ -8,7 +8,7 @@
     import { currentPreferredDocumentLanguage, setUserPreferredLanguage } from '$lib/languages';
     import { goto } from '$app/navigation';
     import { setUserPreferredDocumentLanguage } from '$lib/languages.js';
-    import { hideNav } from '$lib/helpers/globals';
+    import { environment, hideNav } from '$lib/helpers/globals';
     import { clearLocalDatabase } from '$lib/client/db/offline.svelte';
     import { clearHistory } from '$lib/client/history.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
@@ -64,7 +64,7 @@
     <p>{ts.appVersion({
         version: appVersion,
         build: version.slice(0, 7),
-        type: dev ? 'DEV' : browser ? page.url.hostname.includes('dev') ? 'PREVIEW' : 'BROWSER' : 'UNKNOWN'
+        type: browser ? environment.toUpperCase() : 'UNKNOWN'
     })}</p>
 </div>
 
