@@ -13,7 +13,7 @@
     import TableOfContents from '$lib/components/TableOfContents.svelte';
     import { ArrowLeft, OctagonAlert } from '@lucide/svelte';
     import { Button } from '$lib/components/ui/button';
-    import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
+    import { Alert, AlertAction, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
     import { Separator } from '$lib/components/ui/separator';
     import { Spinner } from '$lib/components/ui/spinner';
 
@@ -83,6 +83,7 @@
     };
 
     const showTOC = $derived(page.route.id?.includes('[form=form]') && !page.error);
+    let hideWarning = $state(false);
 </script>
 
 <svelte:window onunhandledrejection={handleError} />
@@ -127,6 +128,16 @@
                 style="transition: width 5s;"
             ></div>
         </div>
+        {#if !hideWarning}
+            <Alert variant="danger" class="rounded-none!">
+                <OctagonAlert />
+                <AlertTitle>SEIR 2.0 – Testovací verze</AlertTitle>
+                <AlertDescription>Prvedené změny v této aplikace budou odstraněny a přepsány daty ze starého SEIRu</AlertDescription>
+                <AlertAction>
+                    <Button variant="ghost" onclick={() => hideWarning = true}>Skrýt</Button>
+                </AlertAction>
+            </Alert>
+        {/if}
         <div class="grow overflow-y-auto scrollbar-gutter-stable">
             <main class="flex min-h-full w-full justify-center gap-4 px-4 pb-2 md:px-8">
                 <div class="flex w-full flex-col gap-4 pt-4 has-[+.toc]:max-w-2xl">
