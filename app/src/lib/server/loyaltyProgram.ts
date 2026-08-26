@@ -52,7 +52,7 @@ export const processLoyaltyReward = async (
         const { assembly, commissioning, pumpCount, granted, commissionDate } = d;
         if (granted) return;
         const now = new Date();
-        if (commissionDate.valueOf() + days(180) < now.valueOf()) return;
+        if (commissionDate && commissionDate.valueOf() + days(180) < now.valueOf()) return;
         if (assembly) {
             const current = await getLoyaltyProgramData(assembly);
             if (current.history.some(t => t.type == 'heatPumpAssembly' && t.irid == data.irid)) return;
@@ -88,12 +88,12 @@ const getCompanyUser = async (email: string) => {
 
 const getCompaniesCascadeGrantedAndCommission = async (irid: IRID, locals: App.Locals) => {
     const ir = await mongoReadDatabase.getIR(irid, locals);
-    return ir && ir.UP.dateTC ? {
+    return ir ? {
         assembly: await getCompanyUser(ir.IN.montazka.email),
         commissioning: await getCompanyUser(ir.IN.uvedeni.email),
         pumpCount: cascadePumps(ir.IN).length,
         granted: ir.meta.flags?.grantedCommission ?? false,
-        commissionDate: new Date(ir.UP.dateTC),
+        commissionDate: ir.UP.dateTC && new Date(ir.UP.dateTC),
     } : null;
 };
 
