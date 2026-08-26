@@ -48,6 +48,7 @@ const migrateNSPFromSEIR1 = (nsp: NSP) => ({
     },
 }) as NSP;
 
+// TODO: Import LP
 export const importFromSEIR1 = async () => {
 
     const getApp = () => initializeApp({
