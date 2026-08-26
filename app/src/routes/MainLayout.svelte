@@ -114,6 +114,7 @@
 {#snippet content()}
     <Navigation {t} />
     <div class={['flex h-full flex-col', $isLoggedIn && !$hideNav ? 'pt-13 md:pt-24 lg:pt-13' : 'pt-13']}>
+        <!-- TODO: Progress bar -->
         <div
             class="rounded-0 sticky top-0"
             role="progressbar"

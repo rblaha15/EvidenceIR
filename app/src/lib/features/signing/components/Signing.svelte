@@ -127,6 +127,7 @@
         </Button>
     </div>
 {:else if status == 'confirming'}
+    <!--    TODO: extract Alert components    -->
     <Alert>
         <Spinner />
         <AlertTitle>Ověřování kódu…</AlertTitle>
