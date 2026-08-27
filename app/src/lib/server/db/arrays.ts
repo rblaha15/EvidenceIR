@@ -56,8 +56,8 @@ export const getCompanies = () =>
 export const getCompaniesByCRNs = (crns: string[]) => companyCollection
     .find<Company>({ crn: { $in: crns } }).project<Company>({ _id: 0 }).toArray();
 
-export const getCompanyByEmail = (email: string) => companyCollection
-    .findOne<Company>({ email }, { projection: { _id: 0 } });
+export const getCompanyByCRN = (crn: string) => companyCollection
+    .findOne<Company>({ crn }, { projection: { _id: 0 } });
 
 export const setCompanies = async (companies: Company[]) => {
     await companyCollection.deleteMany({ email: { $nin: companies.map(it => it.email) } });
