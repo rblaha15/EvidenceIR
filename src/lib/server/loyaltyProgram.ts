@@ -24,19 +24,21 @@ export const processLoyaltyReward = async (
     data: LoyaltyProgramTrigger,
     user: DecodedIdToken,
 ) => {
-    if (checkAnyRegulusOrAdmin(user)) return;
     const timestamp = nowISO(true);
     if (isType(data, 'registration')) {
+        if (checkAnyRegulusOrAdmin(user)) return;
         const current = await getLoyaltyProgramData(user.uid);
         if (current.history.some(t => t.type == 'registration')) return;
         await addPointsTransaction({ ...data, timestamp }, user.uid);
     } else if (isType(data, 'connectRegulusRoute')) {
+        if (checkAnyRegulusOrAdmin(user)) return;
         const creatingUser = await getOrSetCreatingUser(data.irid, user);
         if (creatingUser == 'unknown') return;
         const current = await getLoyaltyProgramData(creatingUser);
         if (current.history.some(t => t.type == 'connectRegulusRoute' && t.irid == data.irid)) return;
         await addPointsTransaction({ ...data, timestamp }, creatingUser);
     } else if (isType(data, 'disconnectRegulusRoute')) {
+        if (checkAnyRegulusOrAdmin(user)) return;
         const creatingUser = await getCreatingUserOrNull(data.irid);
         if (!creatingUser || creatingUser == 'unknown') return;
         const current = await getLoyaltyProgramData(creatingUser);
@@ -61,7 +63,7 @@ export const processLoyaltyReward = async (
                 multiplier: (pumpCount - 1),
             }, assembly);
         }
-        if (commissioning) {
+        if (commissioning && !checkAnyRegulusOrAdmin(user)) {
             const current = await getLoyaltyProgramData(commissioning);
             if (current.history.some(t => t.type == 'heatPumpCommission' && t.irid == data.irid)) return;
             await addPointsTransaction({ type: 'heatPumpCommission', irid: data.irid, timestamp }, commissioning);
@@ -72,6 +74,7 @@ export const processLoyaltyReward = async (
         }
         await setGrantedCommission(data.irid)
     } else if (isType(data, 'heatPumpYearlyCheck')) {
+        if (checkAnyRegulusOrAdmin(user)) return;
         const ir = await getIR(data.irid);
         if (!ir?.RK?.TC?.[data.pump]?.[data.year]) return;
         await addPointsTransaction({
@@ -80,18 +83,20 @@ export const processLoyaltyReward = async (
     }
 };
 
-const getCompanyUser = async (email: string) => {
+const getCompanyUser = async (ico: string) => {
     const allCompanies = await getCompanies();
     const allPeople = await getPeople();
-    const userEmail = allCompanies.getValues().find(c => c.email == email)?.representativeUserEmail ?? email;
+    const company = allCompanies[ico];
+    if (!company) return null;
+    const userEmail = company.representativeUserEmail || company.email;
     return allPeople.entries().find(([_, p]) => p.email == userEmail)?.[0] || null;
 }
 
 const getCompaniesCascadeGrantedAndCommission = async (irid: IRID) => {
     const ir = await getIR(irid);
     return ir ? {
-        assembly: await getCompanyUser(ir.IN.montazka.email),
-        commissioning: await getCompanyUser(ir.IN.uvedeni.email),
+        assembly: await getCompanyUser(ir.IN.montazka.ico),
+        commissioning: await getCompanyUser(ir.IN.uvedeni.ico),
         pumpCount: cascadePumps(ir.IN).length,
         granted: ir.meta.flags?.grantedCommission ?? false,
         commissionDate: ir.UP.dateTC && new Date(ir.UP.dateTC),
