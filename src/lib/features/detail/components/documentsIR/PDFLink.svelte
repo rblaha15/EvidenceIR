@@ -57,6 +57,7 @@
             {#if additionalButton.show ?? disabled}
                 {#if additionalButton.dialogID}
                     <button
+                        disabled={additionalButton.disabled}
                         data-bs-toggle="modal"
                         data-bs-target="#{additionalButton.dialogID}"
                         class={['btn d-block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary' ]}
@@ -64,7 +65,7 @@
                 {:else}
                     <a
                         tabindex="0"
-                        class={['btn d-block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary' ]}
+                        class={['btn d-block', additionalButton.important ? 'btn-primary' : 'btn-outline-primary', { disabled: additionalButton.disabled }]}
                         href={additionalButton.href}
                     >{additionalButton.text}</a>
                 {/if}

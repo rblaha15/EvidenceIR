@@ -35,6 +35,12 @@
 <h2 class="m-0">{title(data.translations)}</h2>
 <h4 class="m-0">{data.fileName}</h4>
 
+{#if data.lockedFromSEIR2}
+    <div class="alert alert-warning d-flex flex-column gap-3">
+        Tato instalace je uzamčena z novější verze SEIR.
+    </div>
+{/if}
+
 <p class="m-0 d-none print-warning fs-2 text-danger">{t.printWarning}</p>
 
 <PdfPreview args={data.fileLang} {t} url={data.url}>
@@ -44,7 +50,7 @@
         } options={supportedLanguages} selected={data.fileLang} />
     </div>
     {#if !data.signatureState && data.allowSigning}
-        <a class="btn btn-primary" href={signUrl}>
+        <a class="btn btn-primary" href={signUrl} class:disabled={data.lockedFromSEIR2}>
             <Icon icon="border_color" />
             Podepsat dokument
         </a>

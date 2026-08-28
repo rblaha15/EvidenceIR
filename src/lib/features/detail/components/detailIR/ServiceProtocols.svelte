@@ -29,13 +29,13 @@
         {#each sorted as [id, p]}
             {@const showSP = isSP(p) && r}
             {#snippet deleteButton()}
-                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#deleteProtocolModal-{id}">
+                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#deleteProtocolModal-{id}" disabled={ir.meta.flags.lockedFromSEIR2}>
                     <Icon icon="delete_forever" />
                     {td.delete}
                 </button>
             {/snippet}
             {#snippet duplicateButton()}
-                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#duplicateModal-{id}">
+                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#duplicateModal-{id}" disabled={ir.meta.flags.lockedFromSEIR2}>
                     <Icon icon="file_copy" />
                     {td.duplicate}
                 </button>
@@ -52,6 +52,7 @@
                         icon: 'edit_document',
                         text: td.editProtocol,
                         href: iridUrl(`/SP/?edit=${id}`),
+                        disabled: ir.meta.flags.lockedFromSEIR2,
                     }, {
                         item: deleteButton,
                     }, {
@@ -67,6 +68,7 @@
                             icon: 'edit_document',
                             text: td.editIntervention,
                             href: iridUrl(`/SZ/?edit=${id}`),
+                            disabled: ir.meta.flags.lockedFromSEIR2,
                         }]} />
                     {/if}
                 </div>
@@ -116,7 +118,7 @@
 {/if}
 
 <div class="d-flex align-items-center gap-3 flex-wrap flex-sm-nowrap">
-    <a class="btn btn-primary" href={iridUrl(r ? '/SP' : '/SZ')} tabindex="0">
+    <a class="btn btn-primary" href={iridUrl(r ? '/SP' : '/SZ')} tabindex="0" class:disabled={ir.meta.flags.lockedFromSEIR2}>
         <Icon icon="add" />
         {r ? any ? td.fillInAnotherProtocol : td.fillInProtocol
             : any ? td.fillInAnotherIntervention : td.fillInIntervention}

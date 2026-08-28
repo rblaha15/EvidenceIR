@@ -71,7 +71,11 @@
         </div>
     </div>
 {/if}
-{#if $settings && $settings.state == 'signed' && status != 'sendingEmail' && status != 'end'}
+{#if $ir && $ir.meta.flags.lockedFromSEIR2}
+    <div class="alert alert-danger d-flex flex-column gap-3">
+        Tato instalace je uzamčena z novější verze SEIR.
+    </div>
+{:else if $settings && $settings.state == 'signed' && status != 'sendingEmail' && status != 'end'}
     <div class="alert alert-danger d-flex flex-column gap-3">
         Tento dokument byl již podepsán!
     </div>

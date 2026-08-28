@@ -40,6 +40,7 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
         signatureState: undefined,
         signatureKey: '',
         allowSigning: false,
+        lockedFromSEIR2: false,
     };
 
     if (!await checkAuth()) error(401);
@@ -93,12 +94,14 @@ export const load: PageLoad = async ({ parent, params, url, fetch }) => {
             : pdfName == 'NSP' ? data.sps[0].NSP.fakturace.komu.chosen == 'investor'
                 : false;
 
+    const lockedFromSEIR2 = data.ir && data.ir.meta.flags.lockedFromSEIR2;
+
     const pageData = await parent();
     const t = pageData.translations;
 
     setTitle(t.pdf.documentPreview, true);
 
-    return { ...d, ...id, args: pdf, fileLang: language, signatureState, signatureKey, allowSigning };
+    return { ...d, ...id, args: pdf, fileLang: language, signatureState, signatureKey, allowSigning, lockedFromSEIR2 };
 };
 
 export const prerender = true;

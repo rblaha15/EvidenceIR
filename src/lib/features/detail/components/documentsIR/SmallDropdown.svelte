@@ -18,7 +18,7 @@
         {#each dropdownItems ?? [] as item}
             {#if !item.hide}
                 {#if 'color' in item}
-                    <a class="btn btn-{item.color}" href={item.href} tabindex="0">
+                    <a class="btn btn-{item.color}" href={item.href} tabindex="0" class:disabled={item.disabled}>
                         <Icon icon={item.icon} />
                         {item.text}
                     </a>

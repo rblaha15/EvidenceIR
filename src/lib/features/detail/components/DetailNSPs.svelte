@@ -92,7 +92,7 @@
                 {td.copyNSP}
             </a>
 
-            {#if $isUserAdmin}
+            {#if $isUserAdmin && !sps[0].meta.flags?.lockedFromSEIR2}
                 <a class="btn btn-warning" href={relUrl('/IN')} onclick={createCopyIN}>
                     <Icon icon="add_home_work" />
                     {td.copyNSPtoInstallation}{$aA}

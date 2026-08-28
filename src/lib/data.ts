@@ -91,6 +91,7 @@ interface BaseIR {
         flags: {
             grantedCommission?: boolean;
             confirmedRefsite?: boolean;
+            lockedFromSEIR2?: boolean;
         };
     };
     signatures?: Signatures<'IR'>;
@@ -135,6 +136,9 @@ interface BaseNSP {
         createdBy?: {
             uid: string;
             email: string;
+        };
+        flags?: {
+            lockedFromSEIR2?: boolean;
         };
     };
     signatures?: Signatures<'SP'>;

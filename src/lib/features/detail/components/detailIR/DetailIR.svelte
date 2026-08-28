@@ -22,6 +22,12 @@
     const mf = $derived(ir.IN.montazka.email == unknownCompanyEmail ? '' : ir.IN.montazka.email.trim())
 </script>
 
+{#if ir.meta.flags.lockedFromSEIR2}
+    <div class="alert alert-warning d-flex flex-column gap-3">
+        Tato instalace je uzamčena z novější verze SEIR.
+    </div>
+{/if}
+
 <div class="d-flex flex-wrap flex-lg-nowrap gap-4 justify-content-between">
     {#if !ir.isDraft}
         <div class="d-flex flex-column gap-5 flex-grow-1">
@@ -45,7 +51,7 @@
             {/if}
             {#if ir.isDraft}
                 <Button color="primary" icon="edit_document" text={td.editInstallationData}
-                        href={relUrl(`/IN?edit-irid=${irid}`)} />
+                        href={relUrl(`/IN?edit-irid=${irid}`)} disabled={ir.meta.flags.lockedFromSEIR2} />
             {/if}
             <Button color="primary" icon="preview" text={td.viewFilledData}
                     href={relUrl(`/IN?view-irid=${irid}`)} />
@@ -58,13 +64,13 @@
         <div class="d-flex flex-column gap-1 align-items-sm-start">
             {#if $isUserRegulusOrAdmin}
                 <Button color="info" icon="people" text="{td.usersWithAccess}{$aR}"
-                        href={iridUrl('/users')} />
+                        href={iridUrl('/users')} disabled={ir.meta.flags.lockedFromSEIR2} />
             {/if}
             {#if !ir.isDraft}
                 <Button color="warning" icon="edit_document" text={td.editInstallationData}
-                        href={relUrl(`/IN?edit-irid=${irid}`)} />
+                        href={relUrl(`/IN?edit-irid=${irid}`)} disabled={ir.meta.flags.lockedFromSEIR2} />
             {/if}
-            <DeleteIR {irid} {td} />
+            <DeleteIR {irid} {td} locked={ir.meta.flags.lockedFromSEIR2} />
 
             {#if $isUserRegulusOrAdmin && !ir.isDraft}
                 <Button color="secondary" icon="download" text="{td.downloadXML}{$aR}"

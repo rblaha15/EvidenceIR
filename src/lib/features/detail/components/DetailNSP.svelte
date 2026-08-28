@@ -22,7 +22,7 @@
     <button class="btn btn-danger" onclick={() => {
         db.deleteNSP(spid);
         goto(spidUrl(`/detail?deleted`), { replaceState: true });
-    }}>
+    }} disabled={sp.meta.flags?.lockedFromSEIR2}>
         <Icon icon="delete_forever" />
         {td.deleteProtocol}{$aA}
     </button>
@@ -39,6 +39,7 @@
         icon: 'edit_document',
         text: td.editProtocol,
         href: relUrl(`/NSP?edit-spid=${spid}`),
+        disabled: sp.meta.flags?.lockedFromSEIR2,
     }, {
         item: deleteButton,
         hide: !$isUserAdmin,

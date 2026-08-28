@@ -4,13 +4,14 @@
     import type { Translations } from '$lib/translations';
     import type { IRID } from '$lib/helpers/ir';
 
-    const { td, irid }: {
+    const { td, irid, locked }: {
         td: Translations['detail'],
         irid: IRID,
+        locked?: boolean,
     } = $props()
 </script>
 
-<button class="btn btn-secondary d-block" data-bs-target="#deleteModal" data-bs-toggle="modal">
+<button class="btn btn-secondary d-block" data-bs-target="#deleteModal" data-bs-toggle="modal" disabled={locked}>
     <Icon icon="delete_forever" />
     {td.deleteThisRecord}
 </button>
