@@ -1,9 +1,7 @@
 import type { Arrays, Company, Person, SparePart, Technician } from '$lib/client/db/arrays';
-import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 import {
     arraysCollection,
     companyCollection,
-    loyaltyProgramCollection,
     personCollection,
     sparePartCollection,
     technicianCollection,
@@ -89,20 +87,3 @@ export const setPeople = async (people: Person[]) => {
 export const addPerson = async (person: Person) => {
     await personCollection.insertOne(person);
 };
-
-export const getAllLoyaltyProgramData = () => loyaltyProgramCollection
-    .find()
-    .project<LoyaltyProgramUserData>({ _id: 0 })
-    .toArray()
-    .then(res => res.associateBy(it => it.email));
-
-export const getLoyaltyProgramData = (email: string) => loyaltyProgramCollection
-    .findOne<LoyaltyProgramUserData>({ email }, { projection: { _id: 0 } })
-    .then(doc => doc ?? { email, points: 0, history: [] });
-
-export const setLoyaltyProgramData = (data: LoyaltyProgramUserData) =>
-    loyaltyProgramCollection.updateOne(
-        { email: data.email },
-        { $set: data },
-        { upsert: true },
-    );

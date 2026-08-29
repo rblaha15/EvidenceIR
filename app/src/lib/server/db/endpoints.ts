@@ -6,12 +6,12 @@ import {
     getArrays,
     getCompanies,
     getCompaniesByCRNs,
-    getLoyaltyProgramData,
     getPeople,
     getPersonByEmail,
     getSpareParts,
     getTechnicians
 } from '$lib/server/db/arrays';
+import { getLoyaltyProgramData } from '$lib/server/db/loyaltyProgram';
 import { getRecommendationData, sendRequest } from '$lib/server/db/recommend-rk';
 import { defineEndpoint, prefixEndpoints } from '$lib/server/defineEndpoints';
 import { processLoyaltyReward } from '$lib/server/loyaltyProgram';

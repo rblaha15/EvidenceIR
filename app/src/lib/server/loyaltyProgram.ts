@@ -11,7 +11,8 @@ import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { nowISO } from '$lib/helpers/date';
 import type { IRID } from '$lib/helpers/ir';
 import { setCreatedIRBy, setGrantedCommission } from '$lib/server/db/admin/general';
-import { getCompanyByCRN, getLoyaltyProgramData, setLoyaltyProgramData } from '$lib/server/db/arrays';
+import { getCompanyByCRN } from '$lib/server/db/arrays';
+import { getLoyaltyProgramData, setLoyaltyProgramData } from '$lib/server/db/loyaltyProgram';
 import { mongoReadDatabase } from '$lib/server/db/read';
 
 const isType = <T extends LoyaltyPointTriggerType>(

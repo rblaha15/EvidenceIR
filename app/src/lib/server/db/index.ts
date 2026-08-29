@@ -23,6 +23,7 @@ export const irCollection = appDB.collection<IR>('ir');
 export const nspCollection = appDB.collection<NSP>('nsp');
 export const dkCollection = appDB.collection<RecommendationDataWithCode>('dk');
 export const signingCollection = appDB.collection<DocumentSigningInfo>('signing');
+export const loyaltyProgramCollection = appDB.collection<LoyaltyProgramUserData>('loyaltyProgram');
 export const accountCollection = authDB.collection<WithMongoID<Account>>('account');
 export const sessionCollection = authDB.collection<WithMongoID<Session>>('session');
 export const userCollection = authDB.collection<WithMongoID<User>>('user');
@@ -31,7 +32,6 @@ export const companyCollection = dataDB.collection<Company>('company');
 export const technicianCollection = dataDB.collection<Technician>('technicians');
 export const sparePartCollection = dataDB.collection<SparePart>('spareParts');
 export const arraysCollection = dataDB.collection<StringArray>('arrays');
-export const loyaltyProgramCollection = dataDB.collection<LoyaltyProgramUserData>('loyaltyProgram');
 export const tokenCollection = authDB.collection<Token>('token');
 
 export const id = <ID extends IRID | NSPID>(id: ID) => ({ 'meta.id': id });

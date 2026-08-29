@@ -197,7 +197,6 @@
         spareParts: {
             title: 'Náhradní díly',
             longerTitle: 'Seznam náhradních dílů',
-            separator: true,
             contentType: 'table',
             tableOptions: {
                 fileType: 'xlsx',
@@ -224,7 +223,6 @@
         arrays: {
             title: 'Seznamy',
             contentType: 'arrays',
-            separator: true,
             arraysOptions: {
                 fileType: 'xlsx',
                 fileName: 'seznamy',
@@ -260,7 +258,16 @@
                 },
                 sendData: arrays => call('db/admin/setArrays', arrays).then(fetchArrays),
             },
+            separator: true,
         } satisfies ArraysDefinition<Arrays>,
+        translations: {
+            title: 'Překlady',
+            contentType: 'custom',
+            contentOptions: {
+                component: TranslationsTable,
+            },
+            separator: true,
+        },
         db: {
             title: 'Databáze',
             contentType: 'custom',
@@ -268,13 +275,6 @@
                 component: DatabaseFrame,
             },
         } satisfies CustomDefinition,
-        translations: {
-            title: 'Překlady',
-            contentType: 'custom',
-            contentOptions: {
-                component: TranslationsTable,
-            },
-        },
         stats: {
             title: 'Statistiky',
             contentType: 'custom',
@@ -289,6 +289,7 @@
             contentOptions: {
                 component: LoyaltyProgramManager,
             },
+            separator: true,
         },
         backup: {
             title: 'Záloha',
