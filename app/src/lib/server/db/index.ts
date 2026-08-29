@@ -21,7 +21,7 @@ export type WithMongoID<T> = Omit<T, 'id'> & { _id?: ObjectId }
 
 export const irCollection = appDB.collection<IR>('ir');
 export const nspCollection = appDB.collection<NSP>('nsp');
-export const rkCollection = appDB.collection<RecommendationDataWithCode>('rk');
+export const dkCollection = appDB.collection<RecommendationDataWithCode>('dk');
 export const signingCollection = appDB.collection<DocumentSigningInfo>('signing');
 export const accountCollection = authDB.collection<WithMongoID<Account>>('account');
 export const sessionCollection = authDB.collection<WithMongoID<Session>>('session');

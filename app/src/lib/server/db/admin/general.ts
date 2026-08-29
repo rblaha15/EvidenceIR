@@ -1,11 +1,11 @@
 import type { IR, NSP, RecommendationDataWithCode } from '$lib/data';
 import type { IRID } from '$lib/helpers/ir';
-import { id, irCollection, nspCollection, rkCollection, signingCollection } from '$lib/server/db';
+import { id, irCollection, nspCollection, dkCollection, signingCollection } from '$lib/server/db';
 import type { DocumentSigningInfo } from '$lib/server/signing';
 
 export const getAllIRs = () => irCollection.find().project<IR>({ _id: 0 }).toArray();
 export const getAllNSPs = () => nspCollection.find().project<NSP>({ _id: 0 }).toArray();
-export const getAllRKs = () => rkCollection.find().project<RecommendationDataWithCode>({}).toArray();
+export const getAllRKs = () => dkCollection.find().project<RecommendationDataWithCode>({}).toArray();
 export const getAllSNs = () => signingCollection.find().project<DocumentSigningInfo>({ _id: 0 }).toArray();
 export const setAllIRs = async (irs: IR[]) => {
     await irCollection.deleteMany();
@@ -16,7 +16,7 @@ export const setAllNSPs = async (nsps: NSP[]) => {
     await putAllNSPs(nsps);
 };
 export const setAllRKs = async (rks: RecommendationDataWithCode[]) => {
-    await rkCollection.deleteMany();
+    await dkCollection.deleteMany();
     await putAllRKs(rks);
 };
 export const setAllSNs = async (sns: DocumentSigningInfo[]) => {
@@ -30,7 +30,7 @@ export const putAllNSPs = async (nsps: NSP[]) => {
     if (nsps.length) await nspCollection.insertMany(nsps);
 };
 export const putAllRKs = async (rks: RecommendationDataWithCode[]) => {
-    if (rks.length) await rkCollection.insertMany(rks);
+    if (rks.length) await dkCollection.insertMany(rks);
 };
 export const putAllSNs = async (sns: DocumentSigningInfo[]) => {
     if (sns.length) await signingCollection.insertMany(sns);

@@ -7,7 +7,7 @@ import { appUrl } from '$lib/helpers/globals';
 import { endUserEmails, endUserName, extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { getAllIRs } from '$lib/server/db/admin/general';
-import { changeCode, changeState, createRK, getRK, removeRK } from '$lib/server/db/admin/rk';
+import { changeRecommendationCode, changeRecommendationState, createDK, getDK, removeDK } from '$lib/server/db/admin/dk';
 import { sendEmail } from '$lib/server/email';
 import { error } from '@sveltejs/kit';
 import { htmlToText } from 'html-to-text';
@@ -122,7 +122,7 @@ const sendRecommendation = async ({ ir, irid, settings, type, fetch }: SystemArg
     const code = crypto.randomUUID();
     const companyType = settings.executingCompany;
     if (companyType == 'regulus') {
-        await changeState(irid, 'sentRequest', type);
+        await changeRecommendationState(irid, 'sentRequest', type);
         return;
     }
 
@@ -138,7 +138,7 @@ const sendRecommendation = async ({ ir, irid, settings, type, fetch }: SystemArg
         company: await getCompany(),
         companyEmail: companyType == 'assembly' ? ir.IN.montazka.email : ir.IN.uvedeni.email,
     };
-    await createRK(code, data);
+    await createDK(code, data);
     const link = `${appUrl}/request?code=${code}`;
     const { body: html } = render(MailCheckReminder, {
         props: {
@@ -155,12 +155,12 @@ const sendRecommendation = async ({ ir, irid, settings, type, fetch }: SystemArg
         subject: `Upozornění na roční kontrolu ${data.type === 'TČ' ? 'tepelného čerpadla' : 'solárního systému'} Regulus`,
         html, text: htmlToText(html),
     });
-    await changeCode(irid, code, type);
-    await changeState(irid, 'sentRecommendation', type);
+    await changeRecommendationCode(irid, code, type);
+    await changeRecommendationState(irid, 'sentRecommendation', type);
 };
 
 const ignoreThisYear = async ({ irid, settings, type }: SystemArgs) => {
-    await removeRK(settings.code!);
+    await removeDK(settings.code!);
     await goToTheNextYear(irid, type);
 };
 
@@ -176,18 +176,18 @@ const sendReminder = async ({ irid, ir }: SystemArgs & AppArgs) => {
 };
 
 const goToTheNextYear = async (irid: IRID, type: 'TČ' | 'SOL') =>
-    await changeState(irid, 'waiting', type);
+    await changeRecommendationState(irid, 'waiting', type);
 
 export const getRecommendationData = async (code: string) => {
     if (!code) return error(403);
-    const info = await getRK(code);
+    const info = await getDK(code);
     if (!info) return error(400);
     return info;
 };
 
 export const sendRequest = async (code: string) => {
     if (!code) return error(403);
-    const info = await getRK(code);
+    const info = await getDK(code);
     if (!info) return error(400);
 
     const link = appUrl + detailUrlIR(info.irid, '?');
@@ -199,7 +199,7 @@ export const sendRequest = async (code: string) => {
         subject: `Žádost o roční kontrolu ${info.type}`,
         html, text: htmlToText(html),
     });
-    await removeRK(code);
-    await changeCode(info.irid, '', info.type);
-    await changeState(info.irid, 'sentRequest', info.type);
+    await removeDK(code);
+    await changeRecommendationCode(info.irid, '', info.type);
+    await changeRecommendationState(info.irid, 'sentRequest', info.type);
 };
