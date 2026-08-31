@@ -64,7 +64,7 @@
     <p>{ts.appVersion({
         version: appVersion,
         build: version.slice(0, 7),
-        type: browser ? environment.toUpperCase() : 'UNKNOWN'
+        type: browser ? environment?.toUpperCase() : 'UNKNOWN'
     })}</p>
 </div>
 
