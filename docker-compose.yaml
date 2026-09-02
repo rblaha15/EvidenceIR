@@ -25,35 +25,27 @@ services:
       - mongo
     dns:
       - ${DNS}
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "5"
 
   mongo:
     image: mongo:7
     restart: unless-stopped
     volumes:
       - ./backend/mongo_data:/data/db
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "1"
 
   nginx:
-    build: ./nginx
+    image: nginx:1.26
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "${HTTP_PORT}:80"
+    networks:
+      default:
+      proxy:
+        aliases:
+          - "${NGINX_PROXY_NAME}"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - app
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "1"
 
   mongo-express:
     image: mongo-express:1.0.2
@@ -74,8 +66,3 @@ services:
 
     depends_on:
       - mongo
-    logging:
-      driver: json-file
-      options:
-        max-size: "1m"
-        max-file: "1"

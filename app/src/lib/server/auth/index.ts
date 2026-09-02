@@ -72,7 +72,7 @@ export const auth = betterAuth({
         'https://192.168.100.197:8080',
     ],
     advanced: {
-        useSecureCookies: false, // TODO: enable when HTTPS is configured
+        useSecureCookies: false,
     },
 });
 
