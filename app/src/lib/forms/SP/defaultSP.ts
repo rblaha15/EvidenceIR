@@ -191,7 +191,7 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
         invoiceParts: newMultiCheckboxWidget({
             label: t => t.sp.invoiceParts, options: c => [
                 'transportation' as const,
-                ...c.v.ukony.typPrace ? ['work' as const] : [],
+                ...c.v.ukony.typPrace || areNewPrices(c) && c.v.ukony.doba ? ['work' as const] : [],
                 ...c.v.ukony.ukony,
             ], labels, required: false,
         }),
