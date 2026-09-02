@@ -5,12 +5,13 @@ import { user, isAdmin } from '$lib/client/auth';
 export function storable<T>(key: string): Writable<T | undefined>;
 export function storable<T>(key: string, defaultValue: T): Writable<T>;
 
-export function storable<T>(key: string, defaultValue?: T) {
+export function storable<T>(originalKey: string, defaultValue?: T) {
     const store = writable<T | undefined>(defaultValue);
+    let key: string;
 
     user.subscribe($user => {
         const id = $user?.id ?? 'anonymous';
-        key = `storable_${id}_${key}`;
+        key = `storable_${id}_${originalKey}`;
 
         if (browser) {
             const currentValue = localStorage.getItem(key);
