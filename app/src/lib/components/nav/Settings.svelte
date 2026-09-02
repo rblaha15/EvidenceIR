@@ -3,7 +3,7 @@
     import ThemeSelector from '$lib/components/nav/ThemeSelector.svelte';
     import LanguageSelector from '$lib/components/nav/LanguageSelector.svelte';
     import { removeAllFiles } from '$lib/components/widgets/File.svelte';
-    import { browser, dev, version } from '$app/environment';
+    import { browser, version } from '$app/environment';
     import { page } from '$app/state';
     import { currentPreferredDocumentLanguage, setUserPreferredLanguage } from '$lib/languages';
     import { goto } from '$app/navigation';
@@ -42,16 +42,16 @@
     <div class="flex items-center gap-1">
         <p>{ts.language}:</p>
         <LanguageSelector onChange={code => {
-        setUserPreferredLanguage(code);
-        return redirect(code);
-    }} selected={page.data.languageCode} />
+            setUserPreferredLanguage(code);
+            return redirect(code);
+        }} selected={page.data.languageCode} />
     </div>
     {#if !$hideNav}
         <div class="flex items-center gap-1">
             <p>{ts.defaultDocumentLanguage}:</p>
-            <LanguageSelector onChange={code => {
-            setUserPreferredDocumentLanguage(code);
-        }} selected={$currentPreferredDocumentLanguage ?? '—'} />
+                <LanguageSelector onChange={code => {
+                setUserPreferredDocumentLanguage(code);
+            }} selected={$currentPreferredDocumentLanguage ?? '—'} />
         </div>
     {/if}
     <p>{@html ts.didYouFindMistakesInTranslationsHtml}</p>
@@ -64,7 +64,7 @@
     <p>{ts.appVersion({
         version: appVersion,
         build: version.slice(0, 7),
-        type: browser ? environment?.toUpperCase() : 'UNKNOWN'
+        type: browser && environment ? environment.toUpperCase() : 'UNKNOWN'
     })}</p>
 </div>
 
