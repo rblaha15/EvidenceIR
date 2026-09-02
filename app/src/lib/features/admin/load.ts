@@ -1,21 +1,14 @@
 import { getIsAdmin, getIsLoggedIn } from '$lib/client/auth';
 import {
-    companies,
     fetchArrays,
     fetchCompanies,
     fetchLoyaltyProgramData,
     fetchMyInfo,
     fetchPeople,
     fetchSpareParts,
-    fetchTechnicians,
-    loyaltyProgramData,
-    myInfo,
-    people,
-    spareParts,
-    technicians
+    fetchTechnicians
 } from '$lib/client/db/arrays';
 import { call } from '$lib/client/endpoints';
-import { waitUntil } from '$lib/helpers/stores';
 import { error } from '@sveltejs/kit';
 
 export const loadAdmin = async (fetch: typeof window.fetch) => {
@@ -28,13 +21,6 @@ export const loadAdmin = async (fetch: typeof window.fetch) => {
     fetchSpareParts(fetch).then();
     fetchArrays(fetch).then();
     fetchLoyaltyProgramData(fetch).then();
-
-    await waitUntil(companies, c => c != 'loading');
-    await waitUntil(myInfo, c => !!c);
-    await waitUntil(people, c => c != 'loading');
-    await waitUntil(technicians, c => c != 'loading');
-    await waitUntil(spareParts, c => c != 'loading');
-    await waitUntil(loyaltyProgramData, c => !!c);
 
     const dbLink = await call('db/admin/getDatabaseLink', { fetch });
     return { dbLink };
