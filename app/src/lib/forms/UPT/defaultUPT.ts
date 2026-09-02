@@ -37,6 +37,7 @@ const atw = (c: ContextUPT) => c.IN.tc.typ == 'airToWater';
 const gtw = (c: ContextUPT) => c.IN.tc.typ == 'groundToWater';
 const no10 = (c: ContextUPT) => c.UP.uvadeni.fullPaidWarranty == 'no' || c.UP.uvadeni.fullPaidWarranty == 'unsure';
 const connected = (c: ContextUPT) => c.UP.reg.pripojeniKInternetu == 'connectedViaRegulusRoute' || c.UP.reg.pripojeniKInternetu == 'connectedWithPublicIpAddress';
+const notConnected = (c: ContextUPT) => c.UP.reg.pripojeniKInternetu == 'notConnected';
 
 export default (ir: IR): FormPlus<FormUPT> => ({
     tc: {
@@ -128,7 +129,8 @@ export default (ir: IR): FormPlus<FormUPT> => ({
             label: t => t.tc.remoteAccessAgreement, required: false, show: connected,
         }),
         _varovaniNesouhlasi: newTextWidget<ContextUPT>({
-            text: t => t.tc.remoteAccessWarning, show: c => !agrees(c) && connected(c),
+            text: t => t.tc.remoteAccessWarning, show: c => !agrees(c) && connected(c) || notConnected(c),
+            class: 'text-warning-alt',
         }),
         pospojeni: newCheckboxWidget({ required: false, label: t => t.tc.isElectricalBondingComplete }),
         spotrebice: newCheckboxWidget({ required: false, label: t => t.tc.areElectricalDevicesTested }),
