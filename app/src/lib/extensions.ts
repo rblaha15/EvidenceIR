@@ -225,7 +225,7 @@ Map.prototype.mapValues = function (callback) {
     return this.entries().map(([key, value], index) => [
         key,
         callback(key, value, index),
-    ] as const).toMap();
+    ] as const).toArray().toMap();
 } as typeof Map.prototype.mapValues;
 Object.prototype.filterValues = function <T extends Record<PropertyKey, unknown>>(
     this: T,
@@ -238,7 +238,7 @@ Object.prototype.filterValues = function <T extends Record<PropertyKey, unknown>
 Map.prototype.filterValues = function (predicate) {
     return this.entries().filter(([key, value], index) =>
         predicate(key, value, index),
-    ).toMap();
+    ).toArray().toMap();
 } as typeof Map.prototype.filterValues;
 
 Object.prototype.zip = function(other) {
@@ -567,18 +567,6 @@ declare global {
             include: boolean,
         ): T[];
     }
-
-    interface Iterator<T> {
-        toRecord<K extends PropertyKey, V>(
-            this: Iterator<[K, V] | readonly [K, V]>,
-        ): {
-            [Key in K]: V
-        };
-
-        toMap<K, V>(
-            this: Iterator<[K, V] | readonly [K, V]>,
-        ): Map<K, V>;
-    }
 }
 
 Array.prototype.zip = function(other) {
@@ -600,12 +588,6 @@ Array.prototype.toRecord = function() {
 Array.prototype.toMap = function() {
     return new Map(this);
 } as typeof Array.prototype.toMap;
-
-Iterator.prototype.toMap = function<K, V>(
-    this: IteratorObject<[K, V] | readonly [K, V]>
-) {
-    return new Map(this);
-} as typeof Iterator.prototype.toMap;
 
 Array.prototype.associate = function <T, K extends PropertyKey, V>(
     this: T[],
