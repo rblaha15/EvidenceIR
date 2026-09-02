@@ -99,6 +99,12 @@ export const importFromSEIR1 = async () => {
     return [irs.length, nsps.length, dks.length, sns.length, lps.length];
 };
 
+const migratePersonFromSEIR1 = (p: Person): Person => ({
+    ...p,
+    assemblyCompanies: (p.assemblyCompanies as unknown as Record<string, string>)?.getValues() ?? [],
+    commissioningCompanies: (p.commissioningCompanies as unknown as Record<string, string>)?.getValues() ?? [],
+});
+
 export const importDataFromSEIR1 = async () => {
     const getApp = () => initializeApp({
         credential: cert(JSON.parse(env.FIREBASE_INFO)),
@@ -130,7 +136,7 @@ export const importDataFromSEIR1 = async () => {
         batteries: await batteriesRef.get().then(s => s.val()) as string[],
     };
 
-    await setPeople(users.getValues());
+    await setPeople(users.getValues().map(migratePersonFromSEIR1));
     await setCompanies(companies.getValues());
     await setTechnicians(technicians);
     await setSpareParts(spareParts);

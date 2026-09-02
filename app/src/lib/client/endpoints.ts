@@ -79,7 +79,7 @@ export const call = async <
         if (!returnError) throw error; else return error as Response<R, T>;
     }
     const result = text ? JSON.parse(text) : undefined;
-    console.log(action, args, response.status, result);
+    console.log(action);
 
     if (!returnError) return result as Response<R, T>; else return {
         ok: true,
