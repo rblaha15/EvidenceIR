@@ -143,7 +143,7 @@
                 value={$progress === 'load' ? 90 : $progress === 'done' ? 100 : 0}
             />
             <main class="flex min-h-full w-full justify-center gap-16 px-4 pb-2 md:px-8">
-                <div class="flex w-full flex-col gap-4 pt-4 has-[+.toc]:max-w-2xl">
+                <div class="flex w-full flex-col gap-4 pt-4 max-w-7xl has-[+.toc]:max-w-2xl">
                     {#if !$hideTitle}
                         <h1 id="main-title" class="flex items-center gap-4">
                             {#if $backButton}

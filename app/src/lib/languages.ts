@@ -7,7 +7,7 @@ export const isLanguageCode = (code: unknown): code is LanguageCode => (language
 export const asLanguageCodeOrNull = (code: unknown) =>
     isLanguageCode(code) ? code : null;
 
-export const defaultLanguage: LanguageCode = 'en';
+export const defaultLanguage: LanguageCode = 'cs';
 
 const localLanguage: () => LanguageCode | undefined = () => navigator.languages.find(it => isLanguageCode(it));
 

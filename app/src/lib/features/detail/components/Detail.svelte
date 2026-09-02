@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { type IRID, irLabel, irNumberFromIRID, irWholeName, type NSPID } from '$lib/helpers/ir';
+    import { Alert, AlertTitle } from '$lib/components/ui/alert';
     import type { IR, NSP } from '$lib/data';
+    import DetailDeletedIR from '$lib/features/detail/components/DetailDeletedIR.svelte';
+    import DetailIR from '$lib/features/detail/components/detailIR/DetailIR.svelte';
+    import DetailNSPs from '$lib/features/detail/components/DetailNSPs.svelte';
+    import { type IRID, irLabel, irNumberFromIRID, irWholeName, type NSPID } from '$lib/helpers/ir';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { Translations } from '$lib/translations';
-    import DetailNSPs from '$lib/features/detail/components/DetailNSPs.svelte';
-    import DetailIR from '$lib/features/detail/components/detailIR/DetailIR.svelte';
-    import DetailDeletedIR from '$lib/features/detail/components/DetailDeletedIR.svelte';
-    import { PencilRuler, Trash2 } from "@lucide/svelte";
-    import { Alert, AlertTitle } from "$lib/components/ui/alert";
+    import { PencilRuler, Trash2 } from '@lucide/svelte';
 
     let { irid, nspids, ir, nsps, lang, t, justDeleted }: {
         irid: IRID | null,
@@ -21,13 +21,13 @@
     const td = $derived(t.detail);
 
 </script>
-<div class="flex flex-col gap-12">
+<div class="flex flex-col gap-4">
     <h2 class="flex items-center gap-2">
         {#if ir && !ir.deleted}
             {#if ir.isDraft}
-                <PencilRuler class="text-warning" />
+                <PencilRuler class="text-warning-alt" />
             {/if}
-            {irWholeName(ir.IN)}
+            {irWholeName(ir.IN)} {ir.isDraft ? `(${td.draft})` : ''}
         {:else if nsps.length && !nsps[0].deleted}
             {irLabel(nsps[0].NSP)}
         {:else}

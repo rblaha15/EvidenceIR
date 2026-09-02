@@ -1,5 +1,6 @@
 <script lang="ts">
     import { removeIR } from '$lib/features/detail/actions/detailIR/ir';
+    import { iaA } from '$lib/helpers/stores';
     import type { Translations } from '$lib/translations';
     import type { IRID } from '$lib/helpers/ir';
     import { Trash2 } from '@lucide/svelte';
@@ -28,7 +29,7 @@
 <AlertDialog>
     <AlertDialogTrigger class={buttonVariants({ variant: 'secondary' })}>
         <Trash2 />
-        {td.deleteThisRecord}
+        {td.deleteThisRecord}{iaA}
     </AlertDialogTrigger>
     <AlertDialogContent>
         <AlertDialogHeader>
