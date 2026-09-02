@@ -61,15 +61,19 @@ export const auth = betterAuth({
         allowedHosts: [
             'localhost:5006',
             'localhost',
-            '192.168.100.197:8080',
+            '192.168.100.197:3002',
+            '192.168.100.197:8002',
             '192.168.100.197',
+            'seir.regulus.cz',
         ],
     },
     trustedOrigins: [
         'http://localhost:5006',
-        'http://192.168.100.197:8080',
+        'http://192.168.100.197:3002',
+        'http://192.168.100.197:8002',
         'https://localhost:5006',
-        'https://192.168.100.197:8080',
+        'https://192.168.100.197:8002',
+        'https://seir.regulus.cz',
     ],
     advanced: {
         useSecureCookies: false,
