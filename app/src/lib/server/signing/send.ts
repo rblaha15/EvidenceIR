@@ -10,7 +10,7 @@ import { validateRequest } from './validateSigningRequest';
 const generateOTP = () => {
     const undivided = generate(8, {
         specialChars: false, lowerCaseAlphabets: false,
-    }).replaceAll('0', 'O');
+    }).replaceAll('0', 'O').replaceAll('W', 'v').replaceAll('8', 'B');
     return undivided.slice(0, 4) + '-' + undivided.slice(4, 8);
 };
 
