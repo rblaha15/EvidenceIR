@@ -91,6 +91,59 @@ declare global {
             callback: (error: unknown) => U,
         ): T;
     }
+
+    interface Map<K, V> {
+        mapEntries<K, V, K2, V2>(
+            this: Map<K, V>,
+            callback: (key: K, value: V, index: number) => [K2, V2] | undefined,
+        ): Map<K2, V2>;
+
+        mapTo<K, V, T>(
+            this: Map<K, V>,
+            callback: (key: K, value: V, index: number) => T,
+        ): T[];
+
+        forEachEntry<K, V>(
+            this: Map<K, V>,
+            callback: (key: K, value: V, index: number) => unknown,
+        ): void;
+
+        mapValues<K, V, T>(
+            this: Map<K, V>,
+            callback: (key: K, value: V, index: number) => T,
+        ): Map<K, T>
+
+        filterValues<K, V>(
+            this: Map<K, V>,
+            predicate: (key: K, value: V, index: number) => boolean,
+        ): Map<K, V | never>;
+    }
+    interface ReadonlyMap<K, V> {
+        mapEntries<K, V, K2, V2>(
+            this: ReadonlyMap<K, V>,
+            callback: (key: K, value: V, index: number) => [K2, V2] | undefined,
+        ): Map<K2, V2>;
+
+        mapTo<K, V, T>(
+            this: ReadonlyMap<K, V>,
+            callback: (key: K, value: V, index: number) => T,
+        ): T[];
+
+        forEachEntry<K, V>(
+            this: ReadonlyMap<K, V>,
+            callback: (key: K, value: V, index: number) => unknown,
+        ): void;
+
+        mapValues<K, V, T>(
+            this: ReadonlyMap<K, V>,
+            callback: (key: K, value: V, index: number) => T,
+        ): Map<K, T>
+
+        filterValues<K, V>(
+            this: ReadonlyMap<K, V>,
+            predicate: (key: K, value: V, index: number) => boolean,
+        ): Map<K, V | never>;
+    }
 }
 
 Object.defineProperties(Object.prototype, {
@@ -128,6 +181,11 @@ Object.prototype.mapTo = function <T extends Record<PropertyKey, unknown>, U>(
         callback(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][]),
     );
 };
+Map.prototype.mapTo = function(callback) {
+    return this.entries().map(([key, value], index) =>
+        callback(key, value, index),
+    ).toArray();
+} as typeof Map.prototype.mapTo;
 Object.prototype.forEachEntry = function <T extends Record<PropertyKey, unknown>>(
     this: T,
     callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => unknown,
@@ -136,6 +194,11 @@ Object.prototype.forEachEntry = function <T extends Record<PropertyKey, unknown>
         callback(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][]),
     );
 };
+Map.prototype.forEachEntry = function (callback) {
+    this.entries().forEach(([key, value], index) =>
+        callback(key, value, index),
+    );
+} as typeof Map.prototype.forEachEntry;
 Object.prototype.mapEntries = function <T extends Record<PropertyKey, unknown>, U extends [PropertyKey, unknown]>(
     this: T,
     callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U | undefined,
@@ -144,6 +207,11 @@ Object.prototype.mapEntries = function <T extends Record<PropertyKey, unknown>, 
         callback(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][]),
     ).toRecord<U[0], U[1]>();
 };
+Map.prototype.mapEntries = function (callback) {
+    return this.entries().toArray().mapNotUndefined(([key, value], index) =>
+        callback(key, value, index),
+    ).toMap();
+} as typeof Map.prototype.mapEntries;
 Object.prototype.mapValues = function <T extends Record<PropertyKey, unknown>, U>(
     this: T,
     callback: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => U,
@@ -153,6 +221,12 @@ Object.prototype.mapValues = function <T extends Record<PropertyKey, unknown>, U
         callback(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][]),
     ] as [keyof T, U]).toRecord();
 };
+Map.prototype.mapValues = function (callback) {
+    return this.entries().map(([key, value], index) => [
+        key,
+        callback(key, value, index),
+    ] as const).toMap();
+} as typeof Map.prototype.mapValues;
 Object.prototype.filterValues = function <T extends Record<PropertyKey, unknown>>(
     this: T,
     predicate: (key: keyof T, value: T[keyof T], index: number, array: [keyof T, T[keyof T]][]) => boolean,
@@ -161,6 +235,11 @@ Object.prototype.filterValues = function <T extends Record<PropertyKey, unknown>
         predicate(key, value as T[keyof T], index, array as [keyof T, T[keyof T]][]),
     ).toRecord() as { [K in keyof T]: T[K] | never; };
 };
+Map.prototype.filterValues = function (predicate) {
+    return this.entries().filter(([key, value], index) =>
+        predicate(key, value, index),
+    ).toMap();
+} as typeof Map.prototype.filterValues;
 
 Object.prototype.zip = function(other) {
     const keys = [...this.keys(), ...other.keys()];
@@ -261,6 +340,10 @@ declare global {
         ): {
             [Key in K]: V
         };
+
+        toMap<K, V>(
+            this: (readonly [K, V])[] | readonly (readonly [K, V])[],
+        ): Map<K, V>;
 
         associate<T, K extends PropertyKey, V>(
             this: T[] | readonly T[],
@@ -412,6 +495,10 @@ declare global {
             this: T[][],
             fill: (row: T[], colIndex: number) => T,
         ): T[][],
+
+        countElements<T>(
+            this: T[],
+        ): ReadonlyMap<T, number>;
     }
 
     interface ReadonlyArray<T> {
@@ -425,6 +512,10 @@ declare global {
         ): {
             [Key in K]: V
         };
+
+        toMap<K extends PropertyKey, V>(
+            this: [K, V][] | readonly [K, V][],
+        ): Map<K, V>;
 
         associate<T, K extends PropertyKey, V>(
             this: T[] | readonly T[],
@@ -476,6 +567,18 @@ declare global {
             include: boolean,
         ): T[];
     }
+
+    interface Iterator<T> {
+        toRecord<K extends PropertyKey, V>(
+            this: Iterator<[K, V] | readonly [K, V]>,
+        ): {
+            [Key in K]: V
+        };
+
+        toMap<K, V>(
+            this: Iterator<[K, V] | readonly [K, V]>,
+        ): Map<K, V>;
+    }
 }
 
 Array.prototype.zip = function(other) {
@@ -493,6 +596,16 @@ Array.prototype.filterNotUndefined = function() {
 Array.prototype.toRecord = function() {
     return Object.fromEntries(this);
 } as typeof Array.prototype.toRecord;
+
+Array.prototype.toMap = function() {
+    return new Map(this);
+} as typeof Array.prototype.toMap;
+
+Iterator.prototype.toMap = function<K, V>(
+    this: IteratorObject<[K, V] | readonly [K, V]>
+) {
+    return new Map(this);
+} as typeof Iterator.prototype.toMap;
 
 Array.prototype.associate = function <T, K extends PropertyKey, V>(
     this: T[],
@@ -695,6 +808,14 @@ Array.prototype.transpose = function(fill) {
         this.map(row => colIndex < row.length ? row[colIndex] : fill ? fill(row, colIndex) : undefined),
     );
 } as typeof Array.prototype.transpose;
+
+Array.prototype.countElements = function() {
+    const result = new Map();
+    for (const element of this) {
+        result.set(element, result.getOrInsert(element, 0) + 1);
+    }
+    return result;
+} as typeof Array.prototype.countElements;
 
 declare global {
     interface String {
