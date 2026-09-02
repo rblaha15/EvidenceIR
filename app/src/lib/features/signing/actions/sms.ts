@@ -1,6 +1,6 @@
 import { call } from '$lib/client/endpoints';
 import type { SigningStatus } from '../components/Signing.svelte';
-import type { SendCodeParams } from '$lib/features/signing/domain/sms';
+import { type SendCodeParams, SMS_SEND_MINIMUM_WAIT_TIME_MIN } from '$lib/features/signing/domain/sms';
 import { getReasonPhrase } from 'http-status-codes';
 import db from '$lib/client/db';
 import { pdfInfo } from '$lib/pdf/pdf';
@@ -8,7 +8,7 @@ import type { IRID, NSPID } from '$lib/helpers/ir';
 
 export const sendSMS = (
     params: SendCodeParams,
-    setStatus: (s: SigningStatus, e?: string) => SigningStatus,
+    setStatus: (s: SigningStatus, e?: string, sec?: number) => SigningStatus,
     again?: boolean,
 ) => async () => {
     const old = setStatus('sendingSMS');
@@ -33,7 +33,7 @@ export const sendSMS = (
     else if (response.status == 409)
         setStatus(old, 'Tento dokument je již podpsán nebo je podepisován jiným uživatelem!');
     else if (response.status == 429)
-        setStatus(old, 'Moc požadavků. Počkejte prosím 2 minuty a zkuste to znovu.');
+        setStatus(old, `Moc požadavků. Počkejte prosím ${SMS_SEND_MINIMUM_WAIT_TIME_MIN} minuty a zkuste to znovu.`, SMS_SEND_MINIMUM_WAIT_TIME_MIN * 60);
     else
         setStatus(old, response.statusText ?? getReasonPhrase(response.status));
 };

@@ -1,7 +1,7 @@
 import { getUser } from '$lib/client/auth';
 import { call } from '$lib/client/endpoints';
 import type { SigningStatus } from '../components/Signing.svelte';
-import type { CodeAttemptParams } from '$lib/features/signing/domain/sms';
+import { type CodeAttemptParams, SMS_ATTEMPT_MINIMUM_WAIT_TIME_SEC } from '$lib/features/signing/domain/sms';
 import { getReasonPhrase } from 'http-status-codes';
 import { cervenka, defaultAddresses, sendHtmlEmail, userAddress } from '$lib/client/email';
 import { dev } from '$app/environment';
@@ -53,7 +53,7 @@ const sendEmails = async (
 export const confirmCode = (
     o: Omit<GeneratePdfOptions<PdfToSign>, 'data'>,
     params: CodeAttemptParams,
-    setStatus: (s: SigningStatus, e?: string) => SigningStatus,
+    setStatus: (s: SigningStatus, e?: string, sec?: number) => SigningStatus,
 ) => async () => {
     const old = setStatus('confirming');
 
@@ -68,7 +68,7 @@ export const confirmCode = (
     else if (response.status == 400)
         setStatus(old, 'Nesprávné údaje.');
     else if (response.status == 401 && response.message == 'wrong-code')
-        setStatus(old, 'Kód je nesprávný! Počkejte prosím 20 sekund a zkuste to znovu.');
+        setStatus(old, `Kód je nesprávný! Počkejte prosím ${SMS_ATTEMPT_MINIMUM_WAIT_TIME_SEC} sekund a zkuste to znovu.`, SMS_ATTEMPT_MINIMUM_WAIT_TIME_SEC);
     else if (response.status == 401 && response.message == 'too-late')
         setStatus('none', 'Platnost kódu vypršela. Zkuste odestal další kód.');
     else if (response.status == 403)
@@ -78,7 +78,7 @@ export const confirmCode = (
     else if (response.status == 409)
         setStatus(old, 'Tento dokument je již podpsán nebo je podepisován jiným uživatelem!');
     else if (response.status == 429)
-        setStatus(old, 'Moc požadavků. Počkejte prosím 20 sekund a zkuste to znovu.');
+        setStatus(old, `Moc požadavků. Počkejte prosím ${SMS_ATTEMPT_MINIMUM_WAIT_TIME_SEC} sekund a zkuste to znovu.`, SMS_ATTEMPT_MINIMUM_WAIT_TIME_SEC);
     else
         setStatus(old, response.statusText ?? getReasonPhrase(response.status));
 };

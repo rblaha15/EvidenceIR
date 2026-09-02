@@ -47,10 +47,17 @@
         untrack(() => getData({ irid, nspids }));
     });
     let error = $state<string | undefined>(undefined);
-    const setStatus = (s: SigningStatus, e?: string) => {
+    let timer = $state<number | undefined>(undefined);
+    let timerID = $state<NodeJS.Timeout | undefined>(undefined);
+    const setStatus = (s: SigningStatus, e?: string, sec?: number) => {
         const old = status;
         status = s;
         error = e;
+        timer = sec;
+        if (timerID) clearInterval(timerID);
+        if (timer) timerID = setInterval(() => {
+            if (!timer || timer-- == 0) clearInterval(timerID);
+        }, 1050);
         return old;
     };
 
@@ -71,7 +78,12 @@
     <Alert variant="danger">
         <OctagonAlert />
         <AlertTitle>Nastala chyba!</AlertTitle>
-        <AlertDescription>{error || 'Neznámá chyba'}</AlertDescription>
+        <AlertDescription>
+            {error || 'Neznámá chyba'}
+            {#if timer}
+                <p>Zbývá {timer} s</p>
+            {/if}
+        </AlertDescription>
         <AlertAction>
             <Button variant="ghost" onclick={() => error = undefined}>Skrýt</Button>
         </AlertAction>
