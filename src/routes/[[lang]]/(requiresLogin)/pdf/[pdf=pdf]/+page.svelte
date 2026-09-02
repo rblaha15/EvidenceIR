@@ -49,7 +49,7 @@
             goto(createLink(code), { replaceState: true, invalidateAll: true })
         } options={supportedLanguages} selected={data.fileLang} />
     </div>
-    {#if !data.signatureState && data.allowSigning}
+    {#if data.signatureState?.state != 'signed' && data.allowSigning}
         <a class="btn btn-primary" href={signUrl} class:disabled={data.lockedFromSEIR2}>
             <Icon icon="border_color" />
             Podepsat dokument
