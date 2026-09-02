@@ -66,3 +66,7 @@ services:
 
     depends_on:
       - mongo
+
+networks:
+  proxy:
+    external: true
