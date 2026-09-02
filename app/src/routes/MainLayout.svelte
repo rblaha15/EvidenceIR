@@ -1,21 +1,32 @@
 <script lang="ts">
-    import type { LayoutData } from './$types';
+    import { dev } from '$app/environment';
+    import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
+    import { page } from '$app/state';
     import { getIsLoggedIn, isLoggedIn } from '$lib/client/auth';
     import Navigation from '$lib/components/nav/Navigation.svelte';
-    import { onMount, type Snippet } from 'svelte';
-    import { backButton, endLoading, hideNav, hideTitle, initialRouteLoggedIn, initialRouteLoggedOut, progress, startLoading, title } from '$lib/helpers/globals';
-    import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
-    import { dev } from '$app/environment';
-    import { page } from '$app/state';
-    import { preferredLanguage, setUserPreferredLanguage } from '$lib/languages';
-    import { relUrl } from '$lib/helpers/runes.svelte';
-    import type { EventHandler } from 'svelte/elements';
     import TableOfContents from '$lib/components/TableOfContents.svelte';
-    import { ArrowLeft, OctagonAlert } from '@lucide/svelte';
-    import { Button } from '$lib/components/ui/button';
     import { Alert, AlertAction, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
+    import { Button } from '$lib/components/ui/button';
+    import { Progress } from '$lib/components/ui/progress';
     import { Separator } from '$lib/components/ui/separator';
     import { Spinner } from '$lib/components/ui/spinner';
+    import {
+        backButton,
+        endLoading,
+        hideNav,
+        hideTitle,
+        initialRouteLoggedIn,
+        initialRouteLoggedOut,
+        progress,
+        startLoading,
+        title
+    } from '$lib/helpers/globals';
+    import { relUrl } from '$lib/helpers/runes.svelte';
+    import { preferredLanguage, setUserPreferredLanguage } from '$lib/languages';
+    import { ArrowLeft, OctagonAlert } from '@lucide/svelte';
+    import { onMount, type Snippet } from 'svelte';
+    import type { EventHandler } from 'svelte/elements';
+    import type { LayoutData } from './$types';
 
     interface Props {
         data: LayoutData;
@@ -115,31 +126,23 @@
 {#snippet content()}
     <Navigation {t} />
     <div class={['flex h-full flex-col', $isLoggedIn && !$hideNav ? 'pt-13 md:pt-24 lg:pt-13' : 'pt-13']}>
-        <!-- TODO: Progress bar -->
-        <div
-            class="rounded-0 sticky top-0"
-            role="progressbar"
-            style:scale="1 {$progress === 'load' ? 1 : 0}"
-            style="transition: scale .5s; transform-origin: top;"
-        >
-            <div
-                class="progress-bar progress-bar-striped progress-bar-animated rounded-0 bg-danger"
-                style:width="{$progress === 'load' ? 90 : $progress === 'done' ? 100 : 0}%"
-                style="transition: width 5s;"
-            ></div>
-        </div>
         {#if !hideWarning}
             <Alert variant="danger" class="rounded-none!">
                 <OctagonAlert />
                 <AlertTitle>SEIR 2.0 – Testovací verze</AlertTitle>
-                <AlertDescription>Prvedené změny v této aplikace budou odstraněny a přepsány daty ze starého SEIRu</AlertDescription>
+                <AlertDescription>Prvedené změny v této aplikace budou odstraněny a přepsány daty ze starého SEIRu
+                </AlertDescription>
                 <AlertAction>
                     <Button variant="ghost" onclick={() => hideWarning = true}>Skrýt</Button>
                 </AlertAction>
             </Alert>
         {/if}
         <div class="grow overflow-y-auto scrollbar-gutter-stable">
-            <main class="flex min-h-full w-full justify-center gap-4 px-4 pb-2 md:px-8">
+            <Progress
+                class="rounded-none bg-transparent absolute transition-transform duration-500 origin-top {$progress === 'load' ? 'scale-y-100' : 'scale-y-0'}"
+                value={$progress === 'load' ? 90 : $progress === 'done' ? 100 : 0}
+            />
+            <main class="flex min-h-full w-full justify-center gap-16 px-4 pb-2 md:px-8">
                 <div class="flex w-full flex-col gap-4 pt-4 has-[+.toc]:max-w-2xl">
                     {#if !$hideTitle}
                         <h1 id="main-title" class="flex items-center gap-4">
