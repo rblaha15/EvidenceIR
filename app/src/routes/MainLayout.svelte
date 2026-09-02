@@ -12,7 +12,7 @@
     import { Spinner } from '$lib/components/ui/spinner';
     import {
         backButton,
-        endLoading,
+        endLoading, environment,
         hideNav,
         hideTitle,
         initialRouteLoggedIn,
@@ -126,11 +126,11 @@
 {#snippet content()}
     <Navigation {t} />
     <div class={['flex h-full flex-col', $isLoggedIn && !$hideNav ? 'pt-13 md:pt-24 lg:pt-13' : 'pt-13']}>
-        {#if !hideWarning}
+        {#if environment != 'production' && !hideWarning}
             <Alert variant="danger" class="rounded-none!">
                 <OctagonAlert />
-                <AlertTitle>SEIR 2.0 – Testovací verze</AlertTitle>
-                <AlertDescription>Prvedené změny v této aplikace budou odstraněny a přepsány daty ze starého SEIRu
+                <AlertTitle>SEIR2 – Testovací verze</AlertTitle>
+                <AlertDescription>Provedené změny v této aplikaci se nepropíšou do produkční aplikace a mohou být kdykoliv přepsány!
                 </AlertDescription>
                 <AlertAction>
                     <Button variant="ghost" onclick={() => hideWarning = true}>Skrýt</Button>
