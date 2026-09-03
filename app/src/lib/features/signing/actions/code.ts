@@ -68,7 +68,7 @@ export const confirmCode = (
     else if (response.status == 400)
         setStatus(old, 'Nesprávné údaje.');
     else if (response.status == 401 && response.message == 'wrong-code')
-        setStatus(old, `Kód je nesprávný! Počkejte prosím ${SMS_ATTEMPT_MINIMUM_WAIT_TIME_SEC} sekund a zkuste to znovu.`, SMS_ATTEMPT_MINIMUM_WAIT_TIME_SEC);
+        setStatus(old, `Kód je nesprávný! Zkontrolujte si jeho správnost, počkejte ${SMS_ATTEMPT_MINIMUM_WAIT_TIME_SEC} sekund a zkuste to znovu.`, SMS_ATTEMPT_MINIMUM_WAIT_TIME_SEC);
     else if (response.status == 401 && response.message == 'too-late')
         setStatus('none', 'Platnost kódu vypršela. Zkuste odestal další kód.');
     else if (response.status == 403)

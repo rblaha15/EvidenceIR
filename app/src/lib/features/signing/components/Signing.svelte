@@ -13,7 +13,7 @@
     import type { Translations } from '$lib/translations';
     import { confirmCode } from '$lib/features/signing/actions/code';
     import { isOnline } from '$lib/client/online';
-    import type { SendCodeParams } from '$lib/features/signing/domain/sms';
+    import { type SendCodeParams, SMS_CODE_LIFETIME_MIN } from '$lib/features/signing/domain/sms';
     import { onMount, untrack } from 'svelte';
     import { setTitle } from '$lib/helpers/globals';
     import { type GeneratePdfOptions, type PdfToSign, type PdfWithDefiningParameter, pdfWithDefiningParameter } from '$lib/pdf/pdf';
@@ -126,7 +126,7 @@
     {/if}
     <p>
         Zadejte kód, který přišel koncovému zákazníkovi na {signingBy.phone}. Po odeslání bude dokument považován za podepsaný a bude vám i
-        zákazníkovi odeslán do emailové schránky.
+        zákazníkovi odeslán do emailové schránky. Platnost kódu je {SMS_CODE_LIFETIME_MIN} minut.
     </p>
     <p class="flex items-center">
         Zpráva nedorazila? Můžete ji zkusit 
