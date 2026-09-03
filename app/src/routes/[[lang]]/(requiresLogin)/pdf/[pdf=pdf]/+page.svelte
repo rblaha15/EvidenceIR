@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { isAdmin } from '$lib/client/auth';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import type { PageProps } from './$types';
     import { page } from '$app/state';
@@ -58,8 +59,10 @@
     {/if}
     {#if data.signatureState?.state == 'signed'}
         <div class="text-success">Dokument podepsán</div>
+    {/if}
+    {#if $isAdmin && data.signatureState}
         <Button variant="secondary"
-            href={relUrl(`/admin#db-app/signing?query={"def.id":"${data.signatureDef?.id}","def.pdf":"${data.signatureDef?.pdf}"${data.signatureDef?.parameter ? `,"def.parameter":"${data.signatureDef?.parameter}"` : ''}}`)}
+                href={relUrl(`/admin#db-app/signing?query={"def.id":"${data.signatureDef?.id}","def.pdf":"${data.signatureDef?.pdf}"${data.signatureDef?.parameter ? `,"def.parameter":"${data.signatureDef?.parameter}"` : ''}}`)}
         >
             <Server />
         </Button>
