@@ -271,6 +271,13 @@ export type GeneratePdfOptions<P extends Pdf> = {
     link: P,
 } & PdfParameters<P>;
 
+export type GetPdfSourceFileName<P extends Pdf> = (o: {
+    data: DataOfPdf<P>,
+    t: Translations,
+    lang: LanguageCode,
+    fetch?: typeof window.fetch,
+} & PdfParameters<P>) => Promise<string>
+
 export type GetPdfData<P extends Pdf> = (o: {
     data: DataOfPdf<P>,
     t: Translations,
@@ -281,7 +288,6 @@ export type GetPdfData<P extends Pdf> = (o: {
 
 export type PdfArgs<P extends Pdf> = {
     type: TypeOfPdf<P>;
-    pdfName: string;
     supportedLanguages: LanguageCode[];
     title: (t: Translations) => string;
     shortTitle?: (t: Translations) => string;
@@ -290,7 +296,11 @@ export type PdfArgs<P extends Pdf> = {
     requiredRegulus?: boolean;
     getPdfData?: GetPdfData<P>;
     doNotFlatten?: boolean,
-};
+} & ({
+    pdfName: string;
+} | {
+    pdfName: GetPdfSourceFileName<P>;
+});
 
 type PdfParams = {
     RKTL: {

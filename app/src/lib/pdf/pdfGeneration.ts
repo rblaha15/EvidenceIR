@@ -81,7 +81,8 @@ export const generatePdf = async <P extends Pdf>(
     const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
     const t = getTranslations(formLanguage);
 
-    const formLocation = `/pdf/${args.pdfName}_${formLanguage}.pdf`;
+    const pdfSourceFileName = typeof args.pdfName == 'string' ? args.pdfName : await args.pdfName({ ...o, t, data, lang });
+    const formLocation = `/pdf/${pdfSourceFileName}_${formLanguage}.pdf`;
     const formPdfBytes = await (await fetch(formLocation, { cache: 'reload' })).arrayBuffer();
 
     const pdfDoc = await PDFDocument.load(formPdfBytes);
@@ -241,7 +242,7 @@ export const generatePdf = async <P extends Pdf>(
         : irLabel(args.type == 'IR' ? (data as IR).IN : (data as NSP).NSP).split(' ')[0];
     const suffix = formData?.fileNameSuffix ?? (args.type == '' ? ''
         : args.type == 'IR' ? (data as IR).IN.ir.cislo : spName((data as NSP).NSP.zasah));
-    const fileName = args.type == '' ? `${args.pdfName}.pdf` : `${args.pdfName}_${surname} ${suffix}.pdf`;
+    const fileName = args.type == '' ? `${pdfSourceFileName}.pdf` : `${pdfSourceFileName}_${surname} ${suffix}.pdf`;
 
     return { fileName, pdfBytes };
 };
