@@ -1,4 +1,6 @@
 <script generics="C, P extends Pdf" lang="ts">
+    import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
+    import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
     import type { Translations } from '$lib/translations';
     import { type Pdf, pdfInfo, type PdfParameters } from '$lib/pdf/pdf';
     import PdfPreview from '$lib/features/pdf/components/PdfPreview.svelte';
@@ -8,7 +10,6 @@
     import { type Form, widgetList } from '$lib/forms/Form';
     import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
     import { OctagonAlert } from '@lucide/svelte';
-    import { Spinner } from "$lib/components/ui/spinner";
 
     interface Props<P extends Pdf> {
         t: Translations;
@@ -61,15 +62,9 @@
         <AlertDescription>{t.pdf.wrongFields({ fields: errors.join(', ') })}</AlertDescription>
     </Alert>
 {:else if error}
-    <Alert variant="danger">
-        <OctagonAlert />
-        <AlertTitle>{t.pdf.previewNotSuccessful}</AlertTitle>
-    </Alert>
+    <DangerAlert title={t.pdf.previewNotSuccessful} />
 {:else if !url}
-    <Alert>
-        <Spinner />
-        <AlertTitle>{t.pdf.previewLoading}</AlertTitle>
-    </Alert>
+    <SpinnerAlert title={t.pdf.previewLoading} />
 {:else}
     <PdfPreview t={t.pdf} {url} />
 {/if}

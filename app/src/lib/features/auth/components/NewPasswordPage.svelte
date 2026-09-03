@@ -2,7 +2,8 @@
     import { goto } from '$app/navigation';
     import { editPassword, signUp } from '$lib/client/auth';
     import { call } from '$lib/client/endpoints';
-    import { Alert, AlertTitle } from '$lib/components/ui/alert';
+    import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
+    import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
     import { Spinner } from '$lib/components/ui/spinner';
     import AuthUI from '$lib/features/auth/components/AuthUI.svelte';
     import type { NewPasswordData } from '$lib/features/auth/domain/loadNewPassword';
@@ -10,7 +11,6 @@
     import { relUrl } from '$lib/helpers/runes.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { Translations } from '$lib/translations';
-    import { Check } from '@lucide/svelte';
     import { onMount } from 'svelte';
 
     const { data, t, lang }: {
@@ -92,15 +92,9 @@
 {#if mode === 'loading'}
     <Spinner class="m-4 size-8 text-danger" />
 {:else if mode === 'resetSent'}
-    <Alert variant="success">
-        <Check />
-        <AlertTitle>{t.emailSent}</AlertTitle>
-    </Alert>
+    <SuccessAlert title={t.emailSent} />
 {:else if mode === 'resetSending'}
-    <Alert>
-        <Spinner />
-        <AlertTitle>{t.sending}</AlertTitle>
-    </Alert>
+    <SpinnerAlert title={t.sending} />
 {:else if mode === 'resetEmail'}
     <AuthUI {error} show={{ email: true }} submit={sendCode} submitLabel={t.sendConfirmEmail} {t}
             title={t.newPassword} />

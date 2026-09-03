@@ -4,7 +4,7 @@
     import { page } from '$app/state';
     import { signIn, tryFirebase } from '$lib/client/auth';
     import { grantPoints } from '$lib/client/loyaltyProgram';
-    import { Alert, AlertTitle } from '$lib/components/ui/alert';
+    import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
     import { Button } from '$lib/components/ui/button';
     import AuthUI from '$lib/features/auth/components/AuthUI.svelte';
     import { appUrl, initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
@@ -49,15 +49,7 @@
 </script>
 
 {#if done}
-    <Alert variant="success">
-        <AlertTitle>
-            {#if done === 'register'}
-                {t.registered}
-            {:else if done === 'reset'}
-                {t.passwordHasBeenReset}
-            {/if}
-        </AlertTitle>
-    </Alert>
+    <SuccessAlert title={done === 'register' ? t.registered : done === 'reset' ? t.passwordHasBeenReset : ''} />
 {/if}
 
 <AuthUI {error} {sending} show={{ email: true, password: true }} submit={logIn} submitLabel={t.toLogIn} {t}

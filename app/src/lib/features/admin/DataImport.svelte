@@ -1,6 +1,6 @@
 <script lang="ts">
     import { call } from '$lib/client/endpoints';
-    import { Alert } from '$lib/components/ui/alert';
+    import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import { Button } from '$lib/components/ui/button';
     import File, { getFile } from '$lib/components/widgets/File.svelte';
     import { type Files, newFileWidget } from '$lib/forms/Widget';
@@ -73,7 +73,5 @@
 <Button onclick={importFromBackup}>Importovat data ze zálohy</Button>
 
 {#if error}
-    <Alert variant="danger">
-        {error}
-    </Alert>
+    <DangerAlert noicon title={error} />
 {/if}

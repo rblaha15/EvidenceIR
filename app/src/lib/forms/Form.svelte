@@ -5,6 +5,10 @@
     P extends Pdf = Pdf,
     O extends Record<string, unknown> = Record<never, unknown>,
 " lang="ts">
+    import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
+    import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
+    import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
+
     // noinspection ES6UnusedImports
     import {
         compareValues,
@@ -33,8 +37,7 @@
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
     import { Button } from '$lib/components/ui/button';
-    import { OctagonAlert, PencilRuler, Save, SendHorizontal } from "@lucide/svelte";
-    import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
+    import { PencilRuler, Save, SendHorizontal } from '@lucide/svelte';
     import { Spinner } from "$lib/components/ui/spinner";
 
     const { t, formInfo, editData, viewData, other }: {
@@ -217,22 +220,26 @@
     </div>
     <div class="flex flex-col items-start gap-4">
         {#if result.text}
-            <Alert variant={result.red ? 'danger' : 'default'}>
-                <OctagonAlert />
-                <AlertTitle>{@html result.text}</AlertTitle>
-                {#if result.error}
-                    <AlertDescription>
-                        {#each result.error.split('\n').splice(1) as line}
-                            <span class="block">{line}</span>
-                        {/each}
-                    </AlertDescription>
-                {/if}
-            </Alert>
+            {#snippet title()}
+                {@html result.text}
+            {/snippet}
+            {#if result.red}
+                {#snippet error()}
+                    {#each result.error!.split('\n').splice(1) as line}
+                        <span class="block">{line}</span>
+                    {/each}
+                {/snippet}
+                <DangerAlert children={result.error ? error : undefined} {title} />
+            {:else if result.load}
+                <SpinnerAlert title={result.text} />
+            {:else}
+                <SuccessAlert title={result.text} />
+            {/if}
         {/if}
-        <div class="flex gap-4 flex-wrap">
+        <div class="flex gap-4 flex-wrap items-center">
             {#if mode !== 'view'}
                 {#if result.load}
-                    <Spinner />
+                    <Spinner class="size-8" />
                 {/if}
                 {#if !$buttonsStore.hideSave}
                     <Button onclick={save(false, false)} disabled={result.load}>

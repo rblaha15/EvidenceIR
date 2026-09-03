@@ -3,16 +3,17 @@
     import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { page } from '$app/state';
     import { getIsLoggedIn, isLoggedIn } from '$lib/client/auth';
+    import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import TableOfContents from '$lib/components/TableOfContents.svelte';
-    import { Alert, AlertAction, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
     import { Button } from '$lib/components/ui/button';
     import { Progress } from '$lib/components/ui/progress';
     import { Separator } from '$lib/components/ui/separator';
     import { Spinner } from '$lib/components/ui/spinner';
     import {
         backButton,
-        endLoading, environment,
+        endLoading,
+        environment,
         hideNav,
         hideTitle,
         initialRouteLoggedIn,
@@ -23,7 +24,7 @@
     } from '$lib/helpers/globals';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { preferredLanguage, setUserPreferredLanguage } from '$lib/languages';
-    import { ArrowLeft, OctagonAlert } from '@lucide/svelte';
+    import { ArrowLeft } from '@lucide/svelte';
     import { onMount, type Snippet } from 'svelte';
     import type { EventHandler } from 'svelte/elements';
     import type { LayoutData } from './$types';
@@ -69,7 +70,10 @@
             return await goto(relUrl(route, lang));
         }
         if (!data.isLanguageFromUrl)
-            return await goto('/' + preferredLanguage() + path + page.url.search + page.url.hash, { replaceState: true, invalidateAll: true });
+            return await goto('/' + preferredLanguage() + path + page.url.search + page.url.hash, {
+                replaceState: true,
+                invalidateAll: true
+            });
         setUserPreferredLanguage(data.languageCode);
         document.documentElement.lang = data.languageCode;
     };
@@ -108,34 +112,24 @@
 {/snippet}
 
 {#snippet errorAlert(error: E)}
-    <Alert variant="danger" class="m-4">
-        <OctagonAlert />
-        <AlertTitle>{error.name}</AlertTitle>
-        <AlertDescription>
-            {#each error.message.split('\n') as line}
-                <span class="block">{line}</span>
-            {/each}
-            {#if error.fileName || error.lineNumber || error.columnNumber}
-                <Separator />
-                <p class="text-end">{error.fileName}:{error.lineNumber}:{error.columnNumber}</p>
-            {/if}
-        </AlertDescription>
-    </Alert>
+    <DangerAlert class="m-4" title={error.name}>
+        {#each error.message.split('\n') as line}
+            <span class="block">{line}</span>
+        {/each}
+        {#if error.fileName || error.lineNumber || error.columnNumber}
+            <Separator />
+            <p class="text-end">{error.fileName}:{error.lineNumber}:{error.columnNumber}</p>
+        {/if}
+    </DangerAlert>
 {/snippet}
 
 {#snippet content()}
     <Navigation {t} />
     <div class={['flex h-full flex-col', $isLoggedIn && !$hideNav ? 'pt-13 md:pt-24 lg:pt-13' : 'pt-13']}>
         {#if environment != 'production' && !hideWarning}
-            <Alert variant="danger" class="rounded-none!">
-                <OctagonAlert />
-                <AlertTitle>SEIR2 – Testovací verze</AlertTitle>
-                <AlertDescription>Provedené změny v této aplikaci se nepropíšou do produkční aplikace a mohou být kdykoliv přepsány!
-                </AlertDescription>
-                <AlertAction>
-                    <Button variant="ghost" onclick={() => hideWarning = true}>Skrýt</Button>
-                </AlertAction>
-            </Alert>
+            <DangerAlert title="SEIR2 – Testovací verze"
+                         description="Provedené změny v této aplikaci se nepropíšou do produkční aplikace a mohou být kdykoliv přepsány!"
+                         action={{ text: 'Skrýt', onclick: () => hideWarning = true }} />
         {/if}
         <div class="grow overflow-y-auto scrollbar-gutter-stable">
             <Progress

@@ -6,9 +6,10 @@
         adminDescriptions,
         type LoyaltyProgramUserDataWithPerson
     } from '$lib/client/loyaltyProgram';
-    import { Alert, AlertTitle } from '$lib/components/ui/alert';
+    import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
+    import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
+    import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
     import { Button } from '$lib/components/ui/button';
-    import { Spinner } from '$lib/components/ui/spinner';
     import Widget from '$lib/components/Widget.svelte';
     import type { IR } from '$lib/data';
     import { newInputWidget, newSearchWidget } from '$lib/forms/Widget';
@@ -17,7 +18,7 @@
     import { detailUrlIR } from '$lib/helpers/runes.svelte';
     import { storable } from '$lib/helpers/stores';
     import { getTranslations } from '$lib/translations';
-    import { Check, OctagonAlert, PencilRuler, Trash2 } from '@lucide/svelte';
+    import { PencilRuler, Trash2 } from '@lucide/svelte';
     import { derived } from 'svelte/store';
     import writeXlsxFile from 'write-excel-file';
 
@@ -128,25 +129,13 @@
 <Button onclick={add}>Přičíst</Button>
 
 {#if statusA === 'loading'}
-    <Alert>
-        <Spinner/>
-        <AlertTitle>Odesílání dat</AlertTitle>
-    </Alert>
+    <SpinnerAlert title="Odesílání dat" />
 {:else if statusA === 'fail'}
-    <Alert variant="danger">
-        <OctagonAlert/>
-        <AlertTitle>Něco se nepovedlo</AlertTitle>
-    </Alert>
+    <DangerAlert title="Něco se nepovedlo" />
 {:else if statusA === 'mistake'}
-    <Alert variant="danger">
-        <OctagonAlert/>
-        <AlertTitle>Špatně zadaná data!</AlertTitle>
-    </Alert>
+    <DangerAlert title="Špatně zadaná data!" />
 {:else if statusA === 'success'}
-    <Alert variant="success">
-        <Check/>
-        <AlertTitle>Úspěšně přičteno!</AlertTitle>
-    </Alert>
+    <SuccessAlert title="Úspěšně přičteno!" />
 {/if}
 
 <h3>Statistiky a historie věrnostních bodů uživatelů</h3>
@@ -158,20 +147,11 @@
 </button>
 
 {#if status === 'loading'}
-    <Alert>
-        <Spinner/>
-        <AlertTitle>Odesílání dat</AlertTitle>
-    </Alert>
+    <SpinnerAlert title="Odesílání dat" />
 {:else if status === 'fail'}
-    <Alert variant="danger">
-        <OctagonAlert/>
-        <AlertTitle>Něco se nepovedlo</AlertTitle>
-    </Alert>
+    <DangerAlert title="Něco se nepovedlo" />
 {:else if status === 'success'}
-    <Alert variant="success">
-        <Check/>
-        <AlertTitle>Úspěšně nalezeno!</AlertTitle>
-    </Alert>
+    <SuccessAlert title="Úspěšně nalezeno!" />
 {/if}
 
 {#if $results}

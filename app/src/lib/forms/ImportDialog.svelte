@@ -1,4 +1,6 @@
 <script generics="R extends Raw<Form>" lang="ts">
+    import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
+
     // noinspection ES6UnusedImports
     import type { Form, Raw } from '$lib/forms/Form';
     import { type Translations } from '$lib/translations';
@@ -9,10 +11,9 @@
     import { PDFDocument } from 'pdf-lib';
     import type { US } from '$lib/translations/untranslatables';
     import { newChooserWidget } from '$lib/forms/Widget';
-    import { OctagonAlert, Upload } from '@lucide/svelte';
+    import { Upload } from '@lucide/svelte';
     import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "$lib/components/ui/dialog";
     import { Button, buttonVariants } from '$lib/components/ui/button';
-    import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
 
     interface Props {
         excelImport?: ExcelImport<R> & {
@@ -126,10 +127,7 @@
                 </div>
                 <Widget context={undefined} bind:value {t} widget={sheetWidget} showAllErrors={false} />
                 {#if fileExcel && excelImport.isDangerous && value}
-                    <Alert variant="danger">
-                        <OctagonAlert />
-                        <AlertTitle>{ti.warningDataLoss}</AlertTitle>
-                    </Alert>
+                    <DangerAlert title={ti.warningDataLoss} />
                 {/if}
             {/if}
             {#if pdfImport}
@@ -160,18 +158,11 @@
                     {/if}
                 </div>
                 {#if filePdf && pdfImport.isDangerous}
-                    <Alert variant="danger">
-                        <OctagonAlert />
-                        <AlertTitle>{ti.warningDataLoss}</AlertTitle>
-                    </Alert>
+                    <DangerAlert title={ti.warningDataLoss} />
                 {/if}
             {/if}
             {#if error}
-                <Alert variant="danger">
-                    <OctagonAlert />
-                    <AlertTitle>{ti.somethingWentWrong}</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                <DangerAlert title={ti.somethingWentWrong} description={error} />
             {/if}
         </div>
         <DialogFooter>

@@ -2,8 +2,8 @@
     import { browser } from '$app/environment';
     import { page } from '$app/state';
     import { isOnline } from '$lib/client/online';
+    import OfflineAlert from '$lib/components/alerts/OfflineAlert.svelte';
     import FormDefaults from '$lib/components/FormDefaults.svelte';
-    import { Alert, AlertTitle } from '$lib/components/ui/alert';
     import { Button } from '$lib/components/ui/button';
     import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '$lib/components/ui/card';
     import { Field, FieldError, FieldGroup, FieldLabel } from '$lib/components/ui/field';
@@ -12,7 +12,6 @@
     import { initialRouteLoggedIn } from '$lib/helpers/globals';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import type { Translations } from '$lib/translations';
-    import { WifiOff } from '@lucide/svelte';
     import type { Snippet } from 'svelte';
 
     const { t, submit, submitLabel, title, show, footer, error, sending }: {
@@ -55,10 +54,7 @@
 </script>
 
 {#if !$isOnline}
-    <Alert variant="danger">
-        <WifiOff />
-        <AlertTitle>{t.youAreOffline}</AlertTitle>
-    </Alert>
+    <OfflineAlert title={t.youAreOffline} />
 {:else}
     <form>
         <Card class="mx-auto mt-8 w-full max-w-sm">

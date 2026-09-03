@@ -1,13 +1,13 @@
 <script lang="ts">
     import { call } from '$lib/client/endpoints';
+    import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
+    import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
+    import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
     import Widget from '$lib/components/Widget.svelte';
     import { getTranslations } from '$lib/translations';
     import { dateFromISO, dayISO } from '$lib/helpers/date';
     import { isSP } from '$lib/forms/SP/infoSP.svelte';
     import { newInputWidget } from '$lib/forms/Widget';
-    import { Alert, AlertTitle } from '$lib/components/ui/alert';
-    import { OctagonAlert, Check } from '@lucide/svelte';
-    import { Spinner } from "$lib/components/ui/spinner";
     import { Button } from "$lib/components/ui/button";
 
     const fromW = newInputWidget({
@@ -79,25 +79,13 @@
 </Button>
 
 {#if status === 'loading'}
-    <Alert>
-        <Spinner />
-        <AlertTitle>Odesílání dat</AlertTitle>
-    </Alert>
+    <SpinnerAlert title="Odesílání dat" />
 {:else if status === 'fail'}
-    <Alert variant="danger">
-        <OctagonAlert />
-        <AlertTitle>Něco se nepovedlo</AlertTitle>
-    </Alert>
+    <DangerAlert title="Něco se nepovedlo" />
 {:else if status === 'mistake'}
-    <Alert variant="danger">
-        <OctagonAlert />
-        <AlertTitle>Špatně zadaná data!</AlertTitle>
-    </Alert>
+    <DangerAlert title="Špatně zadaná data!" />
 {:else if status === 'success'}
-    <Alert variant="success">
-        <Check />
-        <AlertTitle>Úspěšně nalezeno!</AlertTitle>
-    </Alert>
+    <SuccessAlert title="Úspěšně nalezeno!" />
 {/if}
 
 {#if currentRange[0]}

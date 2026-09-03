@@ -18,6 +18,8 @@
 </script>
 
 <script generics="K extends string" lang="ts">
+    import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
+    import SpinnerAlert from '$lib/components/alerts/OfflineAlert.svelte';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { page } from '$app/state';
     import readXlsxFile from 'read-excel-file';
@@ -25,11 +27,8 @@
     import writeXlsxFile from 'write-excel-file';
     import { derived } from 'svelte/store';
     import type { TableColor, TableOptions } from './AdminTable.svelte';
-    import { untrack } from "svelte";
-    import { Alert, AlertTitle } from "$lib/components/ui/alert";
-    import { Spinner } from "$lib/components/ui/spinner";
-    import { OctagonAlert } from '@lucide/svelte';
-    import { Button } from "$lib/components/ui/button";
+    import { untrack } from 'svelte';
+    import { Button } from '$lib/components/ui/button';
 
     const { id, options }: { id: string, options: ArraysOptions<K> } = $props();
     // svelte-ignore state_referenced_locally
@@ -163,16 +162,10 @@
 {/each}
 
 {#if error}
-    <Alert variant="danger">
-        <OctagonAlert />
-        <AlertTitle>Něco se nepovedlo</AlertTitle>
-    </Alert>
+    <DangerAlert title="Něco se nepovedlo" />
 {/if}
 {#if loading}
-    <Alert>
-        <Spinner />
-        <AlertTitle>Odesílání dat</AlertTitle>
-    </Alert>
+    <SpinnerAlert title="Odesílání dat" />
 {/if}
 
 <div class="flex flex-col items-start gap-4 md:flex-row md:items-center">

@@ -1,9 +1,9 @@
 <script lang="ts">
     import { call } from '$lib/client/endpoints';
-    import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
-    import { Spinner } from '$lib/components/ui/spinner';
+    import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
+    import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
+    import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
     import { setTitle } from '$lib/helpers/globals';
-    import { Check, OctagonAlert } from '@lucide/svelte';
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
 
@@ -33,21 +33,10 @@
 </script>
 
 {#if status === 'loading'}
-    <Alert>
-        <Spinner/>
-        <AlertTitle>{t.sending}</AlertTitle>
-    </Alert>
+    <SpinnerAlert title={t.sending} />
 {:else if status === 'accepted'}
-    <Alert variant="success">
-        <Check/>
-        <AlertTitle>{t.requestSent}</AlertTitle>
-        <AlertDescription>{t.youCanCloseThisTab}</AlertDescription>
-    </Alert>
+    <SuccessAlert title={t.requestSent} description={t.youCanCloseThisTab} />
 {/if}
 {#if status === 'error'}
-    <Alert variant="danger">
-        <OctagonAlert/>
-        <AlertTitle>{t.somethingWentWrong}</AlertTitle>
-        <AlertDescription>{@html t.unknownErrorHtml}</AlertDescription>
-    </Alert>
+    <DangerAlert title={t.somethingWentWrong}>{@html t.unknownErrorHtml}</DangerAlert>
 {/if}

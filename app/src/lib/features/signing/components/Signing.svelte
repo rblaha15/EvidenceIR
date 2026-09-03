@@ -4,6 +4,9 @@
 
 <script lang="ts">
     import { user } from '$lib/client/auth';
+    import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
+    import OfflineAlert from '$lib/components/alerts/OfflineAlert.svelte';
+    import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
     import { getSigningInfo } from '$lib/features/signing/domain/data';
     import { type LoadData } from '$lib/features/signing/domain/load';
     import { sendSMS } from '$lib/features/signing/actions/sms';
@@ -16,10 +19,8 @@
     import { SMS_CODE_LIFETIME_MIN } from '$lib/features/signing/domain/sms';
     import { onMount, untrack } from 'svelte';
     import { setTitle } from '$lib/helpers/globals';
-    import { Alert, AlertAction, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
-    import { OctagonAlert, WifiOff } from '@lucide/svelte';
+    import { Alert, AlertAction, AlertTitle } from '$lib/components/ui/alert';
     import { Button } from '$lib/components/ui/button';
-    import { Spinner } from '$lib/components/ui/spinner';
 
     const {
         def, ir, nsp, translations: t, settings, irid, nspids,
@@ -69,35 +70,22 @@
     onMount(() => setTitle('Potvrzení dokumentu pomocí SMS', true));
 </script>
 {#if error}
-    <Alert variant="danger">
-        <OctagonAlert />
-        <AlertTitle>Nastala chyba!</AlertTitle>
-        <AlertDescription>
-            {error || 'Neznámá chyba'}
-            {#if timer}
-                <p>Zbývá {timer} s</p>
-            {/if}
-        </AlertDescription>
-        <AlertAction>
-            <Button variant="ghost" onclick={() => error = undefined}>Skrýt</Button>
-        </AlertAction>
-    </Alert>
+    <DangerAlert title="Nastala chyba!" action={{
+        text: 'Skrýt', onclick: () => error = undefined,
+    }}>
+        {error || 'Neznámá chyba'}
+        {#if timer}
+            <p>Zbývá {timer} s</p>
+        {/if}
+    </DangerAlert>
 {/if}
 {#if $settings && $settings.state == 'signed' && status != 'sendingEmail' && status != 'end'}
-    <Alert variant="danger">
-        <AlertTitle>Tento dokument byl již podepsán!</AlertTitle>
-    </Alert>
+    <DangerAlert title="Tento dokument byl již podepsán!" />
 {:else if $settings && $settings.initiatingUser.email != $user!.email}
-    <Alert variant="danger">
-        <AlertTitle>Tento dokument již podepisuje jiný uživatel!</AlertTitle>
-    </Alert>
+    <DangerAlert title="Tento dokument již podepisuje jiný uživatel!" />
 {:else if !$isOnline}
-    <Alert variant="danger">
-        <WifiOff />
-        <AlertTitle>Jste offline!</AlertTitle>
-        <AlertDescription>Potvrzování dokumentů pomocí SMS zprávy je dostupné pouze s připojením k internetu.
-        </AlertDescription>
-    </Alert>
+    <OfflineAlert title="Jste offline!"
+                 description="Potvrzování dokumentů pomocí SMS zprávy je dostupné pouze s připojením k internetu." />
 {:else if status == 'none'}
     <p>Po kliknutí na tlačítko níže se odešle {recipient} ({signingBy.name}) na {signingBy.phone} jednorázový kód, který
         vám následně nadiktuje.</p>
@@ -105,10 +93,7 @@
         Odeslat zprávu
     </Button>
 {:else if status == 'sendingSMS'}
-    <Alert>
-        <Spinner />
-        <AlertTitle>Odesílání zprávy…</AlertTitle>
-    </Alert>
+    <SpinnerAlert title="Odesílání zprávy…" />
 {:else if status == 'sent' || status == 'sentAgain'}
     {#if status == 'sentAgain'}
         <Alert variant="success">
@@ -133,14 +118,7 @@
         </Button>
     </div>
 {:else if status == 'confirming'}
-    <!--    TODO: extract Alert components    -->
-    <Alert>
-        <Spinner />
-        <AlertTitle>Ověřování kódu…</AlertTitle>
-    </Alert>
+    <SpinnerAlert title="Ověřování kódu…" />
 {:else if status == 'sendingEmail'}
-    <Alert>
-        <Spinner />
-        <AlertTitle>Odesílání emailů…</AlertTitle>
-    </Alert>
+    <SpinnerAlert title="Odesílání emailů…" />
 {/if}

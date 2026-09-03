@@ -1,6 +1,6 @@
 <script lang="ts" module>
-    import type { Readable } from 'svelte/store';
     import type { Comparable } from '$lib/extensions';
+    import type { Readable } from 'svelte/store';
 
     export interface TableOptions<T, K extends string = keyof T & string> {
         fileType: 'xlsx' | 'csv';
@@ -30,14 +30,14 @@
 </script>
 
 <script generics="T extends Record<string, unknown>" lang="ts">
+    import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
+    import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { page } from '$app/state';
     import readXlsxFile from 'read-excel-file';
     import Table from './Table.svelte';
     import FileSaver from 'file-saver';
     import writeXlsxFile from 'write-excel-file';
-    import { Alert, AlertTitle } from '$lib/components/ui/alert';
-    import { OctagonAlert } from '@lucide/svelte';
     import { Spinner } from '$lib/components/ui/spinner';
     import { Button } from '$lib/components/ui/button';
     import { untrack } from 'svelte';
@@ -150,16 +150,10 @@
 {/each}
 
 {#if error}
-    <Alert variant="danger">
-        <OctagonAlert />
-        <AlertTitle>Něco se nepovedlo</AlertTitle>
-    </Alert>
+    <DangerAlert title="Něco se nepovedlo" />
 {/if}
 {#if loading}
-    <Alert>
-        <Spinner />
-        <AlertTitle>Odesílání dat</AlertTitle>
-    </Alert>
+    <SpinnerAlert title="Odesílání dat" />
 {/if}
 
 <div class="flex flex-col items-start gap-4 md:flex-row md:items-center">
