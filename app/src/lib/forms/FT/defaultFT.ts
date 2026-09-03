@@ -30,7 +30,7 @@ const widgetOutputB = (label: string, onlyCTC = false, def: OptionsOutputsB = 'n
 
 export default (): FormFT => ({
     inputsC: {
-        title: newTitleWidget({ text: t => t.ft.inputs, level: 3 }),
+        title: newTitleWidget({ text: t => t.ft.inputs, level: 3, class: 'mt-0' }),
         C2: widgetInputC('C2', false, 'AKU'),
         C3: widgetInputC('C3'),
         C4: widgetInputC('C4', false, 'TV'),

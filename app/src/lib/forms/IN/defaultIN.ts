@@ -222,7 +222,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
     },
     montazka: {
         _titleCompanies: newTitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
-        _title: newTitleWidget({ text: t => t.in.assemblyCompany, level: 3 }),
+        _title: newTitleWidget({ text: t => t.in.assemblyCompany, level: 3, class: 'mt-0' }),
         company: newSearchWidget<C, Company, true>({
             items: t => derived(friendlyCompanies, c =>
                 c == 'loading' ? c : [unknownCompany(t), ...c.assemblyCompanies]),
@@ -471,8 +471,8 @@ const heatPump = <const I extends TC>(i: I) => ({
 
 export default (): FormPlus<FormIN> => ({
     ir: {
-        nadpisSystem: newTitleWidget({ text: t => t.in.system, level: 2 }),
-        nadpis: newTitleWidget({ text: t => t.in.controller, level: 3 }),
+        nadpisSystem: newTitleWidget({ text: t => t.in.system, level: 2, class: 'mt-0' }),
+        nadpis: newTitleWidget({ text: t => t.in.controller, level: 3, class: 'mt-0' }),
         regulus: newHiddenValueWidget(false, true),
         typ: newDoubleChooserWidget({
             label: t => t.in.controllerType,

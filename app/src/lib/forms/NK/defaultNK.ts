@@ -6,7 +6,6 @@ import {
     type Person,
     waterTanks
 } from '$lib/client/db/arrays';
-import { unknownCompany } from '$lib/forms/IN/formIN';
 import { getTranslations } from '$lib/translations';
 import { heatPumps, indoorUnits } from '$lib/helpers/products';
 import { type ContextNK, type FormNK, origins } from './formNK';
@@ -33,7 +32,7 @@ const pool = (c: ContextNK) => hp(c) && c.v.system.wantsPool;
 
 export default (): FormPlus<FormNK> => ({
     contacts: {
-        title: newTitleWidget({ text: t => t.nk.contacts.contacts, level: 2 }),
+        title: newTitleWidget({ text: t => t.nk.contacts.contacts, level: 2, class: 'mt-0' }),
         demandOrigin: newChooserWidget({ options: origins.keys(), label: t => t.nk.contacts.demandOrigin, labels: t => t.nk.contacts.origins, }),
         demandSubject: newMultiCheckboxWidget({
             options: [`heatPump`, `fve`], label: t => t.nk.contacts.demandSubject, required: false, labels: t => t.nk.contacts.subjects,
@@ -83,7 +82,7 @@ export default (): FormPlus<FormNK> => ({
     },
     photovoltaicPowerPlant: {
         title: newTitleWidget({ show: fve, text: t => t.nk.fve.fve, level: 2 }),
-        titleCurrent: newTitleWidget({ show: fve, text: t => t.nk.fve.currentSituation, level: 3 }),
+        titleCurrent: newTitleWidget({ show: fve, text: t => t.nk.fve.currentSituation, level: 3, class: 'mt-0' }),
         currentHeating: newInputWidget({ show: fve, required: false, label: t => t.nk.fve.currentHeating }),
         currentHotWater: newInputWidget({ show: fve, required: false, label: t => t.nk.fve.currentHotWater }),
         currentTanks: newInputWidget({ show: fve, required: false, label: t => t.nk.fve.currentTanks }),
@@ -300,7 +299,7 @@ export default (): FormPlus<FormNK> => ({
     },
     additionalSources: {
         title: newTitleWidget({ show: hp, text: t => t.nk.additionalSources.sources, level: 2 }),
-        heatingTitle: newTitleWidget({ show: hp, text: t => t.nk.additionalSources.heating, level: 3 }),
+        heatingTitle: newTitleWidget({ show: hp, text: t => t.nk.additionalSources.heating, level: 3, class: 'mt-0' }),
         heatingHeatingElementInStore: newCheckboxWithChooserWidget({
             required: false, label: t => t.nk.additionalSources.heatingElement, chosen: `newNeuter`, show: hp,
             options: [`existing`, `newNeuter`],

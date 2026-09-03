@@ -49,7 +49,7 @@ export default (ir: IR): FormPlus<FormUPT> => ({
             },
         }),
         nadpisSystem: newTitleWidget({ text: t => t.in.system, level: 2 }),
-        nadpis: newTitleWidget({ text: t => t.in.device.heatPump, level: 3 }),
+        nadpis: newTitleWidget({ text: t => t.in.device.heatPump, level: 3, class: 'mt-0' }),
         jisticTC: newSuitsWidget({ label: t => t.tc.characteristicsAndSizeOfHeatPumpBreaker }),
         jisticVJ: newSuitsWidget({
             show: c => c.IN.ir.typ.first!.includes('BOX'),

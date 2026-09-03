@@ -27,7 +27,7 @@ const newYesNoWidget = <D>(args: {
 
 export default (ir: IR): FormUPS => ({
     sol: {
-        nadpis: newTitleWidget({ text: t => t.sol.solarSystem, level: 2 }),
+        nadpis: newTitleWidget({ text: t => t.sol.solarSystem, level: 2, class: 'mt-0' }),
         orientace: newInputWidget({ label: t => t.sol.collectorFieldOrientation }),
         sklon: newInputWidget({ label: t => t.sol.collectorSlope }),
         zasobnik: newInputWidget({ label: t => t.sol.storageTankType }),

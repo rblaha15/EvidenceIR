@@ -27,7 +27,7 @@ export const defaultNSP = (): FormPlus<FormNSP> => {
 
     return ({
         system: {
-            _title: newTitleWidget({ text: t => t.in.system, level: 2 }),
+            _title: newTitleWidget({ text: t => t.in.system, level: 2, class: 'mt-0' }),
             popis: newInputWidget({ label: t => t.sp.systemDescription, textArea: true, required: true }),
             _overflowSystem: newTextWidget<ContextNSP>({ text: (t, c) => multilineTooLong(c.v.system.popis) ? t.sp.textTooLong : '' }),
             ...system,

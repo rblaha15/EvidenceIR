@@ -27,7 +27,7 @@ const photovoltaicField = (n: number): PhotovoltaicFieldGroup => {
 
 export default (): FormUPF => ({
     fields: {
-        title: newTitleWidget({ text: t => t.in.system, level: 2 }),
+        title: newTitleWidget({ text: t => t.in.system, level: 2, class: 'mt-0' }),
         count: newCounterWidget({
             label: t => t.fve.fieldCount,
             chosen: 1, min: 1, max: 4,
