@@ -22,6 +22,7 @@
     import Icon from '$lib/components/Icon.svelte';
     import { analytics } from '../hooks.client';
     import { setUserId } from '@firebase/analytics';
+    import { storable } from '$lib/helpers/stores';
 
     interface Props {
         data: LayoutData;
@@ -71,8 +72,8 @@
             page.url.hash,
             { replaceState: true, invalidateAll: true },
         );
-        setUserPreferredLanguage(data.languageCode)
-        document.documentElement.lang = data.languageCode
+        setUserPreferredLanguage(data.languageCode);
+        document.documentElement.lang = data.languageCode;
     };
     $effect(() => {
         page.url;
@@ -96,7 +97,10 @@
 
     $effect(() => {
         setUserId(analytics(), $userInfo?.uid || null);
-    })
+    });
+
+    let hideWarning = $state(false);
+    let hideWarningForever = storable('hideSEIR2Warning', false);
 </script>
 
 <svelte:window onunhandledrejection={handleError} />
@@ -131,6 +135,21 @@
 {#snippet content()}
     <div class="d-flex flex-column h-100">
         <Navigation {t} />
+        {#if !$hideWarningForever && !hideWarning}
+            <div class="alert d-flex gap-3 m-0 border-bottom">
+                <div class="d-flex flex-column gap-3 flex-grow-1">
+                    <div class="d-flex align-items-center gap-3">
+                        <Icon icon="error_outline" />
+                        <h4 class="alert-heading m-0">SEIR se bude přesouvat</h4>
+                    </div>
+                    <p class="m-0">Aplikace SEIR bude od 23. 9. 2026 přesunuta na novou adresu. Všechny instalace se přesunou do nové verze. Bude nutné se znovu přihlásit pomocí Vašich stávajících údajů.</p>
+                </div>
+                <div class="d-flex flex-column align-items-end gap-1">
+                    <button class="btn btn-outline-secondary" onclick={() => hideWarning = true}>Skrýt</button>
+                    <button class="btn btn-outline-secondary" onclick={() => $hideWarningForever = true}>Již nezobrazovat</button>
+                </div>
+            </div>
+        {/if}
         <div class="flex-grow-1 mb-2 overflow-y-scroll">
             <div class="sticky-top progress rounded-0" role="progressbar"
                  style:scale="1 {$progress === 'load' ? 1 : 0}"
