@@ -1,5 +1,7 @@
 import { getUser } from '$lib/client/auth';
 import { call } from '$lib/client/endpoints';
+import type { ExistingIR, ExistingNSP } from '$lib/data';
+import { detailUrlIR, detailUrlNSP } from '$lib/helpers/runes.svelte';
 import type { SigningStatus } from '../components/Signing.svelte';
 import { type CodeAttemptParams, SMS_ATTEMPT_MINIMUM_WAIT_TIME_SEC } from '$lib/features/signing/domain/sms';
 import { getReasonPhrase } from 'http-status-codes';
@@ -9,10 +11,16 @@ import { type DataOfPdf, type GeneratePdfOptions, pdfInfo, type PdfToSign } from
 import { getTranslations } from '$lib/translations';
 import {  generatePdf } from '$lib/pdf/pdfGeneration';
 import db from '$lib/client/db';
-import type { IRID, NSPID } from '$lib/helpers/ir';
+import { type IRID, irName, type NSPID, spName } from '$lib/helpers/ir';
 
-const emailBody = (title: string, user: string) =>
-    `Dobrý den,\nv příloze naleznete dokument "${title}", který jste podepsali pomocí SMS kódu.\n${user}`;
+const email1BodyHtml = (title: string, name: string, link: string, user: string) => `Dobrý den,
+v příloze naleznete podepsaný dokument "${title}" k instalaci ${name}.
+Odkaz na evidenci instalace v SEIR: <a href="${link}">${link}</a>.
+
+${user}`;
+const email2Body = (title: string, user: string) => `Dobrý den,
+v příloze naleznete dokument "${title}", který jste podepsali pomocí SMS kódu.
+${user}`;
 
 const sendEmails = async (
     o: GeneratePdfOptions<PdfToSign>,
@@ -22,27 +30,34 @@ const sendEmails = async (
     setStatus('sendingEmail');
 
     const user = userAddress((await getUser())!);
+    const type = params.def.pdf == 'NSP' ? 'NSP' : 'IR';
+    const name = type == 'NSP' ? spName((o.data as ExistingNSP).NSP.zasah) : irName((o.data as ExistingIR).IN.ir);
+    const link = type == 'NSP' ? detailUrlNSP([params.def.id as NSPID], '?') : detailUrlIR(params.def.id as IRID, '?');
     const pdf = pdfInfo[params.def.pdf];
     const title = pdf.title(getTranslations('cs'));
 
     const doc = await generatePdf(o);
+    const attachment = new File(
+        [doc.pdfBytes],
+        doc.fileName,
+        { type: 'application/pdf' },
+    );
 
-    const response = await sendHtmlEmail({
-        ...defaultAddresses(cervenka, false, user.name || undefined),
-        cc: dev ? undefined : [
-            user,
-            params.signingBy.email,
-        ],
+    const response1 = await sendHtmlEmail({
+        ...defaultAddresses(cervenka, true, user.name),
         subject: `Podepsaný dokument ${title}`,
-        attachments: [new File(
-            [doc.pdfBytes],
-            doc.fileName,
-            { type: 'application/pdf' },
-        )],
-        text: emailBody(title, user.name || ''),
+        attachments: [attachment],
+        html: email1BodyHtml(title, name, link, user.name),
     });
 
-    if (response!.ok) {
+    const response2 = await sendHtmlEmail({
+        ...defaultAddresses(params.signingBy.email, false, user.name),
+        subject: `Podepsaný dokument ${title}`,
+        attachments: [attachment],
+        text: email2Body(title, user.name),
+    });
+
+    if (response1!.ok && response2!.ok) {
         setStatus('end');
         history.back();
     } else {

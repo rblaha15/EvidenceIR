@@ -5,6 +5,6 @@
     const { data }: PageProps = $props();
 </script>
 
-{#if data.args}
+{#if data.def}
     <Signing {...data} />
 {/if}

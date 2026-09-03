@@ -4,7 +4,7 @@
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
     import LanguageSelector from '$lib/components/nav/LanguageSelector.svelte';
-    import PdfPreview from '$lib/components/pdf/PdfPreview.svelte';
+    import PdfPreview from '$lib/features/pdf/components/PdfPreview.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
     import { downloadFile, printFile } from '$lib/helpers/files';
     import { FileDown, Printer, Signature, Server } from '@lucide/svelte';

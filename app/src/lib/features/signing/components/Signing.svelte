@@ -4,39 +4,35 @@
 
 <script lang="ts">
     import { user } from '$lib/client/auth';
-    import { addCzechCountryCode, type LoadData } from '$lib/features/signing/domain/load';
+    import { getSigningInfo } from '$lib/features/signing/domain/data';
+    import { type LoadData } from '$lib/features/signing/domain/load';
     import { sendSMS } from '$lib/features/signing/actions/sms';
     import { getData } from '$lib/helpers/getData';
-    import { endUserEmails, endUserName } from '$lib/helpers/ir';
     import { newInputWidget } from '$lib/forms/Widget';
     import Widget from '$lib/components/Widget.svelte';
     import type { Translations } from '$lib/translations';
     import { confirmCode } from '$lib/features/signing/actions/code';
     import { isOnline } from '$lib/client/online';
-    import { type SendCodeParams, SMS_CODE_LIFETIME_MIN } from '$lib/features/signing/domain/sms';
+    import { SMS_CODE_LIFETIME_MIN } from '$lib/features/signing/domain/sms';
     import { onMount, untrack } from 'svelte';
     import { setTitle } from '$lib/helpers/globals';
-    import { type GeneratePdfOptions, type PdfToSign, type PdfWithDefiningParameter, pdfWithDefiningParameter } from '$lib/pdf/pdf';
     import { Alert, AlertAction, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
     import { OctagonAlert, WifiOff } from '@lucide/svelte';
     import { Button } from '$lib/components/ui/button';
     import { Spinner } from '$lib/components/ui/spinner';
 
     const {
-        args, def, ir, nsp, translations: t, settings, irid, nspids,
+        def, ir, nsp, translations: t, settings, irid, nspids,
     }: LoadData & {
         translations: Translations;
     } = $props();
 
-    const endUser = $derived(args!.type == 'IR' ? $ir!.IN.koncovyUzivatel : $nsp!.NSP.koncovyUzivatel);
-    const signingBy = $derived({
-        name: endUserName(endUser), phone: addCzechCountryCode(endUser.telefon), email: endUserEmails(endUser)[0],
-    });
-    const params: SendCodeParams = $derived({ def, signingBy });
-    const o: Omit<GeneratePdfOptions<PdfToSign>, 'data'> = $derived({
-        link: def.pdf, lang: 'cs',
-        ...def.parameter ? { [pdfWithDefiningParameter[def.pdf as PdfWithDefiningParameter]]: def.parameter } : {},
-    });
+    const { signingBy, sendParams, attemptParams, o, signeeType } = $derived(getSigningInfo(def, $ir, $nsp));
+    const recipient = $derived(
+        signeeType == 'investor' ? 'koncovému zákazníkovi' : signeeType == 'montazka'
+            ? 'zástupci montážní firmy' : 'osobě, která uvedla TČ do provozu'
+    );
+
 
     let status = $state<SigningStatus>('none');
     $effect(() => {
@@ -70,8 +66,6 @@
     });
     let code = $state('');
 
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
     onMount(() => setTitle('Potvrzení dokumentu pomocí SMS', true));
 </script>
 {#if error}
@@ -101,13 +95,13 @@
     <Alert variant="danger">
         <WifiOff />
         <AlertTitle>Jste offline!</AlertTitle>
-        <AlertDescription>Potvrzování dokumentů pomocí SMS zprávy je dostupné pouze s připojením k Internetu.</AlertDescription>
+        <AlertDescription>Potvrzování dokumentů pomocí SMS zprávy je dostupné pouze s připojením k internetu.
+        </AlertDescription>
     </Alert>
 {:else if status == 'none'}
-    <p>
-        Po kliknutí na tlačítko níže se odešle koncovému zákazníkovi na {signingBy.phone} jednorázový kód, který vám následně nadiktuje.
-    </p>
-    <Button class="md:self-start" onclick={sendSMS(params, setStatus)}>
+    <p>Po kliknutí na tlačítko níže se odešle {recipient} ({signingBy.name}) na {signingBy.phone} jednorázový kód, který
+        vám následně nadiktuje.</p>
+    <Button class="md:self-start" onclick={sendSMS(sendParams, setStatus)}>
         Odeslat zprávu
     </Button>
 {:else if status == 'sendingSMS'}
@@ -125,16 +119,16 @@
         </Alert>
     {/if}
     <p>
-        Zadejte kód, který přišel koncovému zákazníkovi na {signingBy.phone}. Po odeslání bude dokument považován za podepsaný a bude vám i
-        zákazníkovi odeslán do emailové schránky. Platnost kódu je {SMS_CODE_LIFETIME_MIN} minut.
+        Zadejte kód, který přišel {recipient} na {signingBy.phone}. Po odeslání bude dokument považován za
+        podepsaný a bude vám i {recipient} odeslán do emailové schránky. Platnost kódu je {SMS_CODE_LIFETIME_MIN} minut.
     </p>
     <p class="flex items-center">
         Zpráva nedorazila? Můžete ji zkusit 
-        <Button variant="link" onclick={sendSMS(params, setStatus, true)} class="px-0">odeslat znovu</Button>
+        <Button variant="link" onclick={sendSMS(sendParams, setStatus, true)} class="px-0">odeslat znovu</Button>
     </p>
     <div class="flex flex-col md:flex-row md:items-center gap-4">
         <Widget widget={codeWidget} bind:value={code} {t} showAllErrors={false} context={undefined} />
-        <Button disabled={codeWidget.isError(undefined, code)} onclick={confirmCode(o, { def, signingBy, code, timezone }, setStatus)}>
+        <Button disabled={codeWidget.isError(undefined, code)} onclick={confirmCode(o, attemptParams(code), setStatus)}>
             Odeslat kód
         </Button>
     </div>

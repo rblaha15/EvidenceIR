@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PageProps } from './$types';
-    import PdfPreview from '$lib/components/pdf/PdfPreview.svelte';
+    import PdfPreview from '$lib/features/pdf/components/PdfPreview.svelte';
     import { downloadFile } from '$lib/helpers/files';
     import { FileDown } from "@lucide/svelte";
     import { onMount } from "svelte";

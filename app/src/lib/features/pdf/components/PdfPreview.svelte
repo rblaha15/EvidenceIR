@@ -1,7 +1,7 @@
 <script lang="ts">
     import { browser } from '$app/environment';
     import { range } from '$lib/extensions';
-    import PdfPage from '$lib/components/pdf/PdfPage.svelte';
+    import PdfPage from '$lib/features/pdf/components/PdfPage.svelte';
     import type { Translations } from '$lib/translations';
     import type { Snippet } from 'svelte';
     import '@ungap/with-resolvers';

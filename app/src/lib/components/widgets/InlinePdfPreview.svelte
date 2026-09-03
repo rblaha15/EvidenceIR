@@ -1,7 +1,7 @@
 <script generics="C, P extends Pdf" lang="ts">
     import type { Translations } from '$lib/translations';
     import { type Pdf, pdfInfo, type PdfParameters } from '$lib/pdf/pdf';
-    import PdfPreview from '$lib/components/pdf/PdfPreview.svelte';
+    import PdfPreview from '$lib/features/pdf/components/PdfPreview.svelte';
     import { generatePdfUrl } from '$lib/pdf/pdfGeneration';
     import { currentPreferredDocumentLanguage } from '$lib/languages';
     import type { InlinePdfPreviewWidget } from '$lib/forms/Widget';

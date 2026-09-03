@@ -1,27 +1,26 @@
 import { browser } from '$app/environment';
 import { getIsLoggedIn, getIsRegulusOrAdmin } from '$lib/client/auth';
-import type { DocumentDefinition } from '$lib/features/signing/domain/sms';
-import { error } from '@sveltejs/kit';
-import type { EntryGenerator, PageLoad } from './$types';
+import type { IR, NSP } from '$lib/data';
+import {
+    getDefiningParameter,
+    getSignatureDef,
+    getSignatureState,
+    getSigningInfo
+} from '$lib/features/signing/domain/data';
+import { getData } from '$lib/helpers/getData';
+import { extractIDs, langAndPdfEntryGenerator } from '$lib/helpers/paths';
+import { isLanguageCode } from '$lib/languages';
 import {
     type Pdf,
     type PdfArgs,
     pdfInfo,
     type PdfParameters,
-    type PdfToSign,
-    pdfToSign,
     type PdfWithDefiningParameter,
     pdfWithDefiningParameter,
 } from '$lib/pdf/pdf';
 import { generatePdfUrl } from '$lib/pdf/pdfGeneration';
-import { isLanguageCode } from '$lib/languages';
-import type { IR, NSP } from '$lib/data';
-import { extractIDs, langAndPdfEntryGenerator } from '$lib/helpers/paths';
-import { getData } from '$lib/helpers/getData';
-import { getDefiningParameter, getSignatureState } from '$lib/helpers/signing';
-import type { SPID } from '$lib/helpers/ir';
-import type { Raw } from '$lib/forms/Form';
-import type { FormSP } from '$lib/forms/SP/formSP.svelte';
+import { error } from '@sveltejs/kit';
+import type { EntryGenerator, PageLoad } from './$types';
 
 export const entries: EntryGenerator = langAndPdfEntryGenerator;
 
@@ -86,14 +85,8 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
         pdf.type == 'IR' ? data.ir : data.nsps[0], pdfName, parameter,
     );
 
-    const signatureDef: DocumentDefinition = {
-        pdf: pdfName as PdfToSign, parameter, id: id.irid ?? id.nspids[0]!,
-    };
-
-    const allowSigning = pdfName != 'NSP' && pdfName != 'SP' ? pdfToSign.includes(pdfName as PdfToSign)
-        : pdfName == 'SP' ? (data.ir!.SPs[parameter as SPID] as Raw<FormSP>).fakturace.komu.chosen == 'investor'
-            : pdfName == 'NSP' ? data.nsps[0].NSP.fakturace.komu.chosen == 'investor'
-                : false;
+    const signatureDef = getSignatureDef(pdfName, id, parameter);
+    const { allowSigning } = getSigningInfo(signatureDef, data.ir, data.nsps[0]);
 
     return { ...d, ...id, args: pdf, fileLang: language, signatureState, signatureDef, allowSigning };
 };

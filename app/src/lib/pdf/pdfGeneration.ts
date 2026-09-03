@@ -13,7 +13,7 @@ import { irLabel, spName } from '$lib/helpers/ir';
 import { type ExistingIR, type ExistingNSP, type IR, type NSP } from '../data';
 import { createFileUrl } from '$lib/helpers/files';
 import { ColorTypes } from 'pdf-lib/cjs/api/colors';
-import { getSignatureState } from '$lib/helpers/signing';
+import { getSignatureState } from '$lib/features/signing/domain/data';
 
 type PdfFieldType = 'Text' | 'Kombinované pole' | 'Zaškrtávací pole' | 'Dropdown' | '_'
 

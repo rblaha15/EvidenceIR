@@ -1,5 +1,9 @@
 import { getIsLoggedIn, getIsRegulusOrAdmin } from '$lib/client/auth';
+import type { ExistingIR, ExistingNSP } from '$lib/data';
+import { getDefiningParameter, getSignatureDef, getSignatureState } from '$lib/features/signing/domain/data';
+import { getDataAsStore } from '$lib/helpers/getData';
 import { extractIDs } from '$lib/helpers/paths';
+import { waitUntil } from '$lib/helpers/stores';
 import {
     type Pdf,
     type PdfArgs,
@@ -10,12 +14,7 @@ import {
     pdfWithDefiningParameter,
 } from '$lib/pdf/pdf';
 import { error } from '@sveltejs/kit';
-import type { ExistingIR, ExistingNSP, SignatureState } from '$lib/data';
-import type { DocumentDefinition } from '$lib/features/signing/domain/sms';
-import { waitUntil } from '$lib/helpers/stores';
-import { getDataAsStore } from '$lib/helpers/getData';
-import { derived, type Readable } from 'svelte/store';
-import { getDefiningParameter, getSignatureState } from '$lib/helpers/signing';
+import { derived } from 'svelte/store';
 
 export const loadSigning = async (
     pdfName: PdfToSign,
@@ -53,27 +52,19 @@ export const loadSigning = async (
         }),
     };
 
-    let settings: Readable<SignatureState | undefined>;
-    if (pdf.type == 'IR') {
-        if (!id.irid) error(400, { message: 'irid must be provided to access this document!' });
+    if (pdf.type == 'IR' && !id.irid)
+        error(400, { message: 'irid must be provided to access this document!' });
+    else if (pdf.type == 'NSP' && (!id.nspids || id.nspids.length != 1))
+        error(400, { message: 'spids must be provided to access this document!' });
 
-        settings = derived(data.ir, $ir =>
-            getSignatureState($ir, pdfName, parameter));
-    } else {
-        if (!id.nspids || id.nspids.length != 1) error(400, { message: 'spids must be provided to access this document!' });
+    const settings = derived(
+        pdf.type == 'IR' ? data.ir : data.nsp,
+        $data => getSignatureState($data, pdfName, parameter),
+    );
 
-        settings = derived(data.nsp, $nsp =>
-            getSignatureState($nsp, pdfName, parameter));
-    }
+    const def = getSignatureDef(pdfName, id, parameter);
 
-    const def: DocumentDefinition = {
-        pdf: pdfName, parameter, id: id.irid ?? id.nspids[0]!,
-    };
-
-    return { def, ...data, ...id, args: pdf, settings };
+    return { def, ...data, ...id, settings };
 };
 
 export type LoadData = Awaited<ReturnType<typeof loadSigning>>;
-
-export const addCzechCountryCode = (phone: string) =>
-    phone.startsWith('+') ? phone : `+420 ${phone}`;
