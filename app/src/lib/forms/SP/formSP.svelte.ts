@@ -75,6 +75,12 @@ export interface GenericFormSP<C extends GenericContextSP<C>> extends GenericFor
     nahradniDil6: SparePartWidgetGroup<C>,
     nahradniDil7: SparePartWidgetGroup<C>,
     nahradniDil8: SparePartWidgetGroup<C>,
+    nahradniDil9: SparePartWidgetGroup<C>,
+    nahradniDil10: SparePartWidgetGroup<C>,
+    nahradniDil11: SparePartWidgetGroup<C>,
+    nahradniDil12: SparePartWidgetGroup<C>,
+    nahradniDil13: SparePartWidgetGroup<C>,
+    nahradniDil14: SparePartWidgetGroup<C>,
     fakturace: {
         invoiceParts: MultiCheckboxWidget<C, 'work' | Operation | `transportation`>,
         discount: InputWidget<C>,

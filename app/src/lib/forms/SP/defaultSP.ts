@@ -39,13 +39,13 @@ export const multilineTooLong = (text: string) => text.split('\n').sumBy(line =>
 ) > multilineMaxLength;
 export const inlineTooLong = (text: string) => measure(text) > inlineMaxLength;
 
-const sparePart = <C extends GenericContextSP<C>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8): FormGroupPlus<SparePartWidgetGroup<C>> => {
+const sparePart = <C extends GenericContextSP<C>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14): FormGroupPlus<SparePartWidgetGroup<C>> => {
     const show = (c: C) => c.v.nahradniDily.pocet >= n;
     const dil = (c: C) => c.v[`nahradniDil${n}` as const];
 
     return ({
-        _label: newTextWidget({
-            show, text: t => t.sp.sparePart(n), class: 'text-lg',
+        _label: newTitleWidget({
+            show, text: t => t.sp.sparePart(n), level: 3,
         }),
         dil: newSearchWidget({
             items: spareParts,
@@ -175,7 +175,7 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
     nahradniDily: {
         _title: newTitleWidget({ text: t => t.sp.usedSpareParts, level: titleLevel }),
         pocet: newCounterWidget({
-            label: t => t.sp.sparePartCount, min: 0, max: c => c.v.fakturace.discount ? 7 : 8, chosen: 0,
+            label: t => t.sp.sparePartCount, min: 0, max: c => c.v.fakturace.discount ? 13 : 14, chosen: 0,
         }),
     },
     nahradniDil1: sparePart(1),
@@ -186,6 +186,12 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
     nahradniDil6: sparePart(6),
     nahradniDil7: sparePart(7),
     nahradniDil8: sparePart(8),
+    nahradniDil9: sparePart(9),
+    nahradniDil10: sparePart(10),
+    nahradniDil11: sparePart(11),
+    nahradniDil12: sparePart(12),
+    nahradniDil13: sparePart(13),
+    nahradniDil14: sparePart(14),
     fakturace: {
         _title: newTitleWidget({ text: t => t.sp.invoicing, level: titleLevel }),
         invoiceParts: newMultiCheckboxWidget({
@@ -197,7 +203,7 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
         }),
         discount: newInputWidget({
             label: t => t.sp.discountNoTax, inputmode: 'numeric', onError: t => t.wrong.number, suffix: t => t.units.czk, required: false,
-            lock: c => c.v.nahradniDily.pocet == 8,
+            lock: c => c.v.nahradniDily.pocet == 14,
         }),
         discountReason: newInputWidget({
             label: t => t.sp.discountReason, required: false,

@@ -10,7 +10,7 @@ import ZLS from '$lib/pdf/generators/pdfZLS';
 import RR from '$lib/pdf/generators/pdfRR';
 import UPT, { pdfUPTL as UPTL } from '$lib/pdf/generators/pdfUPT';
 import UPS from '$lib/pdf/generators/pdfUPS';
-import SP, { pdfCP as CP, pdfNSP as NSP, pdfPS as PS } from '$lib/pdf/generators/pdfSP';
+import SP, { pdfCP as CP, pdfNameNSP, pdfNameSP, pdfNSP as NSP } from '$lib/pdf/generators/pdfSP';
 import UPF from '$lib/pdf/generators/pdfUPF';
 import FT from '$lib/pdf/generators/pdfFT';
 import type { TC } from '$lib/forms/IN/defaultIN';
@@ -60,8 +60,6 @@ type AllPdf = {
     NSP: 'NSP'
     /** Čestné prohlášení */
     CP: 'NSP'
-    /** Prázdná sránka */
-    PS: 'NSP'
     /** FaceTable */
     FT: 'IR'
 }
@@ -181,7 +179,7 @@ export const pdfInfo: PdfInfo = {
     },
     SP: {
         type: 'IR',
-        pdfName: 'SP',
+        pdfName: pdfNameSP,
         supportedLanguages: ['cs'],
         title: t => t.sp.title,
         getPdfData: SP,
@@ -190,7 +188,7 @@ export const pdfInfo: PdfInfo = {
     },
     NSP: {
         type: 'NSP',
-        pdfName: 'SP',
+        pdfName: pdfNameNSP,
         supportedLanguages: ['cs'],
         title: t => t.sp.title,
         requiredRegulus: true,
@@ -204,13 +202,6 @@ export const pdfInfo: PdfInfo = {
         title: _ => '',
         getPdfData: CP,
         doNotFlatten: true,
-    },
-    PS: {
-        type: 'NSP',
-        pdfName: 'PS',
-        supportedLanguages: ['cs'],
-        title: _ => '',
-        getPdfData: PS,
     },
     UPF: {
         type: 'IR',

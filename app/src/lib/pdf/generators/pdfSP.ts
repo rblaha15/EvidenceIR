@@ -1,17 +1,18 @@
 // noinspection JSNonASCIINames
 
+import type { Raw, Values } from '$lib/forms/Form';
+import { unknownCRN } from '$lib/forms/IN/formIN';
+import { cascadePumps } from '$lib/forms/IN/infoIN';
+import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import { inlineTooLong, invoiceableParts, multilineTooLong } from '$lib/forms/SP/defaultSP';
+import type { GenericContextSP, GenericFormSP } from '$lib/forms/SP/formSP.svelte';
+import ares from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import '$lib/extensions';
 import { endUserName, endUserName2, spName } from '$lib/helpers/ir';
-import { generalizeServiceProtocol, type GetPdfData } from '$lib/pdf/pdf';
-import { get } from '$lib/translations';
-import { unknownCRN } from '$lib/forms/IN/formIN';
-import { inlineTooLong, invoiceableParts, multilineTooLong } from '$lib/forms/SP/defaultSP';
-import ares from '$lib/helpers/ares';
-import { cascadePumps } from '$lib/forms/IN/infoIN';
-import type { Raw, Values } from '$lib/forms/Form';
-import type { GenericContextSP, GenericFormSP } from '$lib/forms/SP/formSP.svelte';
 import { getOperationPrices, isNewPrices } from '$lib/helpers/prices';
+import { generalizeServiceProtocol, type GetPdfData, type GetPdfSourceFileName } from '$lib/pdf/pdf';
+import { get } from '$lib/translations';
 
 const codes = {
     work: 12510,
@@ -42,6 +43,10 @@ const fieldsPartsStart = 44;
 export const fieldsParts = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
     .associateWith((_, i) => fieldsPartsStart + i * 8);
 
+const fieldsParts2Start = 88;
+export const fieldsParts2 = (['name', 'code', 'amount', 'warehouse', 'price'] as const)
+    .associateWith((_, i) => fieldsParts2Start + i * 6);
+
 export const calculateProtocolPrice = <C extends GenericContextSP<C>>(
     p: Raw<GenericFormSP<C>> | Values<GenericFormSP<C>>,
     pumpCount: number | undefined,
@@ -49,6 +54,8 @@ export const calculateProtocolPrice = <C extends GenericContextSP<C>>(
     const spareParts = [
         p.nahradniDil1, p.nahradniDil2, p.nahradniDil3, p.nahradniDil4,
         p.nahradniDil5, p.nahradniDil6, p.nahradniDil7, p.nahradniDil8,
+        p.nahradniDil9, p.nahradniDil10, p.nahradniDil11,
+        p.nahradniDil12, p.nahradniDil13, p.nahradniDil14,
     ].slice(0, p.nahradniDily.pocet);
     const ip = invoiceableParts.associateWith(it => !p.fakturace.invoiceParts?.includes(it)).let(ip => ({
         ...ip, yearlyHPInCascadeCheck: ip.yearlyHPCheck, commissioningHPInCascade: ip.commissioningTC,
@@ -87,6 +94,20 @@ export const calculateProtocolPrice = <C extends GenericContextSP<C>>(
     };
 };
 
+const getVariant = (NSP: Raw<FormNSP>) => {
+    const system = NSP.system.popis;
+    const zavada = NSP.zasah.nahlasenaZavada;
+    const zasah = NSP.zasah.popis;
+    const textTooLong = multilineTooLong(system) || inlineTooLong(zavada) || multilineTooLong(zasah);
+    const tooManySpareParts = NSP.nahradniDily.pocet > (NSP.fakturace.discount ? 7 : 8);
+    return textTooLong || tooManySpareParts ? 'SPL' : 'SP';
+};
+
+export const pdfNameNSP: GetPdfSourceFileName<'NSP'> = async ({ data }) => {
+    const { NSP } = data;
+    return getVariant(NSP);
+}
+
 export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) => {
     const { NSP } = data;
     const ts = t.sp;
@@ -115,12 +136,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
 
     const areNewPrices = isNewPrices(NSP.zasah.datum);
 
-    const system = NSP.system.popis;
-    const zavada = NSP.zasah.nahlasenaZavada;
-    const zasah = NSP.zasah.popis;
-    if (multilineTooLong(system) || inlineTooLong(zavada) || multilineTooLong(zasah))
-        await addDoc({ link: 'PS', data, lang: 'cs' });
-
+    const variant = getVariant(NSP);
     if (tax == 1.12) await addDoc({ link: 'CP', data, lang: 'cs' });
 
     const isUnknown = NSP.montazka.ico == unknownCRN;
@@ -145,14 +161,14 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
         Text13: NSP.koncovyUzivatel.pobocka
             ? `${NSP.koncovyUzivatel.pobocka}, ${NSP.mistoRealizace.ulice}, ${NSP.mistoRealizace.psc} ${NSP.mistoRealizace.obec}`
             : `${NSP.mistoRealizace.ulice}, ${NSP.mistoRealizace.psc} ${NSP.mistoRealizace.obec}`,
-        Text14: multilineTooLong(system) ? ts.seeSecondPage : system,
+        Text14: NSP.system.popis,
         Text15: '     ' + dateFromISO(NSP.zasah.datum),
         Text16: NSP.system.datumUvedeni ? dateFromISO(NSP.system.datumUvedeni) : null,
         Text17: NSP.zasah.clovek,
         'Zaškrtávací pole28': !!NSP.system.zaruka,
         Text40: get(ts.warranties, NSP.system.zaruka),
-        Text19: inlineTooLong(zavada) ? ts.seeSecondPage : zavada,
-        Text20: multilineTooLong(zasah) ? ts.seeSecondPage : zasah,
+        Text19: NSP.zasah.nahlasenaZavada,
+        Text20: NSP.zasah.popis,
         Text21: NSP.ukony.doprava.toNumber().roundTo(2).toLocaleString('cs') + ' km',
         Text22: ip.transportation ? prices.transportation.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč',
         'Kombinované pole32': (!areNewPrices ? get(ts, NSP.ukony.typPrace) : NSP.ukony.doba ? ts.serviceTechnicianWork : '')
@@ -169,17 +185,28 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
             [fo[i].code, codes[type].toString()],
             [fo[i].amount, count > 1 ? count + ' ks' : ''],
         ] as const).flat().toRecord(),
-        ...spareParts.map((dil, i) => [
+        ...spareParts.slice(0, 8).map((dil, i) => [
             [`Text${fieldsParts.name + i}`, dil.name],
             [`Text${fieldsParts.code + i}`, dil.code],
             [`Text${fieldsParts.amount + i}`, dil.mnozstvi.toNumber().roundTo(2).toLocaleString('cs') + ' ks'],
             [`Text${fieldsParts.warehouse + i}`, dil.warehouse],
             [`Text${fieldsParts.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString('cs') + ' Kč'],
         ] as const).flat().toRecord(),
-        ...(spareParts.length == 8 || discount == 0 ? {} : {
+        ...spareParts.slice(8).map((dil, i) => [
+            [`Text${fieldsParts2.name + i}`, dil.name],
+            [`Text${fieldsParts2.code + i}`, dil.code],
+            [`Text${fieldsParts2.amount + i}`, dil.mnozstvi.toNumber().roundTo(2).toLocaleString('cs') + ' ks'],
+            [`Text${fieldsParts2.warehouse + i}`, dil.warehouse],
+            [`Text${fieldsParts2.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString('cs') + ' Kč'],
+        ] as const).flat().toRecord(),
+        ...variant == 'SP' && discount > 0 ? {
             [`Text${fieldsParts.name + 7}`]: 'Sleva',
             [`Text${fieldsParts.price + 7}`]: (-discount).roundTo(2).toLocaleString('cs') + ' Kč',
-        }),
+        } : {},
+        ...variant == 'SPL' && discount > 0 ? {
+            [`Text${fieldsParts2.name + 5}`]: 'Sleva',
+            [`Text${fieldsParts2.price + 5}`]: (-discount).roundTo(2).toLocaleString('cs') + ' Kč',
+        } : {},
         Text31: priceTransportation.roundTo(2).toLocaleString('cs') + ' Kč',
         Text32: priceWork.roundTo(2).toLocaleString('cs') + ' Kč',
         Text33: priceOther.roundTo(2).toLocaleString('cs') + ' Kč',
@@ -202,10 +229,15 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
             otherCompany: detectCRN(NSP.fakturace.komu.text),
         }[NSP.fakturace.komu.chosen ?? 'investor'],
         images: signature ? [{ x: 425, y: 170, page: 0, jpg: signature, maxHeight: 60 }] : [],
-        signature: [{
+        signature: [variant == 'SP' ? {
             x: 358,
             y: 134,
             maxWidth: 225,
+        } : {
+            x: 358,
+            y: 373,
+            maxWidth: 225,
+            page: 1,
         }, {
             x: 350,
             y: 204,
@@ -217,6 +249,15 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
 };
 
 const detectCRN = (text: string) => /^[0-9]{8}$/.test(text) ? `IČO: ${text}` : text;
+
+export const pdfNameSP: GetPdfSourceFileName<'SP'> = async ({ data, id, lang, t }) => {
+    const { ensureSP } = await import('$lib/forms/SP/infoSP.svelte');
+    const NSP = generalizeServiceProtocol(data.meta, data.IN, ensureSP(data.SPs[id]), t);
+    return await pdfNameNSP({
+        data: NSP, t, lang,
+        pumpCount: cascadePumps(data.IN).length,
+    });
+}
 
 export const pdfSP: GetPdfData<'SP'> = async ({ data, t, addDoc, id, lang }) => {
     const { ensureSP } = await import('$lib/forms/SP/infoSP.svelte');
@@ -233,17 +274,3 @@ export const pdfCP: GetPdfData<'CP'> = async ({ data: { NSP } }) => ({
     Text2: `${NSP.mistoRealizace.ulice}, ${NSP.mistoRealizace.psc} ${NSP.mistoRealizace.obec}`,
     Text3: dateFromISO(NSP.zasah.datum),
 });
-
-export const pdfPS: GetPdfData<'PS'> = async ({ data: { NSP }, t }) => {
-    const ts = t.sp;
-    const system = NSP.system.popis;
-    const zavada = NSP.zasah.nahlasenaZavada;
-    const zasah = NSP.zasah.popis;
-    return {
-        Text1: [
-            multilineTooLong(system) ? `${ts.systemDescription}:\n${system}` : '',
-            inlineTooLong(zavada) ? `${ts.reportedFault}: ${zavada}` : '',
-            multilineTooLong(zasah) ? `${ts.interventionDescription}:\n${zasah}` : '',
-        ].filter(Boolean).join('\n\n'),
-    };
-};
