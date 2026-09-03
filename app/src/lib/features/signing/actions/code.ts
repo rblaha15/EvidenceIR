@@ -6,7 +6,6 @@ import type { SigningStatus } from '../components/Signing.svelte';
 import { type CodeAttemptParams, SMS_ATTEMPT_MINIMUM_WAIT_TIME_SEC } from '$lib/features/signing/domain/sms';
 import { getReasonPhrase } from 'http-status-codes';
 import { cervenka, defaultAddresses, sendHtmlEmail, userAddress } from '$lib/client/email';
-import { dev } from '$app/environment';
 import { type DataOfPdf, type GeneratePdfOptions, pdfInfo, type PdfToSign } from '$lib/pdf/pdf';
 import { getTranslations } from '$lib/translations';
 import {  generatePdf } from '$lib/pdf/pdfGeneration';
@@ -44,14 +43,14 @@ const sendEmails = async (
     );
 
     const response1 = await sendHtmlEmail({
-        ...defaultAddresses(cervenka, true, user.name),
+        ...defaultAddresses(cervenka, { sendCopy: true, includeName: true }),
         subject: `Podepsaný dokument ${title}`,
         attachments: [attachment],
         html: email1BodyHtml(title, name, link, user.name),
     });
 
     const response2 = await sendHtmlEmail({
-        ...defaultAddresses(params.signingBy.email, false, user.name),
+        ...defaultAddresses(params.signingBy.email, { includeName: true }),
         subject: `Podepsaný dokument ${title}`,
         attachments: [attachment],
         text: email2Body(title, user.name),

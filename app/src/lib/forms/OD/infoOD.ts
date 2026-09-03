@@ -26,7 +26,7 @@ const infoOD: IndependentFormInfo<ContextOD, FormOD> = {
         const fileIds = [...raw.all.documents, ...raw.all.photos].map(photo => photo.uuid);
 
         const response = await sendHtmlEmail({
-            ...defaultAddresses(cervenka, false, user.name || undefined),
+            ...defaultAddresses(cervenka, { includeName: true }),
             cc: dev ? undefined : [
                 user,
                 ...(raw.all.userEmail ? raw.all.userEmail.split(separatorsRegExp).map(t => t.trim()) : []),

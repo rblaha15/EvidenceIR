@@ -71,7 +71,7 @@ const sendEmails = async (
     });
 
     const response3 = await sendEmail({
-        ...defaultAddresses(blahova, true),
+        ...defaultAddresses(blahova, { sendCopy: true }),
         subject: edited
             ? `Úprava evidence regulátoru ${irName(raw.ir)}`
             : `Nově zaevidovaný regulátor ${irName(raw.ir)}`,

@@ -115,10 +115,11 @@ export const userAddress = (user: User) => ({
     name: user.name,
 }) satisfies AddressLike;
 
-export const defaultAddresses = (recipient: AddressLike = receiver, sendCopy: boolean = false, name?: string) => {
+export const defaultAddresses = (recipient: AddressLike = receiver, o?: { sendCopy?: boolean, includeName?: boolean }) => {
     const user = userAddress(get(userStore)!);
+    const { includeName = false, sendCopy = false } = o ?? {};
     return ({
-        from: SENDER(name),
+        from: SENDER(includeName ? user.name : undefined),
         replyTo: user,
         to: !dev ? recipient : user,
         cc: !dev && sendCopy ? user : undefined,

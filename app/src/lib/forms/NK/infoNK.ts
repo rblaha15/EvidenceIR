@@ -26,7 +26,7 @@ const infoNK: IndependentFormInfo<ContextNK, FormNK> = {
             .map(photo => photo.uuid);
 
         const response = await sendEmail({
-            ...defaultAddresses(page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz', true, user.name),
+            ...defaultAddresses(page.data.languageCode == 'sk' ? 'obchod@regulus.sk' : 'poptavky@regulus.cz', { sendCopy: true, includeName: true }),
             subject: `Poptávka z aplikace – OSOBA: ${name} ${surname}`,
             attachments: [new File(
                 [xml(raw, user, cs)],
