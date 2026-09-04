@@ -10,10 +10,11 @@
     import { Button } from "$lib/components/ui/button";
 
     const {
-        t, onclick,
+        t, onclick, useSecondaryColors,
     }: {
         t: Translations,
         onclick?: () => void,
+        useSecondaryColors?: boolean;
     } = $props();
     const tn = $derived(t.nav);
     type BooleanLike = unknown
@@ -29,6 +30,9 @@
     const externalIRID = $derived(search.get('view-irid') || search.get('edit-irid')) as IRID | undefined;
     const externalNSPID = $derived(search.get('view-nspid') || search.get('edit-nspid')) as NSPID | undefined;
     const nspids = $derived(page.data.nspids as NSPID[] | null);
+
+    const variant = (selected: unknown) =>
+        useSecondaryColors ? selected ? 'outline' : 'secondary' : selected ? 'regulus-outline' : 'regulus';
 </script>
 
 {#snippet item(
@@ -40,7 +44,7 @@
 )}
     {#if shown}
         <li class="text-nowrap">
-            <Button variant={selected ? 'outline' : 'secondary'} href={url} {onclick}>
+            <Button variant={variant(selected)} href={url} {onclick}>
                 <Icon />
                 {label}
             </Button>

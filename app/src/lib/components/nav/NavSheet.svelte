@@ -10,19 +10,19 @@
     import { Separator } from "$lib/components/ui/separator";
     import type { Snippet } from "svelte";
 
-    const { t, header }: { t: Translations, header: Snippet } = $props();
+    const { t, header }: { t: Translations, header: Snippet<[boolean]> } = $props();
 
     let showSheet = $state(false);
 </script>
 
 <Sheet bind:open={showSheet}>
-    <SheetTrigger class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'md:hidden')}>
+    <SheetTrigger class={cn(buttonVariants({ variant: 'regulus-ghost', size: 'icon' }), 'md:hidden')}>
         <Menu class="size-8" />
         <span class="sr-only">Menu</span>
     </SheetTrigger>
     <SheetContent showCloseButton={false} side="left">
         <SheetHeader class="flex flex-row items-center justify-between">
-            {@render header()}
+            {@render header(true)}
             <SheetClose class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
                 <X />
                 <span class="sr-only">Close</span>
@@ -30,7 +30,7 @@
         </SheetHeader>
         <div class="flex flex-col gap-4 px-4">
             <ul class="flex flex-col gap-1">
-                <NavItems onclick={() => showSheet = false} {t} />
+                <NavItems onclick={() => showSheet = false} {t} useSecondaryColors={true} />
             </ul>
             {#if page.route.id?.includes('[form=form]')}
                 <Separator />

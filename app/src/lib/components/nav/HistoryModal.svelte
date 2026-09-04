@@ -32,12 +32,12 @@
 
 <Dialog>
     {#if $readableHistory.incompleted.length}
-        <DialogTrigger class={[buttonVariants({ variant: 'ghost', size: 'icon' }), 'text-danger']}>
+        <DialogTrigger class={[buttonVariants({ variant: 'regulus-ghost', size: 'icon' }), 'text-danger']}>
             <CloudAlert class="size-8" />
             <span class="sr-only">{th.title}</span>
         </DialogTrigger>
     {:else if $readableHistory.completed.length}
-        <DialogTrigger class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
+        <DialogTrigger class={buttonVariants({ variant: 'regulus-ghost', size: 'icon' })}>
             <History class="size-8" />
             <span class="sr-only">{th.title}</span>
         </DialogTrigger>

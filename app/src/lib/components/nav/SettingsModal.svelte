@@ -10,7 +10,7 @@
 </script>
 
 <Dialog>
-    <DialogTrigger class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
+    <DialogTrigger class={buttonVariants({ variant: 'regulus-ghost', size: 'icon' })}>
         <SettingsIcon class="size-8" />
         <span class="sr-only">{ts.title}</span>
     </DialogTrigger>

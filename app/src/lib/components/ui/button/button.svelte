@@ -24,6 +24,9 @@
                 outline: 'bg-secondary/30 border-secondary-foreground/40 hover:bg-secondary/80',
                 ghost: 'hover:bg-secondary/80',
                 link: 'text-primary underline-offset-4 hover:underline',
+                regulus: 'bg-regulus text-regulus-foreground hover:border-regulus-foreground/80',
+                'regulus-outline': 'bg-regulus text-regulus-foreground border-regulus-foreground/80',
+                'regulus-ghost': 'hover:bg-regulus-foreground/20',
             },
             size: {
                 default: 'h-9 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5',

@@ -19,6 +19,8 @@
     --warning-alt: var(--color-yellow-700);
     --danger: var(--color-red-700);
     --danger-foreground: var(--color-red-50);
+    --regulus: #d9081d;
+    --regulus-foreground: #FFFFFF;
 
     --background: oklch(1 0 0);
     --foreground: oklch(0.141 0.005 285.823);
@@ -82,6 +84,8 @@
     --color-warning-foreground: var(--warning-foreground);
     --color-danger: var(--danger);
     --color-danger-foreground: var(--danger-foreground);
+    --color-regulus: var(--regulus);
+    --color-regulus-foreground: var(--regulus-foreground);
 
     --font-sans: 'Inter Variable', sans-serif;
     --color-ring: var(--ring);

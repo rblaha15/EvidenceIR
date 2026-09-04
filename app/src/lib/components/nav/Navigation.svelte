@@ -1,5 +1,5 @@
 <script lang="ts">
-    import ic_r from '$lib/assets/ic_r.png';
+    import Logo from '$lib/assets/Logo.svelte';
     import { isLoggedIn } from '$lib/client/auth';
     import type { Translations } from '$lib/translations';
     import NavItems from './NavItems.svelte';
@@ -20,9 +20,9 @@
     const showSecrets = $derived(!$hideNav);
 </script>
 
-{#snippet header()}
+{#snippet header(useRedColor?: boolean)}
     {#snippet header()}
-        <img src={ic_r} alt="Logo" class="inline size-8" />
+        <Logo class={["inline h-8 w-fit", { 'text-regulus': useRedColor }]} />
         <span class="font-semibold">{tn.appName}</span>
     {/snippet}
 
@@ -36,10 +36,10 @@
 {/snippet}
 
 <nav class="
-    fixed top-0 inset-x-0 bg-secondary text-secondary-foreground p-2 gap-2 w-full grid grid-cols-[auto_1fr_auto]
+    fixed top-0 inset-x-0 bg-regulus text-regulus-foreground p-2 gap-x-8 gap-y-2 w-full grid grid-cols-[auto_1fr_auto]
     [grid-template-areas:'logo_._buttons']
     md:[grid-template-areas:'logo_._buttons''items_items_items']
-    lg:[grid-template-areas:'logo_items_buttons']
+    min-[69rem]:[grid-template-areas:'logo_items_buttons']
 ">
     <div class="flex items-center gap-2 [grid-area:logo]">
         {#if $isLoggedIn && showSecrets}
@@ -58,7 +58,7 @@
     <div class="flex items-center gap-2 [grid-area:buttons]">
         {#if $isLoggedIn && showSecrets}
             <HistoryModal {t} />
-            <Button size="icon" variant="ghost" href={relUrl('/help')}>
+            <Button size="icon" variant="regulus-ghost" href={relUrl('/help')}>
                 <CircleQuestionMark class="size-8" />
                 <span class="sr-only">{t.nn.title}</span>
             </Button>

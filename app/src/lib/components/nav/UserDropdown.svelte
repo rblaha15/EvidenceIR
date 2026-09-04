@@ -29,11 +29,11 @@
 </script>
 
 <DropdownMenu>
-    <DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
+    <DropdownMenuTrigger class={buttonVariants({ variant: 'regulus-ghost', size: 'icon' })}>
         <CircleUser class="size-8" />
         <span class="sr-only">User</span>
     </DropdownMenuTrigger>
-    <DropdownMenuContent align="start">
+    <DropdownMenuContent align="start" class="w-fit me-2">
         <DropdownMenuGroup aria-label="User info">
             {#if $user?.name}
                 <DropdownMenuLabel>{$user?.name}</DropdownMenuLabel>

@@ -14,12 +14,12 @@
 </script>
 
 {#if !page.route.id?.endsWith('login')}
-    <Button href={relUrl(`/login?redirect=${redirect}`)}>
+    <Button href={relUrl(`/login?redirect=${redirect}`)} variant="secondary">
         {ta.logIn}
     </Button>
 {/if}
 {#if !page.route.id?.endsWith('signup')}
-    <Button href={relUrl(`/signup?redirect=${redirect}`)} variant="outline">
+    <Button href={relUrl(`/signup?redirect=${redirect}`)} variant="regulus-outline">
         {ta.signUp}
     </Button>
 {/if}

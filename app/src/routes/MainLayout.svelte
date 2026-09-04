@@ -125,7 +125,7 @@
 
 {#snippet content()}
     <Navigation {t} />
-    <div class={['flex h-full flex-col', $isLoggedIn && !$hideNav ? 'pt-13 md:pt-24 lg:pt-13' : 'pt-13']}>
+    <div class={['flex h-full flex-col', $isLoggedIn && !$hideNav ? 'pt-13 md:pt-24 min-[69rem]:pt-13' : 'pt-13']}>
         {#if environment != 'production' && !hideWarning}
             <DangerAlert title="SEIR2 – Testovací verze"
                          description="Provedené změny v této aplikaci se nepropíšou do produkční aplikace a mohou být kdykoliv přepsány!"
