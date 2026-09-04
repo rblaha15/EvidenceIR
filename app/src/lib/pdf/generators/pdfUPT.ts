@@ -5,7 +5,7 @@ import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { get } from '$lib/translations';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 
-export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t }) => {
+export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t, addDoc }) => {
     const { IN, UP: { TC: UP, dateTC } } = data;
     if (!UP) throw new Error("UP TC not filled");
     const tu = t.tc;
@@ -17,6 +17,12 @@ export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t }) => {
     //     link: 'TCI',
     //     data: {},
     // })
+
+    await addDoc({
+        lang: 'cs',
+        link: UP.reg.souhlasSPristupem && UP.reg.pripojeniKInternetu != 'notConnected' ? 'SZUS' : 'SZUB',
+        data: data,
+    });
 
     const cascadeText = !isCascade ? '' : tu.cascade + '\n' + pumps
         .map(tu.pumpDetails).chunk(3)
@@ -74,7 +80,7 @@ export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t }) => {
     });
 };
 
-const pdfUPT: GetPdfData<'UPT'> = async ({ data, t }) => {
+const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
     const { IN, UP: { TC: UP, dateTC } } = data;
     if (!UP) throw new Error("UP TC not filled");
     const tu = t.tc;
@@ -86,6 +92,12 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t }) => {
     //     link: 'TCI',
     //     data: {},
     // })
+
+    await addDoc({
+        lang: 'cs',
+        link: UP.reg.souhlasSPristupem && UP.reg.pripojeniKInternetu != 'notConnected' ? 'SZUS' : 'SZUB',
+        data: data,
+    });
 
     const cascadeText = !isCascade ? '' : tu.cascade + '\n' + pumps
         .map(tu.pumpDetails).chunk(3)
@@ -148,13 +160,15 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t }) => {
         Text53: UP.reg.souhlasSPristupem && UP.uvadeni.compressorWarranty ? tu.isCompressorWarrantyDesired : '',
         Text46: UP.reg.souhlasSPristupem && UP.uvadeni.compressorWarranty ? get(tu, UP.uvadeni.compressorWarranty!) : '',
         Text47: [warrantyText, cascadeText, noteText].filter(Boolean).join('\n'),
-        Text54: dateFromISO(dateTC || dayISO()),
-        signature: {
-            page: 1,
-            x: 280,
-            y: 391,
-            maxWidth: 250,
-        },
     });
 };
 export default pdfUPT;
+
+export const pdfSZU: GetPdfData<'SZUB' | 'SZUS'> = async ({ data }) => ({
+    Text54: dateFromISO(data.UP.dateTC || dayISO()),
+    signature: {
+        x: 280,
+        y: 391,
+        maxWidth: 250,
+    },
+});
