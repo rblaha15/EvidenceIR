@@ -160,15 +160,16 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
         Text53: UP.reg.souhlasSPristupem && UP.uvadeni.compressorWarranty ? tu.isCompressorWarrantyDesired : '',
         Text46: UP.reg.souhlasSPristupem && UP.uvadeni.compressorWarranty ? get(tu, UP.uvadeni.compressorWarranty!) : '',
         Text47: [warrantyText, cascadeText, noteText].filter(Boolean).join('\n'),
+        signature: {
+            page: 1,
+            x: 280,
+            y: 391,
+            maxWidth: 250,
+        },
     });
 };
 export default pdfUPT;
 
 export const pdfSZU: GetPdfData<'SZUB' | 'SZUS'> = async ({ data }) => ({
     Text54: dateFromISO(data.UP.dateTC || dayISO()),
-    signature: {
-        x: 280,
-        y: 391,
-        maxWidth: 250,
-    },
 });
