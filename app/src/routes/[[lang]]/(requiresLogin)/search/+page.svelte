@@ -62,7 +62,7 @@
     });
     let v = $state(w.defaultValue);
 
-    onMount(() => setTitle($isRegulusOrAdmin ? t.search.titleControllersAndProtocols : t.search.titleControllers));
+    onMount(() => setTitle(t.search.title));
 
     const clear = () => {
         resetStores();

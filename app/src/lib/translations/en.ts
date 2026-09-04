@@ -6,8 +6,7 @@ import cs from './cs';
 
 const en: PlainTranslations = {
     search: {
-        titleControllers: 'Search installations',
-        titleControllersAndProtocols: 'Search installations and independent service protocols',
+        title: 'List of installations',
         search: `Search`,
         nProtocols: (n, p) => `${n} protocols (${p})`,
         cancel: 'Cancel',

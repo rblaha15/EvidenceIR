@@ -73,9 +73,8 @@ export default {
         printWarning: `Pokud chcete vytisknout samotný dokument, použijte tlačitko "Vytisknout dokument" níže!`,
     },
     search: {
-        titleControllers: 'Vyhledávání instalací',
-        titleControllersAndProtocols: 'Vyhledávání instalací a nezávislých servisních protokolů',
-        whatToSearch: 'Hledejte jméno uživatele, obec nebo číslo a typ regulátoru:',
+        title: 'Seznam instalací',
+        whatToSearch: 'Hledejte jméno uživatele, obec, sériové číslo nebo typ regulátoru:',
         search: `Vyhledat`,
         nProtocols: (n: number, p: string) => n < 5 ? `${n} protokoly (${p})` : `${n} protokolů (${p})`,
         cancel: 'Zrušit',
