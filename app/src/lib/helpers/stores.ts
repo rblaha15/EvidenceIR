@@ -10,8 +10,8 @@ export function storable<T>(originalKey: string, defaultValue?: T) {
     let key: string;
 
     user.subscribe($user => {
-        const id = $user?.id ?? 'anonymous';
-        key = `storable_${id}_${originalKey}`;
+        const email = $user?.email ?? 'anonymous';
+        key = `storable_${email}_${originalKey}`;
 
         if (browser) {
             const currentValue = localStorage.getItem(key);
