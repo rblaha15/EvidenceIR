@@ -8,7 +8,7 @@ import NN from '$lib/pdf/generators/pdfNN';
 import ZLT from '$lib/pdf/generators/pdfZLT';
 import ZLS from '$lib/pdf/generators/pdfZLS';
 import RR from '$lib/pdf/generators/pdfRR';
-import UPT, { pdfUPTL as UPTL } from '$lib/pdf/generators/pdfUPT';
+import UPT, { pdfUPTL as UPTL, pdfSZU as SZU } from '$lib/pdf/generators/pdfUPT';
 import UPS from '$lib/pdf/generators/pdfUPS';
 import SP, { pdfCP as CP, pdfNSP as NSP, pdfPS as PS } from '$lib/pdf/generators/pdfSP';
 import UPF from '$lib/pdf/generators/pdfUPF';
@@ -46,6 +46,10 @@ type AllPdf = {
     UPTL: 'IR'
     /** Uvedení TČ do provozu */
     UPT: 'IR'
+    /** Souhlas se zpracováním osobních údajů (bez vzdáleného přístupu) */
+    SZUB: 'IR'
+    /** Souhlas se zpracováním osobních údajů (se vzdáleným přístupem) */
+    SZUS: 'IR'
     /** Uvedení SOL do provozu */
     UPS: 'IR'
     /** Uvedení FVE do provozu */
@@ -121,7 +125,7 @@ export const pdfInfo: PdfInfo = {
     RR: {
         type: 'IR',
         pdfName: 'RR',
-        supportedLanguages: ['cs', 'de'],
+        supportedLanguages: ['cs'],
         title: t => t.rr.title,
         shortTitle: t => t.rr.name,
         getPdfData: RR,
@@ -155,7 +159,7 @@ export const pdfInfo: PdfInfo = {
     UPTL: {
         type: 'IR',
         pdfName: 'UPTL',
-        supportedLanguages: ['cs', 'de'],
+        supportedLanguages: ['cs'],
         title: t => t.tc.title,
         shortTitle: t => t.tc.shortTitle,
         getPdfData: UPTL,
@@ -164,10 +168,26 @@ export const pdfInfo: PdfInfo = {
     UPT: {
         type: 'IR',
         pdfName: 'UPT',
-        supportedLanguages: ['cs', 'de'],
+        supportedLanguages: ['cs'],
         title: t => t.tc.title,
         shortTitle: t => t.tc.shortTitle,
         getPdfData: UPT,
+        doNotFlatten: true,
+    },
+    SZUS: {
+        type: 'IR',
+        pdfName: 'SZUS',
+        supportedLanguages: ['cs'],
+        title: _ => '',
+        getPdfData: SZU,
+        doNotFlatten: true,
+    },
+    SZUB: {
+        type: 'IR',
+        pdfName: 'SZUB',
+        supportedLanguages: ['cs'],
+        title: _ => '',
+        getPdfData: SZU,
         doNotFlatten: true,
     },
     UPS: {
