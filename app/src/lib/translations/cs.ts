@@ -75,6 +75,7 @@ export default {
     search: {
         titleControllers: 'Vyhledávání instalací',
         titleControllersAndProtocols: 'Vyhledávání instalací a nezávislých servisních protokolů',
+        whatToSearch: 'Hledejte jméno uživatele, obec nebo číslo a typ regulátoru:',
         search: `Vyhledat`,
         nProtocols: (n: number, p: string) => n < 5 ? `${n} protokoly (${p})` : `${n} protokolů (${p})`,
         cancel: 'Zrušit',

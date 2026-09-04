@@ -1,16 +1,8 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import Search from '$lib/components/widgets/Search.svelte';
-    import { setTitle } from '$lib/helpers/globals.js';
-    import { detailUrlIR, detailUrlNSP } from '$lib/helpers/runes.svelte';
     import { isRegulusOrAdmin } from '$lib/client/auth';
-    import type { PageProps } from './$types';
-    import { isOnline } from '$lib/client/online';
     import { resetStores } from '$lib/client/incrementalUpdates';
-    import { derived, readable } from 'svelte/store';
-    import { newSearchWidget } from '$lib/forms/Widget';
-    import { PencilRuler, Trash2 } from "@lucide/svelte";
-    import { onMount } from "svelte";
+    import { isOnline } from '$lib/client/online';
     import {
         AlertDialog,
         AlertDialogAction,
@@ -21,11 +13,19 @@
         AlertDialogHeader,
         AlertDialogTitle,
         AlertDialogTrigger
-    } from "$lib/components/ui/alert-dialog";
-    import { buttonVariants } from "$lib/components/ui/button";
-    import { Spinner } from "$lib/components/ui/spinner";
+    } from '$lib/components/ui/alert-dialog';
+    import { buttonVariants } from '$lib/components/ui/button';
+    import { Spinner } from '$lib/components/ui/spinner';
+    import Search from '$lib/components/widgets/Search.svelte';
+    import { newSearchWidget } from '$lib/forms/Widget';
+    import { setTitle } from '$lib/helpers/globals.js';
+    import { detailUrlIR, detailUrlNSP } from '$lib/helpers/runes.svelte';
+    import { PencilRuler, Trash2 } from '@lucide/svelte';
+    import { onMount } from 'svelte';
+    import { derived, readable } from 'svelte/store';
+    import type { PageProps } from './$types';
 
-    const { data }: PageProps = $props()
+    const { data }: PageProps = $props();
 
     const t = $derived(data.translations);
     const ts = $derived(t.search);
@@ -52,6 +52,7 @@
             otherSearchParts: [
                 ...i.t == 'NSP' ? i.id : [i.id],
                 ...i.sps,
+                `${i.name} : ${i.label}`,
             ],
         }),
         onValueSet: (_, i) => {
@@ -61,36 +62,37 @@
     });
     let v = $state(w.defaultValue);
 
-    onMount(() => setTitle($isRegulusOrAdmin ? t.search.titleControllersAndProtocols : t.search.titleControllers))
+    onMount(() => setTitle($isRegulusOrAdmin ? t.search.titleControllersAndProtocols : t.search.titleControllers));
 
     const clear = () => {
         resetStores();
         location.reload();
-    }
+    };
 </script>
 
-<div class="flex flex-wrap justify-between">
-    <div class="flex items-center gap-2">
+<div class="flex flex-wrap items-center gap-2">
+    <p>{ts.whatToSearch}</p>
+    <div class="flex items-center gap-2 ms-auto">
         {#if $statusStore === 'loadingOnline' && $isOnline}
             <Spinner class="size-6" />
             {ts.downloadingChanges}
         {/if}
+        <AlertDialog>
+            <AlertDialogTrigger class={buttonVariants({ variant: 'ghost' })}>
+                {ts.searchProblems}
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>{ts.searchProblemsTitle}</AlertDialogTitle>
+                    <AlertDialogDescription>{ts.searchProblemsAdvice}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel variant="primary">{ts.cancel}</AlertDialogCancel>
+                    <AlertDialogAction onclick={clear} variant="warning">{ts.clear}</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </div>
-    <AlertDialog>
-        <AlertDialogTrigger class={buttonVariants({ variant: 'ghost' })}>
-            {ts.searchProblems}
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>{ts.searchProblemsTitle}</AlertDialogTitle>
-                <AlertDialogDescription>{ts.searchProblemsAdvice}</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel variant="primary">{ts.cancel}</AlertDialogCancel>
-                <AlertDialogAction onclick={clear} variant="warning">{ts.clear}</AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-    </AlertDialog>
 </div>
 
 <Search
