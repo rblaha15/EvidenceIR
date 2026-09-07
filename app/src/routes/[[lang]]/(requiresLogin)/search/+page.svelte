@@ -1,6 +1,5 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { isRegulusOrAdmin } from '$lib/client/auth';
     import { resetStores } from '$lib/client/incrementalUpdates';
     import { isOnline } from '$lib/client/online';
     import {
