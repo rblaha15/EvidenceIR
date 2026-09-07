@@ -8,7 +8,9 @@ declare global {
 			session: Session | undefined
 		}
 		// interface PageData {}
-		// interface PageState {}
+		interface PageState {
+			search?: string
+		}
 		// interface Platform {}
 	}
 }

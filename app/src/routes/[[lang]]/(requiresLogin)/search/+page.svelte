@@ -1,7 +1,11 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
+    import { replaceState } from '$app/navigation';
+
+    import { page } from '$app/state';
     import { resetStores } from '$lib/client/incrementalUpdates';
     import { isOnline } from '$lib/client/online';
+    import { textToFilter, wordsToFilter } from '$lib/components/forms/serach/logic';
+    import SearchItems from '$lib/components/forms/serach/SearchItems.svelte';
     import {
         AlertDialog,
         AlertDialogAction,
@@ -14,52 +18,43 @@
         AlertDialogTrigger
     } from '$lib/components/ui/alert-dialog';
     import { buttonVariants } from '$lib/components/ui/button';
+    import { Field } from '$lib/components/ui/field';
+    import { InputGroup, InputGroupAddon, InputGroupInput } from '$lib/components/ui/input-group';
     import { Spinner } from '$lib/components/ui/spinner';
-    import Search from '$lib/components/forms/widgets/Search.svelte';
-    import { newSearchWidget } from '$lib/forms/Widget';
+    import type { SearchItem } from '$lib/forms/Widget';
     import { setTitle } from '$lib/helpers/globals.js';
     import { detailUrlIR, detailUrlNSP } from '$lib/helpers/runes.svelte';
-    import { PencilRuler, Trash2 } from '@lucide/svelte';
+    import { PencilRuler, Search, Trash2 } from '@lucide/svelte';
     import { onMount } from 'svelte';
     import { derived, readable } from 'svelte/store';
     import type { PageProps } from './$types';
+    import type { IR_NSP } from './+page';
 
     const { data }: PageProps = $props();
 
     const t = $derived(data.translations);
     const ts = $derived(t.search);
 
-    const statusStore = $derived(data.data ? derived(data.data, data => data.status) : readable('loaded'));
-    const itemsStore = $derived(data.data ? derived(data.data, data => data.items) : readable([]));
+    const status = $derived(data.data ? derived(data.data, data => data.status) : readable('loaded'));
+    const items = $derived(data.data ? derived(data.data, data => data.items) : readable([]));
 
-    const w = newSearchWidget({
-        type: 'search',
-        required: false,
-        label: '',
-        items: () => itemsStore,
-        getSearchItem: i => ({
-            href: i.t == 'NSP' ? detailUrlNSP(i.id) : detailUrlIR(i.id),
-            pieces: [
-                {
-                    text: i.name, width: .4,
-                    icon: i.deleted ? Trash2 : i.draft ? PencilRuler : undefined,
-                    danger: i.deleted,
-                    warning: i.draft,
-                },
-                { text: i.label, width: .6 },
-            ] as const,
-            otherSearchParts: [
-                ...i.t == 'NSP' ? i.id : [i.id],
-                ...i.sps,
-                `${i.name} : ${i.label}`,
-            ],
-        }),
-        onValueSet: (_, i) => {
-            if (i) goto(i.t == 'NSP' ? detailUrlNSP(i.id) : detailUrlIR(i.id));
-        },
-        inline: true,
+    const getSearchItem = (i: IR_NSP): SearchItem => ({
+        href: i.t == 'NSP' ? detailUrlNSP(i.id) : detailUrlIR(i.id),
+        pieces: [
+            {
+                text: i.name, width: .4,
+                icon: i.deleted ? Trash2 : i.draft ? PencilRuler : undefined,
+                danger: i.deleted,
+                warning: i.draft,
+            },
+            { text: i.label, width: .6 },
+        ] as const,
+        otherSearchParts: [
+            ...i.t == 'NSP' ? i.id : [i.id],
+            ...i.sps,
+            `${i.name} : ${i.label}`,
+        ],
     });
-    let v = $state(w.defaultValue);
 
     onMount(() => setTitle(t.search.title));
 
@@ -67,37 +62,69 @@
         resetStores();
         location.reload();
     };
+
+    let search = $state(page.state.search ?? '');
+    $effect(() => {
+        replaceState('', { search: search });
+    });
+
+    const filtered = $derived($items.filter(item =>
+        wordsToFilter(search).every(
+            filter => getSearchItem(item).let(i => [
+                ...i.pieces.map(p => p.text),
+                ...i.otherSearchParts ?? [],
+            ]).some(piece =>
+                wordsToFilter(piece).some(word => word.includes(filter)) ||
+                (filter.startsWith('!') ? textToFilter(piece).startsWith(filter.slice(1)) : textToFilter(piece).includes(filter)),
+            ),
+        ),
+    ));
 </script>
 
-<div class="flex flex-wrap items-center gap-2">
-    <p>{ts.whatToSearch}</p>
-    <div class="flex items-center gap-2 ms-auto">
-        {#if $statusStore === 'loadingOnline' && $isOnline}
-            <Spinner class="size-6" />
-            {ts.downloadingChanges}
-        {/if}
-        <AlertDialog>
-            <AlertDialogTrigger class={buttonVariants({ variant: 'ghost' })}>
-                {ts.searchProblems}
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>{ts.searchProblemsTitle}</AlertDialogTitle>
-                    <AlertDialogDescription>{ts.searchProblemsAdvice}</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel variant="primary">{ts.cancel}</AlertDialogCancel>
-                    <AlertDialogAction onclick={clear} variant="warning">{ts.clear}</AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+<div class="flex flex-col gap-4 py-4 *:not-[.list]:px-4 border border-input rounded-2xl">
+    <div class="flex relative items-center flex-wrap">
+        <p>{ts.whatToSearch}</p>
+        <div class="flex items-center gap-2 ms-auto">
+            {#if $status === 'loadingOnline' && $isOnline}
+                <Spinner class="size-6" />
+                {ts.downloadingChanges}
+            {/if}
+            <AlertDialog>
+                <AlertDialogTrigger class={buttonVariants({ variant: 'ghost' })}>
+                    {ts.searchProblems}
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{ts.searchProblemsTitle}</AlertDialogTitle>
+                        <AlertDialogDescription>{ts.searchProblemsAdvice}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel variant="primary">{ts.cancel}</AlertDialogCancel>
+                        <AlertDialogAction onclick={clear} variant="warning">{ts.clear}</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
     </div>
-</div>
 
-<Search
-    bind:value={v}
-    context={{}}
-    showAllErrors={true}
-    {t}
-    widget={w}
-/>
+    <Field orientation="vertical">
+        <InputGroup>
+            <InputGroupAddon align="inline-start">
+                <Search />
+            </InputGroupAddon>
+            <InputGroupInput
+                autofocus
+                bind:value={search}
+                type="search"
+            />
+        </InputGroup>
+    </Field>
+
+    <SearchItems
+        class="list"
+        {getSearchItem}
+        itemClass="not-first:border-t border-input hover:bg-searchbox px-4"
+        items={filtered}
+        {t}
+    />
+</div>

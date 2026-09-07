@@ -164,7 +164,6 @@ type DoubleLockArgs<C> = { lock1?: GetBOrVal<C>; lock2?: GetBOrVal<C>; };
 type SearchArgs<C, T> = {
     getSearchItem: (item: T, t: Translations, c: C) => SearchItem;
     getXmlEntry?: (v: T | null) => string;
-    inline?: GetBOrVal<C>;
     type?: GetOrVal<C, HTMLInputTypeAttribute>;
     chosen?: null | T;
 } & ({
@@ -237,7 +236,6 @@ type DoubleChooser<C, I1 extends K, I2 extends K> = {
 type Search<C, T> = {
     getSearchItem: (item: T, t: Translations, c: C) => SearchItem;
     getXmlEntry: (v: T | null) => string;
-    inline: GetB<C>;
     items: GetTR<C, T[] | 'loading'>;
     search?: (search: string) => Promise<T[] | null>;
     type: Get<C, HTMLInputTypeAttribute>;
@@ -348,7 +346,6 @@ const initSearch = <C, T>(args: SearchArgs<C, T>) => ({
     getSearchItem: args.getSearchItem,
     getXmlEntry: args.getXmlEntry ?? ((v: T | null) => JSON.stringify(v)),
     type: toGetA(args.type ?? 'search'),
-    inline: toGetA(args.inline ?? false),
 });
 const initCounter = <C>(args: CounterArgs<C>) => ({
     defaultValue: args.chosen,
