@@ -1,7 +1,7 @@
 <script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
     import { type RadioWidget } from '$lib/forms/Widget';
-    import CoreRadio from "$lib/components/CoreRadio.svelte";
+    import CoreRadio from "$lib/components/forms/CoreRadio.svelte";
 
     interface Props {
         t: Translations;

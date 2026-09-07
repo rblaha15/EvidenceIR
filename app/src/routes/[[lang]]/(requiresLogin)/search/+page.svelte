@@ -16,7 +16,7 @@
     } from '$lib/components/ui/alert-dialog';
     import { buttonVariants } from '$lib/components/ui/button';
     import { Spinner } from '$lib/components/ui/spinner';
-    import Search from '$lib/components/widgets/Search.svelte';
+    import Search from '$lib/components/forms/widgets/Search.svelte';
     import { newSearchWidget } from '$lib/forms/Widget';
     import { setTitle } from '$lib/helpers/globals.js';
     import { detailUrlIR, detailUrlNSP } from '$lib/helpers/runes.svelte';

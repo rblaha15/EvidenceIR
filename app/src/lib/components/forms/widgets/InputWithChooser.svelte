@@ -1,7 +1,7 @@
 <script generics="C, I extends string" lang="ts">
     import type { Translations } from '$lib/translations';
     import { type InputWithChooserWidget, type SeI } from '$lib/forms/Widget';
-    import CoreInput from '$lib/components/CoreInput.svelte';
+    import CoreInput from '$lib/components/forms/CoreInput.svelte';
     import { Select, SelectContent, SelectItem, SelectTrigger } from "$lib/components/ui/select";
     import { ChevronDownIcon } from "@lucide/svelte";
     import { InputGroupButton } from "$lib/components/ui/input-group";

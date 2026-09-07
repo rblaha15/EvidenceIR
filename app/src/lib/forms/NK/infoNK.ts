@@ -5,7 +5,7 @@ import { getTranslations } from '$lib/translations';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { page } from '$app/state';
 import xml from '$lib/forms/NK/xmlNK';
-import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
+import { getFile, removeFile } from '$lib/components/forms/widgets/File.svelte';
 import MailDemand from '$lib/emails/MailDemand.svelte';
 import type { ContextNK, FormNK } from '$lib/forms/NK/formNK';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';

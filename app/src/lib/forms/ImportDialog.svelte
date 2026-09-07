@@ -6,7 +6,7 @@
     import { type Translations } from '$lib/translations';
     import { type ExcelImport, processExcel } from '$lib/forms/ExcelImport';
     import readXlsxFile, { readSheetNames } from 'read-excel-file';
-    import Widget from '$lib/components/Widget.svelte';
+    import Widget from '$lib/components/forms/Widget.svelte';
     import { type PdfImport, processPdf } from '$lib/forms/PdfImport';
     import { PDFDocument } from 'pdf-lib';
     import type { US } from '$lib/translations/untranslatables';

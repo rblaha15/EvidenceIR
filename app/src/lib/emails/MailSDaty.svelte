@@ -5,7 +5,7 @@
     import type { User } from '$lib/client/auth';
     import { extractIRIDFromParts } from '$lib/helpers/ir';
     import { detailUrlIR } from '$lib/helpers/runes.svelte';
-    import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
+    import ReadonlyWidget from '$lib/components/forms/ReadonlyWidget.svelte';
     import { widgetList } from '$lib/forms/Form';
 
     interface Props {

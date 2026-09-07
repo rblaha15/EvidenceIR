@@ -4,7 +4,7 @@ import type { ContextOD, FormOD } from '$lib/forms/OD/formOD';
 import defaultOD from './defaultOD';
 import { page } from '$app/state';
 import { cervenka, defaultAddresses, sendHtmlEmail, userAddress } from '$lib/client/email';
-import { getFile, removeFile } from '$lib/components/widgets/File.svelte';
+import { getFile, removeFile } from '$lib/components/forms/widgets/File.svelte';
 import { dev } from '$app/environment';
 import { initialRouteLoggedIn } from '$lib/helpers/globals';
 import { separatorsRegExp } from '$lib/forms/IN/defaultIN';

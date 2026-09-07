@@ -2,7 +2,7 @@
     import { call } from '$lib/client/endpoints';
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import { Button } from '$lib/components/ui/button';
-    import File, { getFile } from '$lib/components/widgets/File.svelte';
+    import File, { getFile } from '$lib/components/forms/widgets/File.svelte';
     import { type Files, newFileWidget } from '$lib/forms/Widget';
     import { getTranslations } from '$lib/translations';
 

@@ -27,12 +27,12 @@
     import FormHeader from '$lib/forms/FormHeader.svelte';
     import { onMount, untrack } from 'svelte';
     import { derived as derivedStore, type Readable, readable } from 'svelte/store';
-    import WidgetComponent from '$lib/components/Widget.svelte';
+    import WidgetComponent from '$lib/components/forms/Widget.svelte';
     import { storable } from '$lib/helpers/stores';
     import { dev } from '$app/environment';
     import { type ButtonKey, buttonKeys, type IndependentFormInfo, type Mode, type ModeL, type Result } from '$lib/forms/FormInfo';
     import { appUrl, refreshTOC, runLoading } from '$lib/helpers/globals.js';
-    import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
+    import ReadonlyWidget from '$lib/components/forms/ReadonlyWidget.svelte';
     import { goto } from '$app/navigation';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { generatePdfPreviewUrl } from '$lib/helpers/files';

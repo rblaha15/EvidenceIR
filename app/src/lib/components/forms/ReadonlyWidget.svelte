@@ -2,7 +2,7 @@
     import type { Translations } from '$lib/translations';
     import type { BaseWidget, Widget } from '$lib/forms/Widget';
     import { dateFromISO, datetimeFromISO } from '$lib/helpers/date';
-    import Title from '$lib/components/widgets/Title.svelte';
+    import Title from '$lib/components/forms/widgets/Title.svelte';
     import type { WidgetValue } from '$lib/forms/Form';
 
     interface Props {

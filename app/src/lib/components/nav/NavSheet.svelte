@@ -2,7 +2,7 @@
     import type { Translations } from '$lib/translations';
     import NavItems from './NavItems.svelte';
     import { page } from '$app/state';
-    import TableOfContents from '$lib/components/TableOfContents.svelte';
+    import TableOfContents from '$lib/components/nav/TableOfContents.svelte';
     import { buttonVariants } from '$lib/components/ui/button';
     import { Menu, X } from "@lucide/svelte";
     import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTrigger } from "$lib/components/ui/sheet";

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { detailUrlIR, detailUrlNSP, relUrl } from '$lib/helpers/runes.svelte.js';
     import { isAdmin } from '$lib/client/auth';
-    import Widget from '$lib/components/Widget.svelte';
+    import Widget from '$lib/components/forms/Widget.svelte';
     import { goto } from '$app/navigation';
     import { type Translations } from '$lib/translations';
     import { defaultNSP } from '$lib/forms/NSP/formNSP';

@@ -3,7 +3,7 @@
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
     import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
-    import Widget from '$lib/components/Widget.svelte';
+    import Widget from '$lib/components/forms/Widget.svelte';
     import { getTranslations } from '$lib/translations';
     import { dateFromISO, dayISO } from '$lib/helpers/date';
     import { isSP } from '$lib/forms/SP/infoSP.svelte';

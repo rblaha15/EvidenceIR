@@ -3,7 +3,7 @@
     import { type RadioWithInputWidget, type RaI } from '$lib/forms/Widget';
     import { Field, FieldLabel } from "$lib/components/ui/field";
     import { Input } from "$lib/components/ui/input";
-    import CoreRadio from "$lib/components/CoreRadio.svelte";
+    import CoreRadio from "$lib/components/forms/CoreRadio.svelte";
 
     interface Props {
         t: Translations;

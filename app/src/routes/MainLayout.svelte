@@ -5,7 +5,7 @@
     import { getIsLoggedIn, isLoggedIn } from '$lib/client/auth';
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import Navigation from '$lib/components/nav/Navigation.svelte';
-    import TableOfContents from '$lib/components/TableOfContents.svelte';
+    import TableOfContents from '$lib/components/nav/TableOfContents.svelte';
     import { Button } from '$lib/components/ui/button';
     import { Progress } from '$lib/components/ui/progress';
     import { Separator } from '$lib/components/ui/separator';

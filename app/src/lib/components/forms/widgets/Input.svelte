@@ -1,7 +1,7 @@
 <script generics="C" lang="ts">
     import type { Translations } from '$lib/translations';
     import { type InputWidget } from '$lib/forms/Widget';
-    import CoreInput from '$lib/components/CoreInput.svelte';
+    import CoreInput from '$lib/components/forms/CoreInput.svelte';
 
     interface Props {
         t: Translations;

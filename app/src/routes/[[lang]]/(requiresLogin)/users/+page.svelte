@@ -3,7 +3,7 @@
     import type { PageProps } from './$types';
     import { setTitle } from '$lib/helpers/globals.js';
     import { irWholeName } from '$lib/helpers/ir';
-    import Search from '$lib/components/widgets/Search.svelte';
+    import Search from '$lib/components/forms/widgets/Search.svelte';
     import { derived } from 'svelte/store';
     import db from '$lib/client/db';
     import { newSearchWidget } from '$lib/forms/Widget';

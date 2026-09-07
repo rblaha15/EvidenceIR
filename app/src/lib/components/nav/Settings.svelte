@@ -2,7 +2,7 @@
     import type { Translations } from '$lib/translations';
     import ThemeSelector from '$lib/components/nav/ThemeSelector.svelte';
     import LanguageSelector from '$lib/components/nav/LanguageSelector.svelte';
-    import { removeAllFiles } from '$lib/components/widgets/File.svelte';
+    import { removeAllFiles } from '$lib/components/forms/widgets/File.svelte';
     import { browser, version } from '$app/environment';
     import { page } from '$app/state';
     import { currentPreferredDocumentLanguage, setUserPreferredLanguage } from '$lib/languages';

@@ -10,7 +10,7 @@
     import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
     import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
     import { Button } from '$lib/components/ui/button';
-    import Widget from '$lib/components/Widget.svelte';
+    import Widget from '$lib/components/forms/Widget.svelte';
     import type { IR } from '$lib/data';
     import { newInputWidget, newSearchWidget } from '$lib/forms/Widget';
     import { datetimeFromISO, nowISO } from '$lib/helpers/date';

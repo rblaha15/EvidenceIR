@@ -1,5 +1,5 @@
 <script lang="ts">
-    import ReadonlyWidget from '$lib/components/ReadonlyWidget.svelte';
+    import ReadonlyWidget from '$lib/components/forms/ReadonlyWidget.svelte';
     import type { Form } from '$lib/forms/Form';
     import { type Translations } from '$lib/translations';
     import type { FormNK } from '$lib/forms/NK/formNK';

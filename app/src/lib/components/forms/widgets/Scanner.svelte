@@ -1,11 +1,11 @@
 <script generics="C" lang="ts">
     import { Html5Qrcode } from 'html5-qrcode';
     import type { Translations } from '$lib/translations';
-    import CoreInput from '$lib/components/CoreInput.svelte';
+    import CoreInput from '$lib/components/forms/CoreInput.svelte';
     import type { ScannerWidget } from '$lib/forms/Widget';
     import { ScanBarcode } from "@lucide/svelte";
     import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "$lib/components/ui/dialog";
-    import { buttonVariants } from '../ui/button';
+    import { buttonVariants } from '../../ui/button';
     import type { Attachment } from "svelte/attachments";
     import { InputGroupButton } from "$lib/components/ui/input-group";
 

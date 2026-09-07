@@ -2,7 +2,7 @@
     import type { Translations } from '$lib/translations';
     import { type IR } from '$lib/data';
     import { defaultDK, type FormPartDK, saveDK } from '$lib/forms/DK/formDK';
-    import Widget from '$lib/components/Widget.svelte';
+    import Widget from '$lib/components/forms/Widget.svelte';
     import { type ContextChangeDK, getDKInfo } from '$lib/features/detail/domain/detailIR/DK';
     import { defaultFormGroupValues, type FormPartValues, widgetListFromGroup } from '$lib/forms/Form';
     import { Bell, SendHorizontal } from '@lucide/svelte';

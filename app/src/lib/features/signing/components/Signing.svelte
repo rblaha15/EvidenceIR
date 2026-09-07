@@ -12,7 +12,7 @@
     import { sendSMS } from '$lib/features/signing/actions/sms';
     import { getData } from '$lib/helpers/getData';
     import { newInputWidget } from '$lib/forms/Widget';
-    import Widget from '$lib/components/Widget.svelte';
+    import Widget from '$lib/components/forms/Widget.svelte';
     import type { Translations } from '$lib/translations';
     import { confirmCode } from '$lib/features/signing/actions/code';
     import { isOnline } from '$lib/client/online';
