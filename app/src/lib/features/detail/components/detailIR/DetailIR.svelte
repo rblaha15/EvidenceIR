@@ -69,7 +69,7 @@
         {#if !ir.isDraft}
             <div class="flex flex-col gap-4">
                 <h3>{td.documents}</h3>
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-2">
                     <DocumentsIR {ir} {t} {lang} {irid} />
                 </div>
             </div>

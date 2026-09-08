@@ -3,6 +3,7 @@ import type { ExistingIR } from '$lib/data';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { cascadePumps, type PumpInfo } from '$lib/forms/IN/infoIN';
 import { isRKTL } from '$lib/forms/RKT/infoRKT';
+import { dateFromISO } from '$lib/helpers/date';
 import { iridUrl } from '$lib/helpers/runes.svelte.js';
 import { iaA, iaR } from '$lib/helpers/stores';
 import type { Pdf, PdfParameters } from '$lib/pdf/pdf';
@@ -25,6 +26,7 @@ export type DocumentLinkDefinition<P extends Pdf> = PdfParameters<P> & {
     }),
     dropdownItems?: DropdownItems;
     signed?: boolean;
+    supportingText?: string;
 }
 
 const getButtonUPT = (
@@ -165,6 +167,7 @@ export const createDocumentLinks = (
             additionalButton: user.isRegulusOrAdmin || user.allowUPT ? getButtonUPT(t) : undefined,
             dropdownItems: user.isRegulusOrAdmin ? [getDropdownItemUPT(t, user)] : undefined,
             signed: ir.signatures?.UPT?.state == 'signed',
+            supportingText: ir.UP.dateTC ? `${t.dk.commissionedAt('TČ')}: ${dateFromISO(ir.UP.dateTC)}` : undefined,
         });
 
         for (const tc of cascadePumps(ir.IN)) {
@@ -185,6 +188,7 @@ export const createDocumentLinks = (
             additionalButton: getButtonUPS(t),
             dropdownItems: user.isRegulusOrAdmin ? [getDropdownItemUPS(t, user)] : undefined,
             signed: ir.signatures?.UPS?.state == 'signed',
+            supportingText: ir.UP.dateSOL ? `${t.dk.commissionedAt('SOL')}: ${dateFromISO(ir.UP.dateSOL)}` : undefined,
         });
 
         add({

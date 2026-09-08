@@ -5,7 +5,6 @@
     import type { IRID } from '$lib/helpers/ir';
     import { isAdmin } from '$lib/client/auth';
     import { iaA } from '$lib/helpers/stores';
-    import { dateFromISO } from '$lib/helpers/date';
     import ModalDK from '$lib/features/detail/components/detailIR/ModalDK.svelte';
     import { getDKInfo } from '$lib/features/detail/domain/detailIR/DK';
     import { Button } from '$lib/components/ui/button';
@@ -14,12 +13,11 @@
     const { t, ir, type }: {
         t: Translations, ir: IR, irid: IRID, type: 'TČ' | 'SOL'
     } = $props();
-    const tr = $derived(t.dk);
 
-    const { settings, show, commissionDate } = $derived(getDKInfo(type, ir));
+    const { settings, show } = $derived(getDKInfo(type, ir));
 </script>
 
-{#if show || commissionDate}
+{#if show}
     <div class="flex flex-col gap-1 sm:items-start">
         {#if show && ir}
             <ModalDK {t} {ir} {type} />
@@ -29,9 +27,6 @@
                     <Server /> {t.detail.openInDatabase}{iaA}
                 </Button>
             {/if}
-        {/if}
-        {#if commissionDate}
-            <span>{tr.commissionedAt(type)}: {dateFromISO(commissionDate)}</span>
         {/if}
     </div>
 {/if}

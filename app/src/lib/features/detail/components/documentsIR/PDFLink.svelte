@@ -25,6 +25,7 @@
         additionalButton,
         data,
         signed,
+        supportingText,
         ...options
     }: Props<P> = $props();
 
@@ -56,5 +57,9 @@
 
     {#if signed}
         <div class="text-success">Podepsáno</div>
+    {/if}
+
+    {#if supportingText}
+        <div>{supportingText}</div>
     {/if}
 </ButtonGroup>
