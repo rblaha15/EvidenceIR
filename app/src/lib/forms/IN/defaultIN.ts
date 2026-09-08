@@ -559,7 +559,7 @@ export default (): FormPlus<FormIN> => ({
                 mask: doesNotHaveIRNumber(c.v.ir.typ) ? `0000-00-00T00:00`
                     : isCTC(c.v.ir.typ.first) ? `0000-0000-0000`
                         : !supportsMACAddresses(c.v.ir.typ.first) ? 'Z8 0000'
-                            : c.v.ir.cislo.length == 0 ? 'X'
+                            : c.v.ir.cislo.length == 0 ? 'X................'
                                 : c.v.ir.cislo[0] == '0'
                                     ? isMACAddressTypeIR10(c.v.ir.typ.first)
                                         ? 'NN:NA:14:N6:FF:FF'
@@ -577,6 +577,7 @@ export default (): FormPlus<FormIN> => ({
                     F: /[0-9A-Fa-f]/,
                     Z: /[A-Za-z]/,
                     8: /[1-9ONDond]/,
+                    '.': /./,
                 },
             }), onValueSet: (c, v) => {
                 if (ecoHeat(c)) {
