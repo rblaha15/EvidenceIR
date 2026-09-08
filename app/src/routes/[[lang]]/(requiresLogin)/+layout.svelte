@@ -12,7 +12,9 @@
 </script>
 
 {#if $user}
-	{@render children?.()}
+    {#key $user?.id}
+	    {@render children?.()}
+    {/key}
 {:else}
     <p>{data.translations.auth.requiresLogIn}</p>
 {/if}

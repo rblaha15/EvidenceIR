@@ -26,7 +26,7 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
 
         setTimeout(() => grantPoints({ type: 'heatPumpCommission', irid }), 500);
 
-        const user = (await getUser())!;
+        const user = getUser()!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit

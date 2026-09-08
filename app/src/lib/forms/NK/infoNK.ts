@@ -15,7 +15,7 @@ const infoNK: IndependentFormInfo<ContextNK, FormNK> = {
     storeName: () => 'stored_demand',
     form: defaultNK,
     saveData: async ({ raw, form, editResult, t, resetForm }) => {
-        const user = (await getUser())!;
+        const user = getUser()!;
 
         const name = raw.contacts.name;
         const surname = raw.contacts.surname;

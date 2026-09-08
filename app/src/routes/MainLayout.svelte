@@ -2,7 +2,7 @@
     import { dev } from '$app/environment';
     import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { page } from '$app/state';
-    import { getIsLoggedIn, isLoggedIn } from '$lib/client/auth';
+    import { getIsLoggedIn, isLoggedIn, sessionData } from '$lib/client/auth';
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import TableOfContents from '$lib/components/nav/TableOfContents.svelte';
@@ -64,7 +64,7 @@
 
     const fixUrl = async () => {
         if (path == '/') {
-            const isLoggedIn = await getIsLoggedIn();
+            const isLoggedIn = getIsLoggedIn();
             const route = isLoggedIn ? initialRouteLoggedIn : initialRouteLoggedOut;
             const lang = data.isLanguageFromUrl ? data.languageCode : '?';
             return await goto(relUrl(route, lang));
@@ -166,13 +166,13 @@
 {#if !data.isLanguageFromUrl || path === '/'}
     {@render loading()}
 {:else}
-    {#await getIsLoggedIn()}
+    {#if !$sessionData}
         {#if !error}
             {@render loading()}
         {:else}
             {@render errorAlert(error)}
         {/if}
-    {:then _}
+    {:else}
         {@render content()}
-    {/await}
+    {/if}
 {/if}

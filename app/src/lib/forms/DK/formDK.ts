@@ -108,7 +108,7 @@ export const saveDK = async <D extends ContextDK<D>>(ir: IR, values: Values<Form
     };
     const company = companyType ? companyType == 'regulus' ? 'Firma Regulus' : await getCompany() : null;
     const name = irWholeName(ir.IN);
-    const user = (await getUser())!;
+    const user = getUser()!;
     const response = await sendEmail({
         ...defaultAddresses(cervenka),
         subject: enabled

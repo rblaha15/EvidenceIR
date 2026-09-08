@@ -48,7 +48,7 @@ const newDb = (email: string) => openDB<DBSchema>(`offlineData2_${email}`, 2, {
 });
 
 const db = async () => {
-    const email = (await getUser())?.email ?? 'anonymous';
+    const email = getUser()?.email ?? 'anonymous';
     return dbMap[email] || (dbMap[email] = await newDb(email));
 };
 

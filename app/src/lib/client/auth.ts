@@ -3,7 +3,7 @@ import { inferAdditionalFields } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/svelte';
 import { type FirebaseOptions, getApps, initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { derived } from 'svelte/store';
+import { derived, get } from 'svelte/store';
 
 export const authClient = createAuthClient({
     plugins: [
@@ -11,16 +11,17 @@ export const authClient = createAuthClient({
     ],
 });
 
-export type User = typeof authClient['$Infer']['Session']['user'];
-export type Session = typeof authClient['$Infer']['Session']['session'];
+export type SessionData = typeof authClient['$Infer']['Session'];
+export type User = SessionData['user'];
+export type Session = SessionData['session'];
 
 export const sessionData = derived(authClient.useSession(), $session => $session.data);
 export const user = derived(sessionData, $data => $data?.user);
 export const session = derived(sessionData, $data => $data?.session);
 
-export const getSessionData = () => authClient.getSession().then(session => session.data);
-export const getUser = (): Promise<User | undefined> => getSessionData().then(data => data?.user);
-export const getSession = (): Promise<Session | undefined> => getSessionData().then(data => data?.session);
+export const getSessionData = (): SessionData | null => get(sessionData);
+export const getUser = (): User | undefined => getSessionData()?.user;
+export const getSession = (): Session | undefined => getSessionData()?.session;
 
 type Check1 = (user: User | undefined) => user is User;
 type Check2 = (user: User | undefined) => boolean;
@@ -31,10 +32,10 @@ export const checkIsSlovakRegulus: Check2 = user => checkedIsLoggedIn(user) && u
 export const checkIsRegulusOrAdmin: Check2 = user => checkIsRegulus(user) || checkIsAdmin(user);
 export const checkIsAnyRegulusOrAdmin: Check2 = user => checkIsSlovakRegulus(user) || checkIsRegulus(user) || checkIsAdmin(user);
 
-export const getIsLoggedIn = () => getUser().then(checkedIsLoggedIn);
-export const getIsAdmin = () => getUser().then(checkIsAdmin);
-export const getIsRegulusOrAdmin = () => getUser().then(checkIsRegulusOrAdmin);
-export const getIsAnyRegulusOrAdmin = () => getUser().then(checkIsAnyRegulusOrAdmin);
+export const getIsLoggedIn = () => checkedIsLoggedIn(getUser());
+export const getIsAdmin = () => checkIsAdmin(getUser());
+export const getIsRegulusOrAdmin = () => checkIsRegulusOrAdmin(getUser());
+export const getIsAnyRegulusOrAdmin = () => checkIsAnyRegulusOrAdmin(getUser());
 
 export const isLoggedIn = derived(user, checkedIsLoggedIn);
 export const isAdmin = derived(user, checkIsAdmin);

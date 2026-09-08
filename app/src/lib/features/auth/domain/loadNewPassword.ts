@@ -16,7 +16,7 @@ export const loadNewPassword = async (
 
         return { email: data.email, mode: data.mode as 'register' | 'reset' | 'loading', redirect: data.redirect, token };
     } else if (mode == 'edit') {
-        const user = await getUser();
+        const user = getUser();
         if (!user) return error(401);
 
         return { email: user.email, mode: 'edit' as const, redirect, token: '' };

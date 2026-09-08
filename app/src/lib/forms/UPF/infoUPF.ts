@@ -19,7 +19,7 @@ const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
     }),
     saveData: async ({ irid, raw, editResult, t, ir }) => {
         await db.addUPF(irid, raw);
-        if (await getIsRegulusOrAdmin()) return;
+        if (getIsRegulusOrAdmin()) return;
 
         const user = (await getUser())!;
         const response = await sendEmail({

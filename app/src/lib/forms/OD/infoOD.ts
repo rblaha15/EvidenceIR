@@ -1,4 +1,3 @@
-import { getUser } from '$lib/client/auth';
 import type { IndependentFormInfo } from '$lib/forms/FormInfo';
 import type { ContextOD, FormOD } from '$lib/forms/OD/formOD';
 import defaultOD from './defaultOD';
@@ -14,24 +13,24 @@ const infoOD: IndependentFormInfo<ContextOD, FormOD> = {
     storeName: () => 'stored_documents_to_send',
     form: defaultOD,
     onMount: async ({ values }) => {
-        const name = userAddress((await getUser())!)?.name;
+        const name = userAddress()?.name;
         values.all.body = !name ? `Dobrý den,\nv příloze naleznete podepsané dokumenty ze servisního zásahu.`
                 : `Dobrý den,\nv příloze naleznete podepsané dokumenty ze servisního zásahu.\nS pozdravem,\n${name}`;
         values.all.userEmail = page.url.searchParams.get('user') ?? '';
         values.all.assemblyEmail = page.url.searchParams.get('assembly') ?? '';
     },
     saveData: async ({ raw, editResult, t }) => {
-        const user = userAddress((await getUser())!);
+        const user = userAddress();
 
         const fileIds = [...raw.all.documents, ...raw.all.photos].map(photo => photo.uuid);
 
         const response = await sendHtmlEmail({
             ...defaultAddresses(cervenka, { includeName: true }),
             cc: dev ? undefined : [
-                user,
-                ...(raw.all.userEmail ? raw.all.userEmail.split(separatorsRegExp).map(t => t.trim()) : []),
-                ...(raw.all.assemblyEmail ? raw.all.assemblyEmail.split(separatorsRegExp).map(t => t.trim()) : []),
-                ...(raw.all.otherCopies ? raw.all.otherCopies.split(separatorsRegExp).map(t => t.trim()) : []),
+                ...user ? [user] : [],
+                ...(raw.all.userEmail?.split(separatorsRegExp)?.map(t => t.trim()) ?? []),
+                ...(raw.all.assemblyEmail?.split(separatorsRegExp)?.map(t => t.trim()) ?? []),
+                ...(raw.all.otherCopies?.split(separatorsRegExp)?.map(t => t.trim()) ?? []),
             ],
             subject: `Podepsané dokumenty`,
             attachments:

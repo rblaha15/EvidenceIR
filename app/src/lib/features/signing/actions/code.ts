@@ -1,4 +1,3 @@
-import { getUser } from '$lib/client/auth';
 import { call } from '$lib/client/endpoints';
 import type { ExistingIR, ExistingNSP } from '$lib/data';
 import { detailUrlIR, detailUrlNSP } from '$lib/helpers/runes.svelte';
@@ -28,7 +27,7 @@ const sendEmails = async (
 ) => {
     setStatus('sendingEmail');
 
-    const user = userAddress((await getUser())!);
+    const user = userAddress()!;
     const type = params.def.pdf == 'NSP' ? 'NSP' : 'IR';
     const name = type == 'NSP' ? spName((o.data as ExistingNSP).NSP.zasah) : irName((o.data as ExistingIR).IN.ir);
     const link = type == 'NSP' ? detailUrlNSP([params.def.id as NSPID], '?') : detailUrlIR(params.def.id as IRID, '?');

@@ -155,7 +155,7 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Per
             return;
         }
 
-        const user = (await getUser())!;
+        const user = getUser()!;
         const $friendlyCompanies = get(friendlyCompanies) as FriendlyCompanies;
 
         const newIr = newIR(raw, user.email, draft, $friendlyCompanies);

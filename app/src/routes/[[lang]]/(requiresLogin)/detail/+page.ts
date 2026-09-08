@@ -17,7 +17,7 @@ export const load: PageLoad = async ({ url, fetch }) => {
     const id = extractIDs(url);
     if (!id.irid && !id.nspids) error(400, { message: 'At least one of irid or spid bust be provided!' });
 
-    if (!await getIsLoggedIn()) return error(401);
+    if (!getIsLoggedIn()) return error(401);
     await fetchTechnicians(fetch);
     await fetchPeople(fetch);
 

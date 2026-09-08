@@ -18,7 +18,7 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loadin
     saveData: async ({ raw, edit, editResult, t, send }) => {
         const nspid = extractSPIDFromRawData(raw.zasah);
 
-        const user = (await getUser())!;
+        const user = getUser()!;
 
         if (edit) await db.updateNSP(nspid, raw);
         else await db.addNSP(newNSP(raw, user.email));

@@ -1,10 +1,9 @@
-import { user as userStore, type User } from '$lib/client/auth';
+import { getUser } from '$lib/client/auth';
 import { call } from '$lib/client/endpoints';
 import { env } from '$env/dynamic/public';
 import { htmlToText } from 'html-to-text';
 import { type Component, mount } from 'svelte';
 import { dev } from '$app/environment';
-import { get } from 'svelte/store';
 import { getIsOnline } from '$lib/client/online';
 import { addEmailToHistory } from '$lib/client/history.svelte';
 
@@ -110,13 +109,13 @@ export const SENDER = (name?: string): Address => ({
     address: env.PUBLIC_EMAIL_SENDER,
 });
 
-export const userAddress = (user: User) => ({
+export const userAddress = () => getUser()?.let(user => ({
     address: user.email,
     name: user.name,
-}) satisfies AddressLike;
+}) satisfies AddressLike);
 
 export const defaultAddresses = (recipient: AddressLike = receiver, o?: { sendCopy?: boolean, includeName?: boolean }) => {
-    const user = userAddress(get(userStore)!);
+    const user = userAddress()!;
     const { includeName = false, sendCopy = false } = o ?? {};
     return ({
         from: SENDER(includeName ? user.name : undefined),

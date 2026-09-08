@@ -14,8 +14,8 @@ export const entries: EntryGenerator = langEntryGenerator;
 export const load: PageLoad = async ({ url }) => {
     if (!browser) return { irid: undefined, ir: undefined };
 
-    if (!await getIsLoggedIn()) error(401);
-    if (!await getIsRegulusOrAdmin()) error(401);
+    if (!getIsLoggedIn()) error(401);
+    if (!getIsRegulusOrAdmin()) error(401);
 
     const id = extractIDs(url);
     if (!id.irid) error(400, { message: 'irid must be provided!' });

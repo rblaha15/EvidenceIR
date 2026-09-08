@@ -14,7 +14,7 @@ export const confirmRefsite = async (
     tc: TC,
     send: boolean = false,
 ) => {
-    const user = await getUser();
+    const user = getUser();
     const response = send ? await sendEmail({
         ...defaultAddresses(blahova),
         subject: `Vytvořit refsite u ${irName(ir.IN.ir)}`,

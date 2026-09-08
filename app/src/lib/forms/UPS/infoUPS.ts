@@ -22,9 +22,9 @@ const infoUPS: FormInfo<ContextUPS, FormUPS, [], 'UPS'> = ({
         await db.addUPS(irid, raw);
         await db.updateDateUPS(irid, values.uvadeni.date);
         if (!edit) await saveDK(ir, values.checkRecommendations, 'SOL');
-        if (await getIsRegulusOrAdmin()) return;
+        if (getIsRegulusOrAdmin()) return;
 
-        const user = (await getUser())!;
+        const user = getUser()!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit

@@ -102,9 +102,9 @@ const infoRKT: FormInfo<ContextRKT, FormRKT, [], 'RKT' | 'RKTL', { defaultYear: 
 
         await grantPoints({ type: 'heatPumpYearlyCheck', irid, pump, year });
 
-        if (await getIsRegulusOrAdmin()) return;
+        if (getIsRegulusOrAdmin()) return;
 
-        const user = (await getUser())!;
+        const user = getUser()!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit

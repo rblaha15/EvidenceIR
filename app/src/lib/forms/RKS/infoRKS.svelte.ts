@@ -51,7 +51,7 @@ const infoRKS: FormInfo<ContextRKS, FormRKS, [], 'RKS', { defaultYear: Year, fil
     saveData: async ({ irid, values, raw, edit, editResult, t, ir }) => {
         await db.addRKS(irid, values.info.year as Year, raw);
 
-        if (await getIsRegulusOrAdmin()) return;
+        if (getIsRegulusOrAdmin()) return;
 
         const user = (await getUser())!;
         const response = await sendEmail({

@@ -22,7 +22,7 @@ export const loadSigning = async (
 ) => {
     if (!(pdfName in pdfInfo)) error(404);
 
-    if (!await getIsLoggedIn()) error(401);
+    if (!getIsLoggedIn()) error(401);
 
     if (!pdfToSign.includes(pdfName)) error(400, { message: 'This document may not be signed' });
 
@@ -35,7 +35,7 @@ export const loadSigning = async (
 
     const pdf = pdfInfo[pdfName] as PdfArgs<Pdf>;
 
-    if (pdf.requiredRegulus && !await getIsRegulusOrAdmin()) error(403);
+    if (pdf.requiredRegulus && !getIsRegulusOrAdmin()) error(403);
 
     const id = extractIDs(url);
     const stores = getDataAsStore(id);

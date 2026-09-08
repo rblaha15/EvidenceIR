@@ -45,7 +45,7 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
 
     const pdf = pdfInfo[pdfName] as PdfArgs<Pdf>;
 
-    if (pdf.requiredRegulus && !await getIsRegulusOrAdmin())
+    if (pdf.requiredRegulus && !getIsRegulusOrAdmin())
         error(401);
 
     const id = extractIDs(url);
