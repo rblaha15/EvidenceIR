@@ -81,7 +81,7 @@
     ));
 </script>
 
-<div class="flex flex-col gap-4 py-4 *:not-[.list]:px-4 border border-input rounded-2xl">
+<div class="flex flex-col gap-4 p-4 border border-input rounded-2xl">
     <div class="flex relative items-center flex-wrap">
         <p>{ts.whatToSearch}</p>
         <div class="flex items-center gap-2 ms-auto">
@@ -119,12 +119,13 @@
             />
         </InputGroup>
     </Field>
-
-    <SearchItems
-        class="list"
-        {getSearchItem}
-        itemClass="not-first:border-t border-input hover:bg-searchbox px-4"
-        items={filtered}
-        {t}
-    />
 </div>
+
+<SearchItems
+    class="list"
+    {getSearchItem}
+    itemClass="border not-first:border-t-0 first:rounded-t-2xl last:rounded-b-2xl border-input hover:bg-searchbox px-4"
+    errorClass="hover:bg-transparent"
+    items={filtered}
+    {t}
+/>
