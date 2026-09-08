@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { replaceState } from '$app/navigation';
-
+    import { browser } from '$app/environment';
+    import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import { resetStores } from '$lib/client/incrementalUpdates';
     import { isOnline } from '$lib/client/online';
@@ -65,7 +65,8 @@
 
     let search = $state(page.state.search ?? '');
     $effect(() => {
-        replaceState('', { search: search });
+        if (browser)
+            goto('', { replaceState: true, state: { search } });
     });
 
     const filtered = $derived($items.filter(item =>
