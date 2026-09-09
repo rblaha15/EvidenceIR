@@ -100,7 +100,7 @@ export const generatePdf = async <P extends Pdf>(
             pdfDoc.addPage(newPage);
         });
     };
-    const formData = await args.getPdfData?.({ ...o, t, addDoc, data, lang }) ?? {};
+    const formData = await args.getPdfData?.({ ...o, t, addDoc, data, lang, fetch }) ?? {};
 
     const initText = (name: string, value: string | null) => {
         const field = form.getTextField(name);

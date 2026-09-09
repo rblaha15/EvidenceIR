@@ -7,7 +7,7 @@ import type { Year } from '$lib/data';
 import { range } from '$lib/extensions';
 import { rawDataToValues, valuesToRawData } from '$lib/forms/Form';
 
-const pdfRKS: GetPdfData<'RKS'> = async ({ data, t, lastYear, addDoc, lang }) => {
+const pdfRKS: GetPdfData<'RKS'> = async ({ data, t, lastYear, addDoc, lang, fetch }) => {
     const { RK: { SOL: originalChecks }, IN, UP: { SOL: UP } } = data;
     const tk = t.rks;
     if (!originalChecks) throw new Error('RK SOL not filled');
@@ -22,7 +22,7 @@ const pdfRKS: GetPdfData<'RKS'> = async ({ data, t, lastYear, addDoc, lang }) =>
         data, lang, link: 'RKS', lastYear: nextStartYear - 1 as Year,
     });
 
-    const montazka = await ares.getName(IN.montazka.ico);
+    const montazka = await ares.getName(IN.montazka.ico, fetch);
     const start = {
         Text1:
             `${t.in.endCustomer}: ${endUserName(IN.koncovyUzivatel)} – ${IN.koncovyUzivatel.telefon} – ${IN.koncovyUzivatel.email}\n` +

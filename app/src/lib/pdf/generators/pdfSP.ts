@@ -108,7 +108,7 @@ export const pdfNameNSP: GetPdfSourceFileName<'NSP'> = async ({ data }) => {
     return getVariant(NSP);
 }
 
-export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) => {
+export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount, fetch }) => {
     const { NSP } = data;
     const ts = t.sp;
     const assemblyCompany = await ares.getNameAndAddress(NSP.montazka.ico, fetch);
@@ -216,7 +216,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount }) 
         Text39: isFree ? 'Zdarma' : get(ts, NSP.fakturace.hotove),
         Text41: NSP.fakturace.hotove != 'no' || isFree ? ''
             : NSP.fakturace.komu.chosen == 'otherCompany' ? detectCRN(NSP.fakturace.komu.text)
-                : NSP.fakturace.komu.chosen == 'commissioningCompany' ? (await ares.getName(NSP.uvedeni.ico) || NSP.uvedeni.ico)
+                : NSP.fakturace.komu.chosen == 'commissioningCompany' ? (await ares.getName(NSP.uvedeni.ico, fetch) || NSP.uvedeni.ico)
                     : get(ts, NSP.fakturace.komu.chosen),
         Text42: NSP.fakturace.hotove == 'no' && !isFree ? get(ts, NSP.fakturace.jak) : '',
         Text43: {
@@ -259,11 +259,11 @@ export const pdfNameSP: GetPdfSourceFileName<'SP'> = async ({ data, id, lang, t 
     });
 }
 
-export const pdfSP: GetPdfData<'SP'> = async ({ data, t, addDoc, id, lang }) => {
+export const pdfSP: GetPdfData<'SP'> = async ({ data, t, addDoc, id, lang, fetch }) => {
     const { ensureSP } = await import('$lib/forms/SP/infoSP.svelte');
     const NSP = generalizeServiceProtocol(data.meta, data.IN, ensureSP(data.SPs[id]), t);
     return await pdfNSP({
-        data: NSP, t, addDoc, lang,
+        data: NSP, t, addDoc, lang, fetch,
         pumpCount: cascadePumps(data.IN).length,
     });
 };

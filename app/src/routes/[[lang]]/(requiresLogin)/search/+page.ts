@@ -35,7 +35,7 @@ export type IR_NSP = {
     modified: Date,
 }
 
-export const load: PageLoad = async ({ parent }) => {
+export const load: PageLoad = async ({ parent, fetch }) => {
     if (!browser) return {
         data: readable({ items: [] as IR_NSP[], status: 'loaded' as 'loaded' | 'loadingOnline' }),
     };
@@ -44,7 +44,7 @@ export const load: PageLoad = async ({ parent }) => {
     const data = await parent();
     const ts = getTranslations(data.languageCode).search;
 
-    const irs = derived(getAllIRs(), $irs => ({
+    const irs = derived(getAllIRs(fetch), $irs => ({
         status: $irs.status, data: $irs.data
             .filter(ir => (getIsAdmin() || !ir.deleted))
             .map(ir => ({
@@ -61,7 +61,7 @@ export const load: PageLoad = async ({ parent }) => {
     }));
 
     const nsps = derived(
-        getIsRegulusOrAdmin() ? getAllNSPs() : readable({ status: 'loaded', data: [] } as Results<'NSP'>),
+        getIsRegulusOrAdmin() ? getAllNSPs(fetch) : readable({ status: 'loaded', data: [] } as Results<'NSP'>),
         $nsps => ({
             status: $nsps.status, data: $nsps.data
                 .mapNotUndefined(sp => !getIsAdmin() && sp.deleted ? undefined : sp)

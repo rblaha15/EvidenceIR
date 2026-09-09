@@ -7,7 +7,7 @@ import { range } from '$lib/extensions';
 import { get } from '$lib/translations';
 import ares from '$lib/helpers/ares';
 
-const pdfUPF: GetPdfData<'UPF'> = async ({ data: { IN, UP: { FVE: UP }, }, t, lang }) => {
+const pdfUPF: GetPdfData<'UPF'> = async ({ data: { IN, UP: { FVE: UP }, }, t, lang, fetch }) => {
     if (!UP) throw new Error("UP FVE not filled")
     const tu = t.fve
     const fields = [
@@ -19,7 +19,7 @@ const pdfUPF: GetPdfData<'UPF'> = async ({ data: { IN, UP: { FVE: UP }, }, t, la
 /*      koncakTel */ Text2: IN.koncovyUzivatel.telefon,
 /*    koncakEmail */ Text3: IN.koncovyUzivatel.email,
 /*      instalace */ Text4: `${IN.mistoRealizace.ulice}, ${IN.mistoRealizace.psc} ${IN.mistoRealizace.obec}`,
-/*       montazka */ Text5: await ares.getName(IN.montazka.ico) ?? '',
+/*       montazka */ Text5: await ares.getName(IN.montazka.ico, fetch) ?? '',
 /*    montazkaICO */ Text6: IN.montazka.ico,
 /*    uvadecOsoba */ Text7: IN.uvedeni.zastupce,
 /*      uvadecTel */ Text8: IN.uvedeni.telefon,

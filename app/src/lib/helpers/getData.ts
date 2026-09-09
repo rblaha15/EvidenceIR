@@ -7,7 +7,7 @@ import db from '$lib/client/db';
 export const getData = async (id: {
     irid: IRID | null;
     nspids: NSPID[];
-}): Promise<{
+}, fetch: typeof window.fetch = window.fetch): Promise<{
     irid: IRID | null, nspids: NSPID[],
     ir: IR | null, nsps: NSP[],
     success: boolean,
@@ -16,12 +16,12 @@ export const getData = async (id: {
 
     try {
         if (id.irid) {
-            const ir = await db.getIR(id.irid);
+            const ir = await db.getIR(id.irid, fetch);
 
             if (!ir) return { ...base };
             return { ...base, ir, success: true };
         } else if (id.nspids) {
-            const data = await id.nspids.map(db.getNSP).awaitAll();
+            const data = await id.nspids.map(nspid => db.getNSP(nspid, fetch)).awaitAll();
             const defined = data.filterNotUndefined();
             const anyNotDeleted = defined.some(p => !p.deleted);
             const nsps = anyNotDeleted ? defined.filter(p => !p.deleted) : defined;
@@ -38,7 +38,7 @@ export const getData = async (id: {
 export const getDataAsStore = (id: {
     irid: IRID | null;
     nspids: NSPID[]
-}): {
+}, fetch: typeof window.fetch): {
     irid: IRID | null, nspids: NSPID[],
     ir: Readable<IR | null | 'loading'>, nsps: Readable<NSP[] | 'loading'>,
 } => {
@@ -46,13 +46,13 @@ export const getDataAsStore = (id: {
 
     try {
         if (id.irid) {
-            const ir = getStoreIR(id.irid);
+            const ir = getStoreIR(id.irid, fetch);
 
             if (!ir) return { ...base };
             return { ...base, ir };
         } else if (id.nspids) {
             const nsps = derived(
-                id.nspids.map(getStoreNSP),
+                id.nspids.map(nspid => getStoreNSP(nspid, fetch)),
                 data => {
                     if (data.some(p => p == 'loading')) return 'loading';
                     return data.map(p => p == 'loading' ? undefined : p).filterNotUndefined()

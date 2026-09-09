@@ -25,7 +25,7 @@ const calculateCompressorRuntime = ({ runtimeHoursPerYear, startupCountPerYear }
     return (thisRuntimeHours - lastRuntimeHours) / (thisStartupCount - lastStartupCount) * 60;
 };
 
-export const pdfRKTL: GetPdfData<'RKTL'> = async ({ data, t, pump, lastYear, addDoc, lang, fetch = window.fetch }) => {
+export const pdfRKTL: GetPdfData<'RKTL'> = async ({ data, t, pump, lastYear, addDoc, lang, fetch }) => {
     const { RK: { TC: RK }, IN, UP: { TC: UP } } = data;
     const tk = t.rkt;
     const originalChecks = RK[pump]!;
@@ -50,7 +50,7 @@ export const pdfRKTL: GetPdfData<'RKTL'> = async ({ data, t, pump, lastYear, add
         fetch,
     });
 
-    const montazka = await ares.getName(IN.montazka.ico);
+    const montazka = await ares.getName(IN.montazka.ico, fetch);
     const pumpInfo = cascadePumps(IN)[pump - 1];
     const start = {
         Text1:
@@ -133,7 +133,7 @@ const compressorRuntimeArguments = (allChecks: { [_ in Year]?: Raw<FormRKT | For
     return { argsHP, argsHW };
 };
 
-const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang }) => {
+const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang, fetch }) => {
     const { RK: { TC: RK }, IN: e, UP: { TC: UP } } = data;
     const tk = t.rkt;
     const originalChecks = RK[pump]!;
@@ -154,7 +154,7 @@ const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang
         data: {},
     });
 
-    const montazka = await ares.getName(e.montazka.ico);
+    const montazka = await ares.getName(e.montazka.ico, fetch);
     const pumpInfo = cascadePumps(e)[pump - 1];
     const start = {
         _popis: {

@@ -9,7 +9,7 @@ import { today } from '$lib/helpers/date';
 const representative = (c: Raw<FormIN>['montazka' | 'uvedeni']) =>
     `${c.zastupce} – ${c.email}; ${c.telefon ?? ''}`;
 
-const pdfRR: GetPdfData<'RR'> = async ({ data: { IN }, t }) => ({
+const pdfRR: GetPdfData<'RR'> = async ({ data: { IN }, t, fetch }) => ({
     Text1: IN.montazka.ico,
     Text2: (await ares.getName(IN.montazka.ico, fetch)) ?? null,
     Text3: representative(IN.montazka),

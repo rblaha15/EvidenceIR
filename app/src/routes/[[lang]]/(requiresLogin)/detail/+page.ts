@@ -21,7 +21,7 @@ export const load: PageLoad = async ({ url, fetch }) => {
     await fetchTechnicians(fetch);
     await fetchPeople(fetch);
 
-    const data = getDataAsStore(id);
+    const data = getDataAsStore(id, fetch);
 
     await waitUntil(data.ir, p => p != 'loading')
     await waitUntil(data.nsps, p => p != 'loading')

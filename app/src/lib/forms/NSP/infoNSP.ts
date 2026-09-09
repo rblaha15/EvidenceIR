@@ -51,18 +51,18 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loadin
         await fetchTechnicians();
         await fetchSpareParts();
     },
-    getEditData: async url => {
+    getEditData: async (url, fetch) => {
         const nspid = url.searchParams.get('edit-nspid') as NSPID | null;
         if (!nspid) return undefined;
 
-        const sp = await db.getNSP(nspid);
+        const sp = await db.getNSP(nspid, fetch);
         return !sp || sp.deleted ? undefined : { raw: sp.NSP };
     },
-    getViewData: async url => {
+    getViewData: async (url, fetch) => {
         const nspid = url.searchParams.get('view-nspid') as NSPID | null;
         if (!nspid) return undefined;
 
-        const sp = await db.getNSP(nspid);
+        const sp = await db.getNSP(nspid, fetch);
         return !sp ? undefined : { raw: sp.NSP };
     },
     storeEffects: [

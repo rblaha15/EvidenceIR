@@ -19,6 +19,7 @@ import { derived } from 'svelte/store';
 export const loadSigning = async (
     pdfName: PdfToSign,
     url: URL,
+    fetch: typeof window.fetch,
 ) => {
     if (!(pdfName in pdfInfo)) error(404);
 
@@ -38,7 +39,7 @@ export const loadSigning = async (
     if (pdf.requiredRegulus && !getIsRegulusOrAdmin()) error(403);
 
     const id = extractIDs(url);
-    const stores = getDataAsStore(id);
+    const stores = getDataAsStore(id, fetch);
 
     await waitUntil(stores.ir, p => p != 'loading');
     await waitUntil(stores.nsps, p => p != 'loading');

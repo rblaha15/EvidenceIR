@@ -4,7 +4,7 @@ import { endUserName } from '$lib/helpers/ir';
 import { get } from '$lib/translations';
 import ares from '$lib/helpers/ares';
 
-const pdfUPS: GetPdfData<'UPS'> = async ({ data: { IN, UP: { SOL: UP, dateSOL } }, t }) => {
+const pdfUPS: GetPdfData<'UPS'> = async ({ data: { IN, UP: { SOL: UP, dateSOL } }, t, fetch }) => {
     if (!UP) throw new Error("UP SOL not filled")
     const tu = t.sol
 
@@ -13,7 +13,7 @@ const pdfUPS: GetPdfData<'UPS'> = async ({ data: { IN, UP: { SOL: UP, dateSOL } 
 /*      koncakTel */ Text2: IN.koncovyUzivatel.telefon,
 /*    koncakEmail */ Text3: IN.koncovyUzivatel.email,
 /*      instalace */ Text4: `${IN.mistoRealizace.ulice}, ${IN.mistoRealizace.psc} ${IN.mistoRealizace.obec}`,
-/*       montazka */ Text5: (await ares.getName(IN.montazka.ico)) ?? '',
+/*       montazka */ Text5: (await ares.getName(IN.montazka.ico, fetch)) ?? '',
 /*    montazkaICO */ Text6: IN.montazka.ico,
 /*    uvadecOsoba */ Text7: IN.uvedeni.zastupce,
 /*      uvadecTel */ Text8: IN.uvedeni.telefon,

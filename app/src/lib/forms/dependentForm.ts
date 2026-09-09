@@ -12,7 +12,7 @@ export const removeDependency = async <
     S extends unknown[][],
     P extends Pdf<'IR'> = Pdf<'IR'>,
     O extends Record<string, unknown> = Record<never, unknown>,
->(formInfo: FormInfo<D, F, S, P, O>, irid: IRID): Promise<IndependentFormInfo<D, F, S, P, O>> => {
+>(formInfo: FormInfo<D, F, S, P, O>, irid: IRID, fetch: typeof window.fetch): Promise<IndependentFormInfo<D, F, S, P, O>> => {
     const {
         storeName,
         form,
@@ -24,15 +24,15 @@ export const removeDependency = async <
         onMount,
     } = formInfo;
 
-    const ir = await db.getIR(irid!) ?? error(400, { message: 'IR not found' });
+    const ir = await db.getIR(irid!, fetch) ?? error(400, { message: 'IR not found' });
 
     return {
         ...formInfo,
         type: '',
         form: o => form(o, ir),
         storeName: o => `${storeName(o)}_${irid}`,
-        getEditData: async (url, o) => getEditData?.(ir, url, o),
-        getViewData: async url => getViewData?.(ir, url),
+        getEditData: async (url, _, o) => getEditData?.(ir, url, o),
+        getViewData: async (url, _) => getViewData?.(ir, url),
         saveData: async args => {
             const result = await saveData({ ...args, irid, ir });
             return result != false;

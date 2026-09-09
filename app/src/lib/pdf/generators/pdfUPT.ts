@@ -5,7 +5,7 @@ import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { get } from '$lib/translations';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 
-export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t, addDoc }) => {
+export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t, addDoc, fetch }) => {
     const { IN, UP: { TC: UP, dateTC } } = data;
     if (!UP) throw new Error("UP TC not filled");
     const tu = t.tc;
@@ -34,7 +34,7 @@ export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t, addDoc }) => {
         Text2: IN.koncovyUzivatel.telefon,
         Text3: IN.koncovyUzivatel.email,
         Text4: `${IN.mistoRealizace.ulice}, ${IN.mistoRealizace.psc} ${IN.mistoRealizace.obec}`,
-        Text5: await ares.getName(IN.montazka.ico) ?? '',
+        Text5: await ares.getName(IN.montazka.ico, fetch) ?? '',
         Text6: IN.montazka.ico,
         Text7: IN.uvedeni.zastupce,
         Text8: IN.uvedeni.ico == `${regulusCRN}` ? '+420 244 016 901' : IN.uvedeni.telefon,
@@ -111,7 +111,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
         Text2: IN.koncovyUzivatel.telefon,
         Text3: IN.koncovyUzivatel.email,
         Text4: `${IN.mistoRealizace.ulice}, ${IN.mistoRealizace.psc} ${IN.mistoRealizace.obec}`,
-        Text5: await ares.getName(IN.montazka.ico) ?? '',
+        Text5: await ares.getName(IN.montazka.ico, fetch) ?? '',
         Text6: IN.montazka.ico,
         Text7: IN.uvedeni.zastupce,
         Text8: IN.uvedeni.ico == `${regulusCRN}` ? '+420 244 016 901' : IN.uvedeni.telefon,

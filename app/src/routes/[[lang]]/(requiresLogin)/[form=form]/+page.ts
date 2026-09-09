@@ -8,7 +8,7 @@ import { extractIDs, langAndFormEntryGenerator } from '$lib/helpers/paths';
 
 export const entries: EntryGenerator = langAndFormEntryGenerator;
 
-export const load: PageLoad = async ({ params, url }) => {
+export const load: PageLoad = async ({ params, url, fetch }) => {
     const formName = params.form as FormName;
 
     if (!forms.includes(formName)) return error(404);
@@ -24,11 +24,11 @@ export const load: PageLoad = async ({ params, url }) => {
     if (form.type == 'IR' && !id.irid)
         return error(400, { message: 'irid must be provided to access this form!' });
 
-    const independentForm = form.type == '' ? form : await removeDependency(form, id.irid!);
+    const independentForm = form.type == '' ? form : await removeDependency(form, id.irid!, fetch);
 
 
-    const { raw: viewData, other: viewOther } = await independentForm.getViewData?.(url) ?? {};
-    const { raw: editData, other: editOther } = await independentForm.getEditData?.(url, viewOther as Record<never, unknown>) ?? {};
+    const { raw: viewData, other: viewOther } = await independentForm.getViewData?.(url, fetch) ?? {};
+    const { raw: editData, other: editOther } = await independentForm.getEditData?.(url, fetch, viewOther as Record<never, unknown>) ?? {};
     const other = { ...viewOther, ...editOther };
 
     return {

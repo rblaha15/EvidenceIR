@@ -178,18 +178,18 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Per
     redirectLink: async raw => detailUrlIR(extractIRIDFromRawData(raw)),
     createContext: ({ form: f, values: v }) => ({ f, v }),
     title: (t, mode) => mode == 'edit' ? t.in.editing : mode == 'view' ? t.detail.titleIR : t.in.title,
-    getEditData: async url => {
+    getEditData: async (url, fetch) => {
         const irid = url.searchParams.get('edit-irid') as IRID | null;
         if (!irid) return { other: { draft: false } };
 
-        const ir = await db.getIR(irid);
+        const ir = await db.getIR(irid, fetch);
         return !ir || ir.deleted ? { other: { draft: false } } : { raw: ir.IN, other: { draft: ir.isDraft, editIR: ir } };
     },
-    getViewData: async url => {
+    getViewData: async (url, fetch) => {
         const irid = url.searchParams.get('view-irid') as IRID | null;
         if (!irid) return { other: { draft: false } };
 
-        const ir = await db.getIR(irid);
+        const ir = await db.getIR(irid, fetch);
         return !ir ? { other: { draft: false } } : { raw: ir.IN, other: { draft: ir.isDraft } };
     },
     onMount: async ({ values }) => {

@@ -7,8 +7,8 @@ import { readable } from 'svelte/store';
 
 export const entries: EntryGenerator = langAndPdfEntryGenerator;
 
-export const load: PageLoad = async ({ params, url }) => !browser
+export const load: PageLoad = async ({ params, url, fetch }) => !browser
     ? { def: undefined, ir: readable(undefined), nsp: readable(undefined), settings: readable(undefined) } as const
-    : loadSigning(params.pdf as PdfToSign, url);
+    : loadSigning(params.pdf as PdfToSign, url, fetch);
 
 export const prerender = false;

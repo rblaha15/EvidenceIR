@@ -54,7 +54,7 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
     if (pdf.type == 'NSP' && !id.nspids)
         error(400, { message: 'nspids must be provided to access this document!' });
 
-    const data = await getData(id);
+    const data = await getData(id, fetch);
 
     if (pdf.type == 'IR' && (!data.ir || data.ir.deleted) || pdf.type == 'NSP' && (data.nsps.length != 1 || data.nsps[0].deleted))
         error(500, { message: 'Data not loaded' });

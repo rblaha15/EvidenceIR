@@ -39,11 +39,11 @@ export type IndependentFormInfo<
     /**
      * Runs in load.ts after getViewData
      */
-    getEditData?: ((url: URL, other: O) => Promise<{ raw?: Raw<F>, other?: Partial<O> } | undefined>) | undefined;
+    getEditData?: ((url: URL, fetch: typeof window.fetch, other: O) => Promise<{ raw?: Raw<F>, other?: Partial<O> } | undefined>) | undefined;
     /**
      * Runs in load.ts before getEditData
      */
-    getViewData?: ((url: URL) => Promise<{ raw?: Raw<F>, other?: O } | undefined>) | undefined;
+    getViewData?: ((url: URL, fetch: typeof window.fetch) => Promise<{ raw?: Raw<F>, other?: O } | undefined>) | undefined;
     onMount?: (_: { context: C, values: Values<F>, mode: Mode, other: O }) => Promise<void> | undefined;
     storeEffects?: { [I in keyof S]: Effect<C, F, S[I]> } | undefined;
     excelImport?: Omit<ExcelImport<Raw<F>>, 'defaultData'> & {

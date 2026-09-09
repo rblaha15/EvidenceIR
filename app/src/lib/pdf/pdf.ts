@@ -294,7 +294,7 @@ export type GetPdfData<P extends Pdf> = (o: {
     t: Translations,
     addDoc: <P extends Pdf>(o: GeneratePdfOptions<P>) => Promise<void>,
     lang: LanguageCode,
-    fetch?: typeof window.fetch,
+    fetch: typeof window.fetch,
 } & PdfParameters<P>) => Promise<PdfGenerationData>
 
 export type PdfArgs<P extends Pdf> = {

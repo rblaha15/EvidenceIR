@@ -11,7 +11,7 @@ import { extractIDs, langEntryGenerator } from '$lib/helpers/paths';
 
 export const entries: EntryGenerator = langEntryGenerator;
 
-export const load: PageLoad = async ({ url }) => {
+export const load: PageLoad = async ({ url, fetch }) => {
     if (!browser) return { irid: undefined, ir: undefined };
 
     if (!getIsLoggedIn()) error(401);
@@ -20,9 +20,9 @@ export const load: PageLoad = async ({ url }) => {
     const id = extractIDs(url);
     if (!id.irid) error(400, { message: 'irid must be provided!' });
 
-    await fetchPeople();
+    await fetchPeople(fetch);
 
-    const store = getStoreIR(id.irid);
+    const store = getStoreIR(id.irid, fetch);
 
     await waitUntil(store, p => p != 'loading')
 
