@@ -35,7 +35,7 @@
     } as unknown as OpenPdfOptions<P>);
 </script>
 
-<ButtonGroup class={["gap-x-4 gap-y-1", lang === 'de' ? 'flex-col items-start' : 'flex-wrap items-center']}>
+<ButtonGroup class={["gap-y-1!", lang === 'de' ? 'flex-col items-start' : 'flex-wrap items-center']}>
     <ButtonGroup>
         <Button {disabled} href={generatePdfPreviewUrl(o).href} variant="outline">
             <FileInput />
