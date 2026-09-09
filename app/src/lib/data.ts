@@ -134,7 +134,7 @@ export interface ExistingNSP extends BaseNSP {
 interface BaseNSP {
     meta: {
         id: NSPID;
-        changedAt?: Timestamp;
+        changedAt: Timestamp;
         createdAt: Timestamp;
         createdBy?: {
             email: string;
@@ -233,6 +233,7 @@ export const deleteIR = (
 ): MatchKeysAndValues<IR> => ({
     deleted: true,
     'meta.deletedAt': new Date().valueOf(),
+    'meta.changedAt': new Date().valueOf(),
     'meta.movedTo': movedTo,
 });
 
@@ -245,6 +246,7 @@ export const deletedIR = (
     meta: {
         ...ir.meta,
         deletedAt: new Date().valueOf(),
+        changedAt: new Date().valueOf(),
         movedTo,
     },
 });
@@ -252,6 +254,7 @@ export const deletedIR = (
 export const deleteNSP = (): MatchKeysAndValues<NSP> => ({
     deleted: true,
     'meta.deletedAt': new Date().valueOf(),
+    'meta.changedAt': new Date().valueOf(),
 });
 
 export const deletedNSP = (
@@ -262,5 +265,6 @@ export const deletedNSP = (
     meta: {
         ...nsp.meta,
         deletedAt: new Date().valueOf(),
+        changedAt: new Date().valueOf(),
     },
 });

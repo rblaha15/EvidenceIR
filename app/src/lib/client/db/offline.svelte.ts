@@ -1,17 +1,9 @@
-import { derived, writable } from 'svelte/store';
-import { type IDBPDatabase, openDB } from 'idb';
-import { extractIDFromSPOrSZ, type IRID, type NSPID } from '$lib/helpers/ir';
 import { getUser } from '$lib/client/auth';
-import {
-    type Data,
-    type DataType,
-    deletedIR,
-    deletedNSP,
-    type ID,
-    type IR,
-    type NSP
-} from '$lib/data';
-import type { Database, ReadDatabase, WriteDatabase } from "$lib/client/db/def";
+import type { Database, ReadDatabase, WriteDatabase } from '$lib/client/db/def';
+import { type Data, type DataType, deletedIR, deletedNSP, type ID, type IR, type NSP } from '$lib/data';
+import { extractIDFromSPOrSZ, type IRID, type NSPID } from '$lib/helpers/ir';
+import { type IDBPDatabase, openDB } from 'idb';
+import { derived, writable } from 'svelte/store';
 
 type DBSchema = {
     IR: {
@@ -60,22 +52,17 @@ export const clearLocalDatabase = async () => {
 };
 
 const odm = {
-    put: async <T extends DataType>(type: T, id: ID<T>, value: Data<T>) => {
-        const _db2 = await db();
-        await _db2.put(type, $state.snapshot(value) as Data<T>, id);
+    set: async <T extends DataType>(type: T, id: ID<T>, value: Data<T>) => {
+        await (await db()).put(type, $state.snapshot(value) as Data<T>, id);
         if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: value }));
         if (type === 'NSP') storedSP.update(sp => ({ ...sp, [id]: value }));
-    },
-    delete: async <T extends DataType>(type: T, id: ID<T>) => {
-        await (await db()).delete(type, id);
-        if (type === 'IR') storedIR.update(ir => ir.omit(id as ID<'IR'>));
-        if (type === 'NSP') storedSP.update(sp => sp.omit(id as ID<'NSP'>));
     },
     get: async <T extends DataType>(type: T, id: ID<T>) =>
         await (await db()).get(type, id) as Data<T>,
     getAll: async <T extends DataType>(type: T) =>
         await (await db()).getAll(type) as Data<T>[],
     setAll: async <T extends DataType>(type: T, values: { [id in ID<T>]: Data<T> }) => {
+        console.trace('set', values.keys());
         await (await db()).transaction(type, 'readwrite').let(async tx => {
             tx.objectStore(type).clear();
             await values.mapTo((id, value) =>
@@ -91,9 +78,6 @@ const odm = {
         const store = tx.objectStore(type);
         const current = await store.get(id);
         const updated = update(current! as Data<T>);
-        // const uw = unwrap(store);
-        // const rq = uw.put($state.snapshot(updated), id);
-        // await wrap(rq);
         await store.put($state.snapshot(updated) as Data<T>, id);
         await tx.done;
         if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: updated }));
@@ -101,31 +85,25 @@ const odm = {
     },
 };
 
-export const offlineDatabaseManager = {
-    ...odm,
-    putOrDelete: <T extends DataType>(type: T, id: ID<T>, value: Data<T> | null) =>
-        value ? odm.put(type, id, value) : odm.delete(type, id),
-};
+export const offlineDatabaseManager = odm;
 
 const readDatabase: ReadDatabase = {
     getIR: irid => odm.get('IR', irid),
     getChangedIRs: async () => [],
-    getDeletedIRs: async () => [],
     existsIR: async irid => Boolean(await odm.get('IR', irid)),
 
     getNSP: nspid => odm.get('NSP', nspid),
     getChangedNSPs: async () => [],
-    getDeletedNSPs: async () => [],
 };
 
 const writeDatabase: WriteDatabase = {
-    addIR: ir => odm.put('IR', ir.meta.id, ir),
+    addIR: ir => odm.set('IR', ir.meta.id, ir),
     deleteIR: irid => odm.update('IR', irid, ir => deletedIR(ir)),
     moveIR: async (irid, ir) => {
         if (await readDatabase.existsIR(ir.meta.id)) throw new Error(`IR ${ir.meta.id} already exists`);
         const oldIr = await readDatabase.getIR(irid);
         if (!oldIr) throw new Error(`IR ${irid} doesn't exists`);
-        await odm.put('IR', ir.meta.id, ir);
+        await odm.set('IR', ir.meta.id, ir);
         const newIr = await readDatabase.getIR(ir.meta.id);
         if (!newIr) throw new Error(`IR ${ir.meta.id} doesn't exists`);
         await odm.update('IR', irid, ir => deletedIR(oldIr, ir.meta.id));
@@ -223,7 +201,7 @@ const writeDatabase: WriteDatabase = {
         return ir;
     }),
 
-    addNSP: nsp => odm.put('NSP', nsp.meta.id, nsp),
+    addNSP: nsp => odm.set('NSP', nsp.meta.id, nsp),
     updateNSP: (nspid, rawData) => odm.update('NSP', nspid, nsp => {
         if (nsp.deleted) return nsp;
         nsp.NSP = rawData;

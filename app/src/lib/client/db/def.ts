@@ -1,5 +1,5 @@
 import type { IRID, NSPID, SPID, SZID } from "$lib/helpers/ir";
-import type { DeletedIR, DeletedNSP, ExistingIR, ExistingNSP, IR, NSP, Year, Timestamp } from "$lib/data";
+import type { IR, NSP, Year, Timestamp } from "$lib/data";
 import type { Raw } from "$lib/forms/Form";
 import type { FormIN } from "$lib/forms/IN/formIN";
 import type { TC } from "$lib/forms/IN/defaultIN";
@@ -24,17 +24,13 @@ import type { FormNSP } from "$lib/forms/NSP/formNSP";
 export interface ReadDatabase {
     getIR(irid: IRID): Promise<IR | null>;
 
-    getChangedIRs(lastUpdatedAt: Timestamp): Promise<ExistingIR[]>;
-
-    getDeletedIRs(lastUpdatedAt: Timestamp): Promise<DeletedIR[]>;
+    getChangedIRs(lastUpdatedAt: Timestamp): Promise<IR[]>;
 
     existsIR(irid: IRID): Promise<boolean>;
 
     getNSP(nspid: NSPID): Promise<NSP | null>;
 
-    getChangedNSPs(lastUpdatedAt: Timestamp): Promise<ExistingNSP[]>;
-
-    getDeletedNSPs(lastUpdatedAt: Timestamp): Promise<DeletedNSP[]>;
+    getChangedNSPs(lastUpdatedAt: Timestamp): Promise<NSP[]>;
 }
 
 /**
@@ -94,7 +90,7 @@ export interface Database extends ReadDatabase, WriteDatabase {
 }
 
 export const readDatabaseMethods = [
-    'getIR', 'getChangedIRs', 'getDeletedIRs', 'existsIR', 'getNSP', 'getChangedNSPs', 'getDeletedNSPs',
+    'getIR', 'getChangedIRs', 'existsIR', 'getNSP', 'getChangedNSPs',
 ] as const satisfies (keyof ReadDatabase)[];
 export const writeDatabaseMethods = [
     'addIR', 'deleteIR', 'moveIR', 'updateIN',

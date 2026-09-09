@@ -7,24 +7,20 @@ import {
     getOfflineStoreIR,
     offlineDatabaseManager as odm,
 } from '$lib/client/db/offline.svelte';
-import type { Data, DeletedData, ExistingData, ID, IR, NSP, Timestamp } from '$lib/data';
+import type { Data, ID, IR, NSP, Timestamp } from '$lib/data';
 import { isOnline } from '$lib/client/online';
 import { mongoDatabase } from "$lib/client/db/mongo";
 
-const v = 6
+const v = 7
 
 const defaultValue = 500;
 
 const lastChangedAtIR = storable<Timestamp>(`lastUpdatedChangedAtIR${v}`, defaultValue);
-const lastDeletedAtIR = storable<Timestamp>(`lastUpdatedDeletedAtIR${v}`, defaultValue);
 const lastChangedAtSP = storable<Timestamp>(`lastUpdatedChangedAtSP${v}`, defaultValue);
-const lastDeletedAtSP = storable<Timestamp>(`lastUpdatedDeletedAtSP${v}`, defaultValue);
 
 export const resetStores = () => {
     lastChangedAtIR.set(defaultValue);
-    lastDeletedAtIR.set(defaultValue);
     lastChangedAtSP.set(defaultValue);
-    lastDeletedAtSP.set(defaultValue);
 }
 
 export type Results<T extends 'IR' | 'NSP'> =
@@ -32,27 +28,22 @@ export type Results<T extends 'IR' | 'NSP'> =
 
 const getData = async <T extends 'IR' | 'NSP'>(type: T, store: Writable<Results<T>>) => {
     const lastChangedAtStore = { IR: lastChangedAtIR, NSP: lastChangedAtSP }[type];
-    const lastDeletedAtStore = { IR: lastDeletedAtIR, NSP: lastDeletedAtSP }[type];
     const lastChangedAt = get(lastChangedAtStore);
-    const lastDeletedAt = get(lastDeletedAtStore);
-    if (lastDeletedAt == defaultValue && lastChangedAt == defaultValue) await clearLocalDatabase(); // Clean up old data when changing the store
+    if (lastChangedAt == defaultValue) await clearLocalDatabase(); // Clean up old data when changing the store
     const currentOffline: Data<T>[] = await odm.getAll(type);
+    console.log('current', currentOffline.map(d => d.meta.id));
     store.set({ data: currentOffline, status: 'loadingOnline' });
     const getChanged = { IR: mongoDatabase.getChangedIRs, NSP: mongoDatabase.getChangedNSPs }[type];
-    const getDeleted = { IR: mongoDatabase.getDeletedIRs, NSP: mongoDatabase.getDeletedNSPs }[type];
-    const changes = await getChanged(lastChangedAt) as ExistingData<T>[];
-    const deletes = await getDeleted(lastDeletedAt) as DeletedData<T>[];
-    const newList = [...currentOffline, ...changes, ...deletes].distinctBy(it => it.meta.id);
+    const changes = await getChanged(lastChangedAt) as Data<T>[];
+    if (!changes.length) return console.log('no changes');
+    console.log('changes', changes.map(d => d.meta.id));
+    const newList = [...currentOffline, ...changes].distinctBy(it => it.meta.id);
+    console.log('result', newList.map(d => d.meta.id));
     store.set({ data: newList, status: 'loaded' });
     await odm.setAll(type, newList.associateBy(it => it.meta.id as ID<T>))
-    const key = (it: ExistingData<T>) =>
-        ({ IR: (it as IR).meta.changedAt, NSP: (it as NSP).meta.createdAt }[type])
-    if (changes.length) lastChangedAtStore.set(
-        changes.map(key).max(),
-    );
-    if (deletes.length) lastDeletedAtStore.set(
-        deletes.map(ir => ir.meta.deletedAt).max(),
-    );
+    const key = (it: Data<T>) =>
+        ({ IR: (it as IR).meta.changedAt, NSP: (it as NSP).meta.changedAt }[type])
+    lastChangedAtStore.set(changes.map(key).max());
 }
 
 export const getAllIRs = () => {

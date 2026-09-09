@@ -24,9 +24,9 @@ export const mongoDatabase: Database = [...readDatabaseMethods, ...writeDatabase
             const result = await response.json() as Awaited<ReturnType<ReadDatabase[typeof name]>>;
 
             if (name == 'getIR')
-                await offlineDatabaseManager.put('IR', args[0] as IRID, result as IR)
+                await offlineDatabaseManager.set('IR', args[0] as IRID, result as IR)
             if (name == 'getNSP')
-                await offlineDatabaseManager.put('NSP', args[0] as NSPID, result as NSP)
+                await offlineDatabaseManager.set('NSP', args[0] as NSPID, result as NSP)
 
             return result;
         } else {
