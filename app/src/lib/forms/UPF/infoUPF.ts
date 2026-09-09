@@ -21,7 +21,7 @@ const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
         await db.addUPF(irid, raw);
         if (getIsRegulusOrAdmin()) return;
 
-        const user = (await getUser())!;
+        const user = getUser()!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: `Vyplněno nové uvedení FVE do provozu k ${irName(ir.IN.ir)}`,

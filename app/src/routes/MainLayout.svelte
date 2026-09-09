@@ -23,6 +23,7 @@
         title
     } from '$lib/helpers/globals';
     import { relUrl } from '$lib/helpers/runes.svelte';
+    import { waitUntil } from '$lib/helpers/stores';
     import { preferredLanguage, setUserPreferredLanguage } from '$lib/languages';
     import { ArrowLeft } from '@lucide/svelte';
     import { onMount, type Snippet } from 'svelte';
@@ -64,6 +65,7 @@
 
     const fixUrl = async () => {
         if (path == '/') {
+            await waitUntil(sessionData, Boolean);
             const isLoggedIn = getIsLoggedIn();
             const route = isLoggedIn ? initialRouteLoggedIn : initialRouteLoggedOut;
             const lang = data.isLanguageFromUrl ? data.languageCode : '?';

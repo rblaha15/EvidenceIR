@@ -53,7 +53,7 @@ const infoRKS: FormInfo<ContextRKS, FormRKS, [], 'RKS', { defaultYear: Year, fil
 
         if (getIsRegulusOrAdmin()) return;
 
-        const user = (await getUser())!;
+        const user = getUser()!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit
