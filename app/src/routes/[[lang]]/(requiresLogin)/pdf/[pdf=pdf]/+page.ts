@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { getIsLoggedIn, getIsRegulusOrAdmin } from '$lib/client/auth';
+import { getCachedIsRegulusOrAdmin, getIsLoggedIn } from '$lib/client/auth';
 import type { IR, NSP } from '$lib/data';
 import {
     getDefiningParameter,
@@ -45,7 +45,7 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
 
     const pdf = pdfInfo[pdfName] as PdfArgs<Pdf>;
 
-    if (pdf.requiredRegulus && !getIsRegulusOrAdmin())
+    if (pdf.requiredRegulus && !getCachedIsRegulusOrAdmin())
         error(401);
 
     const id = extractIDs(url);

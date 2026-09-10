@@ -9,7 +9,7 @@ import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
-import { getUser, isRegulusOrAdmin, type User } from '$lib/client/auth';
+import { getCachedUser, isRegulusOrAdmin, type User } from '$lib/client/auth';
 import { getTranslations, type Translations } from '$lib/translations';
 import ares from '$lib/helpers/ares';
 import { generatePdf } from '$lib/pdf/pdfGeneration';
@@ -155,7 +155,7 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Per
             return;
         }
 
-        const user = getUser()!;
+        const user = getCachedUser()!;
         const $friendlyCompanies = get(friendlyCompanies) as FriendlyCompanies;
 
         const newIr = newIR(raw, user.email, draft, $friendlyCompanies);

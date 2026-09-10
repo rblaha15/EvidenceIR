@@ -13,10 +13,10 @@
     import Widget from '$lib/components/forms/Widget.svelte';
     import type { IR } from '$lib/data';
     import { newInputWidget, newSearchWidget } from '$lib/forms/Widget';
+    import { storable } from '$lib/helpers/newStores';
     import { datetimeFromISO, nowISO } from '$lib/helpers/date';
     import { irLabel, irName } from '$lib/helpers/ir';
     import { detailUrlIR } from '$lib/helpers/runes.svelte';
-    import { storable } from '$lib/helpers/stores';
     import { getTranslations } from '$lib/translations';
     import { PencilRuler, Trash2 } from '@lucide/svelte';
     import { derived } from 'svelte/store';

@@ -24,7 +24,7 @@ import {
 } from '$lib/forms/Widget';
 import { isNewWarranties } from '$lib/helpers/prices';
 import { dayISO } from '$lib/helpers/date';
-import { getUser } from '$lib/client/auth';
+import { getCachedUser } from '$lib/client/auth';
 
 export type ContextDK<D extends ContextDK<D>> = {
     IN: Raw<FormIN>,
@@ -108,7 +108,7 @@ export const saveDK = async <D extends ContextDK<D>>(ir: IR, values: Values<Form
     };
     const company = companyType ? companyType == 'regulus' ? 'Firma Regulus' : await getCompany() : null;
     const name = irWholeName(ir.IN);
-    const user = getUser()!;
+    const user = getCachedUser()!;
     const response = await sendEmail({
         ...defaultAddresses(cervenka),
         subject: enabled

@@ -1,3 +1,4 @@
+import { waitForFirst, filtered } from '$lib/helpers/stores';
 import type { auth } from '$lib/server/auth';
 import { inferAdditionalFields } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/svelte';
@@ -15,16 +16,30 @@ export type SessionData = typeof authClient['$Infer']['Session'];
 export type User = SessionData['user'];
 export type Session = SessionData['session'];
 
-export const sessionData = derived(authClient.useSession(), $session => $session.data);
-export const user = derived(sessionData, $data => $data?.user);
-export const session = derived(sessionData, $data => $data?.session);
+export const pendingSessionData = derived(authClient.useSession(),
+    (response): SessionData | null | 'pending' => response.isPending ? 'pending' : response.data,
+);
+export const pendingUser = derived(pendingSessionData,
+    ($data): User | null | 'pending' => $data == 'pending' || !$data ? $data : $data.user,
+);
+export const pendingSession = derived(pendingSessionData,
+    ($data): Session | null | 'pending' => $data == 'pending' || !$data ? $data : $data.session,
+);
 
-export const getSessionData = (): SessionData | null => get(sessionData);
-export const getUser = (): User | undefined => getSessionData()?.user;
-export const getSession = (): Session | undefined => getSessionData()?.session;
+export const sessionData = filtered(pendingSessionData, $data => $data != 'pending');
+export const user = filtered(pendingUser, $data => $data != 'pending');
+export const session = filtered(pendingSession, $data => $data != 'pending');
 
-type Check1 = (user: User | undefined) => user is User;
-type Check2 = (user: User | undefined) => boolean;
+export const getCachedSessionData = (): SessionData | null => get(sessionData) ?? null;
+export const getCachedUser = (): User | null => get(user) ?? null;
+export const getCachedSession = (): Session | null => get(session) ?? null;
+
+export const getSessionData = (): Promise<SessionData | null> => waitForFirst(pendingSessionData, $data => $data != 'pending');
+export const getUser = (): Promise<User | null> => waitForFirst(pendingUser, $data => $data != 'pending');
+export const getSession = (): Promise<Session | null> => waitForFirst(pendingSession, $data => $data != 'pending');
+
+type Check1 = (user: User | null) => user is User;
+type Check2 = (user: User | null) => boolean;
 export const checkedIsLoggedIn: Check1 = user => user != undefined;
 export const checkIsAdmin: Check2 = user => checkedIsLoggedIn(user) && user.role == 'admin';
 export const checkIsRegulus: Check2 = user => checkedIsLoggedIn(user) && user.email.endsWith('@regulus.cz');
@@ -32,10 +47,15 @@ export const checkIsSlovakRegulus: Check2 = user => checkedIsLoggedIn(user) && u
 export const checkIsRegulusOrAdmin: Check2 = user => checkIsRegulus(user) || checkIsAdmin(user);
 export const checkIsAnyRegulusOrAdmin: Check2 = user => checkIsSlovakRegulus(user) || checkIsRegulus(user) || checkIsAdmin(user);
 
-export const getIsLoggedIn = () => checkedIsLoggedIn(getUser());
-export const getIsAdmin = () => checkIsAdmin(getUser());
-export const getIsRegulusOrAdmin = () => checkIsRegulusOrAdmin(getUser());
-export const getIsAnyRegulusOrAdmin = () => checkIsAnyRegulusOrAdmin(getUser());
+export const getCachedIsLoggedIn = () => checkedIsLoggedIn(getCachedUser());
+export const getCachedIsAdmin = () => checkIsAdmin(getCachedUser());
+export const getCachedIsRegulusOrAdmin = () => checkIsRegulusOrAdmin(getCachedUser());
+export const getCachedIsAnyRegulusOrAdmin = () => checkIsAnyRegulusOrAdmin(getCachedUser());
+
+export const getIsLoggedIn = () => getUser().then(checkedIsLoggedIn);
+export const getIsAdmin = () => getUser().then(checkIsAdmin);
+export const getIsRegulusOrAdmin = () => getUser().then(checkIsRegulusOrAdmin);
+export const getIsAnyRegulusOrAdmin = () => getUser().then(checkIsAnyRegulusOrAdmin);
 
 export const isLoggedIn = derived(user, checkedIsLoggedIn);
 export const isAdmin = derived(user, checkIsAdmin);

@@ -2,7 +2,7 @@ import { browser } from '$app/environment';
 import { user } from '$lib/client/auth';
 import { call } from '$lib/client/endpoints';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
-import { storable } from '$lib/helpers/stores';
+import { storable } from '$lib/helpers/newStores';
 import { derived, readonly, writable } from 'svelte/store';
 
 type CRN = string;

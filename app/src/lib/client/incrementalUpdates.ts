@@ -1,4 +1,4 @@
-import { storable } from '$lib/helpers/stores';
+import { storable } from '$lib/helpers/newStores';
 import { type IRID, type NSPID } from '$lib/helpers/ir';
 import { get, type Writable, writable } from 'svelte/store';
 import {

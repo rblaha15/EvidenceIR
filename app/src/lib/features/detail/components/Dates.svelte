@@ -1,8 +1,8 @@
 <script lang="ts">
     import { isAdmin } from '$lib/client/auth';
     import type { IR, NSP } from '$lib/data';
+    import { aA } from '$lib/helpers/newStores';
     import { datetimeFromISO } from '$lib/helpers/date';
-    import { aA } from '$lib/helpers/stores';
     import { Pencil, Plus, Trash2 } from "@lucide/svelte";
 
     const { data }: {

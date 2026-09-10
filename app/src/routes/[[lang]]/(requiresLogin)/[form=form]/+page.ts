@@ -17,7 +17,7 @@ export const load: PageLoad = async ({ params, url, fetch }) => {
 
     const form = getForm(formName);
 
-    if (form.requiredRegulus && !getIsRegulusOrAdmin())
+    if (form.requiredRegulus && !await getIsRegulusOrAdmin())
         return error(401);
 
     const id = extractIDs(url);

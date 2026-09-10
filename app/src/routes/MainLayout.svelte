@@ -2,7 +2,7 @@
     import { dev } from '$app/environment';
     import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { page } from '$app/state';
-    import { getIsLoggedIn, isLoggedIn, sessionData } from '$lib/client/auth';
+    import { getIsLoggedIn, isLoggedIn, pendingSessionData } from '$lib/client/auth';
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import TableOfContents from '$lib/components/nav/TableOfContents.svelte';
@@ -23,7 +23,6 @@
         title
     } from '$lib/helpers/globals';
     import { relUrl } from '$lib/helpers/runes.svelte';
-    import { waitUntil } from '$lib/helpers/stores';
     import { preferredLanguage, setUserPreferredLanguage } from '$lib/languages';
     import { ArrowLeft } from '@lucide/svelte';
     import { onMount, type Snippet } from 'svelte';
@@ -65,8 +64,7 @@
 
     const fixUrl = async () => {
         if (path == '/') {
-            await waitUntil(sessionData, Boolean);
-            const isLoggedIn = getIsLoggedIn();
+            const isLoggedIn = await getIsLoggedIn();
             const route = isLoggedIn ? initialRouteLoggedIn : initialRouteLoggedOut;
             const lang = data.isLanguageFromUrl ? data.languageCode : '?';
             return await goto(relUrl(route, lang));
@@ -168,7 +166,7 @@
 {#if !data.isLanguageFromUrl || path === '/'}
     {@render loading()}
 {:else}
-    {#if !$sessionData}
+    {#if $pendingSessionData == 'pending'}
         {#if !error}
             {@render loading()}
         {:else}

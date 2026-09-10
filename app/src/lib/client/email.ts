@@ -1,4 +1,4 @@
-import { getUser } from '$lib/client/auth';
+import { getCachedUser } from '$lib/client/auth';
 import { call } from '$lib/client/endpoints';
 import { env } from '$env/dynamic/public';
 import { htmlToText } from 'html-to-text';
@@ -109,7 +109,7 @@ export const SENDER = (name?: string): Address => ({
     address: env.PUBLIC_EMAIL_SENDER,
 });
 
-export const userAddress = () => getUser()?.let(user => ({
+export const userAddress = () => getCachedUser()?.let(user => ({
     address: user.email,
     name: user.name,
 }) satisfies AddressLike);

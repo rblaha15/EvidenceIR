@@ -1,49 +1,4 @@
-import { browser } from '$app/environment';
-import { derived, get, type Readable, writable, type Writable } from 'svelte/store';
-import { user, isAdmin } from '$lib/client/auth';
-
-export function storable<T>(key: string): Writable<T | undefined>;
-export function storable<T>(key: string, defaultValue: T): Writable<T>;
-
-export function storable<T>(originalKey: string, defaultValue?: T) {
-    const store = writable<T | undefined>(defaultValue);
-    let key: string;
-
-    user.subscribe($user => {
-        const email = $user?.email ?? 'anonymous';
-        key = `storable_${email}_${originalKey}`;
-
-        if (browser) {
-            const currentValue = localStorage.getItem(key);
-            if (currentValue != null && currentValue != 'undefined' && currentValue != 'null')
-                store.set(JSON.parse(currentValue));
-            else if (defaultValue != undefined) localStorage.setItem(key, JSON.stringify(defaultValue));
-        }
-    });
-
-    const _storeable: Writable<T | undefined> = {
-        subscribe: store.subscribe,
-        set: (value) => {
-            if (browser)
-                if (value != undefined)
-                    localStorage.setItem(key, JSON.stringify(value));
-                else
-                    localStorage.removeItem(key);
-            store.set(value);
-        },
-        update: (updater) => {
-            const updated = updater(get(store));
-
-            if (browser)
-                if (updated != undefined)
-                    localStorage.setItem(key, JSON.stringify(updated));
-                else
-                    localStorage.removeItem(key);
-            store.set(updated);
-        },
-    };
-    return _storeable;
-}
+import { derived, type Readable } from 'svelte/store';
 
 export const flattenStores = <T>(
     outer: Readable<Readable<T>>,
@@ -57,15 +12,20 @@ export const flatDerived = <T, U>(
     return inner.subscribe(set);
 });
 
-export const waitUntil = <T>(store: Readable<T>, predicate: (value: T) => boolean) =>
-    new Promise(resolve => {
+export function waitForFirst<T, R extends T>(store: Readable<T>, predicate: (value: T) => value is R): Promise<R>;
+export function waitForFirst<T>(store: Readable<T>, predicate: (value: T) => boolean): Promise<T>;
+export function waitForFirst<T>(store: Readable<T>): Promise<T>;
+
+export function waitForFirst<T>(store: Readable<T>, predicate?: (value: T) => boolean) {
+    return new Promise<T>(resolve => {
         store.subscribe(value => {
-            if (predicate(value)) resolve(null);
+            if (!predicate || predicate(value)) resolve(value);
         });
     });
+}
 
-export const aA = derived(isAdmin, a => a ? ' (A)' : '')
-export const aR = derived(isAdmin, a => a ? ' (R)' : '')
-
-export const iaA = ' (A)'
-export const iaR = (a: boolean) => a ? ' (R)' : ''
+export function filtered<T, R extends T>(store: Readable<T>, predicate: (value: T) => value is R) {
+    return derived<Readable<T>, R>(store, (value, set) => {
+        if (predicate(value)) set(value);
+    });
+}

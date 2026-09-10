@@ -1,10 +1,10 @@
 <script lang="ts">
+    import { iaA } from '$lib/helpers/newStores';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import type { Translations } from '$lib/translations';
     import { type IR } from '$lib/data';
     import type { IRID } from '$lib/helpers/ir';
     import { isAdmin } from '$lib/client/auth';
-    import { iaA } from '$lib/helpers/stores';
     import ModalDK from '$lib/features/detail/components/detailIR/ModalDK.svelte';
     import { getDKInfo } from '$lib/features/detail/domain/detailIR/DK';
     import { Button } from '$lib/components/ui/button';

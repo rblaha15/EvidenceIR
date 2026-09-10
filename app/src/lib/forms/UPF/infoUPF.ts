@@ -1,6 +1,6 @@
 import type { FormInfo } from '$lib/forms/FormInfo';
 import defaultUPF from '$lib/forms/UPF/defaultUPF';
-import { getIsRegulusOrAdmin, getUser, isRegulusOrAdmin } from '$lib/client/auth';
+import { getCachedIsRegulusOrAdmin, getCachedUser, isRegulusOrAdmin } from '$lib/client/auth';
 import { appUrl } from '$lib/helpers/globals';
 import { derived } from 'svelte/store';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -19,9 +19,9 @@ const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
     }),
     saveData: async ({ irid, raw, editResult, t, ir }) => {
         await db.addUPF(irid, raw);
-        if (getIsRegulusOrAdmin()) return;
+        if (getCachedIsRegulusOrAdmin()) return;
 
-        const user = getUser()!;
+        const user = getCachedUser()!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: `Vyplněno nové uvedení FVE do provozu k ${irName(ir.IN.ir)}`,

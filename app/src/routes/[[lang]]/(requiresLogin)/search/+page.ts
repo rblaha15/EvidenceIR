@@ -1,12 +1,16 @@
 import type { EntryGenerator, PageLoad } from './$types';
 import { type IRID, irLabel, irName, type NSPID, spName } from '$lib/helpers/ir';
-import { getIsAdmin, getIsLoggedIn, getIsRegulusOrAdmin } from '$lib/client/auth';
+import {
+    getCachedIsRegulusOrAdmin,
+    getIsAdmin,
+    getIsLoggedIn
+} from '$lib/client/auth';
 import { browser } from '$app/environment';
 import { derived, readable } from 'svelte/store';
 import { error } from '@sveltejs/kit';
 import '$lib/extensions';
 import { getTranslations } from '$lib/translations';
-import { waitUntil } from '$lib/helpers/stores';
+import { waitForFirst } from '$lib/helpers/stores';
 import { getAllIRs, getAllNSPs, type Results } from '$lib/client/incrementalUpdates';
 import { langEntryGenerator } from '$lib/helpers/paths';
 import { isSP } from '$lib/forms/SP/infoSP.svelte';
@@ -39,14 +43,15 @@ export const load: PageLoad = async ({ parent, fetch }) => {
     if (!browser) return {
         data: readable({ items: [] as IR_NSP[], status: 'loaded' as 'loaded' | 'loadingOnline' }),
     };
-    if (!getIsLoggedIn()) error(401);
+    if (!await getIsLoggedIn()) error(401);
+    const isAdmin = await getIsAdmin();
 
     const data = await parent();
     const ts = getTranslations(data.languageCode).search;
 
     const irs = derived(getAllIRs(fetch), $irs => ({
         status: $irs.status, data: $irs.data
-            .filter(ir => (getIsAdmin() || !ir.deleted))
+            .filter(ir => (isAdmin || !ir.deleted))
             .map(ir => ({
                 t: 'IR',
                 id: ir.meta.id,
@@ -61,10 +66,10 @@ export const load: PageLoad = async ({ parent, fetch }) => {
     }));
 
     const nsps = derived(
-        getIsRegulusOrAdmin() ? getAllNSPs(fetch) : readable({ status: 'loaded', data: [] } as Results<'NSP'>),
+        getCachedIsRegulusOrAdmin() ? getAllNSPs(fetch) : readable({ status: 'loaded', data: [] } as Results<'NSP'>),
         $nsps => ({
             status: $nsps.status, data: $nsps.data
-                .mapNotUndefined(sp => !getIsAdmin() && sp.deleted ? undefined : sp)
+                .mapNotUndefined(sp => !isAdmin && sp.deleted ? undefined : sp)
                 .groupBy(sp => irLabel(sp.NSP))
                 .entries()
                 .map(([label, nsps]) => ({
@@ -80,8 +85,8 @@ export const load: PageLoad = async ({ parent, fetch }) => {
         }),
     );
 
-    await waitUntil(irs, i => i.status != 'loading');
-    await waitUntil(nsps, p => p.status != 'loading');
+    await waitForFirst(irs, i => i.status != 'loading');
+    await waitForFirst(nsps, p => p.status != 'loading');
 
     const maxStatus = (a: 'loading' | 'loadingOnline' | 'loaded', b: 'loading' | 'loadingOnline' | 'loaded') =>
         a == 'loading' || b == 'loading' ? 'loading' as const

@@ -4,7 +4,7 @@ import type { EntryGenerator, PageLoad } from './$types';
 import { error } from '@sveltejs/kit';
 import { browser } from '$app/environment';
 import { derived, type Readable, readable } from 'svelte/store';
-import { waitUntil } from '$lib/helpers/stores';
+import { waitForFirst } from '$lib/helpers/stores';
 import type { IRID, NSPID } from '$lib/helpers/ir';
 import type { IR, NSP } from '$lib/data';
 import { extractIDs, langEntryGenerator } from '$lib/helpers/paths';
@@ -17,14 +17,14 @@ export const load: PageLoad = async ({ url, fetch }) => {
     const id = extractIDs(url);
     if (!id.irid && !id.nspids) error(400, { message: 'At least one of irid or spid bust be provided!' });
 
-    if (!getIsLoggedIn()) return error(401);
+    if (!await getIsLoggedIn()) return error(401);
     await fetchTechnicians(fetch);
     await fetchPeople(fetch);
 
     const data = getDataAsStore(id, fetch);
 
-    await waitUntil(data.ir, p => p != 'loading')
-    await waitUntil(data.nsps, p => p != 'loading')
+    await waitForFirst(data.ir, p => p != 'loading')
+    await waitForFirst(data.nsps, p => p != 'loading')
 
     return {
         ...data,

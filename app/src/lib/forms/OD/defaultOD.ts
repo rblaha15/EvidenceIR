@@ -1,4 +1,4 @@
-import { getUser } from '$lib/client/auth';
+import { getCachedUser } from '$lib/client/auth';
 import type { ContextOD, FormOD } from './formOD';
 import { cervenka } from '$lib/client/email';
 import type { FormPlus } from '$lib/forms/Form';
@@ -23,7 +23,7 @@ export default (): FormPlus<FormOD> => ({
                     !c.v.all.otherCopies ? '' : t.od.info2C({
                         ccs: joinWithLastAnd(c.v.all.otherCopies.split(separatorsRegExp).map(t => t.trim()), t.od.and)
                     }),
-                    t.od.info2D({ user: getUser()!.email }),
+                    t.od.info2D({ user: getCachedUser()!.email }),
                 ].filter(Boolean), t.od.and),
                 t.od.info3,
                 c.v.all.userEmail ? t.od.info4 : '',

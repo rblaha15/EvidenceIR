@@ -1,4 +1,4 @@
-import { getIsRegulusOrAdmin, getUser, isRegulusOrAdmin } from '$lib/client/auth';
+import { getCachedIsRegulusOrAdmin, getCachedUser, isRegulusOrAdmin } from '$lib/client/auth';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import { appUrl } from '$lib/helpers/globals';
 import { derived } from 'svelte/store';
@@ -22,9 +22,9 @@ const infoUPS: FormInfo<ContextUPS, FormUPS, [], 'UPS'> = ({
         await db.addUPS(irid, raw);
         await db.updateDateUPS(irid, values.uvadeni.date);
         if (!edit) await saveDK(ir, values.checkRecommendations, 'SOL');
-        if (getIsRegulusOrAdmin()) return;
+        if (getCachedIsRegulusOrAdmin()) return;
 
-        const user = getUser()!;
+        const user = getCachedUser()!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit

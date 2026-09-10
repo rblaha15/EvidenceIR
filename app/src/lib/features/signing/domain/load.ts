@@ -3,7 +3,7 @@ import type { ExistingIR, ExistingNSP } from '$lib/data';
 import { getDefiningParameter, getSignatureDef, getSignatureState } from '$lib/features/signing/domain/data';
 import { getDataAsStore } from '$lib/helpers/getData';
 import { extractIDs } from '$lib/helpers/paths';
-import { waitUntil } from '$lib/helpers/stores';
+import { waitForFirst } from '$lib/helpers/stores';
 import {
     type Pdf,
     type PdfArgs,
@@ -23,7 +23,7 @@ export const loadSigning = async (
 ) => {
     if (!(pdfName in pdfInfo)) error(404);
 
-    if (!getIsLoggedIn()) error(401);
+    if (!await getIsLoggedIn()) error(401);
 
     if (!pdfToSign.includes(pdfName)) error(400, { message: 'This document may not be signed' });
 
@@ -36,13 +36,13 @@ export const loadSigning = async (
 
     const pdf = pdfInfo[pdfName] as PdfArgs<Pdf>;
 
-    if (pdf.requiredRegulus && !getIsRegulusOrAdmin()) error(403);
+    if (pdf.requiredRegulus && !await getIsRegulusOrAdmin()) error(403);
 
     const id = extractIDs(url);
     const stores = getDataAsStore(id, fetch);
 
-    await waitUntil(stores.ir, p => p != 'loading');
-    await waitUntil(stores.nsps, p => p != 'loading');
+    await waitForFirst(stores.ir, p => p != 'loading');
+    await waitForFirst(stores.nsps, p => p != 'loading');
 
     const data = {
         nsp: derived(stores.nsps, (sps, set: (value: ExistingNSP | null) => void) => {

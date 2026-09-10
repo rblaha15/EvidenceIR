@@ -1,6 +1,6 @@
 <script lang="ts">
     import { removeIR } from '$lib/features/detail/actions/detailIR/ir';
-    import { iaA } from '$lib/helpers/stores';
+    import { iaA } from '$lib/helpers/newStores';
     import type { Translations } from '$lib/translations';
     import type { IRID } from '$lib/helpers/ir';
     import { Trash2 } from '@lucide/svelte';

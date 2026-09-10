@@ -12,7 +12,7 @@ import { call } from '$lib/client/endpoints';
 import { error } from '@sveltejs/kit';
 
 export const loadAdmin = async (fetch: typeof window.fetch) => {
-    if (!getIsLoggedIn() || !getIsAdmin()) error(401);
+    if (!await getIsLoggedIn() || !await getIsAdmin()) error(401);
 
     fetchCompanies(fetch).then();
     fetchMyInfo(fetch).then();

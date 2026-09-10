@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { iaA, storable } from '$lib/helpers/newStores';
     import { detailUrlIR, detailUrlNSP, relUrl } from '$lib/helpers/runes.svelte.js';
     import { isAdmin } from '$lib/client/auth';
     import Widget from '$lib/components/forms/Widget.svelte';
@@ -10,7 +11,6 @@
     import defaultSP from '$lib/forms/SP/defaultSP';
     import type { FormSP } from '$lib/forms/SP/formSP.svelte.js';
     import DetailNSP from './DetailNSP.svelte';
-    import { iaA, storable } from '$lib/helpers/stores';
     import infoNSP from '$lib/forms/NSP/infoNSP';
     import IN from '$lib/forms/IN/infoIN';
     import { type FormIN, unknownCompanyEmail } from '$lib/forms/IN/formIN';

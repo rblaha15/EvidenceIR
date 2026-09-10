@@ -28,7 +28,7 @@
     import { onMount, untrack } from 'svelte';
     import { derived as derivedStore, type Readable, readable } from 'svelte/store';
     import WidgetComponent from '$lib/components/forms/Widget.svelte';
-    import { storable } from '$lib/helpers/stores';
+    import { storable } from '$lib/helpers/newStores';
     import { dev } from '$app/environment';
     import { type ButtonKey, buttonKeys, type IndependentFormInfo, type Mode, type ModeL, type Result } from '$lib/forms/FormInfo';
     import { appUrl, refreshTOC, runLoading } from '$lib/helpers/globals.js';

@@ -4,13 +4,13 @@ import { technicians } from '$lib/client/db/arrays';
 import type { SPID } from '$lib/helpers/ir';
 import type { ExistingIR } from '$lib/data';
 import { get } from 'svelte/store';
-import { getUser } from '$lib/client/auth';
+import { getCachedUser } from '$lib/client/auth';
 import { ensureSP } from '$lib/forms/SP/infoSP.svelte';
 
 export const deleteSP = db.deleteSP;
 
 export const copySP = async (id: SPID, ir: ExistingIR) => {
-    const user = getUser();
+    const user = getCachedUser();
     const t = get(technicians);
     const ja = t == 'loading' ? null : t.find(t => user?.email == t.email);
     const p = ensureSP(ir.SPs[id]);

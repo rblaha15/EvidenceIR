@@ -19,7 +19,7 @@ import type { FormSZ } from '$lib/forms/SP/formSZ';
 export const isSP = (raw: Raw<FormSP | FormSZ> | undefined): raw is Raw<FormSP> => !!raw && ('ukony' in raw)
 export const ensureSP = (raw: Raw<FormSP | FormSZ> | undefined) => isSP(raw) ? raw : error(400, { message: 'Provided data is not a protocol' });
 
-const infoSP: FormInfo<ContextSP, FormSP, [[Technician[] | 'loading', User | undefined]], 'SP'> = {
+const infoSP: FormInfo<ContextSP, FormSP, [[Technician[] | 'loading', User | null]], 'SP'> = {
     type: 'IR',
     storeName: () => 'stored_sp',
     form: () => defaultSP(),

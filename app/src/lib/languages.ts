@@ -1,5 +1,5 @@
 import { get, readonly } from 'svelte/store';
-import { storable } from './helpers/stores';
+import { storable } from '$lib/helpers/newStores';
 import languageCodes, { type LanguageCode } from '$lib/languageCodes';
 
 export const isLanguageCode = (code: unknown): code is LanguageCode => (languageCodes as readonly unknown[]).includes(code);

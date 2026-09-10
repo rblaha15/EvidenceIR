@@ -1,4 +1,4 @@
-import { getIsRegulusOrAdmin, getUser, isRegulusOrAdmin } from '$lib/client/auth';
+import { getCachedIsRegulusOrAdmin, getCachedUser, isRegulusOrAdmin } from '$lib/client/auth';
 import { type Year } from '$lib/data';
 import { appUrl } from '$lib/helpers/globals';
 import { derived } from 'svelte/store';
@@ -51,9 +51,9 @@ const infoRKS: FormInfo<ContextRKS, FormRKS, [], 'RKS', { defaultYear: Year, fil
     saveData: async ({ irid, values, raw, edit, editResult, t, ir }) => {
         await db.addRKS(irid, values.info.year as Year, raw);
 
-        if (getIsRegulusOrAdmin()) return;
+        if (getCachedIsRegulusOrAdmin()) return;
 
-        const user = getUser()!;
+        const user = getCachedUser()!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit

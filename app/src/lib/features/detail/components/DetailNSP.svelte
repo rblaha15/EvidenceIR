@@ -1,11 +1,11 @@
 <script lang="ts">
+    import { aA } from '$lib/helpers/newStores';
     import { relUrl, nspidUrl } from '$lib/helpers/runes.svelte.js';
     import PDFLink from '$lib/features/detail/components/documentsIR/PDFLink.svelte';
     import { isAdmin } from '$lib/client/auth';
     import { goto } from '$app/navigation';
     import { type Translations } from '$lib/translations';
     import { extractSPIDFromRawData, spName } from '$lib/helpers/ir';
-    import { aA } from '$lib/helpers/stores';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { ExistingNSP } from '$lib/data';
     import db from '$lib/client/db';

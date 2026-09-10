@@ -1,4 +1,4 @@
-import { getUser, user, type User } from '$lib/client/auth';
+import { getCachedUser, user, type User } from '$lib/client/auth';
 import { fetchSpareParts, fetchTechnicians, type Technician, technicians } from '$lib/client/db/arrays';
 import { appUrl } from '$lib/helpers/globals';
 import { detailUrlNSP } from '$lib/helpers/runes.svelte.js';
@@ -11,14 +11,14 @@ import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
 import db from '$lib/client/db';
 import { newNSP } from '$lib/data';
 
-const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loading', User | undefined]], 'NSP'> = {
+const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loading', User | null]], 'NSP'> = {
     type: '',
     storeName: () => 'stored_new_SP',
     form: defaultNSP,
     saveData: async ({ raw, edit, editResult, t, send }) => {
         const nspid = extractSPIDFromRawData(raw.zasah);
 
-        const user = getUser()!;
+        const user = getCachedUser()!;
 
         if (edit) await db.updateNSP(nspid, raw);
         else await db.addNSP(newNSP(raw, user.email));

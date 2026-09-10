@@ -1,4 +1,4 @@
-import { getUser } from '$lib/client/auth';
+import { getCachedUser } from '$lib/client/auth';
 import { fetchPeople } from '$lib/client/db/arrays';
 import defaultNK from '$lib/forms/NK/defaultNK';
 import { getTranslations } from '$lib/translations';
@@ -15,7 +15,7 @@ const infoNK: IndependentFormInfo<ContextNK, FormNK> = {
     storeName: () => 'stored_demand',
     form: defaultNK,
     saveData: async ({ raw, form, editResult, t, resetForm }) => {
-        const user = getUser()!;
+        const user = getCachedUser()!;
 
         const name = raw.contacts.name;
         const surname = raw.contacts.surname;

@@ -1,6 +1,6 @@
 import type { FormInfo } from '$lib/forms/FormInfo';
 import defaultUPT from '$lib/forms/UPT/defaultUPT';
-import { getUser } from '$lib/client/auth';
+import { getCachedUser } from '$lib/client/auth';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import { nowISO } from '$lib/helpers/date';
 import { appUrl } from '$lib/helpers/globals';
@@ -22,12 +22,12 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
     saveData: async ({ irid, raw, edit, values, editResult, t, ir }) => {
         // Also set in mongo write db
         if (!edit) raw.uvadeni.createdAt = nowISO(true);
-        if (!edit) raw.uvadeni.createdBy = getUser()!.email;
+        if (!edit) raw.uvadeni.createdBy = getCachedUser()!.email;
         await db.updateDateUPT(irid, values.tc.date);
         await db.updateUPT(irid, raw);
         if (!edit) await saveDK(ir, values.checkRecommendations, 'TČ');
 
-        const user = getUser()!;
+        const user = getCachedUser()!;
         const response = await sendEmail({
             ...defaultAddresses(),
             subject: edit

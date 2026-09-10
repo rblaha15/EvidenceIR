@@ -5,9 +5,9 @@
     import { downloadXML } from '$lib/features/detail/actions/detailIR/ir';
     import DeleteIR from '$lib/features/detail/components/detailIR/DeleteIR.svelte';
     import { unknownCompanyEmail } from '$lib/forms/IN/formIN';
+    import { aR, iaA } from '$lib/helpers/newStores';
     import { endUserEmails, type IRID } from '$lib/helpers/ir';
     import { detailUrlIR, iridUrl, relUrl } from '$lib/helpers/runes.svelte.js';
-    import { aR, iaA } from '$lib/helpers/stores';
     import { type Translations } from '$lib/translations';
     import { Download, MailOpen, Server, Users } from '@lucide/svelte';
     import DK from './DK.svelte';

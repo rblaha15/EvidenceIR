@@ -5,9 +5,9 @@ import { redirect } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
 import { langEntryGenerator } from '$lib/helpers/paths';
 
-export const load: PageLoad = ({ url }) => {
+export const load: PageLoad = async ({ url }) => {
     const redirectPath = url.searchParams.get('redirect') || initialRouteLoggedIn;
-    if (browser && getIsLoggedIn()) return redirect(300, redirectPath);
+    if (browser && await getIsLoggedIn()) return redirect(300, redirectPath);
 };
 
 export const entries: EntryGenerator = langEntryGenerator;

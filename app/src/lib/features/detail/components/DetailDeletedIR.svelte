@@ -1,9 +1,9 @@
 <script lang="ts">
     import type { DeletedIR } from '$lib/data';
+    import { iaA } from '$lib/helpers/newStores';
     import type { Translations } from '$lib/translations';
     import { detailUrlIR, relUrl } from '$lib/helpers/runes.svelte';
     import { isAdmin } from '$lib/client/auth';
-    import { iaA } from '$lib/helpers/stores';
     import { restoreIR } from '$lib/features/detail/actions/restore';
     import Dates from '$lib/features/detail/components/Dates.svelte';
     import { Eye, Server, ArchiveRestore } from "@lucide/svelte";

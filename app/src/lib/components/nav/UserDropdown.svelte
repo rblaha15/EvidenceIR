@@ -1,9 +1,9 @@
 <script lang="ts">
     import { user, isAdmin, isAnyRegulusOrAdmin, signOut } from '$lib/client/auth.js';
     import { fetchLoyaltyProgramData, fetchMyInfo, loyaltyProgramData, myInfo } from '$lib/client/db/arrays';
+    import { aA } from '$lib/helpers/newStores';
     import type { Translations } from '$lib/translations';
     import { goto } from '$app/navigation';
-    import { aA } from '$lib/helpers/stores';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { onMount } from 'svelte';
     import { CircleUser, Gift, LogOut, RectangleEllipsis, ShieldCogCorner } from "@lucide/svelte";

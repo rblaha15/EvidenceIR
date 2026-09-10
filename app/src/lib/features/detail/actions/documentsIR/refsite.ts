@@ -6,7 +6,7 @@ import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import { detailUrlIR, iridUrl } from '$lib/helpers/runes.svelte.js';
 import db from '$lib/client/db';
 import { goto } from '$app/navigation';
-import { getUser } from '$lib/client/auth';
+import { getCachedUser } from '$lib/client/auth';
 import type { ExistingIR } from '$lib/data';
 
 export const confirmRefsite = async (
@@ -14,7 +14,7 @@ export const confirmRefsite = async (
     tc: TC,
     send: boolean = false,
 ) => {
-    const user = getUser();
+    const user = getCachedUser();
     const response = send ? await sendEmail({
         ...defaultAddresses(blahova),
         subject: `Vytvořit refsite u ${irName(ir.IN.ir)}`,
