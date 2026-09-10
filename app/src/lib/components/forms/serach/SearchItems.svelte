@@ -7,8 +7,8 @@
 
     const { items, getSearchItem, onItemClick, t, class: klass, itemClass, errorClass }: {
         items: T[] | 'loading',
-        getSearchItem: (item: T) => SearchItem,
-        onItemClick?: (item: T) => MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>,
+        getSearchItem: (item: T, index: number, array: T[]) => SearchItem,
+        onItemClick?: (item: T, index: number, array: T[]) => MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>,
         t: Translations,
         class?: ClassValue,
         itemClass?: ClassValue,
@@ -35,14 +35,14 @@
             class={cn(itemClasses, errorClass)}
         />
     {:else}
-        {#each items as item}
-            {@const searchItem = getSearchItem(item)}
+        {#each items as item, i}
+            {@const searchItem = getSearchItem(item, i, items)}
             <SearchItemComponent
                 {searchItem}
                 element={searchItem.href ? 'anchor' : 'button'}
                 class={cn(itemClasses, "cursor-pointer")}
                 aria-disabled={searchItem.disabled}
-                onclick={onItemClick?.(item)}
+                onclick={onItemClick?.(item, i, items)}
                 href={searchItem.href ?? '#'}
             />
         {/each}

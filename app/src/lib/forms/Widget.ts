@@ -97,6 +97,7 @@ export type SearchItemPiece = {
     readonly text: string,
     readonly width?: number,
     readonly icon?: Component<LucideProps>,
+    readonly kbd?: string,
     readonly class?: ClassValue,
     readonly danger?: boolean,
     readonly warning?: boolean,

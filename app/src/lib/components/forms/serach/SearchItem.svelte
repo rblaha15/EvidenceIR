@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Kbd } from '$lib/components/ui/kbd';
     import type { SearchItem } from '$lib/forms/Widget';
     import { cn } from '$lib/utils';
     import type { HTMLAnchorAttributes, HTMLAttributes, HTMLButtonAttributes } from 'svelte/elements';
@@ -29,6 +30,9 @@
         )} style="--width: {(piece.width ?? 1 / searchItem.pieces.length) * 100}%">
             <Icon class={[{ 'text-danger': piece.danger, 'text-warning-alt': piece.warning }, 'size-4']} />
             {piece.text}
+            {#if piece.kbd}
+                <Kbd>{piece.kbd}</Kbd>
+            {/if}
         </p>
     {/each}
 {/snippet}

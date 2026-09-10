@@ -1,6 +1,6 @@
 <script lang="ts">
     import { browser } from '$app/environment';
-    import { goto } from '$app/navigation';
+    import { goto, replaceState } from '$app/navigation';
     import { page } from '$app/state';
     import { resetStores } from '$lib/client/incrementalUpdates';
     import { isOnline } from '$lib/client/online';
@@ -22,10 +22,11 @@
     import { InputGroup, InputGroupAddon, InputGroupInput } from '$lib/components/ui/input-group';
     import { Spinner } from '$lib/components/ui/spinner';
     import type { SearchItem } from '$lib/forms/Widget';
-    import { setTitle } from '$lib/helpers/globals.js';
+    import { appUrl, setTitle } from '$lib/helpers/globals.js';
     import { detailUrlIR, detailUrlNSP } from '$lib/helpers/runes.svelte';
     import { PencilRuler, Search, Trash2 } from '@lucide/svelte';
-    import { onMount } from 'svelte';
+    import { onMount, tick } from 'svelte';
+    import type { EventHandler } from 'svelte/elements';
     import { derived, readable } from 'svelte/store';
     import type { PageProps } from './$types';
     import type { IR_NSP } from './+page';
@@ -38,7 +39,7 @@
     const status = $derived(data.data ? derived(data.data, data => data.status) : readable('loaded'));
     const items = $derived(data.data ? derived(data.data, data => data.items) : readable([]));
 
-    const getSearchItem = (i: IR_NSP): SearchItem => ({
+    const getSearchItem = (i: IR_NSP, index: number): SearchItem => ({
         href: i.t == 'NSP' ? detailUrlNSP(i.id) : detailUrlIR(i.id),
         pieces: [
             {
@@ -47,7 +48,11 @@
                 danger: i.deleted,
                 warning: i.draft,
             },
-            { text: i.label, width: .6 },
+            {
+                text: i.label,
+                width: .6,
+                kbd: index == 0 ? '⏎ Enter' : undefined,
+            },
         ] as const,
         otherSearchParts: [
             ...i.t == 'NSP' ? i.id : [i.id],
@@ -64,14 +69,21 @@
     };
 
     let search = $state(page.state.search ?? '');
+
+    let mounted = $state(false);
+    onMount(async () => {
+        await tick();
+        mounted = true;
+    })
     $effect(() => {
-        if (browser)
-            goto('', { replaceState: true, state: { search } });
+        search;
+        if (browser && mounted)
+            replaceState('', { search });
     });
 
     const filtered = $derived($items.filter(item =>
         wordsToFilter(search).every(
-            filter => getSearchItem(item).let(i => [
+            filter => getSearchItem(item, -1).let(i => [
                 ...i.pieces.map(p => p.text),
                 ...i.otherSearchParts ?? [],
             ]).some(piece =>
@@ -80,6 +92,11 @@
             ),
         ),
     ));
+
+    const openFirstResult: EventHandler<SubmitEvent, HTMLFormElement> = e => {
+        e.preventDefault();
+        if (filtered.length > 0) goto(getSearchItem(filtered[0], 0).href!);
+    };
 </script>
 
 <div class="flex flex-col gap-4 p-4 border border-input rounded-2xl">
@@ -108,7 +125,7 @@
         </div>
     </div>
 
-    <Field orientation="vertical">
+    <form onsubmit={openFirstResult}>
         <InputGroup>
             <InputGroupAddon align="inline-start">
                 <Search />
@@ -119,7 +136,7 @@
                 type="search"
             />
         </InputGroup>
-    </Field>
+    </form>
 </div>
 
 <SearchItems
