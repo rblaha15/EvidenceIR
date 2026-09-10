@@ -18,11 +18,10 @@
         AlertDialogTrigger
     } from '$lib/components/ui/alert-dialog';
     import { buttonVariants } from '$lib/components/ui/button';
-    import { Field } from '$lib/components/ui/field';
     import { InputGroup, InputGroupAddon, InputGroupInput } from '$lib/components/ui/input-group';
     import { Spinner } from '$lib/components/ui/spinner';
     import type { SearchItem } from '$lib/forms/Widget';
-    import { appUrl, setTitle } from '$lib/helpers/globals.js';
+    import { setTitle } from '$lib/helpers/globals.js';
     import { detailUrlIR, detailUrlNSP } from '$lib/helpers/runes.svelte';
     import { PencilRuler, Search, Trash2 } from '@lucide/svelte';
     import { onMount, tick } from 'svelte';
@@ -51,7 +50,7 @@
             {
                 text: i.label,
                 width: .6,
-                kbd: index == 0 ? '⏎ Enter' : undefined,
+                kbd: index == 0 ? '⏎ Enter' : undefined,
             },
         ] as const,
         otherSearchParts: [
