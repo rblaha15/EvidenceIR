@@ -1,5 +1,6 @@
 import { environment } from '$lib/helpers/globals';
 import { checkForRecommendations } from '$lib/server/db/recommend-rk';
+import { grantPointsForUPT } from '$lib/server/loyaltyProgram';
 import { type Handle, redirect } from "@sveltejs/kit"
 import { sequence } from '@sveltejs/kit/hooks';
 import { auth } from "$lib/server/auth";
@@ -40,5 +41,13 @@ if (environment === 'production') cron.schedule('0 8 * * *', async () => {
         await checkForRecommendations();
     } catch (err) {
         console.error('DK error:', err);
+    }
+});
+
+cron.schedule('0 4 * * *', async () => {
+    try {
+        await grantPointsForUPT();
+    } catch (err) {
+        console.error('UPT LP error:', err);
     }
 });

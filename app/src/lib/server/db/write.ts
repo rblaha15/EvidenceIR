@@ -1,8 +1,9 @@
 import { deleteIR, deleteNSP, type IR, type NSP } from "$lib/data";
+import { nowISO } from '$lib/helpers/date';
 import { client, id, irCollection, nspCollection } from "$lib/server/db";
 import { mongoReadDatabase } from "./read";
 import { extractIDFromSPOrSZ, type IRID, type NSPID } from "$lib/helpers/ir";
-import type { ReadDatabase, WriteDatabase } from '$lib/client/db/def';
+import type { WriteDatabase } from '$lib/client/db/def';
 import type { MatchKeysAndValues } from "mongodb";
 
 const addCreationTime = <T extends IR | NSP>(data: T): T => ({
@@ -78,7 +79,16 @@ export const mongoWriteDatabase: WriteDatabaseWIthLocals = {
             SPs: ir.SPs.omit(spid),
         }));
     },
-    updateUPT: (irid, protocol) => update(irid, addChangeTime<IR>({ 'UP.TC': protocol })),
+    updateUPT: async (irid, protocol, locals) => {
+        const ir = await mongoReadDatabase.getIR(irid, locals);
+        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
+        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
+        if (!ir.UP.TC?.os) {
+            protocol.uvadeni.createdAt = nowISO(true);
+            protocol.uvadeni.createdBy = locals.user!.email;
+        }
+        await update(irid, addChangeTime<IR>({ 'UP.TC': protocol }));
+    },
     updateDateUPT: async (irid, date) => update(irid, addChangeTime<IR>({ 'UP.dateTC': date })),
     addUPS: async (irid, protocol) => update(irid, addChangeTime<IR>({ 'UP.SOL': protocol })),
     updateDateUPS: async (irid, date) => update(irid, addChangeTime<IR>({ 'UP.dateSOL': date })),

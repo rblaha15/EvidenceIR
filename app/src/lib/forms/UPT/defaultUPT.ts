@@ -212,6 +212,8 @@ export default (ir: IR): FormPlus<FormUPT> => ({
                 pages: [0],
             }),
         }),
+        createdAt: newInputWidget<ContextUPT>({ label: '', show: false }),
+        createdBy: newInputWidget<ContextUPT>({ label: '', show: false }),
     },
     checkRecommendations: defaultDK('TČ', ir.UP.dateTC, ir.RK.DK.TC, true),
 });

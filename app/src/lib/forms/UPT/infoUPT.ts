@@ -2,6 +2,7 @@ import type { FormInfo } from '$lib/forms/FormInfo';
 import defaultUPT from '$lib/forms/UPT/defaultUPT';
 import { getUser } from '$lib/client/auth';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
+import { nowISO } from '$lib/helpers/date';
 import { appUrl } from '$lib/helpers/globals';
 import { irName } from '$lib/helpers/ir';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
@@ -9,7 +10,6 @@ import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import type { ContextUPT, FormUPT } from '$lib/forms/UPT/formUPT';
 import { saveDK } from '$lib/forms/DK/formDK';
 import type { Raw } from '$lib/forms/Form';
-import { grantPoints } from '$lib/client/loyaltyProgram';
 import db from '$lib/client/db';
 
 const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
@@ -20,11 +20,12 @@ const infoUPT: FormInfo<ContextUPT, FormUPT, [], 'UPT'> = {
         link: 'UPT',
     }),
     saveData: async ({ irid, raw, edit, values, editResult, t, ir }) => {
+        // Also set in mongo write db
+        if (!edit) raw.uvadeni.createdAt = nowISO(true);
+        if (!edit) raw.uvadeni.createdBy = getUser()!.email;
         await db.updateDateUPT(irid, values.tc.date);
         await db.updateUPT(irid, raw);
         if (!edit) await saveDK(ir, values.checkRecommendations, 'TČ');
-
-        setTimeout(() => grantPoints({ type: 'heatPumpCommission', irid }), 500);
 
         const user = getUser()!;
         const response = await sendEmail({

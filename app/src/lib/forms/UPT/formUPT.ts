@@ -77,6 +77,8 @@ export interface FormUPT extends Form<ContextUPT> {
         zaruka: CheckboxWidget<ContextUPT>, // legacy
         note: InputWidget<ContextUPT>,
         preview: InlinePdfPreviewWidget<ContextUPT, 'UPT' | 'UPTL'>,
+        createdAt: InputWidget<ContextUPT>, // only new
+        createdBy: InputWidget<ContextUPT>, // only new
     },
     checkRecommendations: FormPartDK<ContextUPT>, // legacy
 }

@@ -10,7 +10,8 @@ import {
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { nowISO } from '$lib/helpers/date';
 import type { IRID } from '$lib/helpers/ir';
-import { setCreatedIRBy, setGrantedCommission } from '$lib/server/db/admin/general';
+import type { User } from '$lib/server/auth';
+import { getAllIRs, setCreatedIRBy, setGrantedCommission } from '$lib/server/db/admin/general';
 import { getCompanyByCRN } from '$lib/server/db/arrays';
 import { getLoyaltyProgramData, setLoyaltyProgramData } from '$lib/server/db/loyaltyProgram';
 import { mongoReadDatabase } from '$lib/server/db/read';
@@ -55,7 +56,7 @@ export const processLoyaltyReward = async (
         const { assembly, commissioning, pumpCount, granted, commissionDate } = d;
         if (granted) return;
         const now = new Date();
-        if (commissionDate && commissionDate.valueOf() + days(180) < now.valueOf()) return;
+        if (commissionDate.valueOf() + days(180) < now.valueOf()) return;
         if (assembly) {
             const current = await getLoyaltyProgramData(assembly);
             if (current.history.some(t => t.type == 'heatPumpAssembly' && t.irid == data.irid)) return;
@@ -92,12 +93,12 @@ const getCompanyUser = async (crn: string) => {
 
 const getCompaniesCascadeGrantedAndCommission = async (irid: IRID, locals: App.Locals) => {
     const ir = await mongoReadDatabase.getIR(irid, locals);
-    return ir ? {
+    return ir && ir.UP.dateTC && ir.UP.TC ? {
         assembly: await getCompanyUser(ir.IN.montazka.ico),
         commissioning: await getCompanyUser(ir.IN.uvedeni.ico),
         pumpCount: cascadePumps(ir.IN).length,
         granted: ir.meta.flags?.grantedCommission ?? false,
-        commissionDate: ir.UP.dateTC && new Date(ir.UP.dateTC),
+        commissionDate: new Date(ir.UP.dateTC),
     } : null;
 };
 
@@ -127,4 +128,22 @@ export const addPointsTransaction = async (
         points: current.points + transaction.addition,
         history: [...current.history, transaction],
     });
+};
+
+export const grantPointsForUPT = async () => {
+    const irs = await getAllIRs();
+
+    const yesterday = new Date().also(today => {
+        today.setDate(today.getDate() - 1);
+    }).toISOString().split('T')[0];
+
+    for (const ir of irs) {
+        if (!ir.UP.TC?.os) continue;
+        if (!ir.UP.TC.uvadeni.createdAt) continue;
+        if (!ir.UP.TC.uvadeni.createdAt.startsWith(yesterday)) continue;
+        await processLoyaltyReward(
+            { type: 'heatPumpCommission', irid: ir.meta.id },
+            { user: { email: ir.UP.TC.uvadeni.createdBy } as User, session: undefined },
+        );
+    }
 };
