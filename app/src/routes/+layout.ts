@@ -3,9 +3,9 @@ import { asLanguageCodeOrNull, defaultLanguage, preferredLanguage } from '$lib/l
 import { getTranslations } from '$lib/translations';
 import { browser } from '$app/environment';
 
-export const load: Load = ({ params, url }) => {
+export const load: Load = async ({ params, url }) => {
     const lang = asLanguageCodeOrNull(params.lang ?? url.pathname.split('/')[1]);
-    const newLang = lang ?? (browser ? preferredLanguage() : defaultLanguage);
+    const newLang = lang ?? (browser ? await preferredLanguage() : defaultLanguage);
     return {
         translations: getTranslations(newLang),
         isLanguageFromUrl: lang != null,

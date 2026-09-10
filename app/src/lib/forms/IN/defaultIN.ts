@@ -1,10 +1,6 @@
-import {
-    accumulationTanks, batteries,
+import arrays, {
     type Company,
-    friendlyCompanies, inverters,
-    solarCollectors,
     type Technician,
-    technicians, waterTanks
 } from '$lib/client/db/arrays';
 import {
     newRadioWidget,
@@ -224,7 +220,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
         _titleCompanies: newTitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
         _title: newTitleWidget({ text: t => t.in.assemblyCompany, level: 3, class: 'mt-0' }),
         company: newSearchWidget<C, Company, true>({
-            items: t => derived(friendlyCompanies, c =>
+            items: t => derived(arrays.friendlyCompanies, c =>
                 c == 'loading' ? c : [unknownCompany(t), ...c.assemblyCompanies]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
                 pieces: i.crn == unknownCRN ? [
@@ -300,7 +296,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
             },
         }),
         company: newSearchWidget<C, Company, true>({
-            items: t => derived(friendlyCompanies, c =>
+            items: t => derived(arrays.friendlyCompanies, c =>
                 c == 'loading' ? c : [unknownCompany(t), ...c.commissioningCompanies]),
             label: t => t.in.searchCompanyInList, getSearchItem: i => ({
                 pieces: i.crn == unknownCRN ? [
@@ -341,7 +337,7 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
             }, showInXML: false,
         }),
         _regulus: newSearchWidget<C, Technician, true>({
-            items: derived(technicians, $technicians =>
+            items: derived(arrays.technicians, $technicians =>
                 $technicians == 'loading' ? $technicians : $technicians.filter(t => t.email.endsWith('cz')),
             ),
             label: t => t.in.searchRepresentative, showInXML: false, getSearchItem: i => ({
@@ -712,7 +708,7 @@ export default (): FormPlus<FormIN> => ({
             text: t => t.in.device.solarCollector, show: sol, level: 3,
         }),
         typ: newInputWidget({
-            label: t => t.in.solarCollectorType, required: sol, show: sol, suggestions: solarCollectors,
+            label: t => t.in.solarCollectorType, required: sol, show: sol, suggestions: arrays.solarCollectors,
         }),
         pocet: newInputWidget({
             label: t => t.in.solarCollectorCount, type: `number`, required: sol, show: sol,
@@ -723,10 +719,10 @@ export default (): FormPlus<FormIN> => ({
             text: t => t.tc.tanks, level: 3, show: c => aku(c) || zas(c),
         }),
         accumulation: newInputWidget({
-            label: t => t.tc.typeOfAccumulationTank, show: aku, required: aku, suggestions: accumulationTanks,
+            label: t => t.tc.typeOfAccumulationTank, show: aku, required: aku, suggestions: arrays.accumulationTanks,
         }),
         water: newInputWidget({
-            label: t => t.tc.typeOfStorageTank, show: zas, required: zas, suggestions: waterTanks,
+            label: t => t.tc.typeOfStorageTank, show: zas, required: zas, suggestions: arrays.waterTanks,
         }),
         anode: newRadioWidget({
             label: t => t.tc.anodeRod.label, show: c => zas(c) || akuDuo(c), required: c => zas(c) || akuDuo(c),
@@ -756,7 +752,7 @@ export default (): FormPlus<FormIN> => ({
         }),
         typStridace: newInputWidget({
             label: t => t.in.inverterType, required: fveReg, show: fveReg,
-            suggestions: inverters,
+            suggestions: arrays.inverters,
         }),
         cisloStridace: newInputWidget({
             label: t => t.in.inverterManufactureNumber, required: fveReg, show: fveReg,
@@ -768,7 +764,7 @@ export default (): FormPlus<FormIN> => ({
             label: t => t.in.batteryType,
             required: c => fveReg(c) && c.v.fve.akumulaceDoBaterii,
             show: c => fveReg(c) && c.v.fve.akumulaceDoBaterii,
-            suggestions: batteries,
+            suggestions: arrays.batteries,
         }),
         kapacitaBaterii: newInputWidget({
             label: t => t.in.totalBatteryCapacity, type: 'number', suffix: t => t.units.kWh,

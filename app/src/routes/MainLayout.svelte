@@ -2,7 +2,7 @@
     import { dev } from '$app/environment';
     import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { page } from '$app/state';
-    import { getIsLoggedIn, isLoggedIn, pendingSessionData } from '$lib/client/auth';
+    import { getIsLoggedIn, getSessionData, isLoggedIn, pendingSessionData } from '$lib/client/auth';
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import TableOfContents from '$lib/components/nav/TableOfContents.svelte';
@@ -70,12 +70,14 @@
             return await goto(relUrl(route, lang));
         }
         if (!data.isLanguageFromUrl)
-            return await goto('/' + preferredLanguage() + path + page.url.search + page.url.hash, {
+            return await goto('/' + await preferredLanguage() + path + page.url.search + page.url.hash, {
                 replaceState: true,
                 invalidateAll: true
             });
-        setUserPreferredLanguage(data.languageCode);
         document.documentElement.lang = data.languageCode;
+        // Wait for auth to load in, so we set the language data to the correct store for the correct user
+        await getSessionData();
+        setUserPreferredLanguage(data.languageCode);
     };
     $effect(() => {
         page.url;
@@ -127,7 +129,7 @@
     <Navigation {t} />
     <div class={['flex h-full flex-col', $isLoggedIn && !$hideNav ? 'pt-13 md:pt-24 min-[69rem]:pt-13' : 'pt-13']}>
         {#if environment != 'production' && !hideWarning}
-            <DangerAlert title="SEIR2 – Testovací verze"
+            <DangerAlert title="SEIR2 – Testovací verze" class="rounded-none"
                          description="Provedené změny v této aplikaci se nepropíšou do produkční aplikace a mohou být kdykoliv přepsány!"
                          action={{ text: 'Skrýt', onclick: () => hideWarning = true }} />
         {/if}

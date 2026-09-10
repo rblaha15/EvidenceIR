@@ -12,7 +12,7 @@ export type Effect<
     C, F extends Form<C>, S extends unknown[]
 > = [
     (values: S, _: { context: C, values: Values<F>, edit: boolean, t: Translations }) => void,
-    { [I in keyof S]: Readable<S[I]> }
+    { [I in keyof S]: Readable<S[I]> | (() => Readable<S[I]>) }
 ]
 
 export type Result = { text: string, red: boolean, load: boolean, error?: string };

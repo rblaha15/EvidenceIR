@@ -7,7 +7,7 @@
     import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
     import { Button } from '$lib/components/ui/button';
     import AuthUI from '$lib/features/auth/components/AuthUI.svelte';
-    import { appUrl, initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
+    import { initialRouteLoggedIn, setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import type { Translations } from '$lib/translations';
     import { onMount } from 'svelte';
@@ -29,7 +29,7 @@
         console.log(result);
         if (result == 'INVALID_EMAIL_OR_PASSWORD') {
             const resultF = await tryFirebase(email, password);
-            if (resultF) return await goto(appUrl + relUrl(redirect));
+            if (resultF) return await goto(relUrl(redirect), { invalidateAll: true });
 
             sending = false;
             error = 'wrong-password';
@@ -38,7 +38,7 @@
             error = t.invalidEmail;
         } else if (result == 'success') {
             setTimeout(() => grantPoints({ type: 'registration' }), 500);
-            await goto(appUrl + relUrl(redirect));
+            await goto(relUrl(redirect), { invalidateAll: true });
         } else {
             sending = false;
             error = result;

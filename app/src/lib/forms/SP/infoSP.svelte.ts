@@ -1,5 +1,5 @@
 import { user, type User } from '$lib/client/auth';
-import { fetchSpareParts, fetchTechnicians, type Technician, technicians } from '$lib/client/db/arrays';
+import arrays, { fetchSpareParts, fetchTechnicians, type Technician } from '$lib/client/db/arrays';
 import { appUrl } from '$lib/helpers/globals';
 import { extractSPIDFromRawData, type SPID, spName, type SZID } from '$lib/helpers/ir';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -95,7 +95,7 @@ const infoSP: FormInfo<ContextSP, FormSP, [[Technician[] | 'loading', User | nul
             if (!values.zasah.clovek) values.zasah.clovek = ja?.name ?? values.zasah.clovek;
             if (!values.zasah.inicialy) values.zasah.inicialy = ja?.initials ?? values.zasah.inicialy;
             values.zasah.showNameFileds = values.zasah.clovek != ja?.name;
-        }, [technicians, user]],
+        }, [() => arrays.technicians, user]],
     ],
     excelImport: {
         sheet: 'Protokol',

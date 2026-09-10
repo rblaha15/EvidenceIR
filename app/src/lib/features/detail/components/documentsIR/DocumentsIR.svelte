@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { myInfo } from '$lib/client/db/arrays';
+    import arrays from '$lib/client/db/arrays';
     import type { Translations } from '$lib/translations';
     import { type ExistingIR } from '$lib/data';
     import { type IRID } from '$lib/helpers/ir';
@@ -21,7 +21,7 @@
     const links = $derived(
         createDocumentLinks(
             ir, t,
-            { isAdmin: $isAdmin, isRegulusOrAdmin: $isRegulusOrAdmin, allowUPT: $myInfo?.allowUPT ?? false },
+            { isAdmin: $isAdmin, isRegulusOrAdmin: $isRegulusOrAdmin, allowUPT: arrays.myInfoValue?.allowUPT ?? false },
             tc => openedRefsiteModal = tc,
         )
     )

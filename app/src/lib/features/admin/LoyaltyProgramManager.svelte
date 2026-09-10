@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { people, type Person } from '$lib/client/db/arrays';
+    import arrays, { type Person } from '$lib/client/db/arrays';
     import { call } from '$lib/client/endpoints';
     import { getAllIRs } from '$lib/client/incrementalUpdates';
     import {
@@ -23,7 +23,7 @@
     import writeXlsxFile from 'write-excel-file';
 
     const userW = newSearchWidget<unknown, Person>({
-        label: 'Uživatel', items: people, getSearchItem: i => ({
+        label: 'Uživatel', items: arrays.people, getSearchItem: i => ({
             pieces: [
                 { text: i.email },
             ],

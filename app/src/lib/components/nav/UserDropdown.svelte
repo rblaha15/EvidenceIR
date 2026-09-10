@@ -1,6 +1,6 @@
 <script lang="ts">
     import { user, isAdmin, isAnyRegulusOrAdmin, signOut } from '$lib/client/auth.js';
-    import { fetchLoyaltyProgramData, fetchMyInfo, loyaltyProgramData, myInfo } from '$lib/client/db/arrays';
+    import arrays, { fetchLoyaltyProgramData, fetchMyInfo } from '$lib/client/db/arrays';
     import { aA } from '$lib/helpers/newStores';
     import type { Translations } from '$lib/translations';
     import { goto } from '$app/navigation';
@@ -39,16 +39,16 @@
                 <DropdownMenuLabel>{$user?.name}</DropdownMenuLabel>
             {/if}
             <DropdownMenuLabel>{ta.email}: {userEmail}</DropdownMenuLabel>
-            {#if $myInfo}
-                <DropdownMenuLabel>{ta.responsiblePerson}: {$myInfo.responsiblePerson}</DropdownMenuLabel>
+            {#if arrays.myInfoValue}
+                <DropdownMenuLabel>{ta.responsiblePerson}: {arrays.myInfoValue.responsiblePerson}</DropdownMenuLabel>
             {/if}
         </DropdownMenuGroup>
-        {#if !$isAnyRegulusOrAdmin && $loyaltyProgramData}
+        {#if !$isAnyRegulusOrAdmin && arrays.loyaltyProgramDataValue}
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
                 <DropdownMenuGroupHeading>{ta.loyaltyProgram}</DropdownMenuGroupHeading>
                 <DropdownMenuLabel>
-                    {ta.currentPointBalance}: {$loyaltyProgramData.points}
+                    {ta.currentPointBalance}: {arrays.loyaltyProgramDataValue.points}
                 </DropdownMenuLabel>
                 <DropdownMenuItem onSelect={() => goto(relUrl('/rewards'))}>
                     <Gift />

@@ -1,7 +1,7 @@
 <script generics="P extends Pdf" lang="ts">
     import type { Translations } from '$lib/translations';
     import { type DataOfPdf, type OpenPdfOptions, type Pdf, type PdfID } from '$lib/pdf/pdf';
-    import { currentPreferredDocumentLanguage } from '$lib/languages';
+    import { preferredDocumentLanguage } from '$lib/languages';
     import { generatePdfPreviewUrl } from '$lib/helpers/files';
     import type { LanguageCode } from '$lib/languageCodes';
     import type { DocumentLinkDefinition } from '$lib/features/detail/domain/documentsIR/createDocumentLinks.js';
@@ -31,7 +31,7 @@
 
     const o = $derived({
         ...options,
-        lang: $currentPreferredDocumentLanguage,
+        lang: preferredDocumentLanguage.current,
     } as unknown as OpenPdfOptions<P>);
 </script>
 

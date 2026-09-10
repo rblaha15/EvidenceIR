@@ -1,5 +1,5 @@
 import { getCachedUser, user, type User } from '$lib/client/auth';
-import { fetchSpareParts, fetchTechnicians, type Technician, technicians } from '$lib/client/db/arrays';
+import arrays, { fetchSpareParts, fetchTechnicians, type Technician } from '$lib/client/db/arrays';
 import { appUrl } from '$lib/helpers/globals';
 import { detailUrlNSP } from '$lib/helpers/runes.svelte.js';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -72,7 +72,7 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loadin
             if (!values.zasah.clovek) values.zasah.clovek = ja?.name ?? values.zasah.clovek;
             if (!values.zasah.inicialy) values.zasah.inicialy = ja?.initials ?? values.zasah.inicialy;
             values.zasah.showNameFileds = values.zasah.clovek != ja?.name;
-        }, [technicians, user]],
+        }, [() => arrays.technicians, user]],
     ],
     pdfImport: {
         onImport: () => {},

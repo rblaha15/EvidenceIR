@@ -94,7 +94,10 @@
 
         await mountEffect?.({ mode: mode as Mode, context, other, values });
 
-        storeEffects?.forEach(([callback, stores]) => {
+        storeEffects?.forEach(([callback, storesOrGetters]) => {
+            const stores = storesOrGetters.map(storeOrGetter =>
+                'subscribe' in storeOrGetter ? storeOrGetter : storeOrGetter(),
+            );
             derivedStore(stores, values => values).subscribe(storeValues => callback(
                 storeValues, { context, values, edit: mode === 'edit', t }
             ));

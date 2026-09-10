@@ -1,9 +1,9 @@
-import {
+import arrays, {
     fetchArrays,
     fetchFriendlyCompanies, fetchMyInfo,
     fetchTechnicians,
     type FriendlyCompanies,
-    friendlyCompanies, myInfo, type Person
+    type Person,
 } from '$lib/client/db/arrays';
 import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
@@ -156,7 +156,7 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Per
         }
 
         const user = getCachedUser()!;
-        const $friendlyCompanies = get(friendlyCompanies) as FriendlyCompanies;
+        const $friendlyCompanies = get(arrays.friendlyCompanies) as FriendlyCompanies;
 
         const newIr = newIR(raw, user.email, draft, $friendlyCompanies);
         if (edit) {
@@ -212,7 +212,7 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Per
         [([$myInfo], { values }) => {
             if ($myInfo?.responsiblePerson != null) values.vzdalenyPristup.zodpovednaOsoba = $myInfo.responsiblePerson;
             if ($myInfo?.responsiblePerson != null) values.vzdalenyPristup.showResponsiblePerson = false;
-        }, [myInfo]],
+        }, [() => arrays.myInfo]],
     ],
     excelImport: {
         cells: cellsIN,

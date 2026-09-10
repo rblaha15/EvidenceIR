@@ -1,4 +1,4 @@
-import { type SparePart, spareParts } from '$lib/client/db/arrays';
+import arrays, { type SparePart } from '$lib/client/db/arrays';
 import {
     type Get,
     type GetT,
@@ -48,7 +48,7 @@ const sparePart = <C extends GenericContextSP<C>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 |
             show, text: t => t.sp.sparePart(n), level: 3,
         }),
         dil: newSearchWidget({
-            items: spareParts,
+            items: arrays.spareParts,
             required: false, show, hideInRawData: true, label: t => t.sp.searchItem,
             onValueSet: (c, part) => {
                 const nd = dil(c);

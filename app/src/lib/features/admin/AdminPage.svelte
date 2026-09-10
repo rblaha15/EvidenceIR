@@ -17,15 +17,9 @@
     import AdminArrays, { type ArraysOptions } from './AdminArrays.svelte';
     import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
     import { Separator } from "$lib/components/ui/separator";
-    import {
-        companies,
-        people,
-        type Company,
-        type Person,
-        technicians,
-        type Technician,
-        spareParts, type SparePart, type Arrays, accumulationTanks, waterTanks, solarCollectors, inverters, batteries,
-        fetchArrays, fetchSpareParts, fetchTechnicians, fetchCompanies, fetchPeople
+    import arrays, {
+        type Company, type Person, type Technician, type SparePart, type Arrays,
+        fetchArrays, fetchSpareParts, fetchTechnicians, fetchCompanies, fetchPeople,
     } from '$lib/client/db/arrays';
 
     interface BaseTabDefinition {
@@ -77,7 +71,7 @@
             tableOptions: {
                 fileType: 'csv',
                 fileName: 'uzivatele',
-                store: people,
+                store: arrays.people,
                 construct: ([name, email, montazky, uvadeci, allowUPT, responsiblePerson, koNumber]) =>
                     ({
                         name: name ?? '',
@@ -130,7 +124,7 @@
             tableOptions: {
                 fileType: 'csv',
                 fileName: 'firmy',
-                store: companies,
+                store: arrays.companies,
                 construct: ([crn, companyName, email, phone, representative, representativeUserEmail]) => ({
                     crn: crn!,
                     companyName: companyName!,
@@ -173,7 +167,7 @@
             tableOptions: {
                 fileType: 'csv',
                 fileName: 'technici',
-                store: technicians,
+                store: arrays.technicians,
                 construct: ([name, email, phone, initials]) => ({
                     name: name ?? '',
                     email: email ?? '',
@@ -201,7 +195,7 @@
             tableOptions: {
                 fileType: 'xlsx',
                 fileName: 'nahradni_dily',
-                store: spareParts,
+                store: arrays.spareParts,
                 construct: ([code, name, unitPrice]) => ({
                     name: name ?? '',
                     code: Number(code ?? 0),
@@ -233,27 +227,27 @@
                     accumulationTanks: {
                         header: 'Nádrže',
                         excelHeader: 'nadrze',
-                        store: accumulationTanks,
+                        store: arrays.accumulationTanks,
                     },
                     waterTanks: {
                         header: 'Zásobníky',
                         excelHeader: 'zasobniky',
-                        store: waterTanks,
+                        store: arrays.waterTanks,
                     },
                     solarCollectors: {
                         header: 'Kolektory',
                         excelHeader: 'kolektory',
-                        store: solarCollectors,
+                        store: arrays.solarCollectors,
                     },
                     inverters: {
                         header: 'Střídače',
                         excelHeader: 'stridace',
-                        store: inverters,
+                        store: arrays.inverters,
                     },
                     batteries: {
                         header: 'Baterie',
                         excelHeader: 'baterie',
-                        store: batteries,
+                        store: arrays.batteries,
                     },
                 },
                 sendData: arrays => call('db/admin/setArrays', arrays).then(fetchArrays),
@@ -339,7 +333,8 @@
                 {:else if t.contentType === 'arrays'}
                     <AdminArrays options={t.arraysOptions} id={tab} />
                 {:else if t.contentType === 'custom'}
-                    <t.contentOptions.component />
+                    {@const Component = t.contentOptions.component}
+                    <Component />
                 {/if}
             </div>
         </TabsContent>

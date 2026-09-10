@@ -5,7 +5,7 @@
     import { type Pdf, pdfInfo, type PdfParameters } from '$lib/pdf/pdf';
     import PdfPreview from '$lib/features/pdf/components/PdfPreview.svelte';
     import { generatePdfUrl } from '$lib/pdf/pdfGeneration';
-    import { currentPreferredDocumentLanguage } from '$lib/languages';
+    import { preferredDocumentLanguage } from '$lib/languages';
     import type { InlinePdfPreviewWidget } from '$lib/forms/Widget';
     import { type Form, widgetList } from '$lib/forms/Form';
     import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
@@ -24,8 +24,8 @@
     const args = $derived(pdfInfo[type]);
 
     const lang = $derived(
-        $currentPreferredDocumentLanguage && args.supportedLanguages.includes($currentPreferredDocumentLanguage)
-            ? $currentPreferredDocumentLanguage
+        preferredDocumentLanguage.current && args.supportedLanguages.includes(preferredDocumentLanguage.current)
+            ? preferredDocumentLanguage.current
             : args.supportedLanguages[0],
     );
 

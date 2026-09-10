@@ -1,10 +1,6 @@
-import {
-    accumulationTanks,
+import arrays, {
     type Company,
-    friendlyCompanies,
-    people,
     type Person,
-    waterTanks
 } from '$lib/client/db/arrays';
 import { getTranslations } from '$lib/translations';
 import { heatPumps, indoorUnits } from '$lib/helpers/products';
@@ -57,7 +53,7 @@ export default (): FormPlus<FormNK> => ({
         phone: newInputWidget({ required: false, label: t => t.nk.contacts.phone, inputmode: 'tel' }),
         email: newInputWidget({ required: false, label: t => t.nk.contacts.email, type: 'email', inputmode: 'email' }),
         assemblyCompanySearch: newSearchWidget<ContextNK, Company, true>({
-            label: t => t.nk.contacts.searchCompanyInList, items: derived(friendlyCompanies, c =>
+            label: t => t.nk.contacts.searchCompanyInList, items: derived(arrays.friendlyCompanies, c =>
                 c == 'loading' ? c : c.assemblyCompanies), getSearchItem: i => ({
                 pieces: [
                     { text: i.crn, width: .2 },
@@ -210,10 +206,10 @@ export default (): FormPlus<FormNK> => ({
             labels: t => t.nk.system,
         }),
         thermalStore: newInputWidget({
-            label: t => t.tc.typeOfStorageTank, show: hp, required: false, suggestions: accumulationTanks,
+            label: t => t.tc.typeOfStorageTank, show: hp, required: false, suggestions: arrays.accumulationTanks,
         }),
         waterTank: newInputWidget({
-            label: t => t.tc.typeOfStorageTank, show: hp, required: false, suggestions: waterTanks,
+            label: t => t.tc.typeOfStorageTank, show: hp, required: false, suggestions: arrays.waterTanks,
         }),
         heatingSystem: newChooserWidget({
             required: false, label: t => t.nk.system.heatingSystem, show: hp, chosen: `iDoNotKnow`, options: [
@@ -389,7 +385,7 @@ export default (): FormPlus<FormNK> => ({
                     { text: t.koNumber!, width: .1 },
                     { text: t.email, width: .5 },
                 ],
-            }), show: false, required: true, items: (_, c) => derived([people, user], ([$users, $user]) => {
+            }), show: false, required: true, items: (_, c) => derived([arrays.people, user], ([$users, $user]) => {
                 if ($users == 'loading') return [];
                 const withKO = $users.filter(p => p.koNumber && p.responsiblePerson);
                 const me = withKO.find(t => $user?.email == t.email);

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { people } from '$lib/client/db/arrays';
+    import arrays from '$lib/client/db/arrays';
     import type { PageProps } from './$types';
     import { setTitle } from '$lib/helpers/globals.js';
     import { irWholeName } from '$lib/helpers/ir';
@@ -19,7 +19,7 @@
     onMount(() => setTitle(t.users.title, true));
 
     const w = newSearchWidget({
-        items: derived(people, l => l == 'loading' ? l : l.map(i => i.email)),
+        items: derived(arrays.people, l => l == 'loading' ? l : l.map(i => i.email)),
         getSearchItem: i => ({
             pieces: [{ text: i }],
         }),

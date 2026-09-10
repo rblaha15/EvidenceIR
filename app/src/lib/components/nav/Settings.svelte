@@ -5,9 +5,10 @@
     import { removeAllFiles } from '$lib/components/forms/widgets/File.svelte';
     import { browser, version } from '$app/environment';
     import { page } from '$app/state';
-    import { currentPreferredDocumentLanguage, setUserPreferredLanguage } from '$lib/languages';
+    import {
+        setUserPreferredLanguage, setUserPreferredDocumentLanguage, preferredDocumentLanguage
+    } from '$lib/languages';
     import { goto } from '$app/navigation';
-    import { setUserPreferredDocumentLanguage } from '$lib/languages.js';
     import { environment, hideNav } from '$lib/helpers/globals';
     import { clearLocalDatabase } from '$lib/client/db/offline.svelte';
     import { clearHistory } from '$lib/client/history.svelte';
@@ -51,7 +52,7 @@
             <p>{ts.defaultDocumentLanguage}:</p>
                 <LanguageSelector onChange={code => {
                 setUserPreferredDocumentLanguage(code);
-            }} selected={$currentPreferredDocumentLanguage ?? '—'} />
+            }} selected={preferredDocumentLanguage.current ?? '—'} />
         </div>
     {/if}
     <p>{@html ts.didYouFindMistakesInTranslationsHtml}</p>
