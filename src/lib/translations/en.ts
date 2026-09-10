@@ -186,6 +186,7 @@ const en: PlainTranslations = {
         endCustomer: 'End customer',
         remoteAccess: {
             title: 'Remote Access',
+            alreadyIsConnected: `The controller is already connected to the RegulusRoute service`,
             doYouWantRemoteAccess: 'Create a remote access to the controller',
             warrantyWarning: 'Attention! You have not filled in any information about the heat pump, so the customer will not be entitled to an extended compressor warranty.',
             whoHasAccess: 'Who is going to have access to it?',

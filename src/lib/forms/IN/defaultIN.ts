@@ -761,12 +761,29 @@ export default (): FormPlus<FormIN> => ({
     ...userData(),
     vzdalenyPristup: {
         nadpis: newTitleWidget({ text: t => t.in.remoteAccess.title, show: supportsRemoteAccessC, level: 2 }),
-        chce: newCheckboxWidget({
-            label: t => t.in.remoteAccess.doYouWantRemoteAccess, required: false, show: supportsRemoteAccessC,
+        jizJe: newCheckboxWidget({
+            label: t => t.in.remoteAccess.alreadyIsConnected, required: false,
+            show: c => supportsRemoteAccessC(c),
+            lock: c => c.v.vzdalenyPristup.chce,
             onValueSet: (c, v) => {
                 if (!v) {
                     c.v.vzdalenyPristup.pristupMa = [];
                     c.v.vzdalenyPristup.plati = null;
+                } else {
+                    c.v.vzdalenyPristup.chce = false;
+                }
+            },
+        }),
+        chce: newCheckboxWidget({
+            label: t => t.in.remoteAccess.doYouWantRemoteAccess, required: false,
+            show: c => supportsRemoteAccessC(c),
+            lock: c => c.v.vzdalenyPristup.jizJe,
+            onValueSet: (c, v) => {
+                if (!v) {
+                    c.v.vzdalenyPristup.pristupMa = [];
+                    c.v.vzdalenyPristup.plati = null;
+                } else {
+                    c.v.vzdalenyPristup.jizJe = false;
                 }
             },
         }),
