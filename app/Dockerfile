@@ -20,6 +20,10 @@ WORKDIR /app
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/package.json /app/package-lock.json ./
 
+RUN apk add --no-cache fontconfig
+COPY static/Ubuntu-Regular.ttf /usr/local/share/fonts/Ubuntu-Regular.ttf
+RUN fc-cache -f
+
 RUN npm ci --omit=dev
 
 ENV BODY_SIZE_LIMIT=30M

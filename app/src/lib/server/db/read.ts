@@ -8,9 +8,7 @@ export type ReadDatabaseWIthLocals = {
 }
 
 export const mongoReadDatabase: ReadDatabaseWIthLocals = {
-    getIR: irid => irCollection.findOne(id(irid)).thenAlso(ir => {
-        console.log(ir);
-    }),
+    getIR: irid => irCollection.findOne(id(irid)),
     getChangedIRs: async (lastUpdatedAt, locals) => {
         const user = locals.user!;
         const cursor = getIsRegulusOrAdmin(locals) ? irCollection.find({

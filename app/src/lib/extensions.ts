@@ -182,9 +182,9 @@ Object.prototype.mapTo = function <T extends Record<PropertyKey, unknown>, U>(
     );
 };
 Map.prototype.mapTo = function(callback) {
-    return this.entries().map(([key, value], index) =>
+    return [...this.entries()].map(([key, value], index) =>
         callback(key, value, index),
-    ).toArray();
+    );
 } as typeof Map.prototype.mapTo;
 Object.prototype.forEachEntry = function <T extends Record<PropertyKey, unknown>>(
     this: T,
@@ -794,7 +794,7 @@ Array.prototype.transpose = function(fill) {
 Array.prototype.countElements = function() {
     const result = new Map();
     for (const element of this) {
-        result.set(element, result.getOrInsert(element, 0) + 1);
+        result.set(element, (result.get(element) ?? 0) + 1);
     }
     return result;
 } as typeof Array.prototype.countElements;

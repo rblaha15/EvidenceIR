@@ -11,6 +11,7 @@
     import { Separator } from '$lib/components/ui/separator';
     import { Spinner } from '$lib/components/ui/spinner';
     import {
+        appUrl,
         backButton,
         endLoading,
         environment,
@@ -107,6 +108,19 @@
 
 <svelte:head>
     <title>{dev ? '(dev) ' : ''}SEIR :: {$title}</title>
+
+    {#if page.route.id === '/[[lang]]/(requiresLogin)/detail'}
+        <meta property="og:title" content="Regulus SEIR">
+        <meta property="og:description" content="Seznam a evidence regulátorů">
+        <meta property="og:image" content={appUrl + '/api/card' + page.url.search}>
+        <meta property="og:url" content={page.url.href}>
+        <meta property="og:type" content="website">
+
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Regulus SEIR">
+        <meta name="twitter:description" content="Seznam a evidence regulátorů">
+        <meta name="twitter:image" content={appUrl + '/api/card' + page.url.search}>
+    {/if}
 </svelte:head>
 
 {#snippet loading()}
