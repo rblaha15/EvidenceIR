@@ -8,7 +8,7 @@ import { regulusCRN } from '$lib/helpers/ares';
 type Rule = (ir: ExistingIR) => boolean;
 type RuleT = (ir: ExistingIR, tc: PumpInfo) => boolean;
 
-export const showRR: Rule = ir => ir.IN.vzdalenyPristup.chce && !(
+export const showRR: Rule = ir => (ir.IN.vzdalenyPristup.chce || ir.IN.vzdalenyPristup.jizJe) && !(
     ir.signatures?.UPT?.state == 'signed' && isNewWarranties(ir.UP.dateTC!) && ir.signatures.RR?.state != 'signed'
 );
 

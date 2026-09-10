@@ -59,7 +59,7 @@
                 {#each widget.options(context) as item}
                     <FieldGroup>
                         <Field data-invalid={invalid} orientation="horizontal">
-                            <RadioGroupItem value={item} aria-invalid={invalid} id="{id}-{item}" />
+                            <RadioGroupItem value={item} aria-invalid={invalid} id="{id}-{item}" disabled={widget.lock(context)} />
                             <FieldLabel class="font-normal" for="{id}-{item}">{widget.get(t, item)}</FieldLabel>
                         </Field>
                         {@render trailingContent?.(item)}

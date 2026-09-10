@@ -28,11 +28,11 @@
 </script>
 
 <FieldLabel for={id}>
-    <Field data-invalid={invalid} orientation="horizontal">
+    <Field data-invalid={invalid} orientation="horizontal" data-disabled={widget.lock(context)}>
         <Checkbox aria-invalid={invalid} checked={value} disabled={widget.lock(context)} {id} {onCheckedChange} />
         <FieldContent>
             {#if widget.label(t, context)}
-                <FieldTitle>{labelAndStar(widget, context, t)}</FieldTitle>
+                <FieldTitle aria-disabled={widget.lock(context)}>{labelAndStar(widget, context, t)}</FieldTitle>
             {/if}
             {#if widget.descriptionItems(t, context).length}
                 <ul class="text-muted-foreground list-disc">

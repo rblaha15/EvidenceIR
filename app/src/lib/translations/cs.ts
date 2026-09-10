@@ -796,6 +796,7 @@ export default {
         irCooperation: 'Spolupráce s IR',
         remoteAccess: {
             title: `Vzdálený přístup`,
+            alreadyIsConnected: `Regulátor je již připojen ke službě RegulusRoute`,
             doYouWantRemoteAccess: `Založit vzdálený přístup k regulátoru`,
             warrantyWarning: `Pozor! Nevyplnili jste informace o tepelném čerpadle, takže zákazník nebude mít nárok na prodlouženou záruku kompresoru.`,
             whoHasAccess: `Kdo k němu bude mít přístup?`,

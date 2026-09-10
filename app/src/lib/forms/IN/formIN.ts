@@ -155,6 +155,7 @@ export interface FormIN extends UserForm<ContextIN>, Form<ContextIN> {
     };
     vzdalenyPristup: {
         nadpis: TitleWidget<ContextIN>;
+        jizJe: CheckboxWidget<ContextIN>;
         chce: CheckboxWidget<ContextIN>;
         pristupMa: MultiCheckboxWidget<ContextIN, 'endCustomer' | 'assemblyCompany' | 'commissioningCompany'>;
         plati: RadioWidget<ContextIN, 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | 'laterAccordingToTheProtocol'>;
