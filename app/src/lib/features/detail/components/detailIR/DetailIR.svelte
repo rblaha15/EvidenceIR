@@ -36,7 +36,9 @@
 </script>
 
 <h4 class="flex flex-wrap gap-x-4 gap-y-1 text-lg">
-    <span>{pumps}</span>
+    {#if pumps}
+        <span>{pumps}</span>
+    {/if}
     <span>MF: {$assembly}</span>
     <span>UP: {commissioning}</span>
 </h4>
