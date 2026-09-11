@@ -3,7 +3,6 @@ import type { auth } from '$lib/server/auth';
 import { inferAdditionalFields } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/svelte';
 import { type FirebaseOptions, getApps, initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { derived, get } from 'svelte/store';
 
 export const authClient = createAuthClient({
@@ -99,11 +98,13 @@ const firebaseConfig: FirebaseOptions = {
     databaseURL: 'https://evidence-ir-default-rtdb.europe-west1.firebasedatabase.app/',
 };
 
-export const app = getApps()[0] ?? initializeApp(firebaseConfig);
-export const firebaseAuth = getAuth(app);
-
 export const tryFirebase = async (email: string, password: string) => {
     try {
+        const { getAuth, signInWithEmailAndPassword } = await import('firebase/auth');
+
+        const app = getApps()[0] ?? initializeApp(firebaseConfig);
+        const firebaseAuth = getAuth(app);
+
         await signInWithEmailAndPassword(firebaseAuth, email, password);
 
         const token = await firebaseAuth.currentUser!.getIdToken();

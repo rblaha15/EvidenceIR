@@ -100,7 +100,7 @@
 
 <div class="flex flex-col gap-4 p-4 border border-input rounded-2xl">
     <div class="flex relative items-center flex-wrap">
-        <p>{ts.whatToSearch}</p>
+        <p id="search-label">{ts.whatToSearch}</p>
         <div class="flex items-center gap-2 ms-auto">
             {#if $status === 'loadingOnline' && $isOnline}
                 <Spinner class="size-6" />
@@ -130,6 +130,7 @@
                 <Search />
             </InputGroupAddon>
             <InputGroupInput
+                aria-labelledby="search-label"
                 autofocus
                 bind:value={search}
                 type="search"

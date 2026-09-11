@@ -108,6 +108,7 @@
 
 <svelte:head>
     <title>{dev ? '(dev) ' : ''}SEIR :: {$title}</title>
+    <meta name="description" content="Seznam a evidence regulátorů">
 
     {#if page.route.id === '/[[lang]]/(requiresLogin)/detail'}
         <meta property="og:title" content="Regulus SEIR">
@@ -151,6 +152,7 @@
             <Progress
                 class="rounded-none bg-transparent absolute transition-transform duration-500 origin-top {$progress === 'load' ? 'scale-y-100' : 'scale-y-0'}"
                 value={$progress === 'load' ? 90 : $progress === 'done' ? 100 : 0}
+                aria-label="Page loading…"
             />
             <main class="flex min-h-full w-full justify-center gap-16 px-4 pb-2 md:px-8">
                 <div class="flex w-full flex-col gap-4 pt-10 max-w-7xl has-[+.toc]:max-w-2xl">
