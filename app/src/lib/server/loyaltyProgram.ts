@@ -130,7 +130,7 @@ export const addPointsTransaction = async (
     });
 };
 
-export const grantPointsForUPT = async () => {
+export const grantPointsForYesterday = async () => {
     const irs = await getAllIRs();
 
     const yesterday = new Date().also(today => {
@@ -138,9 +138,17 @@ export const grantPointsForUPT = async () => {
     }).toISOString().split('T')[0];
 
     for (const ir of irs) {
+        if (ir.isDraft) continue;
+
+        if (ir.meta.createdBy) await processLoyaltyReward(
+            { type: ir.IN.vzdalenyPristup.chce ? 'connectRegulusRoute' : 'disconnectRegulusRoute', irid: ir.meta.id },
+            { user: { email: ir.meta.createdBy.email } as User, session: undefined },
+        );
+
         if (!ir.UP.TC?.os) continue;
         if (!ir.UP.TC.uvadeni.createdAt) continue;
         if (!ir.UP.TC.uvadeni.createdAt.startsWith(yesterday)) continue;
+
         await processLoyaltyReward(
             { type: 'heatPumpCommission', irid: ir.meta.id },
             { user: { email: ir.UP.TC.uvadeni.createdBy } as User, session: undefined },

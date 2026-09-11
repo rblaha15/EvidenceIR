@@ -1,6 +1,6 @@
 import { environment } from '$lib/helpers/globals';
 import { checkForRecommendations } from '$lib/server/db/recommend-rk';
-import { grantPointsForUPT } from '$lib/server/loyaltyProgram';
+import { grantPointsForYesterday } from '$lib/server/loyaltyProgram';
 import { type Handle, redirect } from "@sveltejs/kit"
 import { sequence } from '@sveltejs/kit/hooks';
 import { auth } from "$lib/server/auth";
@@ -47,7 +47,7 @@ if (environment === 'production' && false) cron.schedule('0 8 * * *', async () =
 
 cron.schedule('0 4 * * *', async () => {
     try {
-        await grantPointsForUPT();
+        await grantPointsForYesterday();
     } catch (err) {
         console.error('UPT LP error:', err);
     }
