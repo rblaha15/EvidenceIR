@@ -1,5 +1,5 @@
 import { getCachedUser, user, type User } from '$lib/client/auth';
-import arrays, { fetchSpareParts, fetchTechnicians, type Technician } from '$lib/client/db/arrays';
+import arrays, { type Technician } from '$lib/client/db/arrays';
 import { appUrl } from '$lib/helpers/globals';
 import { detailUrlNSP } from '$lib/helpers/runes.svelte.js';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -48,8 +48,8 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loadin
     createContext: ({ values: v, form: f, mode }) => ({ v, f, edit: mode == 'edit' }),
     title: (t, m) => m == 'edit' ? t.sp.editSP : t.sp.title,
     onMount: async () => {
-        await fetchTechnicians();
-        await fetchSpareParts();
+        await arrays.fetchTechnicians();
+        await arrays.fetchSpareParts();
     },
     getEditData: async (url, fetch) => {
         const nspid = url.searchParams.get('edit-nspid') as NSPID | null;

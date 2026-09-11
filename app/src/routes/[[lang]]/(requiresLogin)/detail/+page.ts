@@ -1,5 +1,5 @@
 import { getIsLoggedIn } from '$lib/client/auth';
-import { fetchPeople, fetchTechnicians } from '$lib/client/db/arrays';
+import arrays from '$lib/client/db/arrays';
 import type { EntryGenerator, PageLoad } from './$types';
 import { error } from '@sveltejs/kit';
 import { browser } from '$app/environment';
@@ -18,8 +18,8 @@ export const load: PageLoad = async ({ url, fetch }) => {
     if (!id.irid && !id.nspids) error(400, { message: 'At least one of irid or spid bust be provided!' });
 
     if (!await getIsLoggedIn()) return error(401);
-    await fetchTechnicians(fetch);
-    await fetchPeople(fetch);
+    await arrays.fetchTechnicians(fetch);
+    await arrays.fetchPeople(fetch);
 
     const data = getDataAsStore(id, fetch);
 

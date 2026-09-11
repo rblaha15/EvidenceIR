@@ -1,4 +1,4 @@
-import { fetchLoyaltyProgramData } from '$lib/client/db/arrays';
+import arrays from '$lib/client/db/arrays';
 import { call } from '$lib/client/endpoints';
 import type { IRID } from '$lib/helpers/ir';
 import type { TC } from '$lib/forms/IN/defaultIN';
@@ -56,7 +56,7 @@ export const grantPoints = async <T extends LoyaltyPointTriggerType>(data: Loyal
 
 export const grantPointsOnline = async <T extends LoyaltyPointTriggerType>(data: LoyaltyProgramTrigger<T>) => {
     await call('db/addLoyaltyPoints', { data });
-    await fetchLoyaltyProgramData();
+    await arrays.fetchLoyaltyProgramData();
 }
 
 export type StandardLoyaltyProgramPointsTransaction = {

@@ -2,6 +2,7 @@ import { browser } from '$app/environment';
 import { pendingUser } from '$lib/client/auth';
 import { call } from '$lib/client/endpoints';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
+import { getIsOnline } from '$lib/client/online';
 import { lazyStorable } from '$lib/helpers/newStores';
 import { derived, readonly } from 'svelte/store';
 
@@ -45,45 +46,22 @@ export type FriendlyCompanies = {
     commissioningCompanies: Company[];
 };
 
-const _friendlyCompanies = lazyStorable<FriendlyCompanies | 'loading'>('friendlyCompanies', 'loading');
-export const fetchFriendlyCompanies = async (fetch: typeof window.fetch = window.fetch) =>
-    _friendlyCompanies.current = await call('db/getCompanies', { fetch });
-
-const _companies = lazyStorable<Company[] | 'loading'>('companies', 'loading');
-export const fetchCompanies = async (fetch: typeof window.fetch = window.fetch) =>
-    _companies.current = await call('db/admin/getCompanies', { fetch });
-
-const _myInfo = lazyStorable<Person>('myInfo');
-export const fetchMyInfo = async (fetch: typeof window.fetch = window.fetch) =>
-    _myInfo.current = await call('db/getMyInfo', { fetch });
-
-const _people = lazyStorable<Person[] | 'loading'>('people', 'loading');
-export const fetchPeople = async (fetch: typeof window.fetch = window.fetch) =>
-    _people.current = await call('db/regulus/getPeople', { fetch });
-
-const _technicians = lazyStorable<Technician[] | 'loading'>('technicians', 'loading');
-export const fetchTechnicians = async (fetch: typeof window.fetch = window.fetch) =>
-    _technicians.current = await call('db/getTechnicians', { fetch });
-
-const _spareParts = lazyStorable<SparePart[] | 'loading'>('spareParts', 'loading');
-export const fetchSpareParts = async (fetch: typeof window.fetch = window.fetch) =>
-    _spareParts.current = await call('db/getSpareParts', { fetch });
-
+const friendlyCompanies = lazyStorable<FriendlyCompanies | 'loading'>('friendlyCompanies', 'loading');
+const companies = lazyStorable<Company[] | 'loading'>('companies', 'loading');
+const myInfo = lazyStorable<Person>('myInfo');
+const people = lazyStorable<Person[] | 'loading'>('people', 'loading');
+const technicians = lazyStorable<Technician[] | 'loading'>('technicians', 'loading');
+const spareParts = lazyStorable<SparePart[] | 'loading'>('spareParts', 'loading');
 const arrays = lazyStorable<Partial<Record<Arrays, string[]>>>('arrays', {});
-export const fetchArrays = async (fetch: typeof window.fetch = window.fetch) =>
-    arrays.current = await call('db/getArrays', { fetch });
-
-const _loyaltyProgramData = lazyStorable<LoyaltyProgramUserData | null>('lp', null);
-export const fetchLoyaltyProgramData = async (fetch: typeof window.fetch = window.fetch) =>
-    _loyaltyProgramData.current = await call('db/getLoyaltyPoints', { fetch });
+const loyaltyProgramData = lazyStorable<LoyaltyProgramUserData | null>('lp', null);
 
 pendingUser.subscribe(async $user => {
     if (!browser) return;
     if ($user == 'pending') return;
     if (!$user) {
-        _myInfo.current = undefined;
-        _friendlyCompanies.current = 'loading';
-        _loyaltyProgramData.current = null;
+        myInfo.current = undefined;
+        friendlyCompanies.current = 'loading';
+        loyaltyProgramData.current = null;
     } else {
         // await fetchMyInfo();
         // await fetchFriendlyCompanies();
@@ -92,28 +70,44 @@ pendingUser.subscribe(async $user => {
 });
 
 export default {
-    get friendlyCompanies() { return readonly(_friendlyCompanies.store); },
-    get companies() { return readonly(_companies.store); },
-    get myInfo() { return readonly(_myInfo.store); },
-    get people() { return readonly(_people.store); },
-    get technicians() { return readonly(_technicians.store); },
-    get spareParts() { return readonly(_spareParts.store); },
+    get friendlyCompanies() { return readonly(friendlyCompanies.store); },
+    get companies() { return readonly(companies.store); },
+    get myInfo() { return readonly(myInfo.store); },
+    get people() { return readonly(people.store); },
+    get technicians() { return readonly(technicians.store); },
+    get spareParts() { return readonly(spareParts.store); },
     get accumulationTanks() { return derived(arrays.store, $arrays => $arrays.accumulationTanks ?? []); },
     get waterTanks() { return derived(arrays.store, $arrays => $arrays.waterTanks ?? []); },
     get solarCollectors() { return derived(arrays.store, $arrays => $arrays.solarCollectors ?? []); },
     get inverters() { return derived(arrays.store, $arrays => $arrays.inverters ?? []); },
     get batteries() { return derived(arrays.store, $arrays => $arrays.batteries ?? []); },
-    get loyaltyProgramData() { return readonly(_loyaltyProgramData.store); },
-    get friendlyCompaniesValue() { return _friendlyCompanies.current; },
-    get companiesValue() { return _companies.current; },
-    get myInfoValue() { return _myInfo.current; },
-    get peopleValue() { return _people.current; },
-    get techniciansValue() { return _technicians.current; },
-    get sparePartsValue() { return _spareParts.current; },
+    get loyaltyProgramData() { return readonly(loyaltyProgramData.store); },
+    get friendlyCompaniesValue() { return friendlyCompanies.current; },
+    get companiesValue() { return companies.current; },
+    get myInfoValue() { return myInfo.current; },
+    get peopleValue() { return people.current; },
+    get techniciansValue() { return technicians.current; },
+    get sparePartsValue() { return spareParts.current; },
     get accumulationTanksValue() { return arrays.current.accumulationTanks ?? []; },
     get waterTanksValue() { return arrays.current.waterTanks ?? []; },
     get solarCollectorsValue() { return arrays.current.solarCollectors ?? []; },
     get invertersValue() { return arrays.current.inverters ?? []; },
     get batteriesValue() { return arrays.current.batteries ?? []; },
-    get loyaltyProgramDataValue() { return _loyaltyProgramData.current; },
+    get loyaltyProgramDataValue() { return loyaltyProgramData.current; },
+    async fetchFriendlyCompanies(fetch: typeof window.fetch = window.fetch)
+        { if (getIsOnline()) friendlyCompanies.current = await call('db/getCompanies', { fetch })},
+    async fetchCompanies(fetch: typeof window.fetch = window.fetch)
+        { if (getIsOnline()) companies.current = await call('db/admin/getCompanies', { fetch })},
+    async fetchMyInfo(fetch: typeof window.fetch = window.fetch)
+        { if (getIsOnline()) myInfo.current = await call('db/getMyInfo', { fetch })},
+    async fetchPeople(fetch: typeof window.fetch = window.fetch)
+        { if (getIsOnline()) people.current = await call('db/regulus/getPeople', { fetch })},
+    async fetchTechnicians(fetch: typeof window.fetch = window.fetch)
+        { if (getIsOnline()) technicians.current = await call('db/getTechnicians', { fetch })},
+    async fetchSpareParts(fetch: typeof window.fetch = window.fetch)
+        { if (getIsOnline()) spareParts.current = await call('db/getSpareParts', { fetch })},
+    async fetchArrays(fetch: typeof window.fetch = window.fetch)
+        { if (getIsOnline()) arrays.current = await call('db/getArrays', { fetch })},
+    async fetchLoyaltyProgramData(fetch: typeof window.fetch = window.fetch)
+        { if (getIsOnline()) loyaltyProgramData.current = await call('db/getLoyaltyPoints', { fetch })},
 };

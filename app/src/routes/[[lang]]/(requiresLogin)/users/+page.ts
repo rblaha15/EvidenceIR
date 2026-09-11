@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { getIsLoggedIn, getIsRegulusOrAdmin } from '$lib/client/auth';
-import { fetchPeople } from '$lib/client/db/arrays';
+import arrays from '$lib/client/db/arrays';
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
 import { type IR } from '$lib/data';
@@ -20,7 +20,7 @@ export const load: PageLoad = async ({ url, fetch }) => {
     const id = extractIDs(url);
     if (!id.irid) error(400, { message: 'irid must be provided!' });
 
-    await fetchPeople(fetch);
+    await arrays.fetchPeople(fetch);
 
     const store = getStoreIR(id.irid, fetch);
 

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { user, isAdmin, isAnyRegulusOrAdmin, signOut } from '$lib/client/auth.js';
-    import arrays, { fetchLoyaltyProgramData, fetchMyInfo } from '$lib/client/db/arrays';
+    import arrays from '$lib/client/db/arrays';
     import { aA } from '$lib/helpers/newStores';
     import type { Translations } from '$lib/translations';
     import { goto } from '$app/navigation';
@@ -24,8 +24,8 @@
 
     const userEmail = $derived($user?.email ?? '');
 
-    onMount(fetchLoyaltyProgramData);
-    onMount(fetchMyInfo); // TODO
+    onMount(arrays.fetchLoyaltyProgramData);
+    onMount(arrays.fetchMyInfo); // TODO
 </script>
 
 <DropdownMenu>

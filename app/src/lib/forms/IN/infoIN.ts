@@ -1,7 +1,4 @@
 import arrays, {
-    fetchArrays,
-    fetchFriendlyCompanies, fetchMyInfo,
-    fetchTechnicians,
     type FriendlyCompanies,
     type Person,
 } from '$lib/client/db/arrays';
@@ -193,10 +190,10 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Per
         return !ir ? { other: { draft: false } } : { raw: ir.IN, other: { draft: ir.isDraft } };
     },
     onMount: async ({ values }) => {
-        await fetchMyInfo();
-        await fetchFriendlyCompanies();
-        await fetchTechnicians();
-        await fetchArrays();
+        await arrays.fetchMyInfo();
+        await arrays.fetchFriendlyCompanies();
+        await arrays.fetchTechnicians();
+        await arrays.fetchArrays();
 
         const count = cascadePumps(values).length;
         values.tc.pocet = count == 0 ? 1 : count;

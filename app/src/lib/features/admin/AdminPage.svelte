@@ -19,7 +19,6 @@
     import { Separator } from "$lib/components/ui/separator";
     import arrays, {
         type Company, type Person, type Technician, type SparePart, type Arrays,
-        fetchArrays, fetchSpareParts, fetchTechnicians, fetchCompanies, fetchPeople,
     } from '$lib/client/db/arrays';
 
     interface BaseTabDefinition {
@@ -114,7 +113,7 @@
                     responsiblePerson: { header: 'Zodpovědná osoba' },
                     koNumber: { header: 'Číslo KO', transformValue: emptyUndefined },
                 },
-                sendData: array => call('db/admin/setUsers', { array }).then(fetchPeople),
+                sendData: array => call('db/admin/setUsers', { array }).then(arrays.fetchPeople),
             },
         } satisfies TableDefinition<Person>,
         companies: {
@@ -157,7 +156,7 @@
                     representative: { header: 'Zástupce', transformValue: emptyUndefined },
                     representativeUserEmail: { header: 'Uživatel', transformValue: addUserLink },
                 },
-                sendData: array => call('db/admin/setCompanies', { array }).then(fetchCompanies),
+                sendData: array => call('db/admin/setCompanies', { array }).then(arrays.fetchCompanies),
             },
         } satisfies TableDefinition<Company>,
         technicians: {
@@ -185,7 +184,7 @@
                     phone: { header: 'Telefonní číslo' },
                     initials: { header: 'Iniciály do SP' },
                 },
-                sendData: array => call('db/admin/setTechnicians', { array }).then(fetchTechnicians),
+                sendData: array => call('db/admin/setTechnicians', { array }).then(arrays.fetchTechnicians),
             },
         } satisfies TableDefinition<Technician>,
         spareParts: {
@@ -211,7 +210,7 @@
                     name: { header: 'Název', cellType: 'header' },
                     unitPrice: { header: 'Jednotková cena', transformValue: s => s.roundTo(2).toLocaleString('cs') + ' Kč' },
                 },
-                sendData: array => call('db/admin/setSpareParts', { array }).then(fetchSpareParts),
+                sendData: array => call('db/admin/setSpareParts', { array }).then(arrays.fetchSpareParts),
             },
         } satisfies TableDefinition<SparePart>,
         arrays: {
@@ -250,7 +249,7 @@
                         store: arrays.batteries,
                     },
                 },
-                sendData: arrays => call('db/admin/setArrays', arrays).then(fetchArrays),
+                sendData: a => call('db/admin/setArrays', a).then(arrays.fetchArrays),
             },
             separator: true,
         } satisfies ArraysDefinition<Arrays>,

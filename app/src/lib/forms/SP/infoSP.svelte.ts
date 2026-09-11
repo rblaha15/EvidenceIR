@@ -1,5 +1,5 @@
 import { user, type User } from '$lib/client/auth';
-import arrays, { fetchSpareParts, fetchTechnicians, type Technician } from '$lib/client/db/arrays';
+import arrays, { type Technician } from '$lib/client/db/arrays';
 import { appUrl } from '$lib/helpers/globals';
 import { extractSPIDFromRawData, type SPID, spName, type SZID } from '$lib/helpers/ir';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -83,8 +83,8 @@ const infoSP: FormInfo<ContextSP, FormSP, [[Technician[] | 'loading', User | nul
     title: (t, mode) =>
         mode == 'edit' ? t.sp.editSP : t.sp.title,
     onMount: async ({ values, ir }) => {
-        await fetchTechnicians();
-        await fetchSpareParts();
+        await arrays.fetchTechnicians();
+        await arrays.fetchSpareParts();
         if (!values.system.datumUvedeni && ir.UP.dateTC)
             values.system.datumUvedeni = ir.UP.dateTC;
     },
