@@ -11,9 +11,9 @@ export const removeDK = async (code: string) =>
 
 export const changeRecommendationState = (irid: IRID, value: RecommendationState, type: 'TČ' | 'SOL') => {
     const field = type == 'TČ' ? 'RK.DK.TC' : 'RK.DK.SOL';
-    return irCollection.updateOne(id(irid), { [field + '.state']: value });
+    return irCollection.updateOne(id(irid), { $set: { [field + '.state']: value } });
 };
 export const changeRecommendationCode = (irid: IRID, code: string, type: 'TČ' | 'SOL') => {
     const field = type == 'TČ' ? 'RK.DK.TC' : 'RK.DK.SOL';
-    return irCollection.updateOne(id(irid), { [field + '.code']: code });
+    return irCollection.updateOne(id(irid), { $set: { [field + '.code']: code } });
 };
