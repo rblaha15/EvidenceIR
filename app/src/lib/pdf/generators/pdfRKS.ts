@@ -63,7 +63,7 @@ const pdfRKS: GetPdfData<'RKS'> = async ({ data, t, lastYear, addDoc, lang, fetc
         ] as [`Text${number}`, string][];
     }).flat().toRecord();
     return {
-        fileNameSuffix: `${data.IN.ir.cislo} roky ${startYear}-${nextStartYear - 1}`,
+        fileNameSuffix: `${data.IN.ir.cislo} roky ${startYear}-${maxYear}`,
         ...start,
         ...metadata,
         ...veci,
