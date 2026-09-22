@@ -103,6 +103,7 @@ export const pdfRKTL: GetPdfData<'RKTL'> = async ({ data, t, pump, lastYear, add
         ] as [`Text${number}`, string][];
     }).flat().toRecord();
     return {
+        fileNameSuffix: `${data.IN.ir.cislo} ${pumpInfo.cislo} roky ${startYear}-${nextStartYear - 1}`,
         ...start,
         ...metadata,
         ...veci,
@@ -207,6 +208,7 @@ const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang
         ] as [string, { value: string, type: 'text' }][];
     }).flat().toRecord();
     return {
+        fileNameSuffix: `${data.IN.ir.cislo} ${pumpInfo.cislo} roky ${startYear}-${nextStartYear - 1}`,
         ...start,
         ...metadata,
         ...veci,

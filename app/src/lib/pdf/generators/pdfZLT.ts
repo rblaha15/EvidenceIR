@@ -8,6 +8,7 @@ const pdfZLT: GetPdfData<'ZLT'> = async ({ data: { IN, UP: { dateTC } }, pump })
     const montazka = await ares.getNameAndAddress(IN.montazka.ico, fetch);
     const { model, cislo } = cascadePumps(IN)[pump - 1];
     return {
+        fileNameSuffix: `${IN.ir.cislo} ${cislo}`,
         Text1: model,
         Text2: cislo,
         Text3: `${IN.montazka.ico} — ${montazka?.obchodniJmeno ?? ''}`,
