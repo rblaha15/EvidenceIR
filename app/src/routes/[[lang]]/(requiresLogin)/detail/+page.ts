@@ -19,7 +19,6 @@ export const load: PageLoad = async ({ url, fetch }) => {
 
     if (!await getIsLoggedIn()) return error(401);
     await arrays.fetchTechnicians(fetch);
-    await arrays.fetchPeople(fetch);
 
     const data = getDataAsStore(id, fetch);
 
