@@ -65,12 +65,14 @@
     };
 </script>
 
-<Button onclick={importFromSEIR1}>Importovat data ze SEIR 1</Button>
-<Button onclick={importDataFromSEIR1}>Importovat seznamy ze SEIR 1 (uživatele, firmy, techniky, náhradní díly a seznamy)</Button>
+Import ze SEIR 1 odstraněn, je moc nebezpečný
+
+<!--<Button onclick={importFromSEIR1}>Importovat data ze SEIR 1</Button>-->
+<!--<Button onclick={importDataFromSEIR1}>Importovat seznamy ze SEIR 1 (uživatele, firmy, techniky, náhradní díly a seznamy)</Button>-->
 
 <File bind:value context={{}} {showAllErrors} t={getTranslations('cs')} {widget}/>
 
-<Button onclick={importFromBackup}>Importovat data ze zálohy</Button>
+<Button onclick={importFromBackup}>Importovat data ze zálohy (přepíše všechna data v databázi!!!)</Button>
 
 {#if error}
     <DangerAlert noicon title={error} />
