@@ -28,8 +28,9 @@ export async function GET({ url, fetch }) {
             .mapTo((model, count) => count == 1 ? model : `${count}x ${model}`)
             .join(', ');
         const crn = ir.IN.montazka.ico;
-        const assembly = crn == unknownCRN ? unknownCompany(t).companyName
-            : await ares.getName(crn, fetch) || crn;
+        const assembly = !crn ? ir.IN.montazka.zastupce
+            : crn == unknownCRN ? unknownCompany(t).companyName
+                : await ares.getName(crn, fetch) || crn;
         const commissioning = ir.IN.uvedeni.zastupce;
 
         const { body } = render(Card, {
@@ -52,8 +53,9 @@ export async function GET({ url, fetch }) {
         if (!nsp) error(400, { message: `NSP doesn't exist!` });
 
         const crn = nsp.NSP.montazka.ico;
-        const assembly = crn == unknownCRN ? unknownCompany(t).companyName
-            : await ares.getName(crn, fetch) || crn;
+        const assembly = !crn ? nsp.NSP.montazka.zastupce
+            : crn == unknownCRN ? unknownCompany(t).companyName
+                : await ares.getName(crn, fetch) || crn;
         const commissioning = nsp.NSP.uvedeni.zastupce;
 
         const { body } = render(Card, {

@@ -29,7 +29,8 @@
     );
     const crn = $derived(ir.IN.montazka.ico);
     const assembly = $derived(readable(crn, set => {
-        if (crn == unknownCRN) set(unknownCompany(t).companyName);
+        if (!crn) set(ir.IN.montazka.zastupce);
+        else if (crn == unknownCRN) set(unknownCompany(t).companyName);
         else ares.getName(crn).then(name => set(name || crn));
     }));
     const commissioning = $derived(ir.IN.uvedeni.zastupce);
