@@ -18,7 +18,7 @@
         <DialogHeader>
             <DialogTitle>{ts.title}</DialogTitle>
         </DialogHeader>
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 overflow-auto">
             <Settings {t} />
         </div>
         <DialogFooter>

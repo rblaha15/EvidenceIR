@@ -36,7 +36,7 @@
 {/snippet}
 
 <nav class="
-    fixed top-0 inset-x-0 bg-regulus text-regulus-foreground p-2 gap-x-8 gap-y-2 w-full grid grid-cols-[auto_1fr_auto]
+    fixed top-0 inset-x-0 bg-regulus text-regulus-foreground p-2 gap-x-2 min-[27rem]:gap-x-8 gap-y-2 w-full grid grid-cols-[auto_1fr_auto]
     [grid-template-areas:'logo_._buttons']
     md:[grid-template-areas:'logo_._buttons''items_items_items']
     min-[69rem]:[grid-template-areas:'logo_items_buttons']
@@ -45,7 +45,9 @@
         {#if $isLoggedIn && showSecrets}
             <NavSheet {t} {header} />
         {/if}
-        {@render header()}
+        <div class="hidden min-[27rem]:flex">
+            {@render header()}
+        </div>
         {#if !$isOnline && showSecrets}
             <WifiOff />
         {/if}
