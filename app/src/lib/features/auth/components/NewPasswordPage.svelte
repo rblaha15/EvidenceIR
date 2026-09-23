@@ -100,6 +100,6 @@
             title={t.newPassword} />
 {:else}
     <AuthUI {error} sending={mode === 'saving'}
-            show={{ currentPassword: mode == 'edit', password: true, newPassword: true }} submit={resetPassword}
+            show={{ currentPassword: mode == 'edit', confirmPassword: true, newPassword: true }} submit={resetPassword}
             submitLabel={t.save} {t} title={t.newPassword} />
 {/if}
