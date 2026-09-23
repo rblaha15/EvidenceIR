@@ -1,19 +1,27 @@
 <script generics="R extends Raw<Form>" lang="ts">
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
+    import Widget from '$lib/components/forms/Widget.svelte';
+    import { Button, buttonVariants } from '$lib/components/ui/button';
+    import {
+        Dialog,
+        DialogClose,
+        DialogContent,
+        DialogFooter,
+        DialogHeader,
+        DialogTitle,
+        DialogTrigger
+    } from '$lib/components/ui/dialog';
+    import { type ExcelImport, processExcel } from '$lib/forms/ExcelImport';
 
     // noinspection ES6UnusedImports
     import type { Form, Raw } from '$lib/forms/Form';
-    import { type Translations } from '$lib/translations';
-    import { type ExcelImport, processExcel } from '$lib/forms/ExcelImport';
-    import readXlsxFile, { readSheetNames } from 'read-excel-file';
-    import Widget from '$lib/components/forms/Widget.svelte';
     import { type PdfImport, processPdf } from '$lib/forms/PdfImport';
-    import { PDFDocument } from 'pdf-lib';
-    import type { US } from '$lib/translations/untranslatables';
     import { newChooserWidget } from '$lib/forms/Widget';
+    import { type Translations } from '$lib/translations';
+    import type { US } from '$lib/translations/untranslatables';
     import { Upload } from '@lucide/svelte';
-    import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "$lib/components/ui/dialog";
-    import { Button, buttonVariants } from '$lib/components/ui/button';
+    import { PDFDocument } from 'pdf-lib';
+    import readXlsxFile, { readSheetNames } from 'read-excel-file';
 
     interface Props {
         excelImport?: ExcelImport<R> & {
@@ -32,7 +40,7 @@
         pdfImport = undefined,
         t,
     }: Props = $props();
-    const ti = $derived(t.form.import)
+    const ti = $derived(t.form.import);
 
     let dialogOpened = $state(false);
 
@@ -88,7 +96,7 @@
     };
 </script>
 
-<Dialog>
+<Dialog bind:open={dialogOpened}>
     <DialogTrigger class={buttonVariants({ variant: 'outline' })}>
         <Upload />
         {ti.importData}
@@ -99,7 +107,7 @@
         </DialogHeader>
         <div class="flex flex-col gap-4">
             {#if excelImport}
-                <p class="m-0">{ti.uploadExcel({sheet: excelImport.sheet})}</p>
+                <p>{ti.uploadExcel({ sheet: excelImport.sheet })}</p>
                 <input accept=".xls,.xlsx,.xlsm,.xlsb"
                        bind:this={inputExcel}
                        class="hidden"
@@ -107,22 +115,13 @@
                        type="file">
                 <div class="flex items-center gap-4">
                     {#if !fileExcel}
-                        <button
-                            type="button"
-                            class="btn btn-primary"
-                            onclick={() => inputExcel?.click()}
-                        >
-                            {ti.choseFile}
-                        </button>
+                        <Button onclick={() => inputExcel?.click()}>{ti.choseFile}</Button>
                     {:else}
-                        <p class="m-0">{ti.chosen_File} {fileExcel?.name ?? ''}</p>
-                        <button
-                            type="button"
-                            class="btn btn-info"
+                        <p>{ti.chosen_File} {fileExcel?.name ?? ''}</p>
+                        <Button
+                            variant="tertiary"
                             onclick={() => {inputExcel.value = ''; fileExcel = undefined; inputExcel?.click()}}
-                        >
-                            {ti.choseDifferentFile}
-                        </button>
+                        >{ti.choseDifferentFile}</Button>
                     {/if}
                 </div>
                 <Widget context={undefined} bind:value {t} widget={sheetWidget} showAllErrors={false} />
@@ -131,7 +130,7 @@
                 {/if}
             {/if}
             {#if pdfImport}
-                <p class="m-0">{ti.uploadPdf}</p>
+                <p>{ti.uploadPdf}</p>
                 <input accept="application/pdf"
                        bind:this={inputPdf}
                        class="hidden"
@@ -139,22 +138,10 @@
                        type="file">
                 <div class="flex items-center gap-4">
                     {#if !filePdf}
-                        <button
-                            type="button"
-                            class="btn btn-primary"
-                            onclick={() => inputPdf?.click()}
-                        >
-                            {ti.choseFile}
-                        </button>
+                        <Button onclick={() => inputPdf?.click()}>{ti.choseFile}</Button>
                     {:else}
-                        <p class="m-0">{ti.chosen_File} {filePdf?.name ?? ''}</p>
-                        <button
-                            type="button"
-                            class="btn btn-info"
-                            onclick={() => {inputPdf.value = ''; filePdf = undefined; inputPdf?.click()}}
-                        >
-                            {ti.choseDifferentFile}
-                        </button>
+                        <p>{ti.chosen_File} {filePdf?.name ?? ''}</p>
+                        <Button variant="tertiary" onclick={() => {inputPdf.value = ''; filePdf = undefined; inputPdf?.click()}}>{ti.choseDifferentFile}</Button>
                     {/if}
                 </div>
                 {#if filePdf && pdfImport.isDangerous}

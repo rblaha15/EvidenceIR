@@ -142,9 +142,7 @@
 
 <Button onclick={search}>Vyhledat</Button>
 
-<button class="btn btn-secondary" onclick={download}>
-    Stáhnout
-</button>
+<Button variant="secondary" onclick={download}>Stáhnout</Button>
 
 {#if status === 'loading'}
     <SpinnerAlert title="Odesílání dat" />
