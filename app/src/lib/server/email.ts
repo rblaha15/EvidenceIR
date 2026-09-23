@@ -19,7 +19,7 @@ const imap = new ImapFlow({
     },
     logger: false,
 });
-await imap.connect();
+let connected = false;
 
 const transporter = nodemailer.createTransport({
     host: env.EMAIL_SMTP_HOST,
@@ -61,6 +61,11 @@ export const emailEndpoints = {
 };
 
 export const sendEmail = async (message: ServerEmailMessage) => {
+    if (!connected) {
+        await imap.connect();
+        connected = true;
+    }
+
     const mail = new MailComposer(message).compile();
 
     const envelope = mail.getEnvelope();
