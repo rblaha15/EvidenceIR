@@ -802,11 +802,22 @@ Array.prototype.countElements = function() {
 declare global {
     interface String {
         toNumber: () => number;
+
+        after: (start: string) => string;
+        before: (end: string) => string;
     }
 }
 
 String.prototype.toNumber = function(this: string) {
     return Number(this);
+};
+String.prototype.before = function (this: string, end: string) {
+    const endIndex = this.indexOf(end);
+    return this.substring(0, endIndex == -1 ? undefined : endIndex);
+};
+String.prototype.after = function (this: string, start: string) {
+    const startIndex = this.indexOf(start);
+    return this.substring(startIndex == -1 ? 0 : (startIndex + start.length));
 };
 
 declare global {
