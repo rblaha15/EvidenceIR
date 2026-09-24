@@ -64,6 +64,7 @@
 
     const results = storable<{ date: string, data: Record<string, LoyaltyProgramUserDataWithPerson> }>('loyalty_data2');
     let status = $state('none' as 'none' | 'loading' | 'fail' | 'success');
+    let errorA = $state('');
     let statusA = $state('none' as 'none' | 'mistake' | 'loading' | 'fail' | 'success');
     let showAllErrors = $state(false);
 
@@ -80,6 +81,7 @@
         }
     };
     const add = async () => {
+        errorA = '';
         showAllErrors = true;
         if (dateW.isError({}, date) || pointsW.isError({}, points) || userW.isError({}, user)) return statusA = 'mistake';
         statusA = 'loading';
@@ -97,6 +99,8 @@
             statusA = 'success';
         } catch (e) {
             console.error(e);
+            const e2 = e ? { ...e } : {};
+            errorA = `${'message' in e2 ? e2.message : e}`;
             statusA = 'fail';
         }
     };
@@ -131,7 +135,7 @@
 {#if statusA === 'loading'}
     <SpinnerAlert title="Odesílání dat" />
 {:else if statusA === 'fail'}
-    <DangerAlert title="Něco se nepovedlo" />
+    <DangerAlert title="Něco se nepovedlo: {errorA}" />
 {:else if statusA === 'mistake'}
     <DangerAlert title="Špatně zadaná data!" />
 {:else if statusA === 'success'}

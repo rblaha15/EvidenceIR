@@ -8,7 +8,7 @@ import type {
 } from '$lib/client/loyaltyProgram';
 import type { IR, NSP, RecommendationDataWithCode } from '$lib/data';
 import type { IRID } from '$lib/helpers/ir';
-import { checkUserByEmail, removeUsers, updateUserNames } from '$lib/server/db/admin/auth';
+import { removeUsers, updateUserNames } from '$lib/server/db/admin/auth';
 import {
     deletePermanentlyIR,
     getAllDKs,
@@ -21,7 +21,7 @@ import {
 import { importDataFromSEIR1, importFromBackup, importFromSEIR1 } from '$lib/server/db/admin/import';
 import {
     getCompanies,
-    getPeople,
+    getPeople, getPersonByEmail,
     setArrays,
     setCompanies,
     setPeople,
@@ -78,8 +78,8 @@ export const adminEndpoints = {
         }]);
     }),
     addLoyaltyProgramTransaction: defineEndpoint<{ userEmail: string, transaction: LoyaltyProgramPointsTransaction }, undefined>(async ({ userEmail, transaction }) => {
-        const exists = await checkUserByEmail(userEmail);
-        if (!exists) error(400);
+        const exists = await getPersonByEmail(userEmail);
+        if (!exists) error(400, `User ${userEmail} does not exist`);
         await addPointsTransaction(transaction, userEmail);
     }),
     getDatabaseLink: defineEndpoint<undefined, string>(async () => {
