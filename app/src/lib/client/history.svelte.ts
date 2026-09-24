@@ -95,7 +95,7 @@ export const addToHistory = <F extends keyof Database = keyof Database>(
     completed: boolean,
 ) => {
     const last = argsWithFetch.at(-1);
-    const args = (!last ? [] : last instanceof Function ? argsWithFetch.slice(0, -1) : argsWithFetch) as Parameters<Database[F]>;
+    const args = (!argsWithFetch.length ? [] : last instanceof Function ? argsWithFetch.slice(0, -1) : argsWithFetch) as Parameters<Database[F]>;
 
     console.log('Adding', functionName, 'with args', ...args, 'to the history');
     add({ functionName, args, type: 'database', completed, timestamp: timestamp() }).then();

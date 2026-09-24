@@ -13,7 +13,7 @@ import type { IR, NSP } from "$lib/data";
 export const mongoDatabase: DatabaseWithFetch = [...readDatabaseMethods, ...writeDatabaseMethods].associateWith(name =>
     async (...argsWithFetch: Parameters<DatabaseWithFetch[typeof name]>) => {
         const last = argsWithFetch.at(-1);
-        const args = (!last ? [] : last instanceof Function ? argsWithFetch.slice(0, -1) : argsWithFetch) as Parameters<Database[typeof name]>;
+        const args = (!argsWithFetch.length ? [] : last instanceof Function ? argsWithFetch.slice(0, -1) : argsWithFetch) as Parameters<Database[typeof name]>;
         const fetch = last && last instanceof Function ? last as typeof window.fetch : window.fetch;
 
         if (!isWriteFunction(name)) {
