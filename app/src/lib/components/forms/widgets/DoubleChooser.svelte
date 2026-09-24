@@ -4,7 +4,7 @@
     import type { ChangeEventHandler } from 'svelte/elements';
     import { type Arr, type DoubleChooserWidget, labelAndStar, type Pair } from '$lib/forms/Widget';
     import { Field, FieldError, FieldGroup, FieldLabel } from "$lib/components/ui/field";
-    import { NativeSelect } from "$lib/components/ui/native-select";
+    import { NativeSelect, NativeSelectOption } from '$lib/components/ui/native-select';
     import { Card, CardContent } from "$lib/components/ui/card";
     import type { Attachment } from "svelte/attachments";
 
@@ -90,12 +90,12 @@
 </script>
 
 {#snippet showGroups(other: (Arr<I1> | Arr<I2>), options: (Arr<I1> | Arr<I2>))}
-    <option class="hidden" value='notChosen'>{t.widget.notChosen}</option>
+    <NativeSelectOption class="hidden" value='notChosen'>{t.widget.notChosen}</NativeSelectOption>
     {#each options as option}
-        <option value={option}>{widget.get(t, option)}</option>
+        <NativeSelectOption value={option}>{widget.get(t, option)}</NativeSelectOption>
     {/each}
     {#if other.length}
-        <option value='otherOptions'>{t.widget.otherOptions}…</option>
+        <NativeSelectOption value='otherOptions'>{t.widget.otherOptions}…</NativeSelectOption>
     {/if}
 {/snippet}
 
