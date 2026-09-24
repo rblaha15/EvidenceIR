@@ -62,7 +62,7 @@ export const emailEndpoints = {
 
 export const sendEmail = async (message: ServerEmailMessage) => {
     if (!connected) {
-        await imap.connect();
+        //await imap.connect();
         connected = true;
     }
 
@@ -72,8 +72,8 @@ export const sendEmail = async (message: ServerEmailMessage) => {
     const raw = await mail.build();
 
     const response = await transporter.sendMail({ envelope, raw } as Options);
-    await imap.append('Odesláno ze SEIR', raw, ['\\Seen']);
-    setTimeout(checkForUndeliveredEmails, 60_000);
+    //await imap.append('Odesláno ze SEIR', raw, ['\\Seen']);
+    //setTimeout(checkForUndeliveredEmails, 60_000);
 
     return response;
 };
