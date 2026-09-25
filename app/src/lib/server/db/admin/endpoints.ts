@@ -82,8 +82,18 @@ export const adminEndpoints = {
         if (!exists) error(400, `User ${userEmail} does not exist`);
         await addPointsTransaction(transaction, userEmail);
     }),
-    getDatabaseLink: defineEndpoint<undefined, string>(async () => {
+    getDatabaseCredentials: defineEndpoint<undefined, {
+        username: string,
+        password: string,
+        link: string,
+        rawLink: string,
+    }>(async () => {
         const [protocol, host] = (env.MONGO_EXPRESS_URI || publicENV.PUBLIC_APP_URL).split('://');
-        return `${protocol}://${env.MONGO_EXPRESS_USERNAME}:${env.MONGO_EXPRESS_PASSWORD}@${host}/db/`;
+        return {
+            username: env.MONGO_EXPRESS_USERNAME,
+            password: env.MONGO_EXPRESS_PASSWORD,
+            link: `${protocol}://${env.MONGO_EXPRESS_USERNAME}:${env.MONGO_EXPRESS_PASSWORD}@${host}/db/`,
+            rawLink: `${protocol}://${host}/db/`,
+        };
     }),
 };
