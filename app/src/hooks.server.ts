@@ -36,8 +36,7 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
 
 export const handle = sequence(redirectOldDetailUrls, handleAuth);
 
-// TODO: Enable when migrating from SEIR 1
-if (environment === 'production' && false) cron.schedule('0 8 * * *', async () => {
+if (environment === 'production') cron.schedule('0 8 * * *', async () => {
     try {
         await checkForRecommendations();
     } catch (err) {
