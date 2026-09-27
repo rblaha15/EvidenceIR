@@ -15,5 +15,6 @@ export const loadAdmin = async (fetch: typeof window.fetch) => {
     arrays.fetchLoyaltyProgramData(fetch).then();
 
     const dbCred = await call('db/admin/getDatabaseCredentials', { fetch });
-    return { dbCred };
+    const userActivity = await call('db/admin/getUserActivity', { fetch });
+    return { dbCred, userActivity };
 };

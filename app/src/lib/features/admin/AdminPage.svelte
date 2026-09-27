@@ -1,6 +1,7 @@
 <!--suppress HtmlUnknownTag -->
 <script lang="ts">
     import { call } from '$lib/client/endpoints';
+    import UserActivity from '$lib/features/admin/UserActivity.svelte';
     import { type Component, onMount } from 'svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
@@ -275,6 +276,14 @@
                 component: StatsGetter,
             },
             longerTitle: 'Statistiky vytvořených servisních protokolů',
+        },
+        usersActivity: {
+            title: 'Aktivita',
+            contentType: 'custom',
+            contentOptions: {
+                component: UserActivity,
+            },
+            longerTitle: 'Aktivita uživatelů',
         },
         loyaltyProgram: {
             title: 'Věrnostní program',

@@ -12,14 +12,12 @@
         instructions: string[];
         columns: {
             [Key in K]: {
-            header: string;
-            cellType?: 'data' | 'header';
-            transformValue?: Key extends keyof T ? (value: T[Key]) => string : undefined;
-        } & (Key extends keyof T
-            ? {
+                header: string;
+                cellType?: 'data' | 'header';
+                transformValue?: Key extends keyof T ? (value: T[Key]) => string : undefined;
+            } & (Key extends keyof T ? {
                 getValue?: (value: T) => string;
-            }
-            : {
+            } : {
                 getValue: (value: T) => string;
             });
         };

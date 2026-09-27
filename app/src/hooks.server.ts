@@ -1,11 +1,12 @@
+import { building } from '$app/environment';
 import { environment } from '$lib/helpers/globals';
+import { auth } from '$lib/server/auth';
+import { updateUserLastSeen } from '$lib/server/db/admin/auth';
 import { checkForRecommendations } from '$lib/server/db/recommend-rk';
 import { grantPointsForYesterday } from '$lib/server/loyaltyProgram';
-import { type Handle, redirect } from "@sveltejs/kit"
+import { type Handle, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
-import { auth } from "$lib/server/auth";
-import { svelteKitHandler } from "better-auth/svelte-kit";
-import { building } from '$app/environment'
+import { svelteKitHandler } from 'better-auth/svelte-kit';
 import cron from 'node-cron';
 
 export const redirectOldDetailUrls: Handle = ({ event, resolve }) => {
@@ -28,8 +29,11 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
     });
 
     // Make session and user available on server
-    event.locals.session = session?.session;
-    event.locals.user = session?.user;
+    event.locals.session = session?.session ?? null;
+    event.locals.user = session?.user ?? null;
+
+    if (session?.user && Date.now() - (session.user.lastSeenAt?.valueOf() ?? 0) > 5 * 60 * 1E3)
+        await updateUserLastSeen(session.user);
 
     return await svelteKitHandler({ event, resolve, auth, building });
 }

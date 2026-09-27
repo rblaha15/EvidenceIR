@@ -8,7 +8,7 @@ import type {
 } from '$lib/client/loyaltyProgram';
 import type { IR, NSP, RecommendationDataWithCode } from '$lib/data';
 import type { IRID } from '$lib/helpers/ir';
-import { removeUsers, updateUserNames } from '$lib/server/db/admin/auth';
+import { getUserActivity, removeUsers, updateUserNames } from '$lib/server/db/admin/auth';
 import {
     deletePermanentlyIR,
     getAllDKs,
@@ -96,4 +96,5 @@ export const adminEndpoints = {
             rawLink: `${protocol}://${host}/db/`,
         };
     }),
+    getUserActivity: defineEndpoint<undefined, ReturnType<Awaited<typeof getUserActivity>>>(getUserActivity),
 };

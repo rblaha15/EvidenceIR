@@ -54,6 +54,10 @@ export const auth = betterAuth({
                 type: ['user', 'admin'],
                 defaultValue: 'user',
             },
+            lastSeenAt: {
+                type: 'date',
+                required: false,
+            },
         },
     },
     secret: building ? 'DUMMY' : env.BETTER_AUTH_SECRET,
