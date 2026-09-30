@@ -1,7 +1,4 @@
-import arrays, {
-    type FriendlyCompanies,
-    type Person,
-} from '$lib/client/db/arrays';
+import arrays, { type Person } from '$lib/client/db/arrays';
 import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
@@ -153,9 +150,9 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Per
         }
 
         const user = getCachedUser()!;
-        const $friendlyCompanies = get(arrays.friendlyCompanies) as FriendlyCompanies;
+        const $friendlyCompanies = get(arrays.friendlyCompanies);
 
-        const newIr = newIR(raw, user.email, draft, $friendlyCompanies);
+        const newIr = newIR(raw, user.email, draft, $friendlyCompanies != 'loading' ? $friendlyCompanies : { commissioningCompanies: [], assemblyCompanies: [] });
         if (edit) {
             if (!changeID) await db.updateIN(newIRID, raw, draft);
             else if (!await changeIRID(
