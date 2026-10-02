@@ -228,7 +228,7 @@
             {/snippet}
             {#if result.red}
                 {#snippet error()}
-                    {#each result.error!.split('\n').splice(1) as line}
+                    {#each result.error!.trim().split('\n') as line}
                         <span class="block">{line}</span>
                     {/each}
                 {/snippet}

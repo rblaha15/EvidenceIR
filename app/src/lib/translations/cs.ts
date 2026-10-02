@@ -21,6 +21,7 @@ export default {
         mandatoryFields: `povinná pole`,
         clearForm: `Vymazat data`,
         emailNotSent: `Email se nepodařilo odeslat`,
+        attachmentError: `Email byl odeslán, ale nepodařilo se nahrát některé přílohy:`,
         import: {
             importData: `Importovat data`,
             cancel: `Zrušit`,

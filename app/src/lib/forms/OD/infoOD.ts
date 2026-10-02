@@ -22,7 +22,9 @@ const infoOD: IndependentFormInfo<ContextOD, FormOD> = {
     saveData: async ({ raw, editResult, t }) => {
         const user = userAddress();
 
-        const fileIds = [...raw.all.documents, ...raw.all.photos].map(photo => photo.uuid);
+        const files = [...raw.all.documents, ...raw.all.photos];
+        const fileIds = files.map(file => file.uuid);
+        const attachments = await fileIds.map(getFile).awaitAll();
 
         const response = await sendHtmlEmail({
             ...defaultAddresses(cervenka, { includeName: true }),
@@ -33,13 +35,16 @@ const infoOD: IndependentFormInfo<ContextOD, FormOD> = {
                 ...(raw.all.otherCopies?.split(separatorsRegExp)?.map(t => t.trim()) ?? []),
             ],
             subject: `Podepsané dokumenty`,
-            attachments:
-                (await fileIds.map(getFile).awaitAll())
-                    .filterNotUndefined(),
+            attachments,
             text: raw.all.body,
         });
 
-        if (response!.ok) {
+        if (response.failedAttachments.length) editResult({
+            text: t.form.attachmentError,
+            red: true,
+            load: false,
+            error: response.failedAttachments.map(i => files[i].fileName).join('\n'),
+        }); else if (response!.ok) {
             await fileIds.map(removeFile).awaitAll();
             return true;
         } else editResult({

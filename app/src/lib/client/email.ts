@@ -19,7 +19,7 @@ export type BaseEmailOptions = {
     cc?: AddressLike;
     bcc?: AddressLike;
     subject: string;
-    attachments?: File[];
+    attachments?: (File | undefined)[];
 }
 
 export type ComponentEmailOptions<Props extends Record<string, unknown>> = BaseEmailOptions & {
@@ -75,26 +75,35 @@ export const sendHtmlEmail = async (options: HtmlEmailOptions) => {
 
     const isOnline = getIsOnline();
     addEmailToHistory(newOptions, isOnline);
-    if (!isOnline) return { ok: true };
+    if (!isOnline) return { ok: true, failedAttachments: [] as number[] };
 
     return await sendEmailAndUploadAttachments(newOptions);
 };
 
 export const sendEmailAndUploadAttachments = async (options: EmailOptions) => {
-    const message: EmailMessage = {
-        ...options, attachments: await options.attachments?.map(async file => {
+    const attachments = await (options.attachments ?? []).map(async (file, i) => {
+        if (!file) return { error: i };
+        try {
             const { id } = await call('uploadAttachment', file, { isFileUpload: true });
             return {
-                id,
-                filename: file.name,
-                contentType: file.type,
+                error: null, value: {
+                    id,
+                    filename: file.name,
+                    contentType: file.type,
+                },
             };
-        }).awaitAll(),
-    };
+        } catch {
+            return { error: i };
+        }
+    }).awaitAll();
+    const successfulAttachments = attachments.filter(r => r.error == null).map(r => r.value);
+    const failedAttachments = attachments.filter(r => r.error != null).map(r => r.error);
+
+    const message: EmailMessage = { ...options, attachments: successfulAttachments };
 
     const response = await call('sendEmail', { message });
 
-    return { ok: response.accepted.length };
+    return { ok: response.accepted.length, failedAttachments };
 };
 
 export const receiver = { name: 'Regulus SEIR', address: 'seir@regulus.cz' } as const satisfies AddressLike;

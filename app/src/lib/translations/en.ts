@@ -93,6 +93,7 @@ const en: PlainTranslations = {
         somethingWentWrongContactUsHtml: `Apologize, something went wrong, please contact us at <a href="mailto:Regulus SEIR<${env.PUBLIC_EMAIL_SENDER}>?subject=Error saving a form" target="_blank">${env.PUBLIC_EMAIL_SENDER}</a>`,
         back: 'Back',
         emailNotSent: `The email could not be sent`,
+        attachmentError: 'The email was sent, but some attachments failed to upload:',
         redirecting: `Redirecting…`,
         mandatoryFields: `mandatory fields`,
         clearForm: `Clear the form`,

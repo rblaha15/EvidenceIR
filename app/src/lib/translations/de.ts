@@ -263,7 +263,8 @@ const de: PlainTranslations = {
         toc: {
             title: `Formularinhalt`,
         },
-        emailNotSent: 'E-Mail konnte nicht gesendet werden.'
+        emailNotSent: 'E-Mail konnte nicht gesendet werden.',
+        attachmentError: 'Die E-Mail wurde versendet, aber einige Anhänge konnten nicht hochgeladen werden:',
     },
     nav: {
         appName: `SEIR`,
