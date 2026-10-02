@@ -30,4 +30,4 @@ export const removeUsers = async (preserveEmails: string[]) => userCollection
 export const getUserActivity = () =>
     userCollection.find().project<{
         createdAt: string, lastSeenAt?: string | null, email: string, name: string,
-    }>({ createdAt: 1, lastSeenAt: 1, email: 1, name: 1, _id: 0 }).toArray();
+    }>({ createdAt: 1, lastSeenAt: 1, email: 1, name: 1, _id: 0 }).sort({ lastSeenAt: -1 }).toArray();
