@@ -29,7 +29,10 @@
         console.log(result);
         if (result == 'INVALID_EMAIL_OR_PASSWORD') {
             const resultF = await tryFirebase(email, password);
-            if (resultF) return await goto(relUrl(redirect), { invalidateAll: true });
+            if (resultF) return setTimeout(async () => {
+                await grantPoints({ type: 'registration' });
+                await goto(relUrl(redirect), { invalidateAll: true });
+            }, 500);
 
             sending = false;
             error = 'wrong-password';
@@ -37,8 +40,10 @@
             sending = false;
             error = t.invalidEmail;
         } else if (result == 'success') {
-            setTimeout(() => grantPoints({ type: 'registration' }), 500);
-            await goto(relUrl(redirect), { invalidateAll: true });
+            setTimeout(async () => {
+                await grantPoints({ type: 'registration' });
+                await goto(relUrl(redirect), { invalidateAll: true });
+            }, 500);
         } else {
             sending = false;
             error = result;

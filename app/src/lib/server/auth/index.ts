@@ -28,14 +28,14 @@ export const auth = betterAuth({
 
             if (source == 'better-auth') {
                 const tokenVerified = await validateToken(ctx.body.token, email, 'register');
-                if (!tokenVerified) throw new APIError(401);
+                if (!tokenVerified) throw new APIError(401, { code: 'TOKEN_INVALID' });
             } else if (source == 'firebase') {
                 const tokenVerified = await validateFirebaseToken(ctx.body.token, email);
-                if (!tokenVerified) throw new APIError(401);
-            } else throw new APIError(403);
+                if (!tokenVerified) throw new APIError(401, { code: 'TOKEN_INVALID' });
+            } else throw new APIError(403, { code: 'UNKNOWN_SOURCE' });
 
             const person = await getPersonByEmail(email);
-            if (!person) throw new APIError(400);
+            if (!person) throw new APIError(400, { code: 'PERSON_INVALID' });
 
             return {
                 context: {

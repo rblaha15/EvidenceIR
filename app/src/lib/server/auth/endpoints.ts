@@ -1,3 +1,4 @@
+import { dev } from '$app/environment';
 import { SENDER } from '$lib/client/email';
 import { appUrl } from '$lib/helpers/globals';
 import type { LanguageCode } from '$lib/languageCodes';
@@ -24,7 +25,7 @@ const sendResetEmail = async ({ email, lang, mode, redirect }: {
     const subject = mode == 'register' ? t.signUpEmailSubject : t.passwordReset;
     return await sendEmail({
         from: SENDER(),
-        to: email,
+        to: dev ? 'radek.blaha.15@gmail.com' : email,
         subject,
         html,
         text: htmlToText(html)
