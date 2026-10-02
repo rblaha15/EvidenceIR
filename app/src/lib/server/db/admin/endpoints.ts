@@ -1,5 +1,3 @@
-import { env } from '$env/dynamic/private';
-import { env as publicENV } from '$env/dynamic/public';
 import type { Arrays, Company, Person, SparePart, Technician } from '$lib/client/db/arrays';
 import type {
     LoyaltyProgramPointsTransaction,
@@ -81,20 +79,6 @@ export const adminEndpoints = {
         const exists = await getPersonByEmail(userEmail);
         if (!exists) error(400, `User ${userEmail} does not exist`);
         await addPointsTransaction(transaction, userEmail);
-    }),
-    getDatabaseCredentials: defineEndpoint<undefined, {
-        username: string,
-        password: string,
-        link: string,
-        rawLink: string,
-    }>(async () => {
-        const [protocol, host] = (env.MONGO_EXPRESS_URI || publicENV.PUBLIC_APP_URL).split('://');
-        return {
-            username: env.MONGO_EXPRESS_USERNAME,
-            password: env.MONGO_EXPRESS_PASSWORD,
-            link: `${protocol}://${env.MONGO_EXPRESS_USERNAME}:${env.MONGO_EXPRESS_PASSWORD}@${host}/db/`,
-            rawLink: `${protocol}://${host}/db/`,
-        };
     }),
     getUserActivity: defineEndpoint<undefined, ReturnType<Awaited<typeof getUserActivity>>>(getUserActivity),
 };
