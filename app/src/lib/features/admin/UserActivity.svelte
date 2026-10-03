@@ -14,7 +14,7 @@
     columns: {
         email: { header: 'Email' },
         name: { header: 'Jméno', cellType: 'header' },
-        createdAt: { header: 'Účet vytvořen', transformValue: d => datetimeFromISO(d) },
-        lastSeenAt: { header: 'Naposedy viděn', transformValue: d => d ? datetimeFromISO(d) : '—' },
+        createdAt: { header: 'Účet vytvořen', transformValue: d => new Date(d).toLocaleString('cs') },
+        lastSeenAt: { header: 'Naposedy viděn', transformValue: d => d ? new Date(d).toLocaleString('cs') : '—' },
     },
 }} />
