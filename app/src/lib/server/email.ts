@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { env as publicENV } from '$env/dynamic/public';
 import { type EmailMessage, SENDER, type ServerEmailMessage } from '$lib/client/email';
+import { environment } from '$lib/helpers/globals';
 import { defineEndpoint } from '$lib/server/defineEndpoints';
 import { ImapFlow } from 'imapflow';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
@@ -60,9 +61,11 @@ export const emailEndpoints = {
     }, { requireLoggedIn: true, isFileUpload: true }),
 };
 
+const ENABLE_IMAP = environment === 'production';
+
 export const sendEmail = async (message: ServerEmailMessage) => {
     if (!connected) {
-        //await imap.connect();
+        if (ENABLE_IMAP) await imap.connect();
         connected = true;
     }
 
@@ -72,8 +75,8 @@ export const sendEmail = async (message: ServerEmailMessage) => {
     const raw = await mail.build();
 
     const response = await transporter.sendMail({ envelope, raw } as Options);
-    //await imap.append('Odesláno ze SEIR', raw, ['\\Seen']);
-    //setTimeout(checkForUndeliveredEmails, 60_000);
+    if (ENABLE_IMAP) await imap.append('Odesláno ze SEIR', raw, ['\\Seen']);
+    // if (ENABLE_IMAP) setTimeout(checkForUndeliveredEmails, 60_000);
 
     return response;
 };
