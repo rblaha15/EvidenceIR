@@ -247,6 +247,7 @@ const en: PlainTranslations = {
         crn: 'Invalid CRN format',
         company: `Warning, the company form is incorrectly formatted!`,
         ip: `Invalid IP address format`,
+        ean: `Invalid EAN format`,
     },
     nav: {
         appName: 'SEIR',
@@ -423,6 +424,9 @@ const en: PlainTranslations = {
         orientation: 'Orientation',
         slope: 'Slope',
         location: 'Location',
+        contractNumber: 'Connection contract number',
+        consumingEAN: 'Consumption EAN (Energy taken from the network)',
+        producingEAN: 'Production EAN (Energy delivered to the network)',
     },
     sz: {
         title: 'Service intervention',

@@ -452,6 +452,7 @@ const de: PlainTranslations = {
         number: `Falsches Zahlenformat`,
         company: `Achtung, die eingegebene Firmenform ist nicht korrekt formatiert!`,
         ip: `Falsches IP-Adresse-Format`,
+        ean: `Falsches EAN-Format`,
     },
     theme: {
         dark: 'Dunkel',

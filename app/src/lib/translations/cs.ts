@@ -174,6 +174,9 @@ export default {
         orientation: 'Orientace',
         slope: 'Sklon',
         location: 'Umístění',
+        contractNumber: 'Číslo smlouvy o připojení',
+        consumingEAN: 'Spotřební EAN (odebraná EE ze sítě)',
+        producingEAN: 'Výkupní EAN (dodaná EE do sítě)',
     },
     nav: {
         search: `Vyhledávání`,
@@ -843,6 +846,7 @@ export default {
         phone: `Nesprávný formát telefoního čísla`,
         zip: `Nesprávný formát PSČ`,
         ip: `Nesprávný formát IP adresy`,
+        ean: `Nesprávný formát EAN`,
     },
     countsGenitive: {
         first: `prvního`,
