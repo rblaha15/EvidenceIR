@@ -3,7 +3,7 @@ import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
-import { getCachedUser, isRegulusOrAdmin, type User } from '$lib/client/auth';
+import { checkIsRegulus, getCachedUser, isRegulusOrAdmin, user, type User } from '$lib/client/auth';
 import { getTranslations, type Translations } from '$lib/translations';
 import ares from '$lib/helpers/ares';
 import { generatePdf } from '$lib/pdf/pdfGeneration';
@@ -124,7 +124,7 @@ const changeIRID = async (
     if (!draft) await grantPoints({ type: 'disconnectRegulusRoute', irid: oldIRID });
     return true;
 };
-const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Person | undefined]], never, {
+const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Person | undefined, User | null]], never, {
     draft: boolean,
     editIR?: IR
 }> = {
@@ -203,10 +203,11 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Per
             if ($isRegulusOrAdmin && !values.vzdalenyPristup.plati)
                 values.vzdalenyPristup.plati = 'laterAccordingToTheProtocol';
         }, [isRegulusOrAdmin]],
-        [([$myInfo], { values }) => {
-            if ($myInfo?.responsiblePerson != null) values.vzdalenyPristup.zodpovednaOsoba = $myInfo.responsiblePerson;
-            if ($myInfo?.responsiblePerson != null) values.vzdalenyPristup.showResponsiblePerson = false;
-        }, [() => arrays.myInfo]],
+        [([$myInfo, $user], { values }) => {
+            const responsiblePerson = checkIsRegulus($user) ? $user!.name : $myInfo?.responsiblePerson;
+            if (responsiblePerson) values.vzdalenyPristup.zodpovednaOsoba = responsiblePerson;
+            if (responsiblePerson) values.vzdalenyPristup.showResponsiblePerson = false;
+        }, [() => arrays.myInfo, user]],
     ],
     excelImport: {
         cells: cellsIN,
