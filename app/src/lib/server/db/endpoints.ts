@@ -1,6 +1,7 @@
 import type { Arrays, FriendlyCompanies, Person, SparePart, Technician } from '$lib/client/db/arrays';
 import type { LoyaltyProgramTrigger, LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 import type { RecommendationData } from '$lib/data';
+import { regulusCRN } from '$lib/helpers/ares';
 import { adminEndpoints } from '$lib/server/db/admin/endpoints';
 import {
     getArrays,
@@ -39,15 +40,17 @@ export const dbEndpoints = {
             return { assemblyCompanies: all, commissioningCompanies: all };
         }
         const person = (await getPersonByEmail(userEmail))!;
+        const assemblyCRNs = [...person.assemblyCompanies, regulusCRN.toString()].distinct();
+        const commissioningCRNs = person.commissioningCompanies;
         const allCompanies = await getCompaniesByCRNs([
-            ...person.assemblyCompanies,
-            ...person.commissioningCompanies,
-        ]).then(array =>
+            ...assemblyCRNs,
+            ...commissioningCRNs,
+        ].distinct()).then(array =>
             array.associateBy(company => company.crn)
         );
         return {
-            assemblyCompanies: person.assemblyCompanies.map(crn => allCompanies[crn]).sortedBy(c => c.companyName),
-            commissioningCompanies: person.commissioningCompanies.map(crn => allCompanies[crn]).sortedBy(c => c.companyName),
+            assemblyCompanies: assemblyCRNs.map(crn => allCompanies[crn]).sortedBy(c => c.companyName),
+            commissioningCompanies: commissioningCRNs.map(crn => allCompanies[crn]).sortedBy(c => c.companyName),
         };
     }),
     addLoyaltyPoints: defineEndpoint<{ data: LoyaltyProgramTrigger }, undefined>(async ({ data }, { locals }) => {
