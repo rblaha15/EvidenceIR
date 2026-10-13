@@ -19,7 +19,7 @@ import type { HeatPump } from '$lib/helpers/products';
 import { getTranslations, type Translations } from '$lib/translations';
 import type { Address } from '$lib/helpers/ruian';
 
-type CompanyWidgetGroup<C> = {
+export type CompanyWidgetGroup<C> = {
     company: SearchWidget<C, Company, true>;
     ico: InputWidget<C>;
     chosen: TextWidget<C>;
@@ -34,9 +34,16 @@ type AddressWidgetGroup<C> = {
     psc: InputWidget<C>;
 }
 
+export type CompaniesFormContext<C extends CompaniesFormContext<C>> = { v: Values<CompaniesForm<C>> };
+
+export interface CompaniesForm<C extends CompaniesFormContext<C>> extends Form<C> {
+    montazka: CompanyWidgetGroup<C>;
+    uvedeni: CompanyWidgetGroup<C>;
+}
+
 export type UserFormContext<C extends UserFormContext<C>> = { v: Values<UserForm<C>> };
 
-export interface UserForm<C extends UserFormContext<C>> extends Form<C> {
+export interface UserForm<C extends UserFormContext<C>> extends CompaniesForm<C>, Form<C> {
     koncovyUzivatel: {
         nadpis: TitleWidget<C>;
         typ: RadioWidget<C, `individual` | `company`>;
@@ -56,8 +63,6 @@ export interface UserForm<C extends UserFormContext<C>> extends Form<C> {
     };
     bydliste: AddressWidgetGroup<C>;
     mistoRealizace: AddressWidgetGroup<C>;
-    montazka: CompanyWidgetGroup<C>;
-    uvedeni: CompanyWidgetGroup<C>;
 }
 
 export type UntranslatableIRTypes = 'IR RegulusBOX' | 'IR RegulusBOX-E' | 'IR RegulusHBOX' | 'IR RegulusHBOX K' | 'IR 34' | 'IR 30' | 'IR 14' | 'IR 12' | 'IR 10' | 'SOREL' | 'Thermona';

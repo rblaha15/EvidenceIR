@@ -1,19 +1,20 @@
+import { getCachedIsRegulusOrAdmin, getCachedUser, isRegulusOrAdmin } from '$lib/client/auth';
+import db from '$lib/client/db';
+import arrays from '$lib/client/db/arrays';
+import { defaultAddresses, sendEmail } from '$lib/client/email';
+import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import defaultUPF from '$lib/forms/UPF/defaultUPF';
-import { getCachedIsRegulusOrAdmin, getCachedUser, isRegulusOrAdmin } from '$lib/client/auth';
-import { appUrl } from '$lib/helpers/globals';
-import { derived } from 'svelte/store';
-import { defaultAddresses, sendEmail } from '$lib/client/email';
-import { irName } from '$lib/helpers/ir';
-import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import type { ContextUPF, FormUPF } from '$lib/forms/UPF/formUPF';
-import db from '$lib/client/db';
+import { appUrl } from '$lib/helpers/globals';
+import { irName } from '$lib/helpers/ir';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
+import { derived } from 'svelte/store';
 
 const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
     type: 'IR',
     storeName: () => 'stored_photovoltaic_power_plant_commission',
-    form: defaultUPF,
+    form: (_, ir) => defaultUPF(ir.IN),
     openPdf: () => ({
         link: 'UPF',
     }),
@@ -44,6 +45,10 @@ const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
     })),
     createContext: ({ values: v, form: f }) => ({ v, f }),
     title: t => t.fve.title,
+    onMount: async () => {
+        await arrays.fetchFriendlyCompanies();
+        await arrays.fetchTechnicians();
+    },
 });
 
 export default infoUPF;

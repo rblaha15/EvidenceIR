@@ -1,5 +1,11 @@
+import type { Raw } from '$lib/forms/Form';
+import { companiesData } from '$lib/forms/IN/defaultIN';
+import type { CompaniesForm, FormIN } from '$lib/forms/IN/formIN';
 import type { ContextUPF, FormUPF, PhotovoltaicFieldGroup } from '$lib/forms/UPF/formUPF';
-import { newCheckboxWidget, newChooserWidget, newCounterWidget, newInputWidget, newTextWidget, newTitleWidget } from '$lib/forms/Widget';
+import {
+    newCheckboxWidget, newChooserWidget, newCounterWidget, newInputWidget, newTextWidget, newTitleWidget
+} from '$lib/forms/Widget';
+import { addDefaultValuesToForm } from '$lib/helpers/formValues';
 
 const photovoltaicField = (n: number): PhotovoltaicFieldGroup => {
     const show = (c: ContextUPF) => c.v.fields.count >= n;
@@ -25,7 +31,15 @@ const photovoltaicField = (n: number): PhotovoltaicFieldGroup => {
     };
 };
 
-export default (): FormUPF => ({
+const calculateCheckDigit = (ean: string) => 10 - ean.split('').slice(0, -1)
+    .sumBy((digit, i) => Number(digit) * (i % 2 == 0 ? 3 : 1)) % 10;
+
+const getEANRegExp = (currentValue: string) => /8591824\d{11}/.test(currentValue)
+    ? new RegExp(`8591824\\d{10}${calculateCheckDigit(currentValue)}`)
+    : /8591824\d{11}/;
+
+export default (IN: Raw<FormIN>): FormUPF => ({
+    ...addDefaultValuesToForm<ContextUPF, CompaniesForm<ContextUPF>>(companiesData(), IN),
     fields: {
         title: newTitleWidget({ text: t => t.in.system, level: 2, class: 'mt-0' }),
         count: newCounterWidget({
@@ -65,6 +79,21 @@ export default (): FormUPF => ({
         }),
         energySharing: newCheckboxWidget({
             label: t => t.fve.energySharing, required: false,
+        }),
+        contractNumber: newInputWidget({
+            label: t => t.fve.contractNumber, required: false,
+        }),
+        consumingEAN: newInputWidget({
+            label: t => t.fve.consumingEAN, required: false,
+            maskOptions: { mask: '8591824...........', definitions: { '.': /\d/ } },
+            regex: c => getEANRegExp(c.v.connection.consumingEAN),
+            onError: t => t.wrong.ean,
+        }),
+        producingEAN: newInputWidget({
+            label: t => t.fve.producingEAN, required: false,
+            maskOptions: { mask: '8591824...........', definitions: { '.': /\d/ } },
+            regex: c => getEANRegExp(c.v.connection.producingEAN),
+            onError: t => t.wrong.ean,
         }),
     },
     commissioning: {

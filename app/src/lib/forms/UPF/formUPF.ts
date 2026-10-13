@@ -1,3 +1,4 @@
+import type { CompaniesForm } from '$lib/forms/IN/formIN';
 import type {
     CheckboxWidget,
     ChooserWidget,
@@ -23,7 +24,7 @@ export interface ContextUPF {
     v: Values<FormUPF>,
 }
 
-export interface FormUPF extends Form<ContextUPF> {
+export interface FormUPF extends CompaniesForm<ContextUPF>, Form<ContextUPF> {
     fields: {
         title: TitleWidget<ContextUPF>,
         count: CounterWidget<ContextUPF>,
@@ -42,6 +43,9 @@ export interface FormUPF extends Form<ContextUPF> {
         waterVolume: InputWidget<ContextUPF>,
         otherSmartControl: InputWidget<ContextUPF>,
         energySharing: CheckboxWidget<ContextUPF>,
+        contractNumber: InputWidget<ContextUPF>,
+        consumingEAN: InputWidget<ContextUPF>,
+        producingEAN: InputWidget<ContextUPF>,
     },
     commissioning: {
         date: InputWidget<ContextUPF>,

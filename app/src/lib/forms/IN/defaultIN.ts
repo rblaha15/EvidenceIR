@@ -20,6 +20,8 @@ import {
     newCheckboxWidget,
 } from '../Widget';
 import {
+    type CompaniesForm,
+    type CompaniesFormContext,
     type ContextIN,
     type FormIN,
     unknownCompany,
@@ -82,140 +84,7 @@ export const phoneRegExp = /(\+\d{1,3}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3,6}
 export const emailRegExp = /[\w.-]+@([\w-]+\.)+[\w-]{2,4}/;
 export const multiple = (r: RegExp) => new RegExp(`${r.source}(?: ?${separatorsRegExp.source} ?${r.source})*`);
 
-export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> => ({
-    koncovyUzivatel: {
-        nadpis: newTitleWidget({ text: t => t.in.endUser, level: 2 }),
-        typ: newRadioWidget({
-            label: '', chosen: `individual`, showInXML: false,
-            options: [`individual`, `company`], labels: t => t.in.userType,
-        }),
-        jmeno: newInputWidget({
-            label: t => t.in.name, show: fo, required: fo,
-            autocomplete: `section-user billing given-name`,
-        }),
-        prijmeni: newInputWidget({
-            label: t => t.in.surname, autocomplete: `section-user billing family-name`, show: fo, required: fo,
-        }),
-        narozeni: newInputWidget({
-            label: t => t.in.birthday, onError: t => t.wrong.date,
-            regex: /^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?[0-9]{4}$/,
-            autocomplete: `bday`, required: false, show: fo,
-        }),
-        ico: newInputWidget({
-            label: t => t.in.crn, onError: t => t.wrong.crn,
-            regex: /^\d{8}(\d{2})?$/, required: po, show: po,
-            maskOptions: { mask: `00000000[00]` },
-        }),
-        searchButton: newButtonWidget<C>({
-            text: t => t.in.searchInARES, variant: 'secondary', icon: () => Search, show: po, showInXML: false,
-            onClick: (c: C) => {
-                c.v.koncovyUzivatel.searchFail = false;
-                ares.getNameAndAddress(c.v.koncovyUzivatel.ico).then(ares => {
-                    if (!ares) c.v.koncovyUzivatel.searchFail = true;
-                    c.v.koncovyUzivatel.nazev = ares?.obchodniJmeno ?? '';
-                    const s = ares?.sidlo;
-                    c.v.bydliste.psc = s?.psc?.toString() ?? s?.pscTxt ?? '';
-                    c.v.bydliste.obec = [s?.nazevObce, s?.nazevCastiObce].filterNotUndefined().join(' - ');
-                    c.v.bydliste.ulice = [s?.nazevUlice, [s?.cisloDomovni, s?.cisloOrientacni?.let(o => o + (s?.cisloOrientacniPismeno ?? ''))].filterNotUndefined().join('/')].filterNotUndefined().join(' ');
-                });
-            },
-        }),
-        searchFail: newHiddenValueWidget(false, true),
-        searchFailText: newTextWidget({
-            text: t => t.in.notFound,
-            showInXML: false,
-            show: c => po(c) && c.v.koncovyUzivatel.searchFail,
-        }),
-        nazev: newInputWidget({ label: t => t.in.companyName, show: po, required: po }),
-        wrongFormat: newTextWidget({
-            text: t => t.wrong.company, showInXML: false,
-            show: c => !jeFO(c) && isCompanyFormInvalid(c.v.koncovyUzivatel.nazev),
-        }),
-        pobocka: newInputWidget({ label: t => t.in.establishment, required: false, show: po }),
-        kontaktniOsoba: newInputWidget({ label: t => t.in.contactPerson, required: false, show: po }),
-        telefon: newInputWidget({
-            label: t => t.in.phone, onError: t => t.wrong.phone,
-            regex: multiple(phoneRegExp),
-            type: `tel`, autocomplete: `section-user billing mobile tel`,
-        }),
-        email: newInputWidget({
-            label: t => t.in.email, onError: t => t.wrong.email,
-            regex: multiple(emailRegExp),
-            type: `email`, autocomplete: `section-user billing mobile email`,
-        }),
-    },
-    bydliste: {
-        _title: newTitleWidget<C>({ text: (t, c) => jeFO(c) ? t.in.residence : t.in.headquarters, level: 3 }),
-        search: newSearchWidget({
-            label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
-                pieces: [{ text: i.house, width: .5 }, {
-                    text: i.postalCode,
-                    width: .1,
-                    notForSearchText: true
-                }, { text: i.city, width: .4 }],
-            }), search: ruian.suggest, onValueSet: (c, a) => {
-                c.v.bydliste.ulice = a?.house ?? '';
-                c.v.bydliste.psc = a?.postalCode ?? '';
-                c.v.bydliste.obec = a?.city ?? '';
-            }, required: false, showInXML: false,
-        }),
-        ulice: newInputWidget({
-            label: t => t.in.street,
-            autocomplete: `section-user billing street-address`,
-        }),
-        obec: newInputWidget({ label: t => t.in.town, autocomplete: `section-user billing address-level2` }),
-        psc: newInputWidget({
-            label: t => t.in.zip,
-            onError: t => t.wrong.zip,
-            regex: /^\d{3} \d{2}$/,
-            maskOptions: {
-                mask: `000 00`,
-            },
-            autocomplete: `section-user billing home postal-code`,
-        }),
-    },
-    mistoRealizace: {
-        _title: newTitleWidget({ text: t => t.in.realizationLocation, level: 3 }),
-        _setAsResidence: newButtonWidget<C>({
-            text: (t, c) => jeFO(c) ? t.in.copyResidence : t.in.copyHeadquarters,
-            variant: 'secondary', onClick: c => {
-                c.v.mistoRealizace.search = c.v.bydliste.search;
-                c.v.mistoRealizace.obec = c.v.bydliste.obec;
-                c.v.mistoRealizace.psc = c.v.bydliste.psc;
-                c.v.mistoRealizace.ulice = c.v.bydliste.ulice;
-            },
-        }),
-        search: newSearchWidget({
-            label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
-                pieces: [{ text: i.house, width: .5 }, {
-                    text: i.postalCode,
-                    width: .1,
-                    notForSearchText: true
-                }, { text: i.city, width: .4 }],
-            }), search: ruian.suggest, onValueSet: (c, a) => {
-                c.v.mistoRealizace.ulice = a?.house ?? '';
-                c.v.mistoRealizace.psc = a?.postalCode ?? '';
-                c.v.mistoRealizace.obec = a?.city ?? '';
-            }, required: false, showInXML: false,
-        }),
-        ulice: newInputWidget({
-            label: t => t.in.street, required: false, showInXML: true,
-            autocomplete: `section-realization shipping address-level2`,
-        }),
-        obec: newInputWidget({
-            label: t => t.in.town, showInXML: true,
-            autocomplete: `section-realization shipping address-level1`,
-        }),
-        psc: newInputWidget({
-            label: t => t.in.zip, showInXML: true,
-            onError: t => t.wrong.zip,
-            regex: /^\d{3} \d{2}$/,
-            maskOptions: {
-                mask: `000 00`,
-            },
-            autocomplete: `section-realization shipping postal-code`,
-        }),
-    },
+export const companiesData = <C extends CompaniesFormContext<C>>(): FormPlus<CompaniesForm<C>> => ({
     montazka: {
         _titleCompanies: newTitleWidget({ text: t => t.in.associatedCompanies, level: 2 }),
         _title: newTitleWidget({ text: t => t.in.assemblyCompany, level: 3, class: 'mt-0' }),
@@ -381,6 +250,142 @@ export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> 
             autocomplete: `section-assembly billing work tel`,
         }),
     },
+});
+export const userData = <C extends UserFormContext<C>>(): FormPlus<UserForm<C>> => ({
+    koncovyUzivatel: {
+        nadpis: newTitleWidget({ text: t => t.in.endUser, level: 2 }),
+        typ: newRadioWidget({
+            label: '', chosen: `individual`, showInXML: false,
+            options: [`individual`, `company`], labels: t => t.in.userType,
+        }),
+        jmeno: newInputWidget({
+            label: t => t.in.name, show: fo, required: fo,
+            autocomplete: `section-user billing given-name`,
+        }),
+        prijmeni: newInputWidget({
+            label: t => t.in.surname, autocomplete: `section-user billing family-name`, show: fo, required: fo,
+        }),
+        narozeni: newInputWidget({
+            label: t => t.in.birthday, onError: t => t.wrong.date,
+            regex: /^(0?[1-9]|[12][0-9]|3[01]). ?(0?[1-9]|1[0-2]). ?[0-9]{4}$/,
+            autocomplete: `bday`, required: false, show: fo,
+        }),
+        ico: newInputWidget({
+            label: t => t.in.crn, onError: t => t.wrong.crn,
+            regex: /^\d{8}(\d{2})?$/, required: po, show: po,
+            maskOptions: { mask: `00000000[00]` },
+        }),
+        searchButton: newButtonWidget<C>({
+            text: t => t.in.searchInARES, variant: 'secondary', icon: () => Search, show: po, showInXML: false,
+            onClick: (c: C) => {
+                c.v.koncovyUzivatel.searchFail = false;
+                ares.getNameAndAddress(c.v.koncovyUzivatel.ico).then(ares => {
+                    if (!ares) c.v.koncovyUzivatel.searchFail = true;
+                    c.v.koncovyUzivatel.nazev = ares?.obchodniJmeno ?? '';
+                    const s = ares?.sidlo;
+                    c.v.bydliste.psc = s?.psc?.toString() ?? s?.pscTxt ?? '';
+                    c.v.bydliste.obec = [s?.nazevObce, s?.nazevCastiObce].filterNotUndefined().join(' - ');
+                    c.v.bydliste.ulice = [s?.nazevUlice, [s?.cisloDomovni, s?.cisloOrientacni?.let(o => o + (s?.cisloOrientacniPismeno ?? ''))].filterNotUndefined().join('/')].filterNotUndefined().join(' ');
+                });
+            },
+        }),
+        searchFail: newHiddenValueWidget(false, true),
+        searchFailText: newTextWidget({
+            text: t => t.in.notFound,
+            showInXML: false,
+            show: c => po(c) && c.v.koncovyUzivatel.searchFail,
+        }),
+        nazev: newInputWidget({ label: t => t.in.companyName, show: po, required: po }),
+        wrongFormat: newTextWidget({
+            text: t => t.wrong.company, showInXML: false,
+            show: c => !jeFO(c) && isCompanyFormInvalid(c.v.koncovyUzivatel.nazev),
+        }),
+        pobocka: newInputWidget({ label: t => t.in.establishment, required: false, show: po }),
+        kontaktniOsoba: newInputWidget({ label: t => t.in.contactPerson, required: false, show: po }),
+        telefon: newInputWidget({
+            label: t => t.in.phone, onError: t => t.wrong.phone,
+            regex: multiple(phoneRegExp),
+            type: `tel`, autocomplete: `section-user billing mobile tel`,
+        }),
+        email: newInputWidget({
+            label: t => t.in.email, onError: t => t.wrong.email,
+            regex: multiple(emailRegExp),
+            type: `email`, autocomplete: `section-user billing mobile email`,
+        }),
+    },
+    bydliste: {
+        _title: newTitleWidget<C>({ text: (t, c) => jeFO(c) ? t.in.residence : t.in.headquarters, level: 3 }),
+        search: newSearchWidget({
+            label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
+                pieces: [{ text: i.house, width: .5 }, {
+                    text: i.postalCode,
+                    width: .1,
+                    notForSearchText: true
+                }, { text: i.city, width: .4 }],
+            }), search: ruian.suggest, onValueSet: (c, a) => {
+                c.v.bydliste.ulice = a?.house ?? '';
+                c.v.bydliste.psc = a?.postalCode ?? '';
+                c.v.bydliste.obec = a?.city ?? '';
+            }, required: false, showInXML: false,
+        }),
+        ulice: newInputWidget({
+            label: t => t.in.street,
+            autocomplete: `section-user billing street-address`,
+        }),
+        obec: newInputWidget({ label: t => t.in.town, autocomplete: `section-user billing address-level2` }),
+        psc: newInputWidget({
+            label: t => t.in.zip,
+            onError: t => t.wrong.zip,
+            regex: /^\d{3} \d{2}$/,
+            maskOptions: {
+                mask: `000 00`,
+            },
+            autocomplete: `section-user billing home postal-code`,
+        }),
+    },
+    mistoRealizace: {
+        _title: newTitleWidget({ text: t => t.in.realizationLocation, level: 3 }),
+        _setAsResidence: newButtonWidget<C>({
+            text: (t, c) => jeFO(c) ? t.in.copyResidence : t.in.copyHeadquarters,
+            variant: 'secondary', onClick: c => {
+                c.v.mistoRealizace.search = c.v.bydliste.search;
+                c.v.mistoRealizace.obec = c.v.bydliste.obec;
+                c.v.mistoRealizace.psc = c.v.bydliste.psc;
+                c.v.mistoRealizace.ulice = c.v.bydliste.ulice;
+            },
+        }),
+        search: newSearchWidget({
+            label: t => t.in.searchAddress, hideInRawData: true, getSearchItem: i => ({
+                pieces: [{ text: i.house, width: .5 }, {
+                    text: i.postalCode,
+                    width: .1,
+                    notForSearchText: true
+                }, { text: i.city, width: .4 }],
+            }), search: ruian.suggest, onValueSet: (c, a) => {
+                c.v.mistoRealizace.ulice = a?.house ?? '';
+                c.v.mistoRealizace.psc = a?.postalCode ?? '';
+                c.v.mistoRealizace.obec = a?.city ?? '';
+            }, required: false, showInXML: false,
+        }),
+        ulice: newInputWidget({
+            label: t => t.in.street, required: false, showInXML: true,
+            autocomplete: `section-realization shipping address-level2`,
+        }),
+        obec: newInputWidget({
+            label: t => t.in.town, showInXML: true,
+            autocomplete: `section-realization shipping address-level1`,
+        }),
+        psc: newInputWidget({
+            label: t => t.in.zip, showInXML: true,
+            onError: t => t.wrong.zip,
+            regex: /^\d{3} \d{2}$/,
+            maskOptions: {
+                mask: `000 00`,
+            },
+            autocomplete: `section-realization shipping postal-code`,
+        }),
+    },
+    ...companiesData(),
 });
 
 
