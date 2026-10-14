@@ -19,7 +19,7 @@
     let status = $state<'loading' | 'accepted' | 'error'>('loading');
 
     $effect(() => {
-        if (data.resolved) status = data.resolved == 'requested' ? 'accepted' : 'error';
+        if (data.resolved) status = data.resolved.reason == 'requested' ? 'accepted' : 'error';
     });
 
     onMount(async () => {

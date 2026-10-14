@@ -72,9 +72,9 @@
 
     export const jointTranslations = getJointTranslations();
 
-    const parseSelf = <T extends (number | string)[]>(template: Template<T>) => template(
+    const parseSelf = <T extends (number | string)[]>(template: Template<T>) => template ? template(
         template.keys.associateWith<T[number], string>(it => `{${it}}`),
-    );
+    ) : '';
     const view = (t: JointItem['t'][LanguageCode]) =>
         t.type == 'template' ? parseSelf(t.value) : t.type == 'function' ? t.value : t.value;
 </script>
