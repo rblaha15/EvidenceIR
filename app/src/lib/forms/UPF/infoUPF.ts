@@ -3,6 +3,7 @@ import db from '$lib/client/db';
 import arrays from '$lib/client/db/arrays';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
+import type { Raw } from '$lib/forms/Form';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import defaultUPF from '$lib/forms/UPF/defaultUPF';
 import type { ContextUPF, FormUPF } from '$lib/forms/UPF/formUPF';
@@ -18,14 +19,16 @@ const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
     openPdf: () => ({
         link: 'UPF',
     }),
-    saveData: async ({ irid, raw, editResult, t, ir }) => {
-        await db.addUPF(irid, raw);
+    saveData: async ({ irid, raw, edit, editResult, t, ir }) => {
+        await db.updateUPF(irid, raw);
         if (getCachedIsRegulusOrAdmin()) return;
 
         const user = getCachedUser()!;
         const response = await sendEmail({
             ...defaultAddresses(),
-            subject: `Vyplněno nové uvedení FVE do provozu k ${irName(ir.IN.ir)}`,
+            subject: edit
+                ? `Změněno uvedení FVE do provozu k ${irName(ir.IN.ir)}`
+                : `Vyplněno nové uvedení FVE do provozu k ${irName(ir.IN.ir)}`,
             component: MailProtocol,
             props: { name: user.email, url: appUrl + detailUrlIR(irid), e: ir.IN },
         });
@@ -49,6 +52,10 @@ const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
         await arrays.fetchFriendlyCompanies();
         await arrays.fetchTechnicians();
     },
+    getEditData: (ir, url) =>
+        url.searchParams.has('edit') ? { raw: ir.UP.FVE as Raw<FormUPF> } : undefined,
+    getViewData: (ir, url) =>
+        url.searchParams.has('view') ? { raw: ir.UP.FVE as Raw<FormUPF> } : undefined,
 });
 
 export default infoUPF;

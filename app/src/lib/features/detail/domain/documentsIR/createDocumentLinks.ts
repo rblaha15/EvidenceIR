@@ -129,6 +129,15 @@ const getButtonUPF = (
     text: t.fve.commission,
     important: true,
 });
+const getDropdownItemUPF = (
+    t: Translations,
+    user: { isAdmin: boolean; isRegulusOrAdmin: boolean },
+) => ({
+    variant: 'warning',
+    icon: FilePen,
+    text: t.detail.editProtocol + iaR(user.isAdmin),
+    href: iridUrl(`/UPF/?edit`),
+}) satisfies DropdownItems[number];
 
 const getButtonFT = (
     t: Translations,
@@ -206,6 +215,7 @@ export const createDocumentLinks = (
     if (rules.showFVE(ir)) add({
         link: 'UPF', disabled: rules.disableUPF(ir), name: t.fve.name,
         additionalButton: user.isRegulusOrAdmin ? getButtonUPF(t) : undefined,
+            dropdownItems: user.isRegulusOrAdmin ? [getDropdownItemUPF(t, user)] : undefined,
         signed: ir.signatures?.UPF?.state == 'signed',
     });
 

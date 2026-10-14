@@ -222,7 +222,7 @@ export default {
                 updateDateUPT: t`Změněn datum uvedení TČ do provozu u IR ${'ir'}`,
                 addUPS: t`Vytvořen protokol o uvedení SOL do provozu u IR ${'ir'}`,
                 updateDateUPS: t`Změněn datum uvedení SOL do provozu u IR ${'ir'}`,
-                addUPF: t`Vytvořen protokol o uvedení FVE do provozu u IR ${'ir'}`,
+                updateUPF: t`Vytvořen protokol o uvedení FVE do provozu u IR ${'ir'}`,
                 updateUsersWithAccessToIR: t`Změněn seznam uživatelů s přístupem k ${'ir'}`,
                 markRefsiteConfirmed: t`Označení zájmu o Refsite u ${'ir'}`,
                 updateDKT: t`Upraveno nastavení připomínání ročních kontrol TČ u ${'ir'}`,

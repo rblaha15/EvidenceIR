@@ -160,7 +160,7 @@ const functions: {
     updateDateUPT: irid => ({ ir: irNumberFromIRID(irid) }),
     addUPS: irid => ({ ir: irNumberFromIRID(irid) }),
     updateDateUPS: irid => ({ ir: irNumberFromIRID(irid) }),
-    addUPF: irid => ({ ir: irNumberFromIRID(irid) }),
+    updateUPF: irid => ({ ir: irNumberFromIRID(irid) }),
     updateUsersWithAccessToIR: irid => ({ ir: irNumberFromIRID(irid) }),
     markRefsiteConfirmed: irid => ({ ir: irNumberFromIRID(irid) }),
     updateDKT: irid => ({ ir: irNumberFromIRID(irid) }),

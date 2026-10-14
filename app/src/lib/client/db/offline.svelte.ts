@@ -162,7 +162,7 @@ const writeDatabase: WriteDatabase = {
         ir.UP.dateTC = date;
         return ir;
     }),
-    addUPF: async (irid, protocol) => odm.update('IR', irid, ir => {
+    updateUPF: async (irid, protocol) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.UP.FVE = protocol;
         return ir;
