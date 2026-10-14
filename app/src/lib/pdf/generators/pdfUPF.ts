@@ -14,16 +14,18 @@ const pdfUPF: GetPdfData<'UPF'> = async ({ data: { IN, UP: { FVE: UP }, }, t, la
         UP.filed1, UP.filed2, UP.filed3, UP.filed4
     ].slice(0, UP.fields.count)
 
+    const montazka = UP.montazka || IN.montazka;
+    const uvedeni = UP.uvedeni || IN.uvedeni;
     return ({
 /*    koncakJmeno */ Text1: endUserName(IN.koncovyUzivatel),
 /*      koncakTel */ Text2: IN.koncovyUzivatel.telefon,
 /*    koncakEmail */ Text3: IN.koncovyUzivatel.email,
 /*      instalace */ Text4: `${IN.mistoRealizace.ulice}, ${IN.mistoRealizace.psc} ${IN.mistoRealizace.obec}`,
-/*       montazka */ Text5: await ares.getName(UP.montazka.ico, fetch) ?? '',
-/*    montazkaICO */ Text6: UP.montazka.ico,
-/*    uvadecOsoba */ Text7: UP.uvedeni.zastupce,
-/*      uvadecTel */ Text8: UP.uvedeni.telefon,
-/*    uvadecEmail */ Text9: UP.uvedeni.email,
+/*       montazka */ Text5: await ares.getName(montazka.ico, fetch) ?? '',
+/*    montazkaICO */ Text6: montazka.ico,
+/*    uvadecOsoba */ Text7: uvedeni.zastupce,
+/*      uvadecTel */ Text8: uvedeni.telefon,
+/*    uvadecEmail */ Text9: uvedeni.email,
 /*          datum */ Text10: dateFromISO(UP.commissioning.date ?? dayISO()),
         'Kombinované pole19': get(t.in.fve, IN.fve.typ!),
         'Kombinované pole20': '450',
