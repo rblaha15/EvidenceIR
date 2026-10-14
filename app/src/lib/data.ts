@@ -223,6 +223,7 @@ export type RecommendationData = {
     companyEmail: string;
     location: string;
     type: 'TČ' | 'SOL',
+    resolved?: { reason: 'requested' | 'ignored' };
 };
 export type RecommendationDataWithCode = RecommendationData & {
     _id: string;

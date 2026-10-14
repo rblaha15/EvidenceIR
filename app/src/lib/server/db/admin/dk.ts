@@ -6,8 +6,8 @@ export const createDK = async (code: string, data: RecommendationData) =>
     dkCollection.insertOne({ ...data, _id: code });
 export const getDK = async (code: string): Promise<RecommendationData | null> =>
     dkCollection.findOne({ _id: code });
-export const removeDK = async (code: string) =>
-    dkCollection.deleteOne({ _id: code });
+export const setDKResolved = async (code: string, reason: 'requested' | 'ignored') =>
+    dkCollection.updateOne({ _id: code }, { $set: { resolved: { reason } } });
 
 export const changeRecommendationState = (irid: IRID, value: RecommendationState, type: 'TČ' | 'SOL') => {
     const field = type == 'TČ' ? 'RK.DK.TC' : 'RK.DK.SOL';

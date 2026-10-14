@@ -7,7 +7,7 @@ import { appUrl } from '$lib/helpers/globals';
 import { endUserEmails, endUserName, extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { getAllIRs } from '$lib/server/db/admin/general';
-import { changeRecommendationCode, changeRecommendationState, createDK, getDK, removeDK } from '$lib/server/db/admin/dk';
+import { changeRecommendationCode, changeRecommendationState, createDK, getDK, setDKResolved } from '$lib/server/db/admin/dk';
 import { sendEmail } from '$lib/server/email';
 import { error } from '@sveltejs/kit';
 import { htmlToText } from 'html-to-text';
@@ -160,7 +160,7 @@ const sendRecommendation = async ({ ir, irid, settings, type, fetch }: SystemArg
 };
 
 const ignoreThisYear = async ({ irid, settings, type }: SystemArgs) => {
-    await removeDK(settings.code!);
+    await setDKResolved(settings.code!, 'ignored');
     await goToTheNextYear(irid, type);
 };
 
@@ -199,7 +199,6 @@ export const sendRequest = async (code: string) => {
         subject: `Žádost o roční kontrolu ${info.type}`,
         html, text: htmlToText(html),
     });
-    await removeDK(code);
-    await changeRecommendationCode(info.irid, '', info.type);
+    await setDKResolved(code, 'requested');
     await changeRecommendationState(info.irid, 'sentRequest', info.type);
 };

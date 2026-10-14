@@ -12,7 +12,7 @@ export const load: PageLoad = async ({ url, parent, fetch }) => {
     try {
         if (!code) error(403, t.codeMissingError);
 
-        const userData = await call('db/open/getRecommendationData', { code }, fetch);
+        const userData = await call('db/open/getRecommendationData', { code }, { fetch });
 
         if (!userData) error(400, t.codeInvalidError);
 

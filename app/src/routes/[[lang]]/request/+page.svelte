@@ -3,26 +3,29 @@
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
     import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
+    import type { RecommendationData } from '$lib/data';
     import { setTitle } from '$lib/helpers/globals';
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
 
     const { data }: {
         data: PageData & {
-            code: string,
-            user: string,
-            location: string,
-            company: string,
-        }
+            code: string
+        } & RecommendationData;
     } = $props();
 
     const t = $derived(data.translations.dk.requestPage);
 
     let status = $state<'loading' | 'accepted' | 'error'>('loading');
 
+    $effect(() => {
+        if (data.resolved) status = data.resolved == 'requested' ? 'accepted' : 'error';
+    });
+
     onMount(async () => {
         setTitle(t.title, false, true);
 
+        if (status !== 'loading') return;
         try {
             await call('db/open/sendRequest', { code: data.code });
             status = 'accepted';
