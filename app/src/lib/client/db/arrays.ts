@@ -36,7 +36,7 @@ export type SparePart = {
     code: number;
     unitPrice: number;
 };
-export type Arrays = 'accumulationTanks' | 'waterTanks' | 'solarCollectors' | 'inverters' | 'batteries';
+export type Arrays = 'accumulationTanks' | 'waterTanks' | 'solarCollectors' | 'inverters' | 'batteries' | 'fvePanels';
 export type StringArray = {
     name: Arrays,
     value: string[]
@@ -81,6 +81,7 @@ export default {
     get solarCollectors() { return derived(arrays.store, $arrays => $arrays.solarCollectors ?? []); },
     get inverters() { return derived(arrays.store, $arrays => $arrays.inverters ?? []); },
     get batteries() { return derived(arrays.store, $arrays => $arrays.batteries ?? []); },
+    get fvePanels() { return derived(arrays.store, $arrays => $arrays.fvePanels ?? []); },
     get loyaltyProgramData() { return readonly(loyaltyProgramData.store); },
     get friendlyCompaniesValue() { return friendlyCompanies.current; },
     get companiesValue() { return companies.current; },
@@ -93,6 +94,7 @@ export default {
     get solarCollectorsValue() { return arrays.current.solarCollectors ?? []; },
     get invertersValue() { return arrays.current.inverters ?? []; },
     get batteriesValue() { return arrays.current.batteries ?? []; },
+    get fvePanelsValue() { return arrays.current.fvePanels ?? []; },
     get loyaltyProgramDataValue() { return loyaltyProgramData.current; },
     async fetchFriendlyCompanies(fetch: typeof window.fetch = window.fetch)
         { if (getIsOnline()) friendlyCompanies.current = await call('db/getCompanies', { fetch })},

@@ -747,9 +747,12 @@ export default (): FormPlus<FormIN> => ({
             show: fve, level: 3,
         }),
         typ: newChooserWidget({
-            label: t => t.in.panelType, chosen: 'DG-450-B',
-            required: fve, show: fve, lock: irOther,
-            options: c => irOther(c) ? ['DG-450-B'] : ['DG-450-B', 'otherNotRegulusPanels'],
+            label: t => t.in.panelType,
+            required: fve, show: fve,
+            options: c => [
+                ...arrays.fvePanelsValue,
+                ...irOther(c) ? [] : ['otherNotRegulusPanels'],
+            ],
             labels: t => t.in.fve,
         }),
         pocet: newInputWidget({

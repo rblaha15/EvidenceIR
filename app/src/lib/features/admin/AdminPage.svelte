@@ -221,7 +221,7 @@
                 fileType: 'xlsx',
                 fileName: 'seznamy',
                 instructions: [
-                    'Vložte .xlsx soubor se seznamy akumulačních nádrží, zásobníků, solárních kolektorů, střídačů a baterií, který obsahuje záhlaví (1. řádek) a sloupce s názvy.',
+                    'Vložte .xlsx soubor se seznamy akumulačních nádrží, zásobníků, solárních kolektorů, střídačů, baterií a panelů, který obsahuje záhlaví (1. řádek) a sloupce s názvy.',
                 ],
                 arrays: {
                     accumulationTanks: {
@@ -248,6 +248,11 @@
                         header: 'Baterie',
                         excelHeader: 'baterie',
                         store: arrays.batteries,
+                    },
+                    fvePanels: {
+                        header: 'FVE Panely',
+                        excelHeader: 'panely',
+                        store: arrays.fvePanels,
                     },
                 },
                 sendData: a => call('db/admin/setArrays', a).then(arrays.fetchArrays),

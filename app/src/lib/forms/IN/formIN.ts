@@ -144,7 +144,7 @@ export interface FormIN extends UserForm<ContextIN>, Form<ContextIN> {
     };
     fve: {
         title: TitleWidget<ContextIN>;
-        typ: ChooserWidget<ContextIN, 'DG-450-B' | 'otherNotRegulusPanels'>;
+        typ: ChooserWidget<ContextIN, string | 'otherNotRegulusPanels'>;
         pocet: InputWidget<ContextIN>;
         typStridace: InputWidget<ContextIN>;
         cisloStridace: InputWidget<ContextIN>;
