@@ -56,8 +56,15 @@ export const call = async <
         isFileUpload,
     } = noArgs ? arg1 as Options<T, R> : arg2 as Options<T, R> | undefined ?? {};
     const args = noArgs ? undefined : arg1 as AllEndpoints[T]['params'];
-    const init = isFileUpload ? {
-        body: (new FormData()).also(d => d.set('file', args as File))
+    const init: {
+        body: BodyInit,
+        headers: Record<string, string>,
+    } = isFileUpload ? {
+        body: args as File,
+        headers: {
+            'content-type': (args as File).type || 'application/octet-stream',
+            'x-file-name': encodeURIComponent((args as File).name),
+        },
     } : {
         body: JSON.stringify(args),
         headers: {

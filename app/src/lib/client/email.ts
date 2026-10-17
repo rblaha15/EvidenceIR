@@ -92,7 +92,8 @@ export const sendEmailAndUploadAttachments = async (options: EmailOptions) => {
                     contentType: file.type,
                 },
             };
-        } catch {
+        } catch (e) {
+            console.error(e);
             return { error: i };
         }
     }).awaitAll();

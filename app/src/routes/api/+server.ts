@@ -11,7 +11,11 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
     const options = { ...defaultEndpointOptions, ...action.options };
 
     const args = options.isFileUpload
-        ? (await request.formData()).get('file')
+        ? new File([await request.arrayBuffer()], decodeURIComponent(
+            request.headers.get('x-file-name') ?? 'soubor'
+        ), {
+            type: request.headers.get('content-type') ?? 'application/octet-stream',
+        })
         : (await request.text()).let(body => body ? JSON.parse(body) : {});
 
     if (options.requireLoggedIn && !getIsLoggedIn(locals)) {

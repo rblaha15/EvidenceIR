@@ -142,7 +142,7 @@ export const grantPointsForYesterday = async () => {
 
         if (ir.meta.createdBy) await processLoyaltyReward(
             { type: ir.IN.vzdalenyPristup.chce ? 'connectRegulusRoute' : 'disconnectRegulusRoute', irid: ir.meta.id },
-            { user: { email: ir.meta.createdBy.email } as User, session: undefined },
+            { user: { email: ir.meta.createdBy.email } as User, session: null },
         );
 
         if (!ir.UP.TC?.os) continue;
@@ -151,7 +151,7 @@ export const grantPointsForYesterday = async () => {
 
         await processLoyaltyReward(
             { type: 'heatPumpCommission', irid: ir.meta.id },
-            { user: { email: ir.UP.TC.uvadeni.createdBy } as User, session: undefined },
+            { user: { email: ir.UP.TC.uvadeni.createdBy } as User, session: null },
         );
     }
 };
