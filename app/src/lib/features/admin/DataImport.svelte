@@ -1,8 +1,8 @@
 <script lang="ts">
     import { call } from '$lib/client/endpoints';
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
-    import { Button } from '$lib/components/ui/button';
     import File, { getFile } from '$lib/components/forms/widgets/File.svelte';
+    import { Button } from '$lib/components/ui/button';
     import { type Files, newFileWidget } from '$lib/forms/Widget';
     import { getTranslations } from '$lib/translations';
 
@@ -14,34 +14,6 @@
     let showAllErrors = $state(false);
     let error = $state<string>();
 
-    const importFromSEIR1 = async () => {
-        error = undefined;
-
-        const c = await call('db/admin/importFromSEIR1').catch(error => {
-            error = error;
-            return [];
-        });
-
-        if (!c.length) error = 'Záloha poškozena';
-        else {
-            const [i, n, r, s, l] = c;
-            error = `Hotovo: ${i}x IR, ${n}x NSP, ${r}x DK, ${s}x SN, ${l}x LP`;
-        }
-    };
-    const importDataFromSEIR1 = async () => {
-        error = undefined;
-
-        const c = await call('db/admin/importDataFromSEIR1').catch(error => {
-            error = error;
-            return [];
-        });
-
-        if (!c.length) error = 'Záloha poškozena';
-        else {
-            const [p, f, t, s, n, z, k, i, b] = c;
-            error = `Hotovo: ${p} uživatelů, ${f} firem, ${t} techniků, ${s} dílů, ${n} nádrží, ${z} zásobníků, ${k} kolektorů, ${i} střídačů, ${b} baterie`;
-        }
-    };
     const importFromBackup = async () => {
         error = undefined;
         showAllErrors = true;
@@ -59,18 +31,15 @@
 
         if (!c.length) error = 'Záloha poškozena';
         else {
-            const [i, n, r, s, l] = c;
-            error = `Hotovo: ${i}x IR, ${n}x NSP, ${r}x DK, ${s}x SN, ${l}x LP`;
+            const [i, n, r, s, l, p, f, t, sp, at, z, k, st, b, fp] = c;
+            error = `Hotovo: ${i}x IR, ${n}x NSP, ${r}x DK, ${s}x SN, ${l}x LP, ` +
+                `${p} uživatelů, ${f} firem, ${t} techniků, ${sp} dílů, ` +
+                `${at} nádrží, ${z} zásobníků, ${k} kolektorů, ${st} střídačů, ${b} baterie, ${fp} panely`;
         }
     };
 </script>
 
-Import ze SEIR 1 odstraněn, je moc nebezpečný
-
-<!--<Button onclick={importFromSEIR1}>Importovat data ze SEIR 1</Button>-->
-<!--<Button onclick={importDataFromSEIR1}>Importovat seznamy ze SEIR 1 (uživatele, firmy, techniky, náhradní díly a seznamy)</Button>-->
-
-<File bind:value context={{}} {showAllErrors} t={getTranslations('cs')} {widget}/>
+<File bind:value context={{}} {showAllErrors} t={getTranslations('cs')} {widget} />
 
 <Button onclick={importFromBackup}>Importovat data ze zálohy (přepíše všechna data v databázi!!!)</Button>
 

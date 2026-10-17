@@ -1,4 +1,4 @@
-import type { Arrays, Company, Person, SparePart, Technician } from '$lib/client/db/arrays';
+import type { AllArrays, Arrays, Company, Person, SparePart, Technician } from '$lib/client/db/arrays';
 import type {
     LoyaltyProgramPointsTransaction,
     LoyaltyProgramUserData,
@@ -16,8 +16,9 @@ import {
     getAllSNs,
     restoreIR,
 } from '$lib/server/db/admin/general';
-import { importDataFromSEIR1, importFromBackup, importFromSEIR1 } from '$lib/server/db/admin/import';
+import { importFromBackup } from '$lib/server/db/admin/import';
 import {
+    getAllArrays,
     getCompanies,
     getPeople, getPersonByEmail,
     setArrays,
@@ -34,12 +35,12 @@ import { error } from '@sveltejs/kit';
 export const adminEndpoints = {
     backup: defineEndpoint<undefined, {
         irs: IR[], nsps: NSP[], dks: RecommendationDataWithCode[], sns: DocumentSigningInfo[], lps: LoyaltyProgramUserData[],
+        arrays: AllArrays,
     }>(async () => ({
         irs: await getAllIRs(), nsps: await getAllNSPs(), dks: await getAllDKs(), sns: await getAllSNs(), lps: await getAllLPs(),
+        arrays: await getAllArrays(),
     })),
     importBackup: defineEndpoint<File, number[]>(importFromBackup, { isFileUpload: true }),
-    importFromSEIR1: defineEndpoint<undefined, number[]>(() => importFromSEIR1()),
-    importDataFromSEIR1: defineEndpoint<undefined, number[]>(() => importDataFromSEIR1()),
     restore: defineEndpoint<{ irid: IRID }, undefined>(async ({ irid }) => {
         await restoreIR(irid);
     }),

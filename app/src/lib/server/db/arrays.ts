@@ -1,4 +1,11 @@
-import type { Arrays, Company, Person, SparePart, Technician } from '$lib/client/db/arrays';
+import {
+    type AllArrays,
+    type Arrays,
+    type Company,
+    type Person,
+    type SparePart,
+    type Technician
+} from '$lib/client/db/arrays';
 import {
     arraysCollection,
     companyCollection,
@@ -87,3 +94,11 @@ export const setPeople = async (people: Person[]) => {
 export const addPerson = async (person: Person) => {
     await personCollection.insertOne(person);
 };
+
+export const getAllArrays = async (): Promise<AllArrays> => ({
+    person: await getPeople(),
+    company: await getCompanies(),
+    technician: await getTechnicians(),
+    sparePart: await getSpareParts(),
+    arrays: await getArrays(),
+});

@@ -6,7 +6,7 @@
     import { Button } from "$lib/components/ui/button";
 
     const download = async () => {
-        const { irs, nsps, dks, sns, lps } = await call('db/admin/backup');
+        const { irs, nsps, dks, sns, lps, arrays } = await call('db/admin/backup');
         const zip = new JSZip();
 
         zip.file('backupIR.json', JSON.stringify(irs, undefined, 4));
@@ -14,8 +14,9 @@
         zip.file('backupDK.json', JSON.stringify(dks, undefined, 4));
         zip.file('backupSN.json', JSON.stringify(sns, undefined, 4));
         zip.file('backupLP.json', JSON.stringify(lps, undefined, 4));
+        zip.file('backupArrays.json', JSON.stringify(arrays, undefined, 4));
         zip.file('info.json', JSON.stringify({
-            version: 2,
+            version: 3,
         }, undefined, 4));
 
         const blob = await zip.generateAsync({ type: 'blob' });

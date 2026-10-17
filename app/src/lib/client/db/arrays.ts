@@ -41,6 +41,13 @@ export type StringArray = {
     name: Arrays,
     value: string[]
 };
+export type AllArrays = {
+    person: Person[];
+    company: Company[];
+    technician: Technician[];
+    sparePart: SparePart[];
+    arrays: Record<Arrays, string[]>;
+}
 export type FriendlyCompanies = {
     assemblyCompanies: Company[];
     commissioningCompanies: Company[];

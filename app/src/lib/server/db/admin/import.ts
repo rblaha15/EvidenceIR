@@ -1,17 +1,9 @@
-import { env } from '$env/dynamic/private';
-import { type Company, type Person, type SparePart, type Technician } from '$lib/client/db/arrays';
+import { type AllArrays } from '$lib/client/db/arrays';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
-import type { IR, NSP, RecommendationData, RecommendationDataWithCode } from '$lib/data';
-import type { DocumentDefinition } from '$lib/features/signing/domain/sms';
-import type { IRID, NSPID } from '$lib/helpers/ir';
-import type { PdfDefiningParameter, PdfToSign } from '$lib/pdf/pdf';
+import type { IR, NSP, RecommendationDataWithCode } from '$lib/data';
 import { setAllDKs, setAllIRs, setAllLPs, setAllNSPs, setAllSNs } from '$lib/server/db/admin/general';
 import { setArrays, setCompanies, setPeople, setSpareParts, setTechnicians } from '$lib/server/db/arrays';
 import type { DocumentSigningInfo } from '$lib/server/signing';
-import { cert, getApps, initializeApp } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
-import { getDatabase } from 'firebase-admin/database';
-import { getFirestore } from 'firebase-admin/firestore';
 import { json } from 'stream/consumers';
 import yauzl from 'yauzl';
 
@@ -52,100 +44,6 @@ const migrateNSPFromSEIR1 = (nsp: NSP) => ({
     },
 }) as NSP;
 
-export const importFromSEIR1 = async () => {
-    const getApp = () => initializeApp({
-        credential: cert(JSON.parse(env.FIREBASE_INFO)),
-        databaseURL: 'https://evidence-ir-default-rtdb.europe-west1.firebasedatabase.app'
-    });
-    const app = getApps()[0] ?? getApp();
-
-    const firestore = getFirestore(app);
-    const realtime = getDatabase(app);
-    const fbAuth = getAuth(app);
-
-    const irCollection = firestore.collection('ir');
-    const spCollection = firestore.collection('sp');
-    const dkCollection = firestore.collection('rk');
-    const snCollection = firestore.collection(`signing`);
-    const lpRef = realtime.ref('/loyaltyProgram');
-
-    const originalIRs = await irCollection.get().then(s => s.docs.map(doc => doc.data() as IR));
-    const originalNSPs = await spCollection.get().then(s => s.docs.map(doc => doc.data() as NSP));
-    const dks = await dkCollection.get().then(s => s.docs.map(doc => ({
-        _id: doc.id,
-        ...(doc.data() as RecommendationData),
-    })));
-    const sns = await (await snCollection.listDocuments()).map(r =>
-        r.collection('documents').get().then(s => s.docs.map(doc => ({
-            def: {
-                id: r.id as IRID | NSPID,
-                pdf: doc.id.split('-')[0] as PdfToSign,
-                ...(doc.id.includes('-') ? { parameter: doc.id.match(/(?<=-).*/)![0] as PdfDefiningParameter } : {}),
-            } satisfies DocumentDefinition,
-            ...(doc.data() as Omit<DocumentSigningInfo, 'def'>),
-        }))),
-    ).awaitAll().then(a => a.flat());
-    const originalLPs = (await lpRef.get()).val() as Record<string, Omit<LoyaltyProgramUserData, 'email'>>;
-    const lps = await originalLPs.mapTo(async (uid, lp) => {
-        const user = await fbAuth.getUser(uid);
-        const email = user.email!;
-        return { ...lp, email };
-    }).awaitAll();
-
-    const irs = originalIRs.map(migrateIRFromSEIR1);
-    const nsps = originalNSPs.map(migrateNSPFromSEIR1);
-
-    await importBackup({ irs, nsps, dks, sns, lps });
-    return [irs.length, nsps.length, dks.length, sns.length, lps.length];
-};
-
-const migratePersonFromSEIR1 = (p: Person): Person => ({
-    ...p,
-    assemblyCompanies: (p.assemblyCompanies as unknown as Record<string, string>)?.getValues() ?? [],
-    commissioningCompanies: (p.commissioningCompanies as unknown as Record<string, string>)?.getValues() ?? [],
-});
-
-export const importDataFromSEIR1 = async () => {
-    const getApp = () => initializeApp({
-        credential: cert(JSON.parse(env.FIREBASE_INFO)),
-        databaseURL: 'https://evidence-ir-default-rtdb.europe-west1.firebasedatabase.app'
-    });
-    const app = getApps()[0] ?? getApp();
-
-    const realtime = getDatabase(app);
-
-    const usersRef = realtime.ref('/people');
-    const companiesRef = realtime.ref('/companies');
-    const techniciansRef = realtime.ref('/technicians');
-    const sparePartsRef = realtime.ref('/spareParts');
-    const accumulationTanksRef = realtime.ref('/accumulationTanks');
-    const waterTanksRef = realtime.ref('/waterTanks');
-    const solarCollectorsRef = realtime.ref('/solarCollectors');
-    const invertersRef = realtime.ref('/inverters');
-    const batteriesRef = realtime.ref('/batteries');
-
-    const users = await usersRef.get().then(s => s.val()) as Record<string, Person>;
-    const companies = await companiesRef.get().then(s => s.val()) as Record<string, Company>;
-    const technicians = await techniciansRef.get().then(s => s.val()) as Technician[];
-    const spareParts = await sparePartsRef.get().then(s => s.val()) as SparePart[];
-    const arrays = {
-        accumulationTanks: await accumulationTanksRef.get().then(s => s.val()) as string[],
-        waterTanks: await waterTanksRef.get().then(s => s.val()) as string[],
-        solarCollectors: await solarCollectorsRef.get().then(s => s.val()) as string[],
-        inverters: await invertersRef.get().then(s => s.val()) as string[],
-        batteries: await batteriesRef.get().then(s => s.val()) as string[],
-    };
-
-    await setPeople(users.getValues().map(migratePersonFromSEIR1));
-    await setCompanies(companies.getValues());
-    await setTechnicians(technicians);
-    await setSpareParts(spareParts);
-    await setArrays(arrays);
-
-    return [users.getValues().length, companies.getValues().length, technicians.length, spareParts.length,
-        arrays.accumulationTanks.length, arrays.waterTanks.length, arrays.solarCollectors.length, arrays.inverters.length, arrays.batteries.length];
-};
-
 export const importFromBackup = async (file: File) => {
     const buffer = Buffer.from(await file.arrayBuffer());
     const zip = await yauzl.fromBufferPromise(buffer);
@@ -165,32 +63,53 @@ export const importFromBackup = async (file: File) => {
     const dks = await getJSON<RecommendationDataWithCode[]>('backupDK.json');
     const sns = await getJSON<DocumentSigningInfo[]>('backupSN.json');
     const lps = await getJSON<LoyaltyProgramUserData[]>('backupLP.json');
+    const allArrays = await getJSON<AllArrays>('backupArrays.json');
     if (!originalIRs || !originalNSPs) {
         return [];
     }
 
+    const arrays = ['person', 'company', 'technician', 'sparePart'] as const;
+    const stringArrays = ['accumulationTanks', 'waterTanks', 'solarCollectors', 'inverters', 'batteries', 'fvePanels'] as const;
     if (!isFromSEIR1 && dks && sns && lps) {
-        await importBackup({ irs: originalIRs, nsps: originalNSPs, dks, sns, lps });
-        return [originalIRs.length, originalNSPs.length, dks.length, sns.length, lps.length];
+        await importBackup({ irs: originalIRs, nsps: originalNSPs, dks, sns, lps, ...allArrays });
+        return [
+            originalIRs, originalNSPs, dks, sns, lps,
+            ...arrays.map(a => allArrays?.[a] ?? []),
+            ...stringArrays.map(a => allArrays?.arrays?.[a] ?? []),
+        ].map(a => a.length);
     } else {
         const irs = originalIRs.map(migrateIRFromSEIR1);
         const nsps = originalNSPs.map(migrateNSPFromSEIR1);
 
         await importBackup({ irs, nsps, dks: [], sns: [], lps: [] });
-        return [originalIRs.length, originalNSPs.length, 0, 0, 0];
+        return [
+            originalIRs.length, originalNSPs.length, 0, 0, 0,
+            ...arrays.map(_ => 0),
+            ...stringArrays.map(_ => 0),
+        ];
     }
 };
 
-const importBackup = async ({ irs, nsps, dks, sns, lps }: {
-    irs: IR[],
-    nsps: NSP[],
-    dks: RecommendationDataWithCode[],
-    sns: DocumentSigningInfo[],
-    lps: LoyaltyProgramUserData[],
-}) => {
+const importBackup = async (
+    {
+        irs, nsps, dks, sns, lps,
+        person, company, technician, sparePart, arrays,
+    }: {
+        irs: IR[],
+        nsps: NSP[],
+        dks: RecommendationDataWithCode[],
+        sns: DocumentSigningInfo[],
+        lps: LoyaltyProgramUserData[],
+    } & Partial<AllArrays>,
+) => {
     await setAllIRs(irs);
     await setAllNSPs(nsps);
     await setAllDKs(dks);
     await setAllSNs(sns);
     await setAllLPs(lps);
+    if (person) await setPeople(person);
+    if (company) await setCompanies(company);
+    if (technician) await setTechnicians(technician);
+    if (sparePart) await setSpareParts(sparePart);
+    if (arrays) await setArrays(arrays);
 };
