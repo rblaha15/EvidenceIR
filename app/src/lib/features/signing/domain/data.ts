@@ -61,7 +61,7 @@ export const getSigningInfo = (def: DocumentDefinition, ir: IR | null, nsp: NSP 
     const IN = (pdf: PdfToSign): Raw<FormIN | FormNSP> => pdf == 'NSP' ? nsp!.NSP : ir!.IN;
 
     const allowSigningSP = (sp: Raw<FormSP> | Raw<FormNSP> | Raw<FormSZ>) =>
-        isSP(sp) && sp.fakturace.komu.chosen && sp.fakturace.komu.chosen != 'otherCompany';
+        isSP(sp) && sp.fakturace.komu.chosen != 'otherCompany';
     const allowSigning = isPdfToSign(def.pdf) && (def.pdf != 'NSP' && def.pdf != 'SP' || allowSigningSP(SP(def.pdf)));
 
     const companyType = (pdf: 'SP' | 'NSP'): CompanyType => SP(pdf).fakturace.komu.chosen == 'assemblyCompany' ? 'montazka' : 'uvedeni';
