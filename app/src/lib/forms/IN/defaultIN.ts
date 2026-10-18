@@ -438,7 +438,9 @@ const heatPump = <const I extends TC>(i: I) => ({
             ? /^\d{4}-\d{4}-\d{4}$/
             : model(c, i) == 'airTHERM 10'
                 ? /^\d{9}T$/
-                : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
+                : model(c, i) == 'RTC 40p'
+                    ? /^[A-Z]{3}\d{4}-[A-Z]{2}-\d{4}$/
+                    : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
         capitalize: true,
         required: c => tc(c) && i <= c.v.tc.pocet && model(c, i) != 'prototype',
         maskOptions: c => model(c, i) == 'prototype' ? undefined : ({
@@ -446,7 +448,9 @@ const heatPump = <const I extends TC>(i: I) => ({
                 ? `0000-0000-0000`
                 : model(c, i) == 'airTHERM 10'
                     ? `000000000T`
-                    : `AA0000-AA-0000`,
+                    : model(c, i) == 'RTC 40p'
+                        ? `AAA0000-AA-0000`
+                        : `AA0000-AA-0000`,
             definitions: {
                 A: /[A-Za-z]/,
                 T: /T/,
@@ -459,7 +463,8 @@ const heatPump = <const I extends TC>(i: I) => ({
             i <= c.v.tc.pocet,
         processScannedText: (t, c) =>
             model(c, i) == 'prototype' ? t.replaceAll(/[^0-9A-Z]/g, '')
-                : t.replaceAll(/[^0-9A-Z]/g, '').slice(-12),
+                : t.replaceAll(/[^0-9A-Z]/g, '')
+                    .slice(model(c, i) == 'RTC 40p' ? -13 : -12),
     }),
 }) as I extends 1 ? {
     model: ChooserWidget<ContextIN, HeatPump>;
