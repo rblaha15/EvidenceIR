@@ -163,7 +163,7 @@ export interface FormIN extends UserForm<ContextIN>, Form<ContextIN> {
         jizJe: CheckboxWidget<ContextIN>;
         chce: CheckboxWidget<ContextIN>;
         pristupMa: MultiCheckboxWidget<ContextIN, 'endCustomer' | 'assemblyCompany' | 'commissioningCompany'>;
-        plati: RadioWidget<ContextIN, 'assemblyCompany' | 'endCustomer' | 'doNotInvoice' | 'laterAccordingToTheProtocol'>;
+        plati: RadioWidget<ContextIN, 'assemblyCompany' | 'commissioningCompany' | 'endCustomer' | 'doNotInvoice' | 'laterAccordingToTheProtocol'>;
         showResponsiblePerson: HiddenValueWidget<ContextIN, boolean, true>;
         zodpovednaOsoba: InputWidget<ContextIN>;
     };

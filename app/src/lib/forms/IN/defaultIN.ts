@@ -837,8 +837,8 @@ export default (): FormPlus<FormIN> => ({
         }),
         plati: newRadioWidget({
             label: t => t.in.remoteAccess.whoWillBeInvoiced,
-            options: c => !c.v.ir.regulus ? ['assemblyCompany', 'endCustomer']
-                : ['laterAccordingToTheProtocol', 'doNotInvoice', 'assemblyCompany', 'endCustomer'],
+            options: c => !c.v.ir.regulus ? ['assemblyCompany', 'commissioningCompany', 'endCustomer']
+                : ['laterAccordingToTheProtocol', 'doNotInvoice', 'assemblyCompany', 'commissioningCompany', 'endCustomer'],
             show: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce,
             required: c => supportsRemoteAccessC(c) && c.v.vzdalenyPristup.chce,
             labels: t => t.in.remoteAccess,
