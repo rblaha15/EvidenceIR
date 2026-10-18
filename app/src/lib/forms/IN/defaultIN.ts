@@ -76,7 +76,7 @@ const subType = (c: ContextIN) => c.v.ir.typ.second != null;
 const supportsRemoteAccessC = (c: ContextIN) => supportsRemoteAccess(c.v.ir.typ.first);
 const irOther = (c: ContextIN) => c.v.ir.typ.first == 'other';
 const irCTC = (c: ContextIN) => c.v.ir.typ.first == 'ctc';
-const fveReg = (c: ContextIN) => fve(c) && c.v.fve.typ == 'DG-450-B';
+const fveReg = (c: ContextIN) => fve(c) && c.v.fve.typ != 'otherNotRegulusPanels';
 const akuDuo = (c: ContextIN) => aku(c) && c.v.tanks.accumulation.toUpperCase().startsWith('DUO');
 
 export const separatorsRegExp = /[ ,;\/]/;
