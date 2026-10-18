@@ -2,32 +2,45 @@
     import type { Comparable } from '$lib/extensions';
     import type { Readable } from 'svelte/store';
 
-    export interface TableOptions<T, K extends string = keyof T & string> {
-        fileType: 'xlsx' | 'csv';
-        fileName: string;
+    export type DataTypes = {
+        text: string,
+        number: number,
+        boolean: boolean,
+        textArray: string[],
+        datetime: string | Date,
+        price: number,
+    };
+    export type DataType = keyof DataTypes;
+    export type ValueType = DataTypes[DataType] | null;
+
+    export interface TableOptions<T extends Record<string, ValueType>, Key extends keyof T> {
+        file?: {
+            fileType: 'xlsx' | 'csv';
+            fileName: string;
+            construct: (items: (string | undefined)[]) => T;
+            deconstruct: (value: T) => (string | undefined)[];
+        };
         store: Readable<T[] | 'loading'>;
-        construct: (items: (string | undefined)[]) => T;
-        deconstruct: (value: T) => (string | undefined)[];
-        key: (value: T, index: number) => Comparable;
+        key: Key;
         instructions: string[];
         columns: {
-            [Key in K]: {
+            [K in keyof T]: {
                 header: string;
                 cellType?: 'data' | 'header';
-                transformValue?: Key extends keyof T ? (value: T[Key]) => string : undefined;
-            } & (Key extends keyof T ? {
-                getValue?: (value: T) => string;
-            } : {
-                getValue: (value: T) => string;
-            });
+                type?: DataType;
+                optional?: boolean;
+            };
         };
         sendData: (data: T[]) => Promise<void>;
+        editable?: {
+            defaultValue: T,
+        };
     }
 
     export type TableColor = 'warning' | 'success' | 'danger' | 'tertiary';
 </script>
 
-<script generics="T extends Record<string, unknown>" lang="ts">
+<script generics="T extends Record<string, ValueType>, Key extends keyof T" lang="ts">
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
     import type { ChangeEventHandler } from 'svelte/elements';
@@ -40,9 +53,9 @@
     import { Button } from '$lib/components/ui/button';
     import { untrack } from 'svelte';
 
-    const { id, options }: { id: string; options: TableOptions<T> } = $props();
+    const { id, options }: { id: string; options: TableOptions<T, Key> } = $props();
     // svelte-ignore state_referenced_locally
-    const { fileType, construct, deconstruct, store, fileName, key, instructions, columns, sendData } = options;
+    const { store, key, instructions, columns, sendData, file: fileOptions } = options;
 
     let input = $state() as HTMLInputElement;
     let file = $state<File>();
@@ -53,16 +66,16 @@
     $effect(() => {
         if (loading) error = false;
     });
-    $effect(() => {
-        if (!file) newData = [];
-    });
 
     const onFileSelected: ChangeEventHandler<HTMLInputElement> = async ev => {
         file = ev.currentTarget.files?.[0];
 
-        if (!file) return;
+        if (!file) {
+            newData = [];
+            return;
+        }
 
-        if (fileType == 'csv') {
+        if (fileOptions?.fileType == 'csv') {
             const reader = new FileReader();
             reader.onload = async ev => {
                 const text = ev.target?.result as string | null;
@@ -71,34 +84,34 @@
                     .map(row => row.trim().replace(/  +/g, ' '))
                     .filter(row => row != '')
                     .map(row => row.split(';').map(col => (col ? col : undefined)))
-                    .map(construct);
+                    .map(fileOptions.construct);
             };
             reader.readAsText(file, 'UTF-8');
-        } else if (fileType == 'xlsx') {
+        } else if (fileOptions?.fileType == 'xlsx') {
             const rows = await readXlsxFile(file);
             newData = rows
                 .slice(1)
                 .map(r => r.map(String))
-                .map(construct);
+                .map(fileOptions.construct);
         }
     };
 
     const downloadData = () => {
-        if (fileType == 'csv') {
+        if (fileOptions?.fileType == 'csv') {
             const text = oldData
-                .map(deconstruct)
+                .map(fileOptions.deconstruct)
                 .map(row => row.map(col => col ?? ''))
                 .map(row => row.join(';').trim())
                 .join('\n');
-            FileSaver.saveAs(new Blob([text], { type: 'text/csv' }), `${fileName}.csv`);
-        } else {
+            FileSaver.saveAs(new Blob([text], { type: 'text/csv' }), `${fileOptions.fileName}.csv`);
+        } else if (fileOptions?.fileType == 'xlsx') {
             const rows = oldData
-                .map(deconstruct)
+                .map(fileOptions.deconstruct)
                 .map(row => row.map(col => col ?? ''))
                 .map(row => row.map(col => ({ value: col })));
             const headers = columns.mapTo((_, c) => ({ value: c.header }));
             writeXlsxFile([headers, ...rows], {
-                fileName: `${fileName}.xlsx`,
+                fileName: `${fileOptions.fileName}.xlsx`,
             });
         }
     };
@@ -109,6 +122,7 @@
         try {
             await sendData(newData);
             file = undefined;
+            newData = [];
         } catch (e) {
             console.error(e);
             error = true;
@@ -119,14 +133,14 @@
 
     const shallowEquals = (a: T, b: T) => [...a.keys(), ...b.keys()].every(key => JSON.stringify(a[key]) === JSON.stringify(b[key]));
 
-    const oldData = $derived($store == 'loading' ? [] : $store.sortedBy((it, i) => key(it, i)));
+    const oldData = $derived($store == 'loading' ? [] : $store.sortedBy(it => it[key] as Comparable));
 
-    const find = (values: T[], findKey: Comparable) => values.find((value, i) => key(value, i) === findKey);
-    const oldKeys = $derived(oldData.map(key));
-    const newKeys = $derived(newData.map(key));
-    const changes = $derived(newData.filter((value, i) => oldKeys.includes(key(value, i)) && !shallowEquals(value, find(oldData, key(value, i)) ?? value)));
-    const removals = $derived(oldData.filter((value, i) => !newKeys.includes(key(value, i))));
-    const additions = $derived(newData.filter((value, i) => !oldKeys.includes(key(value, i))));
+    const find = (values: T[], findKey: T[Key]) => values.find(value => value[key] === findKey);
+    const oldKeys = $derived(oldData.map(item => item[key]));
+    const newKeys = $derived(newData.map(item => item[key]));
+    const changes = $derived(newData.filter(value => oldKeys.includes(value[key]) && !shallowEquals(value, find(oldData, value[key]) ?? value)));
+    const removals = $derived(oldData.filter(value => !newKeys.includes(value[key])));
+    const additions = $derived(newData.filter(value => !oldKeys.includes(value[key])));
 
     $effect(() => {
         page.url;
@@ -139,6 +153,17 @@
 
     const addColor = <T, >(array: T[], color: TableColor) => array.map(it => [it, color] as [T, TableColor]);
     const withColors = $derived([...addColor(additions, 'success'), ...addColor(changes, 'warning'), ...addColor(removals, 'danger')]);
+
+    const onDataChanged = (rowKey: T[Key], item: T | null) => {
+        if (file || !newData.length) {
+            file = undefined;
+            newData = oldData;
+        }
+        const i = newData.findIndex(i => i[key] === rowKey);
+        if (i > -1 && !item) newData.splice(i, 1);
+        if (i > -1 && item) newData.splice(i, 1, item);
+        if (i == -1 && item) newData.push(item);
+    };
 </script>
 
 {#each instructions as paragraph}
@@ -155,22 +180,26 @@
 {/if}
 
 <div class="flex flex-col items-start gap-4 md:flex-row md:items-center">
-    {#if !loading && !file}
+    {#if !loading && !newData.length && fileOptions}
         <Button onclick={selectFile}>Vybrat soubor</Button>
-    {:else if !loading}
+    {:else if !loading && newData.length}
         <Button variant="danger" onclick={confirm}>Potvrdit změny</Button>
-        <Button variant="warning" onclick={() => (file = undefined)}>Zrušit změny</Button>
-        <Button variant="warning" onclick={selectFile}>Vybrat jiný soubor</Button>
+        <Button variant="warning" onclick={() => { file = undefined; newData = [] }}>Zrušit změny</Button>
+        {#if fileOptions}
+            <Button variant="warning" onclick={selectFile}>Vybrat jiný soubor</Button>
+        {/if}
     {/if}
-    <Button onclick={downloadData}>Stáhnout aktuální data</Button>
+    {#if fileOptions}
+        <Button onclick={downloadData}>Stáhnout aktuální data</Button>
+    {/if}
 </div>
 
-{#if file && !loading}
+{#if newData.length && !loading}
     <h4>Změny, které se chystáte provést:</h4>
     {#if !additions.length && !removals.length && !changes.length}
         <p>Žádné změny</p>
     {/if}
-    <Table itemsWithColors={withColors} {options} {id} />
+    <Table itemsWithColors={withColors} {options} {id} vetoEditable />
 {/if}
 
 <div>
@@ -178,14 +207,16 @@
     {#if $store == 'loading'}
         <Spinner />
     {:else}
-        <Table {id} items={oldData} {options} />
+        <Table {id} items={oldData} {onDataChanged} {options} />
     {/if}
 </div>
 
-<input
-    accept={fileType === 'csv' ? 'text/csv' : '.xls,.xlsx,.xlsm,.xlsb'}
-    bind:this={input}
-    class="hidden"
-    onchange={onFileSelected}
-    type="file"
-/>
+{#if fileOptions}
+    <input
+        accept={fileOptions.fileType === 'csv' ? 'text/csv' : '.xls,.xlsx,.xlsm,.xlsb'}
+        bind:this={input}
+        class="hidden"
+        onchange={onFileSelected}
+        type="file"
+    />
+{/if}

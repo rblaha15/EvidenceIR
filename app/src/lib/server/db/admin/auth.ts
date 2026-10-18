@@ -25,7 +25,7 @@ export const checkUserByEmail = (email: string) => userCollection
 
 
 export const removeUsers = async (preserveEmails: string[]) => userCollection
-    .deleteMany({ email: { $nin: preserveEmails } });
+    .deleteMany({ email: { $nin: preserveEmails }, role: 'user' }); // Do not delete admin accounts
 
 export const getUserActivity = () =>
     userCollection.find().project<{

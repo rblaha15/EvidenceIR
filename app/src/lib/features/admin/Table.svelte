@@ -1,39 +1,55 @@
-<script generics="T, K extends string = keyof T & string" lang="ts">
+<script generics="T extends Record<string, ValueType>, Key extends keyof T" lang="ts">
     import { page } from '$app/state';
-    import type { TableColor, TableOptions } from './AdminTable.svelte';
+    import { Button, buttonVariants } from '$lib/components/ui/button';
+    import { ButtonGroup } from '$lib/components/ui/button-group';
+    import { Checkbox } from '$lib/components/ui/checkbox';
+    import {
+        Dialog,
+        DialogClose,
+        DialogContent,
+        DialogFooter,
+        DialogHeader,
+        DialogTitle,
+    } from '$lib/components/ui/dialog';
+    import { Field, FieldGroup, FieldLabel } from '$lib/components/ui/field';
+    import { Input } from '$lib/components/ui/input';
     import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
-    import { cn } from "$lib/utils";
+    import type { DataType, ValueType } from '$lib/features/admin/AdminTable.svelte';
+    import TopScrollable from '$lib/features/admin/TopScrollable.svelte';
+    import { cn } from '$lib/utils';
+    import { Pen, Plus, Trash } from '@lucide/svelte';
+    import type { TableColor, TableOptions } from './AdminTable.svelte';
 
-    type ItemColors = { [_ in K]: TableColor | undefined };
-    interface Props<T, K extends string = keyof T & string> {
+    type Column<K extends keyof T = keyof T> = TableOptions<T, Key>['columns'][K];
+
+    interface Props<T extends Record<string, ValueType>, Key extends keyof T> {
         items?: T[];
+        onDataChanged?: (key: T[Key], changed: T | null) => void;
         itemsWithColors?: [T, TableColor | undefined][];
-        itemsWithItemColors?: [T, ItemColors][];
-        options: Pick<TableOptions<T, K>, 'key' | 'columns'>;
+        options: Pick<TableOptions<T, Key>, 'key' | 'columns' | 'editable'>;
         id: string;
+        vetoEditable?: boolean;
     }
 
-    let { items, itemsWithColors, itemsWithItemColors, options, id }: Props<T, K> = $props();
+    let { items, itemsWithColors, options, id, onDataChanged, vetoEditable }: Props<T, Key> = $props();
     const { key, columns } = $derived(options);
+    const editable = $derived(vetoEditable ? undefined : options.editable);
 
-    let colors = $state() as ItemColors[];
+    const itemsWithKeys = $derived(
+        (itemsWithColors ?? items!.map(item => [item, undefined]))
+            .map(([item, color]) => ({ rowKey: item[key], item, color })),
+    );
 
-    $effect(() => {
-        if (itemsWithItemColors) {
-            items = itemsWithItemColors.map(([item]) => item);
-            colors = itemsWithItemColors.map(([_, colors]) => colors);
-        } else if (itemsWithColors) {
-            items = itemsWithColors.map(([item]) => item);
-            colors = itemsWithColors.map(([_, color]) => columns.mapValues(() => color));
-        } else if (items) {
-            colors = items.map(() => columns.mapValues(() => undefined));
-        } else {
-            throw 'No items';
-        }
-    });
+    type TableItem = typeof itemsWithKeys[number];
 
-    const itemText = <Key extends K>(key: Key, column: (typeof columns)[Key], item: T) =>
-        column.getValue?.(item) ?? (column.transformValue ?? (s => `${s}`))(item[key as keyof T & Key]);
+    const itemValue = <Key extends keyof T>(value: unknown, column: Column<Key>) => ({
+        text: (value: string) => !value ? '' : value,
+        number: (value: number) => !value ? '' : value.toString(),
+        boolean: (value: boolean) => !value ? false : value,
+        textArray: (value: string[]) => (!value || !value.length) ? '' : value.join(', '),
+        datetime: (value: string) => !value ? '' : new Date(value).toLocaleString('cs'),
+        price: (value: number) => !value ? '' : value.roundTo(2).toLocaleString('cs') + ' Kč',
+    } satisfies Record<DataType, (value: never) => unknown>)[column.type ?? 'text'](value as never);
 
     const colorClasses: Record<TableColor, string> = {
         warning: cn('bg-warning text-warning-foreground'),
@@ -53,27 +69,137 @@
         '[&>a]:text-primary [&>a]:underline-offset-4 [&>a]:hover:underline',
     );
     const rowClass = (color?: string) => color && (color in colorRowClasses) ? colorRowClasses[color as TableColor] : '';
+
+    let editDialog = $state<{ rowKey: T[Key], data: T }>();
+    let newDialog = $state<{ data: T }>();
 </script>
 
-<Table class="whitespace-nowrap">
-    <TableHeader>
-        <TableRow>
-            {#each columns.getValues() ?? [] as column}
-                <TableHead>{column.header}</TableHead>
-            {/each}
-        </TableRow>
-    </TableHeader>
-    <TableBody>
-        {#each items ?? [] as item, i}
-            <TableRow id="{id}-{key(item, i)}" class={rowClass(page.url.hash.split("-")[1] === key(item, i) ? 'tertiary' : '')}>
-                {#each columns.entries() ?? [] as [key, column]}
-                    {#if column.cellType === 'header'}
-                        <TableHead class={cellClass(colors?.[i]?.[key])}>{@html itemText(key, column, item)}</TableHead>
-                    {:else}
-                        <TableCell class={cellClass(colors?.[i]?.[key])}>{@html itemText(key, column, item)}</TableCell>
-                    {/if}
+{#snippet itemContent(columnKey: keyof T, column: Column, item: T)}
+    {@const value = itemValue(item[columnKey], column)}
+    {#if column.type == 'boolean'}
+        <Checkbox checked={item[columnKey] as boolean} disabled aria-disabled />
+    {:else}
+        {value}
+    {/if}
+{/snippet}
+
+{#snippet tableRow({ rowKey, item, color }: TableItem)}
+    <TableRow id="{id}-{rowKey}"
+              class={rowClass(page.url.hash.split("-")[1] === rowKey ? 'tertiary' : '')}>
+        {#if editable}
+            <TableCell class="py-0">
+                <ButtonGroup>
+                    <Button variant="tertiary" onclick={() => editDialog = { rowKey, data: item }}>
+                        <Pen />
+                    </Button>
+                    <Button variant="danger" onclick={() => onDataChanged?.(rowKey, null)}>
+                        <Trash />
+                    </Button>
+                </ButtonGroup>
+            </TableCell>
+        {/if}
+        {#each columns.entries() as [columnKey, column]}
+            {#if column.cellType === 'header'}
+                <TableHead class={cellClass(color)}>
+                    {@render itemContent(columnKey, column, item)}
+                </TableHead>
+            {:else}
+                <TableCell class={cellClass(color)}>
+                    {@render itemContent(columnKey, column, item)}
+                </TableCell>
+            {/if}
+        {/each}
+    </TableRow>
+{/snippet}
+
+{#if editable}
+    <div class="py-3">
+        <Button variant="tertiary" onclick={() => newDialog = { data: editable.defaultValue }}>
+            <Plus />
+            Nový záznam
+        </Button>
+    </div>
+{/if}
+
+<TopScrollable>
+    <Table class="whitespace-nowrap" noscroll>
+        <TableHeader>
+            <TableRow>
+                {#if editable}
+                    <TableHead></TableHead>
+                {/if}
+                {#each columns.getValues() ?? [] as column}
+                    <TableHead>{column.header}</TableHead>
                 {/each}
             </TableRow>
-        {/each}
-    </TableBody>
-</Table>
+        </TableHeader>
+        <TableBody>
+            {#each itemsWithKeys as row}
+                {@render tableRow(row)}
+            {/each}
+        </TableBody>
+    </Table>
+</TopScrollable>
+
+{#snippet dialog(edit: boolean, onConfirm: () => void)}
+    {@const dialog = edit ? editDialog : newDialog}
+    <Dialog onOpenChange={() => { editDialog = undefined; newDialog = undefined }} open={!!dialog}>
+        <DialogContent class="sm:max-w-lg">
+            <DialogHeader>
+                <DialogTitle>
+                    Upravit záznam
+                </DialogTitle>
+            </DialogHeader>
+            <FieldGroup>
+                {#each columns.entries() as [columnKey, column]}
+                    {#if dialog && (!edit || columnKey != key)}
+                        {@const rawValue = dialog.data[columnKey]}
+                        {@const set = (value: unknown) => {
+                            dialog.data[columnKey] = value as T[keyof T]
+                        }}
+                        {@const id = `${edit}-${String(columnKey)}`}
+                        {@const opt = (v: unknown) => !v && column.optional ? undefined : v}
+                        <Field orientation="responsive">
+                            {#if column.type != 'boolean'}
+                                <FieldLabel for={id}>{column.header}</FieldLabel>
+                            {/if}
+                            {#if column.type == 'boolean'}
+                                <Checkbox {id} class="size-4!" checked={rawValue as boolean}
+                                          onCheckedChange={() => set(!rawValue)} />
+                                <FieldLabel for={id}>{column.header}</FieldLabel>
+                            {:else if column.type == 'datetime'}
+                                <Input {id} type="datetime-local"
+                                       value={new Date(rawValue as string | Date).toISOString()}
+                                       oninput={e => set(new Date(e.currentTarget.value).toISOString())} />
+                            {:else if column.type == 'price'}
+                                <Input {id} inputmode="decimal" value={(rawValue as number).toString()}
+                                       oninput={e => set(opt(e.currentTarget.value.toNumber()))} />
+                            {:else if column.type == 'number'}
+                                <Input {id} inputmode="numeric" value={(rawValue as number).toString()}
+                                       oninput={e => set(opt(e.currentTarget.value.toNumber()))} />
+                            {:else if column.type == 'textArray'}
+                                <Input {id} value={(rawValue as string[]).join(', ')}
+                                       oninput={e => set(opt(e.currentTarget.value.split(', ')))} />
+                            {:else}
+                                <Input {id} value={rawValue as string}
+                                       oninput={e => set(opt(e.currentTarget.value))} />
+                            {/if}
+                        </Field>
+                    {/if}
+                {/each}
+            </FieldGroup>
+            <DialogFooter>
+                <DialogClose class={buttonVariants({ variant: 'secondary' })}>
+                    Zrušit
+                </DialogClose>
+
+                <DialogClose class={buttonVariants({ variant: 'tertiary' })} onclick={() => onConfirm()}>
+                    Potvrdit
+                </DialogClose>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+{/snippet}
+
+{@render dialog(true, () => onDataChanged?.(editDialog!.rowKey, editDialog!.data))}
+{@render dialog(false, () => onDataChanged?.(newDialog!.data[key], newDialog!.data))}

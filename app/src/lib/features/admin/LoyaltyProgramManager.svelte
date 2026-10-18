@@ -1,19 +1,17 @@
 <script lang="ts">
+    import { page } from '$app/state';
     import arrays, { type Person } from '$lib/client/db/arrays';
     import { call } from '$lib/client/endpoints';
     import { getAllIRs } from '$lib/client/incrementalUpdates';
-    import {
-        adminDescriptions,
-        type LoyaltyProgramUserDataWithPerson
-    } from '$lib/client/loyaltyProgram';
+    import { adminDescriptions } from '$lib/client/loyaltyProgram';
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
     import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
-    import { Button } from '$lib/components/ui/button';
     import Widget from '$lib/components/forms/Widget.svelte';
+    import { Button } from '$lib/components/ui/button';
     import type { IR } from '$lib/data';
+    import type { loadAdmin } from '$lib/features/admin/load';
     import { newInputWidget, newSearchWidget } from '$lib/forms/Widget';
-    import { storable } from '$lib/helpers/newStores';
     import { datetimeFromISO, nowISO } from '$lib/helpers/date';
     import { irLabel, irName } from '$lib/helpers/ir';
     import { detailUrlIR } from '$lib/helpers/runes.svelte';
@@ -21,6 +19,8 @@
     import { PencilRuler, Trash2 } from '@lucide/svelte';
     import { derived } from 'svelte/store';
     import writeXlsxFile from 'write-excel-file';
+
+    const { loyaltyProgramData } = page.data as Awaited<ReturnType<typeof loadAdmin>>;
 
     const userW = newSearchWidget<unknown, Person>({
         label: 'Uživatel', items: arrays.people, getSearchItem: i => ({
@@ -62,24 +62,10 @@
 
     const cs = getTranslations('cs');
 
-    const results = storable<{ date: string, data: Record<string, LoyaltyProgramUserDataWithPerson> }>('loyalty_data2');
-    let status = $state('none' as 'none' | 'loading' | 'fail' | 'success');
     let errorA = $state('');
     let statusA = $state('none' as 'none' | 'mistake' | 'loading' | 'fail' | 'success');
     let showAllErrors = $state(false);
 
-    const search = async () => {
-        status = 'loading';
-        try {
-            const data = await call('db/admin/getAllLoyaltyProgramData');
-
-            status = 'success';
-            $results = { date: new Date().toISOString(), data };
-        } catch (e) {
-            console.error(e);
-            return status = 'fail';
-        }
-    };
     const add = async () => {
         errorA = '';
         showAllErrors = true;
@@ -97,6 +83,7 @@
                 },
             });
             statusA = 'success';
+            location.reload();
         } catch (e) {
             console.error(e);
             const e2 = e ? { ...e } : {};
@@ -106,8 +93,7 @@
     };
 
     const download = async () => {
-        await search();
-        const rows = $results!.data
+        const rows = loyaltyProgramData
             .getValues()
             .filter(({ email }) => !!email && !email.split('@')[1].includes('regulus'))
             .filter(({ email }) => email != 'radek.blaha@mensa.cz' && email != 'aja.blahova@centrum.cz')
@@ -115,19 +101,19 @@
             .map(({ email, points, responsiblePerson }) => [email, points, responsiblePerson ?? '']);
         const headers = ['Email', 'Body', 'Zodpovědná osoba Regulus'];
         await writeXlsxFile([headers, ...rows].map(r => r.map(value => ({ value }))), {
-            fileName: `Věrnostní program ${$results!.date.split('T')[0]}.xlsx`,
+            fileName: `Věrnostní program ${new Date().toISOString().split('T')[0]}.xlsx`,
         });
-    }
+    };
 </script>
 
 <h3>Přičtení bodů</h3>
 
 <div class="grid gap-1">
-    <Widget bind:value={user} context={{}} {showAllErrors} t={cs} widget={userW}/>
-    <Widget bind:value={points} context={{}} {showAllErrors} t={cs} widget={pointsW}/>
-    <Widget bind:value={note} context={{}} {showAllErrors} t={cs} widget={noteW}/>
-    <Widget bind:value={date} context={{}} {showAllErrors} t={cs} widget={dateW}/>
-    <Widget bind:value={installation} context={{}} {showAllErrors} t={cs} widget={installationW}/>
+    <Widget bind:value={user} context={{}} {showAllErrors} t={cs} widget={userW} />
+    <Widget bind:value={points} context={{}} {showAllErrors} t={cs} widget={pointsW} />
+    <Widget bind:value={note} context={{}} {showAllErrors} t={cs} widget={noteW} />
+    <Widget bind:value={date} context={{}} {showAllErrors} t={cs} widget={dateW} />
+    <Widget bind:value={installation} context={{}} {showAllErrors} t={cs} widget={installationW} />
 </div>
 
 <Button onclick={add}>Přičíst</Button>
@@ -144,41 +130,34 @@
 
 <h3>Statistiky a historie věrnostních bodů uživatelů</h3>
 
-<Button onclick={search}>Vyhledat</Button>
+<Button onclick={download} variant="secondary">Stáhnout</Button>
 
-<Button variant="secondary" onclick={download}>Stáhnout</Button>
-
-{#if status === 'loading'}
-    <SpinnerAlert title="Odesílání dat" />
-{:else if status === 'fail'}
-    <DangerAlert title="Něco se nepovedlo" />
-{:else if status === 'success'}
-    <SuccessAlert title="Úspěšně nalezeno!" />
+{#if !loyaltyProgramData.entries().length}
+    <p>Žádná data</p>
 {/if}
+{#each loyaltyProgramData.entries().sortedBy(([email]) => email) as [email, data] (email)}
+    <details class="w-full">
+        <summary class="cursor-pointer">
+            {email}: {data.points.toLocaleString('cs')}
+        </summary>
+        {#each data.history as entry}
+            {#if entry.type === 'other'}
+                <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note}
+                    {#if entry.irid} (<a href="{detailUrlIR(entry.irid)}">{entry.irid}</a>){/if}
+                </p>
+            {:else}
+                <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {adminDescriptions[entry.type]}
+                    {#if entry.irid}u <a href="{detailUrlIR(entry.irid)}">{entry.irid}</a>{/if}
+                    {#if entry.note}({entry.note}){/if}
+                </p>
+            {/if}
+        {/each}
+    </details>
+{/each}
 
-{#if $results}
-    <p>Zobrazena data z {datetimeFromISO($results.date)}</p>
-    {#if !$results.data.entries().length}
-        <p>Žádná data</p>
-    {/if}
-    {#each $results.data.entries().sortedBy(([email]) => email) as [email, data] (email)}
-        <details class="w-full">
-            <summary class="cursor-pointer">
-                <Button variant="link" class="px-0" href="#users-{email}">{email}</Button>
-                : {data.points.toLocaleString('cs')}
-            </summary>
-            {#each data.history as entry}
-                {#if entry.type === 'other'}
-                    <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {entry.note}
-                        {#if entry.irid} (<a href="{detailUrlIR(entry.irid)}">{entry.irid}</a>){/if}
-                    </p>
-                {:else}
-                    <p>{datetimeFromISO(entry.timestamp)}: {entry.addition} b. – {adminDescriptions[entry.type]}
-                        {#if entry.irid}u <a href="{detailUrlIR(entry.irid)}">{entry.irid}</a>{/if}
-                        {#if entry.note}({entry.note}){/if}
-                    </p>
-                {/if}
-            {/each}
-        </details>
-    {/each}
-{/if}
+<style>
+    a {
+        color: dodgerblue;
+        text-decoration: underline;
+    }
+</style>

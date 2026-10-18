@@ -20,17 +20,17 @@
 <script generics="K extends string" lang="ts">
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import SpinnerAlert from '$lib/components/alerts/OfflineAlert.svelte';
+    import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
+    import { range } from '$lib/extensions';
+    import { cn } from '$lib/utils';
     import type { ChangeEventHandler } from 'svelte/elements';
-    import { page } from '$app/state';
     import readXlsxFile from 'read-excel-file';
-    import Table from './Table.svelte';
     import writeXlsxFile from 'write-excel-file';
     import { derived } from 'svelte/store';
-    import type { TableColor, TableOptions } from './AdminTable.svelte';
-    import { untrack } from 'svelte';
+    import type { TableColor } from './AdminTable.svelte';
     import { Button } from '$lib/components/ui/button';
 
-    const { id, options }: { id: string, options: ArraysOptions<K> } = $props();
+    const { options }: { options: ArraysOptions<K> } = $props();
     // svelte-ignore state_referenced_locally
     const { fileName, instructions, arrays, sendData } = options;
 
@@ -95,65 +95,55 @@
     );
     const oldData = $derived($oldDataStore);
 
-    const removals = $derived(newData.mapValues((key, newArray) =>
-        oldData[key]?.filter(value => !newArray || !newArray.includes(value)) ?? [],
-    ));
-    const additions = $derived(newData.mapValues((key, newArray) =>
-        newArray.filter(value => !oldData[key] || !oldData[key].includes(value)),
-    ));
-
-    $effect(() => {
-        page.url;
-        if (oldData) untrack(() => {
-            if (page.url.hash.includes(`${id}-`))
-                document.getElementById(page.url.hash)?.scrollIntoView();
-        });
-    });
-
     const selectFile = () => input.click();
 
-    const tableOptions: Pick<TableOptions<Record<K, string>>, 'key' | 'columns'> = $derived({
-        key: (_, i) => i,
-        columns: arrays.mapValues((key, array) => ({
-            header: array.header,
-            getValue: r => r[key],
-        })),
-    });
-    const oldTableData = $derived(
-        oldData
-            .mapTo((key, row) =>
-                row.length
-                    ? row.map(col => ({ [key as string]: col }))
-                    : [{ [key as string]: '' }],
-            )
-            .transpose(row => row[0].mapValues(() => ''))
-            .map(row => Object.assign({}, ...row) as Record<K, string>),
-    );
-    const additionsTableData = $derived(
-        additions
-            .mapTo((key, row) =>
-                row.length
-                    ? row.map(col => ({ key, value: col, color: 'success' as TableColor | undefined }))
-                    : [{ key, value: '', color: undefined }],
-            ),
-    );
-    const removalsTableData = $derived(
-        removals
-            .mapTo((key, row) =>
-                row.length
-                    ? row.map(col => ({ key, value: col, color: 'danger' as TableColor | undefined }))
-                    : [{ key, value: '', color: undefined }],
-            ),
-    );
-    const changesTableData = $derived(
-        additionsTableData.zip(removalsTableData).map(pair => pair.flat())
-            .transpose(row => ({ key: row[0].key, value: '', color: undefined }))
-            .map(row => [
-                Object.assign({}, ...row.map(col => ({ [col.key]: col.value }))),
-                Object.assign({}, ...row.map(col => ({ [col.key]: col.color }))),
-            ] as [Record<K, string>, Record<K, TableColor | undefined>]),
-    );
+    const oldTableData = $derived(oldData.mapValues((_, array) =>
+        array.map(value => ({ value, color: undefined }))
+    ));
+
+    const changesTableData = $derived(newData.mapValues((key, newArray) => ({
+        additions: newArray.filter(value => !oldData[key] || !oldData[key].includes(value)),
+        removals: oldData[key]?.filter(value => !newArray || !newArray.includes(value)) ?? [],
+    })).mapValues((_, { additions, removals }) => [
+        ...additions.map(value => ({ value, color: 'success' as const })),
+        ...removals.map(value => ({ value, color: 'danger' as const })),
+    ]));
+
+    const colorClasses: Record<TableColor, string> = {
+        warning: '',
+        danger: cn('bg-danger text-danger-foreground'),
+        success: cn('bg-success text-success-foreground'),
+        tertiary: '',
+    };
+
+    const cellClass = (color: TableColor | undefined) => color ? colorClasses[color] : '';
 </script>
+
+{#snippet table(tableData: Record<K, { value: string, color?: 'success' | 'danger' }[]>)}
+    {@const length = tableData.getValues().maxOf(array => array.length)}
+
+    <Table class="whitespace-nowrap">
+        <TableHeader>
+            <TableRow>
+                {#each arrays.getValues() as array}
+                    <TableHead>{array.header}</TableHead>
+                {/each}
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            {#each range(length) as i}
+                <TableRow>
+                    {#each arrays.keys() as column}
+                        {@const { value, color } = tableData[column][i] ?? { value: '' }}
+                        <TableCell class={cellClass(color)}>
+                            {value}
+                        </TableCell>
+                    {/each}
+                </TableRow>
+            {/each}
+        </TableBody>
+    </Table>
+{/snippet}
 
 {#each instructions as paragraph}
     <p>
@@ -181,15 +171,15 @@
 
 {#if file && !loading}
     <h4>Změny, které se chystáte provést:</h4>
-    {#if ![...additions.getValues(), ...removals.getValues()].some(a => a.length)}
+    {#if !changesTableData.getValues().some(a => a.length)}
         <p>Žádné změny</p>
     {/if}
-    <Table itemsWithItemColors={changesTableData} options={tableOptions} {id} />
+    {@render table(changesTableData)}
 {/if}
 
 <div>
     <h4>Aktuálně uložená data:</h4>
-    <Table {id} items={oldTableData} options={tableOptions} />
+    {@render table(oldTableData)}
 </div>
 
 <input

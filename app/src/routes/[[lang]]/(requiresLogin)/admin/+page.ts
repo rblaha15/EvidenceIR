@@ -6,7 +6,7 @@ import type { EntryGenerator, PageLoad } from './$types';
 export const entries: EntryGenerator = langEntryGenerator;
 
 export const load: PageLoad = async ({ fetch }) => !browser
-    ? { dbLink: '', userActivity: [] }
+    ? { loyaltyProgramData: {}, userActivity: [] }
     : loadAdmin(fetch);
 
 export const prerender = false;

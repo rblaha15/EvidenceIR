@@ -701,8 +701,8 @@ Array.prototype.sumBy = function(callback) {
 } as typeof Array.prototype.sumBy;
 
 type PrimitiveComparable = number | string | boolean;
-type NotNullComparable = PrimitiveComparable | { valueOf(): PrimitiveComparable }
-export type Comparable = null | undefined | NotNullComparable
+export type NotNullComparable = PrimitiveComparable | { valueOf(): PrimitiveComparable };
+export type Comparable = null | undefined | NotNullComparable;
 
 const compareStrings = (a: string, b: string) => a.localeCompare(b);
 const compareNumbers = (a: number, b: number) => a - b;

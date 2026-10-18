@@ -1,26 +1,30 @@
 <!--suppress HtmlUnknownTag -->
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { page } from '$app/state';
+    import arrays, {
+        type Arrays,
+        type Company,
+        type Person,
+        type SparePart,
+        type Technician,
+    } from '$lib/client/db/arrays';
     import { call } from '$lib/client/endpoints';
+    import { Separator } from '$lib/components/ui/separator';
+    import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+    import type { ValueType } from '$lib/features/admin/AdminTable.svelte';
     import UserActivity from '$lib/features/admin/UserActivity.svelte';
-    import { type Component, onMount } from 'svelte';
     import { setTitle } from '$lib/helpers/globals.js';
     import { relUrl } from '$lib/helpers/runes.svelte';
+    import { type Component, onMount } from 'svelte';
+    import AdminArrays, { type ArraysOptions } from './AdminArrays.svelte';
+    import AdminTable, { type TableOptions } from './AdminTable.svelte';
+    import BackupDownloader from './BackupDownloader.svelte';
     import DatabaseFrame from './DatabaseFrame.svelte';
     import DataImport from './DataImport.svelte';
-    import TranslationsTable from './TranslationsTable.svelte';
-    import AdminTable, { type TableOptions } from './AdminTable.svelte';
-    import { regulusCRN } from '$lib/helpers/ares';
-    import { page } from '$app/state';
-    import { goto } from '$app/navigation';
-    import StatsGetter from './StatsGetter.svelte';
-    import BackupDownloader from './BackupDownloader.svelte';
     import LoyaltyProgramManager from './LoyaltyProgramManager.svelte';
-    import AdminArrays, { type ArraysOptions } from './AdminArrays.svelte';
-    import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
-    import { Separator } from "$lib/components/ui/separator";
-    import arrays, {
-        type Company, type Person, type Technician, type SparePart, type Arrays,
-    } from '$lib/client/db/arrays';
+    import StatsGetter from './StatsGetter.svelte';
+    import TranslationsTable from './TranslationsTable.svelte';
 
     interface BaseTabDefinition {
         title: string;
@@ -28,9 +32,9 @@
         separator?: boolean;
     }
 
-    interface TableDefinition<T, K extends string = keyof T & string> extends BaseTabDefinition {
+    interface TableDefinition<T extends Record<string, ValueType>, Key extends keyof T> extends BaseTabDefinition {
         contentType: 'table';
-        tableOptions: TableOptions<T, K>;
+        tableOptions: TableOptions<T, Key>;
     }
 
     interface ArraysDefinition<K extends string> extends BaseTabDefinition {
@@ -50,7 +54,7 @@
         href: string;
     }
 
-    type TabDefinition = TableDefinition<any> | CustomDefinition | ArraysDefinition<any> | LinkDefinition;
+    type TabDefinition = TableDefinition<any, any> | CustomDefinition | ArraysDefinition<any> | LinkDefinition;
 
     const addCompaniesLinks = (companies: string[]) =>
         companies.map(c => `<a href="#companies-${c}">${c}</a>`).join(', ');
@@ -69,79 +73,58 @@
             longerTitle: 'Seznam uživatelů a příslušných firem',
             contentType: 'table',
             tableOptions: {
-                fileType: 'csv',
-                fileName: 'uzivatele',
                 store: arrays.people,
-                construct: ([name, email, montazky, uvadeci, allowUPT, responsiblePerson, koNumber]) =>
-                    ({
-                        name: name ?? '',
-                        email: email ?? '',
-                        assemblyCompanies:
-                            montazky
-                                ?.split('#')
-                                ?.filter(vec => vec != '') ?? [],
-                        commissioningCompanies:
-                            uvadeci
-                                ?.split('#')
-                                ?.filter(vec => vec != '') ?? [],
-                        allowUPT: allowUPT == 'true',
-                        responsiblePerson,
-                        koNumber,
-                    }) as Person,
-                deconstruct: ({ name, email, assemblyCompanies, commissioningCompanies, allowUPT, responsiblePerson, koNumber }) => [
-                    name,
-                    email,
-                    assemblyCompanies.join('#'),
-                    commissioningCompanies.join('#'),
-                    `${allowUPT}`,
-                    responsiblePerson || '',
-                    koNumber || '',
-                ],
-                key: p => p.email,
+                key: 'email',
                 instructions: [
-                    'Vložte .csv soubor oddělený středníky (;), kde v každém řádku je uveden jeden uživatel aplikace.',
-                    'Zaměstnanec Regulusu: jméno a příjmení;email (se jménem a příjmením*);&lt;prázdno&gt;;&lt;prázdno&gt;;true;jméno znovu;číslo KO<br />Př.: Jan Novák;jan.novak@regulus.cz;;;true;Jan Novák;123',
-                    'Externí uživatel: jméno a příjmení;email;iča montážních firem oddělená křížky (#);stejně oddělená iča uvaděčů;smí vytvořit UPT? (true/false);jméno odpovědné osoby;&lt;prázdno&gt;<br />Př.: Petr Černý;petr@cerny.cz;12345678#87654321;14725836#63852741;true;Jan Novák;',
-                    'Zaměstnance není nutné v této tabulce uvádět, využití jsou jen specifikování čísla KO (potřeba pro odesílání NK) a pro určení jména (není nutné, popř. lze i v tabulce techniků)',
-                    '* výjimky: komanek@regulus.cz, cervenka@regulus.cz, kocar@regulus.cz, malucha@regulus.cz, novak@regulus.cz, tereza@regulus.cz, martin@regulus.cz, blaha@regulus.cz, blahova@regulus.cz ',
+                    'Tabulka popisuje uživatele aplikace.',
+                    'Zaměstnance Regulus není nutné v této tabulce uvádět, využití jsou jen specifikování čísla KO (potřeba pro odesílání NK), pole montážky, uvaděčí, ani vytvořit UPT u zaměstnanců nehraje roli.',
+                    'Pro externí uživatele je povinné každé pole, krom čísla KO, které musí být prázdné.<br />Pro zaměstnance je povinné jméno a email (se jménem i příjmením*)',
+                    '* výjimky: komanek@regulus.cz, blaha@regulus.cz, blahova@regulus.cz.',
                 ],
                 columns: {
                     name: { header: 'Jméno a příjmení' },
                     email: { header: 'Email', cellType: 'header' },
-                    assemblyCompanies: { header: 'Montážní firmy', transformValue: addCompaniesLinks },
-                    commissioningCompanies: { header: 'Uvaděči', transformValue: addCompaniesLinks },
-                    allowUPT: { header: 'Vytvořit UPT?' },
-                    responsiblePerson: { header: 'Zodpovědná osoba' },
-                    koNumber: { header: 'Číslo KO', transformValue: emptyUndefined },
+                    allowUPT: { header: 'Vytvořit UPT?', type: 'boolean' },
+                    assemblyCompanies: { header: 'Montážní firmy', type: 'textArray' },
+                    commissioningCompanies: { header: 'Uvaděči', type: 'textArray' },
+                    responsiblePerson: { header: 'Odpovědná osoba', optional: true },
+                    koNumber: { header: 'Číslo KO', optional: true },
                 },
                 sendData: array => call('db/admin/setUsers', { array }).then(arrays.fetchPeople),
+                editable: {
+                    defaultValue: {
+                        name: '', email: '', assemblyCompanies: [], commissioningCompanies: [], allowUPT: false,
+                    },
+                },
             },
-        } satisfies TableDefinition<Person>,
+        } satisfies TableDefinition<Person, 'email'>,
         companies: {
             title: 'Firmy',
             longerTitle: 'Seznam firem',
             contentType: 'table',
             tableOptions: {
-                fileType: 'csv',
-                fileName: 'firmy',
+                file: {
+                    fileType: 'csv',
+                    fileName: 'firmy',
+                    construct: ([crn, companyName, email, phone, representative, representativeUserEmail]) => ({
+                        crn: crn!,
+                        companyName: companyName!,
+                        email,
+                        phone,
+                        representative,
+                        representativeUserEmail,
+                    }),
+                    deconstruct: ({ crn, companyName, email, phone, representative, representativeUserEmail }) => [
+                        crn,
+                        companyName,
+                        email || '',
+                        phone || '',
+                        representative || '',
+                        representativeUserEmail || '',
+                    ],
+                },
                 store: arrays.companies,
-                construct: ([crn, companyName, email, phone, representative, representativeUserEmail]) => ({
-                    crn: crn!,
-                    companyName: companyName!,
-                    email,
-                    phone,
-                    representative,
-                    representativeUserEmail,
-                }),
-                deconstruct: ({ crn, companyName, email, phone, representative, representativeUserEmail }) => [
-                    crn,
-                    companyName,
-                    email || '',
-                    phone || '',
-                    representative || '',
-                    representativeUserEmail || '',
-                ],
-                key: c => c.crn,
+                key: 'crn',
                 instructions: [
                     'Vložte .csv soubor oddělený středníky (;), kde každý řádek popisuje jednu montážní firmu nebo uvaděče.',
                     'V případě FO: ičo;jméno;email;telefonní číslo;jméno (znovu);uživatelský email (pokud se neshoduje)<br />Př.: 12345678;Jan Novák;info@novak.cz;+420777666555;Jan Novák;jan.novak@seznam.cz',
@@ -152,32 +135,30 @@
                 columns: {
                     crn: { header: 'IČO', cellType: 'header' },
                     companyName: { header: 'Jméno' },
-                    email: { header: 'Email', transformValue: emptyUndefined },
-                    phone: { header: 'Telefon', transformValue: emptyUndefined },
-                    representative: { header: 'Zástupce', transformValue: emptyUndefined },
-                    representativeUserEmail: { header: 'Uživatel', transformValue: addUserLink },
+                    email: { header: 'Email', optional: true },
+                    phone: { header: 'Telefon', optional: true },
+                    representative: { header: 'Zástupce', optional: true },
+                    representativeUserEmail: { header: 'Uživatel', optional: true },
                 },
                 sendData: array => call('db/admin/setCompanies', { array }).then(arrays.fetchCompanies),
+                editable: {
+                    defaultValue: {
+                        crn: '',
+                        companyName: '',
+                    },
+                },
             },
-        } satisfies TableDefinition<Company>,
+        } satisfies TableDefinition<Company, 'crn'>,
         technicians: {
             title: 'Technici',
             longerTitle: 'Seznam techniků',
             contentType: 'table',
             tableOptions: {
-                fileType: 'csv',
-                fileName: 'technici',
                 store: arrays.technicians,
-                construct: ([name, email, phone, initials]) => ({
-                    name: name ?? '',
-                    email: email ?? '',
-                    phone: phone ?? '',
-                    initials: initials ?? '',
-                }),
-                deconstruct: ({ name, email, phone, initials }) => [name, email, phone, initials],
-                key: c => c.email,
+                key: 'email',
                 instructions: [
-                    `Vložte .csv soubor oddělený středníky (;), kde v prvním sloupci je email, v druhém sloupci jméno, ve třetím telefonní číslo a ve čtvrtém spoupci iniciály (do SP) technika <a href="#companies-${regulusCRN}">Regulusu</a>:<br />Př.: Jan Novák;jan.novak@regulus.cz;+420789456123;JN;6417<br />Všechna pole jsou povinná`,
+                    'Tabulka popisuje techniky regulusu.',
+                    'Všechna pole jsou povinná.',
                 ],
                 columns: {
                     name: { header: 'Jméno', cellType: 'header' },
@@ -186,34 +167,45 @@
                     initials: { header: 'Iniciály do SP' },
                 },
                 sendData: array => call('db/admin/setTechnicians', { array }).then(arrays.fetchTechnicians),
+                editable: {
+                    defaultValue: {
+                        name: '',
+                        email: '',
+                        phone: '',
+                        initials: '',
+                    },
+                },
             },
-        } satisfies TableDefinition<Technician>,
+        } satisfies TableDefinition<Technician, 'email'>,
         spareParts: {
             title: 'Náhradní díly',
             longerTitle: 'Seznam náhradních dílů',
             contentType: 'table',
             tableOptions: {
-                fileType: 'xlsx',
-                fileName: 'nahradni_dily',
+                file: {
+                    fileType: 'xlsx',
+                    fileName: 'nahradni_dily',
+                    construct: ([code, name, unitPrice]) => ({
+                        name: name ?? '',
+                        code: Number(code ?? 0),
+                        unitPrice: Number(unitPrice ?? 0),
+                    }),
+                    deconstruct: ({ code, name, unitPrice }) => [String(code), name, String(unitPrice)],
+                },
                 store: arrays.spareParts,
-                construct: ([code, name, unitPrice]) => ({
-                    name: name ?? '',
-                    code: Number(code ?? 0),
-                    unitPrice: Number(unitPrice ?? 0),
-                }),
-                deconstruct: ({ code, name, unitPrice }) => [String(code), name, String(unitPrice)],
-                key: c => `${c.code}`,
+                key: 'code',
                 instructions: [
-                    'Vložte .xlsx soubor s tabulkou náhradních dílů, která obsahuje záhlaví (1. řádek) a v prvním sloupci má číslo, v druhém sloupci název a ve třetím spoupci jednotkovou cenu ND.<br />Všechna pole jsou povinná',
+                    'Tabulka náhradních dílů. Pro úpravu nahrajte vhodný .xlsx soubor.',
+                    'Všechna pole jsou povinná.',
                 ],
                 columns: {
-                    code: { header: 'Číslo' },
+                    code: { header: 'Číslo', type: 'number' },
                     name: { header: 'Název', cellType: 'header' },
-                    unitPrice: { header: 'Jednotková cena', transformValue: s => s.roundTo(2).toLocaleString('cs') + ' Kč' },
+                    unitPrice: { header: 'Jednotková cena', type: 'price' },
                 },
                 sendData: array => call('db/admin/setSpareParts', { array }).then(arrays.fetchSpareParts),
             },
-        } satisfies TableDefinition<SparePart>,
+        } satisfies TableDefinition<SparePart, 'code'>,
         arrays: {
             title: 'Seznamy',
             contentType: 'arrays',
@@ -221,7 +213,7 @@
                 fileType: 'xlsx',
                 fileName: 'seznamy',
                 instructions: [
-                    'Vložte .xlsx soubor se seznamy akumulačních nádrží, zásobníků, solárních kolektorů, střídačů, baterií a panelů, který obsahuje záhlaví (1. řádek) a sloupce s názvy.',
+                    'Pro úpravu nahrajte vhodný .xlsx soubor.',
                 ],
                 arrays: {
                     accumulationTanks: {
@@ -325,12 +317,17 @@
     onMount(() => setTitle('Admin', false, false, true));
 </script>
 
-<Tabs bind:value={currentTab} onValueChange={onTabChange} orientation="vertical" class="flex w-full relative items-start">
+<Tabs bind:value={currentTab} class="flex w-full relative items-start" onValueChange={onTabChange}
+      orientation="vertical" id="admin-tabs">
     <div class="sticky top-0 -mt-4 pt-4">
         <h1 class="pl-2.5">Admin</h1>
         <TabsList>
             {#each tabs.entries() as [tab, { title, separator }]}
-                <TabsTrigger value={tab}>{title}</TabsTrigger>
+                <TabsTrigger value={tab}>
+                    {#snippet child({ props: { onclick, onfocus, onkeydown, ...props } })}
+                        <a {...props} href="#{tab}">{title}</a>
+                    {/snippet}
+                </TabsTrigger>
                 {#if separator}
                     <Separator class="my-2" />
                 {/if}
@@ -344,7 +341,7 @@
                 {#if t.contentType === 'table'}
                     <AdminTable options={t.tableOptions} id={tab} />
                 {:else if t.contentType === 'arrays'}
-                    <AdminArrays options={t.arraysOptions} id={tab} />
+                    <AdminArrays options={t.arraysOptions} />
                 {:else if t.contentType === 'custom'}
                     {@const Component = t.contentOptions.component}
                     <Component />
