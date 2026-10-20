@@ -16,6 +16,7 @@ const pdfUPF: GetPdfData<'UPF'> = async ({ data: { IN, UP: { FVE: UP }, }, t, la
 
     const montazka = UP.montazka || IN.montazka;
     const uvedeni = UP.uvedeni || IN.uvedeni;
+    const power = IN.fve.typ!.match(/\d+/)![0].toNumber();
     return ({
 /*    koncakJmeno */ Text1: endUserName(IN.koncovyUzivatel),
 /*      koncakTel */ Text2: IN.koncovyUzivatel.telefon,
@@ -28,9 +29,9 @@ const pdfUPF: GetPdfData<'UPF'> = async ({ data: { IN, UP: { FVE: UP }, }, t, la
 /*    uvadecEmail */ Text9: uvedeni.email,
 /*          datum */ Text10: dateFromISO(UP.commissioning.date ?? dayISO()),
         'Kombinované pole19': get(t.in.fve, IN.fve.typ!),
-        'Kombinované pole20': '450',
+        'Kombinované pole20': `${power}`,
         Text11: IN.fve.pocet,
-        Text12: (Number(IN.fve.pocet) * 450).toLocaleString(lang),
+        Text12: (Number(IN.fve.pocet) * power).toLocaleString(lang),
         ...range(4).map(i => [
             `Text${13 + i * 2}`,
             `Kombinované pole${28 + i}`,
