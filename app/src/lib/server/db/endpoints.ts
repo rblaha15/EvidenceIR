@@ -13,6 +13,7 @@ import {
     getTechnicians
 } from '$lib/server/db/arrays';
 import { getLoyaltyProgramData } from '$lib/server/db/loyaltyProgram';
+import { mongoReadDatabase } from '$lib/server/db/read';
 import { getRecommendationData, sendRequest } from '$lib/server/db/recommend-rk';
 import { defineEndpoint, prefixEndpoints } from '$lib/server/defineEndpoints';
 import { processLoyaltyReward } from '$lib/server/loyaltyProgram';
@@ -54,7 +55,8 @@ export const dbEndpoints = {
         };
     }),
     addLoyaltyPoints: defineEndpoint<{ data: LoyaltyProgramTrigger }, undefined>(async ({ data }, { locals }) => {
-        await processLoyaltyReward(data, locals);
+        const extendedData = 'irid' in data ? { ...data, ir: await mongoReadDatabase.getIR(data.irid, locals) } : data;
+        await processLoyaltyReward(extendedData, locals);
     }),
     getLoyaltyPoints: defineEndpoint<undefined, LoyaltyProgramUserData>(async (_, { userEmail }) => {
         return await getLoyaltyProgramData(userEmail);

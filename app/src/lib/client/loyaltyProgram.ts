@@ -1,5 +1,6 @@
 import arrays from '$lib/client/db/arrays';
 import { call } from '$lib/client/endpoints';
+import type { IR } from '$lib/data';
 import type { IRID } from '$lib/helpers/ir';
 import type { TC } from '$lib/forms/IN/defaultIN';
 import { getIsOnline } from '$lib/client/online';
@@ -47,6 +48,9 @@ export type LoyaltyPointTriggerType = keyof LoyaltyPointTriggerData;
 export type LoyaltyProgramTrigger<T extends LoyaltyPointTriggerType = LoyaltyPointTriggerType> = {
     type: T;
 } & LoyaltyPointTriggerData[T];
+
+export type ExtendedLoyaltyProgramTrigger<T extends LoyaltyPointTriggerType = LoyaltyPointTriggerType> =
+    "irid" extends keyof LoyaltyProgramTrigger<T> ? LoyaltyProgramTrigger<T> & { ir: IR } : LoyaltyProgramTrigger<T>;
 
 export const grantPoints = async <T extends LoyaltyPointTriggerType>(data: LoyaltyProgramTrigger<T>) => {
     const isOnline = getIsOnline();

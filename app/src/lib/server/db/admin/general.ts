@@ -48,7 +48,7 @@ export const restoreIR = (irid: IRID) => irCollection.updateOne(id(irid), {
 export const deletePermanentlyIR = (irid: IRID) => irCollection.deleteOne(id(irid));
 
 export const setCreatedIRBy = (irid: IRID, createdBy: IR['meta']['createdBy']) =>
-    irCollection.updateOne(id(irid), { 'meta.createdBy': createdBy });
+    irCollection.updateOne(id(irid), { $set: { 'meta.createdBy': createdBy } });
 
 export const setGrantedCommission = (irid: IRID) =>
-    irCollection.updateOne(id(irid), { 'meta.flags.grantedCommission': true });
+    irCollection.updateOne(id(irid), { $set: { 'meta.flags.grantedCommission': true } });
