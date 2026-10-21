@@ -3,6 +3,7 @@
     import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
     import { page } from '$app/state';
     import { getIsLoggedIn, getSessionData, isLoggedIn, pendingSessionData } from '$lib/client/auth';
+    import arrays from '$lib/client/db/arrays';
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import Navigation from '$lib/components/nav/Navigation.svelte';
     import TableOfContents from '$lib/components/nav/TableOfContents.svelte';
@@ -102,6 +103,8 @@
 
     const showTOC = $derived(page.route.id?.includes('[form=form]') && !page.error);
     let hideWarning = $state(false);
+
+    onMount(arrays.syncArrays)
 </script>
 
 <svelte:window onunhandledrejection={handleError} />

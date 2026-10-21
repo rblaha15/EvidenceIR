@@ -31,7 +31,6 @@ export default {
         if (crn == unknownCRN) return undefined;
 
         if (crn.length == 10) {
-            await arrays.fetchFriendlyCompanies();
             const fc = get(arrays.friendlyCompanies);
             if (fc == 'loading') throw new Error('loading');
             const name = [...fc.assemblyCompanies, ...fc.commissioningCompanies]
@@ -63,7 +62,6 @@ export default {
         if (crn == unknownCRN) return undefined;
 
         if (crn.length == 10) {
-            await arrays.fetchFriendlyCompanies();
             const fc = get(arrays.friendlyCompanies);
             if (fc == 'loading') throw new Error('loading');
             return [...fc.assemblyCompanies, ...fc.commissioningCompanies]

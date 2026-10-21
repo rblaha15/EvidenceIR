@@ -5,7 +5,6 @@
     import type { Translations } from '$lib/translations';
     import { goto } from '$app/navigation';
     import { relUrl } from '$lib/helpers/runes.svelte';
-    import { onMount } from 'svelte';
     import { CircleUser, Gift, LogOut, RectangleEllipsis, ShieldCogCorner } from "@lucide/svelte";
     import {
         DropdownMenu,
@@ -23,9 +22,6 @@
     const ta = $derived(t.auth);
 
     const userEmail = $derived($user?.email ?? '');
-
-    onMount(arrays.fetchLoyaltyProgramData);
-    onMount(arrays.fetchMyInfo); // TODO
 </script>
 
 <DropdownMenu>

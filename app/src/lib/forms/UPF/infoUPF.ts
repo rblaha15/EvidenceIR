@@ -1,6 +1,5 @@
 import { getCachedIsRegulusOrAdmin, getCachedUser, isRegulusOrAdmin } from '$lib/client/auth';
 import db from '$lib/client/db';
-import arrays from '$lib/client/db/arrays';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
 import MailProtocol from '$lib/emails/MailProtocol.svelte';
 import type { Raw } from '$lib/forms/Form';
@@ -48,10 +47,6 @@ const infoUPF: FormInfo<ContextUPF, FormUPF, [], 'UPF'> = ({
     })),
     createContext: ({ values: v, form: f }) => ({ v, f }),
     title: t => t.fve.title,
-    onMount: async () => {
-        await arrays.fetchFriendlyCompanies();
-        await arrays.fetchTechnicians();
-    },
     getEditData: (ir, url) =>
         url.searchParams.has('edit') ? { raw: ir.UP.FVE as Raw<FormUPF> } : undefined,
     getViewData: (ir, url) =>

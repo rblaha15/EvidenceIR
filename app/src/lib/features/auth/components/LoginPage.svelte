@@ -3,6 +3,7 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import { signIn, tryFirebase } from '$lib/client/auth';
+    import arrays from '$lib/client/db/arrays';
     import { grantPoints } from '$lib/client/loyaltyProgram';
     import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
     import { Button } from '$lib/components/ui/button';
@@ -41,6 +42,7 @@
             error = t.invalidEmail;
         } else if (result == 'success') {
             setTimeout(async () => {
+                await arrays.syncArrays();
                 await grantPoints({ type: 'registration' });
                 await goto(relUrl(redirect), { invalidateAll: true });
             }, 500);

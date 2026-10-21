@@ -83,8 +83,6 @@ const infoSP: FormInfo<ContextSP, FormSP, [[Technician[] | 'loading', User | nul
     title: (t, mode) =>
         mode == 'edit' ? t.sp.editSP : t.sp.title,
     onMount: async ({ values, ir }) => {
-        await arrays.fetchTechnicians();
-        await arrays.fetchSpareParts();
         if (!values.system.datumUvedeni && ir.UP.dateTC)
             values.system.datumUvedeni = ir.UP.dateTC;
     },

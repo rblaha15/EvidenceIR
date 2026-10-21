@@ -47,10 +47,6 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loadin
     }),
     createContext: ({ values: v, form: f, mode }) => ({ v, f, edit: mode == 'edit' }),
     title: (t, m) => m == 'edit' ? t.sp.editSP : t.sp.title,
-    onMount: async () => {
-        await arrays.fetchTechnicians();
-        await arrays.fetchSpareParts();
-    },
     getEditData: async (url, fetch) => {
         const nspid = url.searchParams.get('edit-nspid') as NSPID | null;
         if (!nspid) return undefined;

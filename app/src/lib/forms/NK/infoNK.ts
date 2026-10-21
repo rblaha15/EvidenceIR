@@ -1,5 +1,4 @@
 import { getCachedUser } from '$lib/client/auth';
-import arrays from '$lib/client/db/arrays';
 import defaultNK from '$lib/forms/NK/defaultNK';
 import { getTranslations } from '$lib/translations';
 import { defaultAddresses, sendEmail } from '$lib/client/email';
@@ -57,9 +56,6 @@ const infoNK: IndependentFormInfo<ContextNK, FormNK> = {
     },
     createContext: ({ form: f, values: v }) => ({ f, v }),
     title: t => t.nk.demandForm,
-    onMount: async () => {
-        await arrays.fetchPeople();
-    },
     requiredRegulus: true,
     buttons: _ => ({
         hideBack: true,

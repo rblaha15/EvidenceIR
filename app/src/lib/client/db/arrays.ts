@@ -1,10 +1,13 @@
 import { browser } from '$app/environment';
-import { pendingUser } from '$lib/client/auth';
+import { getIsAdmin, getIsRegulusOrAdmin, pendingUser } from '$lib/client/auth';
 import { call } from '$lib/client/endpoints';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 import { getIsOnline } from '$lib/client/online';
 import { lazyStorable } from '$lib/helpers/newStores';
 import { derived, readonly } from 'svelte/store';
+import self from '$lib/client/db/arrays';
+
+const days = (days: number) => days * 24 /*hours*/ * 60 /*minutes*/ * 60 /*seconds*/ * 1E3 /*milliseconds*/;
 
 type CRN = string;
 
@@ -53,28 +56,21 @@ export type FriendlyCompanies = {
     commissioningCompanies: Company[];
 };
 
+// Per-user
 const friendlyCompanies = lazyStorable<FriendlyCompanies | 'loading'>('friendlyCompanies', 'loading');
+// Admin-only
 const companies = lazyStorable<Company[] | 'loading'>('companies', 'loading');
+// Per-user
 const myInfo = lazyStorable<Person>('myInfo');
+// Regulus-only
 const people = lazyStorable<Person[] | 'loading'>('people', 'loading');
 const technicians = lazyStorable<Technician[] | 'loading'>('technicians', 'loading');
 const spareParts = lazyStorable<SparePart[] | 'loading'>('spareParts', 'loading');
 const arrays = lazyStorable<Partial<Record<Arrays, string[]>>>('arrays', {});
+// Per-user
 const loyaltyProgramData = lazyStorable<LoyaltyProgramUserData | null>('lp', null);
 
-pendingUser.subscribe(async $user => {
-    if (!browser) return;
-    if ($user == 'pending') return;
-    if (!$user) {
-        myInfo.current = undefined;
-        friendlyCompanies.current = 'loading';
-        loyaltyProgramData.current = null;
-    } else {
-        // await fetchMyInfo();
-        // await fetchFriendlyCompanies();
-        // await fetchLoyaltyProgramData();
-    }
-});
+const lastFetched = lazyStorable<string>('arrays');
 
 export default {
     get friendlyCompanies() { return readonly(friendlyCompanies.store); },
@@ -119,4 +115,33 @@ export default {
         { if (getIsOnline()) arrays.current = await call('db/getArrays', { fetch })},
     async fetchLoyaltyProgramData(fetch: typeof window.fetch = window.fetch)
         { if (getIsOnline()) loyaltyProgramData.current = await call('db/getLoyaltyPoints', { fetch })},
+
+    async syncArrays(fetch: typeof window.fetch = window.fetch) {
+        if (!getIsOnline()) return;
+        const now = new Date();
+        const last = new Date(lastFetched.current ?? 0);
+        if (lastFetched.current && (now.valueOf() - last.valueOf()) <= days(1)) return;
+
+        await self.fetchFriendlyCompanies(fetch);
+        if (await getIsAdmin()) await self.fetchCompanies(fetch);
+        await self.fetchMyInfo(fetch);
+        if (await getIsRegulusOrAdmin()) await self.fetchPeople(fetch);
+        await self.fetchTechnicians(fetch);
+        await self.fetchSpareParts(fetch);
+        await self.fetchArrays(fetch);
+        await self.fetchLoyaltyProgramData(fetch);
+
+        lastFetched.current = now.toISOString();
+    },
 };
+
+pendingUser.subscribe(async $user => {
+    if (!browser) return;
+    if ($user == 'pending') return;
+    if (!$user) {
+        lastFetched.current = undefined;
+        myInfo.current = undefined;
+        friendlyCompanies.current = 'loading';
+        loyaltyProgramData.current = null;
+    }
+});

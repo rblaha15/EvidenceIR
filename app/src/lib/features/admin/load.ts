@@ -7,12 +7,10 @@ export const loadAdmin = async (fetch: typeof window.fetch) => {
     if (!await getIsLoggedIn() || !await getIsAdmin()) error(401);
 
     arrays.fetchCompanies(fetch).then();
-    arrays.fetchMyInfo(fetch).then();
     arrays.fetchPeople(fetch).then();
     arrays.fetchTechnicians(fetch).then();
     arrays.fetchSpareParts(fetch).then();
     arrays.fetchArrays(fetch).then();
-    arrays.fetchLoyaltyProgramData(fetch).then();
 
     const userActivity = await call('db/admin/getUserActivity', { fetch });
     const loyaltyProgramData = await call('db/admin/getAllLoyaltyProgramData', { fetch });
