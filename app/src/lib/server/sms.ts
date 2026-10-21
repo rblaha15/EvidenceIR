@@ -42,13 +42,12 @@ export const sendSMS = async (
 ) => {
     const token = await getToken(fetch);
     if (!token.ok) {
-        console.log(token.status, token.statusText, await token.text());
+        console.log('Failed to get token to send SMS', token.status, token.statusText, await token.text());
         error(500, 'Failed to get token');
     }
     const json = await token.json();
-    console.log(json);
     if (!json.access_token) error(500, 'Failed to get token');
     const response = await send(message, recipient, json.access_token, fetch);
-    console.log(response.status, response.statusText, await response.text());
+    console.log('Response from SMS gate', response.status, response.statusText, await response.text());
     if (!response.ok) error(500, 'Failed to send SMS');
 };

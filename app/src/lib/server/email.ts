@@ -27,8 +27,8 @@ const transporter = nodemailer.createTransport({
     port: Number(env.EMAIL_SMTP_PORT),
     secure: env.EMAIL_SMTP_SECURE != 'false',
     ignoreTLS: env.EMAIL_SMTP_SECURE == 'false',
-    logger: true,
-    debug: true,
+    logger: false,
+    debug: false,
     auth: {
         user: publicENV.PUBLIC_EMAIL_SENDER,
         pass: env.EMAIL_PASSWORD,

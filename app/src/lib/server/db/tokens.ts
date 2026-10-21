@@ -31,10 +31,8 @@ export const createToken = async (data: Omit<Token, 'tokenHash' | 'expiresAt'>) 
 
 export const getTokenData = async (token: string): Promise<Token | null> => {
     const tokenHash = hashToken(token);
-    console.log(tokenHash);
 
     const result = await tokenCollection.findOne({ tokenHash });
-    console.log(result);
     if (!result) return null;
     const { _id, ...data } = result;
     if (data.expiresAt < new Date()) {

@@ -39,7 +39,7 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
         timestamp: new Date(),
     };
     const result = await action.handler(args, context);
-    console.log(actionName, args, result);
+    console.log('Executed', actionName);
 
     return json(result);
 };

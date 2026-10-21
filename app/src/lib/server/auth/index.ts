@@ -22,7 +22,6 @@ export const auth = betterAuth({
         before: createAuthMiddleware(async ctx => {
             if (ctx.path !== '/sign-up/email') return;
 
-            console.log(ctx, ctx.body);
             const email = ctx.body.email;
             const source = ctx.body.source;
 
@@ -103,7 +102,7 @@ const validateFirebaseToken = async (token: string, expectedEmail: string) => {
 
     const decoded = await firebaseAuth.verifyIdToken(token, true)
         .catch(e => {
-            console.log(e);
+            console.log("Error from Firebase", e);
             return null
         })
 

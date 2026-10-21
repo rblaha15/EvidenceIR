@@ -83,7 +83,7 @@ const processRecommendations = async (
     const lastFilledCheck = Math.max(...filledYears.map(Number))
         .let(max => max == -Infinity ? 0 : max);
 
-    console.log({
+    console.log('Processing recommendations', {
         irid,
         ...settings,
         commission,

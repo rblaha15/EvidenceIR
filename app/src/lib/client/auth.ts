@@ -62,7 +62,7 @@ export const isRegulusOrAdmin = derived(user, checkIsRegulusOrAdmin);
 export const isAnyRegulusOrAdmin = derived(user, checkIsAnyRegulusOrAdmin);
 
 export const signOut = async () => {
-    await authClient.signOut().thenAlso(console.log).catchAlso(console.log);
+    await authClient.signOut();
 };
 export const signIn = async (email: string, password: string) => {
     const result = await authClient.signIn.email({ email, password });

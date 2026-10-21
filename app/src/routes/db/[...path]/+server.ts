@@ -5,7 +5,6 @@ import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
 const proxy: RequestHandler = async ({ request, url, locals }) => {
-    console.log(locals, getIsAdmin(locals));
     if (!getIsAdmin(locals) && !dev) return error(401);
 
     url.protocol = 'http';
