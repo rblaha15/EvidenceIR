@@ -3,7 +3,7 @@ import arrays, {
     type Person,
 } from '$lib/client/db/arrays';
 import { getTranslations } from '$lib/translations';
-import { heatPumps, indoorUnits } from '$lib/helpers/products';
+import { getPumpOptions, indoorUnits } from '$lib/helpers/products';
 import { type ContextNK, type FormNK, origins } from './formNK';
 import { derived, readable } from 'svelte/store';
 import { user } from '$lib/client/auth';
@@ -190,10 +190,25 @@ export default (): FormPlus<FormNK> => ({
             required: false,
             label: t => t.nk.system.heatPumpModel,
             show: hp,
-            options: c => [`iDoNotKnow`, ...c.v.system.hPType == 'airToWater'
-                ? [...heatPumps.airToWaterRTC[0], ...heatPumps.airToWaterCTC[0]] : heatPumps.groundToWaterCTC[0]],
+            options: c => [
+                `iDoNotKnow`,
+                ...c.v.system.hPType == 'airToWater'
+                    ? [
+                        ...getPumpOptions('RTC', 'airToWater', false),
+                        ...getPumpOptions('CTC', 'airToWater', false),
+                    ]
+                    : getPumpOptions('CTC', 'groundToWater', false),
+            ],
             otherOptions: c => c.v.system.hPType == 'airToWater'
-                ? [...heatPumps.airToWaterRTC[1], ...heatPumps.airToWaterCTC[1], ...heatPumps.multiEnergyCTC[0], ...heatPumps.multiEnergyCTC[1]] : heatPumps.groundToWaterCTC[1],
+                ? [
+                    ...getPumpOptions('RTC', 'airToWater', true),
+                    ...getPumpOptions('CTC', 'airToWater', true),
+                ]
+                : [
+                    ...getPumpOptions('CTC', 'groundToWater', true),
+                    ...getPumpOptions('EcoHeatCTC', 'groundToWater', false),
+                    ...getPumpOptions('EcoHeatCTC', 'groundToWater', true),
+                ],
             chosen: `iDoNotKnow`,
             labels: t => t.nk.system,
         }),

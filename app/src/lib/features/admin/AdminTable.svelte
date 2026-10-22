@@ -4,6 +4,7 @@
 
     export type DataTypes = {
         text: string,
+        options: string,
         number: number,
         boolean: boolean,
         textArray: string[],
@@ -28,9 +29,11 @@
                 header: string;
                 cellType?: 'data' | 'header';
                 type?: DataType;
+                options?: string[];
                 optional?: boolean;
             };
         };
+        nosort?: boolean;
         sendData: (data: T[]) => Promise<void>;
         editable?: {
             defaultValue: T,
@@ -55,7 +58,7 @@
 
     const { id, options }: { id: string; options: TableOptions<T, Key> } = $props();
     // svelte-ignore state_referenced_locally
-    const { store, key, instructions, columns, sendData, file: fileOptions } = options;
+    const { store, key, instructions, columns, sendData, file: fileOptions, nosort } = options;
 
     let input = $state() as HTMLInputElement;
     let file = $state<File>();
@@ -133,7 +136,7 @@
 
     const shallowEquals = (a: T, b: T) => [...a.keys(), ...b.keys()].every(key => JSON.stringify(a[key]) === JSON.stringify(b[key]));
 
-    const oldData = $derived($store == 'loading' ? [] : $store.sortedBy(it => it[key] as Comparable));
+    const oldData = $derived($store == 'loading' ? [] : nosort ? $store : $store.sortedBy(it => it[key] as Comparable));
 
     const find = (values: T[], findKey: T[Key]) => values.find(value => value[key] === findKey);
     const oldKeys = $derived(oldData.map(item => item[key]));

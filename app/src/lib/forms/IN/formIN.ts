@@ -13,9 +13,8 @@ import type {
     TextWidget,
     TitleWidget,
 } from '$lib/forms/Widget';
-import type { Company } from '$lib/client/db/arrays';
+import type { Company, HeatPump } from '$lib/client/db/arrays';
 import type { Form, Values } from '$lib/forms/Form';
-import type { HeatPump } from '$lib/helpers/products';
 import { getTranslations, type Translations } from '$lib/translations';
 import type { Address } from '$lib/helpers/ruian';
 

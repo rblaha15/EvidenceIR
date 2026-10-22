@@ -1,4 +1,4 @@
-import type { Arrays, FriendlyCompanies, Person, SparePart, Technician } from '$lib/client/db/arrays';
+import type { Arrays, FriendlyCompanies, HetaPumpDetails, Person, SparePart, Technician } from '$lib/client/db/arrays';
 import type { LoyaltyProgramTrigger, LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 import type { RecommendationData } from '$lib/data';
 import { regulusCRN } from '$lib/helpers/ares';
@@ -6,7 +6,7 @@ import { adminEndpoints } from '$lib/server/db/admin/endpoints';
 import {
     getArrays,
     getCompanies,
-    getCompaniesByCRNs,
+    getCompaniesByCRNs, getHeatPumps,
     getPeople,
     getPersonByEmail,
     getSpareParts,
@@ -25,6 +25,9 @@ export const dbEndpoints = {
     }),
     getSpareParts: defineEndpoint<undefined, SparePart[]>(async () => {
         return (await getSpareParts()).map(it => ({ ...it, name: it.name.replace('  ', ' ') }) satisfies SparePart);
+    }),
+    getHeatPumps: defineEndpoint<undefined, HetaPumpDetails[]>(async () => {
+        return await getHeatPumps();
     }),
     getTechnicians: defineEndpoint<undefined, Technician[]>(async () => {
         return await getTechnicians();

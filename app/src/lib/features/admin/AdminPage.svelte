@@ -4,7 +4,7 @@
     import { page } from '$app/state';
     import arrays, {
         type Arrays,
-        type Company,
+        type Company, type HetaPumpDetails,
         type Person,
         type SparePart,
         type Technician,
@@ -206,6 +206,34 @@
                 sendData: array => call('db/admin/setSpareParts', { array }).then(arrays.fetchSpareParts),
             },
         } satisfies TableDefinition<SparePart, 'code'>,
+        heatPumps: {
+            title: 'Tepelná čerpadla',
+            longerTitle: 'Seznam tepelných čerpadel',
+            contentType: 'table',
+            tableOptions: {
+                store: arrays.heatPumps,
+                key: 'model',
+                instructions: [
+                    'Tabulka tepelných čerpadel',
+                    'Všechna pole jsou povinná.',
+                ],
+                columns: {
+                    model: { header: 'Model', type: 'text' },
+                    category: { header: 'Druh', type: 'options', options: ['CTC', 'RTC', 'ThermonaRTC', 'EcoHeatCTC'] },
+                    type: { header: 'Typ', type: 'options', options: ['airToWater', 'groundToWater'] },
+                    numberFormat: { header: 'Formát čísla', type: 'text' },
+                    hide: { header: 'Schovat mezi další možnosti', type: 'boolean' },
+                    number: { header: 'Pořadí', type: 'number' },
+                },
+                sendData: array => call('db/admin/setHeatPumps', { array }).then(arrays.fetchHeatPumps),
+                editable: {
+                    defaultValue: {
+                        model: '', category: 'CTC', type: 'airToWater', numberFormat: '*', hide: false, number: 1,
+                    },
+                },
+                nosort: true,
+            },
+        } satisfies TableDefinition<HetaPumpDetails, 'model'>,
         arrays: {
             title: 'Seznamy',
             contentType: 'arrays',

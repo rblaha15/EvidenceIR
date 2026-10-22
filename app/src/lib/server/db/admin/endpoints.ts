@@ -1,4 +1,4 @@
-import type { AllArrays, Arrays, Company, Person, SparePart, Technician } from '$lib/client/db/arrays';
+import type { AllArrays, Arrays, Company, HetaPumpDetails, Person, SparePart, Technician } from '$lib/client/db/arrays';
 import type {
     LoyaltyProgramPointsTransaction,
     LoyaltyProgramUserData,
@@ -22,7 +22,7 @@ import {
     getCompanies,
     getPeople, getPersonByEmail,
     setArrays,
-    setCompanies,
+    setCompanies, setHeatPumps,
     setPeople,
     setSpareParts,
     setTechnicians
@@ -64,6 +64,9 @@ export const adminEndpoints = {
     }),
     setSpareParts: defineEndpoint<{ array: SparePart[] }, undefined>(async ({ array }) => {
         await setSpareParts(array);
+    }),
+    setHeatPumps: defineEndpoint<{ array: HetaPumpDetails[] }, undefined>(async ({ array }) => {
+        await setHeatPumps(array);
     }),
     setArrays: defineEndpoint<Record<Arrays, string[]>, undefined>(async (arrays) => {
         await setArrays(arrays);

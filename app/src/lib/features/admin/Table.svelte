@@ -13,6 +13,7 @@
     } from '$lib/components/ui/dialog';
     import { Field, FieldGroup, FieldLabel } from '$lib/components/ui/field';
     import { Input } from '$lib/components/ui/input';
+    import { NativeSelect, NativeSelectOption } from '$lib/components/ui/native-select';
     import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
     import type { DataType, ValueType } from '$lib/features/admin/AdminTable.svelte';
     import TopScrollable from '$lib/features/admin/TopScrollable.svelte';
@@ -44,6 +45,7 @@
 
     const itemValue = <Key extends keyof T>(value: unknown, column: Column<Key>) => ({
         text: (value: string) => !value ? '' : value,
+        options: (value: string) => !value ? '' : value,
         number: (value: number) => !value ? '' : value.toString(),
         boolean: (value: boolean) => !value ? false : value,
         textArray: (value: string[]) => (!value || !value.length) ? '' : value.join(', '),
@@ -180,6 +182,13 @@
                             {:else if column.type == 'textArray'}
                                 <Input {id} value={(rawValue as string[]).join(', ')}
                                        oninput={e => set(opt(e.currentTarget.value.split(', ')))} />
+                            {:else if column.type == 'options'}
+                                <NativeSelect {id} value={rawValue as string}
+                                              onchange={e => set(opt(e.currentTarget.value))}>
+                                    {#each column.options ?? [] as option}
+                                        <NativeSelectOption value={option}>{option}</NativeSelectOption>
+                                    {/each}
+                                </NativeSelect>
                             {:else}
                                 <Input {id} value={rawValue as string}
                                        oninput={e => set(opt(e.currentTarget.value))} />

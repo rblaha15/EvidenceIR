@@ -1,7 +1,7 @@
 import '$lib/extensions';
 import { building, dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
-import type { StringArray, Company, Person, SparePart, Technician } from '$lib/client/db/arrays';
+import type { StringArray, Company, Person, SparePart, Technician, HetaPumpDetails } from '$lib/client/db/arrays';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 import type { IR, NSP, RecommendationDataWithCode } from '$lib/data';
 import type { IRID, NSPID } from '$lib/helpers/ir';
@@ -31,6 +31,7 @@ export const personCollection = dataDB.collection<Person>('person');
 export const companyCollection = dataDB.collection<Company>('company');
 export const technicianCollection = dataDB.collection<Technician>('technicians');
 export const sparePartCollection = dataDB.collection<SparePart>('spareParts');
+export const heatPumpCollection = dataDB.collection<HetaPumpDetails>('heatPumps');
 export const arraysCollection = dataDB.collection<StringArray>('arrays');
 export const tokenCollection = authDB.collection<Token>('token');
 

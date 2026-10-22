@@ -1,5 +1,5 @@
 import arrays, {
-    type Company,
+    type Company, type HeatPump,
     type Technician,
 } from '$lib/client/db/arrays';
 import {
@@ -46,7 +46,7 @@ import {
     typBOX,
 } from '$lib/helpers/ir';
 import { dayISO, time } from '$lib/helpers/date';
-import { type HeatPump, heatPumps } from '$lib/helpers/products';
+import { getPumpNumberFormatRegex, getPumpNumberMask, getPumpOptions } from '$lib/helpers/products';
 import type { Translations } from '$lib/translations';
 import { derived } from 'svelte/store';
 import type { FormPlus } from '$lib/forms/Form';
@@ -67,7 +67,6 @@ const rek = (c: ContextIN) => c.v.ir.chceVyplnitK.includes(`ventilation`);
 const fve = (c: ContextIN) => c.v.ir.chceVyplnitK.includes(`photovoltaicPowerPlant`);
 const other = (c: ContextIN) => c.v.ir.chceVyplnitK.includes(`other`);
 
-const ctc = (c: ContextIN) => c.v.ir.typ.first == 'ctc' || c.v.ir.typ.second == 'CTC';
 const rtc = (c: ContextIN) => c.v.ir.typ.second == 'RTC';
 const thermona = (c: ContextIN) => c.v.ir.typ.first == 'Thermona';
 const ecoHeat = (c: ContextIN) => c.v.ir.typ.second == 'EcoHeat';
@@ -405,19 +404,15 @@ const heatPump = <const I extends TC>(i: I) => ({
     [`model${i == 1 ? '' : i as B}`]: newChooserWidget<ContextIN, HeatPump>({
         label: (t, c) => cap(t.in.heatPumpModel([c.v.tc.pocet == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
         options: c =>
-            thermona(c) ? ['airTHERM 10']
-                : rtc(c) ? heatPumps.airToWaterRTC[0]
-                    : ecoHeat(c) ? heatPumps.multiEnergyCTC[0]
-                        : c.v.tc.typ == 'airToWater'
-                            ? heatPumps.airToWaterCTC[0]
-                            : heatPumps.groundToWaterCTC[0],
+            thermona(c) ? getPumpOptions('ThermonaRTC', 'airToWater', true)
+                : rtc(c) ? getPumpOptions('RTC', 'airToWater', false)
+                    : ecoHeat(c) ? getPumpOptions('EcoHeatCTC', 'groundToWater', false)
+                        : getPumpOptions('CTC', c.v.tc.typ!, false),
         otherOptions: c =>
             thermona(c) ? []
-                : rtc(c) ? heatPumps.airToWaterRTC[1]
-                    : ecoHeat(c) ? heatPumps.multiEnergyCTC[1]
-                        : c.v.tc.typ == 'airToWater'
-                            ? heatPumps.airToWaterCTC[1]
-                            : heatPumps.groundToWaterCTC[1],
+                : rtc(c) ? getPumpOptions('RTC', 'airToWater', true)
+                    : ecoHeat(c) ? getPumpOptions('EcoHeatCTC', 'groundToWater', true)
+                        : getPumpOptions('CTC', c.v.tc.typ!, true),
         required: c => tc(c) && i <= c.v.tc.pocet,
         show: c =>
             subType(c) &&
@@ -434,37 +429,26 @@ const heatPump = <const I extends TC>(i: I) => ({
     [`cislo${i == 1 ? '' : i as B}`]: newScannerWidget<ContextIN>({
         label: (t, c) => cap(t.in.heatPumpManufactureNumber([c.v.tc.pocet == 1 ? '' : ordinal(t.countsGenitive, i) + ' '])),
         onError: t => t.wrong.number,
-        regex: c => model(c, i) == 'prototype' ? /.*/ : ctc(c)
-            ? /^\d{4}-\d{4}-\d{4}$/
-            : model(c, i) == 'airTHERM 10'
-                ? /^\d{9}T$/
-                : model(c, i) == 'RTC 40p'
-                    ? /^[A-Z]{3}\d{4}-[A-Z]{2}-\d{4}$/
-                    : /^[A-Z]{2}\d{4}-[A-Z]{2}-\d{4}$/,
+        regex: c => getPumpNumberFormatRegex(model(c, i)),
         capitalize: true,
         required: c => tc(c) && i <= c.v.tc.pocet && model(c, i) != 'prototype',
-        maskOptions: c => model(c, i) == 'prototype' ? undefined : ({
-            mask: ctc(c)
-                ? `0000-0000-0000`
-                : model(c, i) == 'airTHERM 10'
-                    ? `000000000T`
-                    : model(c, i) == 'RTC 40p'
-                        ? `AAA0000-AA-0000`
-                        : `AA0000-AA-0000`,
+        maskOptions: c => getPumpNumberMask(model(c, i)) ? ({
+            mask: getPumpNumberMask(model(c, i))!,
             definitions: {
                 A: /[A-Za-z]/,
                 T: /T/,
             },
-        }), lock: ecoHeat,
+        }) : undefined, lock: ecoHeat,
         show: c =>
             subType(c) &&
             (rtc(c) || c.v.tc.typ != null) &&
             tc(c) &&
             i <= c.v.tc.pocet,
-        processScannedText: (t, c) =>
-            model(c, i) == 'prototype' ? t.replaceAll(/[^0-9A-Z]/g, '')
-                : t.replaceAll(/[^0-9A-Z]/g, '')
-                    .slice(model(c, i) == 'RTC 40p' ? -13 : -12),
+        processScannedText: (t, c) => {
+            const raw = t.replaceAll(/[^0-9A-Z]/g, '');
+            const numberLength = model(c, i) == 'RTC 40p' ? -13 : -12;
+            return model(c, i) == 'prototype' ? raw : raw.slice(-numberLength);
+        },
     }),
 }) as I extends 1 ? {
     model: ChooserWidget<ContextIN, HeatPump>;
@@ -529,7 +513,7 @@ export default (): FormPlus<FormIN> => ({
                     c.v.ir.chceVyplnitK = ['heatPump'];
                     c.f.ir.chceVyplnitK.onValueSet(c, c.v.ir.chceVyplnitK);
                     c.v.tc.typ = 'airToWater';
-                    c.v.tc.model = 'airTHERM 10';
+                    c.v.tc.model = 'airTHERM 10' as HeatPump;
                 }
                 if (doesNotSupportHeatPumps(v.first) && v.second) {
                     c.v.ir.typ = { ...v, second: null };

@@ -1,14 +1,14 @@
 import {
     type AllArrays,
     type Arrays,
-    type Company,
+    type Company, type HetaPumpDetails,
     type Person,
     type SparePart,
     type Technician
 } from '$lib/client/db/arrays';
 import {
     arraysCollection,
-    companyCollection,
+    companyCollection, heatPumpCollection,
     personCollection,
     sparePartCollection,
     technicianCollection,
@@ -30,12 +30,27 @@ export const setArrays = (arrays: Record<Arrays, string[]>) => arraysCollection.
 export const getSpareParts = () =>
     sparePartCollection.find().project<SparePart>({ _id: 0 }).toArray();
 
+export const getHeatPumps = () =>
+    heatPumpCollection.find().project<HetaPumpDetails>({ _id: 0 }).toArray()
+        .then(a => a.sortedBy(tc => tc.number));
+
 export const setSpareParts = async (spareParts: SparePart[]) => {
     await sparePartCollection.deleteMany({ code: { $nin: spareParts.map(it => it.code) } });
     await sparePartCollection.bulkWrite(spareParts.map(sparePart => ({
         replaceOne: {
             filter: { code: sparePart.code },
             replacement: sparePart,
+            upsert: true,
+        },
+    })));
+};
+
+export const setHeatPumps = async (heatPumps: HetaPumpDetails[]) => {
+    await heatPumpCollection.deleteMany({ model: { $nin: heatPumps.map(it => it.model) } });
+    await heatPumpCollection.bulkWrite(heatPumps.map(heatPump => ({
+        replaceOne: {
+            filter: { model: heatPump.model },
+            replacement: heatPump,
             upsert: true,
         },
     })));
