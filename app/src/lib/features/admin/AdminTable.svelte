@@ -166,6 +166,7 @@
         if (i > -1 && !item) newData.splice(i, 1);
         if (i > -1 && item) newData.splice(i, 1, item);
         if (i == -1 && item) newData.push(item);
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     };
 </script>
 
@@ -198,7 +199,7 @@
 </div>
 
 {#if newData.length && !loading}
-    <h4>Změny, které se chystáte provést:</h4>
+    <h4 id="changes-{id}">Změny, které se chystáte provést:</h4>
     {#if !additions.length && !removals.length && !changes.length}
         <p>Žádné změny</p>
     {/if}
@@ -206,7 +207,7 @@
 {/if}
 
 <div>
-    <h4>Aktuálně uložená data:</h4>
+    <h4 id="current-{id}">Aktuálně uložená data:</h4>
     {#if $store == 'loading'}
         <Spinner />
     {:else}
