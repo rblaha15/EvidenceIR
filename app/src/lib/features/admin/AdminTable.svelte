@@ -29,6 +29,7 @@
                 header: string;
                 cellType?: 'data' | 'header';
                 type?: DataType;
+                transformValue?: (value: T[K]) => string | boolean;
                 options?: string[];
                 optional?: boolean;
             };
@@ -40,7 +41,7 @@
         };
     }
 
-    export type TableColor = 'warning' | 'success' | 'danger' | 'tertiary';
+    export type TableChangeType = 'new' | 'edited' | 'deleted';
 </script>
 
 <script generics="T extends Record<string, ValueType>, Key extends keyof T" lang="ts">
@@ -54,7 +55,7 @@
     import writeXlsxFile from 'write-excel-file';
     import { Spinner } from '$lib/components/ui/spinner';
     import { Button } from '$lib/components/ui/button';
-    import { untrack } from 'svelte';
+    import { tick, untrack } from 'svelte';
 
     const { id, options }: { id: string; options: TableOptions<T, Key> } = $props();
     // svelte-ignore state_referenced_locally
@@ -154,10 +155,10 @@
 
     const selectFile = () => input.click();
 
-    const addColor = <T, >(array: T[], color: TableColor) => array.map(it => [it, color] as [T, TableColor]);
-    const withColors = $derived([...addColor(additions, 'success'), ...addColor(changes, 'warning'), ...addColor(removals, 'danger')]);
+    const addChangeType = <T, >(array: T[], color: TableChangeType) => array.map(it => [it, color] as [T, TableChangeType]);
+    const withColors = $derived([...addChangeType(additions, 'new'), ...addChangeType(changes, 'edited'), ...addChangeType(removals, 'deleted')]);
 
-    const onDataChanged = (rowKey: T[Key], item: T | null) => {
+    const onDataChanged = async (rowKey: T[Key], item: T | null) => {
         if (file || !newData.length) {
             file = undefined;
             newData = oldData;
@@ -166,7 +167,11 @@
         if (i > -1 && !item) newData.splice(i, 1);
         if (i > -1 && item) newData.splice(i, 1, item);
         if (i == -1 && item) newData.push(item);
-        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+        await tick(); document.getElementById(`changes-${id}`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        if (!additions.length && !removals.length && !changes.length) {
+            file = undefined;
+            newData = [];
+        }
     };
 </script>
 
@@ -202,8 +207,9 @@
     <h4 id="changes-{id}">Změny, které se chystáte provést:</h4>
     {#if !additions.length && !removals.length && !changes.length}
         <p>Žádné změny</p>
+    {:else}
+        <Table changedItems={withColors} {onDataChanged} {options} {id} />
     {/if}
-    <Table itemsWithColors={withColors} {options} {id} vetoEditable />
 {/if}
 
 <div>

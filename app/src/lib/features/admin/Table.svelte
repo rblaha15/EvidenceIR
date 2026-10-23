@@ -18,59 +18,49 @@
     import type { DataType, ValueType } from '$lib/features/admin/AdminTable.svelte';
     import TopScrollable from '$lib/features/admin/TopScrollable.svelte';
     import { cn } from '$lib/utils';
-    import { Pen, Plus, Trash } from '@lucide/svelte';
-    import type { TableColor, TableOptions } from './AdminTable.svelte';
+    import { Pen, Plus, Trash, Undo } from '@lucide/svelte';
+    import type { TableChangeType, TableOptions } from './AdminTable.svelte';
 
     type Column<K extends keyof T = keyof T> = TableOptions<T, Key>['columns'][K];
 
     interface Props<T extends Record<string, ValueType>, Key extends keyof T> {
         items?: T[];
         onDataChanged?: (key: T[Key], changed: T | null) => void;
-        itemsWithColors?: [T, TableColor | undefined][];
+        changedItems?: [T, TableChangeType | undefined][];
         options: Pick<TableOptions<T, Key>, 'key' | 'columns' | 'editable'>;
         id: string;
-        vetoEditable?: boolean;
     }
 
-    let { items, itemsWithColors, options, id, onDataChanged, vetoEditable }: Props<T, Key> = $props();
-    const { key, columns } = $derived(options);
-    const editable = $derived(vetoEditable ? undefined : options.editable);
+    let { items, changedItems, options, id, onDataChanged }: Props<T, Key> = $props();
+    const { key, columns, editable } = $derived(options);
 
     const itemsWithKeys = $derived(
-        (itemsWithColors ?? items!.map(item => [item, undefined]))
-            .map(([item, color]) => ({ rowKey: item[key], item, color })),
+        (changedItems ?? items!.map(item => [item, undefined]))
+            .map(([item, changeType]) => ({ rowKey: item[key], item, changeType })),
     );
 
     type TableItem = typeof itemsWithKeys[number];
 
-    const itemValue = <Key extends keyof T>(value: unknown, column: Column<Key>) => ({
-        text: (value: string) => !value ? '' : value,
-        options: (value: string) => !value ? '' : value,
-        number: (value: number) => !value ? '' : value.toString(),
-        boolean: (value: boolean) => !value ? false : value,
-        textArray: (value: string[]) => (!value || !value.length) ? '' : value.join(', '),
-        datetime: (value: string) => !value ? '' : new Date(value).toLocaleString('cs'),
-        price: (value: number) => !value ? '' : value.roundTo(2).toLocaleString('cs') + ' Kč',
-    } satisfies Record<DataType, (value: never) => unknown>)[column.type ?? 'text'](value as never);
+    const itemValue = <K extends keyof T>(value: unknown, column: Column<K>) =>
+        column.transformValue?.(value as T[K]) ?? ({
+            text: (value: string) => !value ? '' : value,
+            options: (value: string) => !value ? '' : value,
+            number: (value: number) => !value ? '' : value.toString(),
+            boolean: (value: boolean) => !value ? false : value,
+            textArray: (value: string[]) => (!value || !value.length) ? '' : value.join(', '),
+            datetime: (value: string) => !value ? '' : new Date(value).toLocaleString('cs'),
+            price: (value: number) => !value ? '' : value.roundTo(2).toLocaleString('cs') + ' Kč',
+        } satisfies Record<DataType, (value: never) => unknown>)[column.type ?? 'text'](value as never);
 
-    const colorClasses: Record<TableColor, string> = {
-        warning: cn('bg-warning text-warning-foreground'),
-        danger: cn('bg-danger text-danger-foreground'),
-        success: cn('bg-success text-success-foreground'),
-        tertiary: cn('bg-tertiary text-tertiary-foreground'),
-    };
-    const colorRowClasses: Record<TableColor, string> = {
-        warning: cn('[&>th,&>td]:bg-warning [&>th,&>td]:text-warning-foreground'),
-        danger: cn('[&>th,&>td]:bg-danger [&>th,&>td]:text-danger-foreground'),
-        success: cn('[&>th,&>td]:bg-success [&>th,&>td]:text-success-foreground'),
-        tertiary: cn('[&>th,&>td]:bg-tertiary [&>th,&>td]:text-tertiary-foreground'),
+    const colorRowClasses: Record<TableChangeType | 'link', string> = {
+        edited: cn('[&>th,&>td]:bg-warning [&>th,&>td]:text-warning-foreground'),
+        deleted: cn('[&>th,&>td]:bg-danger [&>th,&>td]:text-danger-foreground'),
+        new: cn('[&>th,&>td]:bg-success [&>th,&>td]:text-success-foreground'),
+        link: cn('[&>th,&>td]:bg-tertiary [&>th,&>td]:text-tertiary-foreground'),
     };
 
-    const cellClass = (color?: string) => cn(
-        color && (color in colorClasses) ? colorClasses[color as TableColor] : '',
-        '[&>a]:text-primary [&>a]:underline-offset-4 [&>a]:hover:underline',
-    );
-    const rowClass = (color?: string) => color && (color in colorRowClasses) ? colorRowClasses[color as TableColor] : '';
+    const rowClass = (changeType?: TableChangeType | 'link') =>
+        changeType ? colorRowClasses[changeType] : '';
 
     let editDialog = $state<{ rowKey: T[Key], data: T }>();
     let newDialog = $state<{ data: T }>();
@@ -81,32 +71,41 @@
     {#if column.type == 'boolean'}
         <Checkbox checked={item[columnKey] as boolean} disabled aria-disabled />
     {:else}
-        {value}
+        <span class="[&>a]:text-primary [&>a]:underline-offset-4 [&>a]:hover:underline">
+            {@html value}
+        </span>
     {/if}
 {/snippet}
 
-{#snippet tableRow({ rowKey, item, color }: TableItem)}
+{#snippet tableRow({ rowKey, item, changeType }: TableItem)}
     <TableRow id="{id}-{rowKey}"
-              class={rowClass(page.url.hash.split("-")[1] === rowKey ? 'tertiary' : '')}>
+              class={rowClass(changeType ?? page.url.hash.split("-")[1] === rowKey ? 'link' : undefined)}>
         {#if editable}
             <TableCell class="py-0">
                 <ButtonGroup>
-                    <Button variant="tertiary" onclick={() => editDialog = { rowKey, data: item }}>
-                        <Pen />
-                    </Button>
-                    <Button variant="danger" onclick={() => onDataChanged?.(rowKey, null)}>
-                        <Trash />
-                    </Button>
+                    {#if !changedItems || changeType != 'deleted'}
+                        <Button variant="primary" onclick={() => editDialog = { rowKey, data: item }}>
+                            <Pen />
+                        </Button>
+                        <Button variant="danger" onclick={() => onDataChanged?.(rowKey, null)}>
+                            <Trash />
+                        </Button>
+                    {/if}
+                    {#if changeType == 'deleted'}
+                        <Button variant="primary" onclick={() => onDataChanged?.(rowKey, item)}>
+                            <Undo />
+                        </Button>
+                    {/if}
                 </ButtonGroup>
             </TableCell>
         {/if}
         {#each columns.entries() as [columnKey, column]}
             {#if column.cellType === 'header'}
-                <TableHead class={cellClass(color)}>
+                <TableHead>
                     {@render itemContent(columnKey, column, item)}
                 </TableHead>
             {:else}
-                <TableCell class={cellClass(color)}>
+                <TableCell>
                     {@render itemContent(columnKey, column, item)}
                 </TableCell>
             {/if}
@@ -114,9 +113,9 @@
     </TableRow>
 {/snippet}
 
-{#if editable}
+{#if editable && !changedItems}
     <div class="py-3">
-        <Button variant="tertiary" onclick={() => newDialog = { data: editable.defaultValue }}>
+        <Button variant="primary" onclick={() => newDialog = { data: editable.defaultValue }}>
             <Plus />
             Nový záznam
         </Button>
@@ -202,7 +201,7 @@
                     Zrušit
                 </DialogClose>
 
-                <DialogClose class={buttonVariants({ variant: 'tertiary' })} onclick={() => onConfirm()}>
+                <DialogClose class={buttonVariants({ variant: 'primary' })} onclick={() => onConfirm()}>
                     Potvrdit
                 </DialogClose>
             </DialogFooter>

@@ -61,8 +61,6 @@
 
     const addUserLink = (email: string | undefined) => (email ? `<a href="#users-${email}">${email}</a>` : '');
 
-    const emptyUndefined = (v: string | undefined) => v || '';
-
     const tabNames = ['arrays', 'users', 'companies', 'technicians', 'translations', 'loyaltyProgram', 'spareParts', 'stats', 'backup'];
 
     type Tab = typeof tabNames[number];
@@ -85,8 +83,8 @@
                     name: { header: 'Jméno a příjmení' },
                     email: { header: 'Email', cellType: 'header' },
                     allowUPT: { header: 'Vytvořit UPT?', type: 'boolean' },
-                    assemblyCompanies: { header: 'Montážní firmy', type: 'textArray' },
-                    commissioningCompanies: { header: 'Uvaděči', type: 'textArray' },
+                    assemblyCompanies: { header: 'Montážní firmy', type: 'textArray', transformValue: addCompaniesLinks },
+                    commissioningCompanies: { header: 'Uvaděči', type: 'textArray', transformValue: addCompaniesLinks },
                     responsiblePerson: { header: 'Odpovědná osoba', optional: true },
                     koNumber: { header: 'Číslo KO', optional: true },
                 },
@@ -138,7 +136,7 @@
                     email: { header: 'Email', optional: true },
                     phone: { header: 'Telefon', optional: true },
                     representative: { header: 'Zástupce', optional: true },
-                    representativeUserEmail: { header: 'Uživatel', optional: true },
+                    representativeUserEmail: { header: 'Uživatel', optional: true, transformValue: addUserLink },
                 },
                 sendData: array => call('db/admin/setCompanies', { array }).then(arrays.fetchCompanies),
                 editable: {
