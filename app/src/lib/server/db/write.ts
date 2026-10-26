@@ -1,12 +1,12 @@
-import { deleteIR, deleteNSP, type IR, type NSP } from "$lib/data";
+import { isWriteFunctionIR, type WriteDatabase } from '$lib/client/db/def';
+import { updates } from '$lib/client/db/performChange';
+import { deletedIR, type IR, type NSP } from '$lib/data';
 import { nowISO } from '$lib/helpers/date';
-import { client, id, irCollection, nspCollection } from "$lib/server/db";
-import { mongoReadDatabase } from "./read";
-import { extractIDFromSPOrSZ, type IRID, type NSPID } from "$lib/helpers/ir";
-import type { WriteDatabase } from '$lib/client/db/def';
-import type { MatchKeysAndValues } from "mongodb";
+import { type IRID, type NSPID } from '$lib/helpers/ir';
+import { client, id, irCollection, nspCollection } from '$lib/server/db';
+import { mongoReadDatabase } from './read';
 
-const addCreationTime = <T extends IR | NSP>(data: T): T => ({
+const withCreationTime = <T extends IR | NSP>(data: T): T => ({
     ...data,
     meta: {
         ...data.meta,
@@ -15,114 +15,84 @@ const addCreationTime = <T extends IR | NSP>(data: T): T => ({
     },
 });
 
-const addChangeTime = <T extends IR | NSP>(data: MatchKeysAndValues<T>): MatchKeysAndValues<T> => ({
+const withChangeTime = <T extends IR | NSP>(data: T): T => ({
     ...data,
-    'meta.changedAt': new Date().valueOf(),
+    meta: {
+        ...data.meta,
+        changedAt: new Date().valueOf(),
+    },
 });
 
-const update = async (irid: IRID, update: MatchKeysAndValues<IR>) => {
-    await irCollection.updateOne(id(irid), { $set: update as IR });
+const replace = async (irid: IRID, newIR: IR & { _id?: unknown }) => {
+    const { _id, ...replacement } = newIR;
+    await irCollection.replaceOne(id(irid), replacement);
+};
+
+const replaceNSP = async (nspid: NSPID, newNSP: NSP & { _id?: unknown }) => {
+    const { _id, ...replacement } = newNSP;
+    await nspCollection.replaceOne(id(nspid), replacement);
+};
+
+export type WriteDatabaseWithLocals = {
+    [F in keyof WriteDatabase]: ((...args: [locals: App.Locals, ...Parameters<WriteDatabase[F]>]) => ReturnType<WriteDatabase[F]>)
 }
 
-const updateNSP = async (nspid: NSPID, update: MatchKeysAndValues<NSP>) => {
-    await nspCollection.updateOne(id(nspid), { $set: update as NSP });
-}
+const simpleUpdates = updates.keys().associateWith(name => isWriteFunctionIR(name)
+    ? async (...[locals, irid, ...args]: Parameters<WriteDatabaseWithLocals[typeof name]>) => {
+        const updateFunction = updates[name];
 
-export type WriteDatabaseWIthLocals = {
-    [F in keyof WriteDatabase]: ((...args: [...Parameters<WriteDatabase[F]>, locals: App.Locals]) => ReturnType<WriteDatabase[F]>)
-}
+        const oldIR = await mongoReadDatabase.getIR(locals, irid);
+        if (!oldIR) throw new Error(`IR ${irid} doesn't exists`);
 
-export const mongoWriteDatabase: WriteDatabaseWIthLocals = {
-    addIR: async (ir, locals) => {
-        if (await mongoReadDatabase.existsIR(ir.meta.id, locals)) throw new Error(`IR ${ir.meta.id} already exists`);
-        await irCollection.insertOne(addCreationTime(ir));
+        // @ts-expect-error TS doesn't know it's a tuple
+        const newIR = updateFunction(oldIR, ...args);
+        await replace(irid, withChangeTime(newIR));
+    }
+    : async (...[locals, nspid, ...args]: Parameters<WriteDatabaseWithLocals[typeof name]>) => {
+        const updateFunction = updates[name];
+
+        const oldNSP = await mongoReadDatabase.getNSP(locals, nspid);
+        if (!oldNSP) throw new Error(`NSP ${nspid} doesn't exists`);
+
+        // @ts-expect-error TS doesn't know it's a tuple
+        const newNSP = updateFunction(oldNSP, ...args);
+        await replaceNSP(nspid, withChangeTime(newNSP));
+    }
+) as Pick<WriteDatabaseWithLocals, keyof typeof updates>;
+
+export const mongoWriteDatabase: WriteDatabaseWithLocals = {
+    ...simpleUpdates,
+    addIR: async (locals, ir) => {
+        if (await mongoReadDatabase.existsIR(locals, ir.meta.id)) throw new Error(`IR ${ir.meta.id} already exists`);
+        await irCollection.insertOne(withCreationTime(ir));
     },
-    deleteIR: async (irid, locals) => {
-        const ir = await mongoReadDatabase.getIR(irid, locals);
-        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
-        await update(irid, deleteIR());
-    },
-    moveIR: async (irid, ir, locals) => {
-        if (await mongoReadDatabase.existsIR(ir.meta.id, locals)) throw new Error(`IR ${ir.meta.id} already exists`);
-        const session = client.startSession()
-        session.startTransaction()
-        await irCollection.insertOne(addCreationTime(ir));
-        await update(irid, deleteIR(ir.meta.id));
+    moveIR: async (locals, oldIRID, newIR) => {
+        if (await mongoReadDatabase.existsIR(locals, newIR.meta.id)) throw new Error(`IR ${newIR.meta.id} already exists`);
+
+        const oldIR = await mongoReadDatabase.getIR(locals, oldIRID);
+        if (!oldIR) throw new Error(`IR ${oldIRID} doesn't exists`);
+
+        const session = client.startSession();
+        session.startTransaction();
+        await irCollection.insertOne(withCreationTime(newIR));
+        await replace(oldIRID, deletedIR(oldIR, newIR.meta.id));
         await session.commitTransaction();
         await session.endSession();
     },
-    updateIN: (irid, rawData, isDraft) => update(irid, addChangeTime<IR>({ IN: rawData, isDraft })),
-    addRKT: (irid, pump, year, check) => update(irid, addChangeTime<IR>({ [`RK.TC.${pump}.${year}`]: check })),
-    addRKS: (irid, year, check) => update(irid, addChangeTime<IR>({ [`RK.SOL.${year}`]: check })),
-    addSPs: async (irid, protocols, locals) => {
-        const ir = await mongoReadDatabase.getIR(irid, locals);
-        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
-        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
-        await update(irid, addChangeTime<IR>({
-            SPs: { ...protocols.associateBy(extractIDFromSPOrSZ), ...ir.SPs }
-                .entries().sortedBy(([_, p]) => new Date(p.zasah.datum)).toRecord(),
-        }));
-    },
-    updateSP: async (irid, protocol, locals) => {
-        const ir = await mongoReadDatabase.getIR(irid, locals);
-        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
-        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
-        await update(irid, addChangeTime<IR>({
-            SPs: { ...ir.SPs, [extractIDFromSPOrSZ(protocol)]: protocol },
-        }));
-    },
-    deleteSP: async (irid, spid, locals) => {
-        const ir = await mongoReadDatabase.getIR(irid, locals);
-        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
-        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
-        await update(irid, addChangeTime<IR>({
-            SPs: ir.SPs.omit(spid),
-        }));
-    },
-    updateUPT: async (irid, protocol, locals) => {
-        const ir = await mongoReadDatabase.getIR(irid, locals);
-        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
-        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
-        if (!ir.UP.TC?.os) {
-            protocol.uvadeni.createdAt = nowISO(true);
-            protocol.uvadeni.createdBy = locals.user!.email;
+    updateUPT: async (locals, irid, protocol) => {
+        const oldIR = await mongoReadDatabase.getIR(locals, irid);
+        if (!oldIR) throw new Error(`IR ${irid} doesn't exists`);
+
+        const newIR = updates.updateUPT(oldIR, protocol);
+        if (!oldIR.UP.TC?.os) {
+            newIR.UP.TC!.uvadeni.createdAt = nowISO(true);
+            newIR.UP.TC!.uvadeni.createdBy = locals.user!.email;
         }
-        await update(irid, addChangeTime<IR>({ 'UP.TC': protocol }));
+        await replace(irid, withChangeTime(newIR));
     },
-    updateDateUPT: async (irid, date) => update(irid, addChangeTime<IR>({ 'UP.dateTC': date })),
-    addUPS: async (irid, protocol) => update(irid, addChangeTime<IR>({ 'UP.SOL': protocol })),
-    updateDateUPS: async (irid, date) => update(irid, addChangeTime<IR>({ 'UP.dateSOL': date })),
-    updateUPF: async (irid, protocol) => update(irid, addChangeTime<IR>({ 'UP.FVE': protocol })),
-    addFT: async (irid, faceTable) => update(irid, addChangeTime<IR>({ FT: faceTable })),
-    updateUsersWithAccessToIR: async (irid, users) => update(irid, addChangeTime<IR>({ 'meta.usersWithAccess': users })),
-    markRefsiteConfirmed: async irid => update(irid, addChangeTime<IR>({ 'meta.flags.confirmedRefsite': true })),
-    updateDKT: async (irid, enabled, executingCompany) => {
-        const ir = await irCollection.findOne(id(irid));
-        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
-        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
-        const dk = enabled ? {
-            state: 'waiting',
-            ...ir.RK.DK.TC ?? {},
-            executingCompany: executingCompany!,
-        } : undefined;
-        await update(irid, addChangeTime<IR>({ 'RK.DK.TC': dk }));
+
+    addNSP: async (locals, nsp) => {
+        if (await mongoReadDatabase.getNSP(locals, nsp.meta.id)) throw new Error(`NSP ${nsp.meta.id} already exists`);
+        await nspCollection.insertOne(withCreationTime(nsp));
     },
-    updateDKS: async (irid, enabled, executingCompany) => {
-        const ir = await irCollection.findOne(id(irid));
-        if (!ir) throw new Error(`IR ${irid} doesn't exists`);
-        if (ir.deleted) throw new Error(`IR ${irid} is deleted`);
-        const dk = enabled ? {
-            state: 'waiting',
-            ...ir.RK.DK.SOL ?? {},
-            executingCompany: executingCompany!,
-        } : undefined;
-        await update(irid, addChangeTime<IR>({ 'RK.DK.SO': dk }));
-    },
-    addNSP: async (nsp, locals) => {
-        if (await mongoReadDatabase.getNSP(nsp.meta.id, locals)) throw new Error(`NSP ${nsp.meta.id} already exists`);
-        await nspCollection.insertOne(addCreationTime(nsp));
-    },
-    updateNSP: (nspid, protocol) =>
-        updateNSP(nspid, addChangeTime<NSP>({ NSP: protocol, deleted: false })),
-    deleteNSP: nspid => updateNSP(nspid, deleteNSP()),
 };

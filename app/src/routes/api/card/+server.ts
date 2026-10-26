@@ -14,12 +14,12 @@ import Card from './Card.svelte';
 export async function GET({ url, fetch }) {
     const id = extractIDs(url);
 
-    const locals = { user: undefined, session: undefined };
+    const locals = { user: null, session: null };
     const t = getTranslations('cs');
 
     let svg: string;
     if (id.irid) {
-        const ir = await mongoReadDatabase.getIR(id.irid, locals);
+        const ir = await mongoReadDatabase.getIR(locals, id.irid);
         if (!ir) error(400, { message: `IR doesn't exist!` });
 
         const pumps = cascadePumps(ir.IN)
@@ -49,7 +49,7 @@ export async function GET({ url, fetch }) {
         svg = body;
     } else if (id.nspids) {
         if (id.nspids.length != 1) error(400, { message: 'Exactly one spid must be provided!' });
-        const nsp = await mongoReadDatabase.getNSP(id.nspids[0], locals);
+        const nsp = await mongoReadDatabase.getNSP(locals, id.nspids[0]);
         if (!nsp) error(400, { message: `NSP doesn't exist!` });
 
         const crn = nsp.NSP.montazka.ico;

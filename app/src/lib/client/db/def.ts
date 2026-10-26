@@ -89,23 +89,34 @@ export interface WriteDatabase {
 export interface Database extends ReadDatabase, WriteDatabase {
 }
 
-export const readDatabaseMethods = [
-    'getIR', 'getChangedIRs', 'existsIR', 'getNSP', 'getChangedNSPs',
-] as const satisfies (keyof ReadDatabase)[];
-export const writeDatabaseMethods = [
-    'addIR', 'deleteIR', 'moveIR', 'updateIN',
-    'addRKT', 'addRKS', 'updateUPT', 'updateDateUPT', 'addUPS', 'updateDateUPS', 'updateUPF',
-    'addSPs', 'updateSP', 'deleteSP', 'updateUsersWithAccessToIR', 'markRefsiteConfirmed', 'updateDKT', 'updateDKS', 'addFT',
-    'addNSP', 'deleteNSP', 'updateNSP',
-] as const satisfies (keyof WriteDatabase)[];
-export const databaseMethods = [
-    ...readDatabaseMethods,
-    ...writeDatabaseMethods,
-] as const satisfies (keyof Database)[];
-
 export type WriteFunction = keyof WriteDatabase;
 export const isWriteFunction = (name: keyof Database): name is WriteFunction =>
     ['add', 'update', 'delete', 'move'].some(prefix => name.startsWith(prefix));
+
+export type WriteFunctionNSP = {
+    [F in WriteFunction]: F extends `${string}NSP` ? F : never
+}[WriteFunction];
+export const isWriteFunctionNSP = (name: WriteFunction): name is WriteFunctionNSP => name.endsWith('NSP');
+
+export type WriteFunctionIR = Exclude<WriteFunction, WriteFunctionNSP>
+export const isWriteFunctionIR = (name: WriteFunction): name is WriteFunctionIR => !isWriteFunctionNSP(name);
+
+export const readDatabaseMethods = [
+    'getIR', 'getChangedIRs', 'existsIR', 'getNSP', 'getChangedNSPs',
+] as const satisfies (keyof ReadDatabase)[];
+export const writeDatabaseMethodsIR = [
+    'addIR', 'deleteIR', 'moveIR', 'updateIN',
+    'addRKT', 'addRKS', 'updateUPT', 'updateDateUPT', 'addUPS', 'updateDateUPS', 'updateUPF',
+    'addSPs', 'updateSP', 'deleteSP', 'updateUsersWithAccessToIR', 'markRefsiteConfirmed', 'updateDKT', 'updateDKS', 'addFT',
+] as const satisfies WriteFunctionIR[];
+export const writeDatabaseMethodsNSP = [
+    'addNSP', 'deleteNSP', 'updateNSP',
+] as const satisfies WriteFunctionNSP[];
+export const databaseMethods = [
+    ...readDatabaseMethods,
+    ...writeDatabaseMethodsIR,
+    ...writeDatabaseMethodsNSP,
+] as const satisfies (keyof Database)[];
 
 export type GetAsStoreFunction = {
     [F in keyof ReadDatabase]: F extends `get${string}AsStore` ? F : never;

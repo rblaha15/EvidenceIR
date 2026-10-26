@@ -58,7 +58,7 @@ export const dbEndpoints = {
         };
     }),
     addLoyaltyPoints: defineEndpoint<{ data: LoyaltyProgramTrigger }, undefined>(async ({ data }, { locals }) => {
-        const extendedData = 'irid' in data ? { ...data, ir: await mongoReadDatabase.getIR(data.irid, locals) } : data;
+        const extendedData = 'irid' in data ? { ...data, ir: await mongoReadDatabase.getIR(locals, data.irid) } : data;
         await processLoyaltyReward(extendedData, locals);
     }),
     getLoyaltyPoints: defineEndpoint<undefined, LoyaltyProgramUserData>(async (_, { userEmail }) => {

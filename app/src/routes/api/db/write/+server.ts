@@ -15,6 +15,6 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
     const func = mongoWriteDatabase[name];
 
     // @ts-expect-error TS doesn't know it's a tuple
-    await func(...args, locals);
+    await func(locals, ...args);
     return new Response('ok');
 };

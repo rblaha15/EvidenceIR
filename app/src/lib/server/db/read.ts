@@ -3,13 +3,13 @@ import type { ExistingNSP } from '$lib/data';
 import { getIsRegulusOrAdmin } from '$lib/server/auth';
 import { id, irCollection, nspCollection } from '$lib/server/db';
 
-export type ReadDatabaseWIthLocals = {
-    [F in keyof ReadDatabase]: ((...args: [...Parameters<ReadDatabase[F]>, locals: App.Locals]) => ReturnType<ReadDatabase[F]>)
+export type ReadDatabaseWithLocals = {
+    [F in keyof ReadDatabase]: ((locals: App.Locals, ...args: [...Parameters<ReadDatabase[F]>]) => ReturnType<ReadDatabase[F]>)
 }
 
-export const mongoReadDatabase: ReadDatabaseWIthLocals = {
-    getIR: irid => irCollection.findOne(id(irid)),
-    getChangedIRs: async (lastUpdatedAt, locals) => {
+export const mongoReadDatabase: ReadDatabaseWithLocals = {
+    getIR: (_, irid) => irCollection.findOne(id(irid)),
+    getChangedIRs: async (locals, lastUpdatedAt) => {
         const user = locals.user!;
         const cursor = getIsRegulusOrAdmin(locals) ? irCollection.find({
             'meta.changedAt': { $gt: lastUpdatedAt },
@@ -19,10 +19,10 @@ export const mongoReadDatabase: ReadDatabaseWIthLocals = {
         });
         return await cursor.toArray();
     },
-    existsIR: irid => irCollection.findOne(id(irid)).then(doc => doc != null),
+    existsIR: (_, irid) => irCollection.findOne(id(irid)).then(doc => doc != null),
 
-    getNSP: nspid => nspCollection.findOne(id(nspid)),
-    getChangedNSPs: async lastUpdatedAt => await nspCollection.find({
+    getNSP: (_, nspid) => nspCollection.findOne(id(nspid)),
+    getChangedNSPs: async (_, lastUpdatedAt) => await nspCollection.find({
         'meta.changedAt': { $gt: lastUpdatedAt },
     }).toArray() as ExistingNSP[],
 };

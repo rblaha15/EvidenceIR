@@ -15,6 +15,6 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
     const func = mongoReadDatabase[name];
 
     // @ts-expect-error TS doesn't know it's a tuple
-    const result = await func(...args, locals);
+    const result = await func(locals, ...args);
     return new Response(JSON.stringify(result));
 };

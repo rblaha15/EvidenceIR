@@ -1,7 +1,8 @@
 import { getUser } from '$lib/client/auth';
-import type { Database, ReadDatabase, WriteDatabase } from '$lib/client/db/def';
+import { type Database, isWriteFunctionIR, type ReadDatabase, type WriteDatabase } from '$lib/client/db/def';
+import { updates } from '$lib/client/db/performChange';
 import { type Data, type DataType, deletedIR, deletedNSP, type ID, type IR, type NSP } from '$lib/data';
-import { extractIDFromSPOrSZ, type IRID, type NSPID } from '$lib/helpers/ir';
+import { type IRID, type NSPID } from '$lib/helpers/ir';
 import { type IDBPDatabase, openDB } from 'idb';
 import { derived, writable } from 'svelte/store';
 
@@ -45,8 +46,8 @@ const db = async () => {
 };
 
 export const clearLocalDatabase = async () => {
-    storedIR.set({})
-    storedSP.set({})
+    storedIR.set({});
+    storedSP.set({});
     await (await db()).clear('IR');
     await (await db()).clear('NSP');
 };
@@ -73,7 +74,7 @@ const odm = {
         if (type === 'IR') storedIR.set(values);
         if (type === 'NSP') storedSP.set(values);
     },
-    update: async <T extends DataType>(type: T, id: ID<T>, update: (value: (Data<T>)) => Data<T>) => {
+    update: async <T extends DataType>(type: T, id: ID<T>, update: (value: (Data<T>)) => Data<T> | Promise<Data<T>>) => {
         const tx = (await db()).transaction(type, 'readwrite');
         const store = tx.objectStore(type);
         const current = await store.get(id);
@@ -96,110 +97,32 @@ const readDatabase: ReadDatabase = {
     getChangedNSPs: async () => [],
 };
 
+const simpleUpdates = updates.keys().associateWith(name => isWriteFunctionIR(name)
+    ? (...[irid, ...args]: Parameters<WriteDatabase[typeof name]>) =>
+        odm.update('IR', irid, oldIR => {
+            // @ts-expect-error TS doesn't know it's a tuple
+            return updateFunction(oldIR, ...args);
+        })
+    : (...[nspid, ...args]: Parameters<WriteDatabase[typeof name]>) =>
+        odm.update('NSP', nspid, oldNSP => {
+            // @ts-expect-error TS doesn't know it's a tuple
+            return updateFunction(oldNSP, ...args);
+        }),
+) as Pick<WriteDatabase, keyof typeof updates>;
+
 const writeDatabase: WriteDatabase = {
+    ...simpleUpdates,
     addIR: ir => odm.set('IR', ir.meta.id, ir),
-    deleteIR: irid => odm.update('IR', irid, ir => deletedIR(ir)),
-    moveIR: async (irid, ir) => {
-        if (await readDatabase.existsIR(ir.meta.id)) throw new Error(`IR ${ir.meta.id} already exists`);
-        const oldIr = await readDatabase.getIR(irid);
-        if (!oldIr) throw new Error(`IR ${irid} doesn't exists`);
-        await odm.set('IR', ir.meta.id, ir);
-        const newIr = await readDatabase.getIR(ir.meta.id);
-        if (!newIr) throw new Error(`IR ${ir.meta.id} doesn't exists`);
-        await odm.update('IR', irid, ir => deletedIR(oldIr, ir.meta.id));
+    moveIR: async (oldIRID, newIR) => {
+        const newIRID = newIR.meta.id;
+        if (await readDatabase.existsIR(newIRID)) throw new Error(`IR ${newIRID} already exists`);
+        const oldIR = await readDatabase.getIR(oldIRID);
+        if (!oldIR) throw new Error(`IR ${oldIRID} doesn't exists`);
+        await odm.set('IR', newIRID, newIR);
+        const confirmNewIR = await readDatabase.getIR(newIRID);
+        if (!confirmNewIR) throw new Error(`IR ${newIRID} doesn't exists`);
+        await odm.update('IR', oldIRID, _ => deletedIR(oldIR, newIRID));
     },
-    updateIN: (irid, rawData, isDraft) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.IN = rawData;
-        ir.isDraft = isDraft;
-        return ir;
-    }),
-    addRKT: (irid, pump, year, check) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.RK.TC[pump] = ir.RK.TC[pump] ?? {};
-        ir.RK.TC[pump][year] = check;
-        return ir;
-    }),
-    addRKS: (irid, year, check) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.RK.SOL = ir.RK.SOL ?? {};
-        ir.RK.SOL[year] = check;
-        return ir;
-    }),
-    addSPs: (irid, protocols) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.SPs = { ...protocols.associateBy(extractIDFromSPOrSZ), ...ir.SPs }
-            .entries().toRecord();
-        return ir;
-    }),
-    updateSP: async (irid, protocol) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.SPs[extractIDFromSPOrSZ(protocol)] = protocol;
-        return ir;
-    }),
-    deleteSP: async (irid, id) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.SPs = ir.SPs.omit(id);
-        return ir;
-    }),
-    updateUPT: async (irid, protocol) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.UP.TC = protocol;
-        return ir;
-    }),
-    updateDateUPT: async (irid, date) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.UP.dateTC = date;
-        return ir;
-    }),
-    addUPS: async (irid, protocol) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.UP.SOL = protocol;
-        return ir;
-    }),
-    updateDateUPS: async (irid, date) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.UP.dateTC = date;
-        return ir;
-    }),
-    updateUPF: async (irid, protocol) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.UP.FVE = protocol;
-        return ir;
-    }),
-    addFT: async (irid, faceTable) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.FT = faceTable;
-        return ir;
-    }),
-    updateUsersWithAccessToIR: async (irid, users) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.meta.usersWithAccess = users;
-        return ir;
-    }),
-    markRefsiteConfirmed: async irid => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.meta.flags.confirmedRefsite = true;
-        return ir;
-    }),
-    updateDKT: async (irid, enabled, executingCompany) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.RK.DK.TC = enabled ? {
-            state: 'waiting',
-            ...ir.RK.DK.TC ?? {},
-            executingCompany: executingCompany!,
-        } : undefined;
-        return ir;
-    }),
-    updateDKS: async (irid, enabled, executingCompany) => odm.update('IR', irid, ir => {
-        if (ir.deleted) return ir;
-        ir.RK.DK.SOL = enabled ? {
-            state: 'waiting',
-            ...ir.RK.DK.SOL ?? {},
-            executingCompany: executingCompany!,
-        } : undefined;
-        return ir;
-    }),
 
     addNSP: nsp => odm.set('NSP', nsp.meta.id, nsp),
     updateNSP: (nspid, rawData) => odm.update('NSP', nspid, nsp => {
@@ -207,7 +130,7 @@ const writeDatabase: WriteDatabase = {
         nsp.NSP = rawData;
         return nsp;
     }),
-    deleteNSP: async nspid => await odm.update('NSP', nspid, sp => deletedNSP(sp)),
+    deleteNSP: nspid => odm.update('NSP', nspid, deletedNSP),
 };
 
 export const offlineDatabase: Database = {

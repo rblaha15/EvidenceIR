@@ -2,15 +2,14 @@ import {
     type Database,
     isWriteFunction,
     type ReadDatabase,
-    readDatabaseMethods,
-    writeDatabaseMethods
-} from "$lib/client/db/def";
+    databaseMethods,
+} from '$lib/client/db/def';
 import type { DatabaseWithFetch } from '$lib/client/db/index';
 import { offlineDatabase, offlineDatabaseManager } from "$lib/client/db/offline.svelte";
 import type { IRID, NSPID } from "$lib/helpers/ir";
 import type { IR, NSP } from "$lib/data";
 
-export const mongoDatabase: DatabaseWithFetch = [...readDatabaseMethods, ...writeDatabaseMethods].associateWith(name =>
+export const mongoDatabase: DatabaseWithFetch = databaseMethods.associateWith(name =>
     async (...argsWithFetch: Parameters<DatabaseWithFetch[typeof name]>) => {
         const last = argsWithFetch.at(-1);
         const args = (!argsWithFetch.length ? [] : last instanceof Function ? argsWithFetch.slice(0, -1) : argsWithFetch) as Parameters<Database[typeof name]>;

@@ -840,3 +840,5 @@ export const newArray = <T>(size: number, filler: (index: number) => T) =>
 
 export const newString = (count: number, filler: (index: number) => string) => newArray(count, filler).join('');
 export const stringOf = (count: number, value: string) => arrayOf(count, value).join('');
+
+export type Tail<T extends any[]> = T extends [infer _, ...infer R] ? R : never;
