@@ -89,6 +89,7 @@ export default (ir: IR): FormPlus<FormUPT> => ({
                 required: c => !c.UP.os.tcTv,
             }),
         objemEnOs: newSuitsWidget({ label: t => t.tc.volumeOfExpansionTankOfHeatingSystem }),
+        enPitnaVoda: newCheckboxWidget({ required: false, label: t => t.tc.expansionTankOfWater }),
         tlakEnOs: newInputWidget({
             label: t => t.tc.pressureOfExpansionTankOfHeatingSystem, type: 'number', suffix: t => t.units.bar, compact: true,
         }),

@@ -471,6 +471,7 @@ export default {
         typeAndPowerOfAdditionalHeatingSource: `Typ a výkon doplňkového zdroje pro topení`,
         doesHeatPumpPrepareHotWater: `TČ připravuje i teplou vodu`,
         volumeOfExpansionTankOfHeatingSystem: `Objem expanzní nádoby otopného systému`,
+        expansionTankOfWater: `Je instalována expanzní nádoba pitné vody`,
         pressureOfExpansionTankOfHeatingSystem: `Nastavený tlak v expanzní nádobě otopného systému`,
         pressureOfHeatingSystem: `Nastavený tlak v otopném systému`,
         pressureOfExpansionTankForWater: `Nastavený tlak v expanzní nádobě pitné vody`,

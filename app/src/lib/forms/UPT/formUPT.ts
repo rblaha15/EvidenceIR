@@ -41,6 +41,7 @@ export interface FormUPT extends Form<ContextUPT> {
         tcTv: CheckboxWidget<ContextUPT>,
         zTv: InputWidget<ContextUPT>,
         objemEnOs: SwitchWidget<ContextUPT>,
+        enPitnaVoda: CheckboxWidget<ContextUPT>,
         tlakEnOs: InputWidget<ContextUPT>,
         tlakOs: InputWidget<ContextUPT>,
         tlakEnTv: InputWidget<ContextUPT>,

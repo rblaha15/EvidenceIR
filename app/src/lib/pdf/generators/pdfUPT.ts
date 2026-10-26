@@ -135,6 +135,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
         Text26: UP.os.tcTv ? tu.yes : tu.no,
         Text27: UP.os.zTv,
         Text28: UP.os.objemEnOs ? tu.suits : tu.suitsNot,
+        Text54: UP.os.enPitnaVoda ? tu.yes : tu.no,
         Text48: UP.os.prutokTcTopeni,
         Text49: UP.os.prutokTcTepleVody,
         Text50: UP.os.prutokTcChlazeni,

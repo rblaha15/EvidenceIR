@@ -363,6 +363,7 @@ const de: PlainTranslations = {
         additionalHotWaterSource: `Zusätzquelle für Warmwasser`,
         mainHotWaterSource: `Hauptquelle für Warmwasser`,
         volumeOfExpansionTankOfHeatingSystem: `Volumen des Ausdehnungsgefäßes des Heizungsystems`,
+        expansionTankOfWater: `Ein Trinkwasserausdehnungsgefäß wird installiert`,
         pressureOfExpansionTankOfHeatingSystem: `Einstelldruck im Ausdehnungsgefäß des Heizungsystems`,
         pressureOfHeatingSystem: `Einstelldruck im Heizungsystem`,
         pressureOfExpansionTankForWater: `Einstelldruck im Trinkwasserausdehnungsgefäß`,
