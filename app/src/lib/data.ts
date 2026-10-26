@@ -47,7 +47,7 @@ export type SignatureState = {
         name: string;
     };
 } | {
-    state: 'signed';
+    state: 'signed' | 'removed';
     initiatingUser: {
         email: string;
         name: string;

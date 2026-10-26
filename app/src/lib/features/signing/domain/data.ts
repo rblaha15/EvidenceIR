@@ -88,3 +88,13 @@ export const getSigningInfo = (def: DocumentDefinition, ir: IR | null, nsp: NSP 
 
     return { signingBy, sendParams, attemptParams, o, allowSigning, signeeType };
 };
+
+export const hasSignatures = (
+    data: IR | undefined,
+) => {
+    const signatures = data?.signatures;
+    if (!signatures) return false;
+    if (signatures.getValues().some(it => it && 'state' in it && it.state == 'signed')) return true;
+    const withParameter = signatures.getValues().filter(it => it && !('state' in it && it.state == 'signed'));
+    return withParameter.some(it => it && it.keys().length);
+};

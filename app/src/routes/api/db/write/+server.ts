@@ -4,7 +4,7 @@ import { mongoWriteDatabase } from '$lib/server/db/write';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request, url, locals }) => {
+export const POST: RequestHandler = async ({ request, url, locals, fetch }) => {
     if (!getIsLoggedIn(locals)) return error(401);
 
     const name = url.searchParams.get('name') as keyof WriteDatabase;
@@ -15,6 +15,6 @@ export const POST: RequestHandler = async ({ request, url, locals }) => {
     const func = mongoWriteDatabase[name];
 
     // @ts-expect-error TS doesn't know it's a tuple
-    await func(locals, ...args);
+    await func({ locals, fetch }, ...args);
     return new Response('ok');
 };

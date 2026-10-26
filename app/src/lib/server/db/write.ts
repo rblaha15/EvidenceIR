@@ -1,6 +1,7 @@
 import { isWriteFunctionIR, type WriteDatabase } from '$lib/client/db/def';
 import { updates } from '$lib/client/db/performChange';
 import { deletedIR, type IR, type NSP } from '$lib/data';
+import { removeSignaturesFromData } from '$lib/features/signing/actions/changes';
 import { nowISO } from '$lib/helpers/date';
 import { type IRID, type NSPID } from '$lib/helpers/ir';
 import { client, id, irCollection, nspCollection } from '$lib/server/db';
@@ -33,53 +34,55 @@ const replaceNSP = async (nspid: NSPID, newNSP: NSP & { _id?: unknown }) => {
     await nspCollection.replaceOne(id(nspid), replacement);
 };
 
-export type WriteDatabaseWithLocals = {
-    [F in keyof WriteDatabase]: ((...args: [locals: App.Locals, ...Parameters<WriteDatabase[F]>]) => ReturnType<WriteDatabase[F]>)
+type Context = { locals: App.Locals, fetch: typeof window.fetch };
+
+export type WriteDatabaseWithContext = {
+    [F in keyof WriteDatabase]: ((...args: [ctx: Context, ...Parameters<WriteDatabase[F]>]) => ReturnType<WriteDatabase[F]>)
 }
 
-const simpleUpdates = updates.keys().associateWith(name => isWriteFunctionIR(name)
-    ? async (...[locals, irid, ...args]: Parameters<WriteDatabaseWithLocals[typeof name]>) => {
+const simpleUpdates = updates.keys().associateWith(name =>
+    async (...[{ locals, fetch }, id, ...args]: Parameters<WriteDatabaseWithContext[typeof name]>) => {
         const updateFunction = updates[name];
 
-        const oldIR = await mongoReadDatabase.getIR(locals, irid);
-        if (!oldIR) throw new Error(`IR ${irid} doesn't exists`);
+        const oldData = isWriteFunctionIR(name)
+            ? await mongoReadDatabase.getIR(locals, id as IRID)
+            : await mongoReadDatabase.getNSP(locals, id as NSPID);
+        if (!oldData) throw new Error(isWriteFunctionIR(name) ? `IR ${id} doesn't exists` : `NSP ${id} doesn't exists`);
 
         // @ts-expect-error TS doesn't know it's a tuple
-        const newIR = updateFunction(oldIR, ...args);
-        await replace(irid, withChangeTime(newIR));
+        const newData = updateFunction(oldData, ...args);
+        const withoutSignatures = oldData.deleted || newData.deleted ? newData
+            : await removeSignaturesFromData(oldData, newData, fetch);
+        isWriteFunctionIR(name)
+            ? await replace(id as IRID, withChangeTime(withoutSignatures as IR))
+            : await replaceNSP(id as NSPID, withChangeTime(withoutSignatures as NSP))
     }
-    : async (...[locals, nspid, ...args]: Parameters<WriteDatabaseWithLocals[typeof name]>) => {
-        const updateFunction = updates[name];
+) as Pick<WriteDatabaseWithContext, keyof typeof updates>;
 
-        const oldNSP = await mongoReadDatabase.getNSP(locals, nspid);
-        if (!oldNSP) throw new Error(`NSP ${nspid} doesn't exists`);
-
-        // @ts-expect-error TS doesn't know it's a tuple
-        const newNSP = updateFunction(oldNSP, ...args);
-        await replaceNSP(nspid, withChangeTime(newNSP));
-    }
-) as Pick<WriteDatabaseWithLocals, keyof typeof updates>;
-
-export const mongoWriteDatabase: WriteDatabaseWithLocals = {
+export const mongoWriteDatabase: WriteDatabaseWithContext = {
     ...simpleUpdates,
-    addIR: async (locals, ir) => {
+    addIR: async ({ locals }, ir) => {
         if (await mongoReadDatabase.existsIR(locals, ir.meta.id)) throw new Error(`IR ${ir.meta.id} already exists`);
         await irCollection.insertOne(withCreationTime(ir));
     },
-    moveIR: async (locals, oldIRID, newIR) => {
-        if (await mongoReadDatabase.existsIR(locals, newIR.meta.id)) throw new Error(`IR ${newIR.meta.id} already exists`);
+    moveIR: async ({ locals, fetch }, oldIRID, newIR) => {
+        const newIRID = newIR.meta.id;
+        if (await mongoReadDatabase.existsIR(locals, newIRID)) throw new Error(`IR ${newIRID} already exists`);
 
         const oldIR = await mongoReadDatabase.getIR(locals, oldIRID);
         if (!oldIR) throw new Error(`IR ${oldIRID} doesn't exists`);
 
+        const withoutSignatures = oldIR.deleted || newIR.deleted ? newIR
+            : await removeSignaturesFromData<'IR'>(oldIR, newIR, fetch);
+
         const session = client.startSession();
         session.startTransaction();
-        await irCollection.insertOne(withCreationTime(newIR));
-        await replace(oldIRID, deletedIR(oldIR, newIR.meta.id));
+        await irCollection.insertOne(withCreationTime(withoutSignatures));
+        await replace(oldIRID, deletedIR(oldIR, newIRID));
         await session.commitTransaction();
         await session.endSession();
     },
-    updateUPT: async (locals, irid, protocol) => {
+    updateUPT: async ({ locals, fetch }, irid, protocol) => {
         const oldIR = await mongoReadDatabase.getIR(locals, irid);
         if (!oldIR) throw new Error(`IR ${irid} doesn't exists`);
 
@@ -88,10 +91,12 @@ export const mongoWriteDatabase: WriteDatabaseWithLocals = {
             newIR.UP.TC!.uvadeni.createdAt = nowISO(true);
             newIR.UP.TC!.uvadeni.createdBy = locals.user!.email;
         }
-        await replace(irid, withChangeTime(newIR));
+        const withoutSignatures = oldIR.deleted || newIR.deleted ? newIR
+            : await removeSignaturesFromData<'IR'>(oldIR, newIR, fetch);
+        await replace(irid, withChangeTime(withoutSignatures));
     },
 
-    addNSP: async (locals, nsp) => {
+    addNSP: async ({ locals }, nsp) => {
         if (await mongoReadDatabase.getNSP(locals, nsp.meta.id)) throw new Error(`NSP ${nsp.meta.id} already exists`);
         await nspCollection.insertOne(withCreationTime(nsp));
     },

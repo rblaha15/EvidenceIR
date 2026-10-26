@@ -79,7 +79,9 @@
         {/if}
     </DangerAlert>
 {/if}
-{#if $settings && $settings.state == 'signed' && status != 'sendingEmail' && status != 'end'}
+{#if $settings && $settings.state != 'sentCodes' && status != 'sendingEmail' && status != 'end'}
+    <DangerAlert title="Tento dokument byl již podepsán!" />
+{:else if $settings && $settings.state == 'removed' && status != 'sendingEmail' && status != 'end'}
     <DangerAlert title="Tento dokument byl již podepsán!" />
 {:else if $settings && $settings.initiatingUser.email != $user!.email}
     <DangerAlert title="Tento dokument již podepisuje jiný uživatel!" />

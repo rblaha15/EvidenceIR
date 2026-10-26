@@ -51,7 +51,7 @@
             goto(createLink(code), { replaceState: true, invalidateAll: true })
         } options={supportedLanguages} selected={data.fileLang} />
     </div>
-    {#if data.signatureState?.state != 'signed' && data.allowSigning}
+    {#if !data.signatureState || data.signatureState.state == 'sentCodes' && data.allowSigning}
         <Button href={signUrl}>
             <Signature />
             Podepsat dokument

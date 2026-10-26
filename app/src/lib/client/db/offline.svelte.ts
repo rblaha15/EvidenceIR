@@ -1,7 +1,8 @@
 import { getUser } from '$lib/client/auth';
 import { type Database, isWriteFunctionIR, type ReadDatabase, type WriteDatabase } from '$lib/client/db/def';
 import { updates } from '$lib/client/db/performChange';
-import { type Data, type DataType, deletedIR, deletedNSP, type ID, type IR, type NSP } from '$lib/data';
+import { type Data, type DataType, deletedIR, type ID, type IR, type NSP } from '$lib/data';
+import { removeSignaturesFromData } from '$lib/features/signing/actions/changes';
 import { type IRID, type NSPID } from '$lib/helpers/ir';
 import { type IDBPDatabase, openDB } from 'idb';
 import { derived, writable } from 'svelte/store';
@@ -97,16 +98,14 @@ const readDatabase: ReadDatabase = {
     getChangedNSPs: async () => [],
 };
 
-const simpleUpdates = updates.keys().associateWith(name => isWriteFunctionIR(name)
-    ? (...[irid, ...args]: Parameters<WriteDatabase[typeof name]>) =>
-        odm.update('IR', irid, oldIR => {
+const simpleUpdates = updates.keys().associateWith(name =>
+    (...[id, ...args]: Parameters<WriteDatabase[typeof name]>) =>
+        odm.update(isWriteFunctionIR(name) ? 'IR' : 'NSP', id, oldData => {
+            const updateFunction = updates[name];
             // @ts-expect-error TS doesn't know it's a tuple
-            return updateFunction(oldIR, ...args);
-        })
-    : (...[nspid, ...args]: Parameters<WriteDatabase[typeof name]>) =>
-        odm.update('NSP', nspid, oldNSP => {
-            // @ts-expect-error TS doesn't know it's a tuple
-            return updateFunction(oldNSP, ...args);
+            const newData = updateFunction(oldData, ...args);
+            return oldData.deleted || newData.deleted ? newData
+                : removeSignaturesFromData(oldData, newData);
         }),
 ) as Pick<WriteDatabase, keyof typeof updates>;
 
@@ -116,21 +115,18 @@ const writeDatabase: WriteDatabase = {
     moveIR: async (oldIRID, newIR) => {
         const newIRID = newIR.meta.id;
         if (await readDatabase.existsIR(newIRID)) throw new Error(`IR ${newIRID} already exists`);
+
         const oldIR = await readDatabase.getIR(oldIRID);
         if (!oldIR) throw new Error(`IR ${oldIRID} doesn't exists`);
-        await odm.set('IR', newIRID, newIR);
-        const confirmNewIR = await readDatabase.getIR(newIRID);
-        if (!confirmNewIR) throw new Error(`IR ${newIRID} doesn't exists`);
+
+        const withoutSignatures = oldIR.deleted || newIR.deleted ? newIR
+            : await removeSignaturesFromData<'IR'>(oldIR, newIR);
+
+        await odm.set('IR', newIRID, withoutSignatures);
         await odm.update('IR', oldIRID, _ => deletedIR(oldIR, newIRID));
     },
 
     addNSP: nsp => odm.set('NSP', nsp.meta.id, nsp),
-    updateNSP: (nspid, rawData) => odm.update('NSP', nspid, nsp => {
-        if (nsp.deleted) return nsp;
-        nsp.NSP = rawData;
-        return nsp;
-    }),
-    deleteNSP: nspid => odm.update('NSP', nspid, deletedNSP),
 };
 
 export const offlineDatabase: Database = {
