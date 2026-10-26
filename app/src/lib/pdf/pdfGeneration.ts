@@ -91,7 +91,7 @@ export const generatePdf = async <P extends Pdf>(
     const form = pdfDoc.getForm();
 
     const addDoc = async <P extends Pdf>(o: GeneratePdfOptions<P>) => {
-        const pdfData2 = await generatePdf<P>(o);
+        const pdfData2 = await generatePdf<P>({ fetch, ...o });
         const args2 = pdfInfo[o.link];
         const pdfDoc2 = await PDFDocument.load(pdfData2.pdfBytes);
         if (!args2.doNotFlatten) pdfDoc2.getForm().flatten();
