@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Alert, AlertAction, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
-    import { Button } from '$lib/components/ui/button';
+    import { Button, type ButtonVariant } from '$lib/components/ui/button';
     import { OctagonAlert } from '@lucide/svelte';
     import type { Snippet } from 'svelte';
     import type { ClassValue } from 'svelte/elements';
@@ -14,6 +14,7 @@
         action?: {
             text: string;
             onclick: () => void;
+            variant?: ButtonVariant;
         };
     } = $props();
 </script>
@@ -29,15 +30,15 @@
             {title}
         {/if}
     </AlertTitle>
+    {#if action}
+        <AlertAction>
+            <Button variant={action?.variant || 'ghost'} onclick={action.onclick}>{action.text}</Button>
+        </AlertAction>
+    {/if}
     {#if description || children}
         <AlertDescription>
             {#if description}{description}{/if}
             {#if children}{@render children()}{/if}
         </AlertDescription>
-    {/if}
-    {#if action}
-        <AlertAction>
-            <Button variant="ghost" onclick={action.onclick}>{action.text}</Button>
-        </AlertAction>
     {/if}
 </Alert>
