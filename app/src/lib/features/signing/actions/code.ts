@@ -52,7 +52,7 @@ const sendEmails = async (
         ...defaultAddresses(params.signingBy.email, { includeName: true }),
         subject: `Podepsaný dokument ${title}`,
         attachments: [attachment],
-        text: email2Body(title, user.name),
+        html: email2Body(title, user.name),
     });
 
     if (response1!.ok && response2!.ok) {

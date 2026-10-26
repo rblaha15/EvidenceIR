@@ -43,7 +43,7 @@ const infoOD: IndependentFormInfo<ContextOD, FormOD> = {
             text: t.form.attachmentError,
             red: true,
             load: false,
-            error: response.failedAttachments.map(i => files[i].fileName).join('\n'),
+            error: response.failedAttachments.map(({ index, reason }) => files[index].fileName + ': ' + reason).join('\n'),
         }); else if (response!.ok) {
             await fileIds.map(removeFile).awaitAll();
             return true;

@@ -75,14 +75,15 @@ export const sendHtmlEmail = async (options: HtmlEmailOptions) => {
 
     const isOnline = getIsOnline();
     addEmailToHistory(newOptions, isOnline);
-    if (!isOnline) return { ok: true, failedAttachments: [] as number[] };
+    if (!isOnline) return { ok: true, failedAttachments: [] };
 
     return await sendEmailAndUploadAttachments(newOptions);
 };
 
 export const sendEmailAndUploadAttachments = async (options: EmailOptions) => {
-    const attachments = await (options.attachments ?? []).map(async (file, i) => {
-        if (!file) return { error: i };
+    const attachments = await (options.attachments ?? []).map(async (file, index) => {
+        if (!file)
+            return { error: { index, reason: 'notFound' } };
         try {
             const { id } = await call('uploadAttachment', file, { isFileUpload: true });
             return {
@@ -94,7 +95,7 @@ export const sendEmailAndUploadAttachments = async (options: EmailOptions) => {
             };
         } catch (e) {
             console.error(e);
-            return { error: i };
+            return { error: { index, reason: e } };
         }
     }).awaitAll();
     const successfulAttachments = attachments.filter(r => r.error == null).map(r => r.value);
