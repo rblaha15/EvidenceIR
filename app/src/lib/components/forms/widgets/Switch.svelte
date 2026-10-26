@@ -28,22 +28,24 @@
     <CardContent>
         <Field data-invalid={invalid} orientation="horizontal">
             <FieldTitle>{widget.label(t, context)}</FieldTitle>
-            <Toggle
-                aria-invalid={invalid}
-                onPressedChange={onPressedChange(false)}
-                pressed={!value}
-                variant={widget.hasPositivity(context) ? 'negative' : 'default'}
-            >
-                {widget.options(t)[0]}
-            </Toggle>
-            <Toggle
-                aria-invalid={invalid}
-                onPressedChange={onPressedChange(true)}
-                pressed={value}
-                variant={widget.hasPositivity(context) ? 'positive' : 'default'}
-            >
-                {widget.options(t)[1]}
-            </Toggle>
+            <div class="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-3">
+                <Toggle
+                    aria-invalid={invalid}
+                    onPressedChange={onPressedChange(false)}
+                    pressed={!value}
+                    variant={widget.hasPositivity(context) ? 'negative' : 'default'}
+                >
+                    {widget.options(t)[0]}
+                </Toggle>
+                <Toggle
+                    aria-invalid={invalid}
+                    onPressedChange={onPressedChange(true)}
+                    pressed={value}
+                    variant={widget.hasPositivity(context) ? 'positive' : 'default'}
+                >
+                    {widget.options(t)[1]}
+                </Toggle>
+            </div>
         </Field>
         {#if invalid}
             <FieldError>{widget.onError(t, context)}</FieldError>
