@@ -15,7 +15,7 @@ export type Effect<
     { [I in keyof S]: Readable<S[I]> | (() => Readable<S[I]>) }
 ]
 
-export type Result = { text: string, red: boolean, load: boolean, error?: string };
+export type Result = { text: string, red: boolean, load: boolean, error?: string, confirm?: { text: string, onclick: () => Promise<boolean | void> } };
 export const buttonKeys = ['hideBack', 'hideSave', 'saveAndSend', 'saveAndSendAgain', 'send', 'saveAsDraft'] as const
 export type ButtonKey = typeof buttonKeys[number]
 export type Mode = 'create' | 'edit' | 'view';

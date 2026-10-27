@@ -5,9 +5,15 @@
     P extends Pdf = Pdf,
     O extends Record<string, unknown> = Record<never, unknown>,
 " lang="ts">
+    import { dev } from '$app/environment';
+    import { goto } from '$app/navigation';
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
     import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
+    import ReadonlyWidget from '$lib/components/forms/ReadonlyWidget.svelte';
+    import WidgetComponent from '$lib/components/forms/Widget.svelte';
+    import { Button } from '$lib/components/ui/button';
+    import { Spinner } from '$lib/components/ui/spinner';
 
     // noinspection ES6UnusedImports
     import {
@@ -21,24 +27,25 @@
         widgetList,
         type WidgetWithValue,
     } from '$lib/forms/Form';
+    import FormHeader from '$lib/forms/FormHeader.svelte';
+    import {
+        type ButtonKey,
+        buttonKeys,
+        type IndependentFormInfo,
+        type Mode,
+        type ModeL,
+        type Result
+    } from '$lib/forms/FormInfo';
+    import { generatePdfPreviewUrl } from '$lib/helpers/files';
+    import { appUrl, refreshTOC, runLoading } from '$lib/helpers/globals.js';
+    import { storable } from '$lib/helpers/newStores';
+    import { relUrl } from '$lib/helpers/runes.svelte';
     // noinspection ES6UnusedImports
     import { type Pdf } from '$lib/pdf/pdf';
     import type { Translations } from '$lib/translations';
-    import FormHeader from '$lib/forms/FormHeader.svelte';
+    import { PencilRuler, Save, SendHorizontal } from '@lucide/svelte';
     import { onMount, untrack } from 'svelte';
     import { derived as derivedStore, type Readable, readable } from 'svelte/store';
-    import WidgetComponent from '$lib/components/forms/Widget.svelte';
-    import { storable } from '$lib/helpers/newStores';
-    import { dev } from '$app/environment';
-    import { type ButtonKey, buttonKeys, type IndependentFormInfo, type Mode, type ModeL, type Result } from '$lib/forms/FormInfo';
-    import { appUrl, refreshTOC, runLoading } from '$lib/helpers/globals.js';
-    import ReadonlyWidget from '$lib/components/forms/ReadonlyWidget.svelte';
-    import { goto } from '$app/navigation';
-    import { relUrl } from '$lib/helpers/runes.svelte';
-    import { generatePdfPreviewUrl } from '$lib/helpers/files';
-    import { Button } from '$lib/components/ui/button';
-    import { PencilRuler, Save, SendHorizontal } from '@lucide/svelte';
-    import { Spinner } from "$lib/components/ui/spinner";
 
     const { t, formInfo, editData, viewData, other }: {
         t: Translations,
@@ -120,6 +127,26 @@
             .then(refreshTOC);
     });
 
+    const onSuccessfulSave = async () => {
+        const raw = valuesToRawData(form, values);
+        if (!dev) storedData.set(undefined);
+
+        result = openPdf || redirectLink
+            ? { text: t.form.redirecting, red: false, load: true }
+            : { text: '', red: false, load: false };
+
+        if (openPdf) {
+            const o = await openPdf(raw, other);
+            const url = generatePdfPreviewUrl(o);
+            const gotoUrl = new URL(relUrl('/detail'), appUrl);
+            url.searchParams.get('irid')?.also(u => gotoUrl.searchParams.set('irid', u));
+            url.searchParams.get('spid')?.also(u => gotoUrl.searchParams.set('spid', u));
+            gotoUrl.searchParams.set('goto', url.pathname + url.search);
+            await goto(gotoUrl, { replaceState: true });
+        } else if (redirectLink)
+            await goto(await redirectLink(raw, other), { replaceState: true });
+    };
+
     const save = (send: boolean, draft: boolean) => async () => {
         try {
             const raw = valuesToRawData(form, values);
@@ -139,31 +166,16 @@
 
             result = { load: true, red: false, text: t.form.saving };
             const success = await saveData({
-                form, raw, other, draft, edit: mode == 'edit', send, t,
+                form, raw, other, draft, edit: mode == 'edit', send, t, context, values,
                 resetForm() {
                     values = defaultValues(form)
                 },
-                editResult: r => result = r, context, values,
+                editResult(r) {
+                    result = r;
+                },
             });
 
-            if (success) {
-                if (!dev) storedData.set(undefined);
-
-                result = openPdf || redirectLink
-                    ? { text: t.form.redirecting, red: false, load: true }
-                    : { text: '', red: false, load: false };
-
-                if (openPdf) {
-                    const o = await openPdf(raw, other);
-                    const url = generatePdfPreviewUrl(o);
-                    const gotoUrl = new URL(relUrl('/detail'), appUrl);
-                    url.searchParams.get('irid')?.also(u => gotoUrl.searchParams.set('irid', u));
-                    url.searchParams.get('spid')?.also(u => gotoUrl.searchParams.set('spid', u));
-                    gotoUrl.searchParams.set('goto', url.pathname + url.search);
-                    await goto(gotoUrl, { replaceState: true });
-                } else if (redirectLink)
-                    await goto(await redirectLink(raw, other), { replaceState: true });
-            }
+            if (success) await onSuccessfulSave();
         } catch (e) {
             console.error(e);
             result = {
@@ -232,7 +244,11 @@
                         <span class="block">{line}</span>
                     {/each}
                 {/snippet}
-                <DangerAlert children={result.error ? error : undefined} {title} />
+                <DangerAlert children={result.error ? error : undefined} {title} action={result.confirm ? {
+                    text: result.confirm!.text,
+                    async onclick() { if (await result.confirm!.onclick()) await onSuccessfulSave(); },
+                    variant: 'outline',
+                } : undefined} />
             {:else if result.load}
                 <SpinnerAlert title={result.text} />
             {:else}

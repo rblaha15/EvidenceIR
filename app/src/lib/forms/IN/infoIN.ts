@@ -1,25 +1,27 @@
-import arrays, { type Person } from '$lib/client/db/arrays';
-import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
-import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
-import { detailUrlIR } from '$lib/helpers/runes.svelte';
-import { get } from 'svelte/store';
 import { checkIsRegulus, getCachedUser, isRegulusOrAdmin, user, type User } from '$lib/client/auth';
-import { getTranslations, type Translations } from '$lib/translations';
-import ares from '$lib/helpers/ares';
-import { generatePdf } from '$lib/pdf/pdfGeneration';
+import db from '$lib/client/db';
+import arrays, { type Person } from '$lib/client/db/arrays';
 import { blahova, cervenka, defaultAddresses, sendEmail } from '$lib/client/email';
-import { xmlIN } from '$lib/forms/IN/xmlIN';
-import MailRRoute from '$lib/emails/MailRRoute.svelte';
-import MailSDaty from '$lib/emails/MailSDaty.svelte';
-import { cellsIN } from '$lib/forms/IN/cellsIN';
-import { type ContextIN, type FormIN } from '$lib/forms/IN/formIN';
-import type { IndependentFormInfo, Result } from '$lib/forms/FormInfo';
-import MailXML from '$lib/emails/MailXML.svelte';
-import { type Raw, type Values } from '$lib/forms/Form';
 import { grantPoints } from '$lib/client/loyaltyProgram';
 import { getIsOnline } from '$lib/client/online';
-import db from '$lib/client/db';
 import { type ExistingIR, type IR, newIR } from '$lib/data';
+import MailRRoute from '$lib/emails/MailRRoute.svelte';
+import MailSDaty from '$lib/emails/MailSDaty.svelte';
+import MailXML from '$lib/emails/MailXML.svelte';
+import { checkForDocumentChanges } from '$lib/features/signing/actions/changes';
+import { hasSignatures } from '$lib/features/signing/domain/data';
+import { type Raw, type Values } from '$lib/forms/Form';
+import type { IndependentFormInfo, Result } from '$lib/forms/FormInfo';
+import { cellsIN } from '$lib/forms/IN/cellsIN';
+import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
+import { type ContextIN, type FormIN } from '$lib/forms/IN/formIN';
+import { xmlIN } from '$lib/forms/IN/xmlIN';
+import ares from '$lib/helpers/ares';
+import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
+import { pdfInfo } from '$lib/pdf/pdf';
+import { generatePdf } from '$lib/pdf/pdfGeneration';
+import { getTranslations, type Translations } from '$lib/translations';
 
 const sendEmails = async (
     edit: boolean, send: boolean, draft: boolean,
@@ -124,6 +126,39 @@ const changeIRID = async (
     if (!draft) await grantPoints({ type: 'disconnectRegulusRoute', irid: oldIRID });
     return true;
 };
+
+const commitTheChange = async (
+    edit: boolean, send: boolean, draft: boolean, changeID: boolean,
+    raw: Raw<FormIN>, editIR: IR | undefined, oldIRID: IRID, newIRID: IRID,
+    t: Translations, context: ContextIN, editResult: (r: Result) => void,
+) => {
+    const user = getCachedUser()!;
+    const friendlyCompanies = arrays.friendlyCompaniesValue;
+
+    const newIr = newIR(raw, user.email, draft, friendlyCompanies != 'loading' ? friendlyCompanies : {
+        commissioningCompanies: [],
+        assemblyCompanies: []
+    });
+    if (edit) {
+        if (!changeID) await db.updateIN(newIRID, raw, draft);
+        else if (!await changeIRID(
+            editIR!, newIRID, raw, oldIRID, user, editResult, t, draft,
+        )) return false;
+    } else
+        await db.addIR(newIr);
+
+    if (!draft) await grantPoints({
+        type: raw.vzdalenyPristup.chce ? 'connectRegulusRoute' : 'disconnectRegulusRoute',
+        irid: newIRID
+    });
+
+    return await sendEmails(
+        edit, send, draft,
+        raw, newIr, context, newIRID,
+        user, editResult, t,
+    );
+};
+
 const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Person | undefined, User | null]], never, {
     draft: boolean,
     editIR?: IR
@@ -132,41 +167,43 @@ const infoIN: IndependentFormInfo<ContextIN, FormIN, [[boolean], [boolean], [Per
     storeName: () => 'storedIN',
     form: () => defaultIN(),
     saveData: async ({ raw, edit, context, editResult, t, send, draft, other: { editIR } }) => {
-        console.log(editIR);
         // Need to check, because it's required even in the draft mode
         if (!checkForErrors(context, t, editResult)) return false;
 
         const newIRID = extractIRIDFromRawData(raw);
         const oldIRID = editIR?.meta?.id ?? newIRID;
         const changeID = newIRID != oldIRID;
-        console.log(oldIRID, newIRID, changeID)
 
-        if ((!edit || changeID) && newIRID && getIsOnline() && await db.existsIR(newIRID)) {
-            editResult({
-                red: true, load: false,
-                text: t.in.irExistsHtml({ link: detailUrlIR(newIRID) }),
-            });
-            return;
-        }
+        if ((!edit || changeID) && newIRID && getIsOnline() && await db.existsIR(newIRID)) return editResult({
+            red: true, load: false,
+            text: t.in.irExistsHtml({ link: detailUrlIR(newIRID) }),
+        });
 
-        const user = getCachedUser()!;
-        const $friendlyCompanies = get(arrays.friendlyCompanies);
+        if (!draft && changeID && hasSignatures(editIR)) return editResult({
+            red: true, load: false,
+            text: 'Nelze změnit číslo IR, jelikož je podepsaný nějaký dokument!', // TODO translation
+        });
+        const changedPdfs = !draft && edit && editIR && !editIR.deleted
+            ? await checkForDocumentChanges<'IR'>(editIR, ir => ({ ...ir, IN: raw })) : [];
 
-        const newIr = newIR(raw, user.email, draft, $friendlyCompanies != 'loading' ? $friendlyCompanies : { commissioningCompanies: [], assemblyCompanies: [] });
-        if (edit) {
-            if (!changeID) await db.updateIN(newIRID, raw, draft);
-            else if (!await changeIRID(
-                editIR!, newIRID, raw, oldIRID, user, editResult, t, draft,
-            )) return false;
-        } else
-            await db.addIR(newIr);
+        if (changedPdfs.length) return editResult({
+            red: true, load: false,
+            text: `Pokud uložíte tato data, odebere se podpis od dokumentů níže. Chcete pokračovat?`, // TODO translation
+            error: changedPdfs.map(def => pdfInfo[def.pdf].title(t) + (def.parameter ? ` (${def.parameter})` : '')).join('\n'),
+            confirm: {
+                text: 'Ano, uložit a odstranit podpisy',
+                onclick: () => commitTheChange(
+                    edit, send, draft, changeID,
+                    raw, editIR, oldIRID, newIRID,
+                    t, context, editResult,
+                ),
+            },
+        });
 
-        if (!draft) await grantPoints({ type: raw.vzdalenyPristup.chce ? 'connectRegulusRoute' : 'disconnectRegulusRoute', irid: newIRID });
-
-        return await sendEmails(
-            edit, send, draft,
-            raw, newIr, context, newIRID,
-            user, editResult, t,
+        return await commitTheChange(
+            edit, send, draft, changeID,
+            raw, editIR, oldIRID, newIRID,
+            t, context, editResult,
         );
     },
     redirectLink: async raw => detailUrlIR(extractIRIDFromRawData(raw)),
