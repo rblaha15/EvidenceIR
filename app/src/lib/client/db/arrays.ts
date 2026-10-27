@@ -130,11 +130,17 @@ export default {
     async fetchLoyaltyProgramData(fetch: typeof window.fetch = window.fetch)
         { if (getIsOnline()) loyaltyProgramData.current = await call('db/getLoyaltyPoints', { fetch })},
 
-    async syncArrays(fetch: typeof window.fetch = window.fetch) {
+    async trySyncArrays(fetch: typeof window.fetch = window.fetch) {
         if (!getIsOnline()) return;
         const now = new Date();
         const last = new Date(lastFetched.current ?? 0);
         if (lastFetched.current && (now.valueOf() - last.valueOf()) <= days(1)) return;
+
+        await self.syncArrays(fetch);
+    },
+    async syncArrays(fetch: typeof window.fetch = window.fetch) {
+        if (!getIsOnline()) return;
+        const now = new Date();
 
         await self.fetchFriendlyCompanies(fetch);
         if (await getIsAdmin()) await self.fetchCompanies(fetch);

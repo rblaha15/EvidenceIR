@@ -104,7 +104,7 @@
     const showTOC = $derived(page.route.id?.includes('[form=form]') && !page.error);
     let hideWarning = $state(false);
 
-    onMount(arrays.syncArrays)
+    onMount(arrays.trySyncArrays)
 </script>
 
 <svelte:window onunhandledrejection={handleError} />
