@@ -3,6 +3,7 @@ import { defaultEndpointOptions, type EndpointDefinition } from '$lib/server/def
 import { allEndpoints, type AllEndpoints } from '$lib/server/endpoints';
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import '$lib/extensions';
 
 export const POST: RequestHandler = async ({ request, url, locals }) => {
     const actionName = url.searchParams.get('action') as keyof AllEndpoints;

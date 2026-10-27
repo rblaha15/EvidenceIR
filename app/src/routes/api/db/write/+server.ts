@@ -3,6 +3,7 @@ import { getIsLoggedIn } from '$lib/server/auth';
 import { mongoWriteDatabase } from '$lib/server/db/write';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import '$lib/extensions';
 
 export const POST: RequestHandler = async ({ request, url, locals, fetch }) => {
     if (!getIsLoggedIn(locals)) return error(401);

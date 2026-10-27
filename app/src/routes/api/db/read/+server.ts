@@ -3,6 +3,7 @@ import { getIsLoggedIn } from '$lib/server/auth';
 import { mongoReadDatabase } from '$lib/server/db/read';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import '$lib/extensions';
 
 export const POST: RequestHandler = async ({ request, url, locals }) => {
     if (!getIsLoggedIn(locals)) return error(401);

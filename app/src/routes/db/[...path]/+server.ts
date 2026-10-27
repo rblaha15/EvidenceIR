@@ -3,6 +3,7 @@ import { env } from '$env/dynamic/private';
 import { getIsAdmin } from '$lib/server/auth';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import '$lib/extensions';
 
 const proxy: RequestHandler = async ({ request, url, locals }) => {
     if (!getIsAdmin(locals) && !dev) return error(401);
