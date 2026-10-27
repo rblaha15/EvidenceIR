@@ -1,4 +1,5 @@
 <script lang="ts">
+    import arrays from '$lib/client/db/arrays';
     import type { Translations } from '$lib/translations';
     import ThemeSelector from '$lib/components/nav/ThemeSelector.svelte';
     import LanguageSelector from '$lib/components/nav/LanguageSelector.svelte';
@@ -25,6 +26,11 @@
         await clearLocalDatabase();
         await clearHistory();
         await (await caches.keys()).map(name => caches.delete(name)).awaitAll();
+        location.reload();
+    };
+
+    const reloadArrays = async () => {
+        await arrays.syncArrays();
         location.reload();
     };
 
@@ -70,6 +76,15 @@
 </div>
 
 <Separator />
+
+{#if !$hideNav}
+    <div class="flex flex-col items-start gap-1">
+        <h3>Obnovit seznamy</h3>
+        <Button variant="secondary" size="sm" onclick={reloadArrays}>Obnovit</Button>
+    </div>
+
+    <Separator />
+{/if}
 
 {#if !$hideNav}
     <div class="flex flex-col items-start gap-1">
