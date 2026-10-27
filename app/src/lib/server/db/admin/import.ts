@@ -2,7 +2,7 @@ import { type AllArrays } from '$lib/client/db/arrays';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 import type { IR, NSP, RecommendationDataWithCode } from '$lib/data';
 import { setAllDKs, setAllIRs, setAllLPs, setAllNSPs, setAllSNs } from '$lib/server/db/admin/general';
-import { setArrays, setCompanies, setPeople, setSpareParts, setTechnicians } from '$lib/server/db/arrays';
+import { setArrays, setCompanies, setHeatPumps, setPeople, setSpareParts, setTechnicians } from '$lib/server/db/arrays';
 import type { DocumentSigningInfo } from '$lib/server/signing';
 import { json } from 'stream/consumers';
 import yauzl from 'yauzl';
@@ -68,7 +68,7 @@ export const importFromBackup = async (file: File) => {
         return [];
     }
 
-    const arrays = ['person', 'company', 'technician', 'sparePart'] as const;
+    const arrays = ['person', 'company', 'technician', 'sparePart', 'heatPump'] as const;
     const stringArrays = ['accumulationTanks', 'waterTanks', 'solarCollectors', 'inverters', 'batteries', 'fvePanels'] as const;
     if (!isFromSEIR1 && dks && sns && lps) {
         await importBackup({ irs: originalIRs, nsps: originalNSPs, dks, sns, lps, ...allArrays });
@@ -93,7 +93,7 @@ export const importFromBackup = async (file: File) => {
 const importBackup = async (
     {
         irs, nsps, dks, sns, lps,
-        person, company, technician, sparePart, arrays,
+        person, company, technician, sparePart, heatPump, arrays,
     }: {
         irs: IR[],
         nsps: NSP[],
@@ -111,5 +111,6 @@ const importBackup = async (
     if (company) await setCompanies(company);
     if (technician) await setTechnicians(technician);
     if (sparePart) await setSpareParts(sparePart);
+    if (heatPump) await setHeatPumps(heatPump);
     if (arrays) await setArrays(arrays);
 };

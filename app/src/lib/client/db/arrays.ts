@@ -58,6 +58,7 @@ export type AllArrays = {
     company: Company[];
     technician: Technician[];
     sparePart: SparePart[];
+    heatPump: HetaPumpDetails[];
     arrays: Record<Arrays, string[]>;
 }
 export type FriendlyCompanies = {

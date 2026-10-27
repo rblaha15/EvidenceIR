@@ -115,5 +115,6 @@ export const getAllArrays = async (): Promise<AllArrays> => ({
     company: await getCompanies(),
     technician: await getTechnicians(),
     sparePart: await getSpareParts(),
+    heatPump: await getHeatPumps(),
     arrays: await getArrays(),
 });

@@ -31,9 +31,9 @@
 
         if (!c.length) error = 'Záloha poškozena';
         else {
-            const [i, n, r, s, l, p, f, t, sp, at, z, k, st, b, fp] = c;
+            const [i, n, r, s, l, p, f, t, sp, hp, at, z, k, st, b, fp] = c;
             error = `Hotovo: ${i}x IR, ${n}x NSP, ${r}x DK, ${s}x SN, ${l}x LP, ` +
-                `${p} uživatelů, ${f} firem, ${t} techniků, ${sp} dílů, ` +
+                `${p} uživatelů, ${f} firem, ${t} techniků, ${sp} dílů, ${hp} čerpadel, ` +
                 `${at} nádrží, ${z} zásobníků, ${k} kolektorů, ${st} střídačů, ${b} baterie, ${fp} panely`;
         }
     };
