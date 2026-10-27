@@ -31,7 +31,7 @@
 
     const reloadArrays = async () => {
         await arrays.syncArrays();
-        location.reload();
+        setTimeout(location.reload, 1_000);
     };
 
     const redirect = (code: LanguageCode) => goto(
