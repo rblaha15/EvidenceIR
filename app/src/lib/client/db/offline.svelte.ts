@@ -76,14 +76,9 @@ const odm = {
         if (type === 'NSP') storedSP.set(values);
     },
     update: async <T extends DataType>(type: T, id: ID<T>, update: (value: (Data<T>)) => Data<T> | Promise<Data<T>>) => {
-        const tx = (await db()).transaction(type, 'readwrite');
-        const store = tx.objectStore(type);
-        const current = await store.get(id);
+        const current = await odm.get(type, id);
         const updated = await update(current! as Data<T>);
-        await store.put($state.snapshot(updated) as Data<T>, id);
-        await tx.done;
-        if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: updated }));
-        if (type === 'NSP') storedSP.update(sp => ({ ...sp, [id]: updated }));
+        await odm.set(type, id, $state.snapshot(updated) as Data<T>);
     },
 };
 
