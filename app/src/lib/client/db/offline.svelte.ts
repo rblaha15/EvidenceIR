@@ -79,7 +79,7 @@ const odm = {
         const tx = (await db()).transaction(type, 'readwrite');
         const store = tx.objectStore(type);
         const current = await store.get(id);
-        const updated = update(current! as Data<T>);
+        const updated = await update(current! as Data<T>);
         await store.put($state.snapshot(updated) as Data<T>, id);
         await tx.done;
         if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: updated }));
