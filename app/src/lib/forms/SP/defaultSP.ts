@@ -30,9 +30,9 @@ const multilineLineLength = 670;
 const multilineMaxLength = multilineLineLength * 4;
 const inlineMaxLength = 540;
 
-const ctx = browser ? document.createElement('canvas').getContext('2d')! : null!;
+const ctx = browser ? document.createElement('canvas').getContext('2d')! : null;
 
-const measure = (text: string) => ctx.measureText(text).width;
+const measure = (text: string) => ctx?.measureText(text)?.width ?? text.length;
 
 export const multilineTooLong = (text: string) => text.split('\n').sumBy(line =>
     Math.ceil(measure(line) / multilineLineLength) * multilineLineLength,
