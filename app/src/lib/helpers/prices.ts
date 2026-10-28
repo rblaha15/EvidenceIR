@@ -57,6 +57,6 @@ const allOperationPrices = new Map([
 ]);
 
 export const getOperationPrices = (commission: Date) =>
-    allOperationPrices.entries()
+    [...allOperationPrices.entries()]
         .find(([[from, to]]) => from <= commission && commission < to)!
         [1];
