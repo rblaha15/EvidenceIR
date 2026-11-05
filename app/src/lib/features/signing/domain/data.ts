@@ -64,18 +64,22 @@ export const getSigningInfo = (def: DocumentDefinition, ir: IR | null, nsp: NSP 
         isSP(sp) && sp.fakturace.komu.chosen != 'otherCompany';
     const allowSigning = isPdfToSign(def.pdf) && (def.pdf != 'NSP' && def.pdf != 'SP' || allowSigningSP(SP(def.pdf)));
 
-    const companyType = (pdf: 'SP' | 'NSP'): CompanyType => SP(pdf).fakturace.komu.chosen == 'assemblyCompany' ? 'montazka' : 'uvedeni';
+    const companyType = (pdf: 'SP' | 'NSP'): CompanyType =>
+        SP(pdf).fakturace.komu.chosen == 'assemblyCompany' ? 'montazka' : 'uvedeni';
     const company = (pdf: 'SP' | 'NSP'): Company => IN(pdf)[companyType(pdf)];
     const endUser = (pdf: PdfToSign): Investor => IN(pdf).koncovyUzivatel;
     const signingByInvestor = (u: Investor) =>
         ({ name: endUserName(u), phone: addCzechCountryCode(u.telefon), email: endUserEmails(u)[0] });
     const signingByCompany = (c: Company) =>
         ({ name: c.zastupce, phone: addCzechCountryCode(c.telefon), email: c.email });
-    const signingBy = def.pdf != 'NSP' && def.pdf != 'SP' || SP(def.pdf).fakturace.komu.chosen == 'investor'
+    const isSignedByInvestor = def.pdf != 'NSP' && def.pdf != 'SP'
+        || SP(def.pdf).fakturace.komu.chosen == 'investor'
+        || SP(def.pdf).fakturace.komu.chosen == null;
+    const signingBy = isSignedByInvestor
         ? signingByInvestor(endUser(def.pdf))
-        : signingByCompany(company(def.pdf));
-    const signeeType = def.pdf != 'NSP' && def.pdf != 'SP' || SP(def.pdf).fakturace.komu.chosen == 'investor'
-        ? 'investor' : companyType(def.pdf);
+        : signingByCompany(company(def.pdf as 'SP' | 'NSP'));
+    const signeeType = isSignedByInvestor
+        ? 'investor' : companyType(def.pdf as 'SP' | 'NSP');
 
     const o: Omit<GeneratePdfOptions<PdfToSign>, 'data'> = {
         link: def.pdf, lang: 'cs',
