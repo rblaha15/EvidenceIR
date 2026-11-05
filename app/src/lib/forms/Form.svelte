@@ -5,6 +5,7 @@
     P extends Pdf = Pdf,
     O extends Record<string, unknown> = Record<never, unknown>,
 " lang="ts">
+    import arrays from '$lib/client/db/arrays';
     import DangerAlert from '$lib/components/alerts/DangerAlert.svelte';
     import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
     import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
@@ -79,6 +80,8 @@
 
     onMount(async () => {
         await runLoading(async () => {
+            await arrays.awaitArraysLoaded();
+
             if (viewData) {
                 values = rawDataToValues(form, viewData);
                 mode = 'view';

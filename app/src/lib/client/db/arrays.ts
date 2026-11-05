@@ -4,6 +4,7 @@ import { call } from '$lib/client/endpoints';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 import { getIsOnline } from '$lib/client/online';
 import { lazyStorable } from '$lib/helpers/newStores';
+import { waitForFirst } from '$lib/helpers/stores';
 import { derived, readonly } from 'svelte/store';
 import self from '$lib/client/db/arrays';
 
@@ -81,7 +82,7 @@ const arrays = lazyStorable<Partial<Record<Arrays, string[]>>>('arrays', {});
 // Per-user
 const loyaltyProgramData = lazyStorable<LoyaltyProgramUserData | null>('lp', null);
 
-const lastFetched = lazyStorable<string>('arrays');
+const lastFetched = lazyStorable<string>('arrays1');
 
 export default {
     get friendlyCompanies() { return readonly(friendlyCompanies.store); },
@@ -132,12 +133,19 @@ export default {
         { if (getIsOnline()) loyaltyProgramData.current = await call('db/getLoyaltyPoints', { fetch })},
 
     async trySyncArrays(fetch: typeof window.fetch = window.fetch) {
-        // if (!getIsOnline()) return;
-        // const now = new Date();
-        // const last = new Date(lastFetched.current ?? 0);
-        // if (lastFetched.current && (now.valueOf() - last.valueOf()) <= days(1)) return;
+        if (!getIsOnline()) return;
+        const now = new Date();
+        const last = new Date(lastFetched.current ?? 0);
+        if (lastFetched.current && (now.valueOf() - last.valueOf()) <= days(1)) return;
 
         await self.syncArrays(fetch);
+    },
+    async awaitArraysLoaded() {
+        console.log(lastFetched.current);
+        await waitForFirst(lastFetched.store, v => {
+            console.log(v);
+            return Boolean(v);
+        })
     },
     async syncArrays(fetch: typeof window.fetch = window.fetch) {
         if (!getIsOnline()) return;
