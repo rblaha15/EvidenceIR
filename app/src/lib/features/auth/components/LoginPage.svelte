@@ -2,7 +2,7 @@
     import { browser } from '$app/environment';
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
-    import { signIn, tryFirebase } from '$lib/client/auth';
+    import { signIn } from '$lib/client/auth';
     import arrays from '$lib/client/db/arrays';
     import { grantPoints } from '$lib/client/loyaltyProgram';
     import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
@@ -29,12 +29,6 @@
         const result = await signIn(email, password);
         console.log(result);
         if (result == 'INVALID_EMAIL_OR_PASSWORD') {
-            const resultF = await tryFirebase(email, password);
-            if (resultF) return setTimeout(async () => {
-                await grantPoints({ type: 'registration' });
-                await goto(relUrl(redirect), { invalidateAll: true });
-            }, 500);
-
             sending = false;
             error = 'wrong-password';
         } else if (result == 'INVALID_EMAIL') {

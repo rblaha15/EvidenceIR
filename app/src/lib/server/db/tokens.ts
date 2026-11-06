@@ -20,13 +20,18 @@ const EXPIRATION_MS = 1000 * 60 * 60;
 
 export const createToken = async (data: Omit<Token, 'tokenHash' | 'expiresAt'>) => {
     const token = generateToken();
+
+    await storeToken(data, token);
+
+    return token;
+};
+
+export const storeToken = async (data: Omit<Token, 'tokenHash' | 'expiresAt'>, token: string) => {
     const tokenHash = hashToken(token);
 
     const expiresAt = new Date(new Date().valueOf() + EXPIRATION_MS);
     await tokenCollection.deleteMany({ email: data.email });
     await tokenCollection.insertOne({ ...data, tokenHash, expiresAt })
-
-    return token
 };
 
 export const getTokenData = async (token: string): Promise<Token | null> => {
@@ -46,11 +51,21 @@ export const getTokenData = async (token: string): Promise<Token | null> => {
 export const validateToken = async (token: string, expectedEmail: string, expectedMode: Token['mode']) => {
     const tokenHash = hashToken(token);
 
-    const result = await tokenCollection.findOneAndDelete({
+    const result = await tokenCollection.findOne({
         tokenHash,
         email: expectedEmail,
         mode: expectedMode,
     });
     if (!result) return false;
     return new Date() < result.expiresAt;
+};
+
+export const deleteToken = async (token: string, expectedEmail: string, expectedMode: Token['mode']) => {
+    const tokenHash = hashToken(token);
+
+    await tokenCollection.deleteOne({
+        tokenHash,
+        email: expectedEmail,
+        mode: expectedMode,
+    });
 };

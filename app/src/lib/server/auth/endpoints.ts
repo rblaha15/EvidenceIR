@@ -5,24 +5,41 @@ import type { LanguageCode } from '$lib/languageCodes';
 import { auth } from '$lib/server/auth';
 import { checkUserByEmail } from '$lib/server/db/admin/auth';
 import { addPerson, getPersonByEmail, getTechnicians } from '$lib/server/db/arrays';
-import { createToken, getTokenData, type Token, validateToken } from '$lib/server/db/tokens';
+import { createToken, deleteToken, getTokenData, type Token, validateToken } from '$lib/server/db/tokens';
 import { defineEndpoint } from '$lib/server/defineEndpoints';
 import { sendEmail } from '$lib/server/email';
 import { getTranslations } from '$lib/translations';
 import { htmlToText } from 'html-to-text';
 
-const sendResetEmail = async ({ email, lang, mode, redirect }: {
+const sendRegisterEmail = async ({ email, lang, redirect }: {
     email: string,
     lang: LanguageCode,
-    mode: 'reset' | 'register',
     redirect: string,
 }) => {
-    const token = await createToken({ email, mode, redirect });
+    const token = await createToken({ email, mode: 'register', redirect });
 
     const link = `${appUrl}/${lang}/new-password?token=${token}`;
     const t = getTranslations(lang).auth;
-    const html = mode == 'register' ? t.signUpEmailHtml({ link, email }) : t.passwordResetEmailHtml({ link, email });
-    const subject = mode == 'register' ? t.signUpEmailSubject : t.passwordReset;
+    const html = t.signUpEmailHtml({ link, email });
+    const subject = t.signUpEmailSubject;
+    return await sendEmail({
+        from: SENDER(),
+        to: dev ? 'radek.blaha.15@gmail.com' : email,
+        subject,
+        html,
+        text: htmlToText(html)
+    });
+};
+
+export const sendResetEmail = async ({ email, lang, token }: {
+    email: string,
+    lang: LanguageCode,
+    token: string,
+}) => {
+    const link = `${appUrl}/${lang}/new-password?token=${token}`;
+    const t = getTranslations(lang).auth;
+    const html = t.passwordResetEmailHtml({ link, email });
+    const subject = t.passwordReset;
     return await sendEmail({
         from: SENDER(),
         to: dev ? 'radek.blaha.15@gmail.com' : email,
@@ -57,12 +74,12 @@ export const authEndpoints = {
             commissioningCompanies: []
         });
 
-        await sendResetEmail({ email: email, lang: lang, redirect: redirect, mode: 'register' });
+        await sendRegisterEmail({ email, lang, redirect });
         return { result: 'sent' };
     }),
     sendPasswordResetEmail: defineEndpoint<{
         email: string, redirect: string, lang: LanguageCode,
-    }, undefined>(async ({ email, redirect, lang }) => {
+    }, undefined>(async ({ email, redirect, lang }, { headers }) => {
         const person = await getPersonByEmail(email);
         if (!person) {
             console.log(`Person ${email} not found, pretending email sent`);
@@ -70,12 +87,12 @@ export const authEndpoints = {
         }
 
         const user = await checkUserByEmail(email);
-
-        await sendResetEmail({
-            email: email,
-            lang: lang,
-            redirect: redirect,
-            mode: user ? 'reset' : 'register'
+        if (!user) await sendRegisterEmail({ email, lang, redirect });
+        else await auth.api.requestPasswordReset({
+            body: {
+                email, redirectTo: redirect + `###lang=${lang}`
+            },
+            headers,
         });
         return undefined;
     }),
@@ -93,12 +110,14 @@ export const authEndpoints = {
         const user = await checkUserByEmail(email);
         if (!user) return { result: 'fail' };
 
-        const result = await auth.api.setPassword({
+        const result = await auth.api.resetPassword({
             body: {
                 newPassword: password,
+                token,
             },
             headers,
         });
+        if (result) await deleteToken(token, 'email', 'reset');
         return {
             result: result ? 'success' : 'fail',
         };

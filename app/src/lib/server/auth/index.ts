@@ -1,15 +1,15 @@
 import { building } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import { checkedIsLoggedIn, checkIsAdmin, checkIsAnyRegulusOrAdmin, checkIsRegulusOrAdmin } from '$lib/client/auth';
+import type { LanguageCode } from '$lib/languageCodes';
+import { sendResetEmail } from '$lib/server/auth/endpoints';
 import { authDB } from '$lib/server/db';
-import { validateToken } from '$lib/server/db/tokens';
+import { deleteToken, storeToken, validateToken } from '$lib/server/db/tokens';
 import { getPersonByEmail } from '$lib/server/db/arrays';
 import { APIError } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { createAuthMiddleware } from 'better-auth/api';
 import { betterAuth } from 'better-auth/minimal';
-import { cert, getApps, initializeApp } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
 
 export const auth = betterAuth({
     database: mongodbAdapter(authDB),
@@ -17,21 +17,24 @@ export const auth = betterAuth({
         enabled: true,
         revokeSessionsOnPasswordReset: true,
         autoSignIn: false,
+        sendResetPassword: async ({ user, url, token }) => {
+            const redirectTo = decodeURIComponent(new URL(url).searchParams.get('callbackURL')!);
+            const [redirect, lang] = redirectTo.split('###lang=') as [string, LanguageCode];
+            const email = user.email;
+
+            await storeToken({ redirect, email, mode: 'reset' }, token);
+            void sendResetEmail({ email, lang, token });
+        },
     },
     hooks: {
         before: createAuthMiddleware(async ctx => {
             if (ctx.path !== '/sign-up/email') return;
 
             const email = ctx.body.email;
-            const source = ctx.body.source;
 
-            if (source == 'better-auth') {
-                const tokenVerified = await validateToken(ctx.body.token, email, 'register');
-                if (!tokenVerified) throw new APIError(401, { code: 'TOKEN_INVALID' });
-            } else if (source == 'firebase') {
-                const tokenVerified = await validateFirebaseToken(ctx.body.token, email);
-                if (!tokenVerified) throw new APIError(401, { code: 'TOKEN_INVALID' });
-            } else throw new APIError(403, { code: 'UNKNOWN_SOURCE' });
+            const tokenVerified = await validateToken(ctx.body.token, email, 'register');
+            if (!tokenVerified) throw new APIError(401, { code: 'TOKEN_INVALID' });
+            await deleteToken(ctx.body.token, email, 'register');
 
             const person = await getPersonByEmail(email) || email.endsWith('@regulus.cz');
             if (!person) throw new APIError(400, { code: 'PERSON_INVALID' });
@@ -90,21 +93,3 @@ export const getIsLoggedIn = (locals: App.Locals) => checkedIsLoggedIn(locals.us
 export const getIsAdmin = (locals: App.Locals) => checkIsAdmin(locals.user);
 export const getIsRegulusOrAdmin = (locals: App.Locals) => checkIsRegulusOrAdmin(locals.user);
 export const getIsAnyRegulusOrAdmin = (locals: App.Locals) => checkIsAnyRegulusOrAdmin(locals.user);
-
-const validateFirebaseToken = async (token: string, expectedEmail: string) => {
-    const getApp = () => initializeApp({
-        credential: cert(JSON.parse(env.FIREBASE_INFO)),
-        databaseURL: 'https://evidence-ir-default-rtdb.europe-west1.firebasedatabase.app'
-    });
-    const app = getApps()[0] ?? getApp();
-
-    const firebaseAuth = getAuth(app);
-
-    const decoded = await firebaseAuth.verifyIdToken(token, true)
-        .catch(e => {
-            console.log("Error from Firebase", e);
-            return null
-        })
-
-    return decoded && decoded.email == expectedEmail;
-}
