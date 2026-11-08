@@ -53,6 +53,7 @@ export const clearLocalDatabase = async () => {
 
 const odm = {
     set: async <T extends DataType>(type: T, id: ID<T>, value: Data<T>) => {
+        if (id == null || `${id}` == 'null' || value == null) return;
         await (await db()).put(type, $state.snapshot(value) as Data<T>, id);
         if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: value }));
         if (type === 'NSP') storedSP.update(sp => ({ ...sp, [id]: value }));
@@ -65,9 +66,10 @@ const odm = {
         console.trace('set', values.keys());
         await (await db()).transaction(type, 'readwrite').let(async tx => {
             tx.objectStore(type).clear();
-            await values.mapTo((id, value) =>
-                tx.objectStore(type).put(value, id),
-            ).awaitAll();
+            await values.mapTo((id, value) => {
+                if (id == null || `${id}` == 'null' || value == null) return;
+                return tx.objectStore(type).put(value, id);
+            }).awaitAll();
             await tx.done;
         });
         if (type === 'IR') storedIR.set(values);
@@ -78,6 +80,7 @@ const odm = {
         const store = tx.objectStore(type);
         const current = await store.get(id);
         const updated = update(current! as Data<T>);
+        if (id == null || `${id}` == 'null' || updated == null) return await tx.done;
         await store.put($state.snapshot(updated) as Data<T>, id);
         await tx.done;
         if (type === 'IR') storedIR.update(ir => ({ ...ir, [id]: updated }));

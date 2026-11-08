@@ -31,6 +31,12 @@ const getData = async <T extends 'IR' | 'NSP'>(type: T, store: Writable<Results<
     const lastChangedAt = get(lastChangedAtStore);
     if (lastChangedAt == defaultValue) await clearLocalDatabase(); // Clean up old data when changing the store
     const currentOffline: Data<T>[] = await odm.getAll(type);
+    if (currentOffline.includes(null as unknown as Data<T>)) {
+        console.log('Found null, clearing!!')
+        await clearLocalDatabase();
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return getData(type, store, fetch);
+    }
     console.log('current', currentOffline.map(d => d.meta.id));
     store.set({ data: currentOffline, status: 'loadingOnline' });
     const getChanged = { IR: mongoDatabase.getChangedIRs, NSP: mongoDatabase.getChangedNSPs }[type];
