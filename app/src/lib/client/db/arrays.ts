@@ -84,6 +84,14 @@ const loyaltyProgramData = lazyStorable<LoyaltyProgramUserData | null>('lp', nul
 
 const lastFetched = lazyStorable<string>('arrays1');
 
+const doSafely = <T>(fn: () => Promise<T>) => {
+    if (getIsOnline()) try {
+        return fn();
+    } catch (e) {
+        console.error(e);
+    }
+};
+
 export default {
     get friendlyCompanies() { return readonly(friendlyCompanies.store); },
     get companies() { return readonly(companies.store); },
@@ -113,24 +121,24 @@ export default {
     get batteriesValue() { return arrays.current.batteries ?? []; },
     get fvePanelsValue() { return arrays.current.fvePanels ?? []; },
     get loyaltyProgramDataValue() { return loyaltyProgramData.current; },
-    async fetchFriendlyCompanies(fetch: typeof window.fetch = window.fetch)
-        { if (getIsOnline()) friendlyCompanies.current = await call('db/getCompanies', { fetch })},
-    async fetchCompanies(fetch: typeof window.fetch = window.fetch)
-        { if (getIsOnline()) companies.current = await call('db/admin/getCompanies', { fetch })},
-    async fetchMyInfo(fetch: typeof window.fetch = window.fetch)
-        { if (getIsOnline()) myInfo.current = await call('db/getMyInfo', { fetch })},
-    async fetchPeople(fetch: typeof window.fetch = window.fetch)
-        { if (getIsOnline()) people.current = await call('db/regulus/getPeople', { fetch })},
-    async fetchTechnicians(fetch: typeof window.fetch = window.fetch)
-        { if (getIsOnline()) technicians.current = await call('db/getTechnicians', { fetch })},
-    async fetchSpareParts(fetch: typeof window.fetch = window.fetch)
-        { if (getIsOnline()) spareParts.current = await call('db/getSpareParts', { fetch })},
-    async fetchHeatPumps(fetch: typeof window.fetch = window.fetch)
-        { if (getIsOnline()) heatPumps.current = await call('db/getHeatPumps', { fetch })},
-    async fetchArrays(fetch: typeof window.fetch = window.fetch)
-        { if (getIsOnline()) arrays.current = await call('db/getArrays', { fetch })},
-    async fetchLoyaltyProgramData(fetch: typeof window.fetch = window.fetch)
-        { if (getIsOnline()) loyaltyProgramData.current = await call('db/getLoyaltyPoints', { fetch })},
+    fetchFriendlyCompanies: (fetch: typeof window.fetch = window.fetch) =>
+        doSafely(async () => friendlyCompanies.current = await call('db/getCompanies', { fetch })),
+    fetchCompanies: (fetch: typeof window.fetch = window.fetch) =>
+        doSafely(async () => companies.current = await call('db/admin/getCompanies', { fetch })),
+    fetchMyInfo: (fetch: typeof window.fetch = window.fetch) =>
+        doSafely(async () => myInfo.current = await call('db/getMyInfo', { fetch })),
+    fetchPeople: (fetch: typeof window.fetch = window.fetch) =>
+        doSafely(async () => people.current = await call('db/regulus/getPeople', { fetch })),
+    fetchTechnicians: (fetch: typeof window.fetch = window.fetch) =>
+        doSafely(async () => technicians.current = await call('db/getTechnicians', { fetch })),
+    fetchSpareParts: (fetch: typeof window.fetch = window.fetch) =>
+        doSafely(async () => spareParts.current = await call('db/getSpareParts', { fetch })),
+    fetchHeatPumps: (fetch: typeof window.fetch = window.fetch) =>
+        doSafely(async () => heatPumps.current = await call('db/getHeatPumps', { fetch })),
+    fetchArrays: (fetch: typeof window.fetch = window.fetch) =>
+        doSafely(async () => arrays.current = await call('db/getArrays', { fetch })),
+    fetchLoyaltyProgramData: (fetch: typeof window.fetch = window.fetch) =>
+        doSafely(async () => loyaltyProgramData.current = await call('db/getLoyaltyPoints', { fetch })),
 
     async trySyncArrays(fetch: typeof window.fetch = window.fetch) {
         if (!getIsOnline()) return;
@@ -140,13 +148,7 @@ export default {
 
         await self.syncArrays(fetch);
     },
-    async awaitArraysLoaded() {
-        console.log(lastFetched.current);
-        await waitForFirst(lastFetched.store, v => {
-            console.log(v);
-            return Boolean(v);
-        })
-    },
+    awaitArraysLoaded: () => waitForFirst(lastFetched.store, Boolean),
     async syncArrays(fetch: typeof window.fetch = window.fetch) {
         if (!getIsOnline()) return;
         const now = new Date();
