@@ -6,7 +6,8 @@ import { adminEndpoints } from '$lib/server/db/admin/endpoints';
 import {
     getArrays,
     getCompanies,
-    getCompaniesByCRNs, getHeatPumps,
+    getCompaniesByCRNs,
+    getHeatPumps,
     getPeople,
     getPersonByEmail,
     getSpareParts,
@@ -52,9 +53,16 @@ export const dbEndpoints = {
         ].distinct()).then(array =>
             array.associateBy(company => company.crn)
         );
+        const filterCompanies = (crns: string[]) => crns
+            .mapNotUndefined(crn => {
+                if (!(crn in allCompanies))
+                    console.error(`Chybí společnost ${crn}!!!`);
+                return allCompanies[crn];
+            })
+            .sortedBy(c => c.companyName);
         return {
-            assemblyCompanies: assemblyCRNs.map(crn => allCompanies[crn]).sortedBy(c => c.companyName),
-            commissioningCompanies: commissioningCRNs.map(crn => allCompanies[crn]).sortedBy(c => c.companyName),
+            assemblyCompanies: filterCompanies(assemblyCRNs),
+            commissioningCompanies: filterCompanies(commissioningCRNs),
         };
     }),
     addLoyaltyPoints: defineEndpoint<{ data: LoyaltyProgramTrigger }, undefined>(async ({ data }, { locals }) => {
