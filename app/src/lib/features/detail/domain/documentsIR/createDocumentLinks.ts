@@ -165,8 +165,8 @@ export const createDocumentLinks = (
         link: 'NNR', name: t.nnr.title,
     });
 
-    if (rules.showNNT(ir)) add({
-        link: 'NNT', name: t.nnt.title,
+    if (rules.showNNB(ir)) add({
+        link: 'NNB', name: t.nnb.title,
     });
 
     if (rules.showTC(ir)) {

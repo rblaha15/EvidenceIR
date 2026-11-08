@@ -14,7 +14,7 @@ export const showRR: Rule = ir => (ir.IN.vzdalenyPristup.chce || ir.IN.vzdalenyP
 
 export const showNNR: Rule = ir => supportsRemoteAccess(ir.IN.ir.typ.first);
 
-export const showNNT: Rule = ir => ir.IN.ir.typ.second === 'TRS6 K';
+export const showNNB: Rule = ir => ir.IN.ir.typ.second === 'TRS6 K';
 
 export const showTC: Rule = ir =>
     ir.IN.ir.chceVyplnitK.includes('heatPump') && ir.IN.tc.model !== 'airTHERM 10';

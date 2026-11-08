@@ -14,7 +14,7 @@ export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t, addDoc, fetch }) =>
 
     // await addDoc({
     //     lang: 'cs',
-    //     link: 'TCI',
+    //     link: 'NNT',
     //     data: {},
     // })
 
@@ -89,7 +89,7 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
 
     // await addDoc({
     //     lang: 'cs',
-    //     link: 'TCI',
+    //     link: 'NNT',
     //     data: {},
     // })
 

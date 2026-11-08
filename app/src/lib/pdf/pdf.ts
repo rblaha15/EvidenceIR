@@ -41,7 +41,11 @@ type AllPdf = {
     /** Návod na přístup do IR  */
     NNR: 'IR'
     /** Uživatelský průvodce pro RegulusBIO  */
+    NNB: ''
+    /** Doporučení pro úsporný provoz TČ  */
     NNT: ''
+    /** Informační list pro majitele fotovoltaické elektrárny  */
+    NNF: ''
     /** Zastaralé uvedení TČ do provozu */
     UPTL: 'IR'
     /** Uvedení TČ do provozu */
@@ -56,8 +60,6 @@ type AllPdf = {
     UPF: 'IR'
     /** Servisní protokol */
     SP: 'IR'
-    /** Doporučení pro úsporný provoz TČ */
-    TCI: ''
     /** Jste spokojeni s tepelným čerpadlem Regulus? */
     RS: ''
     /** Nezávislý servisní protokol */
@@ -148,11 +150,23 @@ export const pdfInfo: PdfInfo = {
         title: t => t.nnr.title,
         getPdfData: NN,
     },
+    NNB: {
+        type: '',
+        pdfName: 'NNB',
+        supportedLanguages: ['cs'],
+        title: t => t.nnb.title,
+    },
     NNT: {
         type: '',
         pdfName: 'NNT',
         supportedLanguages: ['cs'],
-        title: t => t.nnt.title,
+        title: _ => '',
+    },
+    NNF: {
+        type: '',
+        pdfName: 'NNF',
+        supportedLanguages: ['cs'],
+        title: _ => '',
     },
     UPTL: {
         type: 'IR',
@@ -230,12 +244,6 @@ export const pdfInfo: PdfInfo = {
         title: t => t.fve.title,
         shortTitle: t => t.fve.shortTitle,
         getPdfData: UPF,
-    },
-    TCI: {
-        type: '',
-        pdfName: 'TCI',
-        supportedLanguages: ['cs'],
-        title: _ => '',
     },
     RS: {
         type: '',

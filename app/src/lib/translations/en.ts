@@ -293,7 +293,7 @@ const en: PlainTranslations = {
                 updateDateUPT: t`Updated the heat pump commission date at the ${'ir'} controller`,
                 addUPS: t`Created a solar system commissioning protocol at the ${'ir'} controller`,
                 updateDateUPS: t`Updated the solar system commission date at the ${'ir'} controller`,
-                addUPF: t`Created a photovoltaic system commissioning protocol at the ${'ir'} controller`,
+                updateUPF: t`Created a photovoltaic system commissioning protocol at the ${'ir'} controller`,
                 updateUsersWithAccessToIR: t`Updated the list of users with access to the ${'ir'} controller`,
                 markRefsiteConfirmed: t`Marked the interest in Refsite at the ${'ir'} controller`,
                 updateDKT: t`Updated the yearly heat pump check recommendation settings at the ${'ir'} controller`,
@@ -536,7 +536,7 @@ const en: PlainTranslations = {
         passwordRegulusRoute: `Regulusroute1`,
         passwordController: `uzivatel`,
     },
-    nnt: {
+    nnb: {
         title: `User Guide for RegulusBIO`,
     },
     zlt: {
@@ -605,7 +605,7 @@ const en: PlainTranslations = {
         heatPumpFlowRateHeating: 'Flow rate in heat pump during the heating mode at 100% PWM',
         heatPumpFlowRateHotWater: 'Flow rate in heat pump during the water heating mode at 100% PWM',
         heatPumpFlowRateCooling: 'Flow rate in heat pump during the cooling mode at 100% PWM',
-        ...(['heatingSystemDescription', 'isAdditionalHeatingSourceConnected', 'typeAndPowerOfAdditionalHeatingSource', 'doesHeatPumpPrepareHotWater', 'volumeOfExpansionTankOfHeatingSystem', 'pressureOfExpansionTankOfHeatingSystem', 'pressureOfHeatingSystem', 'pressureOfExpansionTankForWater', 'isPoolHeatingManagedByHeatPump', 'controlAndElectricalInstallation', 'internetConnection', 'isElectricalBondingComplete', 'areElectricalDevicesTested', 'isBackupPowerSourceInstalled', 'primaryCircuit', 'typeOfPrimaryCircuit', 'typeOfAntifreezeMixture', 'onPrimaryCircuitInstalled', 'wasPrimaryCircuitTested', 'commissioningSteps', 'wasInstallationAccordingToManual', 'wasControllerSetToParameters', 'wasOwnerFamiliarizedWithFunction', 'isInstallationInWarrantyConditions'] as const)
+        ...(['heatingSystemDescription', 'isAdditionalHeatingSourceConnected', 'typeAndPowerOfAdditionalHeatingSource', 'doesHeatPumpPrepareHotWater', 'volumeOfExpansionTankOfHeatingSystem', 'pressureOfExpansionTankOfHeatingSystem', 'pressureOfHeatingSystem', 'pressureOfExpansionTankForWater', 'isPoolHeatingManagedByHeatPump', 'controlAndElectricalInstallation', 'internetConnection', 'isElectricalBondingComplete', 'areElectricalDevicesTested', 'isBackupPowerSourceInstalled', 'primaryCircuit', 'typeOfPrimaryCircuit', 'typeOfAntifreezeMixture', 'onPrimaryCircuitInstalled', 'wasPrimaryCircuitTested', 'commissioningSteps', 'wasInstallationAccordingToManual', 'wasControllerSetToParameters', 'wasOwnerFamiliarizedWithFunction', 'isInstallationInWarrantyConditions', 'expansionTankOfWater'] as const)
             .associateWith(k => cs.tc[k]),
     },
     sol: {

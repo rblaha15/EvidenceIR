@@ -75,10 +75,10 @@ export const getSigningInfo = (def: DocumentDefinition, ir: IR | null, nsp: NSP 
     const isSignedByInvestor = def.pdf != 'NSP' && def.pdf != 'SP'
         || SP(def.pdf).fakturace.komu.chosen == 'investor'
         || SP(def.pdf).fakturace.komu.chosen == null;
-    const signingBy = isSignedByInvestor
+    const signingBy = !allowSigning ? null! : isSignedByInvestor
         ? signingByInvestor(endUser(def.pdf))
         : signingByCompany(company(def.pdf as 'SP' | 'NSP'));
-    const signeeType = isSignedByInvestor
+    const signeeType = allowSigning || isSignedByInvestor
         ? 'investor' : companyType(def.pdf as 'SP' | 'NSP');
 
     const o: Omit<GeneratePdfOptions<PdfToSign>, 'data'> = {

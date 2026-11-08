@@ -484,7 +484,7 @@ const de: PlainTranslations = {
         passwordController: `uzivatel`,
     },
     nn: en.nn,
-    nnt: en.nnt,
+    nnb: en.nnb,
     od: {
         title: 'Unterschriebene Dokumente senden',
         signedPdfDocuments: 'PDF-Dateien mit unterschriebenen Dokumenten',

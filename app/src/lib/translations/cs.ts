@@ -417,7 +417,7 @@ export default {
         passwordRegulusRoute: `Regulusroute1`,
         passwordController: `uzivatel`,
     },
-    nnt: {
+    nnb: {
         title: `Uživatelský průvodce pro RegulusBIO`,
     },
     zlt: {

@@ -7,12 +7,18 @@ import { range } from '$lib/extensions';
 import { get } from '$lib/translations';
 import ares from '$lib/helpers/ares';
 
-const pdfUPF: GetPdfData<'UPF'> = async ({ data: { IN, UP: { FVE: UP }, }, t, lang, fetch }) => {
+const pdfUPF: GetPdfData<'UPF'> = async ({ data: { IN, UP: { FVE: UP }, }, t, lang, fetch, addDoc }) => {
     if (!UP) throw new Error("UP FVE not filled")
     const tu = t.fve
     const fields = [
         UP.filed1, UP.filed2, UP.filed3, UP.filed4
     ].slice(0, UP.fields.count)
+
+    await addDoc({
+        lang: 'cs',
+        link: 'NNF',
+        data: {},
+    });
 
     const montazka = UP.montazka || IN.montazka;
     const uvedeni = UP.uvedeni || IN.uvedeni;
