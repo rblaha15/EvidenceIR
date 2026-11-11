@@ -3,7 +3,6 @@
     import arrays from '$lib/client/db/arrays';
     import { aA } from '$lib/helpers/newStores';
     import type { Translations } from '$lib/translations';
-    import { goto } from '$app/navigation';
     import { relUrl } from '$lib/helpers/runes.svelte';
     import { CircleUser, Gift, LogOut, RectangleEllipsis, ShieldCogCorner } from "@lucide/svelte";
     import {
@@ -46,17 +45,25 @@
                 <DropdownMenuLabel>
                     {ta.currentPointBalance}: {arrays.loyaltyProgramDataValue.points}
                 </DropdownMenuLabel>
-                <DropdownMenuItem onSelect={() => goto(relUrl('/rewards'))}>
-                    <Gift />
-                    {ta.rewards}
+                <DropdownMenuItem class="cursor-pointer">
+                    {#snippet child({ props })}
+                        <a {...props} href={relUrl('/rewards')}>
+                            <Gift />
+                            {ta.rewards}
+                        </a>
+                    {/snippet}
                 </DropdownMenuItem>
             </DropdownMenuGroup>
         {/if}
         <DropdownMenuSeparator />
         <DropdownMenuGroup aria-label="User login actions">
-            <DropdownMenuItem onSelect={() => goto(relUrl(`/new-password?mode=edit`))} variant="warning">
-                <RectangleEllipsis />
-                {ta.changePassword}
+            <DropdownMenuItem variant="warning" class="cursor-pointer">
+                {#snippet child({ props })}
+                    <a {...props} href={relUrl('/new-password?mode=edit')}>
+                        <RectangleEllipsis />
+                        {ta.changePassword}
+                    </a>
+                {/snippet}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={signOut} variant="danger">
                 <LogOut />
@@ -66,9 +73,13 @@
         {#if $isAdmin}
             <DropdownMenuSeparator />
             <DropdownMenuGroup aria-label="User login actions">
-                <DropdownMenuItem onSelect={() => goto(relUrl('/admin'))} variant="tertiary">
-                    <ShieldCogCorner />
-                    Admin{$aA}
+                <DropdownMenuItem variant="tertiary" class="cursor-pointer">
+                    {#snippet child({ props })}
+                        <a {...props} href={relUrl('/admin')}>
+                            <ShieldCogCorner />
+                            Admin{$aA}
+                        </a>
+                    {/snippet}
                 </DropdownMenuItem>
             </DropdownMenuGroup>
         {/if}
