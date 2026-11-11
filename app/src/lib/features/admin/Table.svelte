@@ -87,7 +87,7 @@
                         <Button variant="primary" onclick={() => editDialog = { rowKey, data: item }}>
                             <Pen />
                         </Button>
-                        <Button variant="danger" onclick={() => onDataChanged?.(rowKey, null)}>
+                        <Button variant="warning" onclick={() => onDataChanged?.(rowKey, null)}>
                             <Trash />
                         </Button>
                     {/if}

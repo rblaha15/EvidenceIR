@@ -2,6 +2,7 @@ import { type AllArrays } from '$lib/client/db/arrays';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 import type { IR, NSP, RecommendationDataWithCode } from '$lib/data';
 import { setAllDKs, setAllIRs, setAllLPs, setAllNSPs, setAllSNs } from '$lib/server/db/admin/general';
+import { migrateFromVersion } from '$lib/server/db/admin/migrations';
 import { setArrays, setCompanies, setHeatPumps, setPeople, setSpareParts, setTechnicians } from '$lib/server/db/arrays';
 import type { DocumentSigningInfo } from '$lib/server/signing';
 import { json } from 'stream/consumers';
@@ -71,15 +72,21 @@ export const importFromBackup = async (file: File) => {
     const arrays = ['person', 'company', 'technician', 'sparePart', 'heatPump'] as const;
     const stringArrays = ['accumulationTanks', 'waterTanks', 'solarCollectors', 'inverters', 'batteries', 'fvePanels'] as const;
     if (!isFromSEIR1 && dks && sns && lps) {
-        await importBackup({ irs: originalIRs, nsps: originalNSPs, dks, sns, lps, ...allArrays });
+        const irs = migrateFromVersion('IR', info!.version, originalIRs);
+        const nsps = migrateFromVersion('NSP', info!.version, originalNSPs);
+
+        await importBackup({ irs, nsps, dks, sns, lps, ...allArrays });
         return [
             originalIRs, originalNSPs, dks, sns, lps,
             ...arrays.map(a => allArrays?.[a] ?? []),
             ...stringArrays.map(a => allArrays?.arrays?.[a] ?? []),
         ].map(a => a.length);
     } else {
-        const irs = originalIRs.map(migrateIRFromSEIR1);
-        const nsps = originalNSPs.map(migrateNSPFromSEIR1);
+        const oldIRs = originalIRs.map(migrateIRFromSEIR1);
+        const oldNSPs = originalNSPs.map(migrateNSPFromSEIR1);
+
+        const irs = migrateFromVersion('IR', 3, oldIRs);
+        const nsps = migrateFromVersion('NSP', 3, oldNSPs);
 
         await importBackup({ irs, nsps, dks: [], sns: [], lps: [] });
         return [

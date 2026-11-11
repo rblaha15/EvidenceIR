@@ -84,9 +84,9 @@ const loyaltyProgramData = lazyStorable<LoyaltyProgramUserData | null>('lp', nul
 
 const lastFetched = lazyStorable<string>('arrays1');
 
-const doSafely = <T>(fn: () => Promise<T>) => {
+const doSafely = async <T>(fn: () => Promise<T>) => {
     if (getIsOnline()) try {
-        return fn();
+        await fn();
     } catch (e) {
         console.error(e);
     }

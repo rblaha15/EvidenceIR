@@ -17,6 +17,7 @@ import {
     restoreIR,
 } from '$lib/server/db/admin/general';
 import { importFromBackup } from '$lib/server/db/admin/import';
+import { runMigrationOnCurrentData } from '$lib/server/db/admin/migrations';
 import {
     getAllArrays,
     getCompanies,
@@ -41,6 +42,9 @@ export const adminEndpoints = {
         arrays: await getAllArrays(),
     })),
     importBackup: defineEndpoint<File, number[]>(importFromBackup, { isFileUpload: true }),
+    runMigrationOnCurrentData: defineEndpoint<{
+        migrationName: string,
+    }, number>(runMigrationOnCurrentData),
     restore: defineEndpoint<{ irid: IRID }, undefined>(async ({ irid }) => {
         await restoreIR(irid);
     }),

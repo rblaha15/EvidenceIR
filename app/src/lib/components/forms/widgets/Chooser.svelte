@@ -11,7 +11,7 @@
         t: Translations;
         widget: ChooserWidget<C, I>;
         context: C;
-        value: I;
+        value: I | null;
         showAllErrors: boolean;
     }
 

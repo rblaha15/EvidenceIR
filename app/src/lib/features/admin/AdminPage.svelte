@@ -330,7 +330,7 @@
             contentOptions: {
                 component: DataImport,
             },
-            longerTitle: 'Import dat',
+            longerTitle: 'Import dat a migrace',
         },
     };
 
