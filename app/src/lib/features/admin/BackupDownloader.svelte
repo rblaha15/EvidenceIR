@@ -16,7 +16,7 @@
         zip.file('backupLP.json', JSON.stringify(lps, undefined, 4));
         zip.file('backupArrays.json', JSON.stringify(arrays, undefined, 4));
         zip.file('info.json', JSON.stringify({
-            version: 3,
+            version: 4,
         }, undefined, 4));
 
         const blob = await zip.generateAsync({ type: 'blob' });

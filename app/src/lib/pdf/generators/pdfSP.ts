@@ -213,12 +213,16 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount, fe
         Text34: sum.roundTo(2).toLocaleString('cs') + ' Kč',
         Text18: (tax * 100 - 100).toFixed(0) + ' %',
         Text35: sumWithTax.roundTo(2).toLocaleString('cs') + ' Kč',
-        Text39: isFree ? 'Zdarma' : get(ts, NSP.fakturace.hotove),
-        Text41: NSP.fakturace.hotove != 'no' || isFree ? ''
+        Text39: isFree ? 'Zdarma'
+            : NSP.fakturace.paymentMethod.chosen == 'transfer' ? 'Převodem'
+                : get(ts, NSP.fakturace.paymentMethod.chosen),
+        Text41: NSP.fakturace.paymentMethod.chosen != 'transfer' || isFree ? ''
             : NSP.fakturace.komu.chosen == 'otherCompany' ? detectCRN(NSP.fakturace.komu.text)
                 : NSP.fakturace.komu.chosen == 'commissioningCompany' ? (await ares.getName(NSP.uvedeni.ico, fetch) || NSP.uvedeni.ico)
                     : get(ts, NSP.fakturace.komu.chosen),
-        Text42: NSP.fakturace.hotove == 'no' && !isFree ? get(ts, NSP.fakturace.jak) : '',
+        Text42: NSP.fakturace.paymentMethod.chosen != 'transfer' || isFree ? ''
+            : get(ts, NSP.fakturace.jak),
+        Text118: NSP.fakturace.paymentMethod.text.let(t => t ? `Důvod: ${t}` : ''),
         Text43: {
             assemblyCompany: NSP.montazka.zastupce,
             commissioningCompany: NSP.uvedeni.zastupce,

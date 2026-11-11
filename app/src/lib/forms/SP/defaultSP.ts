@@ -4,7 +4,6 @@ import {
     type GetT,
     type HeadingLevel,
     type InlinePdfPreviewData,
-    newChooserWidget,
     newCounterWidget,
     newHiddenValueWidget,
     newInlinePdfPreviewWidget,
@@ -101,7 +100,7 @@ const calculate = <C extends GenericContextSP<C>>(hpCount: Get<C, number>, c: C)
     calculateProtocolPrice(c.v, hpCount(c));
 const notFree = <C extends GenericContextSP<C>>(hpCount: Get<C, number>) =>
     (c: C) => !calculate(hpCount, c).isFree;
-const notByCash = <C extends GenericContextSP<C>>(c: C) => c.v.fakturace.hotove == 'no';
+const notByCash = <C extends GenericContextSP<C>>(c: C) => c.v.fakturace.paymentMethod.chosen == 'transfer';
 const areNewPrices = <C extends GenericContextSP<C>>(c: C) => isNewPrices(c.v.zasah.datum);
 
 export const defaultGenericSP = <C extends GenericContextSP<C>>(
@@ -210,8 +209,9 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
             show: c => Boolean(c.v.fakturace.discount),
         }),
         _price: newTextWidget<C>({ text: (t, c) => t.sp.price(calculate(hpCount, c)), class: 'text-lg' }),
-        hotove: newChooserWidget({
-            label: t => t.sp.paidInCash, options: ['yes', 'no'] as ('yes' | 'no' | 'doNotInvoice')[], labels, chosen: 'no',
+        paymentMethod: newRadioWithInputWidget({
+            label: t => t.sp.paymentMethod, otherLabel: t => t.sp.noInvoiceReason,
+            options: ['cash', 'transfer', 'doNotInvoice'], labels, chosen: 'transfer',
             required: notFree(hpCount), show: notFree(hpCount),
         }),
         komu: newRadioWithInputWidget({

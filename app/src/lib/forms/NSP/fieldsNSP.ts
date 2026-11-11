@@ -66,7 +66,7 @@ export const fieldsNSP: PdfImport<Raw<FormNSP>>['fields'] = {
             getData: getValue => ['Kombinované pole33', 'Kombinované pole34', 'Kombinované pole35']
                 .map(f => ({
                     'RegulusRoute': 'regulusRoute',
-                    'Prodloužená záruka 10 let': 'extendedWarranty',
+                    'Prodloužená záruka 10 let': undefined,
                     'Uvedení tč do provozu': 'commissioningTC',
                     'Uvedení do provozu dalších TČ v kaskádě': undefined,
                     'Uvedení sol do provozu': 'commissioningSOL',
@@ -75,7 +75,7 @@ export const fieldsNSP: PdfImport<Raw<FormNSP>>['fields'] = {
                     'Roční kontrola dalších TČ v kaskádě': undefined,
                     'Roční kontrola sol': 'yearlySOLCheck',
                     'Obchodní činnost': 'withoutCode',
-                    'Schválení instalace': 'installationApproval',
+                    'Schválení instalace': undefined,
                 } as const)[getValue('dropdown', f)])
                 .filterNotUndefined(),
         },
@@ -104,10 +104,10 @@ export const fieldsNSP: PdfImport<Raw<FormNSP>>['fields'] = {
     nahradniDil7: sparePartFields(6),
     nahradniDil8: sparePartFields(7),
     fakturace: {
-        hotove: {
+        paymentMethod: {
             type: 'text', name: 'Text39', transform: a => a
                 .trim().normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
-                .let(t => t == 'ano' ? 'yes' : t == 'ne' ? 'no' : null),
+                .let(t => ({ chosen: t == 'ano' ? 'cash' : t == 'ne' ? 'transfer' : null, text: '' })),
         },
         komu: {
             type: 'text', name: 'Text41', transform: a => a

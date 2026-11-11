@@ -33,8 +33,6 @@ export const cellsSP: ExcelImport<Raw<FormSP>>['cells'] = {
                     ['Uvedení SOL', `commissioningSOL`] as const,
                     ['kontrola TČ', `yearlyHPCheck`] as const,
                     ['kontrola SOL', `yearlySOLCheck`] as const,
-                    ['Záruka', `extendedWarranty`] as const,
-                    ['instalace', `installationApproval`] as const,
                 ] as const).find(([s]) => u.includes(s))?.[1]),
         },
     },
@@ -47,7 +45,11 @@ export const cellsSP: ExcelImport<Raw<FormSP>>['cells'] = {
         },
     },
     fakturace: {
-        hotove: { address: [18, 43], transform: v => v == 'ANO' ? 'yes' : v == 'NE' ? 'no' : 'doNotInvoice' },
+        paymentMethod: {
+            address: [18, 43], transform: v => ({
+                chosen: v == 'ANO' ? 'cash' : v == 'NE' ? 'transfer' : 'doNotInvoice', text: '',
+            }),
+        },
         komu: {
             address: [18, 45], transform: v => ({
                 chosen: v == 'Odběratel' ? 'investor' : 'assemblyCompany', text: '',

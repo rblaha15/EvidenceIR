@@ -1,6 +1,5 @@
 import type { SparePart } from '$lib/client/db/arrays';
 import {
-    type ChooserWidget,
     type CounterWidget, type HiddenValueWidget,
     type InlinePdfPreviewWidget,
     type InputWidget,
@@ -85,7 +84,7 @@ export interface GenericFormSP<C extends GenericContextSP<C>> extends GenericFor
         invoiceParts: MultiCheckboxWidget<C, 'work' | Operation | `transportation`>,
         discount: InputWidget<C>,
         discountReason: InputWidget<C>,
-        hotove: ChooserWidget<C, 'yes' | 'no' | 'doNotInvoice'>,
+        paymentMethod: RadioWithInputWidget<C, 'cash' | 'transfer' | 'doNotInvoice'>,
         komu: RadioWithInputWidget<C, 'investor' | `assemblyCompany` | 'commissioningCompany' | 'otherCompany'>,
         jak: RadioWidget<C, 'onPaper' | 'electronically'>,
     },

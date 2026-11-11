@@ -1,6 +1,8 @@
 import db from '$lib/client/db';
 import { invalidateAll } from '$app/navigation';
 import arrays from '$lib/client/db/arrays';
+import type { Raw } from '$lib/forms/Form';
+import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { SPID } from '$lib/helpers/ir';
 import type { ExistingIR } from '$lib/data';
 import { getCachedUser } from '$lib/client/auth';
@@ -16,7 +18,7 @@ export const copySP = async (id: SPID, ir: ExistingIR) => {
     await db.addSPs(ir.meta.id!, [{
         ...p,
         fakturace: {
-            hotove: 'doNotInvoice',
+            paymentMethod: { chosen: 'doNotInvoice', text: 'Kopie' },
             komu: { chosen: null, text: '' },
             jak: null,
             invoiceParts: [],
@@ -28,6 +30,6 @@ export const copySP = async (id: SPID, ir: ExistingIR) => {
             clovek: ja?.name ?? p.zasah.clovek,
             inicialy: ja?.initials ?? p.zasah.inicialy,
         },
-    }]);
+    } satisfies Raw<FormSP>]);
     await invalidateAll();
 };

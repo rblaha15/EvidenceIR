@@ -250,7 +250,10 @@ Object.prototype.omit = function <T extends Record<PropertyKey, unknown>, K exte
     this: T,
     ...keys: K[]
 ): Omit<T, K> {
-    return this.filterValues(key => !(keys as (keyof T)[]).includes(key));
+    return keys.reduce<Omit<T, K>>((value, key) => {
+        const { [key]: _, ...rest } = value
+        return rest as Omit<T, K>;
+    }, this);
 };
 
 Object.prototype.pick = function <T extends Record<PropertyKey, unknown>, K extends keyof T>(

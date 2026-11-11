@@ -34,5 +34,9 @@ const checkMigrations = <
     const L extends Migration<T>[],
 >(...migrations: L & CheckMigrations<T, L>): L => migrations;
 
-export const migrationsIR: Migration<'IR'>[] = checkMigrations();
-export const migrationsNSP: Migration<'NSP'>[] = checkMigrations();
+export const migrationsIR: Migration<'IR'>[] = checkMigrations(
+    paymentMethodMigrationIR,
+);
+export const migrationsNSP: Migration<'NSP'>[] = checkMigrations(
+    paymentMethodMigrationNSP,
+);
