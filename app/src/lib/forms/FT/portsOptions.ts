@@ -7,8 +7,8 @@ export const optionsInputsC = [
     'Z2 topná',
     'AKU',
     'TV',
-    'Vratka TČ',
-    'Výstup TČ',
+    'Čidlo 1',
+    'Čidlo 2',
     'TV spodní',
     'AKU spodní',
     'pok.jed. Z2',
@@ -76,6 +76,20 @@ export const optionsOutputsF = [
     'zóna 3 čerpadlo',
     'zóna 3 ventil otvírá',
     'zóna 3 ventil zavírá',
+    'spotřebič 1 - využití přebytků fve',
+    'spotřebič 2 - využití přebytků fve',
+    'spotřebič 3 - využití přebytků fve',
+    'spotřebič 4 - využití přebytků fve',
+    'aktivní chlazení zemním TČ',
+    'stykač zdroje 0-10V',
+    'stykač FVE',
+    'stykač zdroje 0-10V nebo stykač FVE',
+    'zdroj ON/OFF',
+    'přepínací ventil TV',
+    'doplňkový zdroj TV',
+    'doplňkový zdroj TV nebo stykač FVE-TV',
+    'stykač FVE-TV',
+    'stykač TČ (jen pro RTC)',
 ] as const
 export const optionsOutputsB = [
     'nevyužito',
@@ -91,7 +105,15 @@ export const optionsOutputsB = [
     'směšovací ventil 0-10V pro zónu 3',
     'řízení FVE top. tělesa na L2',
     'řízení FVE top. tělesa na L3',
-
+    '0-10V pro solární čerpadlo',
+    'směš. ventil primárního okruhu TČ',
+    'řízení FVE na L1 nebo zdroj 0-10V',
+    'řízení FVE na L2 nebo zdroj 0-10V',
+    'řízení FVE na L3 nebo zdroj 0-10V',
+    'řízení FVE pro TV nebo zdroj 0-10V pro TV',
+    '0-10V pro čerpadlo TČ1',
+    '0-10V pro čerpadlo TČ2',
+    '0-10V pro čerpadlo TČ3',
 ] as const
 export type OptionsInputsC = typeof optionsInputsC[number]
 export type OptionsInputsB = typeof optionsInputsB[number]

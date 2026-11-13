@@ -1,18 +1,20 @@
 import type { Form, Raw } from '$lib/forms/Form';
-import type { ChooserWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget';
+import type { ChooserWithInputWidget, InputWidget, TextWidget, TitleWidget } from '$lib/forms/Widget';
 import type { OptionsInputsB, OptionsInputsC, OptionsOutputsB, OptionsOutputsF } from '$lib/forms/FT/portsOptions';
 import type { FormIN } from '$lib/forms/IN/formIN';
 
 export type DataFT = Raw<FormIN>;
 
-type WidgetInputC = ChooserWidget<DataFT, OptionsInputsC>;
-type WidgetInputB = ChooserWidget<DataFT, OptionsInputsB>;
-type WidgetOutputF = ChooserWidget<DataFT, OptionsOutputsF>;
-type WidgetOutputB = ChooserWidget<DataFT, OptionsOutputsB>;
+type WidgetInputC = ChooserWithInputWidget<DataFT, OptionsInputsC>;
+type WidgetInputB = ChooserWithInputWidget<DataFT, OptionsInputsB>;
+type WidgetOutputF = ChooserWithInputWidget<DataFT, OptionsOutputsF>;
+type WidgetOutputB = ChooserWithInputWidget<DataFT, OptionsOutputsB>;
 
 export interface FormFT extends Form<DataFT> {
-    inputsC: {
+    inputs: {
         title: TitleWidget<DataFT>,
+        B8: WidgetInputB,
+        B9: WidgetInputB,
         C2: WidgetInputC,
         C3: WidgetInputC,
         C4: WidgetInputC,
@@ -24,17 +26,14 @@ export interface FormFT extends Form<DataFT> {
         labelUNI: TextWidget<DataFT>,
         UNI_1: WidgetInputC,
         UNI_2: WidgetInputC,
-        UNI2_label: TextWidget<DataFT>,
+        labelUNI2: TextWidget<DataFT>,
         UNI2_1: WidgetInputC,
         UNI2_2: WidgetInputC,
     },
-    inputsB: {
+    outputs: {
         title: TitleWidget<DataFT>,
-        B8: WidgetInputB,
-        B9: WidgetInputB,
-    },
-    outputsF: {
-        title: TitleWidget<DataFT>,
+        B2: WidgetOutputB,
+        B3: WidgetOutputB,
         F2: WidgetOutputF,
         F3: WidgetOutputF,
         F4: WidgetOutputF,
@@ -43,17 +42,10 @@ export interface FormFT extends Form<DataFT> {
         labelUNI: TextWidget<DataFT>,
         UNI_DO1: WidgetOutputF,
         UNI_DO2: WidgetOutputF,
-        UNI2_label: TextWidget<DataFT>,
+        UNI_AO1: WidgetOutputB,
+        labelUNI2: TextWidget<DataFT>,
         UNI2_DO1: WidgetOutputF,
         UNI2_DO2: WidgetOutputF,
-    },
-    outputsB: {
-        title: TitleWidget<DataFT>,
-        B2: WidgetOutputB,
-        B3: WidgetOutputB,
-        labelUNI: TextWidget<DataFT>,
-        UNI_AO1: WidgetOutputB,
-        UNI2_label: TextWidget<DataFT>,
         UNI2_AO1: WidgetOutputB,
     },
     info: {

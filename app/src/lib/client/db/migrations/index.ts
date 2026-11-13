@@ -1,3 +1,4 @@
+import { newFTMigration } from '$lib/client/db/migrations/newFTMigration';
 import { paymentMethodMigrationIR, paymentMethodMigrationNSP } from './paymentMethodMigration';
 import type { Data, DataType } from '$lib/data';
 
@@ -35,6 +36,7 @@ const checkMigrations = <
 >(...migrations: L & CheckMigrations<T, L>): L => migrations;
 
 export const migrationsIR: Migration<'IR'>[] = checkMigrations(
+    newFTMigration,
     paymentMethodMigrationIR,
 );
 export const migrationsNSP: Migration<'NSP'>[] = checkMigrations(

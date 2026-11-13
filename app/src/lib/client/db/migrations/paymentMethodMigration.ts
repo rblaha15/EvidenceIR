@@ -1,4 +1,5 @@
 import type { Migration } from '$lib/client/db/migrations/index';
+import type { BeforeNewFTMigrationIR } from '$lib/client/db/migrations/newFTMigration';
 import type { IR, NSP } from '$lib/data';
 import type { Raw } from '$lib/forms/Form';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
@@ -12,8 +13,14 @@ export type BeforePaymentMethodMigrationSP = Omit<Raw<FormSP>, 'fakturace'> & {
     };
 };
 
-export type BeforePaymentMethodMigrationIR = Omit<IR, 'SPs'> & {
+export type BeforePaymentMethodMigrationIR = Omit<IR, 'SPs' | 'FT'> & {
     SPs: Record<SPID, BeforePaymentMethodMigrationSP | Raw<FormSZ>>,
+    FT?: {
+        inputsC: Omit<NonNullable<IR['FT']>['inputs'], 'B8' | 'B9'>,
+        inputsB: Pick<NonNullable<IR['FT']>['inputs'], 'B8' | 'B9'>,
+        outputsF: Omit<NonNullable<IR['FT']>['outputs'], 'B2' | 'B3' | 'UNI_AO1' | 'UNI2_AO1'>,
+        outputsB: Pick<NonNullable<IR['FT']>['outputs'], 'B2' | 'B3' | 'UNI_AO1' | 'UNI2_AO1'>,
+    }
 };
 
 export type BeforePaymentMethodMigrationNSP = Omit<NSP, 'NSP'> & {
@@ -42,7 +49,7 @@ const isOldSP = (
 ): raw is BeforePaymentMethodMigrationSP =>
     !!raw && ('ukony' in raw);
 
-export const paymentMethodMigrationIR: Migration<'IR', BeforePaymentMethodMigrationIR, IR> = {
+export const paymentMethodMigrationIR: Migration<'IR', BeforePaymentMethodMigrationIR, BeforeNewFTMigrationIR> = {
     type: 'IR',
     name: 'paymentMigrationIR',
     description: 'Možnost nefakturovat u platby hotově + důvod nefakturace (IR)',
@@ -54,7 +61,7 @@ export const paymentMethodMigrationIR: Migration<'IR', BeforePaymentMethodMigrat
                 ? migrateSP(protocol) satisfies Omit<Raw<FormSP>, 'fakturace'> & Pick<Raw<FormSP>, 'fakturace'>
                 : protocol,
         ),
-    }) as IR,
+    }) as BeforeNewFTMigrationIR,
 };
 
 export const paymentMethodMigrationNSP: Migration<'NSP', BeforePaymentMethodMigrationNSP, NSP> = {
