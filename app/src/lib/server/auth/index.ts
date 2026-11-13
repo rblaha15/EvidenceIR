@@ -28,6 +28,10 @@ export const auth = betterAuth({
     },
     hooks: {
         before: createAuthMiddleware(async ctx => {
+            if (ctx.path === '/sign-in/email') {
+                const email = ctx.body.email;
+                console.log('Signing in:', email);
+            }
             if (ctx.path !== '/sign-up/email') return;
 
             const email = ctx.body.email;
