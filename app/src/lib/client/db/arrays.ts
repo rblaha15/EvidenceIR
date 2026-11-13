@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { getIsAdmin, getIsRegulusOrAdmin, pendingUser } from '$lib/client/auth';
+import { getCachedIsLoggedIn, getIsAdmin, getIsRegulusOrAdmin, pendingUser } from '$lib/client/auth';
 import { call } from '$lib/client/endpoints';
 import type { LoyaltyProgramUserData } from '$lib/client/loyaltyProgram';
 import { getIsOnline } from '$lib/client/online';
@@ -85,7 +85,7 @@ const loyaltyProgramData = lazyStorable<LoyaltyProgramUserData | null>('lp', nul
 const lastFetched = lazyStorable<string>('arrays1');
 
 const doSafely = async <T>(fn: () => Promise<T>) => {
-    if (getIsOnline()) try {
+    if (getIsOnline() && getCachedIsLoggedIn()) try {
         await fn();
     } catch (e) {
         console.error(e);
