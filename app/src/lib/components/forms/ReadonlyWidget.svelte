@@ -41,6 +41,8 @@
             {widget.get(t, value.first)} {widget.get(t, value.second)}
         {:else if widget.widgetType === 'chooser' && v(widget, value)}
             {widget.get(t, value)}
+        {:else if widget.widgetType === 'chooserWithInput' && v(widget, value)}
+            {value.chosen === widget.options(context).at(-1) ? value.text : widget.get(t, value.chosen)}
         {:else if widget.widgetType === 'radio' && v(widget, value)}
             {widget.get(t, value)}
         {:else if widget.widgetType === 'radioWithInput' && v(widget, value)}
@@ -48,8 +50,7 @@
         {:else if widget.widgetType === 'switch' && v(widget, value)}
             {value ? widget.options(t)[1] : widget.options(t)[0]}
         {:else if widget.widgetType === 'multiCheckbox' && v(widget, value)}
-            {(widget.inverseSelection ? widget.options(context).filter(i => !value.includes(i)) : value)
-                .map(v => widget.get(t, v)).join(', ')}
+            {value.map(v => widget.get(t, v)).join(', ')}
         {:else if widget.widgetType === 'checkbox' && v(widget, value)}
             {value ? t.widget.yes : t.widget.no}
         {:else if widget.widgetType === 'counter' && v(widget, value)}
@@ -66,6 +67,7 @@
             {widget.getXmlEntry(v)}
         {:else if widget.widgetType === 'file' && v(widget, value)} <!-- Not supported -->
         {:else if widget.widgetType === 'photoSelector' && v(widget, value)} <!-- Not supported -->
+        {:else if widget.widgetType === 'hiddenValue' && v(widget, value)} <!-- Not supported -->
         {/if}
     </p>
 {/if}

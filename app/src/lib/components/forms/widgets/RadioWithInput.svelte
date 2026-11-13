@@ -18,11 +18,11 @@
 
     const id = $props.id();
 
-    const other = $derived(widget.options(context).at(-1)!);
+    const last = $derived(widget.options(context).at(-1)!);
 </script>
 
 {#snippet trailingContent(item: I)}
-    {#if item === other && value.chosen === other}
+    {#if item === last && !widget.hideOther(value.chosen, context)}
         <Field class="w-auto" orientation="responsive">
             <FieldLabel class="grow-0!" for="input-{id}">{widget.otherLabel(t, context)}</FieldLabel>
             <Input
@@ -34,7 +34,7 @@
                 id="input-{id}"
                 value={value.text}
                 oninput={e => {
-                    const newValue = { chosen: other, text: e.currentTarget.value ?? value.text };
+                    const newValue = { chosen: value.chosen, text: e.currentTarget.value ?? value.text };
                     value = newValue;
                     widget.onValueSet(context, newValue);
                 }}

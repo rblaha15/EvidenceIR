@@ -4,6 +4,7 @@
     import Input from '$lib/components/forms/widgets/Input.svelte';
     import DoubleChooser from '$lib/components/forms/widgets/DoubleChooser.svelte';
     import Chooser from '$lib/components/forms/widgets/Chooser.svelte';
+    import ChooserWithInput from '$lib/components/forms/widgets/ChooserWithInput.svelte';
     import Radio from '$lib/components/forms/widgets/Radio.svelte';
     import Switch from '$lib/components/forms/widgets/Switch.svelte';
     import MultiCheckbox from '$lib/components/forms/widgets/MultiCheckbox.svelte';
@@ -21,7 +22,7 @@
     import Title from '$lib/components/forms/widgets/Title.svelte';
     import RadioWithInput from '$lib/components/forms/widgets/RadioWithInput.svelte';
     import Button from '$lib/components/forms/widgets/Button.svelte';
-    import type { WidgetValue } from '$lib/forms/Form.ts';
+    import type { WidgetValue } from '$lib/forms/Form';
 
     interface Props {
         t: Translations;
@@ -52,6 +53,8 @@
     <DoubleChooser {widget} {t} bind:value {showAllErrors} {context} />
 {:else if widget.widgetType === 'chooser' && widget.show(context)}
     <Chooser {widget} {t} bind:value {showAllErrors} {context} />
+{:else if widget.widgetType === 'chooserWithInput' && widget.show(context)}
+    <ChooserWithInput {widget} {t} bind:value {showAllErrors} {context} />
 {:else if widget.widgetType === 'radio' && widget.show(context)}
     <Radio {widget} {t} bind:value {showAllErrors} {context} />
 {:else if widget.widgetType === 'radioWithInput' && widget.show(context)}

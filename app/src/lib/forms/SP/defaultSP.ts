@@ -212,11 +212,13 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
         paymentMethod: newRadioWithInputWidget({
             label: t => t.sp.paymentMethod, otherLabel: t => t.sp.noInvoiceReason,
             options: ['cash', 'transfer', 'doNotInvoice'], labels, chosen: 'transfer',
+            hideOther: v => v != 'doNotInvoice',
             required: notFree(hpCount), show: notFree(hpCount),
         }),
         komu: newRadioWithInputWidget({
             label: t => t.sp.whoToInvoice, labels, otherLabel: t => t.sp.crnOrName,
             options: ['investor', `assemblyCompany`, `commissioningCompany`, 'otherCompany'],
+            hideOther: v => v != 'otherCompany',
             required: c => notByCash(c) && notFree(hpCount)(c), show: c => notByCash(c) && notFree(hpCount)(c),
         }),
         jak: newRadioWidget({

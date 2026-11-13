@@ -56,6 +56,7 @@ type TypeMap<C = never, H extends boolean = boolean> = {
     inlinePdfPreview: InlinePdfPreviewWidget<C, any>,
     button: ButtonWidget<C>,
     chooser: ChooserWidget<C, any, H>,
+    chooserWithInput: ChooserWithInputWidget<C, any, H>,
     checkboxWithChooser: CheckboxWithChooserWidget<C, any, H>,
     search: SearchWidget<C, any, H>,
     doubleChooser: DoubleChooserWidget<C, any, any, H>,
@@ -159,7 +160,7 @@ type DoubleChooserArgs<C, I1 extends K, I2 extends K> = {
     chosen?: Pair<I1, I2>;
 };
 type LockArgs<C> = { lock?: GetBOrVal<C>; };
-type OtherLabelArgs<C> = { otherLabel: GetTOrVal<C>; };
+type OtherLabelArgs<C, U> = { otherLabel: GetTOrVal<C>; hideOther?: (value: U, context: C) => boolean };
 type CompactArgs<C> = { compact?: GetBOrVal<C>; };
 type DoubleLockArgs<C> = { lock1?: GetBOrVal<C>; lock2?: GetBOrVal<C>; };
 type SearchArgs<C, T> = {
@@ -223,8 +224,8 @@ type File<C> = {
     maxSizeMiB: number | undefined;
 };
 export type Lock<C> = { lock: GetB<C>; };
-type OtherLabel<C> = { otherLabel: GetT<C>; };
-type Compact<C> = { compact: GetB<C>; };
+type OtherLabel<C, U> = { otherLabel: GetT<C>; hideOther: (value: U, context: C) => boolean };
+export type Compact<C> = { compact: GetB<C>; };
 type DoubleLock<C> = { lock1: GetB<C>; lock2: GetB<C>; };
 type Chooser<C, I extends K> = { options: Get<C, Arr<I>>; otherOptions: Get<C, Arr<I>> };
 type SecondChooser<I extends K> = { options: Arr<I> };
@@ -326,8 +327,9 @@ const initDoubleChooser = <C, I1 extends K, I2 extends K>(args: DoubleChooserArg
 const initLock = <C>(args: LockArgs<C>) => ({
     lock: toGetA(args.lock ?? false),
 });
-const initOtherLabel = <C>(args: OtherLabelArgs<C>) => ({
+const initOtherLabel = <C, U>(args: OtherLabelArgs<C, U>) => ({
     otherLabel: toGetT(args.otherLabel),
+    hideOther: args.hideOther ?? (() => false),
 });
 const initLabels = <I extends string>(args: LabelsArgs<I>) => ({
     labels: args.labels ?? (() => ({}) as Record<I, string>),
@@ -477,6 +479,26 @@ export const newChooserWidget = <C, I extends K, H extends boolean = false>(
     ...initLabels(args),
 });
 
+export interface ChooserWithInputWidget<C, I extends K, H extends boolean = false> extends Required<C, RaI<I>, 'chooserWithInput', H>, Chooser<C, I>, Lock<C>, Compact<C>, BaseInput<C>, Labels<I>, OtherLabel<C, I | null> {
+    options: Get<C, Arr<I>>;
+}
+
+export const newChooserWithInputWidget = <C, I extends K, H extends boolean = false>(
+    args: ValueArgs<C, RaI<I>, H> & LockArgs<C> & CompactArgs<C> & BaseInputArgs<C> & OnlyInputArgs & ChooserArgs<C, I> & LabelsArgs<I> & OtherLabelArgs<C, I | null>,
+): ChooserWithInputWidget<C, I, H> => ({
+    widgetType: 'chooserWithInput' as const,
+    isError: (c: C, v: RaI<I>) => (v.chosen == null && required(args, c)) || (v.chosen == toGetA(args.options)(c).at(-1)! && (v.text == '' || !!args.regex && !toGetA(args.regex)(c).test(v.text))),
+    ...initValue<C, RaI<I>, H>(args),
+    ...initChooser(args),
+    ...initLock(args),
+    ...initCompact(args),
+    ...initBaseInput(args),
+    ...initLabels(args),
+    ...initOtherLabel(args),
+    options: toGetA(args.options),
+    defaultValue: { chosen: args.chosen ?? null, text: args.text ?? '' },
+});
+
 export interface CheckboxWithChooserWidget<C, I extends K, H extends boolean = false> extends Required<C, SeCh<I>, 'checkboxWithChooser', H>, Labels<I> {
     options: Get<C, Arr<I>>;
 }
@@ -562,12 +584,12 @@ export const newRadioWidget = <C, I extends K, H extends boolean = false>(
     ...initLabels(args),
 });
 
-export interface RadioWithInputWidget<C, I extends K, H extends boolean = false> extends Required<C, RaI<I>, 'radioWithInput', H>, Lock<C>, BaseInput<C>, Labels<I>, OtherLabel<C> {
+export interface RadioWithInputWidget<C, I extends K, H extends boolean = false> extends Required<C, RaI<I>, 'radioWithInput', H>, Lock<C>, BaseInput<C>, Labels<I>, OtherLabel<C, I | null> {
     options: Get<C, Arr<I>>;
 }
 
 export const newRadioWithInputWidget = <C, I extends K, H extends boolean = false>(
-    args: ValueArgs<C, RaI<I>, H> & LockArgs<C> & BaseInputArgs<C> & OnlyInputArgs & ChooserArgs<C, I> & LabelsArgs<I> & OtherLabelArgs<C>,
+    args: ValueArgs<C, RaI<I>, H> & LockArgs<C> & BaseInputArgs<C> & OnlyInputArgs & ChooserArgs<C, I> & LabelsArgs<I> & OtherLabelArgs<C, I | null>,
 ): RadioWithInputWidget<C, I, H> => ({
     widgetType: 'radioWithInput' as const,
     isError: (c: C, v: RaI<I>) => (v.chosen == null && required(args, c)) || (v.chosen == toGetA(args.options)(c).at(-1)! && (v.text == '' || !!args.regex && !toGetA(args.regex)(c).test(v.text))),
@@ -691,11 +713,11 @@ export const newInputWithChooserWidget = <C, I extends K, H extends boolean = fa
     ...initLabels(args),
 });
 
-export interface CheckboxWithInputWidget<C, H extends boolean = false> extends Required<C, ChI, 'checkboxWithInput', H>, Lock<C>, BaseInput<C>, AdvancedInput<C>, OtherLabel<C> {
+export interface CheckboxWithInputWidget<C, H extends boolean = false> extends Required<C, ChI, 'checkboxWithInput', H>, Lock<C>, BaseInput<C>, AdvancedInput<C>, OtherLabel<C, never> {
 }
 
 export const newCheckboxWithInputWidget = <C, H extends boolean = false>(
-    args: ValueArgs<C, ChI, H> & LockArgs<C> & BaseInputArgs<C> & AdvancedInputArgs<C> & OnlyInputArgs & CheckArgs & OtherLabelArgs<C>,
+    args: ValueArgs<C, ChI, H> & LockArgs<C> & BaseInputArgs<C> & AdvancedInputArgs<C> & OnlyInputArgs & CheckArgs & OtherLabelArgs<C, never>,
 ): CheckboxWithInputWidget<C, H> => ({
     widgetType: 'checkboxWithInput' as const,
     isError: (c: C, v: ChI) => (v.text == '' && required(args, c)) || (!v.checked && required(args, c)) || (v.text != '' && !!args.regex && !toGetA(args.regex)(c).test(v.text)),
