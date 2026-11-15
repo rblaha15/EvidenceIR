@@ -1,4 +1,5 @@
 <script generics="C" lang="ts">
+    import { localeDefaultLanguageCode } from '$lib/helpers/globals';
     import type { Translations } from '$lib/translations';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { addFile, getFile, removeFile } from '$lib/components/forms/widgets/File.svelte';
@@ -85,7 +86,7 @@
                         {/await}
                         <ItemContent>
                             <ItemTitle class="break-all">{fileName}</ItemTitle>
-                            <ItemDescription>{((size ?? 0) / (1024 * 1024)).roundTo(2).toLocaleString('cs')} MB</ItemDescription>
+                            <ItemDescription>{((size ?? 0) / (1024 * 1024)).roundTo(2).toLocaleString(localeDefaultLanguageCode)} MB</ItemDescription>
                             <ItemActions>
                                 <Button variant="danger" onclick={remove(uuid)}>
                                     <ImageMinus /> {t.widget.remove_Photo}

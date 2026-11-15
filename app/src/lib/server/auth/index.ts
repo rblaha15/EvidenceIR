@@ -1,6 +1,7 @@
 import { building } from '$app/environment';
 import { env } from '$env/dynamic/private';
-import { checkedIsLoggedIn, checkIsAdmin, checkIsAnyRegulusOrAdmin, checkIsRegulusOrAdmin } from '$lib/client/auth';
+import { checkedIsLoggedIn, checkIsAdmin, checkIsRegulusOrAdmin } from '$lib/client/auth';
+import { localeDefaultEmailSuffix } from '$lib/helpers/globals';
 import type { LanguageCode } from '$lib/languageCodes';
 import { sendResetEmail } from '$lib/server/auth/endpoints';
 import { authDB } from '$lib/server/db';
@@ -40,7 +41,7 @@ export const auth = betterAuth({
             if (!tokenVerified) throw new APIError(401, { code: 'TOKEN_INVALID' });
             await deleteToken(ctx.body.token, email, 'register');
 
-            const person = await getPersonByEmail(email) || email.endsWith('@regulus.cz');
+            const person = await getPersonByEmail(email) || email.endsWith(localeDefaultEmailSuffix);
             if (!person) throw new APIError(400, { code: 'PERSON_INVALID' });
 
             return {
@@ -103,4 +104,3 @@ export type Session = typeof auth['$Infer']['Session']['session'];
 export const getIsLoggedIn = (locals: App.Locals) => checkedIsLoggedIn(locals.user);
 export const getIsAdmin = (locals: App.Locals) => checkIsAdmin(locals.user);
 export const getIsRegulusOrAdmin = (locals: App.Locals) => checkIsRegulusOrAdmin(locals.user);
-export const getIsAnyRegulusOrAdmin = (locals: App.Locals) => checkIsAnyRegulusOrAdmin(locals.user);

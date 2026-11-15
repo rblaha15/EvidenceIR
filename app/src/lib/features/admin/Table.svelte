@@ -17,6 +17,7 @@
     import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
     import type { DataType, ValueType } from '$lib/features/admin/AdminTable.svelte';
     import TopScrollable from '$lib/features/admin/TopScrollable.svelte';
+    import { localeDefaultLanguageCode } from '$lib/helpers/globals';
     import { cn } from '$lib/utils';
     import { Pen, Plus, Trash, Undo } from '@lucide/svelte';
     import type { TableChangeType, TableOptions } from './AdminTable.svelte';
@@ -48,8 +49,8 @@
             number: (value: number) => !value ? '' : value.toString(),
             boolean: (value: boolean) => !value ? false : value,
             textArray: (value: string[]) => (!value || !value.length) ? '' : value.join(', '),
-            datetime: (value: string) => !value ? '' : new Date(value).toLocaleString('cs'),
-            price: (value: number) => !value ? '' : value.roundTo(2).toLocaleString('cs') + ' Kč',
+            datetime: (value: string) => !value ? '' : new Date(value).toLocaleString(localeDefaultLanguageCode),
+            price: (value: number) => !value ? '' : value.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
         } satisfies Record<DataType, (value: never) => unknown>)[column.type ?? 'text'](value as never);
 
     const colorRowClasses: Record<TableChangeType | 'link', string> = {

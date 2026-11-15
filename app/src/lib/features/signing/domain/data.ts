@@ -6,6 +6,7 @@ import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { FormSZ } from '$lib/forms/SP/formSZ';
 import { isSP } from '$lib/forms/SP/infoSP.svelte';
+import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import { endUserEmails, endUserName, type IRID, type NSPID, type SPID } from '$lib/helpers/ir';
 import {
     type GeneratePdfOptions,
@@ -82,7 +83,7 @@ export const getSigningInfo = (def: DocumentDefinition, ir: IR | null, nsp: NSP 
         ? 'investor' : companyType(def.pdf as 'SP' | 'NSP');
 
     const o: Omit<GeneratePdfOptions<PdfToSign>, 'data'> = {
-        link: def.pdf, lang: 'cs',
+        link: def.pdf, lang: localeDefaultLanguageCode,
         ...def.parameter ? { [pdfWithDefiningParameter[def.pdf as PdfWithDefiningParameter]]: def.parameter } : {},
     };
 

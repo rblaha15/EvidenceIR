@@ -1,4 +1,5 @@
 import { dateFromISO, dayISO } from '$lib/helpers/date';
+import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import { type GetPdfData } from '$lib/pdf/pdf';
 import { endUserName, irType, typBOX } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
@@ -13,13 +14,13 @@ export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t, addDoc, fetch }) =>
     const isCascade = Boolean(IN.tc.model2);
 
     // await addDoc({
-    //     lang: 'cs',
+    //     lang: localeDefaultLanguageCode,
     //     link: 'NNT',
     //     data: {},
     // })
 
     await addDoc({
-        lang: 'cs',
+        lang: localeDefaultLanguageCode,
         link: UP.reg.souhlasSPristupem && UP.reg.pripojeniKInternetu != 'notConnected' ? 'SZUS' : 'SZUB',
         data: data,
     });
@@ -88,13 +89,13 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
     const isCascade = Boolean(IN.tc.model2);
 
     // await addDoc({
-    //     lang: 'cs',
+    //     lang: localeDefaultLanguageCode,
     //     link: 'NNT',
     //     data: {},
     // })
 
     await addDoc({
-        lang: 'cs',
+        lang: localeDefaultLanguageCode,
         link: UP.reg.souhlasSPristupem && UP.reg.pripojeniKInternetu != 'notConnected' ? 'SZUS' : 'SZUB',
         data: data,
     });

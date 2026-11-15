@@ -1,5 +1,6 @@
 import { call } from '$lib/client/endpoints';
 import type { ExistingIR, ExistingNSP } from '$lib/data';
+import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import { detailUrlIR, detailUrlNSP } from '$lib/helpers/runes.svelte';
 import type { SigningStatus } from '../components/Signing.svelte';
 import { type CodeAttemptParams, SMS_ATTEMPT_MINIMUM_WAIT_TIME_SEC } from '$lib/features/signing/domain/sms';
@@ -32,7 +33,7 @@ const sendEmails = async (
     const name = type == 'NSP' ? spName((o.data as ExistingNSP).NSP.zasah) : irName((o.data as ExistingIR).IN.ir);
     const link = type == 'NSP' ? detailUrlNSP([params.def.id as NSPID], '?') : detailUrlIR(params.def.id as IRID, '?');
     const pdf = pdfInfo[params.def.pdf];
-    const title = pdf.title(getTranslations('cs'));
+    const title = pdf.title(getTranslations(localeDefaultLanguageCode));
 
     const doc = await generatePdf(o);
     const attachment = new File(

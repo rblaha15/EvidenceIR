@@ -1,4 +1,4 @@
-import { checkIsAnyRegulusOrAdmin } from '$lib/client/auth';
+import { checkIsRegulusOrAdmin } from '$lib/client/auth';
 import {
     type ExtendedLoyaltyProgramTrigger,
     loyaltyPointRewards,
@@ -28,19 +28,19 @@ export const processLoyaltyReward = async <T extends LoyaltyPointTriggerType>(
     const user = locals.user!;
     const timestamp = nowISO(true);
     if (isType(data, 'registration')) {
-        if (checkIsAnyRegulusOrAdmin(user)) return;
+        if (checkIsRegulusOrAdmin(user)) return;
         const current = await getLoyaltyProgramData(user.email);
         if (current.history.some(t => t.type == 'registration')) return;
         await addPointsTransaction({ ...data, timestamp }, user.email);
     } else if (isType(data, 'connectRegulusRoute')) {
-        if (checkIsAnyRegulusOrAdmin(user)) return;
+        if (checkIsRegulusOrAdmin(user)) return;
         const creatingUser = await getOrSetCreatingUser(data.ir, locals);
         if (creatingUser == 'unknown') return;
         const current = await getLoyaltyProgramData(creatingUser);
         if (current.history.some(t => t.type == 'connectRegulusRoute' && t.irid == data.irid)) return;
         await addPointsTransaction({ ...data, timestamp }, creatingUser);
     } else if (isType(data, 'disconnectRegulusRoute')) {
-        if (checkIsAnyRegulusOrAdmin(user)) return;
+        if (checkIsRegulusOrAdmin(user)) return;
         const creatingUser = await getCreatingUserOrNull(data.ir);
         if (!creatingUser || creatingUser == 'unknown') return;
         const current = await getLoyaltyProgramData(creatingUser);
@@ -67,7 +67,7 @@ export const processLoyaltyReward = async <T extends LoyaltyPointTriggerType>(
                 multiplier: (pumpCount - 1),
             }, assembly);
         }
-        if (commissioning && !checkIsAnyRegulusOrAdmin(user)) {
+        if (commissioning && !checkIsRegulusOrAdmin(user)) {
             const current = await getLoyaltyProgramData(commissioning);
             if (current.history.some(t => t.type == 'heatPumpCommission' && t.irid == data.irid)) return;
             await addPointsTransaction({ type: 'heatPumpCommission', irid: data.irid, timestamp }, commissioning);
@@ -78,7 +78,7 @@ export const processLoyaltyReward = async <T extends LoyaltyPointTriggerType>(
         }
         await setGrantedCommission(data.irid)
     } else if (isType(data, 'heatPumpYearlyCheck')) {
-        if (checkIsAnyRegulusOrAdmin(user)) return;
+        if (checkIsRegulusOrAdmin(user)) return;
         if (!data.ir?.RK?.TC?.[data.pump]?.[data.year]) return;
         await addPointsTransaction({
             type: data.type, irid: data.irid, note: `TČ: ${data!.pump}, rok: ${data!.year}`, timestamp,

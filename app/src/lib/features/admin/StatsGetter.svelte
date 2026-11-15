@@ -4,6 +4,7 @@
     import SpinnerAlert from '$lib/components/alerts/SpinnerAlert.svelte';
     import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
     import Widget from '$lib/components/forms/Widget.svelte';
+    import { localeDefaultLanguageCode } from '$lib/helpers/globals';
     import { getTranslations } from '$lib/translations';
     import { dateFromISO, dayISO } from '$lib/helpers/date';
     import { isSP } from '$lib/forms/SP/infoSP.svelte';
@@ -19,7 +20,7 @@
     });
     let to = $state(toW.defaultValue);
 
-    const cs = getTranslations('cs');
+    const cs = getTranslations(localeDefaultLanguageCode);
 
     let status = $state('none' as 'none' | 'mistake' | 'loading' | 'fail' | 'success');
     let showAllErrors = $state(false);

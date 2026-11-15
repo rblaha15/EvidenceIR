@@ -2,7 +2,7 @@
 
 import type { ContextIN } from '$lib/forms/IN/formIN';
 import type { BaseWidget, Widget } from '$lib/forms/Widget';
-import { appUrl } from '$lib/helpers/globals';
+import { appUrl, localeDefaultLanguageCode } from '$lib/helpers/globals';
 import type { Translations } from '$lib/translations';
 import type { Form, WidgetValue } from '$lib/forms/Form';
 import { browser, dev, version } from '$app/environment';
@@ -30,7 +30,7 @@ const widgetToXML = (w: Widget<ContextIN>, v: WidgetValue<Widget<ContextIN>>, t:
     if (w.widgetType === 'checkbox' && vw(w, v))
         return v ? t.tc.yes : t.tc.no;
     if (w.widgetType === 'counter' && vw(w, v))
-        return v.toLocaleString('cs');
+        return v.toLocaleString(localeDefaultLanguageCode);
     if (w.widgetType === 'search' && vw(w, v))
         return w.getXmlEntry(v);
     return '';

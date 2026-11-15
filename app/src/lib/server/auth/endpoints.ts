@@ -1,6 +1,6 @@
 import { dev } from '$app/environment';
 import { SENDER } from '$lib/client/email';
-import { appUrl } from '$lib/helpers/globals';
+import { appUrl, localeDefaultEmailSuffix } from '$lib/helpers/globals';
 import type { LanguageCode } from '$lib/languageCodes';
 import { auth } from '$lib/server/auth';
 import { checkUserByEmail } from '$lib/server/db/admin/auth';
@@ -62,7 +62,7 @@ export const authEndpoints = {
         const person = await getPersonByEmail(email);
         if (person && userAlreadyExists)
             return { result: 'emailInUse' };
-        if (!person && !email.endsWith('@regulus.cz'))
+        if (!person && !email.endsWith(localeDefaultEmailSuffix))
             return { result: 'useBusinessEmail' };
         if (!person && !email.split('@')[0].includes('.'))
             return { result: 'useNameSurnameEmail' };

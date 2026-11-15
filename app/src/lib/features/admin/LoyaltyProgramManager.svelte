@@ -13,6 +13,7 @@
     import type { loadAdmin } from '$lib/features/admin/load';
     import { newInputWidget, newSearchWidget } from '$lib/forms/Widget';
     import { datetimeFromISO, nowISO } from '$lib/helpers/date';
+    import { localeDefaultLanguageCode } from '$lib/helpers/globals';
     import { irLabel, irName } from '$lib/helpers/ir';
     import { detailUrlIR } from '$lib/helpers/runes.svelte';
     import { getTranslations } from '$lib/translations';
@@ -60,7 +61,7 @@
     });
     let installation = $state(installationW.defaultValue);
 
-    const cs = getTranslations('cs');
+    const cs = getTranslations(localeDefaultLanguageCode);
 
     let errorA = $state('');
     let statusA = $state('none' as 'none' | 'mistake' | 'loading' | 'fail' | 'success');
@@ -138,7 +139,7 @@
 {#each loyaltyProgramData.entries().sortedBy(([email]) => email) as [email, data] (email)}
     <details class="w-full">
         <summary class="cursor-pointer">
-            {email}: {data.points.toLocaleString('cs')}
+            {email}: {data.points.toLocaleString(localeDefaultLanguageCode)}
         </summary>
         {#each data.history as entry}
             {#if entry.type === 'other'}

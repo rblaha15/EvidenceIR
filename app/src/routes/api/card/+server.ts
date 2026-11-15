@@ -1,6 +1,7 @@
 import { unknownCompany, unknownCRN } from '$lib/forms/IN/formIN';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import ares from '$lib/helpers/ares';
+import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import { irLabel, irName, spName } from '$lib/helpers/ir';
 import { extractIDs } from '$lib/helpers/paths';
 import { mongoReadDatabase } from '$lib/server/db/read';
@@ -14,8 +15,8 @@ import Card from './Card.svelte';
 export async function GET({ url, fetch }) {
     const id = extractIDs(url);
 
-    const locals = { user: undefined, session: undefined };
-    const t = getTranslations('cs');
+    const locals = { user: null, session: null };
+    const t = getTranslations(localeDefaultLanguageCode);
 
     let svg: string;
     if (id.irid) {

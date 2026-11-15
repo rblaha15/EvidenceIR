@@ -1,3 +1,4 @@
+import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import type { EntryGenerator, PageLoad } from './$types';
 import { browser } from '$app/environment';
 import { generatePdfUrl } from '$lib/pdf/pdfGeneration';
@@ -11,7 +12,7 @@ export const load: PageLoad = async ({ fetch }) => {
     if (!browser) return { url: '', fileName: '' };
 
     return await generatePdfUrl({
-        lang: 'cs',
+        lang: localeDefaultLanguageCode,
         data: {},
         fetch,
         link: 'NN',

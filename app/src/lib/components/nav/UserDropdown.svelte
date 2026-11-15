@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { user, isAdmin, isAnyRegulusOrAdmin, signOut } from '$lib/client/auth.js';
+    import { user, isAdmin, isRegulusOrAdmin, signOut } from '$lib/client/auth.js';
     import arrays from '$lib/client/db/arrays';
     import { aA } from '$lib/helpers/newStores';
     import type { Translations } from '$lib/translations';
@@ -38,7 +38,7 @@
                 <DropdownMenuLabel>{ta.responsiblePerson}: {arrays.myInfoValue.responsiblePerson}</DropdownMenuLabel>
             {/if}
         </DropdownMenuGroup>
-        {#if !$isAnyRegulusOrAdmin && arrays.loyaltyProgramDataValue}
+        {#if !$isRegulusOrAdmin && arrays.loyaltyProgramDataValue}
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
                 <DropdownMenuGroupHeading>{ta.loyaltyProgram}</DropdownMenuGroupHeading>

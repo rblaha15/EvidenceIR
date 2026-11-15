@@ -1,4 +1,5 @@
 import { type SendCodeParams, SMS_CODE_LIFETIME, SMS_SEND_MINIMUM_WAIT_TIME } from '$lib/features/signing/domain/sms';
+import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import { type User } from '$lib/server/auth';
 import { getSigning, putSentMessage, setSignature } from '$lib/server/db/admin/signing';
 import { sendSMS } from '$lib/server/sms';
@@ -31,7 +32,7 @@ export const sendCode = async ({ def, signingBy }: SendCodeParams, user: User) =
     const last = livingMessages.last();
     if (last && (now - last.sentAt) < SMS_SEND_MINIMUM_WAIT_TIME) error(429);
 
-    const doc = (pdf.shortTitle ?? pdf.title)(getTranslations('cs'));
+    const doc = (pdf.shortTitle ?? pdf.title)(getTranslations(localeDefaultLanguageCode));
     const otp = generateOTP();
 
     await sendSMS(smsBody(doc, otp), signingBy.phone, fetch);

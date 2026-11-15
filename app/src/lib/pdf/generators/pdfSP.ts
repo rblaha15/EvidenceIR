@@ -9,6 +9,7 @@ import type { GenericContextSP, GenericFormSP } from '$lib/forms/SP/formSP.svelt
 import ares from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import '$lib/extensions';
+import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import { endUserName, endUserName2, spName } from '$lib/helpers/ir';
 import { getOperationPrices, isNewPrices } from '$lib/helpers/prices';
 import { generalizeServiceProtocol, type GetPdfData, type GetPdfSourceFileName } from '$lib/pdf/pdf';
@@ -169,50 +170,50 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount, fe
         Text40: get(ts.warranties, NSP.system.zaruka),
         Text19: NSP.zasah.nahlasenaZavada,
         Text20: NSP.zasah.popis,
-        Text21: NSP.ukony.doprava.toNumber().roundTo(2).toLocaleString('cs') + ' km',
-        Text22: ip.transportation ? prices.transportation.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč',
+        Text21: NSP.ukony.doprava.toNumber().roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' km',
+        Text22: ip.transportation ? prices.transportation.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč' : '0 Kč',
         'Kombinované pole32': (!areNewPrices ? get(ts, NSP.ukony.typPrace) : NSP.ukony.doba ? ts.serviceTechnicianWork : '')
             || ts.intervention,
         Text25: NSP.ukony.doba ? (areNewPrices ? codes.work : codes[NSP.ukony.typPrace! || 'work']).toString().let(k => k == '0' ? '' : k) : '',
-        Text23: NSP.ukony.doba ? NSP.ukony.doba.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
+        Text23: NSP.ukony.doba ? NSP.ukony.doba.toNumber().roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' h' : '',
         Text87: NSP.zasah.interventionDuration
-            ? NSP.zasah.interventionDuration.toNumber().roundTo(2).toLocaleString('cs') + ' h' : '',
-        Text24: NSP.ukony.doba ? ip.work ? prices.work.roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč' : '',
+            ? NSP.zasah.interventionDuration.toNumber().roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' h' : '',
+        Text24: NSP.ukony.doba ? ip.work ? prices.work.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč' : '0 Kč' : '',
         ...fo.map(p => [p.type, ' '] as const).toRecord(),
         ...operationsWithCascades.map(([type, count], i) => [
             [fo[i].type, get(ts, type)],
-            [fo[i].price, ip[type] ? prices[type].roundTo(2).toLocaleString('cs') + ' Kč' : '0 Kč'],
+            [fo[i].price, ip[type] ? prices[type].roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč' : '0 Kč'],
             [fo[i].code, codes[type].toString()],
             [fo[i].amount, count > 1 ? count + ' ks' : ''],
         ] as const).flat().toRecord(),
         ...spareParts.slice(0, 8).map((dil, i) => [
             [`Text${fieldsParts.name + i}`, dil.name],
             [`Text${fieldsParts.code + i}`, dil.code],
-            [`Text${fieldsParts.amount + i}`, dil.mnozstvi.toNumber().roundTo(2).toLocaleString('cs') + ' ks'],
+            [`Text${fieldsParts.amount + i}`, dil.mnozstvi.toNumber().roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' ks'],
             [`Text${fieldsParts.warehouse + i}`, dil.warehouse],
-            [`Text${fieldsParts.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString('cs') + ' Kč'],
+            [`Text${fieldsParts.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč'],
         ] as const).flat().toRecord(),
         ...spareParts.slice(8).map((dil, i) => [
             [`Text${fieldsParts2.name + i}`, dil.name],
             [`Text${fieldsParts2.code + i}`, dil.code],
-            [`Text${fieldsParts2.amount + i}`, dil.mnozstvi.toNumber().roundTo(2).toLocaleString('cs') + ' ks'],
+            [`Text${fieldsParts2.amount + i}`, dil.mnozstvi.toNumber().roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' ks'],
             [`Text${fieldsParts2.warehouse + i}`, dil.warehouse],
-            [`Text${fieldsParts2.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString('cs') + ' Kč'],
+            [`Text${fieldsParts2.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč'],
         ] as const).flat().toRecord(),
         ...variant == 'SP' && discount > 0 ? {
             [`Text${fieldsParts.name + 7}`]: 'Sleva',
-            [`Text${fieldsParts.price + 7}`]: (-discount).roundTo(2).toLocaleString('cs') + ' Kč',
+            [`Text${fieldsParts.price + 7}`]: (-discount).roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
         } : {},
         ...variant == 'SPL' && discount > 0 ? {
             [`Text${fieldsParts2.name + 5}`]: 'Sleva',
-            [`Text${fieldsParts2.price + 5}`]: (-discount).roundTo(2).toLocaleString('cs') + ' Kč',
+            [`Text${fieldsParts2.price + 5}`]: (-discount).roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
         } : {},
-        Text31: priceTransportation.roundTo(2).toLocaleString('cs') + ' Kč',
-        Text32: priceWork.roundTo(2).toLocaleString('cs') + ' Kč',
-        Text33: priceOther.roundTo(2).toLocaleString('cs') + ' Kč',
-        Text34: sum.roundTo(2).toLocaleString('cs') + ' Kč',
+        Text31: priceTransportation.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
+        Text32: priceWork.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
+        Text33: priceOther.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
+        Text34: sum.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
         Text18: (tax * 100 - 100).toFixed(0) + ' %',
-        Text35: sumWithTax.roundTo(2).toLocaleString('cs') + ' Kč',
+        Text35: sumWithTax.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
         Text39: isFree ? 'Zdarma'
             : NSP.fakturace.paymentMethod.chosen == 'transfer' ? 'Převodem'
                 : get(ts, NSP.fakturace.paymentMethod.chosen),

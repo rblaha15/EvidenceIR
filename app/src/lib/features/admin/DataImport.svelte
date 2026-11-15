@@ -6,6 +6,7 @@
     import File, { getFile } from '$lib/components/forms/widgets/File.svelte';
     import { Button } from '$lib/components/ui/button';
     import { type Files, newFileWidget, newChooserWidget } from '$lib/forms/Widget';
+    import { localeDefaultLanguageCode } from '$lib/helpers/globals';
     import { getTranslations } from '$lib/translations';
 
     const widget = newFileWidget({
@@ -66,7 +67,7 @@
 
 <h3 class="text-danger text-4xl">VŠE V TÉTO SEKCI JE VELICE NEBEZPEČNÉ A NIKDO BY TO NEMĚL POUŽÍVAT!!!</h3>
 
-<File bind:value context={{}} {showAllErrors} t={getTranslations('cs')} {widget} />
+<File bind:value context={{}} {showAllErrors} t={getTranslations(localeDefaultLanguageCode)} {widget} />
 
 <Button variant="danger" onclick={importFromBackup}>Importovat data ze zálohy (přepíše všechna data v databázi!!!)</Button>
 
@@ -74,7 +75,7 @@
     <DangerAlert noicon title={error} />
 {/if}
 
-<Chooser bind:value={valueM} context={{}} showAllErrors={showAllErrorsM} t={getTranslations('cs')} widget={widgetM} />
+<Chooser bind:value={valueM} context={{}} showAllErrors={showAllErrorsM} t={getTranslations(localeDefaultLanguageCode)} widget={widgetM} />
 
 <Button variant="danger" onclick={runMigrationOnCurrentData}>Spustit migraci (NEVRATNÉ!!)</Button>
 

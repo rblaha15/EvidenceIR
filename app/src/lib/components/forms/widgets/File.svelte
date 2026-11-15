@@ -26,6 +26,7 @@
 </script>
 
 <script generics="C" lang="ts">
+    import { localeDefaultLanguageCode } from '$lib/helpers/globals';
     import type { Translations } from '$lib/translations';
     import type { ChangeEventHandler } from 'svelte/elements';
     import { type Files, type FileWidget, labelAndStar } from '$lib/forms/Widget';
@@ -92,7 +93,7 @@
         {#each value as {fileName, uuid, size}}
             <Item size="2xs" class="w-fit gap-4">
                 <ItemContent>
-                    <ItemTitle class="break-all">{fileName}– {((size ?? 0) / (1024 * 1024)).roundTo(2).toLocaleString('cs')} MB</ItemTitle>
+                    <ItemTitle class="break-all">{fileName}– {((size ?? 0) / (1024 * 1024)).roundTo(2).toLocaleString(localeDefaultLanguageCode)} MB</ItemTitle>
                 </ItemContent>
                 <ItemActions>
                     <Button variant="danger" onclick={remove(uuid)}>

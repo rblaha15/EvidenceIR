@@ -1,4 +1,5 @@
 import { type EmailOptions, sendEmailAndUploadAttachments } from '$lib/client/email';
+import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import { derived, writable } from 'svelte/store';
 import { irName, irNumberFromIRID, irWholeName, spName, spWholeName, szName } from '$lib/helpers/ir';
 import type { Translations } from '$lib/translations';
@@ -192,7 +193,7 @@ export const readableHistory = derived(stored, history => {
     const readable = sorted.map(entry => ({
         completed: entry.completed,
         type: entry.type,
-        datetime: new Date(entry.timestamp).toLocaleString('cs'),
+        datetime: new Date(entry.timestamp).toLocaleString(localeDefaultLanguageCode),
         subject: (t: Translations) => entry.type == 'database' ? readableFunction(t, entry)
             : t.nav.history[entry.completed ? 'sentEmail' : 'unsentEmail'](entry.message),
     }));

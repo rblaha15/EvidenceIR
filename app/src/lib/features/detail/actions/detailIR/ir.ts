@@ -1,5 +1,6 @@
 import db from '$lib/client/db';
 import { goto } from '$app/navigation';
+import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import { iridUrl } from '$lib/helpers/runes.svelte.js';
 import { xmlIN } from '$lib/forms/IN/xmlIN';
 import { rawDataToValues } from '$lib/forms/Form';
@@ -15,7 +16,7 @@ export const removeIR = async (irid: IRID) => {
 };
 
 export const downloadXML = (ir: ExistingIR) => async () => {
-    const xml = xmlIN({ v: rawDataToValues(defaultIN(), ir.IN), f: defaultIN() }, getTranslations('cs'));
+    const xml = xmlIN({ v: rawDataToValues(defaultIN(), ir.IN), f: defaultIN() }, getTranslations(localeDefaultLanguageCode));
     const blob = new Blob([xml], {
         type: 'application/xml',
     });

@@ -16,6 +16,7 @@ import {
     newTitleWidget,
 } from '$lib/forms/Widget';
 import type { FormSP, GenericContextSP, GenericFormSP, Operation, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
+import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import type { Translations } from '$lib/translations';
 import { browser } from '$app/environment';
 import { generalizeServiceProtocol } from '$lib/pdf/pdf';
@@ -60,7 +61,7 @@ const sparePart = <C extends GenericContextSP<C>>(n: 1 | 2 | 3 | 4 | 5 | 6 | 7 |
                 pieces: [
                     { text: i.code.toString(), width: .08 },
                     { text: i.name, width: .8 },
-                    { text: i.unitPrice.roundTo(2).toLocaleString('cs') + t.units.czk, width: .12, class: c.v.system.zaruka ? 'text-decoration-line-through' : '' },
+                    { text: i.unitPrice.roundTo(2).toLocaleString(localeDefaultLanguageCode) + t.units.czk, width: .12, class: c.v.system.zaruka ? 'text-decoration-line-through' : '' },
                 ] as const,
             }), showInXML: false,
         }),

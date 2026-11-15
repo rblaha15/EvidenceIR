@@ -15,6 +15,7 @@ import type {
 } from '$lib/forms/Widget';
 import type { Company, HeatPump } from '$lib/client/db/arrays';
 import type { Form, Values } from '$lib/forms/Form';
+import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import { getTranslations, type Translations } from '$lib/translations';
 import type { Address } from '$lib/helpers/ruian';
 
@@ -173,5 +174,5 @@ export interface FormIN extends UserForm<ContextIN>, Form<ContextIN> {
 
 export const unknownCRN = '99999999';
 export const unknownCompanyEmail = 'neznama@montazni.fi';
-export const unknownCompany = (t: Translations = getTranslations('cs')): Company =>
+export const unknownCompany = (t: Translations = getTranslations(localeDefaultLanguageCode)): Company =>
     ({ ...t.in.unknownCompany, crn: unknownCRN, email: unknownCompanyEmail });

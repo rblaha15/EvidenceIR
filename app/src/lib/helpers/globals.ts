@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/public';
+import type { LanguageCode } from '$lib/languageCodes';
 import { get, readonly, writable } from 'svelte/store';
 
 const t = writable('SEIR');
@@ -46,8 +47,19 @@ export const progress = readonly(p);
 export const initialRouteLoggedIn = '/search';
 export const initialRouteLoggedOut = '/login';
 
+export const locale = env.PUBLIC_LOCALE as 'cz' | 'sk';
 export const appUrl = env.PUBLIC_APP_URL;
 export const environment = env.PUBLIC_ENV as 'development' | 'preview' | 'production';
+
+export const localeDefaultEmailSuffix = {
+    cz: '@regulus.cz',
+    sk: '@regulus.sk',
+}[locale];
+
+export const localeDefaultLanguageCode: LanguageCode = {
+    cz: 'cs' as const,
+    sk: 'sk' as const,
+}[locale];
 
 export const parseTitleId = (text: string) => text
     .trim()

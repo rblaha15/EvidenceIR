@@ -1,5 +1,6 @@
 import arrays, { type Person } from '$lib/client/db/arrays';
 import defaultIN, { type TC, TCNumbers } from '$lib/forms/IN/defaultIN';
+import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import { extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
 import { get } from 'svelte/store';
@@ -31,11 +32,11 @@ const sendEmails = async (
 
     if (doNotSend) return true;
 
-    const cs = getTranslations('cs');
+    const cs = getTranslations(localeDefaultLanguageCode);
     const montazka = (await ares.getName(raw.montazka.ico)) ?? null;
     const uvadec = (await ares.getName(raw.uvedeni.ico)) ?? null;
 
-    const pdf = await generatePdf({ lang: 'cs', data: newIr, link: 'RR' });
+    const pdf = await generatePdf({ lang: localeDefaultLanguageCode, data: newIr, link: 'RR' });
 
     const response1 = raw.vzdalenyPristup.chce ? await sendEmail({
         ...defaultAddresses(cervenka),

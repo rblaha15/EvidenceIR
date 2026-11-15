@@ -43,7 +43,6 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loadin
     openPdf: async raw => ({
         link: 'NSP',
         nspid: extractSPIDFromRawData(raw.zasah),
-        lang: 'cs',
     }),
     createContext: ({ values: v, form: f, mode }) => ({ v, f, edit: mode == 'edit' }),
     title: (t, m) => m == 'edit' ? t.sp.editSP : t.sp.title,
