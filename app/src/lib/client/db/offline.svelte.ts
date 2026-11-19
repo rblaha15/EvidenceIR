@@ -170,7 +170,7 @@ const writeDatabase: WriteDatabase = {
         ir.UP.FVE = protocol;
         return ir;
     }),
-    addFT: async (irid, faceTable) => odm.update('IR', irid, ir => {
+    updateFT: async (irid, faceTable) => odm.update('IR', irid, ir => {
         if (ir.deleted) return ir;
         ir.FT = faceTable;
         return ir;

@@ -145,6 +145,14 @@ const getButtonFT = (
     href: iridUrl('/FT'),
     text: t.ft.setUp,
 });
+const getDropdownItemFT = (
+    t: Translations,
+) => ({
+    variant: 'warning',
+    icon: FilePen,
+    text: t.detail.edit,
+    href: iridUrl(`/FT/?edit`),
+}) satisfies DropdownItems[number];
 
 export const createDocumentLinks = (
     ir: ExistingIR, t: Translations, user: {
@@ -215,13 +223,13 @@ export const createDocumentLinks = (
     if (rules.showFVE(ir)) add({
         link: 'UPF', disabled: rules.disableUPF(ir), name: t.fve.name,
         additionalButton: user.isRegulusOrAdmin ? getButtonUPF(t) : undefined,
-            dropdownItems: user.isRegulusOrAdmin ? [getDropdownItemUPF(t, user)] : undefined,
+        dropdownItems: user.isRegulusOrAdmin ? [getDropdownItemUPF(t, user)] : undefined,
         signed: ir.signatures?.UPF?.state == 'signed',
     });
 
     if (rules.showFT(ir)) add({
         link: 'FT', disabled: rules.disableFT(ir), name: t.ft.title,
-        additionalButton: getButtonFT(t),
+        additionalButton: getButtonFT(t), dropdownItems: [getDropdownItemFT(t)],
     });
 
     return links;

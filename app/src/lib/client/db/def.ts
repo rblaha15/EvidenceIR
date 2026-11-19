@@ -69,7 +69,7 @@ export interface WriteDatabase {
 
     updateUPF(irid: IRID, protocol: Raw<FormUPF>): Promise<void>;
 
-    addFT(irid: IRID, faceTable: Raw<FormFT>): Promise<void>;
+    updateFT(irid: IRID, faceTable: Raw<FormFT>): Promise<void>;
 
     updateUsersWithAccessToIR(irid: IRID, users: string[]): Promise<void>;
 
@@ -95,7 +95,7 @@ export const readDatabaseMethods = [
 export const writeDatabaseMethods = [
     'addIR', 'deleteIR', 'moveIR', 'updateIN',
     'addRKT', 'addRKS', 'updateUPT', 'updateDateUPT', 'addUPS', 'updateDateUPS', 'updateUPF',
-    'addSPs', 'updateSP', 'deleteSP', 'updateUsersWithAccessToIR', 'markRefsiteConfirmed', 'updateDKT', 'updateDKS', 'addFT',
+    'addSPs', 'updateSP', 'deleteSP', 'updateUsersWithAccessToIR', 'markRefsiteConfirmed', 'updateDKT', 'updateDKS', 'updateFT',
     'addNSP', 'deleteNSP', 'updateNSP',
 ] as const satisfies (keyof WriteDatabase)[];
 export const databaseMethods = [

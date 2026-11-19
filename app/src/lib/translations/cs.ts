@@ -1,8 +1,9 @@
 // noinspection SpellCheckingInspection
 
 import { env } from '$env/dynamic/public';
+import type { WriteFunction } from '$lib/client/db/def';
 import { pricesNoVAT } from '$lib/helpers/prices';
-import { template as t } from '$lib/helpers/templates';
+import { type STemplate, template as t } from '$lib/helpers/templates';
 import '$lib/extensions';
 
 export default {
@@ -217,7 +218,7 @@ export default {
                 addSPs: t`Vytvořen servisní protokol ${'sp'} u IR ${'ir'}`,
                 updateSP: t`Upraven servisní protokol ${'sp'} u IR ${'ir'}`,
                 deleteSP: t`Odstraněn servisní protokol u IR ${'ir'}`,
-                addFT: t`Nastaveny volitelné vstupy a výstupy IR ${'ir'}`,
+                updateFT: t`Nastaveny volitelné vstupy a výstupy IR ${'ir'}`,
                 updateUPT: t`Vytvořen protokol o uvedení TČ do provozu u IR ${'ir'}`,
                 updateDateUPT: t`Změněn datum uvedení TČ do provozu u IR ${'ir'}`,
                 addUPS: t`Vytvořen protokol o uvedení SOL do provozu u IR ${'ir'}`,
@@ -230,7 +231,7 @@ export default {
                 addNSP: t`Vytvořen nezávislý servisní protokol ${'sp'}`,
                 updateNSP: t`Upraven nezávislý servisní protokol ${'sp'}`,
                 deleteNSP: t`Odstraněn nezávislý servisní protokol ${'spid'}`,
-            },
+            } satisfies Record<WriteFunction, STemplate<any>>,
         },
     },
     theme: {

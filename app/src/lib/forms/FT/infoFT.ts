@@ -1,3 +1,4 @@
+import type { Raw } from '$lib/forms/Form';
 import type { FormInfo } from '$lib/forms/FormInfo';
 import type { DataFT, FormFT } from '$lib/forms/FT/formFT';
 import defaultFT from '$lib/forms/FT/defaultFT';
@@ -14,7 +15,7 @@ const infoFT: FormInfo<DataFT, FormFT, [], 'FT'> = {
         link: 'FT',
     }),
     saveData: async ({ irid, raw }) => {
-        await db.addFT(irid, raw);
+        await db.updateFT(irid, raw);
     },
     pdfImport: {
         onImport: () => {},
@@ -23,7 +24,11 @@ const infoFT: FormInfo<DataFT, FormFT, [], 'FT'> = {
     onMount: async ({ values, ir }) => {
         if (!values.info.setBy)
             values.info.setBy = ir.IN.uvedeni.zastupce
-    }
+    },
+    getEditData: (ir, url) =>
+        url.searchParams.has('edit') ? { raw: ir.FT as Raw<FormFT> } : undefined,
+    getViewData: (ir, url) =>
+        url.searchParams.has('view') ? { raw: ir.FT as Raw<FormFT> } : undefined,
 }
 
 export default infoFT

@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/public';
+import type { WriteFunction } from '$lib/client/db/def';
 import { pricesNoVAT } from '$lib/helpers/prices';
-import { template as t } from '$lib/helpers/templates';
+import { type STemplate, template as t } from '$lib/helpers/templates';
 import type { PlainTranslations } from '$lib/translations';
 import cs from './cs';
 
@@ -288,7 +289,7 @@ const en: PlainTranslations = {
                 addSPs: t`Created a service protocol ${'sp'} at the ${'ir'} controller`,
                 updateSP: t`Edited the ${'sp'} service protocol at the ${'ir'} controller`,
                 deleteSP: t`Removed a service protocol at the ${'ir'} controller`,
-                addFT: t`Set the optional inputs and outputs at the ${'ir'} controller`,
+                updateFT: t`Set the optional inputs and outputs at the ${'ir'} controller`,
                 updateUPT: t`Created a heat pump commissioning protocol at the ${'ir'} controller`,
                 updateDateUPT: t`Updated the heat pump commission date at the ${'ir'} controller`,
                 addUPS: t`Created a solar system commissioning protocol at the ${'ir'} controller`,
@@ -301,7 +302,7 @@ const en: PlainTranslations = {
                 addNSP: t`Created a new independent service protocol ${'sp'}`,
                 updateNSP: t`Updated the ${'sp'} independent service protocol`,
                 deleteNSP: t`Removed the ${'spid'} independent service protocol`,
-            },
+            } satisfies Record<WriteFunction, STemplate<any>>,
         },
     },
     detail: {

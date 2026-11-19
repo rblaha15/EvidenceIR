@@ -156,7 +156,7 @@ const functions: {
     addSPs: (irid, [p]) => ({ ir: irNumberFromIRID(irid), sp: isSP(p) ? spName(p.zasah) : szName(p.zasah) }),
     updateSP: (irid, p) => ({ ir: irNumberFromIRID(irid), sp: isSP(p) ? spName(p.zasah) : szName(p.zasah) }),
     deleteSP: irid => ({ ir: irNumberFromIRID(irid) }),
-    addFT: irid => ({ ir: irNumberFromIRID(irid) }),
+    updateFT: irid => ({ ir: irNumberFromIRID(irid) }),
     updateUPT: irid => ({ ir: irNumberFromIRID(irid) }),
     updateDateUPT: irid => ({ ir: irNumberFromIRID(irid) }),
     addUPS: irid => ({ ir: irNumberFromIRID(irid) }),
