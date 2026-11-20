@@ -114,6 +114,7 @@ const de: PlainTranslations = {
         inverterManufactureNumber: 'Seriennummer des Wechselrichters',
         accumulationToBatteries: 'Ansammlung in Batterien',
         batteryType: 'Akku-Typ',
+        batteries: 'Batterien',
         totalBatteryCapacity: 'Gesamtbatteriekapazität',
         chargingStationWallbox: 'Ladestation – Wallbox',
         irCooperation: 'Zusammenarbeit mit der Regulierungsbehörde Regulus',
