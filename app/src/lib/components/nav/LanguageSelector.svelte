@@ -25,7 +25,7 @@
     </SelectTrigger>
     <SelectContent>
         <SelectGroup>
-            {#each options.filter(it => it !== 'sk') as code}
+            {#each options as code}
                 <SelectItem
                     value={code}
                     label={code.toUpperCase()}
