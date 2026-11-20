@@ -61,12 +61,16 @@ const infoNSP: IndependentFormInfo<ContextNSP, FormNSP, [[Technician[] | 'loadin
         return !sp ? undefined : { raw: sp.NSP };
     },
     storeEffects: [
-        [([$technicians, $currentUser], { values, edit }) => { // From SP
-            const ja = edit || $technicians == 'loading' ? undefined
-                : $technicians.find(t => $currentUser?.email == t.email);
-            if (!values.zasah.clovek) values.zasah.clovek = ja?.name ?? values.zasah.clovek;
-            if (!values.zasah.inicialy) values.zasah.inicialy = ja?.initials ?? values.zasah.inicialy;
-            values.zasah.showNameFileds = values.zasah.clovek != ja?.name;
+        [([$technicians, $currentUser], { values, mode }) => { // From SP
+            if (mode != 'create' || $technicians == 'loading') {
+                values.zasah.showNameFileds = true;
+                return;
+            }
+            const ja = $technicians.find(t => $currentUser?.email == t.email);
+            if (!values.zasah.clovek) values.zasah.clovek = ja?.name ?? $currentUser?.name ?? '';
+            if (!values.zasah.userEmail) values.zasah.userEmail = ja?.email ?? $currentUser?.email ?? '';
+            if (!values.zasah.inicialy) values.zasah.inicialy = ja?.initials ?? '';
+            values.zasah.showNameFileds = !!ja;
         }, [() => arrays.technicians, user]],
     ],
     pdfImport: {

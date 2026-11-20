@@ -1,23 +1,18 @@
 import { user, type User } from '$lib/client/auth';
-import arrays, { type Technician } from '$lib/client/db/arrays';
-import { appUrl } from '$lib/helpers/globals';
-import { extractSPIDFromRawData, type SPID, spName, type SZID } from '$lib/helpers/ir';
-import { defaultAddresses, sendEmail } from '$lib/client/email';
-import MailProtocol from '$lib/emails/MailProtocol.svelte';
-import { detailUrlIR } from '$lib/helpers/runes.svelte';
-import { cellsSP } from '$lib/forms/SP/cellsSP';
-import { type ContextSP, type FormSP } from '$lib/forms/SP/formSP.svelte';
-import defaultSP from '$lib/forms/SP/defaultSP';
-import type { FormInfo } from '$lib/forms/FormInfo';
-import { type Raw, valuesToRawData } from '$lib/forms/Form';
-import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
-import { getIsOnline } from '$lib/client/online';
 import db from '$lib/client/db';
-import { error } from '@sveltejs/kit';
-import type { FormSZ } from '$lib/forms/SP/formSZ';
-
-export const isSP = (raw: Raw<FormSP | FormSZ> | undefined): raw is Raw<FormSP> => !!raw && ('ukony' in raw)
-export const ensureSP = (raw: Raw<FormSP | FormSZ> | undefined) => isSP(raw) ? raw : error(400, { message: 'Provided data is not a protocol' });
+import arrays, { type Technician } from '$lib/client/db/arrays';
+import { defaultAddresses, sendEmail } from '$lib/client/email';
+import { getIsOnline } from '$lib/client/online';
+import MailProtocol from '$lib/emails/MailProtocol.svelte';
+import { valuesToRawData } from '$lib/forms/Form';
+import type { FormInfo } from '$lib/forms/FormInfo';
+import { fieldsNSP } from '$lib/forms/NSP/fieldsNSP';
+import { cellsSP } from '$lib/forms/SP/cellsSP';
+import defaultSP from '$lib/forms/SP/defaultSP';
+import { type ContextSP, type FormSP } from '$lib/forms/SP/formSP.svelte';
+import { appUrl } from '$lib/helpers/globals';
+import { ensureSP, extractSPIDFromRawData, type SPID, spName, type SZID } from '$lib/helpers/ir';
+import { detailUrlIR } from '$lib/helpers/runes.svelte';
 
 const infoSP: FormInfo<ContextSP, FormSP, [[Technician[] | 'loading', User | null]], 'SP'> = {
     type: 'IR',
@@ -87,12 +82,16 @@ const infoSP: FormInfo<ContextSP, FormSP, [[Technician[] | 'loading', User | nul
             values.system.datumUvedeni = ir.UP.dateTC;
     },
     storeEffects: [
-        [([$technicians, $user], { values, edit }) => { // Also in NSP
-            const ja = edit ? undefined : $technicians == 'loading' ? undefined
-                : $technicians.find(t => $user?.email == t.email);
-            if (!values.zasah.clovek) values.zasah.clovek = ja?.name ?? values.zasah.clovek;
-            if (!values.zasah.inicialy) values.zasah.inicialy = ja?.initials ?? values.zasah.inicialy;
-            values.zasah.showNameFileds = values.zasah.clovek != ja?.name;
+        [([$technicians, $user], { values, mode }) => { // Also in NSP, partially in SZ
+            if (mode != 'create' || $technicians == 'loading') {
+                values.zasah.showNameFileds = true;
+                return;
+            }
+            const ja = $technicians.find(t => $user?.email == t.email);
+            if (!values.zasah.clovek) values.zasah.clovek = ja?.name ?? $user?.name ?? '';
+            if (!values.zasah.userEmail) values.zasah.userEmail = ja?.email ?? $user?.email ?? '';
+            if (!values.zasah.inicialy) values.zasah.inicialy = ja?.initials ?? '';
+            values.zasah.showNameFileds = !!ja;
         }, [() => arrays.technicians, user]],
     ],
     excelImport: {

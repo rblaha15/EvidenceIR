@@ -3,10 +3,9 @@ import { invalidateAll } from '$app/navigation';
 import arrays from '$lib/client/db/arrays';
 import type { Raw } from '$lib/forms/Form';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
-import type { SPID } from '$lib/helpers/ir';
+import { ensureSP, type SPID } from '$lib/helpers/ir';
 import type { ExistingIR } from '$lib/data';
 import { getCachedUser } from '$lib/client/auth';
-import { ensureSP } from '$lib/forms/SP/infoSP.svelte';
 
 export const deleteSP = db.deleteSP;
 

@@ -16,10 +16,10 @@ import {
     newTitleWidget,
 } from '$lib/forms/Widget';
 import type { FormSP, GenericContextSP, GenericFormSP, Operation, SparePartWidgetGroup } from '$lib/forms/SP/formSP.svelte';
+import { makeServiceProtocolIndependent } from '$lib/helpers/dependentForm';
 import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import type { Translations } from '$lib/translations';
 import { browser } from '$app/environment';
-import { generalizeServiceProtocol } from '$lib/pdf/pdf';
 import { type FormGroupPlus, type FormPlus } from '$lib/forms/Form';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { calculateProtocolPrice } from '$lib/pdf/generators/pdfSP';
@@ -123,6 +123,7 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
         _title: newTitleWidget({ text: t => t.sp.intervention, level: titleLevel }),
         datum: defaultGenericSZ<C>().zasah.datum,
         clovek: defaultGenericSZ<C>(c => c.v.zasah.showNameFileds).zasah.clovek,
+        userEmail: defaultGenericSZ<C>(c => c.v.zasah.showNameFileds).zasah.userEmail,
         showNameFileds: newHiddenValueWidget(false, true),
         inicialy: newInputWidget({
             label: t => t.sp.technicianInitials,
@@ -241,7 +242,7 @@ export const defaultGenericSP = <C extends GenericContextSP<C>>(
 });
 
 export default (): FormSP => defaultGenericSP((t, c) => ({
-    data: generalizeServiceProtocol(c.ir.meta, c.ir.IN, c.raw, t),
+    data: makeServiceProtocolIndependent(c.ir.meta, c.ir.IN, c.raw, localeDefaultLanguageCode),
     form: c.f,
     values: c.v,
     pumpCount: cascadePumps(c.ir.IN).length,

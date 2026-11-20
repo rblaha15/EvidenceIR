@@ -1,5 +1,6 @@
 // noinspection JSNonASCIINames
 
+import arrays from '$lib/client/db/arrays';
 import type { Raw, Values } from '$lib/forms/Form';
 import { unknownCRN } from '$lib/forms/IN/formIN';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
@@ -9,10 +10,12 @@ import type { GenericContextSP, GenericFormSP } from '$lib/forms/SP/formSP.svelt
 import ares from '$lib/helpers/ares';
 import { dateFromISO } from '$lib/helpers/date';
 import '$lib/extensions';
-import { localeDefaultLanguageCode } from '$lib/helpers/globals';
-import { endUserName, endUserName2, spName } from '$lib/helpers/ir';
+import { makeServiceProtocolIndependent } from '$lib/helpers/dependentForm';
+import { endUserName, endUserName2, irDescription, isSP, isSZ, spName } from '$lib/helpers/ir';
 import { getOperationPrices, isNewPrices } from '$lib/helpers/prices';
-import { generalizeServiceProtocol, type GetPdfData, type GetPdfSourceFileName } from '$lib/pdf/pdf';
+import { waitForFirst } from '$lib/helpers/stores';
+import { type GetPdfData, type GetPdfSourceFileName } from '$lib/pdf/pdf';
+import type { PdfGenerationData } from '$lib/pdf/pdfGeneration';
 import { get } from '$lib/translations';
 
 const codes = {
@@ -109,7 +112,7 @@ export const pdfNameNSP: GetPdfSourceFileName<'NSP'> = async ({ data }) => {
     return getVariant(NSP);
 }
 
-export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount, fetch }) => {
+export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, lang, addDoc, pumpCount, fetch }) => {
     const { NSP } = data;
     const ts = t.sp;
     const assemblyCompany = await ares.getNameAndAddress(NSP.montazka.ico, fetch);
@@ -138,7 +141,7 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount, fe
     const areNewPrices = isNewPrices(NSP.zasah.datum);
 
     const variant = getVariant(NSP);
-    if (tax == 1.12) await addDoc({ link: 'CP', data, lang: 'cs' });
+    if (tax == 1.12) await addDoc({ link: 'CP', data, lang });
 
     const isUnknown = NSP.montazka.ico == unknownCRN;
     const fo = NSP.ukony.doba ? fieldsOperations.slice(1) : fieldsOperations;
@@ -170,50 +173,50 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount, fe
         Text40: get(ts.warranties, NSP.system.zaruka),
         Text19: NSP.zasah.nahlasenaZavada,
         Text20: NSP.zasah.popis,
-        Text21: NSP.ukony.doprava.toNumber().roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' km',
-        Text22: ip.transportation ? prices.transportation.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč' : '0 Kč',
+        Text21: NSP.ukony.doprava.toNumber().roundTo(2).toLocaleString(lang) + ' km',
+        Text22: ip.transportation ? prices.transportation.roundTo(2).toLocaleString(lang) + ' Kč' : '0 Kč',
         'Kombinované pole32': (!areNewPrices ? get(ts, NSP.ukony.typPrace) : NSP.ukony.doba ? ts.serviceTechnicianWork : '')
             || ts.intervention,
         Text25: NSP.ukony.doba ? (areNewPrices ? codes.work : codes[NSP.ukony.typPrace! || 'work']).toString().let(k => k == '0' ? '' : k) : '',
-        Text23: NSP.ukony.doba ? NSP.ukony.doba.toNumber().roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' h' : '',
+        Text23: NSP.ukony.doba ? NSP.ukony.doba.toNumber().roundTo(2).toLocaleString(lang) + ' h' : '',
         Text87: NSP.zasah.interventionDuration
-            ? NSP.zasah.interventionDuration.toNumber().roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' h' : '',
-        Text24: NSP.ukony.doba ? ip.work ? prices.work.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč' : '0 Kč' : '',
+            ? NSP.zasah.interventionDuration.toNumber().roundTo(2).toLocaleString(lang) + ' h' : '',
+        Text24: NSP.ukony.doba ? ip.work ? prices.work.roundTo(2).toLocaleString(lang) + ' Kč' : '0 Kč' : '',
         ...fo.map(p => [p.type, ' '] as const).toRecord(),
         ...operationsWithCascades.map(([type, count], i) => [
             [fo[i].type, get(ts, type)],
-            [fo[i].price, ip[type] ? prices[type].roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč' : '0 Kč'],
+            [fo[i].price, ip[type] ? prices[type].roundTo(2).toLocaleString(lang) + ' Kč' : '0 Kč'],
             [fo[i].code, codes[type].toString()],
             [fo[i].amount, count > 1 ? count + ' ks' : ''],
         ] as const).flat().toRecord(),
         ...spareParts.slice(0, 8).map((dil, i) => [
             [`Text${fieldsParts.name + i}`, dil.name],
             [`Text${fieldsParts.code + i}`, dil.code],
-            [`Text${fieldsParts.amount + i}`, dil.mnozstvi.toNumber().roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' ks'],
+            [`Text${fieldsParts.amount + i}`, dil.mnozstvi.toNumber().roundTo(2).toLocaleString(lang) + ' ks'],
             [`Text${fieldsParts.warehouse + i}`, dil.warehouse],
-            [`Text${fieldsParts.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč'],
+            [`Text${fieldsParts.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString(lang) + ' Kč'],
         ] as const).flat().toRecord(),
         ...spareParts.slice(8).map((dil, i) => [
             [`Text${fieldsParts2.name + i}`, dil.name],
             [`Text${fieldsParts2.code + i}`, dil.code],
-            [`Text${fieldsParts2.amount + i}`, dil.mnozstvi.toNumber().roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' ks'],
+            [`Text${fieldsParts2.amount + i}`, dil.mnozstvi.toNumber().roundTo(2).toLocaleString(lang) + ' ks'],
             [`Text${fieldsParts2.warehouse + i}`, dil.warehouse],
-            [`Text${fieldsParts2.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč'],
+            [`Text${fieldsParts2.price + i}`, Number(dil.unitPrice).roundTo(2).toLocaleString(lang) + ' Kč'],
         ] as const).flat().toRecord(),
         ...variant == 'SP' && discount > 0 ? {
             [`Text${fieldsParts.name + 7}`]: 'Sleva',
-            [`Text${fieldsParts.price + 7}`]: (-discount).roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
+            [`Text${fieldsParts.price + 7}`]: (-discount).roundTo(2).toLocaleString(lang) + ' Kč',
         } : {},
         ...variant == 'SPL' && discount > 0 ? {
             [`Text${fieldsParts2.name + 5}`]: 'Sleva',
-            [`Text${fieldsParts2.price + 5}`]: (-discount).roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
+            [`Text${fieldsParts2.price + 5}`]: (-discount).roundTo(2).toLocaleString(lang) + ' Kč',
         } : {},
-        Text31: priceTransportation.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
-        Text32: priceWork.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
-        Text33: priceOther.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
-        Text34: sum.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
+        Text31: priceTransportation.roundTo(2).toLocaleString(lang) + ' Kč',
+        Text32: priceWork.roundTo(2).toLocaleString(lang) + ' Kč',
+        Text33: priceOther.roundTo(2).toLocaleString(lang) + ' Kč',
+        Text34: sum.roundTo(2).toLocaleString(lang) + ' Kč',
         Text18: (tax * 100 - 100).toFixed(0) + ' %',
-        Text35: sumWithTax.roundTo(2).toLocaleString(localeDefaultLanguageCode) + ' Kč',
+        Text35: sumWithTax.roundTo(2).toLocaleString(lang) + ' Kč',
         Text39: isFree ? 'Zdarma'
             : NSP.fakturace.paymentMethod.chosen == 'transfer' ? 'Převodem'
                 : get(ts, NSP.fakturace.paymentMethod.chosen),
@@ -255,24 +258,79 @@ export const pdfNSP: GetPdfData<'NSP'> = async ({ data, t, addDoc, pumpCount, fe
 
 const detectCRN = (text: string) => /^[0-9]{8}$/.test(text) ? `IČO: ${text}` : text;
 
+const pdfSP: GetPdfData<'SP'> = async ({ id, data: { IN, SPs: { [id]: SZ } }, t, lang, fetch }) => {
+    if (!isSZ(SZ)) throw 'No.';
+
+    const spareParts = [
+        SZ.nahradniDil1, SZ.nahradniDil2, SZ.nahradniDil3, SZ.nahradniDil4,
+        SZ.nahradniDil5, SZ.nahradniDil6, SZ.nahradniDil7, SZ.nahradniDil8,
+        SZ.nahradniDil9, SZ.nahradniDil10, SZ.nahradniDil11, SZ.nahradniDil12, SZ.nahradniDil13,
+    ].slice(0, SZ.nahradniDily?.pocet ?? 0);
+
+    const companies = await waitForFirst(arrays.companies, c => c != 'loading');
+    const company = companies.find(c => c.email == SZ.zasah.userEmail)
+        || companies.find(c => c.representativeUserEmail == SZ.zasah.userEmail)
+    const companyAres = company ? await ares.getNameAndAddress(company.crn, fetch) : undefined;
+
+    return {
+        fileNameSuffix: SZ.zasah.datum.replaceAll(/[T:]/g, '-'),
+        Text29: IN.koncovyUzivatel.typ == 'company' ? `${t.in.companyName}:` : `Jméno a příjmení:`,
+        Text2: endUserName(IN.koncovyUzivatel),
+        Text30: IN.koncovyUzivatel.typ == 'company' ? t.in.crn : t.in.birthday,
+        Text3: IN.koncovyUzivatel.typ == 'company'
+            ? IN.koncovyUzivatel.ico : IN.koncovyUzivatel.narozeni.length == 0 ? null : IN.koncovyUzivatel.narozeni,
+        Text4: `${IN.bydliste.ulice}, ${IN.bydliste.psc} ${IN.bydliste.obec}`,
+        Text5: IN.koncovyUzivatel.telefon,
+        Text6: IN.koncovyUzivatel.email,
+        Text7: companyAres?.obchodniJmeno || company?.companyName || null,
+        Text8: company?.crn || null,
+        Text9: SZ.zasah.clovek,
+        Text10: companyAres?.sidlo?.textovaAdresa || null,
+        Text11: company?.phone || null,
+        Text12: SZ.zasah.userEmail || null,
+        Text13: IN.koncovyUzivatel.pobocka
+            ? `${IN.koncovyUzivatel.pobocka}, ${IN.mistoRealizace.ulice}, ${IN.mistoRealizace.psc} ${IN.mistoRealizace.obec}`
+            : `${IN.mistoRealizace.ulice}, ${IN.mistoRealizace.psc} ${IN.mistoRealizace.obec}`,
+        Text14: irDescription(IN, t),
+        Text15: '     ' + dateFromISO(SZ.zasah.datum),
+        Text20: SZ.zasah.popis,
+        Text21: SZ.ukony?.doprava ? SZ.ukony.doprava.toNumber().roundTo(2).toLocaleString(lang) : '',
+        Text23: SZ.ukony?.doba ? SZ.ukony.doba.toNumber().roundTo(2).toLocaleString(lang) : '',
+        ...spareParts.slice(0, 13).map((dil, i) => [
+            [`_PráceRow${1 + i}`, { type: 'text', value: dil.name }],
+            [`_KódRow${3 + i}`, { type: 'text', value: dil.code }],
+            [`_fill_${9 + i * 3}`, { type: 'text', value: dil.mnozstvi.toNumber().roundTo(2).toLocaleString(lang) }],
+        ] as const).flat().toRecord(),
+        Text43: {
+            individual: endUserName(IN.koncovyUzivatel),
+            company: IN.koncovyUzivatel.kontaktniOsoba,
+        }[IN.koncovyUzivatel.typ!],
+    }.also(console.log) satisfies PdfGenerationData;
+};
+
 export const pdfNameSP: GetPdfSourceFileName<'SP'> = async ({ data, id, lang, t }) => {
-    const { ensureSP } = await import('$lib/forms/SP/infoSP.svelte');
-    const NSP = generalizeServiceProtocol(data.meta, data.IN, ensureSP(data.SPs[id]), t);
+    const spOrSZ = data.SPs[id];
+    if (!isSZ(spOrSZ)) throw 'Provided data is not a simple intervention'
+    if (!isSP(spOrSZ)) return 'SZ';
+
+    const NSP = makeServiceProtocolIndependent(data.meta, data.IN, spOrSZ, lang);
     return await pdfNameNSP({
         data: NSP, t, lang,
         pumpCount: cascadePumps(data.IN).length,
     });
 }
 
-export const pdfSP: GetPdfData<'SP'> = async ({ data, t, addDoc, id, lang, fetch }) => {
-    const { ensureSP } = await import('$lib/forms/SP/infoSP.svelte');
-    const NSP = generalizeServiceProtocol(data.meta, data.IN, ensureSP(data.SPs[id]), t);
+export default (async ({ data, t, addDoc, id, lang, fetch }) => {
+    const spOrSZ = data.SPs[id];
+    if (!isSZ(spOrSZ)) throw 'Provided data is not a simple intervention'
+    if (!isSP(spOrSZ)) return pdfSP({ data, t, addDoc, id, lang, fetch });
+
+    const NSP = makeServiceProtocolIndependent(data.meta, data.IN, spOrSZ, lang);
     return await pdfNSP({
         data: NSP, t, addDoc, lang, fetch,
         pumpCount: cascadePumps(data.IN).length,
     });
-};
-export default pdfSP;
+}) satisfies GetPdfData<'SP'>;
 
 export const pdfCP: GetPdfData<'CP'> = async ({ data: { NSP } }) => ({
     Text1: endUserName2(NSP.koncovyUzivatel),

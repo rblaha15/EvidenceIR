@@ -1,5 +1,6 @@
+
 import type { EntryGenerator, PageLoad } from './$types';
-import { type IRID, irLabel, irName, type NSPID, spName } from '$lib/helpers/ir';
+import { type IRID, irLabel, irName, isSP, type NSPID, spName } from '$lib/helpers/ir';
 import {
     getCachedIsRegulusOrAdmin,
     getIsAdmin,
@@ -13,7 +14,6 @@ import { getTranslations } from '$lib/translations';
 import { waitForFirst } from '$lib/helpers/stores';
 import { getAllIRs, getAllNSPs, type Results } from '$lib/client/incrementalUpdates';
 import { langEntryGenerator } from '$lib/helpers/paths';
-import { isSP } from '$lib/forms/SP/infoSP.svelte';
 
 export const entries: EntryGenerator = langEntryGenerator;
 

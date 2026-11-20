@@ -1,7 +1,7 @@
 import { type EmailOptions, sendEmailAndUploadAttachments } from '$lib/client/email';
 import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import { derived, writable } from 'svelte/store';
-import { irName, irNumberFromIRID, irWholeName, spName, spWholeName, szName } from '$lib/helpers/ir';
+import { irName, irNumberFromIRID, irWholeName, isSP, spName, spWholeName, szName } from '$lib/helpers/ir';
 import type { Translations } from '$lib/translations';
 import type { Template, TemplateArgs } from '$lib/helpers/templates';
 import { browser } from '$app/environment';
@@ -9,7 +9,6 @@ import { openDB } from 'idb';
 import { type Database, isWriteFunction, type WriteFunction } from "$lib/client/db/def";
 import { grantPointsOnline, type LoyaltyProgramTrigger } from '$lib/client/loyaltyProgram';
 import { isOnline } from '$lib/client/online';
-import { isSP } from '$lib/forms/SP/infoSP.svelte';
 import { mongoDatabase } from "$lib/client/db/mongo";
 
 type HistoryDatabase<F extends keyof Database = keyof Database> = {

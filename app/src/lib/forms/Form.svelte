@@ -102,7 +102,7 @@
                 'subscribe' in storeOrGetter ? storeOrGetter : storeOrGetter(),
             );
             derivedStore(stores, values => values).subscribe(storeValues => callback(
-                storeValues, { context, values, edit: mode === 'edit', t }
+                storeValues, { context, values, mode: mode as Mode, t }
             ));
         });
     });

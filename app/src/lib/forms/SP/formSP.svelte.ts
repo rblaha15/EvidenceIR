@@ -1,24 +1,18 @@
-import type { SparePart } from '$lib/client/db/arrays';
 import {
-    type CounterWidget, type HiddenValueWidget,
+    type HiddenValueWidget,
     type InlinePdfPreviewWidget,
     type InputWidget,
     type MultiCheckboxWidget,
     type RadioWidget,
     type RadioWithInputWidget,
-    type SearchWidget,
 } from '$lib/forms/Widget';
 import { type Form, type Raw, type Values } from '$lib/forms/Form';
 import type { IR } from '$lib/data';
-import type { GenericContextSZ, GenericFormSZ } from '$lib/forms/SP/formSZ';
+import type { GenericContextSZ, GenericFormSZ, SimpleSparePartWidgetGroup } from '$lib/forms/SP/formSZ';
 
-export type SparePartWidgetGroup<C> = {
-    dil: SearchWidget<C, SparePart, true>,
-    name: InputWidget<C>;
-    code: InputWidget<C>;
-    unitPrice: InputWidget<C>;
+export type SparePartWidgetGroup<C> = SimpleSparePartWidgetGroup<C> & {
+    unitPrice: InputWidget<C>,
     warehouse: InputWidget<C>,
-    mnozstvi: InputWidget<C>,
 }
 
 export interface FormSP extends GenericFormSP<ContextSP>, Form<ContextSP> {
@@ -60,12 +54,7 @@ export interface GenericFormSP<C extends GenericContextSP<C>> extends GenericFor
         ukony: MultiCheckboxWidget<C, Operation>,
         typPrace: RadioWidget<C, `assemblyWork` | `technicalAssistance` | `assemblyWork12`>,
         taxRate: RadioWidget<C, `12` | `21`>,
-        doba: InputWidget<C>,
-        doprava: InputWidget<C>,
-    },
-    nahradniDily: {
-        pocet: CounterWidget<C>,
-    },
+    } & GenericFormSZ<C>['ukony'],
     nahradniDil1: SparePartWidgetGroup<C>,
     nahradniDil2: SparePartWidgetGroup<C>,
     nahradniDil3: SparePartWidgetGroup<C>,

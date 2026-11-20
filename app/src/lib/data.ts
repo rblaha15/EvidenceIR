@@ -18,7 +18,7 @@ import type { FormRKS } from '$lib/forms/RKS/formRKS';
 import type { FormRKTL } from '$lib/forms/RKT/formRKTL';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
-import type { FormSZ } from '$lib/forms/SP/formSZ';
+import type { BaseFormSZ, FormSZ } from '$lib/forms/SP/formSZ';
 import type { FriendlyCompanies } from '$lib/client/db/arrays';
 import type { PdfDefiningParameter, PdfToSign, PdfWithDefiningParameter } from '$lib/pdf/pdf';
 import type { MatchKeysAndValues } from "mongodb";
@@ -114,7 +114,7 @@ interface BaseIR {
             SOL?: RecommendationSettings;
         };
     };
-    SPs: Record<SPID, Raw<FormSP | FormSZ>>;
+    SPs: Record<SPID, Raw<FormSP | FormSZ | BaseFormSZ>>;
     FT?: Raw<FormFT>;
 }
 

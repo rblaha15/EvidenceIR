@@ -1,10 +1,15 @@
-import type { OpenPdfOptions, Pdf } from '$lib/pdf/pdf';
-import type { Form } from '$lib/forms/Form';
-import type { IRID } from '$lib/helpers/ir';
-import { detailUrlIR } from '$lib/helpers/runes.svelte.js';
-import type { FormInfo, IndependentFormInfo } from '$lib/forms/FormInfo';
-import { error } from '@sveltejs/kit';
 import db from '$lib/client/db';
+import type { ExistingIR, ExistingNSP } from '$lib/data';
+import type { Form, Raw } from '$lib/forms/Form';
+import type { FormInfo, IndependentFormInfo } from '$lib/forms/FormInfo';
+import type { FormIN } from '$lib/forms/IN/formIN';
+import type { FormSP } from '$lib/forms/SP/formSP.svelte';
+import { extractSPIDFromRawData, irDescription, type IRID } from '$lib/helpers/ir';
+import { detailUrlIR } from '$lib/helpers/runes.svelte.js';
+import type { LanguageCode } from '$lib/languageCodes';
+import type { OpenPdfOptions, Pdf } from '$lib/pdf/pdf';
+import { getTranslations } from '$lib/translations';
+import { error } from '@sveltejs/kit';
 
 export const removeDependency = async <
     D,
@@ -45,3 +50,22 @@ export const removeDependency = async <
         onMount: args => onMount?.({ ...args, ir }),
     };
 };
+
+export const makeServiceProtocolIndependent = (
+    meta: ExistingIR['meta'], IN: Raw<FormIN>, SP: Raw<FormSP>, pdfLang: LanguageCode,
+) => ({
+    deleted: false,
+    meta: {
+        ...meta,
+        id: extractSPIDFromRawData(SP.zasah),
+        createdAt: meta.createdAt || meta.changedAt,
+    },
+    NSP: {
+        ...IN,
+        ...SP,
+        system: {
+            ...SP.system,
+            popis: irDescription(IN, getTranslations(pdfLang)),
+        },
+    },
+}) satisfies ExistingNSP;

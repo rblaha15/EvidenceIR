@@ -1,4 +1,4 @@
-import { get, type Translations } from '$lib/translations';
+import { type Translations } from '$lib/translations';
 import type { SaveOptions } from 'pdf-lib';
 import type { ExistingIR, ExistingNSP, Year } from '$lib/data';
 import type { PdfGenerationData } from '$lib/pdf/pdfGeneration';
@@ -14,12 +14,8 @@ import SP, { pdfCP as CP, pdfNameNSP, pdfNameSP, pdfNSP as NSP } from '$lib/pdf/
 import UPF from '$lib/pdf/generators/pdfUPF';
 import FT from '$lib/pdf/generators/pdfFT';
 import type { TC } from '$lib/forms/IN/defaultIN';
-import { extractSPIDFromRawData, type IRID, irName, type NSPID, type SPID } from '$lib/helpers/ir';
-import { cascadePumps } from '$lib/forms/IN/infoIN';
+import { type IRID, type NSPID, type SPID, type SZID } from '$lib/helpers/ir';
 import type { LanguageCode } from '$lib/languageCodes';
-import type { Raw } from '$lib/forms/Form';
-import type { FormIN } from '$lib/forms/IN/formIN';
-import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 
 type AllPdf = {
     /** Zastaralá roční kontrola TČ */
@@ -58,7 +54,7 @@ type AllPdf = {
     UPS: 'IR'
     /** Uvedení FVE do provozu */
     UPF: 'IR'
-    /** Servisní protokol */
+    /** Servisní protokol nebo servisní zásah */
     SP: 'IR'
     /** Jste spokojeni s tepelným čerpadlem Regulus? */
     RS: ''
@@ -78,7 +74,7 @@ export type PdfToSign<T extends 'IR' | 'NSP' = 'IR' | 'NSP'> =
 
 export type PdfDefiningParameter<P extends PdfWithDefiningParameter = PdfWithDefiningParameter> = {
     ZLT: number,
-    SP: SPID,
+    SP: SPID | SZID,
 }[P];
 export const pdfWithDefiningParameter = {
     ZLT: 'pump',
@@ -217,7 +213,6 @@ export const pdfInfo: PdfInfo = {
         supportedLanguages: ['cs'],
         title: t => t.sp.title,
         getPdfData: SP,
-        requiredRegulus: true,
         doNotFlatten: true,
     },
     NSP: {
@@ -337,41 +332,10 @@ type PdfParams = {
         pump: TC,
     },
     SP: {
-        id: SPID,
+        id: SPID | SZID,
     },
     NSP: {
         pumpCount?: number,
     },
 };
 export type PdfParameters<P extends Pdf> = P extends keyof PdfParams ? PdfParams[P] : {};
-
-export const generalizeServiceProtocol = (
-    meta: ExistingIR['meta'], IN: Raw<FormIN>, SP: Raw<FormSP>, t: Translations,
-) => ({
-    deleted: false,
-    meta: {
-        ...meta,
-        id: extractSPIDFromRawData(SP.zasah),
-        createdAt: meta.createdAt || meta.changedAt,
-    },
-    NSP: {
-        ...IN,
-        ...SP,
-        system: {
-            ...SP.system,
-            popis:
-                irName(IN.ir) +
-                (IN.cisloBox ? `; BOX: ${IN.cisloBox}` : '') +
-                (IN.tanks?.accumulation || IN.tanks?.water ? '\n' : '') +
-                (IN.tanks?.accumulation ? `Nádrž: ${IN.tanks.accumulation}` : '') +
-                (IN.tanks?.accumulation && IN.tanks?.water ? '; ' : '') +
-                (IN.tanks?.water ? `Zásobník: ${IN.tanks.water}` : '') +
-                (IN.ir.chceVyplnitK.includes('solarCollector') ? `\nSOL: ${IN.sol.typ} – ${IN.sol.pocet}x` : '') +
-                (IN.rek?.typ ? `\nREK: ${IN.rek.typ}` : '') +
-                (IN.fve?.pocet ? `\nFVE: ${get(t.in.fve, IN.fve.typ)} – ${IN.fve.pocet}x` : '') +
-                (IN.fve?.akumulaceDoBaterii ? `; baterie: ${IN.fve.typBaterii} – ${IN.fve.kapacitaBaterii} kWh` : '') +
-                (IN.jine?.popis ? `\nJiné zařízení: ${IN.jine.popis}` : '') +
-                (IN.tc.model ? '\n' + cascadePumps(IN).map(t.sp.pumpDetails).join('; ') : ''),
-        },
-    },
-}) satisfies ExistingNSP;

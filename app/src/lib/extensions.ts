@@ -331,8 +331,8 @@ declare global {
 
         mapNotUndefined<T, U>(
             this: T[],
-            callback: (value: T, index: number, array: T[]) => U | undefined,
-        ): U[];
+            callback: (value: T, index: number, array: T[]) => U,
+        ): NonNullable<U>[];
 
         filterNotUndefined<T>(
             this: T[],

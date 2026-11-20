@@ -5,9 +5,9 @@
     import SuccessAlert from '$lib/components/alerts/SuccessAlert.svelte';
     import Widget from '$lib/components/forms/Widget.svelte';
     import { localeDefaultLanguageCode } from '$lib/helpers/globals';
+    import { isSP } from '$lib/helpers/ir';
     import { getTranslations } from '$lib/translations';
     import { dateFromISO, dayISO } from '$lib/helpers/date';
-    import { isSP } from '$lib/forms/SP/infoSP.svelte';
     import { newInputWidget } from '$lib/forms/Widget';
     import { Button } from "$lib/components/ui/button";
 

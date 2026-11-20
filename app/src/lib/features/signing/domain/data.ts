@@ -5,9 +5,9 @@ import type { FormIN } from '$lib/forms/IN/formIN';
 import type { FormNSP } from '$lib/forms/NSP/formNSP';
 import type { FormSP } from '$lib/forms/SP/formSP.svelte';
 import type { FormSZ } from '$lib/forms/SP/formSZ';
-import { isSP } from '$lib/forms/SP/infoSP.svelte';
+
 import { localeDefaultLanguageCode } from '$lib/helpers/globals';
-import { endUserEmails, endUserName, type IRID, type NSPID, type SPID } from '$lib/helpers/ir';
+import { endUserEmails, endUserName, type IRID, isSP, type NSPID, type SPID } from '$lib/helpers/ir';
 import {
     type GeneratePdfOptions,
     type Pdf,
@@ -73,7 +73,8 @@ export const getSigningInfo = (def: DocumentDefinition, ir: IR | null, nsp: NSP 
         ({ name: endUserName(u), phone: addCzechCountryCode(u.telefon), email: endUserEmails(u)[0] });
     const signingByCompany = (c: Company) =>
         ({ name: c.zastupce, phone: addCzechCountryCode(c.telefon), email: c.email });
-    const isSignedByInvestor = def.pdf != 'NSP' && def.pdf != 'SP'
+    const isSignedByInvestor = (def.pdf != 'NSP' && def.pdf != 'SP')
+        || !allowSigningSP(SP(def.pdf))
         || SP(def.pdf).fakturace.komu.chosen == 'investor'
         || SP(def.pdf).fakturace.komu.chosen == null;
     const signingBy = !allowSigning ? null! : isSignedByInvestor

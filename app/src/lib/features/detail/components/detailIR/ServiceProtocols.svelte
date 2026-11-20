@@ -1,13 +1,12 @@
 <script lang="ts">
-    import { type IRID, type SPID, spName, szName } from '$lib/helpers/ir';
+    import { ButtonGroup } from '$lib/components/ui/button-group';
+    import type { ExistingIR } from '$lib/data';
+    import { type IRID, isSP, isSZ, type SPID, spName, szName } from '$lib/helpers/ir';
     import type { Translations } from '$lib/translations';
     import { iridUrl } from '$lib/helpers/runes.svelte.js';
     import PDFLink from '$lib/features/detail/components/documentsIR/PDFLink.svelte';
     import type { LanguageCode } from '$lib/languageCodes';
-    import type { ExistingIR } from '$lib/data';
     import { copySP, deleteSP } from '$lib/features/detail/actions/detailIR/sp';
-    import { isSP } from '$lib/forms/SP/infoSP.svelte';
-    import SmallDropdown from '$lib/components/SmallDropdown.svelte';
     import { Button } from '$lib/components/ui/button';
     import { isRegulusOrAdmin } from '$lib/client/auth';
     import { Copy, Eye, FilePen, Plus, Trash2 } from "@lucide/svelte";
@@ -22,7 +21,6 @@
         AlertDialogTitle,
     } from "$lib/components/ui/alert-dialog";
     import { Spinner } from "$lib/components/ui/spinner";
-    import { ButtonGroup } from "$lib/components/ui/button-group";
 
     const {
         irid, ir, lang, t,
@@ -47,28 +45,31 @@
 {#if any}
     <div class="flex flex-col gap-1 sm:items-start">
         {#each sorted as [id, p]}
-            {@const showSP = isSP(p) && r}
-            {#if showSP}
+            {#if isSP(p) || isSZ(p)}
+                {@const form = isSP(p) ? 'SP' : 'SZ'}
+                {@const name = isSP(p) ? spName(p.zasah) : szName(p.zasah)}
                 <PDFLink
-                    name={spName(p.zasah)} data={ir} {t} {lang} link="SP" {id} {irid} dropdownItems={[{
+                    {name} data={ir} {t} {lang} link="SP" {id} {irid} dropdownItems={[{
                         variant: 'default',
                         icon: Eye,
                         text: td.viewFilledData,
-                        href: iridUrl(`/SP/?view=${id}`),
+                        href: iridUrl(`/${form}/?view=${id}`),
                     }, {
                         variant: 'warning',
                         icon: FilePen,
-                        text: td.editProtocol,
-                        href: iridUrl(`/SP/?edit=${id}`),
+                        text: isSP(p) ? td.editProtocol : td.editIntervention,
+                        href: iridUrl(`/${form}/?edit=${id}`),
                     }, {
                         variant: 'default',
                         icon: Trash2,
                         text: td.delete,
+                        hide: !r,
                         onSelect: () => openedDeleteModal = id,
                     }, {
                         variant: 'default',
                         icon: Copy,
                         text: td.duplicate,
+                        hide: !isSP(p),
                         onSelect: () => openedDuplicateModal = id,
                     }]} signed={ir.signatures?.SP?.[id]?.state == 'signed'}
                 />
@@ -78,14 +79,6 @@
                         <Eye />
                         {szName(p.zasah)}
                     </Button>
-                    {#if !isSP(p)}
-                        <SmallDropdown dropdownItems={[{
-                            variant: 'warning',
-                            icon: FilePen,
-                            text: td.editIntervention,
-                            href: iridUrl(`/SZ/?edit=${id}`),
-                        }]} />
-                    {/if}
                 </ButtonGroup>
             {/if}
         {/each}

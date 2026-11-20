@@ -1,12 +1,15 @@
-import type { FormIN, IRTypes, UserForm, UserFormContext } from '$lib/forms/IN/formIN';
-import type { Raw } from '$lib/forms/Form';
-import type { GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
-import type { GenericFormSZ } from '$lib/forms/SP/formSZ';
-import type { FormNSP } from '$lib/forms/NSP/formNSP';
-import { separatorsRegExp } from '$lib/forms/IN/defaultIN';
 import type { IR } from '$lib/data';
+import type { Raw } from '$lib/forms/Form';
+import { separatorsRegExp } from '$lib/forms/IN/defaultIN';
+import type { FormIN, IRTypes, UserForm, UserFormContext } from '$lib/forms/IN/formIN';
+import { cascadePumps } from '$lib/forms/IN/infoIN';
+import type { FormNSP } from '$lib/forms/NSP/formNSP';
+import type { FormSP, GenericFormSP } from '$lib/forms/SP/formSP.svelte.js';
+import type { BaseFormSZ, FormSZ, GenericBaseFormSZ } from '$lib/forms/SP/formSZ';
+
 import { datetimeFromISO, timeFromISO } from '$lib/helpers/date';
-import { isSP } from '$lib/forms/SP/infoSP.svelte';
+import { get, type Translations } from '$lib/translations';
+import { error } from '@sveltejs/kit';
 
 /**
  * IR14CTC R8 2547 : Novák Jan - Brno
@@ -62,7 +65,7 @@ export const spName = (zasah: Raw<GenericFormSP<never>>['zasah']) => {
 /**
  * Roman Bláha 31. 12. 2024 23:59
  */
-export const szName = (zasah: Raw<GenericFormSZ<never>>['zasah']) => {
+export const szName = (zasah: Raw<GenericBaseFormSZ<never>>['zasah']) => {
     const datum = datetimeFromISO(zasah.datum);
     const technik = zasah.clovek;
     return `${technik} ${datum}`;
@@ -223,7 +226,14 @@ export const extractSPIDFromRawData = (zasah: Raw<GenericFormSP<never>['zasah']>
     return `${technik}-${datum}-${hodina}-${minuta}`;
 };
 
-export const extractIDFromSPOrSZ = (p: Raw<GenericFormSZ<never>>): SPID | SZID => {
+export const isSP = (raw: Raw<FormSP | FormSZ | BaseFormSZ> | undefined): raw is Raw<FormSP> =>
+    !!raw && ('fakturace' in raw);
+export const isSZ = (raw: Raw<FormSZ | BaseFormSZ> | undefined): raw is Raw<FormSZ> =>
+    !!raw && ('ukony' in raw);
+export const ensureSP = (raw: Raw<FormSP | FormSZ | BaseFormSZ> | undefined) =>
+    isSP(raw) ? raw : error(400, { message: 'Provided data is not a protocol' });
+
+export const extractIDFromSPOrSZ = (p: Raw<GenericBaseFormSZ<never>>): SPID | SZID => {
     const datum = p.zasah.datum.split('T')[0] || '';
     const hodina = p.zasah.datum.split('T')[1]?.split(':')?.[0] || '';
     const minuta = p.zasah.datum.split('T')[1]?.split(':')?.[1] || '';
@@ -241,3 +251,31 @@ export const doesNotHaveIRNumber = (t: IR['IN']['ir']['typ']) => t.first == 'oth
 export const supportsRemoteAccess = (t: IRTypes | null) => t != 'other' && t != 'SOREL' && t != 'ctc' && t != 'Thermona';
 export const isBox = (t: IRTypes | null) => t == 'IR RegulusBOX' || t == 'IR RegulusBOX-E' || t == 'IR RegulusHBOX' || t == 'IR RegulusHBOX K';
 export const hasIndoorUnit = (t: IRTypes | null) => isBox(t) || t == 'Thermona';
+
+/**
+ * IR RegulusBOX CTC R8 2547; BOX 12 CTC 3/3 1805406-2248427
+ *
+ * Akumulační nádrž: PS 1000 E; Zásobník: RBC 200
+ *
+ * SOL: 8x KPS1
+ *
+ * REK: Sentinel Kinetic B
+ *
+ * FVE: 4x DG-450-B; baterie: T30 – 10 kWh
+ *
+ * Jiné zařízení: Krb
+ *
+ * TČ1: EcoAir 420 – 7311-1533-0295; TČ2: EcoAir 420 – 7311-1533-0310; TČ3: EcoAir 420 – 7311-1547-0535; TČ4: EcoAir 420 – 7311-1533-0297
+ */
+export const irDescription = (IN: Raw<FormIN>, t: Translations) => irName(IN.ir) +
+    (IN.ir.cisloBox ? `; ${typBOX(IN.ir.cisloBox)} ${IN.ir.cisloBox}` : '') +
+    (IN.tanks?.accumulation || IN.tanks?.water ? '\n' : '') +
+    (IN.tanks?.accumulation ? `${t.in.device.accumulation}: ${IN.tanks.accumulation}` : '') +
+    (IN.tanks?.accumulation && IN.tanks?.water ? '; ' : '') +
+    (IN.tanks?.water ? `${t.in.device.waterStorage}: ${IN.tanks.water}` : '') +
+    (IN.ir.chceVyplnitK.includes('solarCollector') ? `\nSOL: ${IN.sol.pocet}x ${IN.sol.typ}` : '') +
+    (IN.rek?.typ ? `\nREK: ${IN.rek.typ}` : '') +
+    (IN.fve?.pocet ? `\nFVE: ${IN.fve.pocet}x ${get(t.in.fve, IN.fve.typ)}` : '') +
+    (IN.fve?.akumulaceDoBaterii ? `; ${t.in.batteries}: ${IN.fve.typBaterii} – ${IN.fve.kapacitaBaterii} kWh` : '') +
+    (IN.jine?.popis ? `\n${t.in.device.other}: ${IN.jine.popis}` : '') +
+    (IN.tc.model ? '\n' + cascadePumps(IN).map(t.tc.pumpDetails).join('; ') : '');

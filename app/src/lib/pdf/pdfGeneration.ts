@@ -75,14 +75,14 @@ export const generatePdfFile = async <P extends Pdf>(
 export const generatePdf = async <P extends Pdf>(
     o: GeneratePdfOptions<P>,
 ) => {
-    const { lang, data, pages, fetch = window.fetch } = o;
+    const { lang: desiredLanguage, data, pages, fetch = window.fetch } = o;
     const args = pdfInfo[o.link];
 
-    const formLanguage = args.supportedLanguages.includes(lang) ? lang : args.supportedLanguages[0];
-    const t = getTranslations(formLanguage);
+    const lang = args.supportedLanguages.includes(desiredLanguage) ? desiredLanguage : args.supportedLanguages[0];
+    const t = getTranslations(lang);
 
     const pdfSourceFileName = typeof args.pdfName == 'string' ? args.pdfName : await args.pdfName({ ...o, t, data, lang });
-    const formLocation = `/pdf/${pdfSourceFileName}_${formLanguage}.pdf`;
+    const formLocation = `/pdf/${pdfSourceFileName}_${lang}.pdf`;
     const formPdfBytes = await (await fetch(formLocation, { cache: 'reload' })).arrayBuffer();
 
     const pdfDoc = await PDFDocument.load(formPdfBytes);
