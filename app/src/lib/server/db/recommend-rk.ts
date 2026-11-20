@@ -2,7 +2,7 @@ import { dev } from '$app/environment';
 import { cervenka, SENDER } from '$lib/client/email';
 import type { IR, RecommendationData, RecommendationSettings } from '$lib/data';
 import MailCheckReminder from '$lib/emails/MailCheckReminder.svelte';
-import ares from '$lib/helpers/ares';
+import ares, { regulusCRN } from '$lib/helpers/ares';
 import { appUrl } from '$lib/helpers/globals';
 import { endUserEmails, endUserName, extractIRIDFromRawData, type IRID, irName } from '$lib/helpers/ir';
 import { detailUrlIR } from '$lib/helpers/runes.svelte';
@@ -121,22 +121,26 @@ const processRecommendations = async (
 const sendRecommendation = async ({ ir, irid, settings, type, fetch }: SystemArgs & AppArgs) => {
     const code = crypto.randomUUID();
     const companyType = settings.executingCompany;
-    if (companyType == 'regulus') {
-        await changeRecommendationState(irid, 'sentRequest', type);
-        return;
-    }
 
     const getCompany = async () => {
-        const crn = companyType == 'assembly' ? ir.IN.montazka.ico : ir.IN.uvedeni.ico;
-        const a = await ares.getName(crn, fetch);
-        return a ? `${a} (${crn})` : crn;
+        const crn = {
+            regulus: regulusCRN.toString(),
+            assembly: ir.IN.montazka.ico,
+            commissioning: ir.IN.uvedeni.ico,
+        }[companyType];
+        const companyName = await ares.getName(crn, fetch);
+        return companyName ? `${companyName} (IČO ${crn})` : crn;
     };
     const user = endUserName(ir.IN.koncovyUzivatel);
     const data = {
         irid, user, type,
         location: `${ir.IN.mistoRealizace.ulice}, ${ir.IN.mistoRealizace.psc} ${ir.IN.mistoRealizace.obec}`,
         company: await getCompany(),
-        companyEmail: companyType == 'assembly' ? ir.IN.montazka.email : ir.IN.uvedeni.email,
+        companyEmail: {
+            regulus: 'servis@regulus.cz',
+            assembly: ir.IN.montazka.email,
+            commissioning: ir.IN.uvedeni.email,
+        }[companyType],
     };
     await createDK(code, data);
     const link = `${appUrl}/request?code=${code}`;
@@ -194,7 +198,7 @@ export const sendRequest = async (code: string) => {
     const html = requestEmail(info, link);
     await sendEmail({
         from: SENDER(),
-        to: { name: info.company, address: dev ? 'radek.blaha.15@gmail.com' : info.companyEmail },
+        to: dev ? 'radek.blaha.15@gmail.com' : info.companyEmail,
         replyTo: { name: 'David Červenka', address: 'david.cervenka@regulus.cz' },
         subject: `Žádost o roční kontrolu ${info.type}`,
         html, text: htmlToText(html),
