@@ -1,12 +1,11 @@
 import { dateFromISO, dayISO } from '$lib/helpers/date';
-import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import { type GetPdfData } from '$lib/pdf/pdf';
 import { endUserName, irType, typBOX } from '$lib/helpers/ir';
 import { cascadePumps } from '$lib/forms/IN/infoIN';
 import { get } from '$lib/translations';
 import ares, { regulusCRN } from '$lib/helpers/ares';
 
-export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t, addDoc, fetch }) => {
+export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t, addDoc, fetch, lang }) => {
     const { IN, UP: { TC: UP, dateTC } } = data;
     if (!UP) throw new Error("UP TC not filled");
     const tu = t.tc;
@@ -14,13 +13,13 @@ export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t, addDoc, fetch }) =>
     const isCascade = Boolean(IN.tc.model2);
 
     // await addDoc({
-    //     lang: localeDefaultLanguageCode,
+    //     lang: lang,
     //     link: 'NNT',
     //     data: {},
     // })
 
     await addDoc({
-        lang: localeDefaultLanguageCode,
+        lang: lang,
         link: UP.reg.souhlasSPristupem && UP.reg.pripojeniKInternetu != 'notConnected' ? 'SZUS' : 'SZUB',
         data: data,
     });
@@ -81,7 +80,7 @@ export const pdfUPTL: GetPdfData<'UPTL'> = async ({ data, t, addDoc, fetch }) =>
     });
 };
 
-const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
+const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc, lang }) => {
     const { IN, UP: { TC: UP, dateTC } } = data;
     if (!UP) throw new Error("UP TC not filled");
     const tu = t.tc;
@@ -89,13 +88,13 @@ const pdfUPT: GetPdfData<'UPT'> = async ({ data, t, addDoc }) => {
     const isCascade = Boolean(IN.tc.model2);
 
     // await addDoc({
-    //     lang: localeDefaultLanguageCode,
+    //     lang: lang,
     //     link: 'NNT',
     //     data: {},
     // })
 
     await addDoc({
-        lang: localeDefaultLanguageCode,
+        lang: lang,
         link: UP.reg.souhlasSPristupem && UP.reg.pripojeniKInternetu != 'notConnected' ? 'SZUS' : 'SZUB',
         data: data,
     });

@@ -1,7 +1,6 @@
 // noinspection JSNonASCIINames
 
 import { dateFromISO, dayISO } from '$lib/helpers/date';
-import { localeDefaultLanguageCode } from '$lib/helpers/globals';
 import type { GetPdfData } from '$lib/pdf/pdf';
 import { endUserName } from '$lib/helpers/ir';
 import { range } from '$lib/extensions';
@@ -16,7 +15,7 @@ const pdfUPF: GetPdfData<'UPF'> = async ({ data: { IN, UP: { FVE: UP }, }, t, la
     ].slice(0, UP.fields.count)
 
     await addDoc({
-        lang: localeDefaultLanguageCode,
+        lang: lang,
         link: 'NNF',
         data: {},
     });

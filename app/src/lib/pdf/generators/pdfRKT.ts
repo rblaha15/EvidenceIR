@@ -44,8 +44,8 @@ export const pdfRKTL: GetPdfData<'RKTL'> = async ({ data, t, pump, lastYear, add
         link: nextStartYear > maxLegacyYear ? 'RKT' : 'RKTL',
         data, lang, pump, lastYear: nextStartYear - 1 as Year,
     });
-    else if (lang == 'cs') await addDoc({
-        lang: localeDefaultLanguageCode,
+    else if (lang == localeDefaultLanguageCode) await addDoc({
+        lang: lang,
         link: 'RS',
         data: {},
         fetch,
@@ -76,8 +76,8 @@ export const pdfRKTL: GetPdfData<'RKTL'> = async ({ data, t, pump, lastYear, add
     const veci = checks.mapTo((rok, kontrola, i) => {
         if (!kontrola) return [];
         const k = valuesToRawData(defaultRKTL(rok, []), rawDataToValues(defaultRKTL(rok, []), kontrola)); // seřazení informací
-        k.kontrolniUkonyRegulace.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly = calculateCompressorRuntime(argsHP, rok).roundTo().toLocaleString(localeDefaultLanguageCode);
-        k.kontrolniUkonyRegulace.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly = calculateCompressorRuntime(argsHW, rok).roundTo().toLocaleString(localeDefaultLanguageCode);
+        k.kontrolniUkonyRegulace.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly = calculateCompressorRuntime(argsHP, rok).roundTo().toLocaleString(lang);
+        k.kontrolniUkonyRegulace.prumernaDobaChoduKompresoruDoTvMinOdPosledniKontroly = calculateCompressorRuntime(argsHW, rok).roundTo().toLocaleString(lang);
         const array = k.omit('info', 'poznamky').getValues().flatMap(obj => obj.getValues());
         const start =
             1 + // Indexujeme od 1
@@ -150,8 +150,8 @@ const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang
     if (yearsLeft.length) await addDoc({
         data, lang, link: 'RKT', pump, lastYear: nextStartYear - 1 as Year,
     });
-    else if (lang == 'cs') await addDoc({
-        lang: localeDefaultLanguageCode,
+    else if (lang == localeDefaultLanguageCode) await addDoc({
+        lang: lang,
         link: 'RS',
         data: {},
     });
@@ -190,8 +190,8 @@ const pdfRKT: GetPdfData<'RKT'> = async ({ data, t, pump, lastYear, addDoc, lang
     const veci = checks.mapTo((rok, kontrola, i) => {
         if (!kontrola) return [];
         const k = valuesToRawData(defaultRKT(rok, []), rawDataToValues(defaultRKT(rok, []), kontrola)); // seřazení informací
-        k.kontrolaRegulace.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly = calculateCompressorRuntime(argsHP, rok).roundTo().toLocaleString(localeDefaultLanguageCode);
-        k.kontrolaRegulace.prumernaDobaChoduKompresoruDoTepleVodyMinOdPosledniKontroly = calculateCompressorRuntime(argsHW, rok).roundTo().toLocaleString(localeDefaultLanguageCode);
+        k.kontrolaRegulace.prumernaCelkovaDobaChoduKompresoruMinOdPosledniKontroly = calculateCompressorRuntime(argsHP, rok).roundTo().toLocaleString(lang);
+        k.kontrolaRegulace.prumernaDobaChoduKompresoruDoTepleVodyMinOdPosledniKontroly = calculateCompressorRuntime(argsHW, rok).roundTo().toLocaleString(lang);
         const array = k.omit('info', 'poznamky').getValues().flatMap(obj => obj.omit('kontrolaPojistovacichVentiluPoznamka' as never).getValues());
 
         return array.map((v, j) => [
