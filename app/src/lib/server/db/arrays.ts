@@ -36,7 +36,7 @@ export const getHeatPumps = () =>
 
 export const setSpareParts = async (spareParts: SparePart[]) => {
     await sparePartCollection.deleteMany({ code: { $nin: spareParts.map(it => it.code) } });
-    await sparePartCollection.bulkWrite(spareParts.map(sparePart => ({
+    if (spareParts.length) await sparePartCollection.bulkWrite(spareParts.map(sparePart => ({
         replaceOne: {
             filter: { code: sparePart.code },
             replacement: sparePart,
@@ -47,7 +47,7 @@ export const setSpareParts = async (spareParts: SparePart[]) => {
 
 export const setHeatPumps = async (heatPumps: HetaPumpDetails[]) => {
     await heatPumpCollection.deleteMany({ model: { $nin: heatPumps.map(it => it.model) } });
-    await heatPumpCollection.bulkWrite(heatPumps.map(heatPump => ({
+    if (heatPumps.length) await heatPumpCollection.bulkWrite(heatPumps.map(heatPump => ({
         replaceOne: {
             filter: { model: heatPump.model },
             replacement: heatPump,
@@ -61,7 +61,7 @@ export const getTechnicians = () =>
 
 export const setTechnicians = async (technicians: Technician[]) => {
     await technicianCollection.deleteMany({ email: { $nin: technicians.map(it => it.email) } });
-    await technicianCollection.bulkWrite(technicians.map(technician => ({
+    if (technicians.length) await technicianCollection.bulkWrite(technicians.map(technician => ({
         replaceOne: {
             filter: { email: technician.email },
             replacement: technician,
@@ -81,7 +81,7 @@ export const getCompanyByCRN = (crn: string) => companyCollection
 
 export const setCompanies = async (companies: Company[]) => {
     await companyCollection.deleteMany({ email: { $nin: companies.map(it => it.email) } });
-    await companyCollection.bulkWrite(companies.map(company => ({
+    if (companies.length) await companyCollection.bulkWrite(companies.map(company => ({
         replaceOne: {
             filter: { email: company.email },
             replacement: company,
@@ -98,7 +98,7 @@ export const getPersonByEmail = (email: string) =>
 
 export const setPeople = async (people: Person[]) => {
     await personCollection.deleteMany({ email: { $nin: people.map(it => it.email) } });
-    await personCollection.bulkWrite(people.map(person => ({
+    if (people.length) await personCollection.bulkWrite(people.map(person => ({
         replaceOne: {
             filter: { email: person.email },
             replacement: person,
