@@ -7,8 +7,7 @@ import { endUserName, irType } from '$lib/helpers/ir';
 const pdfFT: GetPdfData<'FT'> = async ({ data: { FT, IN } }) => {
     if (!FT) throw new Error("FT not filled");
     const ctc = IN.ir.typ.second == 'CTC';
-    const f = (v: { chosen: string | null, text: string }) =>
-        v.text ? v.chosen ? `${v.chosen} – ${v.text}` : v.text : v.chosen || '—'
+    const f = (v: { chosen: string | null, text: string }) => v.text || v.chosen || '—'
     return {
         _typ: { type: 'text', value: irType(IN.ir.typ) },
         _uživatel: { type: 'text', value: endUserName(IN.koncovyUzivatel) },
